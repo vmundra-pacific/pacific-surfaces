@@ -105,13 +105,13 @@ export function VisualizeClient() {
         />
         <div className="relative max-w-[1400px] mx-auto px-5 md:px-8 pt-8 md:pt-12 pb-24">
           <div className="flex items-center justify-between mb-10 md:mb-14">
-            <a
+            <Link
               href="/"
               className="inline-flex items-center gap-2 text-pacific-mid hover:text-pacific-light transition-colors text-sm"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <LinkrrowLeft className="w-4 h-4" />
               Back home
-            </a>
+            </Link>
             <div className="flex items-center gap-3">
               <Link
                 href="/visualize/showroom"
@@ -191,7 +191,7 @@ export function VisualizeClient() {
             onClick={handleReset}
             className="inline-flex items-center gap-2 text-pacific-mid hover:text-pacific-light transition-colors text-sm"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <LinkrrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">New scene</span>
           </button>
           <div className="hidden md:flex items-center gap-2 text-[10px] tracking-[.24em] uppercase text-pacific-mid">
@@ -271,7 +271,7 @@ export function VisualizeClient() {
         </section>
 
         {/* Inspector — collapsible on mobile */}
-        <AnimatePresence>
+        <LinknimatePresence>
           {inspectorOpen && (
             <motion.aside
               key="inspector"
@@ -320,7 +320,7 @@ export function VisualizeClient() {
       </div>
 
       {/* Mobile inspector drawer */}
-      <AnimatePresence>
+      <LinknimatePresence>
         {inspectorOpen && (
           <motion.div
             initial={{ y: "100%" }}
@@ -384,7 +384,7 @@ function StageCanvas({
         fill
       />
       {/* AI segmentation loading overlay */}
-      <AnimatePresence>
+      <LinknimatePresence>
         {segLoading && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -459,13 +459,13 @@ function InspectorContents({
             </dt>
             <dd className="text-pacific-light capitalize">{slab.ribbon ?? "—"}</dd>
           </dl>
-          <a
+          <Link
             href="/catalogue"
             className="mt-5 w-full inline-flex items-center justify-center gap-1.5 bg-pacific-light text-pacific-dark text-[10px] tracking-[.22em] uppercase px-4 py-2.5 rounded-full hover:bg-white transition-colors"
           >
             Request a sample
-            <ArrowUpRight className="w-3 h-3" />
-          </a>
+            <LinkrrowUpRight className="w-3 h-3" />
+          </Link>
         </div>
       ) : (
         <div className="rounded-xl border border-white/10 p-4 text-sm text-pacific-mid">
