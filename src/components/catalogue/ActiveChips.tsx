@@ -67,10 +67,11 @@ export function ActiveChips({ api }: { api: FilterApi }) {
             transition={{ duration: 0.18, ease: [0.2, 0.9, 0.3, 1] }}
             className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 pl-3.5 pr-1 py-1 text-xs text-white"
           >
-            <span className="text-pacific-mid">{CATEGORY_LABEL[chip.key]}:</span>
+            <span className="text-pacific-mid">
+              {CATEGORY_LABEL[chip.key]}:
+            </span>
             <span>{chip.label}</span>
             <button
-              // @ts-expect-error  — chip.value type is a union; toggle is typed per-key
               onClick={() => api.remove(chip.key, chip.value)}
               aria-label={`Remove ${chip.label}`}
               className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-pacific-dark/60 text-pacific-light transition-colors hover:bg-pacific-dark"
