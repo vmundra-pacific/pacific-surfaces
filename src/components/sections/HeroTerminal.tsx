@@ -52,16 +52,6 @@ export function HeroTerminal() {
         {/* Grain overlay */}
         <div className="absolute inset-0 z-10 opacity-[0.03] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiMwMDAwMDAiIGZpbGwtb3BhY2l0eT0iMC4xIiBmaWx0ZXI9InVybCgjYSkiLz48L3N2Zz4=')]" />
 
-        {/* Scroll indicator */}
-        <motion.div
-          style={{ opacity: scrollIndicatorOpacity }}
-          className="absolute top-8 left-8 z-30"
-        >
-          <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-white/60">
-            Scroll to explore
-          </span>
-        </motion.div>
-
         {/* Headlines container */}
         <div className="relative z-20 max-w-6xl mx-auto px-6 w-full h-full flex items-center">
           {/* Headline 1 */}
@@ -123,11 +113,14 @@ export function HeroTerminal() {
           </motion.div>
         </div>
 
-        {/* Bottom scroll line */}
+        {/* Bottom scroll indicator (label + animated line) */}
         <motion.div
           style={{ opacity: scrollIndicatorOpacity }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4"
         >
+          <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-white/60">
+            Scroll to explore
+          </span>
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
