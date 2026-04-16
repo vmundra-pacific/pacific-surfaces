@@ -32,6 +32,7 @@ export const productBySlugQuery = groq`
     description,
     "mainImage": mainImage.asset->url,
     "gallery": gallery[].asset->url,
+    "roomScenes": roomScenes[].asset->url,
     price,
     category->{_id, name, slug},
     collection->{_id, name, slug},

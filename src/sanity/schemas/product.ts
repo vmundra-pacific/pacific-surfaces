@@ -69,6 +69,14 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "roomScenes",
+      title: "Room Scene Photos",
+      description:
+        "Lifestyle shots showing the product installed in kitchens, bathrooms, etc.",
+      type: "array",
+      of: [{ type: "image", options: { hotspot: true } }],
+    }),
+    defineField({
       name: "price",
       title: "Price",
       type: "object",
@@ -204,9 +212,7 @@ export default defineType({
       group: "seo",
     }),
   ],
-  groups: [
-    { name: "seo", title: "SEO" },
-  ],
+  groups: [{ name: "seo", title: "SEO" }],
   preview: {
     select: {
       title: "name",

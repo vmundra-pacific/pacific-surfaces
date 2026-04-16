@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { HeroTerminal } from "@/components/sections/HeroTerminal";
+import { HeroTerminalIndustries } from "@/components/sections/HeroTerminalIndustries";
 import { BrandMarquee } from "@/components/sections/FeaturesMarquee";
 import { OriginSection } from "@/components/sections/OriginSection";
 import { StatementSection } from "@/components/sections/StatementSection";
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      <HeroTerminal />
+      <HeroTerminalIndustries />
       <BrandMarquee />
       <OriginSection />
       <StatementSection
