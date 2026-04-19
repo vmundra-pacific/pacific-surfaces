@@ -4,6 +4,10 @@ import category from "./category";
 import blogPost from "./blogPost";
 import page from "./page";
 import siteSettings from "./siteSettings";
+import signatureProject from "./signatureProject";
+import applicationCard from "./applicationCard";
+import inspirationImage from "./inspirationImage";
+import dealer from "./dealer";
 
 export const schemaTypes = [
   product,
@@ -12,4 +16,8 @@ export const schemaTypes = [
   blogPost,
   page,
   siteSettings,
+  signatureProject,
+  applicationCard,
+  inspirationImage,
+  dealer,
 ];

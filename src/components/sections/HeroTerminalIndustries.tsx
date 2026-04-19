@@ -227,7 +227,7 @@ export function HeroTerminalIndustries() {
                 style={{ width: `${loadProgress}%` }}
               />
             </div>
-            <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-white/40">
+            <span className="text-[10px] font-medium tracking-[0.25em] uppercase text-white/40">
               {loadProgress}%
             </span>
           </motion.div>
@@ -242,7 +242,7 @@ export function HeroTerminalIndustries() {
 
           {/* Adaptive dark overlay — stronger when text is showing */}
           <motion.div
-            style={{ opacity: overlayOpacity }}
+            style={{ opacity: overlayOpacity, willChange: "opacity" }}
             className="absolute inset-0 z-[1] bg-stone-950"
           />
 
@@ -336,18 +336,10 @@ export function HeroTerminalIndustries() {
             style={{ opacity: scrollIndicatorOpacity }}
             className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[4] flex flex-col items-center gap-4"
           >
-            <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-white/60">
+            <span className="text-[10px] font-medium tracking-[0.25em] uppercase text-white/60">
               Scroll to explore
             </span>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{
-                duration: 1.8,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="w-[1px] h-16 bg-gradient-to-b from-white/60 to-transparent"
-            />
+            <div className="w-[1px] h-16 bg-gradient-to-b from-white/60 to-transparent animate-bounce-slow" />
           </motion.div>
         </div>
       </section>

@@ -6,12 +6,36 @@ import { AnimatedSection } from "@/components/ui/animated-section";
 import { TextReveal } from "@/components/ui/text-reveal";
 
 const features = [
-  { icon: Award, label: "Patented Designs", desc: "Exclusive surface patterns you won't find anywhere else" },
-  { icon: Palette, label: "273+ Surfaces", desc: "India's widest collection of engineered quartz and granite" },
-  { icon: Shield, label: "10-Year Warranty", desc: "Built for durability with industry-leading guarantees" },
-  { icon: Sparkles, label: "4 Finish Options", desc: "Polished, Matte, Suede, and Velvet textures" },
-  { icon: Leaf, label: "Eco Surfaces", desc: "Sustainable options crafted with environmental care" },
-  { icon: Gem, label: "Luxury Grade", desc: "Premium materials for architects and interior designers" },
+  {
+    icon: Award,
+    label: "Patented Designs",
+    desc: "Exclusive surface patterns you won't find anywhere else",
+  },
+  {
+    icon: Palette,
+    label: "273+ Surfaces",
+    desc: "India's widest collection of engineered quartz and granite",
+  },
+  {
+    icon: Shield,
+    label: "10-Year Warranty",
+    desc: "Built for durability with industry-leading guarantees",
+  },
+  {
+    icon: Sparkles,
+    label: "4 Finish Options",
+    desc: "Polished, Matte, Suede, and Velvet textures",
+  },
+  {
+    icon: Leaf,
+    label: "Eco Surfaces",
+    desc: "Sustainable options crafted with environmental care",
+  },
+  {
+    icon: Gem,
+    label: "Luxury Grade",
+    desc: "Premium materials for architects and interior designers",
+  },
 ];
 
 export function FeaturesSection() {
@@ -22,7 +46,7 @@ export function FeaturesSection() {
         <div className="text-center max-w-3xl mx-auto mb-20">
           <TextReveal
             as="span"
-            className="text-xs font-medium tracking-[0.2em] uppercase text-stone-400 mb-4"
+            className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4"
           >
             Why Pacific Surfaces
           </TextReveal>
@@ -38,7 +62,11 @@ export function FeaturesSection() {
         {/* Feature grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feat, i) => (
-            <AnimatedSection key={feat.label} animation="fadeUp" delay={i * 0.08}>
+            <AnimatedSection
+              key={feat.label}
+              animation="fadeUp"
+              delay={i * 0.08}
+            >
               <motion.div
                 whileHover={{ y: -4, transition: { duration: 0.3 } }}
                 className="group relative p-8 rounded-2xl bg-white border border-stone-100 hover:border-stone-200 hover:shadow-lg hover:shadow-stone-100/50 transition-all duration-500"
@@ -75,20 +103,19 @@ export function BrandMarquee() {
 
   return (
     <div className="py-8 bg-stone-900 overflow-hidden">
-      <motion.div
-        animate={{ x: [0, -1920] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        className="flex gap-16 whitespace-nowrap"
+      <div
+        className="flex gap-16 whitespace-nowrap animate-marquee"
+        style={{ willChange: "transform" }}
       >
         {[...items, ...items, ...items].map((item, i) => (
           <span
             key={i}
-            className="text-sm font-medium tracking-[0.3em] text-stone-500"
+            className="text-sm font-medium tracking-[0.25em] text-stone-500"
           >
             {item}
           </span>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }

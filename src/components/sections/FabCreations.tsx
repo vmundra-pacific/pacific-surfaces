@@ -74,9 +74,10 @@ export function FabCreations() {
               className="mt-8 text-lg text-stone-600 font-light leading-relaxed max-w-lg"
             >
               We specialize in premium, cut-to-size quartz surfaces designed to
-              elevate architectural and design projects to new heights. Leveraging
-              the power of our state-of-the-art Breton production line, we deliver
-              unparalleled precision, durability, and visual elegance.
+              elevate architectural and design projects to new heights.
+              Leveraging the power of our state-of-the-art Breton production
+              line, we deliver unparalleled precision, durability, and visual
+              elegance.
             </motion.p>
 
             {/* CTA Button */}
@@ -118,7 +119,10 @@ export function FabCreations() {
                   {/* Image */}
                   <motion.div
                     className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${product.image})` }}
+                    style={{
+                      backgroundImage: `url(${product.image})`,
+                      willChange: "transform",
+                    }}
                     whileHover={{ scale: 1.08 }}
                     transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
                   />

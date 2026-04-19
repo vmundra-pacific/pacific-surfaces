@@ -1,18 +1,25 @@
 import type { Metadata } from "next";
-import { HeroTerminal } from "@/components/sections/HeroTerminal";
-import { HeroTerminalIndustries } from "@/components/sections/HeroTerminalIndustries";
-import { BrandMarquee } from "@/components/sections/FeaturesMarquee";
-import { OriginSection } from "@/components/sections/OriginSection";
+import { client } from "@/sanity/lib/client";
+import {
+  homepageCollectionsQuery,
+  signatureProjectsQuery,
+  applicationCardsQuery,
+  inspirationImagesQuery,
+  featuredDealersQuery,
+} from "@/sanity/lib/queries";
+import { HeroScrollCanvas } from "@/components/sections/HeroScrollCanvas";
+import { TrustStrip } from "@/components/sections/TrustStrip";
+import { CollectionsShowcaseGrid } from "@/components/sections/CollectionsShowcaseGrid";
 import { StatementSection } from "@/components/sections/StatementSection";
-import { HorizontalShowcase } from "@/components/sections/HorizontalShowcase";
-import { BenefitsSection } from "@/components/sections/BenefitsSection";
-import { EcosurfacesBanner } from "@/components/sections/EcosurfacesBanner";
-import { FabCreations } from "@/components/sections/FabCreations";
-import { ApplicationShowcase } from "@/components/sections/ApplicationShowcase";
-import { TestimonialSection } from "@/components/sections/TestimonialSection";
-import { FeaturesSection } from "@/components/sections/FeaturesMarquee";
+import { VisualizerStrip } from "@/components/sections/VisualizerStrip";
+import { ApplicationCards } from "@/components/sections/ApplicationCards";
+import { DealerLocator } from "@/components/sections/DealerLocator";
+import { HeritageSection } from "@/components/sections/HeritageSection";
+import { OriginStats } from "@/components/sections/OriginStats";
+import { SignatureProjects } from "@/components/sections/SignatureProjects";
+import { InspirationGrid } from "@/components/sections/InspirationGrid";
 import { PartnerWithUs } from "@/components/sections/PartnerWithUs";
-import { CTASection } from "@/components/sections/CTASection";
+import { ClosingCTA } from "@/components/sections/ClosingCTA";
 
 export const metadata: Metadata = {
   title: "Pacific Surfaces — Premium Quartz & Granite Surfaces",
@@ -28,29 +35,35 @@ export const metadata: Metadata = {
   ],
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Fetch all homepage data from Sanity in parallel
+  const [collections, projects, applications, inspirations, dealers] =
+    await Promise.all([
+      client.fetch(homepageCollectionsQuery),
+      client.fetch(signatureProjectsQuery),
+      client.fetch(applicationCardsQuery),
+      client.fetch(inspirationImagesQuery),
+      client.fetch(featuredDealersQuery),
+    ]);
+
   return (
     <>
-      <HeroTerminalIndustries />
-      <BrandMarquee />
-      <OriginSection />
+      <HeroScrollCanvas />
+      <TrustStrip />
+      <CollectionsShowcaseGrid collections={collections} />
       <StatementSection
-        statement="Imagine surfaces as an intelligent bridge seamlessly connecting artistry to architecture."
+        statement="Imagine surfaces as an intelligent bridge — seamlessly connecting artistry to architecture."
         theme="light"
       />
-      <HorizontalShowcase />
-      <BenefitsSection />
-      <EcosurfacesBanner />
-      <FabCreations />
-      <StatementSection
-        statement="Our journey begins where conventionality ends. Challenges are our guiding stars, and innovation is our trusted compass."
-        theme="dark"
-      />
-      <ApplicationShowcase />
-      <TestimonialSection />
-      <FeaturesSection />
+      <VisualizerStrip />
+      <ApplicationCards applications={applications} />
+      <DealerLocator dealers={dealers} />
+      <HeritageSection />
+      <OriginStats />
+      <SignatureProjects projects={projects} />
+      <InspirationGrid inspirations={inspirations} />
       <PartnerWithUs />
-      <CTASection />
+      <ClosingCTA />
     </>
   );
 }

@@ -18,7 +18,7 @@ export function EcosurfacesBanner() {
     <section ref={ref} className="relative py-36 sm:py-44 px-6 overflow-hidden">
       {/* Parallax background with grain texture */}
       <motion.div
-        style={{ y: bgY }}
+        style={{ y: bgY, willChange: "transform" }}
         className="absolute inset-0 -top-20 -bottom-20"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/90 via-emerald-900/80 to-emerald-950/90 z-10" />

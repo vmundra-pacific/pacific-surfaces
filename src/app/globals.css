@@ -13,22 +13,25 @@
 
   /* Pacific brand palette — see /sessions/.auto-memory/brand_guidelines.md */
   --color-pacific-dark: #112732;
-  --color-pacific-mid: #9AA8B6;
-  --color-pacific-light: #DAE1E8;
+  --color-pacific-mid: #9aa8b6;
+  --color-pacific-light: #dae1e8;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-sans),
+    system-ui,
+    -apple-system,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
+/* Smooth scrolling — only for anchor link clicks, NOT wheel/keyboard.
+   Applied via JS on anchor clicks instead of globally, because global
+   smooth-scroll makes scroll-driven canvas animations feel stuck. */
 
 /* Selection color */
 ::selection {
@@ -43,4 +46,31 @@ html {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* GPU-composited marquee — replaces Framer Motion infinite loop */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+/* Smooth bounce for scroll indicator */
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 1.8s ease-in-out infinite;
 }

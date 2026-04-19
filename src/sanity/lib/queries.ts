@@ -132,6 +132,86 @@ export const pageBySlugQuery = groq`
   }
 `;
 
+// Collections for homepage showcase (includes homepage-specific fields)
+export const homepageCollectionsQuery = groq`
+  *[_type == "collection"] | order(order asc) {
+    _id,
+    name,
+    slug,
+    "image": image.asset->url,
+    tag,
+    headline,
+    finishCount,
+    showcaseLayout,
+    "productCount": count(*[_type == "product" && collection._ref == ^._id])
+  }
+`;
+
+// Signature Projects
+export const signatureProjectsQuery = groq`
+  *[_type == "signatureProject"] | order(order asc) {
+    _id,
+    name,
+    location,
+    "image": image.asset->url,
+    link
+  }
+`;
+
+// Application Cards
+export const applicationCardsQuery = groq`
+  *[_type == "applicationCard"] | order(order asc) {
+    _id,
+    label,
+    title,
+    description,
+    "image": image.asset->url,
+    link
+  }
+`;
+
+// Inspiration Images
+export const inspirationImagesQuery = groq`
+  *[_type == "inspirationImage"] | order(order asc) {
+    _id,
+    name,
+    category,
+    "image": image.asset->url,
+    "productSlug": product->slug.current
+  }
+`;
+
+// Dealers
+export const allDealersQuery = groq`
+  *[_type == "dealer"] | order(name asc) {
+    _id,
+    name,
+    type,
+    address,
+    city,
+    country,
+    phone,
+    email,
+    website,
+    description,
+    mapPin,
+    featured
+  }
+`;
+
+export const featuredDealersQuery = groq`
+  *[_type == "dealer" && featured == true] | order(name asc) {
+    _id,
+    name,
+    type,
+    address,
+    city,
+    description,
+    phone,
+    mapPin
+  }
+`;
+
 // Site Settings
 export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0] {

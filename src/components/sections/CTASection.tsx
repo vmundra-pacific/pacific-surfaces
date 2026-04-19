@@ -18,7 +18,7 @@ export function CTASection() {
     <section ref={ref} className="relative py-36 sm:py-44 px-6 overflow-hidden">
       {/* Parallax background */}
       <motion.div
-        style={{ y: bgY }}
+        style={{ y: bgY, willChange: "transform" }}
         className="absolute inset-0 -top-20 -bottom-20"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-stone-950/80 via-stone-900/70 to-stone-950/90 z-10" />
@@ -26,7 +26,7 @@ export function CTASection() {
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage:
-              "url('https://static.wixstatic.com/media/fd8707_3f921330440f4103ac7d3bb1a7342d3a~mv2.jpg/v1/fit/w_2688,h_1792,q_90/file.jpg')",
+              "url('https://static.wixstatic.com/media/fd8707_3f921330440f4103ac7d3bb1a7342d3a~mv2.jpg/v1/fit/w_1920,h_1080,q_80/file.jpg')",
           }}
         />
       </motion.div>
@@ -47,7 +47,8 @@ export function CTASection() {
           transition={{ duration: 0.7, delay: 0.4 }}
           className="mt-8 text-lg text-stone-300 max-w-2xl mx-auto font-light leading-relaxed"
         >
-          Connect with our surface specialists. From selection to installation, we guide you through every step of creating your perfect space.
+          Connect with our surface specialists. From selection to installation,
+          we guide you through every step of creating your perfect space.
         </motion.p>
 
         <motion.div

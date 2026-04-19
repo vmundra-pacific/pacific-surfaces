@@ -30,6 +30,17 @@ export default defineConfig({
             S.documentTypeListItem("collection").title("Collections"),
             S.documentTypeListItem("category").title("Categories"),
             S.divider(),
+            S.documentTypeListItem("signatureProject").title(
+              "Signature Projects"
+            ),
+            S.documentTypeListItem("applicationCard").title(
+              "Application Cards"
+            ),
+            S.documentTypeListItem("inspirationImage").title(
+              "Inspiration Gallery"
+            ),
+            S.documentTypeListItem("dealer").title("Dealers"),
+            S.divider(),
             S.documentTypeListItem("blogPost").title("Blog Posts"),
             S.documentTypeListItem("page").title("Pages"),
           ]),

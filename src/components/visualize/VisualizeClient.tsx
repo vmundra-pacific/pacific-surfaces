@@ -34,10 +34,18 @@ export function VisualizeClient() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [activeDemo, setActiveDemo] = useState<DemoRoom | null>(null);
   const [activeSlab, setActiveSlab] = useState<Slab | null>(null);
-  const [activeRegion, setActiveRegion] = useState<SurfaceCandidate | null>(null);
+  const [activeRegion, setActiveRegion] = useState<SurfaceCandidate | null>(
+    null
+  );
   const [inspectorOpen, setInspectorOpen] = useState(true);
   const canvasRef = useRef<RoomCanvasHandle>(null);
-  const { masks: aiMasks, loading: segLoading, error: segError, run: runSegment, clear: clearSegment } = useSegment();
+  const {
+    masks: aiMasks,
+    loading: segLoading,
+    error: segError,
+    run: runSegment,
+    clear: clearSegment,
+  } = useSegment();
 
   // Curate a focused slab shortlist for the picker — all 22 is noisy here.
   const curated = useMemo(() => {
@@ -105,13 +113,13 @@ export function VisualizeClient() {
         />
         <div className="relative max-w-[1400px] mx-auto px-5 md:px-8 pt-8 md:pt-12 pb-24">
           <div className="flex items-center justify-between mb-10 md:mb-14">
-            <a
+            <Link
               href="/"
               className="inline-flex items-center gap-2 text-pacific-mid hover:text-pacific-light transition-colors text-sm"
             >
               <ArrowLeft className="w-4 h-4" />
               Back home
-            </a>
+            </Link>
             <div className="flex items-center gap-3">
               <Link
                 href="/visualize/showroom"
@@ -142,9 +150,9 @@ export function VisualizeClient() {
               </em>
             </h1>
             <p className="mt-6 text-pacific-mid/90 text-base md:text-lg max-w-xl leading-relaxed">
-              Upload a photo. Our detector finds your countertop. Apply any Pacific
-              slab to see the finished look — photoreal in seconds, no measuring
-              required.
+              Upload a photo. Our detector finds your countertop. Apply any
+              Pacific slab to see the finished look — photoreal in seconds, no
+              measuring required.
             </p>
           </header>
 
@@ -403,7 +411,8 @@ function StageCanvas({
       {segError && (
         <div className="absolute top-4 left-4 right-4 z-10">
           <div className="bg-red-900/80 border border-red-500/40 text-red-200 text-xs px-4 py-2 rounded-lg backdrop-blur-xl">
-            AI detection failed: {segError}. You can still tap to select surfaces manually.
+            AI detection failed: {segError}. You can still tap to select
+            surfaces manually.
           </div>
         </div>
       )}
@@ -425,7 +434,10 @@ function InspectorContents({
       {slab ? (
         <div>
           <div className="relative rounded-xl overflow-hidden aspect-[4/3] ring-1 ring-white/10 mb-4">
-            <div className="absolute inset-0" style={{ backgroundImage: slab.swatch }} />
+            <div
+              className="absolute inset-0"
+              style={{ backgroundImage: slab.swatch }}
+            />
             {slab.overlay && (
               <div
                 className="absolute inset-0 mix-blend-overlay opacity-80"
@@ -449,15 +461,21 @@ function InspectorContents({
             <dt className="text-pacific-mid text-xs tracking-[.14em] uppercase self-center">
               Thickness
             </dt>
-            <dd className="text-pacific-light">{slab.thicknesses.join(", ")}</dd>
+            <dd className="text-pacific-light">
+              {slab.thicknesses.join(", ")}
+            </dd>
             <dt className="text-pacific-mid text-xs tracking-[.14em] uppercase self-center">
               Tone
             </dt>
-            <dd className="text-pacific-light capitalize">{slab.hues.join(", ")}</dd>
+            <dd className="text-pacific-light capitalize">
+              {slab.hues.join(", ")}
+            </dd>
             <dt className="text-pacific-mid text-xs tracking-[.14em] uppercase self-center">
               Ribbon
             </dt>
-            <dd className="text-pacific-light capitalize">{slab.ribbon ?? "—"}</dd>
+            <dd className="text-pacific-light capitalize">
+              {slab.ribbon ?? "—"}
+            </dd>
           </dl>
           <a
             href="/catalogue"

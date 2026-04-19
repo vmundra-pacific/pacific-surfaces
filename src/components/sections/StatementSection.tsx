@@ -8,7 +8,10 @@ interface StatementSectionProps {
   theme?: "light" | "dark";
 }
 
-export function StatementSection({ statement, theme = "light" }: StatementSectionProps) {
+export function StatementSection({
+  statement,
+  theme = "light",
+}: StatementSectionProps) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -25,9 +28,17 @@ export function StatementSection({ statement, theme = "light" }: StatementSectio
       ref={ref}
       className={`relative py-32 sm:py-44 lg:py-56 px-6 overflow-hidden ${isDark ? "bg-stone-950" : "bg-white"}`}
     >
+      {isDark && (
+        <div
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+      )}
       <motion.div
-        style={{ y, opacity }}
-        className="max-w-6xl mx-auto"
+        style={{ y, opacity, willChange: "transform, opacity" }}
+        className="relative z-10 max-w-6xl mx-auto"
       >
         <h2
           className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[4.5rem] font-light tracking-tight leading-[1.15] ${isDark ? "text-white" : "text-stone-900"}`}

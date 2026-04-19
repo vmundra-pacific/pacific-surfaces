@@ -35,7 +35,11 @@ export function BenefitsSection() {
   });
 
   return (
-    <section ref={containerRef} className="relative" style={{ height: `${benefits.length * 100}vh` }}>
+    <section
+      ref={containerRef}
+      className="relative"
+      style={{ height: `${benefits.length * 100}vh`, contain: "layout style" }}
+    >
       <div className="sticky top-0 h-screen overflow-hidden bg-stone-950">
         {/* Grain texture */}
         <div
@@ -92,14 +96,14 @@ function BenefitCard({
 
   return (
     <motion.div
-      style={{ opacity, y }}
+      style={{ opacity, y, willChange: "transform, opacity" }}
       className="absolute inset-0 flex items-center z-10"
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left: Number + Title */}
           <div>
-            <span className="text-xs font-medium tracking-[0.3em] uppercase text-stone-500 mb-6 block">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-6 block">
               Benefit {benefit.number}
             </span>
             <h3 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white leading-[1.1]">
