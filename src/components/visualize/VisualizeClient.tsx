@@ -501,13 +501,13 @@ function InspectorContents({
               {slab.ribbon ?? "—"}
             </dd>
           </dl>
-          <a
+          <Link
             href="/catalogue"
             className="mt-5 w-full inline-flex items-center justify-center gap-1.5 bg-pacific-light text-pacific-dark text-[10px] tracking-[.22em] uppercase px-4 py-2.5 rounded-full hover:bg-white transition-colors"
           >
             Request a sample
             <ArrowUpRight className="w-3 h-3" />
-          </a>
+          </Link>
         </div>
       ) : (
         <div className="rounded-xl border border-white/10 p-4 text-sm text-pacific-mid">
