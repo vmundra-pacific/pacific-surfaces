@@ -44,8 +44,15 @@ export interface RoomCanvasHandle {
 
 export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
   function RoomCanvas(
-    { src, activeSlab, polygons, aiMasks, onRegionChange, fill = false }: RoomCanvasProps,
-    ref,
+    {
+      src,
+      activeSlab,
+      polygons,
+      aiMasks,
+      onRegionChange,
+      fill = false,
+    }: RoomCanvasProps,
+    ref
   ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const overlayRef = useRef<HTMLCanvasElement>(null);
@@ -53,9 +60,16 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
     const imgRef = useRef<HTMLImageElement | null>(null);
     const [loading, setLoading] = useState(true);
     const [working, setWorking] = useState(false);
+    // `active` is the most-recently-toggled candidate, used by the inspector
+    // panel and as the single mask for the no-AI tap-fallback path.
     const [active, setActive] = useState<SurfaceCandidate | null>(null);
-    const [activeId, setActiveId] = useState<string | null>(null);
-    const [imgSize, setImgSize] = useState<{ w: number; h: number }>({ w: 1, h: 1 });
+    // Multi-select: every selected surface ID. Tap toggles in/out, so the
+    // same slab can be applied to countertop + backsplash + island in one go.
+    const [activeIds, setActiveIds] = useState<string[]>([]);
+    const [imgSize, setImgSize] = useState<{ w: number; h: number }>({
+      w: 1,
+      h: 1,
+    });
     const [hoveredId, setHoveredId] = useState<string | null>(null);
     const [precomputed, setPrecomputed] = useState<
       { surface: DemoSurface; candidate: SurfaceCandidate }[]
@@ -69,7 +83,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
       let cancelled = false;
       setLoading(true);
       setActive(null);
-      setActiveId(null);
+      setActiveIds([]);
       setPrecomputed([]);
       onRegionChange?.(null);
 
@@ -111,14 +125,14 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
             candidate: candidateFromPolygon(
               s.polygon,
               img.naturalWidth,
-              img.naturalHeight,
+              img.naturalHeight
             ),
           }));
           setPrecomputed(computed);
           // Auto-select the first surface on load so there's an immediate preview hint
           if (computed.length > 0) {
             setActive(computed[0].candidate);
-            setActiveId(computed[0].surface.id);
+            setActiveIds([computed[0].surface.id]);
             onRegionChange?.(computed[0].candidate, computed[0].surface.id);
           }
         }
@@ -161,22 +175,35 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
             // Convert to white-alpha mask format (surface-detection expects alpha channel)
             // Grounded SAM mask: white pixels = surface. Convert to RGBA where A=255 if bright.
             const data = maskData.data;
-            let sumX = 0, sumY = 0, count = 0;
-            let minX = w, maxX = 0, minY = h, maxY = 0;
+            let sumX = 0,
+              sumY = 0,
+              count = 0;
+            let minX = w,
+              maxX = 0,
+              minY = h,
+              maxY = 0;
             for (let y = 0; y < h; y++) {
               for (let x = 0; x < w; x++) {
                 const i = (y * w + x) * 4;
                 // Consider pixel as mask if it's mostly white (r+g+b > 384)
                 const bright = data[i] + data[i + 1] + data[i + 2] > 384;
                 if (bright) {
-                  data[i] = 255; data[i + 1] = 255; data[i + 2] = 255; data[i + 3] = 255;
-                  sumX += x; sumY += y; count++;
+                  data[i] = 255;
+                  data[i + 1] = 255;
+                  data[i + 2] = 255;
+                  data[i + 3] = 255;
+                  sumX += x;
+                  sumY += y;
+                  count++;
                   if (x < minX) minX = x;
                   if (x > maxX) maxX = x;
                   if (y < minY) minY = y;
                   if (y > maxY) maxY = y;
                 } else {
-                  data[i] = 0; data[i + 1] = 0; data[i + 2] = 0; data[i + 3] = 0;
+                  data[i] = 0;
+                  data[i + 1] = 0;
+                  data[i + 2] = 0;
+                  data[i + 3] = 0;
                 }
               }
             }
@@ -187,7 +214,12 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
               candidate: {
                 score: 1,
                 mask: maskData,
-                bbox: { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 },
+                bbox: {
+                  x: minX,
+                  y: minY,
+                  w: maxX - minX + 1,
+                  h: maxY - minY + 1,
+                },
                 centroid: { x: sumX / count, y: sumY / count },
               },
             });
@@ -200,13 +232,15 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
           // Auto-select the first surface
           if (results.length > 0) {
             setActive(results[0].candidate);
-            setActiveId(results[0].id);
+            setActiveIds([results[0].id]);
             onRegionChange?.(results[0].candidate, results[0].id);
           }
         }
       })();
 
-      return () => { cancelled = true; };
+      return () => {
+        cancelled = true;
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [aiMasks]);
 
@@ -219,39 +253,45 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
       ctx.clearRect(0, 0, ov.width, ov.height);
 
       if (precomputed.length > 0) {
-        // Polygon mode: draw every surface, highlight hovered / active
+        // Polygon mode. Two visual states:
+        //   - No slab picked yet → outline every surface so the user
+        //     can see what's tappable. Active gets a solid bold ring,
+        //     unselected gets a faint dashed hint, hover gets a brighter ring.
+        //   - Slab picked → suppress all outlines so the scene reads
+        //     cleanly. Hover still brings the outline back briefly so
+        //     the user has a cue when they're about to add/remove a
+        //     surface. Numbered badges remain visible regardless.
         for (const { surface, candidate } of precomputed) {
-          const isActive = activeId === surface.id;
+          const isActive = activeIds.includes(surface.id);
           const isHovered = hoveredId === surface.id;
-          if (activeSlab && !isActive) continue;
+          if (activeSlab && !isHovered) continue;
           paintPolygon(ctx, candidate, surface.polygon, ov.width, ov.height, {
-            fillAlpha: isActive ? 0 : isHovered ? 0.22 : 0.12,
-            strokeAlpha: isActive ? 1 : isHovered ? 0.9 : 0.55,
+            fillAlpha: isActive ? 0 : isHovered ? 0.22 : 0.1,
+            strokeAlpha: isActive ? 1 : isHovered ? 0.85 : 0.45,
             strokeWidth: isActive ? 4 : 2,
             dashed: !isActive && !isHovered,
           });
         }
       } else if (aiSurfaces.length > 0) {
-        // AI mask mode: draw each detected surface mask as an overlay
         for (const { id, candidate } of aiSurfaces) {
-          const isActive = activeId === id;
+          const isActive = activeIds.includes(id);
           const isHovered = hoveredId === id;
-          if (activeSlab && !isActive) continue;
+          if (activeSlab && !isHovered) continue;
           paintMaskOverlay(ctx, candidate.mask, {
-            fillAlpha: isActive ? 0 : isHovered ? 0.22 : 0.12,
-            strokeAlpha: isActive ? 1 : isHovered ? 0.9 : 0.55,
+            fillAlpha: isActive ? 0 : isHovered ? 0.22 : 0.1,
+            strokeAlpha: isActive ? 1 : isHovered ? 0.85 : 0.45,
             strokeWidth: isActive ? 4 : 2,
           });
         }
       } else if (active && !activeSlab) {
-        // Tap-based fallback for user uploads (no AI masks)
+        // Tap-based flood-fill fallback (no precomputed polygons / no AI).
         paintMaskOverlay(ctx, active.mask, {
           fillAlpha: 0.28,
           strokeAlpha: 1,
           strokeWidth: 3,
         });
       }
-    }, [precomputed, aiSurfaces, active, activeId, hoveredId, activeSlab]);
+    }, [precomputed, aiSurfaces, active, activeIds, hoveredId, activeSlab]);
 
     // ---------------- Recomposite with slab ----------------
     useEffect(() => {
@@ -263,16 +303,42 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         const ctx = canvas.getContext("2d")!;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(base, 0, 0);
-        if (!active || !activeSlab) return;
+        if (!activeSlab) return;
+
+        // Collect every selected mask. Multi-select: each ID resolves to
+        // either a polygon-derived candidate or an AI-detected one.
+        const masks: ImageData[] = [];
+        for (const id of activeIds) {
+          const poly = precomputed.find((p) => p.surface.id === id);
+          if (poly) {
+            masks.push(poly.candidate.mask);
+            continue;
+          }
+          const ai = aiSurfaces.find((a) => a.id === id);
+          if (ai) masks.push(ai.candidate.mask);
+        }
+        // The tap-fallback `active` mask only paints when we're truly in
+        // flood-fill mode (no precomputed polygons, no AI surfaces).
+        // Otherwise deselecting all AI surfaces would leave the last
+        // tap's mask painting forever, so the canvas would never revert.
+        const inFallbackMode =
+          precomputed.length === 0 && aiSurfaces.length === 0;
+        if (masks.length === 0 && inFallbackMode && active) {
+          masks.push(active.mask);
+        }
+        if (masks.length === 0) return;
+
         const tile = await renderSlabTile(activeSlab, 1024, 1024);
         if (cancelled) return;
-        applySlabToRegion(ctx, base, active.mask, tile, { opacity: 0.95 });
+        for (const m of masks) {
+          applySlabToRegion(ctx, base, m, tile, { opacity: 0.95 });
+        }
       };
       run();
       return () => {
         cancelled = true;
       };
-    }, [active, activeSlab]);
+    }, [active, activeIds, activeSlab, precomputed, aiSurfaces]);
 
     // ---------------- Pointer handlers ----------------
     const mapPointToImage = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -282,7 +348,12 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
       const rect = canvas.getBoundingClientRect();
       const relX = (e.clientX - rect.left) / rect.width;
       const relY = (e.clientY - rect.top) / rect.height;
-      return { relX, relY, ix: relX * img.naturalWidth, iy: relY * img.naturalHeight };
+      return {
+        relX,
+        relY,
+        ix: relX * img.naturalWidth,
+        iy: relY * img.naturalHeight,
+      };
     };
 
     const handleTap = useCallback(
@@ -291,11 +362,15 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         if (!pt) return;
 
         if (precomputed.length > 0) {
-          // Polygon mode: pick whichever polygon the tap lands inside
+          // Polygon mode: tap toggles the polygon into/out of the selection.
           for (const { surface, candidate } of precomputed) {
             if (pointInPolygon([pt.relX, pt.relY], surface.polygon)) {
+              setActiveIds((prev) =>
+                prev.includes(surface.id)
+                  ? prev.filter((x) => x !== surface.id)
+                  : [...prev, surface.id]
+              );
               setActive(candidate);
-              setActiveId(surface.id);
               onRegionChange?.(candidate, surface.id);
               return;
             }
@@ -304,15 +379,17 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         }
 
         if (aiSurfaces.length > 0) {
-          // AI mask mode: pick whichever mask contains the tap pixel
+          // AI mask mode: tap toggles the surface under the cursor.
           const ix = Math.floor(pt.ix);
           const iy = Math.floor(pt.iy);
           for (const { id, candidate } of aiSurfaces) {
             const w = candidate.mask.width;
             const idx = (iy * w + ix) * 4 + 3; // alpha channel
             if (candidate.mask.data[idx] > 128) {
+              setActiveIds((prev) =>
+                prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+              );
               setActive(candidate);
-              setActiveId(id);
               onRegionChange?.(candidate, id);
               return;
             }
@@ -333,7 +410,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
           setWorking(false);
         }, 20);
       },
-      [precomputed, aiSurfaces, onRegionChange],
+      [precomputed, aiSurfaces, onRegionChange]
     );
 
     const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -374,11 +451,11 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         exportPNG: () => canvasRef.current?.toDataURL("image/png") ?? null,
         reset: () => {
           setActive(null);
-          setActiveId(null);
+          setActiveIds([]);
           onRegionChange?.(null);
         },
       }),
-      [onRegionChange],
+      [onRegionChange]
     );
 
     // ---------------- Render ----------------
@@ -414,14 +491,14 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
           style={{ width: "100%", height: "100%" }}
         />
 
-        {/* Polygon hotspot badges */}
+        {/* Polygon hotspot badges — every surface stays visible so users
+            can keep adding/removing selections after a slab is picked. */}
         {!loading &&
           precomputed.map(({ surface, candidate }, i) => {
             const cx = (candidate.centroid.x / imgSize.w) * 100;
             const cy = (candidate.centroid.y / imgSize.h) * 100;
-            const isActive = activeId === surface.id;
+            const isActive = activeIds.includes(surface.id);
             const isHovered = hoveredId === surface.id;
-            if (activeSlab && !isActive) return null;
             return (
               <motion.div
                 key={surface.id}
@@ -464,14 +541,13 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
             );
           })}
 
-        {/* AI mask hotspot badges */}
+        {/* AI mask hotspot badges — same multi-select treatment. */}
         {!loading &&
           aiSurfaces.map(({ id, label, candidate }, i) => {
             const cx = (candidate.centroid.x / imgSize.w) * 100;
             const cy = (candidate.centroid.y / imgSize.h) * 100;
-            const isActive = activeId === id;
+            const isActive = activeIds.includes(id);
             const isHovered = hoveredId === id;
-            if (activeSlab && !isActive) return null;
             return (
               <motion.div
                 key={id}
@@ -532,7 +608,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         </AnimatePresence>
       </div>
     );
-  },
+  }
 );
 
 /* -------------------- helpers -------------------- */
@@ -543,7 +619,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
  */
 function pointInPolygon(
   point: [number, number],
-  polygon: [number, number][],
+  polygon: [number, number][]
 ): boolean {
   const [x, y] = point;
   let inside = false;
@@ -571,7 +647,12 @@ function paintPolygon(
     strokeAlpha,
     strokeWidth,
     dashed,
-  }: { fillAlpha: number; strokeAlpha: number; strokeWidth: number; dashed: boolean },
+  }: {
+    fillAlpha: number;
+    strokeAlpha: number;
+    strokeWidth: number;
+    dashed: boolean;
+  }
 ) {
   ctx.save();
   ctx.beginPath();
@@ -615,9 +696,14 @@ function paintMaskOverlay(
     fillAlpha,
     strokeAlpha,
     strokeWidth,
-  }: { fillAlpha: number; strokeAlpha: number; strokeWidth: number },
+  }: { fillAlpha: number; strokeAlpha: number; strokeWidth: number }
 ) {
   const { width: w, height: h, data } = mask;
+  // Destination overlay is at canvas size (downsampled to ≤1600px), but
+  // the mask is at the image's natural size. Scale everything we draw to
+  // dst into dst dimensions so the outline traces the full surface.
+  const dstW = ctx.canvas.width;
+  const dstH = ctx.canvas.height;
 
   const fill = document.createElement("canvas");
   fill.width = w;
@@ -631,7 +717,7 @@ function paintMaskOverlay(
   tmp.getContext("2d")!.putImageData(mask, 0, 0);
   fctx.globalCompositeOperation = "destination-in";
   fctx.drawImage(tmp, 0, 0);
-  ctx.drawImage(fill, 0, 0);
+  ctx.drawImage(fill, 0, 0, dstW, dstH);
 
   const step = 2;
   const edgeCanvas = document.createElement("canvas");
@@ -652,5 +738,5 @@ function paintMaskOverlay(
       ectx.fillRect(x - half, y - half, strokeWidth * 2, strokeWidth * 2);
     }
   }
-  ctx.drawImage(edgeCanvas, 0, 0);
+  ctx.drawImage(edgeCanvas, 0, 0, dstW, dstH);
 }

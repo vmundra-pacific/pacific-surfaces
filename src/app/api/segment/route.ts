@@ -3,137 +3,294 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * POST /api/segment
  *
- * Uses Grounded SAM (GroundingDINO + SAM) on Replicate to detect and segment
- * surfaces in a room photo by text prompt.
+ * Automatic mask generation using SAM-2 (Meta's Segment Anything Model 2)
+ * on Replicate. Returns every distinct surface in the photo as a list of
+ * masks the client can highlight + tap to select.
  *
- * Body:
- *   {
- *     image: string (data-URL or public URL),
- *     prompt?: string (default "countertop, kitchen island, backsplash, floor")
- *   }
+ * Why SAM-2 AMG (not Grounded SAM)?
+ *   - Grounded SAM's Replicate container has been broken (`pip install`
+ *     fails on cold-start) so the previous text-prompt pipeline was
+ *     returning empty masks.
+ *   - SAM-2 is the same model `/api/segment-point` already uses, so we
+ *     know it works reliably with this account.
+ *   - AMG ("automatic mask generator") spits out every surface in one
+ *     pass, no text prompts, no fallback ladder.
  *
- * Response:
- *   {
- *     masks: Array<{ url: string (data-URL of mask PNG) }>
- *   }
- *
- * Each mask is a black-and-white PNG where white = detected surface.
- * The order matches the order of labels in the prompt.
+ * Body:     { image: string (data-URL or public URL) }
+ * Response: { masks: Array<{ url: string, label: string }>, warning?: string }
+ *           or { error: string }
  */
 
 const REPLICATE_API = "https://api.replicate.com/v1/predictions";
 
-const GROUNDED_SAM_VERSION =
-  "ee871c19efb1941f55f66a3d7d960428c8a5afcb77449547fe8e5a3ab9ebc21c";
+// SAM-2 — same model version as /api/segment-point. AMG mode is selected by
+// omitting point prompts and supplying grid sampling parameters instead.
+const SAM2_VERSION =
+  "fe97b453a6455861e3bac769b441ca1f1086110da7466dbb65cf1eecfd60dc83";
 
-const DEFAULT_PROMPT = "countertop, kitchen island, backsplash, floor";
+const MAX_DIM = 1280;
+
+// AMG tuning — these match the pre-revert configuration that produced
+// good countertop / wall / island detections without flooding the UI:
+//   points_per_side    16   (256 candidate points; balances coverage / speed)
+//   pred_iou_thresh    0.93 (only keep high-confidence masks)
+//   stability_thresh   0.96 (filter unstable / fragmented masks)
+//   min_mask_area      … filtered client-side after we crop dust
+const AMG_INPUT = {
+  points_per_side: 16,
+  pred_iou_thresh: 0.93,
+  stability_score_thresh: 0.96,
+  use_m2m: true,
+};
+
+// Cap masks returned to the client — more than this clutters the UI.
+const MAX_MASKS = 6;
 
 export async function POST(req: NextRequest) {
   const token = process.env.REPLICATE_API_TOKEN;
   if (!token) {
     return NextResponse.json(
       { error: "REPLICATE_API_TOKEN not configured" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
-  let body: { image: string; prompt?: string };
+  let body: { image: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { image, prompt } = body;
+  const { image } = body;
   if (!image) {
     return NextResponse.json({ error: "Missing image" }, { status: 400 });
   }
 
-  const maskPrompt = prompt || DEFAULT_PROMPT;
-
   try {
-    // ---- 1. Create prediction ----
-    const createRes = await fetch(REPLICATE_API, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        Prefer: "wait", // Replicate sync mode — blocks up to 60s
-      },
-      body: JSON.stringify({
-        version: GROUNDED_SAM_VERSION,
-        input: {
-          image,
-          mask_prompt: maskPrompt,
-          adjustment_factor: 0,
-        },
-      }),
-    });
+    const processedImage = await resizeIfNeeded(image, MAX_DIM);
+    console.log("[segment] Running SAM-2 AMG…");
 
-    if (!createRes.ok) {
-      const err = await createRes.text();
-      console.error("Replicate create error:", err);
-      return NextResponse.json(
-        { error: "Replicate API error", detail: err },
-        { status: 502 },
-      );
-    }
+    const result = await runAutoSAM2(token, processedImage);
 
-    let prediction = await createRes.json();
-
-    // ---- 2. Poll until succeeded (if Prefer:wait didn't finish) ----
-    let attempts = 0;
-    while (
-      prediction.status !== "succeeded" &&
-      prediction.status !== "failed" &&
-      prediction.status !== "canceled" &&
-      attempts < 90
-    ) {
-      await new Promise((r) => setTimeout(r, 1000));
-      const pollRes = await fetch(
-        `${REPLICATE_API}/${prediction.id}`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-      prediction = await pollRes.json();
-      attempts++;
-    }
-
-    if (prediction.status !== "succeeded") {
-      console.error("Replicate prediction failed:", prediction);
+    if (result.status === "rate_limited") {
+      // Surface a clear, user-friendly message instead of a generic 502.
       return NextResponse.json(
         {
-          error: "Segmentation failed",
-          status: prediction.status,
-          detail: prediction.error,
+          error:
+            "Replicate rate-limited the request — your account has low credit, so the burst limit is 1/min. Top up at replicate.com/account/billing or wait ~1 minute and retry.",
         },
-        { status: 502 },
+        { status: 429 }
       );
     }
 
-    // ---- 3. Fetch each mask image and return as base64 ----
-    // Grounded SAM outputs an array of mask image URLs (one per detected label)
-    const output: string[] = Array.isArray(prediction.output)
-      ? prediction.output
-      : [prediction.output];
+    if (result.status === "failed") {
+      console.error(`[segment] Failed: ${result.error}`);
+      return NextResponse.json(
+        { error: result.error || "Segmentation failed" },
+        { status: 502 }
+      );
+    }
 
-    const masks = await Promise.all(
-      output
-        .filter((url: unknown): url is string => typeof url === "string")
-        .map(async (maskUrl: string) => {
-          const maskRes = await fetch(maskUrl);
-          const maskBuffer = await maskRes.arrayBuffer();
-          const base64 = Buffer.from(maskBuffer).toString("base64");
-          const ct = maskRes.headers.get("content-type") || "image/png";
-          return { url: `data:${ct};base64,${base64}` };
-        }),
-    );
+    if (result.masks.length === 0) {
+      console.warn("[segment] SAM-2 returned 0 masks");
+      return NextResponse.json({
+        masks: [],
+        warning: "No surfaces auto-detected. Tap to select manually.",
+      });
+    }
 
+    const masks = result.masks.slice(0, MAX_MASKS).map((url, i) => ({
+      url,
+      label: `Surface ${i + 1}`,
+    }));
+
+    console.log(`[segment] Success — ${masks.length} mask(s)`);
     return NextResponse.json({ masks });
   } catch (err) {
     console.error("Segment API error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 },
+      { status: 500 }
     );
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Run SAM-2 in automatic mask generation mode                         *
+ * ------------------------------------------------------------------ */
+
+interface AutoResult {
+  status: "succeeded" | "failed" | "rate_limited";
+  masks: string[]; // base64 data-URLs
+  error?: string;
+}
+
+async function runAutoSAM2(
+  token: string,
+  imageUrl: string
+): Promise<AutoResult> {
+  let createRes: Response | null = null;
+
+  // Up to 3 retries on 429 — but if every retry hits 429, surface
+  // rate_limited so the client can tell the user to top up credit.
+  let lastWasRateLimit = false;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    createRes = await fetch(REPLICATE_API, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Prefer: "wait=60",
+      },
+      body: JSON.stringify({
+        version: SAM2_VERSION,
+        input: {
+          image: imageUrl,
+          ...AMG_INPUT,
+        },
+      }),
+    });
+
+    if (createRes.status === 429) {
+      lastWasRateLimit = true;
+      const retryAfter = parseInt(
+        createRes.headers.get("retry-after") || "12",
+        10
+      );
+      const wait = Math.max(retryAfter, 10) * 1000;
+      console.warn(
+        `[segment] Rate limited (429), waiting ${wait / 1000}s before retry ${attempt + 1}/3`
+      );
+      await new Promise((r) => setTimeout(r, wait));
+      continue;
+    }
+    lastWasRateLimit = false;
+    break;
+  }
+
+  if (lastWasRateLimit && createRes && createRes.status === 429) {
+    return { status: "rate_limited", masks: [] };
+  }
+
+  if (!createRes || !createRes.ok) {
+    const err = createRes ? await createRes.text() : "No response";
+    return {
+      status: "failed",
+      masks: [],
+      error: `HTTP ${createRes?.status}: ${err}`,
+    };
+  }
+
+  let prediction = await createRes.json();
+
+  // Poll until done
+  let attempts = 0;
+  while (
+    prediction.status !== "succeeded" &&
+    prediction.status !== "failed" &&
+    prediction.status !== "canceled" &&
+    attempts < 90
+  ) {
+    await new Promise((r) => setTimeout(r, 2000));
+    const pollRes = await fetch(`${REPLICATE_API}/${prediction.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    prediction = await pollRes.json();
+    attempts++;
+  }
+
+  if (prediction.status !== "succeeded") {
+    return {
+      status: "failed",
+      masks: [],
+      error: prediction.error || `Status: ${prediction.status}`,
+    };
+  }
+
+  // SAM-2 AMG output shape: { combined_mask, individual_masks: [url, …] }
+  // We use individual_masks so each surface is selectable independently.
+  const output = prediction.output;
+  const urls: string[] =
+    (Array.isArray(output?.individual_masks)
+      ? output.individual_masks
+      : null) ??
+    (Array.isArray(output) ? output : null) ??
+    (output?.combined_mask ? [output.combined_mask] : []);
+
+  const validUrls = urls.filter(
+    (url): url is string => typeof url === "string" && url.startsWith("http")
+  );
+
+  if (validUrls.length === 0) {
+    return { status: "succeeded", masks: [] };
+  }
+
+  // Fetch each mask and convert to base64 data-URL so the client doesn't
+  // need to deal with cross-origin image loading.
+  const masks = await Promise.all(
+    validUrls.map(async (maskUrl) => {
+      try {
+        const maskRes = await fetch(maskUrl);
+        if (!maskRes.ok) return null;
+        const maskBuffer = await maskRes.arrayBuffer();
+        const base64 = Buffer.from(maskBuffer).toString("base64");
+        const ct = maskRes.headers.get("content-type") || "image/png";
+        return `data:${ct};base64,${base64}`;
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  return {
+    status: "succeeded",
+    masks: masks.filter((m): m is string => m !== null),
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * Resize data-URL images to prevent OOM on Replicate                  *
+ * ------------------------------------------------------------------ */
+
+async function resizeIfNeeded(
+  imageInput: string,
+  maxDim: number
+): Promise<string> {
+  if (!imageInput.startsWith("data:")) return imageInput;
+  try {
+    const commaIdx = imageInput.indexOf(",");
+    if (commaIdx === -1) return imageInput;
+    const header = imageInput.substring(0, commaIdx);
+    if (!header.includes(";base64")) return imageInput;
+    const b64 = imageInput.substring(commaIdx + 1);
+    const buffer = Buffer.from(b64, "base64");
+
+    let sharp: typeof import("sharp");
+    try {
+      sharp = (await import("sharp")).default;
+    } catch {
+      return imageInput;
+    }
+
+    const img = sharp(buffer);
+    const meta = await img.metadata();
+    const w = meta.width || 0;
+    const h = meta.height || 0;
+    if (w <= maxDim && h <= maxDim) return imageInput;
+
+    const resized = await img
+      .resize(maxDim, maxDim, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 85 })
+      .toBuffer();
+
+    console.log(
+      `[segment] Resized ${w}×${h} → ${Math.min(w, maxDim)}×${Math.min(h, maxDim)}`
+    );
+
+    return `data:image/jpeg;base64,${resized.toString("base64")}`;
+  } catch (err) {
+    console.warn("[segment] Resize failed, using original:", err);
+    return imageInput;
   }
 }

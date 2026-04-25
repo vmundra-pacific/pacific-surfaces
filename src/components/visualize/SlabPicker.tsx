@@ -45,15 +45,27 @@ export function SlabPicker({ slabs, active, onPick }: SlabPickerProps) {
                 }`}
                 aria-label={s.name}
               >
-                <div
-                  className="absolute inset-0"
-                  style={{ backgroundImage: s.swatch }}
-                />
-                {s.overlay && (
-                  <div
-                    className="absolute inset-0 opacity-80 mix-blend-overlay"
-                    style={{ backgroundImage: s.overlay }}
+                {s.photoUrl ? (
+                  // Real product photo from Sanity — preferred when available
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={s.photoUrl}
+                    alt={s.name}
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
+                ) : (
+                  <>
+                    <div
+                      className="absolute inset-0"
+                      style={{ backgroundImage: s.swatch }}
+                    />
+                    {s.overlay && (
+                      <div
+                        className="absolute inset-0 opacity-80 mix-blend-overlay"
+                        style={{ backgroundImage: s.overlay }}
+                      />
+                    )}
+                  </>
                 )}
                 <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/70 to-transparent">
                   <div className="text-[9px] tracking-[.1em] uppercase text-white/90 text-left leading-tight line-clamp-2">
@@ -62,7 +74,10 @@ export function SlabPicker({ slabs, active, onPick }: SlabPickerProps) {
                 </div>
                 {isActive && (
                   <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-pacific-light flex items-center justify-center">
-                    <Check className="w-3 h-3 text-pacific-dark" strokeWidth={3} />
+                    <Check
+                      className="w-3 h-3 text-pacific-dark"
+                      strokeWidth={3}
+                    />
                   </div>
                 )}
               </motion.button>

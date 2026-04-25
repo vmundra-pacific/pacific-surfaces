@@ -30,7 +30,13 @@ import { useSegment } from "./use-segment";
  *   2. Workspace: full-bleed canvas as the hero, slab dock along the bottom,
  *      inspector panel on the right (collapsible on smaller screens)
  */
-export function VisualizeClient() {
+interface VisualizeClientProps {
+  /** Slabs fetched from Sanity (mirrors the products page). Falls back to
+   *  the hardcoded local catalogue if empty / not provided. */
+  sanitySlabs?: Slab[];
+}
+
+export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [activeDemo, setActiveDemo] = useState<DemoRoom | null>(null);
   const [activeSlab, setActiveSlab] = useState<Slab | null>(null);
@@ -48,7 +54,12 @@ export function VisualizeClient() {
   } = useSegment();
 
   // Curate a focused slab shortlist for the picker — all 22 is noisy here.
+  // Prefer Sanity-managed products (so the visualizer always reflects what
+  // editors publish on the products page); fall back to the hardcoded list.
   const curated = useMemo(() => {
+    const source =
+      sanitySlabs && sanitySlabs.length > 0 ? sanitySlabs : ALL_SLABS;
+
     const preferredOrder = [
       "calacatta-pacifica",
       "calacatta-themis",
@@ -64,15 +75,17 @@ export function VisualizeClient() {
       "midnight-obsidian",
       "nero-statuario",
     ];
-    const byId = new Map(ALL_SLABS.map((s) => [s.id, s] as const));
+    // Sanity slabs use product slug; local slabs use id. Try both.
+    const bySlug = new Map(source.map((s) => [s.slug, s] as const));
+    const byId = new Map(source.map((s) => [s.id, s] as const));
     const picked: Slab[] = [];
-    for (const id of preferredOrder) {
-      const s = byId.get(id);
-      if (s) picked.push(s);
+    for (const key of preferredOrder) {
+      const s = bySlug.get(key) ?? byId.get(key);
+      if (s && !picked.includes(s)) picked.push(s);
     }
-    for (const s of ALL_SLABS) if (!picked.includes(s)) picked.push(s);
+    for (const s of source) if (!picked.includes(s)) picked.push(s);
     return picked;
-  }, []);
+  }, [sanitySlabs]);
 
   // When user uploads their own photo, trigger AI segmentation
   const handleUserUpload = (dataUrl: string) => {
@@ -265,14 +278,14 @@ export function VisualizeClient() {
               </div>
               <div className="text-pacific-light text-sm">
                 {segLoading
-                  ? "AI is detecting surfaces in your photo…"
+                  ? "AI is detecting countertops, walls, backsplashes, and furniture…"
                   : !activeRegion
                     ? aiMasks.length > 0
-                      ? "Surfaces detected. Tap a highlighted area to select it."
+                      ? `${aiMasks.length} surface${aiMasks.length > 1 ? "s" : ""} detected. Tap any highlighted area to select — tap again to deselect.`
                       : "Tap the countertop to select it. Use ⇧ + tap to extend or ⌥ + tap to trim."
                     : !activeSlab
-                      ? "Surface selected. Pick a slab below to preview it."
-                      : `${activeSlab.name} applied. Tap another surface to re-select.`}
+                      ? "Surface selected. Tap others to add them, then pick a slab below."
+                      : `${activeSlab.name} applied. Tap surfaces to add/remove them from the selection.`}
               </div>
             </div>
           </div>
@@ -434,15 +447,26 @@ function InspectorContents({
       {slab ? (
         <div>
           <div className="relative rounded-xl overflow-hidden aspect-[4/3] ring-1 ring-white/10 mb-4">
-            <div
-              className="absolute inset-0"
-              style={{ backgroundImage: slab.swatch }}
-            />
-            {slab.overlay && (
-              <div
-                className="absolute inset-0 mix-blend-overlay opacity-80"
-                style={{ backgroundImage: slab.overlay }}
+            {slab.photoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={slab.photoUrl}
+                alt={slab.name}
+                className="absolute inset-0 w-full h-full object-cover"
               />
+            ) : (
+              <>
+                <div
+                  className="absolute inset-0"
+                  style={{ backgroundImage: slab.swatch }}
+                />
+                {slab.overlay && (
+                  <div
+                    className="absolute inset-0 mix-blend-overlay opacity-80"
+                    style={{ backgroundImage: slab.overlay }}
+                  />
+                )}
+              </>
             )}
             <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
               <div className="text-pacific-light text-lg leading-tight">
