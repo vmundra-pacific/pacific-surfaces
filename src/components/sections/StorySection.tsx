@@ -18,7 +18,7 @@ export function StorySection() {
   return (
     <section
       ref={containerRef}
-      className="py-28 sm:py-36 px-6 bg-white overflow-hidden"
+      className="py-28 sm:py-36 px-6 bg-[#112732] overflow-hidden"
     >
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -27,7 +27,7 @@ export function StorySection() {
             {/* Heading */}
             <TextReveal
               as="h2"
-              className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-stone-900"
+              className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-white"
             >
               The Way We Do It
             </TextReveal>
@@ -38,7 +38,7 @@ export function StorySection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.2 }}
-              className="mt-8 text-lg text-stone-600 font-light leading-relaxed max-w-lg"
+              className="mt-8 text-lg text-pacific-mid font-light leading-relaxed max-w-lg"
             >
               Our journey begins where conventionality ends. We have never been
               accustomed to the word &apos;impossible&apos;. At Pacific we are
@@ -60,7 +60,7 @@ export function StorySection() {
                 href="/about"
                 variant="primary"
                 size="lg"
-                className="bg-stone-900 text-white border-stone-900 hover:bg-stone-800"
+                className="bg-white text-[#112732] border-white hover:bg-white/90"
               >
                 Learn More
                 <ArrowRight className="w-4 h-4" />
@@ -72,15 +72,15 @@ export function StorySection() {
           <div className="relative h-full min-h-[400px] lg:min-h-[500px]">
             <motion.div
               style={{ y }}
-              className="absolute inset-0 bg-stone-900 rounded-2xl overflow-hidden"
+              className="absolute inset-0 bg-white/5 rounded-2xl overflow-hidden"
             >
               {/* Placeholder for decorative content */}
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center px-8">
-                  <div className="text-6xl md:text-7xl font-light text-stone-700 mb-4">
+                  <div className="text-6xl md:text-7xl font-light text-pacific-light mb-4">
                     10+
                   </div>
-                  <p className="text-stone-500 font-light text-lg">
+                  <p className="text-pacific-mid font-light text-lg">
                     Years of Excellence
                   </p>
                 </div>

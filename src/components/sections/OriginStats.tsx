@@ -5,7 +5,7 @@ import { TextReveal } from "@/components/ui/text-reveal";
 
 export function OriginStats() {
   return (
-    <section className="py-20 md:py-28 px-6 bg-white">
+    <section className="py-20 md:py-28 px-6 bg-[#112732]">
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         {/* Left — copy + stats */}
         <motion.div
@@ -14,16 +14,16 @@ export function OriginStats() {
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
         >
-          <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-5">
+          <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-5">
             04 · The Origin
           </div>
           <TextReveal
             as="h2"
-            className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-stone-900 leading-[1.08] mb-6"
+            className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08] mb-6"
           >
             Cut, pressed, polished by us.
           </TextReveal>
-          <p className="text-base font-light text-stone-700 leading-relaxed mb-10 max-w-lg">
+          <p className="text-base font-light text-pacific-light leading-relaxed mb-10 max-w-lg">
             Pacific Engineered Surfaces is one of the few manufacturers in India
             running a full Bretonstone line. Every slab you specify is made at
             our Hosur plant — not sourced, not rebadged. That&apos;s why we can
@@ -37,10 +37,10 @@ export function OriginStats() {
               { n: '131"', l: "Max slab width" },
             ].map((s) => (
               <div key={s.l}>
-                <div className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+                <div className="text-3xl sm:text-4xl font-light tracking-tight text-white">
                   {s.n}
                 </div>
-                <div className="text-[10px] font-medium tracking-[0.2em] uppercase text-stone-500 mt-1">
+                <div className="text-[10px] font-medium tracking-[0.2em] uppercase text-pacific-mid mt-1">
                   {s.l}
                 </div>
               </div>

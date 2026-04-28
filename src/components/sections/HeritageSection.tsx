@@ -5,7 +5,7 @@ import { TextReveal } from "@/components/ui/text-reveal";
 
 export function HeritageSection() {
   return (
-    <section className="py-20 md:py-28 px-6 bg-stone-50" id="heritage">
+    <section className="py-20 md:py-28 px-6 bg-[#0e2030]" id="heritage">
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
         {/* Left — text */}
         <motion.div
@@ -14,16 +14,16 @@ export function HeritageSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
         >
-          <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-4">
+          <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-4">
             Manufacturer · Not a Reseller
           </div>
           <TextReveal
             as="h2"
-            className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-stone-900 leading-[1.08] mb-6"
+            className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08] mb-6"
           >
             We make every slab you specify.
           </TextReveal>
-          <p className="text-base font-light text-stone-700 leading-relaxed mb-10 max-w-lg">
+          <p className="text-base font-light text-pacific-light leading-relaxed mb-10 max-w-lg">
             Most competitors are distributors of other people&apos;s stone.
             Pacific designs, engineers, and presses every slab at our Hosur
             plant — one of only a handful of Bretonstone lines in India.
@@ -47,10 +47,10 @@ export function HeritageSection() {
               },
             ].map((p) => (
               <div key={p.title}>
-                <h5 className="text-sm font-medium text-stone-900 mb-2">
+                <h5 className="text-sm font-medium text-white mb-2">
                   {p.title}
                 </h5>
-                <p className="text-xs font-light text-stone-500 leading-relaxed">
+                <p className="text-xs font-light text-pacific-mid leading-relaxed">
                   {p.desc}
                 </p>
               </div>

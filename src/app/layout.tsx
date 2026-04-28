@@ -29,8 +29,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      {/*
+        suppressHydrationWarning is on <html> and <body> because
+        browser extensions (Grammarly, Dark Reader, ad-blockers,
+        the smooth-scroll layer, etc.) routinely inject inline
+        styles or attributes onto these elements BEFORE React hydrates.
+        The mismatch is harmless — React still patches up children —
+        but it spams the dev console with red errors. This flag tells
+        React to ignore mismatches on this single element only;
+        children still hydrate strictly.
+      */}
+      <body
+        suppressHydrationWarning
+        className={`${inter.variable} font-sans antialiased`}
+      >
         <GlobalDustMount />
         {children}
       </body>

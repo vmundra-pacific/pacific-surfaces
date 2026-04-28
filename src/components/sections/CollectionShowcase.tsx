@@ -3,57 +3,66 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { StaggerContainer, StaggerItem } from "@/components/ui/animated-section";
+import {
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/ui/animated-section";
 import { TextReveal } from "@/components/ui/text-reveal";
 
 const collections = [
   {
     name: "Chromia",
     slug: "chromia",
-    description: "Patented designer quartz with bold veining and marble-like depth",
-    image: "https://static.wixstatic.com/media/bf5166_02adca27941f4f039746dd6853c78858~mv2.jpg/v1/fit/w_1688,h_1688,q_90/file.jpg",
+    description:
+      "Patented designer quartz with bold veining and marble-like depth",
+    image:
+      "https://static.wixstatic.com/media/bf5166_02adca27941f4f039746dd6853c78858~mv2.jpg/v1/fit/w_1688,h_1688,q_90/file.jpg",
     count: "30+",
   },
   {
     name: "Kosmic",
     slug: "kosmic",
-    description: "Engineered quartzite surfaces with celestial patterns and textures",
-    image: "https://static.wixstatic.com/media/bf5166_472def5b6b6642228107ff13025f0e58~mv2.jpg/v1/fit/w_2013,h_1380,q_90/file.jpg",
+    description:
+      "Engineered quartzite surfaces with celestial patterns and textures",
+    image:
+      "https://static.wixstatic.com/media/bf5166_472def5b6b6642228107ff13025f0e58~mv2.jpg/v1/fit/w_2013,h_1380,q_90/file.jpg",
     count: "40+",
   },
   {
     name: "Granite",
     slug: "granite",
-    description: "Natural Indian granite in stunning finishes for enduring beauty",
-    image: "https://static.wixstatic.com/media/fd8707_7a1d45346df9425fb7eba254fd8b8096~mv2.jpg/v1/fit/w_1379,h_1379,q_90/file.jpg",
+    description:
+      "Natural Indian granite in stunning finishes for enduring beauty",
+    image:
+      "https://static.wixstatic.com/media/fd8707_7a1d45346df9425fb7eba254fd8b8096~mv2.jpg/v1/fit/w_1379,h_1379,q_90/file.jpg",
     count: "50+",
   },
 ];
 
 export function CollectionShowcase() {
   return (
-    <section className="py-28 sm:py-36 px-6 bg-white">
+    <section className="py-28 sm:py-36 px-6 bg-[#112732]">
       <div className="max-w-7xl mx-auto">
         {/* Section header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16 gap-6">
           <div>
             <TextReveal
               as="span"
-              className="text-xs font-medium tracking-[0.2em] uppercase text-stone-400 mb-4"
+              className="text-xs font-medium tracking-[0.2em] uppercase text-pacific-mid/70 mb-4"
             >
               Our Collections
             </TextReveal>
             <TextReveal
               as="h2"
               delay={0.15}
-              className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-stone-900"
+              className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-white"
             >
               Curated for Excellence
             </TextReveal>
           </div>
           <Link
             href="/collections"
-            className="group flex items-center gap-2 text-sm font-medium tracking-wide uppercase text-stone-500 hover:text-stone-900 transition-colors"
+            className="group flex items-center gap-2 text-sm font-medium tracking-wide uppercase text-pacific-mid hover:text-white transition-colors"
           >
             View All Collections
             <ArrowUpRight className="w-4 h-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -68,7 +77,7 @@ export function CollectionShowcase() {
                 <motion.div
                   whileHover={{ y: -8 }}
                   transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-                  className="relative overflow-hidden rounded-2xl aspect-[4/5] bg-stone-100"
+                  className="relative overflow-hidden rounded-2xl aspect-[4/5] bg-white/5"
                 >
                   {/* Image */}
                   <motion.div

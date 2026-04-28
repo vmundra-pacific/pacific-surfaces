@@ -9,7 +9,11 @@ import {
   Heart,
   LayoutGrid,
 } from "lucide-react";
-import { AnimatedSection, StaggerContainer, StaggerItem } from "@/components/ui/animated-section";
+import {
+  AnimatedSection,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/ui/animated-section";
 import { ProductCard } from "@/components/ui/product-card";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 
@@ -93,7 +97,11 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
+            transition={{
+              duration: 0.7,
+              delay: 0.2,
+              ease: [0.25, 0.4, 0.25, 1],
+            }}
             className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl"
           >
             The Future of Safe & Sustainable Surfaces
@@ -104,32 +112,48 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
             transition={{ duration: 0.7, delay: 0.35 }}
             className="mt-6 text-lg text-stone-400 max-w-2xl font-light leading-relaxed"
           >
-            Revolutionary low and zero silica surfaces designed to meet the growing demand for healthier, safer, and more environmentally-friendly materials. Our advanced surface solutions are engineered to provide aesthetic beauty and unmatched durability while ensuring maximum safety for those who work with and around them.
+            Revolutionary low and zero silica surfaces designed to meet the
+            growing demand for healthier, safer, and more
+            environmentally-friendly materials. Our advanced surface solutions
+            are engineered to provide aesthetic beauty and unmatched durability
+            while ensuring maximum safety for those who work with and around
+            them.
           </motion.p>
         </div>
       </section>
 
       {/* What are Ecosurfaces */}
-      <section className="bg-white border-b border-stone-100">
+      <section className="bg-[#112732] border-b border-white/10">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
-          <AnimatedSection animation="fadeUp" className="max-w-3xl mx-auto text-center">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-emerald-600 mb-4 block">What Are Ecosurfaces</span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900 mb-8">Safe, Stylish & Sustainable</h2>
-            <p className="text-stone-600 font-light leading-relaxed text-lg">
-              A revolutionary generation of surfaces crafted with a hybrid formulation that blends premium minerals, quartz, and recycled glass. This innovative approach results in a product that not only offers stunning aesthetics but also prioritizes health, safety, and sustainability.
+          <AnimatedSection
+            animation="fadeUp"
+            className="max-w-3xl mx-auto text-center"
+          >
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-4 block">
+              What Are Ecosurfaces
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white mb-8">
+              Safe, Stylish & Sustainable
+            </h2>
+            <p className="text-pacific-light font-light leading-relaxed text-lg">
+              A revolutionary generation of surfaces crafted with a hybrid
+              formulation that blends premium minerals, quartz, and recycled
+              glass. This innovative approach results in a product that not only
+              offers stunning aesthetics but also prioritizes health, safety,
+              and sustainability.
             </p>
           </AnimatedSection>
         </div>
       </section>
 
       {/* Products Grid */}
-      <section className="bg-white">
+      <section className="bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
           <AnimatedSection className="mb-16">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Our Collection
             </span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
               Eco-Conscious Surface Collection
             </h2>
           </AnimatedSection>
@@ -150,7 +174,7 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
               animate={{ opacity: 1 }}
               className="py-24 text-center"
             >
-              <p className="text-stone-400 text-lg font-light">
+              <p className="text-pacific-mid text-lg font-light">
                 Eco surface collection coming soon.
               </p>
             </motion.div>
@@ -159,13 +183,13 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
       </section>
 
       {/* Features */}
-      <section className="bg-stone-50">
+      <section className="bg-[#0e2030]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Why Choose Ecosurfaces
             </span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
               Premium Performance, Pure Responsibility
             </h2>
           </AnimatedSection>
@@ -175,14 +199,14 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
               const Icon = feature.icon;
               return (
                 <StaggerItem key={feature.title}>
-                  <div className="bg-white rounded-2xl p-8 h-full border border-stone-100 hover:border-stone-200 hover:shadow-lg transition-all duration-500">
-                    <div className="p-3 bg-emerald-50 rounded-xl w-fit">
-                      <Icon className="w-5 h-5 text-emerald-600" />
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-8 h-full hover:border-white/20 hover:shadow-lg transition-all duration-500">
+                    <div className="p-3 bg-white/5 rounded-xl w-fit">
+                      <Icon className="w-5 h-5 text-pacific-mid" />
                     </div>
-                    <h3 className="mt-6 text-base font-medium text-stone-900">
+                    <h3 className="mt-6 text-base font-medium text-white">
                       {feature.title}
                     </h3>
-                    <p className="mt-3 text-sm text-stone-500 font-light leading-relaxed">
+                    <p className="mt-3 text-sm text-pacific-mid font-light leading-relaxed">
                       {feature.description}
                     </p>
                   </div>

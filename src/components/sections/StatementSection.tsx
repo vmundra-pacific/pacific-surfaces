@@ -26,7 +26,7 @@ export function StatementSection({
   return (
     <section
       ref={ref}
-      className={`relative py-32 sm:py-44 lg:py-56 px-6 overflow-hidden ${isDark ? "bg-stone-950" : "bg-white"}`}
+      className={`relative py-32 sm:py-44 lg:py-56 px-6 overflow-hidden ${isDark ? "bg-stone-950" : "bg-[#112732]"}`}
     >
       {isDark && (
         <div
@@ -41,7 +41,7 @@ export function StatementSection({
         className="relative z-10 max-w-6xl mx-auto"
       >
         <h2
-          className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[4.5rem] font-light tracking-tight leading-[1.15] ${isDark ? "text-white" : "text-stone-900"}`}
+          className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[4.5rem] font-light tracking-tight leading-[1.15] ${isDark ? "text-white" : "text-white"}`}
         >
           {statement}
         </h2>

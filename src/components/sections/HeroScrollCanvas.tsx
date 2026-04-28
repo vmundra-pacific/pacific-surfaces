@@ -44,8 +44,8 @@ const CROSSFADE_DURATION = 0.04;
    Tune by eye: scroll into the crossfade, see if the overlap reads
    as one continuous form, adjust until it does. Set both to 0 to
    restore raw centred drawing. */
-const LUMP_Y_OFFSET_FRAC = 0.155;
-const LUMP_X_OFFSET_FRAC = -0.005;
+const LUMP_Y_OFFSET_FRAC = 0.15545;
+const LUMP_X_OFFSET_FRAC = -0.0052;
 
 interface Chapter {
   label: string;
@@ -63,21 +63,25 @@ const headlines = [
   {
     range: [0.08, 0.22] as [number, number],
     kicker: "Pacific Surfaces — 2026",
-    lines: ["Surfaces that hold", "entire rooms in tension."],
+    lines: ["Where every space", "finds its surface."],
   },
   {
     range: [0.24, 0.38] as [number, number],
     kicker: "",
     lines: [
-      "Sixty-five inches wide.",
-      "One hundred and thirty-one long.",
-      "One hundred percent considered.",
+      "79 inches wide.",
+      "137 inches long.",
+      "Creating seamless experiences in every space.",
     ],
   },
   {
     range: [0.42, 0.56] as [number, number],
     kicker: "",
-    lines: ["93% crushed quartz.", "7% binder.", "Zero compromise."],
+    lines: [
+      "93% aggregates at its core.",
+      "7% Advanced Resin.",
+      "0 compromise.",
+    ],
   },
   {
     range: [0.6, 0.72] as [number, number],
@@ -309,10 +313,19 @@ export function HeroScrollCanvas() {
     [sizeCanvas]
   );
 
-  // Scroll controller with lerp smoothing
+  // Scroll controller with lerp smoothing.
+  // We track the last value we PUSHED to React state separately
+  // from `smoothedProgressRef` so we can throttle setProgress to only
+  // fire on meaningful changes — without the throttle, the lerp's
+  // tiny per-frame float deltas trigger 60 setState calls/sec even
+  // when the user has stopped scrolling, which React 18 can flag as
+  // "Maximum update depth exceeded".
+  const lastPushedProgressRef = useRef(-1);
+
   useEffect(() => {
     let raf: number;
     const LERP_SPEED = 0.12; // 0–1, higher = snappier, lower = smoother
+    const PUSH_THRESHOLD = 0.001; // min |Δp| before we re-render
 
     const tick = () => {
       const track = trackRef.current;
@@ -336,7 +349,14 @@ export function HeroScrollCanvas() {
           : prev + diff * LERP_SPEED;
       smoothedProgressRef.current = p;
 
-      setProgress(p);
+      // Only push to React state when the change is large enough to
+      // matter visually. Skipping sub-threshold updates eliminates
+      // the per-frame setState churn while the lerp is converging
+      // or the user is idle.
+      if (Math.abs(p - lastPushedProgressRef.current) > PUSH_THRESHOLD) {
+        lastPushedProgressRef.current = p;
+        setProgress(p);
+      }
 
       // Phase routing.
       //   p < PHASE_KITCHEN_END                            → PURE KITCHEN
@@ -507,26 +527,12 @@ export function HeroScrollCanvas() {
             style={{ opacity: overlayOpacity }}
           />
 
-          {/* Chapter rail — bottom-left */}
+          {/* Brand footer — bottom-left. The chapter rail (01 · The
+              Space / 02 · The Slab / 03 · The Matter / 04 · The
+              Promise) was removed per request; the brand stamp stays
+              for context. */}
           <div className="absolute bottom-8 left-8 z-20 hidden md:flex flex-col gap-3">
-            {chapters.map((ch, i) => (
-              <div
-                key={ch.label}
-                className={`flex items-center gap-2.5 text-[10px] tracking-[0.18em] uppercase transition-all duration-500 ${
-                  i === activeChapter
-                    ? "text-white opacity-100"
-                    : "text-white/30 opacity-60"
-                }`}
-              >
-                <span
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${
-                    i === activeChapter ? "bg-white scale-125" : "bg-white/30"
-                  }`}
-                />
-                {ch.label}
-              </div>
-            ))}
-            <div className="mt-4 text-[10px] tracking-[0.2em] text-white/30 font-mono">
+            <div className="text-[10px] tracking-[0.2em] text-white/30 font-mono">
               PACIFIC · EST 2011 · INDIA
             </div>
           </div>
@@ -553,13 +559,28 @@ export function HeroScrollCanvas() {
                       {hl.kicker}
                     </div>
                   )}
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.05]">
+                  <h1
+                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight leading-[1.05]"
+                    style={{
+                      // Liquid-glass text: vertical gradient fill that
+                      // suggests reflective glass (bright white at top
+                      // and bottom, cooler tint in the middle), clipped
+                      // to the letterforms so each character looks like
+                      // it's been carved from translucent glass. Layered
+                      // drop-shadows give depth and a soft outer halo.
+                      backgroundImage:
+                        "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(200,220,235,0.82) 48%, rgba(160,185,210,0.78) 60%, rgba(255,255,255,0.95) 100%)",
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      filter:
+                        "drop-shadow(0 1px 0 rgba(255,255,255,0.45)) drop-shadow(0 4px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(180,210,240,0.25))",
+                    }}
+                  >
                     {hl.lines.map((line, j) => (
                       <span key={j}>
                         {j === hl.lines.length - 1 ? (
-                          <em className="text-[#9AA8B6] not-italic block">
-                            {line}
-                          </em>
+                          <em className="not-italic block">{line}</em>
                         ) : (
                           <>
                             {line}

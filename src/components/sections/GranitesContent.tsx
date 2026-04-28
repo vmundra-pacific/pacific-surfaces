@@ -97,7 +97,11 @@ export function GranitesContent({ products }: GranitesContentProps) {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
+            transition={{
+              duration: 0.7,
+              delay: 0.2,
+              ease: [0.25, 0.4, 0.25, 1],
+            }}
             className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl"
           >
             Premium Natural Granite Collection
@@ -108,19 +112,21 @@ export function GranitesContent({ products }: GranitesContentProps) {
             transition={{ duration: 0.7, delay: 0.35 }}
             className="mt-6 text-lg text-stone-400 max-w-2xl font-light leading-relaxed"
           >
-            Each slab of our collections is crafted with the artistry of nature at its best. Each slab displays the legendary stories of the quarry it comes from, polished and cut by the finest Italian equipment.
+            Each slab of our collections is crafted with the artistry of nature
+            at its best. Each slab displays the legendary stories of the quarry
+            it comes from, polished and cut by the finest Italian equipment.
           </motion.p>
         </div>
       </section>
 
       {/* Products Grid */}
-      <section className="bg-white">
+      <section className="bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
           <AnimatedSection className="mb-16">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Our Collection
             </span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
               Premium Natural Granite Selection
             </h2>
           </AnimatedSection>
@@ -141,7 +147,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
               animate={{ opacity: 1 }}
               className="py-24 text-center"
             >
-              <p className="text-stone-400 text-lg font-light">
+              <p className="text-pacific-mid text-lg font-light">
                 Granite collection coming soon.
               </p>
             </motion.div>
@@ -152,11 +158,20 @@ export function GranitesContent({ products }: GranitesContentProps) {
       {/* Stone Finishes */}
       <section className="bg-stone-950">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
-          <AnimatedSection animation="fadeUp" className="max-w-3xl mx-auto text-center mb-16">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-amber-400 mb-4 block">Fusion of Aesthetics, Functionality, and Innovation</span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white mb-8">Stone Beyond Imagination</h2>
+          <AnimatedSection
+            animation="fadeUp"
+            className="max-w-3xl mx-auto text-center mb-16"
+          >
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-amber-400 mb-4 block">
+              Fusion of Aesthetics, Functionality, and Innovation
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white mb-8">
+              Stone Beyond Imagination
+            </h2>
             <p className="text-stone-300 font-light leading-relaxed text-lg">
-              Explore a world of special textures and modern finishing that will transform your space into a realm of contemporary luxury. Each piece is carefully crafted to elevate your living experience.
+              Explore a world of special textures and modern finishing that will
+              transform your space into a realm of contemporary luxury. Each
+              piece is carefully crafted to elevate your living experience.
             </p>
           </AnimatedSection>
 
@@ -169,13 +184,17 @@ export function GranitesContent({ products }: GranitesContentProps) {
               className="bg-stone-900 rounded-2xl p-8 border border-stone-800"
             >
               <div className="mb-6">
-                <span className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-amber-400">ENIGMA Finish</span>
+                <span className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-amber-400">
+                  ENIGMA Finish
+                </span>
               </div>
               <h3 className="text-xl font-light tracking-tight text-white mb-4">
                 ENIGMA
               </h3>
               <p className="text-stone-400 font-light leading-relaxed">
-                A sophisticated and mysterious finish that brings depth and character to any space. Perfect for those seeking a modern, understated elegance.
+                A sophisticated and mysterious finish that brings depth and
+                character to any space. Perfect for those seeking a modern,
+                understated elegance.
               </p>
             </motion.div>
 
@@ -187,13 +206,17 @@ export function GranitesContent({ products }: GranitesContentProps) {
               className="bg-stone-900 rounded-2xl p-8 border border-stone-800"
             >
               <div className="mb-6">
-                <span className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-amber-400">INTERSTELLAR Finish</span>
+                <span className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-amber-400">
+                  INTERSTELLAR Finish
+                </span>
               </div>
               <h3 className="text-xl font-light tracking-tight text-white mb-4">
                 INTERSTELLAR
               </h3>
               <p className="text-stone-400 font-light leading-relaxed">
-                An innovative finish that captures the essence of cosmic wonder. Featuring unique patterns and textures that inspire awe and create remarkable visual impact.
+                An innovative finish that captures the essence of cosmic wonder.
+                Featuring unique patterns and textures that inspire awe and
+                create remarkable visual impact.
               </p>
             </motion.div>
           </div>
@@ -223,16 +246,16 @@ export function GranitesContent({ products }: GranitesContentProps) {
       </section>
 
       {/* Granite Enquiry Form */}
-      <section className="bg-stone-50">
+      <section className="bg-[#0e2030]">
         <div className="mx-auto max-w-3xl px-6 lg:px-8 py-20 lg:py-32">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Get a Quote
             </span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
               Find Your Perfect Granite Slab
             </h2>
-            <p className="mt-4 text-stone-500 font-light max-w-xl mx-auto">
+            <p className="mt-4 text-pacific-mid font-light max-w-xl mx-auto">
               Tell us about your project and our specialists will help you
               select the ideal granite for your needs.
             </p>
@@ -242,15 +265,15 @@ export function GranitesContent({ products }: GranitesContentProps) {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-2xl p-12 text-center border border-stone-100"
+              className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center"
             >
-              <div className="p-4 bg-emerald-50 rounded-full w-fit mx-auto mb-6">
-                <CheckCircle className="w-8 h-8 text-emerald-600" />
+              <div className="p-4 bg-white/5 rounded-full w-fit mx-auto mb-6">
+                <CheckCircle className="w-8 h-8 text-pacific-mid" />
               </div>
-              <h3 className="text-xl font-medium text-stone-900">
+              <h3 className="text-xl font-medium text-white">
                 Enquiry Submitted
               </h3>
-              <p className="mt-3 text-stone-500 font-light max-w-sm mx-auto">
+              <p className="mt-3 text-pacific-mid font-light max-w-sm mx-auto">
                 Thank you for your interest. Our granite specialists will
                 contact you within 24 hours with curated recommendations.
               </p>
@@ -267,7 +290,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                     message: "",
                   });
                 }}
-                className="mt-6 text-sm text-stone-600 underline hover:text-stone-900 transition-colors"
+                className="mt-6 text-sm text-pacific-light underline hover:text-white transition-colors"
               >
                 Submit another enquiry
               </button>
@@ -278,14 +301,14 @@ export function GranitesContent({ products }: GranitesContentProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="bg-white rounded-2xl p-8 lg:p-12 border border-stone-100 space-y-6"
+              className="bg-white/5 border border-white/10 rounded-2xl p-8 lg:p-12 space-y-6"
             >
               {/* Name and Phone */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-xs font-medium tracking-wider uppercase text-stone-400 mb-2"
+                    className="block text-xs font-medium tracking-wider uppercase text-pacific-mid/70 mb-2"
                   >
                     Full Name
                   </label>
@@ -297,14 +320,14 @@ export function GranitesContent({ products }: GranitesContentProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-200 text-stone-900 text-sm focus:outline-none focus:border-stone-900 transition-colors placeholder:text-stone-300"
+                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-white/10 text-white text-sm focus:outline-none focus:border-white transition-colors placeholder:text-pacific-mid/50"
                     placeholder="Your name"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="phone"
-                    className="block text-xs font-medium tracking-wider uppercase text-stone-400 mb-2"
+                    className="block text-xs font-medium tracking-wider uppercase text-pacific-mid/70 mb-2"
                   >
                     Phone
                   </label>
@@ -316,7 +339,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, phone: e.target.value })
                     }
-                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-200 text-stone-900 text-sm focus:outline-none focus:border-stone-900 transition-colors placeholder:text-stone-300"
+                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-white/10 text-white text-sm focus:outline-none focus:border-white transition-colors placeholder:text-pacific-mid/50"
                     placeholder="+91 98765 43210"
                   />
                 </div>
@@ -327,7 +350,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-xs font-medium tracking-wider uppercase text-stone-400 mb-2"
+                    className="block text-xs font-medium tracking-wider uppercase text-pacific-mid/70 mb-2"
                   >
                     Email
                   </label>
@@ -339,14 +362,14 @@ export function GranitesContent({ products }: GranitesContentProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-200 text-stone-900 text-sm focus:outline-none focus:border-stone-900 transition-colors placeholder:text-stone-300"
+                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-white/10 text-white text-sm focus:outline-none focus:border-white transition-colors placeholder:text-pacific-mid/50"
                     placeholder="you@email.com"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="city"
-                    className="block text-xs font-medium tracking-wider uppercase text-stone-400 mb-2"
+                    className="block text-xs font-medium tracking-wider uppercase text-pacific-mid/70 mb-2"
                   >
                     City
                   </label>
@@ -358,7 +381,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, city: e.target.value })
                     }
-                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-200 text-stone-900 text-sm focus:outline-none focus:border-stone-900 transition-colors placeholder:text-stone-300"
+                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-white/10 text-white text-sm focus:outline-none focus:border-white transition-colors placeholder:text-pacific-mid/50"
                     placeholder="Your city"
                   />
                 </div>
@@ -369,7 +392,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                 <div>
                   <label
                     htmlFor="profession"
-                    className="block text-xs font-medium tracking-wider uppercase text-stone-400 mb-2"
+                    className="block text-xs font-medium tracking-wider uppercase text-pacific-mid/70 mb-2"
                   >
                     I am
                   </label>
@@ -380,7 +403,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, profession: e.target.value })
                     }
-                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-200 text-stone-900 text-sm focus:outline-none focus:border-stone-900 transition-colors"
+                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-white/10 text-white text-sm focus:outline-none focus:border-white transition-colors"
                   >
                     <option value="">Select profession</option>
                     {professionOptions.map((option) => (
@@ -393,7 +416,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                 <div>
                   <label
                     htmlFor="application"
-                    className="block text-xs font-medium tracking-wider uppercase text-stone-400 mb-2"
+                    className="block text-xs font-medium tracking-wider uppercase text-pacific-mid/70 mb-2"
                   >
                     Application
                   </label>
@@ -404,7 +427,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, application: e.target.value })
                     }
-                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-200 text-stone-900 text-sm focus:outline-none focus:border-stone-900 transition-colors"
+                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-white/10 text-white text-sm focus:outline-none focus:border-white transition-colors"
                   >
                     <option value="">Select application</option>
                     {applicationOptions.map((option) => (
@@ -420,7 +443,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
               <div>
                 <label
                   htmlFor="message"
-                  className="block text-xs font-medium tracking-wider uppercase text-stone-400 mb-2"
+                  className="block text-xs font-medium tracking-wider uppercase text-pacific-mid/70 mb-2"
                 >
                   Message
                 </label>
@@ -431,7 +454,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                   onChange={(e) =>
                     setFormData({ ...formData, message: e.target.value })
                   }
-                  className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-200 text-stone-900 text-sm focus:outline-none focus:border-stone-900 transition-colors resize-none placeholder:text-stone-300"
+                  className="w-full px-0 py-3 bg-transparent border-0 border-b border-white/10 text-white text-sm focus:outline-none focus:border-white transition-colors resize-none placeholder:text-pacific-mid/50"
                   placeholder="Tell us about your project and requirements..."
                 />
               </div>
@@ -442,7 +465,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                 disabled={formState === "sending"}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center gap-3 bg-stone-900 text-white px-8 py-4 rounded-full text-sm font-medium tracking-wider uppercase hover:bg-stone-800 transition-colors disabled:opacity-60 mt-4"
+                className="inline-flex items-center gap-3 bg-white text-[#112732] px-8 py-4 rounded-full text-sm font-medium tracking-wider uppercase hover:bg-white/90 transition-colors disabled:opacity-60 mt-4"
               >
                 {formState === "sending" ? (
                   <>
@@ -456,7 +479,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                   </>
                 )}
               </motion.button>
-              <p className="mt-6 text-center text-sm text-stone-500 font-light">
+              <p className="mt-6 text-center text-sm text-pacific-mid font-light">
                 We respond within 24 hours
               </p>
             </motion.form>

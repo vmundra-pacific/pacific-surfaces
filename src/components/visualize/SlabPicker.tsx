@@ -6,27 +6,59 @@ import type { Slab } from "@/data/slabs";
 
 interface SlabPickerProps {
   slabs: Slab[];
+  /** The slab assigned to the currently focused surface (used to
+   *  highlight the active swatch). */
   active: Slab | null;
+  /** Pick a slab — the parent assigns it to the focused surface only. */
   onPick: (s: Slab) => void;
+  /** Optional label for the focused surface, shown so the user knows
+   *  which surface their slab pick will be applied to. */
+  focusedSurfaceLabel?: string | null;
+  /** Show the "Apply to all selected" button (only when at least one
+   *  surface already has a slab). */
+  canApplyToAll?: boolean;
+  /** Click handler for the "Apply to all" button — assigns the
+   *  currently focused slab to every selected surface. */
+  onApplyToAll?: () => void;
 }
 
-export function SlabPicker({ slabs, active, onPick }: SlabPickerProps) {
+export function SlabPicker({
+  slabs,
+  active,
+  onPick,
+  focusedSurfaceLabel,
+  canApplyToAll,
+  onApplyToAll,
+}: SlabPickerProps) {
   return (
     <div className="relative">
-      <div className="flex items-baseline justify-between mb-4">
-        <div>
+      <div className="flex items-baseline justify-between mb-4 gap-3">
+        <div className="min-w-0">
           <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid">
-            Apply a slab
+            {focusedSurfaceLabel
+              ? `Slab for ${focusedSurfaceLabel}`
+              : "Apply a slab"}
           </div>
-          <div className="text-pacific-light/90 text-sm mt-1">
-            {active ? active.name : "Select a finish to preview it in place"}
+          <div className="text-pacific-light/90 text-sm mt-1 truncate">
+            {active ? active.name : "Tap a surface, then pick a finish"}
           </div>
         </div>
-        {active && (
-          <div className="text-[10px] tracking-[.22em] uppercase text-pacific-mid">
-            {active.collection} · {active.pattern}
-          </div>
-        )}
+        <div className="flex items-center gap-3 shrink-0">
+          {active && (
+            <div className="hidden sm:block text-[10px] tracking-[.22em] uppercase text-pacific-mid">
+              {active.collection} · {active.pattern}
+            </div>
+          )}
+          {canApplyToAll && onApplyToAll && (
+            <button
+              onClick={onApplyToAll}
+              className="text-[10px] tracking-[.22em] uppercase text-pacific-mid hover:text-pacific-light px-3 py-1.5 border border-white/15 rounded-full hover:border-white/40 transition-colors"
+              title="Apply this slab to every selected surface"
+            >
+              Apply to all
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto pb-2 -mx-1 scrollbar-thin">

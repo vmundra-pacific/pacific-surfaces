@@ -1,5 +1,20 @@
 import { groq } from "next-sanity";
 
+// Catalogue page — lightweight projection for filter UI
+export const catalogueProductsQuery = groq`
+  *[_type == "product"] | order(name asc) {
+    _id,
+    name,
+    slug,
+    "mainImage": mainImage.asset->url,
+    "collectionName": collection->name,
+    finishes,
+    thickness,
+    ribbons,
+    visible
+  }
+`;
+
 // Products
 export const allProductsQuery = groq`
   *[_type == "product"] | order(name asc) {
@@ -33,6 +48,8 @@ export const productBySlugQuery = groq`
     "mainImage": mainImage.asset->url,
     "gallery": gallery[].asset->url,
     "roomScenes": roomScenes[].asset->url,
+    "hdFileUrl": hdFile.asset->url,
+    "specSheetUrl": specSheet.asset->url,
     price,
     category->{_id, name, slug},
     collection->{_id, name, slug},
@@ -46,8 +63,18 @@ export const productBySlugQuery = groq`
     seoDescription,
     seoKeywords,
     visible,
-    "relatedProducts": *[_type == "product" && collection._ref == ^.collection._ref && _id != ^._id][0...4] {
-      _id, name, slug, "mainImage": mainImage.asset->url, price
+    "relatedProducts": coalesce(
+      *[_type == "product" && collection._ref == ^.collection._ref && _id != ^._id][0...12] {
+        _id, name, slug, "mainImage": mainImage.asset->url, price,
+        "collectionName": collection->name,
+        "categoryName": category->name
+      },
+      []
+    ),
+    "allOtherProducts": *[_type == "product" && _id != ^._id] | order(name asc) {
+      _id, name, slug, "mainImage": mainImage.asset->url, price,
+      "categoryName": category->name,
+      "collectionName": collection->name
     }
   }
 `;
@@ -209,6 +236,20 @@ export const featuredDealersQuery = groq`
     description,
     phone,
     mapPin
+  }
+`;
+
+// Resources — downloadable PDFs grouped by category for /resources page
+export const allResourcesQuery = groq`
+  *[_type == "resource" && visible == true] | order(category asc, order asc, title asc) {
+    _id,
+    title,
+    category,
+    description,
+    "thumbnail": thumbnail.asset->url,
+    "pdfUrl": pdfFile.asset->url,
+    "pdfName": pdfFile.asset->originalFilename,
+    order
   }
 `;
 

@@ -16,18 +16,11 @@ export type Hue =
   | "blue"
   | "gold";
 
-export type Collection =
-  | "Vision Series"
-  | "Luminara"
-  | "Celestia"
-  | "Aurora"
-  | "Nebula"
-  | "Kosmic"
-  | "Chromia";
+export type Collection = string;
 
-export type Pattern = "Marble-look" | "Veined" | "Solid" | "Movement";
-export type Finish = "Polished" | "Honed" | "Leathered";
-export type Thickness = "12mm" | "20mm" | "30mm";
+export type Pattern = string;
+export type Finish = string;
+export type Thickness = string;
 export type Ribbon = "new" | "featured" | null;
 
 export interface Slab {
@@ -63,28 +56,23 @@ const tx = {
   whiteMarbleVein:
     "linear-gradient(115deg, transparent 40%, rgba(120,130,140,.2) 42%, transparent 44%), linear-gradient(160deg, transparent 60%, rgba(90,100,110,.25) 62%, transparent 64%)",
 
-  darkMarble:
-    "linear-gradient(135deg, #2a3640 0%, #1a2832 50%, #0f1a22 100%)",
+  darkMarble: "linear-gradient(135deg, #2a3640 0%, #1a2832 50%, #0f1a22 100%)",
   darkMarbleVein:
     "linear-gradient(45deg, transparent 48%, rgba(180,190,200,.15) 49%, rgba(220,225,232,.3) 50%, rgba(180,190,200,.15) 51%, transparent 52%), radial-gradient(circle at 20% 80%, rgba(218,225,232,.2) 0%, transparent 35%)",
 
-  cream:
-    "linear-gradient(160deg, #f4f0e8 0%, #ded5c5 50%, #b8a98d 100%)",
+  cream: "linear-gradient(160deg, #f4f0e8 0%, #ded5c5 50%, #b8a98d 100%)",
   creamVein:
     "linear-gradient(70deg, transparent 45%, rgba(140,110,80,.25) 47%, transparent 49%), radial-gradient(ellipse at 80% 20%, rgba(255,250,240,.5) 0%, transparent 40%)",
 
-  grey:
-    "radial-gradient(ellipse at 60% 40%, #f8f9fb 0%, #dfe3e8 50%, #aab3bc 100%)",
+  grey: "radial-gradient(ellipse at 60% 40%, #f8f9fb 0%, #dfe3e8 50%, #aab3bc 100%)",
   greyVein:
     "linear-gradient(130deg, transparent 30%, rgba(100,110,120,.3) 32%, transparent 35%), linear-gradient(170deg, transparent 55%, rgba(140,150,160,.2) 57%, transparent 60%)",
 
-  darkBlue:
-    "linear-gradient(135deg, #3a4852 0%, #28353f 50%, #1a2631 100%)",
+  darkBlue: "linear-gradient(135deg, #3a4852 0%, #28353f 50%, #1a2631 100%)",
   darkBlueVein:
     "radial-gradient(circle at 40% 60%, rgba(218,225,232,.22) 0%, transparent 40%), linear-gradient(60deg, transparent 40%, rgba(180,195,210,.15) 42%, transparent 44%)",
 
-  brown:
-    "linear-gradient(145deg, #eae3d4 0%, #c9bca2 60%, #8a7a5c 100%)",
+  brown: "linear-gradient(145deg, #eae3d4 0%, #c9bca2 60%, #8a7a5c 100%)",
   brownVein:
     "linear-gradient(100deg, transparent 50%, rgba(90,70,40,.25) 52%, transparent 54%), radial-gradient(circle at 70% 30%, rgba(255,250,235,.4) 0%, transparent 35%)",
 
@@ -93,13 +81,11 @@ const tx = {
   pureWhiteVein:
     "linear-gradient(45deg, transparent 48%, rgba(170,180,195,.35) 50%, transparent 52%), linear-gradient(140deg, transparent 65%, rgba(120,130,140,.2) 67%, transparent 69%)",
 
-  blackObsidian:
-    "linear-gradient(140deg, #0e1820 0%, #1a2832 100%)",
+  blackObsidian: "linear-gradient(140deg, #0e1820 0%, #1a2832 100%)",
   blackObsidianVein:
     "radial-gradient(ellipse at 30% 70%, rgba(218,225,232,.18) 0%, transparent 45%), linear-gradient(80deg, transparent 30%, rgba(200,210,220,.1) 32%, transparent 35%)",
 
-  beige:
-    "linear-gradient(160deg, #dedcd3 0%, #beb5a0 50%, #8b8168 100%)",
+  beige: "linear-gradient(160deg, #dedcd3 0%, #beb5a0 50%, #8b8168 100%)",
   beigeVein:
     "radial-gradient(circle at 20% 30%, rgba(255,245,225,.5) 0%, transparent 35%), linear-gradient(115deg, transparent 40%, rgba(100,85,55,.2) 42%, transparent 44%)",
 
@@ -108,13 +94,11 @@ const tx = {
   calacattaVein:
     "linear-gradient(50deg, transparent 30%, rgba(90,100,115,.3) 32%, transparent 34%), linear-gradient(155deg, transparent 55%, rgba(130,145,160,.25) 57%, transparent 59%), radial-gradient(circle at 70% 30%, rgba(255,255,255,.5) 0%, transparent 30%)",
 
-  graphite:
-    "linear-gradient(135deg, #292e35 0%, #1a1f25 60%, #0d1216 100%)",
+  graphite: "linear-gradient(135deg, #292e35 0%, #1a1f25 60%, #0d1216 100%)",
   graphiteVein:
     "linear-gradient(65deg, transparent 40%, rgba(210,220,230,.2) 42%, transparent 44%), radial-gradient(circle at 80% 20%, rgba(220,230,240,.2) 0%, transparent 35%)",
 
-  gold:
-    "radial-gradient(ellipse at 30% 30%, #f4efe5 0%, #d5c9b0 50%, #a28e6a 100%)",
+  gold: "radial-gradient(ellipse at 30% 30%, #f4efe5 0%, #d5c9b0 50%, #a28e6a 100%)",
   goldVein:
     "radial-gradient(circle at 60% 70%, rgba(255,245,220,.4) 0%, transparent 35%), linear-gradient(110deg, transparent 45%, rgba(110,85,55,.25) 47%, transparent 49%)",
 };
@@ -413,14 +397,46 @@ export const slabs: Slab[] = [
  * ------------------------------------------------------------------ */
 
 export const HUE_OPTIONS: { value: Hue; label: string; color: string }[] = [
-  { value: "white", label: "White", color: "linear-gradient(135deg,#fff,#e5e8ec)" },
-  { value: "cream", label: "Cream", color: "linear-gradient(135deg,#f4f0e8,#c9b99a)" },
-  { value: "beige", label: "Beige", color: "linear-gradient(135deg,#d8c8a8,#b09868)" },
-  { value: "grey",  label: "Grey",  color: "linear-gradient(135deg,#b8bec5,#6c7681)" },
-  { value: "dark",  label: "Dark",  color: "linear-gradient(135deg,#1a2430,#0a1018)" },
-  { value: "brown", label: "Brown", color: "linear-gradient(135deg,#8a7a5c,#5a4a32)" },
-  { value: "blue",  label: "Blue",  color: "linear-gradient(135deg,#112732,#9AA8B6)" },
-  { value: "gold",  label: "Gold",  color: "linear-gradient(135deg,#e0d8c0,#a89878)" },
+  {
+    value: "white",
+    label: "White",
+    color: "linear-gradient(135deg,#fff,#e5e8ec)",
+  },
+  {
+    value: "cream",
+    label: "Cream",
+    color: "linear-gradient(135deg,#f4f0e8,#c9b99a)",
+  },
+  {
+    value: "beige",
+    label: "Beige",
+    color: "linear-gradient(135deg,#d8c8a8,#b09868)",
+  },
+  {
+    value: "grey",
+    label: "Grey",
+    color: "linear-gradient(135deg,#b8bec5,#6c7681)",
+  },
+  {
+    value: "dark",
+    label: "Dark",
+    color: "linear-gradient(135deg,#1a2430,#0a1018)",
+  },
+  {
+    value: "brown",
+    label: "Brown",
+    color: "linear-gradient(135deg,#8a7a5c,#5a4a32)",
+  },
+  {
+    value: "blue",
+    label: "Blue",
+    color: "linear-gradient(135deg,#112732,#9AA8B6)",
+  },
+  {
+    value: "gold",
+    label: "Gold",
+    color: "linear-gradient(135deg,#e0d8c0,#a89878)",
+  },
 ];
 
 export const COLLECTIONS: Collection[] = [
@@ -433,6 +449,11 @@ export const COLLECTIONS: Collection[] = [
   "Chromia",
 ];
 
-export const PATTERNS: Pattern[] = ["Marble-look", "Veined", "Solid", "Movement"];
+export const PATTERNS: Pattern[] = [
+  "Marble-look",
+  "Veined",
+  "Solid",
+  "Movement",
+];
 export const FINISHES: Finish[] = ["Polished", "Honed", "Leathered"];
 export const THICKNESSES: Thickness[] = ["12mm", "20mm", "30mm"];

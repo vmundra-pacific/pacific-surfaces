@@ -83,7 +83,7 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
         );
 
   return (
-    <section className="py-20 md:py-28 px-6 bg-white" id="dealer">
+    <section className="py-20 md:py-28 px-6 bg-[#112732]" id="dealer">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
           {/* Left side */}
@@ -94,16 +94,16 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
             transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
             className="lg:col-span-2"
           >
-            <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-4">
+            <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-4">
               Where to Buy
             </div>
             <TextReveal
               as="h2"
-              className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-stone-900 leading-[1.08] mb-6"
+              className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08] mb-6"
             >
               Find a Pacific dealer near you.
             </TextReveal>
-            <p className="text-base font-light text-stone-700 leading-relaxed mb-8">
+            <p className="text-base font-light text-pacific-light leading-relaxed mb-8">
               Over 140 dealers across India, the USA, Europe, and the Middle
               East. Walk in, see the slabs, and request a sample on the spot.
             </p>
@@ -114,9 +114,9 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
                 type="text"
                 placeholder="Enter ZIP or city"
                 defaultValue="Bengaluru"
-                className="flex-1 border border-stone-200 rounded-md px-3 py-2.5 text-sm font-light text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 transition-colors"
+                className="flex-1 border border-white/10 rounded-md px-3 py-2.5 text-sm font-light text-white bg-white/5 placeholder-pacific-mid focus:outline-none focus:border-white/30 transition-colors"
               />
-              <button className="px-5 py-2.5 bg-stone-900 text-white text-xs font-medium tracking-[0.15em] uppercase rounded-md hover:bg-stone-800 transition-colors">
+              <button className="px-5 py-2.5 bg-white text-[#112732] text-xs font-medium tracking-[0.15em] uppercase rounded-md hover:bg-white/90 transition-colors">
                 Search
               </button>
             </div>
@@ -129,8 +129,8 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
                   onClick={() => setActiveFilter(f)}
                   className={`px-3.5 py-1.5 rounded-full text-[11px] font-medium tracking-[0.1em] uppercase transition-colors ${
                     activeFilter === f
-                      ? "bg-stone-900 text-white"
-                      : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                      ? "bg-white text-[#112732]"
+                      : "bg-white/5 text-pacific-mid hover:bg-white/10"
                   }`}
                 >
                   {f}
@@ -146,10 +146,10 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
                 { n: "4", l: "Continents" },
               ].map((s) => (
                 <div key={s.l}>
-                  <div className="text-3xl font-light tracking-tight text-stone-900">
+                  <div className="text-3xl font-light tracking-tight text-white">
                     {s.n}
                   </div>
-                  <div className="text-[10px] font-medium tracking-[0.2em] uppercase text-stone-500 mt-1">
+                  <div className="text-[10px] font-medium tracking-[0.2em] uppercase text-pacific-mid mt-1">
                     {s.l}
                   </div>
                 </div>
@@ -166,7 +166,7 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
             className="lg:col-span-3 relative"
           >
             {/* Map */}
-            <div className="relative rounded-2xl overflow-hidden bg-[#eef1f4] aspect-[16/10]">
+            <div className="relative rounded-2xl overflow-hidden bg-[#0e2030] aspect-[16/10]">
               <svg
                 viewBox="0 0 800 520"
                 preserveAspectRatio="xMidYMid slice"
@@ -182,14 +182,14 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
                     <path
                       d="M 24 0 L 0 0 0 24"
                       fill="none"
-                      stroke="#d8dee5"
+                      stroke="rgba(255,255,255,0.06)"
                       strokeWidth="0.5"
                     />
                   </pattern>
                 </defs>
-                <rect width="100%" height="100%" fill="#eef1f4" />
+                <rect width="100%" height="100%" fill="#0e2030" />
                 <rect width="100%" height="100%" fill="url(#grid)" />
-                <g fill="#c4ccd4" opacity="0.7">
+                <g fill="rgba(255,255,255,0.08)" opacity="0.7">
                   <path d="M80 140 C 120 110, 200 100, 240 130 C 260 150, 250 200, 220 230 C 180 260, 130 240, 100 220 C 70 200, 60 170, 80 140 Z" />
                   <path d="M200 290 C 220 280, 240 310, 235 360 C 225 410, 200 430, 185 410 C 170 380, 170 320, 200 290 Z" />
                   <path d="M380 120 C 410 110, 450 120, 470 140 C 480 160, 470 185, 450 195 C 420 200, 390 185, 380 160 C 375 145, 375 130, 380 120 Z" />
@@ -219,7 +219,7 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
                   style={{ left: pin.left, top: pin.top }}
                   title={pin.title}
                 >
-                  <div className="w-full h-full rounded-full bg-[#112732] border-2 border-white shadow-md" />
+                  <div className="w-full h-full rounded-full bg-white border-2 border-[#112732] shadow-md" />
                 </div>
               ))}
             </div>
@@ -229,26 +229,26 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
               {filteredDealers.slice(0, 3).map((d) => (
                 <div
                   key={d.name}
-                  className="rounded-xl border border-stone-200 p-4 hover:border-stone-400 transition-colors"
+                  className="rounded-xl bg-white/5 border border-white/10 p-4 hover:border-white/20 transition-colors"
                 >
-                  <div className="text-[10px] font-medium tracking-[0.15em] uppercase text-stone-500 mb-2">
+                  <div className="text-[10px] font-medium tracking-[0.15em] uppercase text-pacific-mid mb-2">
                     {d.tag}
                   </div>
-                  <h4 className="text-sm font-medium text-stone-900 mb-1.5">
+                  <h4 className="text-sm font-medium text-white mb-1.5">
                     {d.name}
                   </h4>
-                  <p className="text-xs font-light text-stone-500 leading-relaxed mb-3">
+                  <p className="text-xs font-light text-pacific-mid leading-relaxed mb-3">
                     {d.desc}
                   </p>
                   <div className="flex gap-3">
-                    <button className="flex items-center gap-1 text-[10px] font-medium tracking-[0.12em] uppercase text-stone-900 hover:text-stone-600 transition-colors">
+                    <button className="flex items-center gap-1 text-[10px] font-medium tracking-[0.12em] uppercase text-white hover:text-pacific-light transition-colors">
                       <MapPin className="w-3 h-3" />
                       Directions
                     </button>
                     {d.phone && (
                       <a
                         href={`tel:${d.phone}`}
-                        className="flex items-center gap-1 text-[10px] font-medium tracking-[0.12em] uppercase text-stone-500 hover:text-stone-700 transition-colors"
+                        className="flex items-center gap-1 text-[10px] font-medium tracking-[0.12em] uppercase text-pacific-mid hover:text-pacific-light transition-colors"
                       >
                         <Phone className="w-3 h-3" />
                         Call

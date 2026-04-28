@@ -46,9 +46,13 @@ export function useFilterState(slabs: Slab[]) {
   const [filters, setFilters] = useState<FilterState>(emptyState());
   const [sort, setSort] = useState<SortKey>("new");
   const [dense, setDense] = useState(false);
+  const [query, setQuery] = useState("");
 
   /* --- Core toggle helper ------------------------------------------ */
-  function toggle<K extends FilterKey>(key: K, value: FilterState[K] extends Set<infer V> ? V : never) {
+  function toggle<K extends FilterKey>(
+    key: K,
+    value: FilterState[K] extends Set<infer V> ? V : never
+  ) {
     setFilters((prev) => {
       const next = { ...prev, [key]: new Set(prev[key]) } as FilterState;
       const set = next[key] as Set<typeof value>;
@@ -58,7 +62,10 @@ export function useFilterState(slabs: Slab[]) {
     });
   }
 
-  function remove<K extends FilterKey>(key: K, value: FilterState[K] extends Set<infer V> ? V : never) {
+  function remove<K extends FilterKey>(
+    key: K,
+    value: FilterState[K] extends Set<infer V> ? V : never
+  ) {
     setFilters((prev) => {
       const next = { ...prev, [key]: new Set(prev[key]) } as FilterState;
       (next[key] as Set<typeof value>).delete(value);
@@ -72,13 +79,22 @@ export function useFilterState(slabs: Slab[]) {
 
   /* --- Apply filters + sort ---------------------------------------- */
   const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
     const out = slabs.filter((s) => {
+      // Text search: match against name and collection
+      if (q) {
+        const haystack = `${s.name} ${s.collection}`.toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
       // Hue: slab must have at least one selected hue (OR within category)
       if (filters.hues.size > 0) {
         if (!s.hues.some((h) => filters.hues.has(h))) return false;
       }
       // Collection
-      if (filters.collections.size > 0 && !filters.collections.has(s.collection)) {
+      if (
+        filters.collections.size > 0 &&
+        !filters.collections.has(s.collection)
+      ) {
         return false;
       }
       // Pattern
@@ -91,7 +107,8 @@ export function useFilterState(slabs: Slab[]) {
       }
       // Thickness: OR within category
       if (filters.thicknesses.size > 0) {
-        if (!s.thicknesses.some((t) => filters.thicknesses.has(t))) return false;
+        if (!s.thicknesses.some((t) => filters.thicknesses.has(t)))
+          return false;
       }
       return true;
     });
@@ -118,14 +135,17 @@ export function useFilterState(slabs: Slab[]) {
     }
 
     return out;
-  }, [slabs, filters, sort]);
+  }, [slabs, filters, sort, query]);
 
   /* --- Count how many slabs would match each candidate option ------ *
    * Used to render "Vision Series (24)" style counts. Computing this
    * against the current filter state (but excluding the category being
    * counted) gives "combinable" counts that update live.
    */
-  function countFor<K extends FilterKey>(key: K, value: FilterState[K] extends Set<infer V> ? V : never): number {
+  function countFor<K extends FilterKey>(
+    key: K,
+    value: FilterState[K] extends Set<infer V> ? V : never
+  ): number {
     return slabs.filter((s) => {
       // Apply all filters EXCEPT the one we're counting against
       for (const fk of Object.keys(filters) as FilterKey[]) {
@@ -140,9 +160,11 @@ export function useFilterState(slabs: Slab[]) {
         } else if (fk === "patterns") {
           if (!(set as Set<Pattern>).has(s.pattern)) return false;
         } else if (fk === "finishes") {
-          if (!s.finishes.some((f) => (set as Set<Finish>).has(f))) return false;
+          if (!s.finishes.some((f) => (set as Set<Finish>).has(f)))
+            return false;
         } else if (fk === "thicknesses") {
-          if (!s.thicknesses.some((t) => (set as Set<Thickness>).has(t))) return false;
+          if (!s.thicknesses.some((t) => (set as Set<Thickness>).has(t)))
+            return false;
         }
       }
       // Then check if this slab matches the candidate value for `key`
@@ -150,7 +172,8 @@ export function useFilterState(slabs: Slab[]) {
       if (key === "collections") return s.collection === value;
       if (key === "patterns") return s.pattern === value;
       if (key === "finishes") return s.finishes.includes(value as Finish);
-      if (key === "thicknesses") return s.thicknesses.includes(value as Thickness);
+      if (key === "thicknesses")
+        return s.thicknesses.includes(value as Thickness);
       return false;
     }).length;
   }
@@ -162,9 +185,33 @@ export function useFilterState(slabs: Slab[]) {
     filters.finishes.size +
     filters.thicknesses.size;
 
+  /* --- Unique option values derived from current data set ----------- */
+  const uniqueCollections = useMemo(
+    () => Array.from(new Set(slabs.map((s) => s.collection))).sort(),
+    [slabs]
+  );
+  const uniquePatterns = useMemo(
+    () => Array.from(new Set(slabs.map((s) => s.pattern))).sort() as Pattern[],
+    [slabs]
+  );
+  const uniqueFinishes = useMemo(
+    () =>
+      Array.from(new Set(slabs.flatMap((s) => s.finishes))).sort() as Finish[],
+    [slabs]
+  );
+  const uniqueThicknesses = useMemo(
+    () =>
+      Array.from(
+        new Set(slabs.flatMap((s) => s.thicknesses))
+      ).sort() as Thickness[],
+    [slabs]
+  );
+
   return {
     filters,
     filtered,
+    query,
+    setQuery,
     sort,
     setSort,
     dense,
@@ -174,5 +221,9 @@ export function useFilterState(slabs: Slab[]) {
     clearAll,
     countFor,
     activeCount,
+    uniqueCollections,
+    uniquePatterns,
+    uniqueFinishes,
+    uniqueThicknesses,
   };
 }

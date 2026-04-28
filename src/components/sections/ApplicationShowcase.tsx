@@ -1,7 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { StaggerContainer, StaggerItem } from "@/components/ui/animated-section";
+import {
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/ui/animated-section";
 import { TextReveal } from "@/components/ui/text-reveal";
 
 const applications = [
@@ -33,22 +36,23 @@ const applications = [
 
 export function ApplicationShowcase() {
   return (
-    <section className="py-28 sm:py-36 px-6 bg-stone-50">
+    <section className="py-28 sm:py-36 px-6 bg-[#0e2030]">
       <div className="max-w-7xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-20">
           <TextReveal
             as="h2"
-            className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-stone-900"
+            className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-white"
           >
             Transform How You See the World Around You
           </TextReveal>
           <TextReveal
             as="p"
             delay={0.2}
-            className="mt-6 text-lg text-stone-600 max-w-2xl mx-auto font-light leading-relaxed"
+            className="mt-6 text-lg text-pacific-mid max-w-2xl mx-auto font-light leading-relaxed"
           >
-            Unearth your perfect countertop; meticulously crafted for enduring beauty and lasting durability.
+            Unearth your perfect countertop; meticulously crafted for enduring
+            beauty and lasting durability.
           </TextReveal>
         </div>
 
@@ -59,20 +63,20 @@ export function ApplicationShowcase() {
               <motion.div
                 whileHover={{ y: -4 }}
                 transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-                className="group p-8 bg-white rounded-2xl border border-stone-200/50 hover:border-stone-300 transition-colors"
+                className="group p-8 bg-white/5 rounded-2xl border border-white/10 hover:border-white/20 transition-colors"
               >
                 {/* Number */}
-                <div className="text-4xl font-light text-stone-300 group-hover:text-stone-400 transition-colors mb-6">
+                <div className="text-4xl font-light text-pacific-mid group-hover:text-pacific-light transition-colors mb-6">
                   {app.number}
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl font-light text-stone-900 tracking-tight mb-4 group-hover:underline underline-offset-4 decoration-stone-300 transition-colors">
+                <h3 className="text-xl font-light text-white tracking-tight mb-4 group-hover:underline underline-offset-4 decoration-white/30 transition-colors">
                   {app.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm text-stone-600 font-light leading-relaxed">
+                <p className="text-sm text-pacific-mid font-light leading-relaxed">
                   {app.description}
                 </p>
               </motion.div>

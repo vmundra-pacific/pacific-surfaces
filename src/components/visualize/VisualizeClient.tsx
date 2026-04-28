@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -20,7 +20,7 @@ import { RoomCanvas, type RoomCanvasHandle } from "./RoomCanvas";
 import { SlabPicker } from "./SlabPicker";
 import type { SurfaceCandidate } from "./surface-detection";
 import type { DemoRoom, DemoSurface } from "./demo-rooms";
-import { useSegment } from "./use-segment";
+import { useDepth, useSegment } from "./use-segment";
 
 /**
  * Top-level orchestrator for the Visualize experience.
@@ -39,19 +39,119 @@ interface VisualizeClientProps {
 export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [activeDemo, setActiveDemo] = useState<DemoRoom | null>(null);
-  const [activeSlab, setActiveSlab] = useState<Slab | null>(null);
+  // PER-SURFACE COLOURS: each selected surface (by its mask id) maps
+  // to its own slab. Tapping a surface focuses it; picking a slab
+  // from the dock assigns it to the focused surface only — other
+  // selected surfaces keep their existing slabs.
+  const [surfaceSlabs, setSurfaceSlabs] = useState<Record<string, Slab>>({});
+  // The "focused" surface — the most recently tapped one. The slab
+  // picker shows this surface's current slab as the active swatch
+  // and assigns picks to this surface.
+  const [focusedSurfaceId, setFocusedSurfaceId] = useState<string | null>(null);
   const [activeRegion, setActiveRegion] = useState<SurfaceCandidate | null>(
     null
   );
   const [inspectorOpen, setInspectorOpen] = useState(true);
   const canvasRef = useRef<RoomCanvasHandle>(null);
+
+  // The slab currently being shown as "active" in the picker — the
+  // one assigned to the focused surface, if any.
+  const focusedSlab = focusedSurfaceId
+    ? (surfaceSlabs[focusedSurfaceId] ?? null)
+    : null;
   const {
     masks: aiMasks,
     loading: segLoading,
     error: segError,
-    run: runSegment,
+    runPoint: runPointSegment,
+    addManualMask,
+    removeMask,
     clear: clearSegment,
   } = useSegment();
+
+  // When SAM-2 misses (or the user explicitly opens manual mode), this
+  // holds the tap that should become the centre of the manual frame.
+  // RoomCanvas reads this to render the draggable polygon editor.
+  const [pendingManualTap, setPendingManualTap] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  // When set, the manual editor opens with this polygon as its starting
+  // shape (used by the "double-tap to edit existing surface" flow).
+  const [pendingInitialPolygon, setPendingInitialPolygon] = useState<{
+    points: [number, number][];
+    controls: ([number, number] | null)[];
+  } | null>(null);
+  // The id of the AI mask being edited. When the user confirms, we
+  // remove this mask and add the freshly-edited polygon in its place.
+  const [editingMaskId, setEditingMaskId] = useState<string | null>(null);
+
+  // Phase 1 — depth-aware perspective. We fetch a depth map for the
+  // uploaded image in the background. RoomCanvas uses it (when ready)
+  // to estimate each surface's plane orientation and warp the slab in
+  // perspective so it follows the surface like a real installation.
+  const { depth: depthMap, run: runDepth, clear: clearDepth } = useDepth();
+
+  // Tap-to-detect: when the user taps the canvas, run SAM-2. If
+  // SAM-2 succeeds, the mask flows back through `aiMasks` and
+  // RoomCanvas auto-selects it. If SAM-2 misses, set
+  // `pendingManualTap` so RoomCanvas opens the draggable manual frame.
+  const handlePointTap = useCallback(
+    async (relX: number, relY: number) => {
+      if (!imageSrc || activeDemo) return;
+      const result = await runPointSegment(imageSrc, relX, relY);
+      if (result.kind === "manual") {
+        setPendingManualTap(result.tap);
+      }
+    },
+    [imageSrc, activeDemo, runPointSegment]
+  );
+
+  // Called by RoomCanvas when the user confirms the manual frame.
+  // The polygon can have any number of points (>= 3) and per-edge
+  // bezier control points for curves. We rasterise it client-side.
+  // If we were editing an existing mask, remove the old one first.
+  const handleManualConfirm = useCallback(
+    (
+      points: [number, number][],
+      controls: ([number, number] | null)[],
+      imgW: number,
+      imgH: number
+    ) => {
+      if (editingMaskId) removeMask(editingMaskId);
+      addManualMask(points, controls, imgW, imgH);
+      setPendingManualTap(null);
+      setPendingInitialPolygon(null);
+      setEditingMaskId(null);
+    },
+    [addManualMask, removeMask, editingMaskId]
+  );
+
+  const handleManualCancel = useCallback(() => {
+    setPendingManualTap(null);
+    setPendingInitialPolygon(null);
+    setEditingMaskId(null);
+  }, []);
+
+  // Called by RoomCanvas when the user double-taps an already-selected
+  // AI surface. RoomCanvas has already done the bbox-to-normalised
+  // conversion, so we just hand the polygon to the editor and remember
+  // which mask we're replacing.
+  const handleEditExisting = useCallback(
+    (
+      surfaceId: string,
+      initialPolygon: {
+        points: [number, number][];
+        controls: ([number, number] | null)[];
+      },
+      centerTap: { x: number; y: number }
+    ) => {
+      setPendingInitialPolygon(initialPolygon);
+      setPendingManualTap(centerTap);
+      setEditingMaskId(surfaceId);
+    },
+    []
+  );
 
   // Curate a focused slab shortlist for the picker — all 22 is noisy here.
   // Prefer Sanity-managed products (so the visualizer always reflects what
@@ -87,19 +187,24 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     return picked;
   }, [sanitySlabs]);
 
-  // When user uploads their own photo, trigger AI segmentation
+  // When user uploads their own photo, start with a clean canvas. We
+  // skip the AMG auto-detect pass on purpose — tap-to-detect gives
+  // precise per-surface control. We DO kick off depth estimation in
+  // the background so it's ready by the time the user picks a slab,
+  // enabling perspective-correct slab placement.
   const handleUserUpload = (dataUrl: string) => {
     setActiveDemo(null);
     setImageSrc(dataUrl);
     clearSegment();
-    // Fire off AI segmentation in the background
-    runSegment(dataUrl);
+    clearDepth();
+    runDepth(dataUrl);
   };
 
   const handleReset = () => {
     setImageSrc(null);
     setActiveDemo(null);
-    setActiveSlab(null);
+    setSurfaceSlabs({});
+    setFocusedSurfaceId(null);
     setActiveRegion(null);
     clearSegment();
   };
@@ -109,9 +214,35 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     if (!url) return;
     const a = document.createElement("a");
     a.href = url;
-    a.download = `pacific-visualizer-${activeSlab?.slug ?? "preview"}.png`;
+    a.download = `pacific-visualizer-${focusedSlab?.slug ?? "preview"}.png`;
     a.click();
   };
+
+  // Slab picker → assigns the chosen slab to the focused surface only.
+  // Other selected surfaces keep their existing slabs, so the user can
+  // build up a multi-colour scene one surface at a time.
+  const handlePickSlab = useCallback(
+    (slab: Slab) => {
+      if (!focusedSurfaceId) return;
+      setSurfaceSlabs((prev) => ({ ...prev, [focusedSurfaceId]: slab }));
+    },
+    [focusedSurfaceId]
+  );
+
+  // Apply the focused surface's slab (if any) to ALL currently
+  // selected surfaces. Useful when the user wants the "same colour
+  // everywhere" old behaviour without picking the slab N times.
+  const handleApplyToAll = useCallback(
+    (allActiveIds: string[]) => {
+      if (!focusedSlab) return;
+      setSurfaceSlabs((prev) => {
+        const next = { ...prev };
+        for (const id of allActiveIds) next[id] = focusedSlab;
+        return next;
+      });
+    },
+    [focusedSlab]
+  );
 
   // -------------------- Intake screen --------------------
   if (!imageSrc) {
@@ -163,9 +294,9 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
               </em>
             </h1>
             <p className="mt-6 text-pacific-mid/90 text-base md:text-lg max-w-xl leading-relaxed">
-              Upload a photo. Our detector finds your countertop. Apply any
-              Pacific slab to see the finished look — photoreal in seconds, no
-              measuring required.
+              Upload a photo. Tap any surface to select it. Apply any Pacific
+              slab to see the finished look — photoreal in seconds, no measuring
+              required.
             </p>
           </header>
 
@@ -189,9 +320,9 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
                 <div className="flex items-start gap-2">
                   <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                   <p>
-                    Auto-detection works best with well-lit interiors at eye
-                    level. Angled or partially obstructed counters may need a
-                    manual tap.
+                    Tap-to-detect works best on well-lit, uncluttered surfaces.
+                    Tap each surface you want to swap; they all take the same
+                    slab.
                   </p>
                 </div>
               </div>
@@ -228,6 +359,16 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
             <Box className="w-3 h-3" />
             3D showroom
           </Link>
+          {/* Explicit entry point into manual mode — opens the editor
+              centred on the canvas without waiting for SAM-2 to fail. */}
+          <button
+            onClick={() => setPendingManualTap({ x: 0.5, y: 0.5 })}
+            disabled={!imageSrc || !!pendingManualTap}
+            className="inline-flex items-center gap-1.5 text-pacific-mid hover:text-pacific-light text-[10px] tracking-[.2em] uppercase px-3 py-1.5 border border-white/10 rounded-full hover:border-white/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Box className="w-3 h-3" />
+            Manual surface
+          </button>
           <button
             onClick={() => canvasRef.current?.reset()}
             className="inline-flex items-center gap-1.5 text-pacific-mid hover:text-pacific-light text-[10px] tracking-[.2em] uppercase px-3 py-1.5 border border-white/10 rounded-full hover:border-white/30 transition-colors"
@@ -237,7 +378,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
           </button>
           <button
             onClick={handleExport}
-            disabled={!activeRegion || !activeSlab}
+            disabled={!activeRegion || !focusedSlab}
             className="inline-flex items-center gap-1.5 bg-pacific-light text-pacific-dark text-[10px] tracking-[.2em] uppercase px-3 py-1.5 rounded-full hover:bg-white disabled:opacity-40 disabled:hover:bg-pacific-light transition-colors"
           >
             <Download className="w-3 h-3" />
@@ -260,13 +401,20 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
           <div className="w-full h-full flex items-center justify-center">
             <StageCanvas
               src={imageSrc}
-              activeSlab={activeSlab}
+              surfaceSlabs={surfaceSlabs}
               polygons={activeDemo?.surfaces}
               aiMasks={!activeDemo ? aiMasks : undefined}
               segLoading={segLoading}
               segError={segError}
               canvasRef={canvasRef}
               setActiveRegion={setActiveRegion}
+              onPointTap={handlePointTap}
+              onFocusChange={setFocusedSurfaceId}
+              manualTap={pendingManualTap}
+              manualInitialPolygon={pendingInitialPolygon}
+              onManualConfirm={handleManualConfirm}
+              onManualCancel={handleManualCancel}
+              onEditExisting={handleEditExisting}
             />
           </div>
 
@@ -278,14 +426,14 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
               </div>
               <div className="text-pacific-light text-sm">
                 {segLoading
-                  ? "AI is detecting countertops, walls, backsplashes, and furniture…"
+                  ? "Detecting the surface you tapped…"
                   : !activeRegion
                     ? aiMasks.length > 0
-                      ? `${aiMasks.length} surface${aiMasks.length > 1 ? "s" : ""} detected. Tap any highlighted area to select — tap again to deselect.`
-                      : "Tap the countertop to select it. Use ⇧ + tap to extend or ⌥ + tap to trim."
-                    : !activeSlab
-                      ? "Surface selected. Tap others to add them, then pick a slab below."
-                      : `${activeSlab.name} applied. Tap surfaces to add/remove them from the selection.`}
+                      ? `${aiMasks.length} surface${aiMasks.length > 1 ? "s" : ""} selected. Tap another surface to add it, or pick a slab below.`
+                      : "Tap any surface in the photo to select it."
+                    : !focusedSlab
+                      ? "Surface selected. Pick a slab below to apply it. Tap another surface to focus it and pick a different slab."
+                      : `${focusedSlab.name} applied to focused surface. Tap others to add/colour them.`}
               </div>
             </div>
           </div>
@@ -314,7 +462,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <InspectorContents slab={activeSlab} region={activeRegion} />
+              <InspectorContents slab={focusedSlab} region={activeRegion} />
             </motion.aside>
           )}
         </AnimatePresence>
@@ -335,8 +483,15 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
       <div className="shrink-0 border-t border-white/8 bg-pacific-dark/60 backdrop-blur-xl px-4 md:px-6 py-4">
         <SlabPicker
           slabs={curated}
-          active={activeSlab}
-          onPick={setActiveSlab}
+          active={focusedSlab}
+          onPick={handlePickSlab}
+          focusedSurfaceLabel={
+            focusedSurfaceId
+              ? `surface ${aiMasks.findIndex((m) => m.id === focusedSurfaceId) + 1 || "?"}`
+              : null
+          }
+          canApplyToAll={!!focusedSlab && aiMasks.length >= 2}
+          onApplyToAll={() => handleApplyToAll(aiMasks.map((m) => m.id))}
         />
       </div>
 
@@ -362,7 +517,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <InspectorContents slab={activeSlab} region={activeRegion} />
+            <InspectorContents slab={focusedSlab} region={activeRegion} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -376,50 +531,73 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
 
 function StageCanvas({
   src,
-  activeSlab,
+  surfaceSlabs,
   polygons,
   aiMasks,
   segLoading,
   segError,
   canvasRef,
   setActiveRegion,
+  onPointTap,
+  onFocusChange,
+  manualTap,
+  manualInitialPolygon,
+  onManualConfirm,
+  onManualCancel,
+  onEditExisting,
 }: {
   src: string;
-  activeSlab: Slab | null;
+  surfaceSlabs: Record<string, Slab>;
   polygons?: DemoSurface[];
   aiMasks?: import("./use-segment").AIMask[];
   segLoading?: boolean;
   segError?: string | null;
   canvasRef: React.RefObject<RoomCanvasHandle | null>;
   setActiveRegion: (c: SurfaceCandidate | null) => void;
+  onPointTap?: (relX: number, relY: number) => void;
+  onFocusChange?: (id: string | null) => void;
+  manualTap?: { x: number; y: number } | null;
+  manualInitialPolygon?: {
+    points: [number, number][];
+    controls: ([number, number] | null)[];
+  } | null;
+  onManualConfirm?: (
+    points: [number, number][],
+    controls: ([number, number] | null)[],
+    imgW: number,
+    imgH: number
+  ) => void;
+  onManualCancel?: () => void;
+  onEditExisting?: (
+    surfaceId: string,
+    initialPolygon: {
+      points: [number, number][];
+      controls: ([number, number] | null)[];
+    },
+    centerTap: { x: number; y: number }
+  ) => void;
 }) {
   return (
     <div className="relative w-full h-full">
       <RoomCanvas
         ref={canvasRef}
         src={src}
-        activeSlab={activeSlab}
+        surfaceSlabs={surfaceSlabs}
         polygons={polygons}
         aiMasks={aiMasks}
         onRegionChange={setActiveRegion}
+        onPointTap={onPointTap}
+        onFocusChange={onFocusChange}
+        manualTap={manualTap}
+        manualInitialPolygon={manualInitialPolygon ?? undefined}
+        onManualConfirm={onManualConfirm}
+        onManualCancel={onManualCancel}
+        onEditExisting={onEditExisting}
         fill
       />
-      {/* AI segmentation loading overlay */}
-      <AnimatePresence>
-        {segLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
-          >
-            <div className="flex items-center gap-3 text-pacific-light text-xs tracking-[.22em] uppercase bg-pacific-dark/85 border border-white/10 px-5 py-3 rounded-full backdrop-blur-xl">
-              <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-              AI detecting surfaces…
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* SAM-2 point-detect feedback is rendered as a localised ripple at
+          the tap location inside RoomCanvas itself — no full-canvas
+          overlay here. */}
       {/* AI error */}
       {segError && (
         <div className="absolute top-4 left-4 right-4 z-10">
@@ -541,13 +719,13 @@ function InspectorContents({
         <ol className="space-y-2.5 text-sm text-pacific-light/85">
           <li className="flex gap-3">
             <span className="text-pacific-mid w-4 shrink-0">01</span>
-            Upload a photo. Our AI detects countertops, islands, and more.
+            Upload a photo of any kitchen, bath, or work area.
           </li>
           <li className="flex gap-3">
             <span className="text-pacific-mid w-4 shrink-0">02</span>
             <span>
-              Tap a highlighted surface to select it, or tap elsewhere to
-              manually pick a region.
+              Tap each surface you want to swap. AI segments the surface under
+              your finger in a couple of seconds.
             </span>
           </li>
           <li className="flex gap-3">

@@ -9,7 +9,16 @@ interface MagneticButtonProps {
   children: React.ReactNode;
   href?: string;
   className?: string;
-  variant?: "primary" | "outline" | "ghost";
+  /**
+   * Visual variant.
+   *  - primary:      dark fill, white text — for use on light backgrounds
+   *  - outline:      transparent + dark text + dark border — for light backgrounds
+   *  - outline-dark: transparent + WHITE text + white border, inverts on hover —
+   *                  use this on dark backgrounds (e.g. the Find A Dealer button
+   *                  inside the dark CTA panel) so the label is always visible.
+   *  - ghost:        text-only
+   */
+  variant?: "primary" | "outline" | "outline-dark" | "ghost";
   size?: "sm" | "md" | "lg";
 }
 
@@ -45,6 +54,10 @@ export function MagneticButton({
       "bg-stone-900 text-white hover:bg-stone-800 border border-stone-900",
     outline:
       "bg-transparent text-stone-900 border border-stone-300 hover:border-stone-900 hover:bg-stone-50",
+    "outline-dark":
+      // Transparent with WHITE text/border on dark backgrounds.
+      // On hover, fills white and flips the text to dark for inverse-emphasis.
+      "bg-transparent text-white border border-white/40 hover:bg-white hover:text-stone-900 hover:border-white",
     ghost:
       "bg-transparent text-stone-600 hover:text-stone-900 border border-transparent",
   };

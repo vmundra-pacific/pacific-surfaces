@@ -4,7 +4,11 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { AnimatedSection, StaggerContainer, StaggerItem } from "@/components/ui/animated-section";
+import {
+  AnimatedSection,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/ui/animated-section";
 
 interface Product {
   _id: string;
@@ -105,7 +109,11 @@ export function SinksContent({ products }: SinksContentProps) {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
+            transition={{
+              duration: 0.7,
+              delay: 0.2,
+              ease: [0.25, 0.4, 0.25, 1],
+            }}
             className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl"
           >
             Seamless Integrated Sink Designs
@@ -116,19 +124,23 @@ export function SinksContent({ products }: SinksContentProps) {
             transition={{ duration: 0.7, delay: 0.35 }}
             className="mt-6 text-lg text-stone-400 max-w-2xl font-light leading-relaxed"
           >
-            The Pacific Quartz Sink Series represents the next evolution in surface integration — where sink and countertop unite in a single, continuous form. Crafted using high-density quartz composite technology, these sinks combine the timeless appeal of natural stone with the precision and consistency of engineered material science.
+            The Pacific Quartz Sink Series represents the next evolution in
+            surface integration — where sink and countertop unite in a single,
+            continuous form. Crafted using high-density quartz composite
+            technology, these sinks combine the timeless appeal of natural stone
+            with the precision and consistency of engineered material science.
           </motion.p>
         </div>
       </section>
 
       {/* Products Grid */}
-      <section className="bg-white">
+      <section className="bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
           <AnimatedSection className="mb-16">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Integra Collection
             </span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
               Premium Quartz Sink Selection
             </h2>
           </AnimatedSection>
@@ -148,7 +160,7 @@ export function SinksContent({ products }: SinksContentProps) {
                   }}
                   className="group"
                 >
-                  <div className="relative aspect-square overflow-hidden rounded-lg bg-stone-100 mb-4">
+                  <div className="relative aspect-square overflow-hidden rounded-lg bg-white/5 mb-4">
                     {product.mainImage ? (
                       <img
                         src={product.mainImage}
@@ -157,7 +169,7 @@ export function SinksContent({ products }: SinksContentProps) {
                         loading="lazy"
                       />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center text-stone-400">
+                      <div className="h-full w-full flex items-center justify-center text-pacific-mid/70">
                         <svg
                           className="w-12 h-12"
                           fill="none"
@@ -180,22 +192,22 @@ export function SinksContent({ products }: SinksContentProps) {
 
                   {/* Text */}
                   <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-stone-900 group-hover:text-stone-600 transition-colors duration-300">
+                    <h3 className="text-sm font-medium text-white group-hover:text-pacific-light transition-colors duration-300">
                       {product.name}
                     </h3>
                     {product.collection && (
-                      <p className="text-xs text-stone-500 tracking-wide">
+                      <p className="text-xs text-pacific-mid tracking-wide">
                         {product.collection.name}
                       </p>
                     )}
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-stone-900">
+                      <p className="text-sm font-medium text-white">
                         {formatPrice(product.price)}
                       </p>
                     </div>
                     <Link
                       href="/contact"
-                      className="inline-flex items-center gap-2 text-xs font-medium tracking-wider uppercase text-stone-600 hover:text-stone-900 transition-colors mt-2"
+                      className="inline-flex items-center gap-2 text-xs font-medium tracking-wider uppercase text-pacific-light hover:text-white transition-colors mt-2"
                     >
                       Request Quote
                       <svg
@@ -222,7 +234,7 @@ export function SinksContent({ products }: SinksContentProps) {
               animate={{ opacity: 1 }}
               className="py-24 text-center"
             >
-              <p className="text-stone-400 text-lg font-light">
+              <p className="text-pacific-mid text-lg font-light">
                 Integra sink collection coming soon.
               </p>
             </motion.div>
@@ -231,13 +243,13 @@ export function SinksContent({ products }: SinksContentProps) {
       </section>
 
       {/* Care & Maintenance */}
-      <section className="bg-stone-50">
+      <section className="bg-[#0e2030]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Care Guide
             </span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
               Keep Your Sink Looking Beautiful
             </h2>
           </AnimatedSection>
@@ -245,8 +257,8 @@ export function SinksContent({ products }: SinksContentProps) {
           <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {careTips.map((tip, idx) => (
               <StaggerItem key={idx}>
-                <div className="bg-white rounded-2xl p-6 h-full border border-stone-100 hover:border-stone-200 hover:shadow-lg transition-all duration-500">
-                  <p className="text-sm text-stone-600 font-light leading-relaxed">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-6 h-full hover:border-white/20 hover:shadow-lg transition-all duration-500">
+                  <p className="text-sm text-pacific-light font-light leading-relaxed">
                     {tip}
                   </p>
                 </div>
@@ -257,13 +269,13 @@ export function SinksContent({ products }: SinksContentProps) {
       </section>
 
       {/* Purchase Policies */}
-      <section className="bg-white">
+      <section className="bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Policies
             </span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
               Purchase & Support Information
             </h2>
           </AnimatedSection>
@@ -283,9 +295,9 @@ export function SinksContent({ products }: SinksContentProps) {
                       expandedPolicy === policy.title ? null : policy.title
                     )
                   }
-                  className="w-full flex items-center justify-between p-6 bg-stone-50 hover:bg-stone-100 transition-colors rounded-xl text-left border border-stone-100 hover:border-stone-200 transition-all"
+                  className="w-full flex items-center justify-between p-6 bg-white/5 hover:bg-white/10 transition-colors rounded-xl text-left border border-white/10 hover:border-white/20 transition-all"
                 >
-                  <h3 className="text-base font-medium text-stone-900">
+                  <h3 className="text-base font-medium text-white">
                     {policy.title}
                   </h3>
                   <motion.div
@@ -294,7 +306,7 @@ export function SinksContent({ products }: SinksContentProps) {
                     }}
                     transition={{ duration: 0.3 }}
                   >
-                    <ChevronDown className="w-5 h-5 text-stone-400" />
+                    <ChevronDown className="w-5 h-5 text-pacific-mid/70" />
                   </motion.div>
                 </button>
 
@@ -305,10 +317,10 @@ export function SinksContent({ products }: SinksContentProps) {
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
-                      className="overflow-hidden border-x border-b border-stone-100 bg-white"
+                      className="overflow-hidden border-x border-b border-white/10 bg-white/5"
                     >
                       <div className="p-6">
-                        <p className="text-sm text-stone-600 font-light leading-relaxed">
+                        <p className="text-sm text-pacific-light font-light leading-relaxed">
                           {policy.content}
                         </p>
                       </div>

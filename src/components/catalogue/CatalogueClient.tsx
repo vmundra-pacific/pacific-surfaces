@@ -8,47 +8,38 @@
  * interactive without needing server round-trips on each filter change.
  */
 
-import { slabs } from "@/data/slabs";
+import type { Slab } from "@/data/slabs";
 import { useFilterState } from "./useFilterState";
 import { FilterBar } from "./FilterBar";
 import { ActiveChips } from "./ActiveChips";
 import { SlabGrid } from "./SlabGrid";
+import { QuartzHeroVideo } from "./QuartzHeroVideo";
 
-export function CatalogueClient() {
+export function CatalogueClient({ slabs }: { slabs: Slab[] }) {
   const api = useFilterState(slabs);
 
   return (
-    <div className="relative min-h-screen bg-[#0a1620] text-pacific-light">
-      {/* Ambient page tint (echoes the rest of the site) */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 z-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 40% at 20% 0%, rgba(154,168,182,0.06), transparent 60%), radial-gradient(ellipse 50% 50% at 100% 100%, rgba(154,168,182,0.04), transparent 60%)",
-        }}
-      />
+    <div className="relative min-h-screen bg-[#112732] text-pacific-light">
+      {/* Quartz hero video — sits in normal flow above everything,
+          so the page scrolls past it naturally while it keeps
+          playing. The corner caption stays put inside the video
+          frame; existing editorial head + filter + grid render
+          underneath as before. */}
+      <QuartzHeroVideo />
 
-      {/* Editorial page head */}
-      <section className="relative z-10 mx-auto max-w-[1760px] px-6 lg:px-12 pt-24 lg:pt-32 pb-12 lg:pb-16">
-        <div className="mb-7 inline-flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.3em] text-pacific-mid">
-          <span className="h-1.5 w-1.5 rounded-full bg-pacific-mid" />
-          The Catalogue · {slabs.length} designs
+      {/* Editorial page head — top padding intentionally smaller
+          than a normal page; the full-viewport hero video above
+          has already absorbed the navbar offset. */}
+      <section className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-12 lg:pt-16 pb-12 lg:pb-16">
+        <div className="mb-5 text-sm font-medium tracking-[0.3em] uppercase text-pacific-mid">
+          Our Surfaces · {slabs.length} designs
         </div>
-        <h1
-          className="font-light leading-[0.95] tracking-[-0.03em] text-white"
-          style={{ fontSize: "clamp(48px, 7vw, 128px)" }}
-        >
-          Every slab,{" "}
-          <em className="not-italic font-light text-pacific-mid">discoverable.</em>
+        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight text-white mb-6 leading-[1.05]">
+          Explore the Collection
         </h1>
-        <p
-          className="mt-7 max-w-xl leading-[1.55] text-pacific-mid"
-          style={{ fontSize: "clamp(14px, 1.1vw, 16px)" }}
-        >
-          Browse the full range of Pacific quartz, granite, and semi-precious
-          surfaces. Filter by hue, pattern, collection, or finish — order physical
-          samples to be delivered within 48 hours.
+        <p className="text-lg text-pacific-mid font-light max-w-2xl leading-relaxed">
+          273+ premium surfaces engineered for beauty, crafted for durability.
+          Find the perfect slab for your space.
         </p>
       </section>
 

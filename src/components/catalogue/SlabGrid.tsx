@@ -2,10 +2,6 @@
 
 /**
  * SlabGrid — the catalogue grid with empty-state handling.
- *
- * Uses framer-motion's layout prop on each SlabCard so filter changes
- * animate into place rather than snapping. AnimatePresence handles
- * enter/exit as cards are filtered in and out.
  */
 
 import { AnimatePresence, motion } from "framer-motion";

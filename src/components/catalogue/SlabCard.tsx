@@ -2,21 +2,14 @@
 
 /**
  * SlabCard — a single slab tile in the catalogue grid.
- *
- * Layered render order (bottom → top):
- *   1. Solid base swatch gradient
- *   2. Overlay gradient (simulates veining)
- *   3. Ribbon (New / Featured) in top-left
- *   4. Metadata gradient + name + collection (bottom)
- *   5. Hover overlay with View / + Sample CTAs
- *
- * Replace the two gradient layers with <Image> elements when real
- * slab photography is wired in.
  */
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { preload } from "react-dom";
 import type { Slab } from "@/data/slabs";
+import { zoomImageUrl } from "@/lib/zoom-image";
 
 interface Props {
   slab: Slab;
@@ -24,6 +17,21 @@ interface Props {
 }
 
 export function SlabCard({ slab, index }: Props) {
+  // Prefetch the SAME zoom-resolution URL the next page's magnifier
+  // will use, so by the time the user clicks "View slab" the image
+  // is already in browser cache. Using zoomImageUrl() means the
+  // catalogue, server-side preload, and magnifier all share one
+  // cache entry rather than fetching three different URLs.
+  // `preload()` from react-dom is idempotent + cheap to call again.
+  const warmCache = () => {
+    if (slab.photoUrl) {
+      preload(zoomImageUrl(slab.photoUrl), {
+        as: "image",
+        fetchPriority: "high",
+      });
+    }
+  };
+
   return (
     <motion.div
       layout
@@ -35,23 +43,39 @@ export function SlabCard({ slab, index }: Props) {
         ease: [0.2, 0.9, 0.3, 1],
         delay: Math.min(index * 0.03, 0.3),
       }}
+      onMouseEnter={warmCache}
+      onTouchStart={warmCache}
+      onFocus={warmCache}
       className={[
         "group relative aspect-[4/5] overflow-hidden rounded-xl",
         "border border-white/10 bg-pacific-dark",
         "cursor-pointer transition-colors duration-300 hover:border-pacific-mid/50",
       ].join(" ")}
     >
-      {/* Base swatch */}
-      <div
-        className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] group-hover:scale-[1.04]"
-        style={{ background: slab.swatch }}
-      />
-      {/* Overlay veining */}
-      {slab.overlay && (
-        <div
-          className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] group-hover:scale-[1.04]"
-          style={{ background: slab.overlay, mixBlendMode: "normal" }}
-        />
+      {/* Slab image or fallback swatch */}
+      {slab.photoUrl ? (
+        <div className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] group-hover:scale-[1.04]">
+          <Image
+            src={slab.photoUrl}
+            alt={slab.name}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        <>
+          <div
+            className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] group-hover:scale-[1.04]"
+            style={{ background: slab.swatch }}
+          />
+          {slab.overlay && (
+            <div
+              className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] group-hover:scale-[1.04]"
+              style={{ background: slab.overlay, mixBlendMode: "normal" }}
+            />
+          )}
+        </>
       )}
 
       {/* Ribbon */}
@@ -92,9 +116,6 @@ export function SlabCard({ slab, index }: Props) {
         </Link>
         <button
           onClick={(e) => {
-            // In a real impl this adds to the sample-kit state — for now
-            // just a no-op; we stop propagation so clicking doesn't open
-            // the slab detail page underneath.
             e.preventDefault();
             e.stopPropagation();
           }}

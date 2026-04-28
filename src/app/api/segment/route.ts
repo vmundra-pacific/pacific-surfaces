@@ -30,16 +30,20 @@ const SAM2_VERSION =
 
 const MAX_DIM = 1280;
 
-// AMG tuning — these match the pre-revert configuration that produced
-// good countertop / wall / island detections without flooding the UI:
+// AMG tuning. We loosened pred_iou_thresh from 0.93 → 0.85 because the
+// stricter setting was rejecting the largest, most-uniform surface in the
+// frame (e.g. a dark stone countertop) on plenty of real photos — SAM-2's
+// confidence on huge low-detail regions tends to fall just below 0.93. The
+// missed surface is recoverable via the point-tap fallback, but we'd rather
+// have it land in the auto pass when possible.
 //   points_per_side    16   (256 candidate points; balances coverage / speed)
-//   pred_iou_thresh    0.93 (only keep high-confidence masks)
-//   stability_thresh   0.96 (filter unstable / fragmented masks)
-//   min_mask_area      … filtered client-side after we crop dust
+//   pred_iou_thresh    0.85 (let big-but-confident-enough masks through)
+//   stability_thresh   0.92 (slightly looser too; prevents AMG dropping
+//                            masks that don't survive the lowered IoU bar)
 const AMG_INPUT = {
   points_per_side: 16,
-  pred_iou_thresh: 0.93,
-  stability_score_thresh: 0.96,
+  pred_iou_thresh: 0.85,
+  stability_score_thresh: 0.92,
   use_m2m: true,
 };
 

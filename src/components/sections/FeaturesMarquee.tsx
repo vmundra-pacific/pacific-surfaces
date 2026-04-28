@@ -40,20 +40,20 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="py-28 sm:py-36 px-6 bg-stone-50">
+    <section className="py-28 sm:py-36 px-6 bg-[#0e2030]">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
           <TextReveal
             as="span"
-            className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4"
+            className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-4"
           >
             Why Pacific Surfaces
           </TextReveal>
           <TextReveal
             as="h2"
             delay={0.15}
-            className="text-4xl sm:text-5xl font-light tracking-tight text-stone-900 justify-center"
+            className="text-4xl sm:text-5xl font-light tracking-tight text-white justify-center"
           >
             Engineered for Perfection
           </TextReveal>
@@ -69,15 +69,15 @@ export function FeaturesSection() {
             >
               <motion.div
                 whileHover={{ y: -4, transition: { duration: 0.3 } }}
-                className="group relative p-8 rounded-2xl bg-white border border-stone-100 hover:border-stone-200 hover:shadow-lg hover:shadow-stone-100/50 transition-all duration-500"
+                className="group relative p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-black/20 transition-all duration-500"
               >
-                <div className="w-12 h-12 rounded-xl bg-stone-900 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                   <feat.icon className="w-5 h-5 text-white" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-lg font-medium text-stone-900 mb-2 tracking-tight">
+                <h3 className="text-lg font-medium text-white mb-2 tracking-tight">
                   {feat.label}
                 </h3>
-                <p className="text-sm text-stone-500 leading-relaxed font-light">
+                <p className="text-sm text-pacific-mid leading-relaxed font-light">
                   {feat.desc}
                 </p>
               </motion.div>

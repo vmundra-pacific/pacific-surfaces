@@ -40,7 +40,7 @@ const fabProducts = [
 
 export function FabCreations() {
   return (
-    <section className="py-28 sm:py-36 px-6 bg-white">
+    <section className="py-28 sm:py-36 px-6 bg-[#112732]">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           {/* Left column - Text */}
@@ -52,7 +52,7 @@ export function FabCreations() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <span className="inline-block px-4 py-1.5 mb-8 text-xs font-medium tracking-[0.25em] uppercase text-stone-500 border border-stone-200 rounded-full">
+              <span className="inline-block px-4 py-1.5 mb-8 text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid border border-white/10 rounded-full">
                 Fabricated and Ready to Install
               </span>
             </motion.div>
@@ -60,7 +60,7 @@ export function FabCreations() {
             {/* Heading */}
             <TextReveal
               as="h2"
-              className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-stone-900"
+              className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-white"
             >
               Fab Creations
             </TextReveal>
@@ -71,7 +71,7 @@ export function FabCreations() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-8 text-lg text-stone-600 font-light leading-relaxed max-w-lg"
+              className="mt-8 text-lg text-pacific-light font-light leading-relaxed max-w-lg"
             >
               We specialize in premium, cut-to-size quartz surfaces designed to
               elevate architectural and design projects to new heights.
@@ -92,7 +92,7 @@ export function FabCreations() {
                 href="/products"
                 variant="primary"
                 size="lg"
-                className="bg-stone-900 text-white border-stone-900 hover:bg-stone-800"
+                className="bg-white text-[#112732] border-white hover:bg-white/90"
               >
                 Learn More
                 <ArrowRight className="w-4 h-4" />
@@ -115,7 +115,7 @@ export function FabCreations() {
                 whileHover={{ y: -4 }}
                 className="group"
               >
-                <div className="relative overflow-hidden rounded-xl aspect-square bg-stone-100">
+                <div className="relative overflow-hidden rounded-xl aspect-square bg-white/5">
                   {/* Image */}
                   <motion.div
                     className="absolute inset-0 bg-cover bg-center"

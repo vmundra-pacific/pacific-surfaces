@@ -192,6 +192,25 @@ export default defineType({
       readOnly: true,
     }),
     defineField({
+      name: "hdFile",
+      title: "HD Image File",
+      description:
+        "High-resolution image file architects / designers can download for proposals. Optional — if left blank, the website falls back to a mailto request.",
+      type: "image",
+      options: { storeOriginalFilename: true },
+    }),
+    defineField({
+      name: "specSheet",
+      title: "Spec Sheet (PDF)",
+      description:
+        "Downloadable spec sheet for this product. Optional — if left blank, the website falls back to a mailto request.",
+      type: "file",
+      options: {
+        accept: "application/pdf",
+        storeOriginalFilename: true,
+      },
+    }),
+    defineField({
       name: "seoTitle",
       title: "SEO Title",
       type: "string",

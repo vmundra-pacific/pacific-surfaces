@@ -41,6 +41,8 @@ export default defineConfig({
             ),
             S.documentTypeListItem("dealer").title("Dealers"),
             S.divider(),
+            S.documentTypeListItem("resource").title("Resources"),
+            S.divider(),
             S.documentTypeListItem("blogPost").title("Blog Posts"),
             S.documentTypeListItem("page").title("Pages"),
           ]),

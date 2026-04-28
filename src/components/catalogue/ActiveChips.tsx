@@ -3,9 +3,6 @@
 /**
  * ActiveChips — horizontal row of removable chips showing every currently
  * applied filter. Renders nothing when no filters are active.
- *
- * Animations via framer-motion's layout + AnimatePresence so chips
- * slide into place as others are added/removed.
  */
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,7 +31,6 @@ function capitalize(s: string) {
 }
 
 export function ActiveChips({ api }: { api: FilterApi }) {
-  // Flatten the filter state into a renderable chip list
   const chips: Chip[] = [];
   api.filters.hues.forEach((h) =>
     chips.push({ key: "hues", value: h, label: capitalize(h) })

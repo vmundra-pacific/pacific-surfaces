@@ -3,7 +3,10 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { StaggerContainer, StaggerItem } from "@/components/ui/animated-section";
+import {
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/ui/animated-section";
 import { TextReveal } from "@/components/ui/text-reveal";
 
 const categories = [
@@ -59,29 +62,30 @@ const categories = [
 
 export function ProductCategories() {
   return (
-    <section className="py-28 sm:py-36 px-6 bg-white">
+    <section className="py-28 sm:py-36 px-6 bg-[#112732]">
       <div className="max-w-7xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-16">
           <TextReveal
             as="span"
-            className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4"
+            className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4"
           >
             Collection Overview
           </TextReveal>
           <TextReveal
             as="h2"
             delay={0.15}
-            className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-stone-900 mt-4"
+            className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-white mt-4"
           >
             Explore Our Surfaces
           </TextReveal>
           <TextReveal
             as="p"
             delay={0.3}
-            className="mt-6 text-lg text-stone-600 max-w-2xl mx-auto font-light leading-relaxed"
+            className="mt-6 text-lg text-pacific-mid max-w-2xl mx-auto font-light leading-relaxed"
           >
-            From engineered quartz to natural granite, discover the perfect surface for your vision.
+            From engineered quartz to natural granite, discover the perfect
+            surface for your vision.
           </TextReveal>
         </div>
 
@@ -93,7 +97,7 @@ export function ProductCategories() {
                 <motion.div
                   whileHover={{ y: -8 }}
                   transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-                  className="relative overflow-hidden rounded-2xl aspect-[3/4] bg-stone-100 h-full"
+                  className="relative overflow-hidden rounded-2xl aspect-[3/4] bg-white/5 h-full"
                 >
                   {/* Image */}
                   <motion.div

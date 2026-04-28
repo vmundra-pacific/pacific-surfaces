@@ -60,16 +60,16 @@ export function HorizontalShowcase() {
   return (
     <section
       ref={containerRef}
-      className="relative h-[300vh] bg-white"
+      className="relative h-[300vh] bg-[#112732]"
       style={{ contain: "layout style" }}
     >
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center">
         {/* Section header */}
         <div className="px-6 lg:px-12 mb-12">
-          <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+          <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-4 block">
             Our Surfaces
           </span>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-stone-900">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-white">
             Explore the Collection
           </h2>
         </div>
@@ -85,7 +85,7 @@ export function HorizontalShowcase() {
               href={item.href}
               className="group flex-shrink-0 w-[70vw] sm:w-[50vw] lg:w-[35vw] relative"
             >
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100">
+              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-white/5">
                 <motion.div
                   className="absolute inset-0 bg-cover bg-center"
                   style={{

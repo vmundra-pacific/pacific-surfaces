@@ -3,7 +3,11 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Award, Cpu, Gem, Leaf, Shield, Users, Zap } from "lucide-react";
-import { AnimatedSection, StaggerContainer, StaggerItem } from "@/components/ui/animated-section";
+import {
+  AnimatedSection,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/ui/animated-section";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 
 const stats = [
@@ -17,17 +21,20 @@ const timeline = [
   {
     year: "2011",
     title: "Pacific Granites India Pvt. Ltd.",
-    description: "Tapped into the export market with a gang saw granite processing unit. The Pacific Group was established and is now poised to be the largest exporters of natural and engineered stones in the Indian stone industry with a growth rate of 25% year after year.",
+    description:
+      "Tapped into the export market with a gang saw granite processing unit. The Pacific Group was established and is now poised to be the largest exporters of natural and engineered stones in the Indian stone industry with a growth rate of 25% year after year.",
   },
   {
     year: "2018",
     title: "Pacific Quartz Surfaces LLP",
-    description: "Official entry to the Mineral Surface Sector. With an unyielding commitment to offering solutions that inspire and provide value, PACIFIC introduced Pacific Quartz Surfaces. In 2020, acquired a Quartz grit factory (now Pacific Mintek) for high-quality raw materials.",
+    description:
+      "Official entry to the Mineral Surface Sector. With an unyielding commitment to offering solutions that inspire and provide value, PACIFIC introduced Pacific Quartz Surfaces. In 2020, acquired a Quartz grit factory (now Pacific Mintek) for high-quality raw materials.",
   },
   {
     year: "2023",
     title: "Pacific Engineered Surfaces Pvt. Ltd.",
-    description: "A new era with the launch of a state-of-the-art Bretonstone plant, marking the beginning of fully automated manufacturing. Late 2024, opened a warehouse in Poland as part of global expansion.",
+    description:
+      "A new era with the launch of a state-of-the-art Bretonstone plant, marking the beginning of fully automated manufacturing. Late 2024, opened a warehouse in Poland as part of global expansion.",
   },
 ];
 
@@ -92,12 +99,12 @@ export function AboutContent() {
   return (
     <>
       {/* Hero */}
-      <section ref={heroRef} className="relative min-h-[70vh] flex items-center bg-stone-950 overflow-hidden">
+      <section
+        ref={heroRef}
+        className="relative min-h-[70vh] flex items-center bg-stone-950 overflow-hidden"
+      >
         {/* Background texture */}
-        <motion.div
-          style={{ y: heroY }}
-          className="absolute inset-0"
-        >
+        <motion.div style={{ y: heroY }} className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-b from-stone-950/40 via-stone-950/80 to-stone-950" />
           <div
             className="absolute inset-0 opacity-[0.03]"
@@ -115,14 +122,18 @@ export function AboutContent() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-6"
+            className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-6"
           >
             Our Story
           </motion.span>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
+            transition={{
+              duration: 0.7,
+              delay: 0.2,
+              ease: [0.25, 0.4, 0.25, 1],
+            }}
             className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl"
           >
             Crafting Surfaces That Tell a Story
@@ -131,25 +142,25 @@ export function AboutContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.35 }}
-            className="mt-6 text-lg text-stone-400 max-w-2xl font-light leading-relaxed"
+            className="mt-6 text-lg text-pacific-mid/70 max-w-2xl font-light leading-relaxed"
           >
-            Pacific Surfaces is India&apos;s premier manufacturer of engineered quartz and granite
-            surfaces, dedicated to transforming spaces with materials that harmonize beauty,
-            durability, and innovation.
+            Pacific Surfaces is India&apos;s premier manufacturer of engineered
+            quartz and granite surfaces, dedicated to transforming spaces with
+            materials that harmonize beauty, durability, and innovation.
           </motion.p>
         </motion.div>
       </section>
 
       {/* Stats */}
-      <section className="bg-white border-b border-stone-100">
+      <section className="bg-[#112732] border-b border-white/10">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16">
           <StaggerContainer className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat) => (
               <StaggerItem key={stat.label} className="text-center">
-                <div className="text-3xl sm:text-4xl font-light text-stone-900 tracking-tight">
+                <div className="text-3xl sm:text-4xl font-light text-white tracking-tight">
                   {stat.value}
                 </div>
-                <div className="mt-2 text-xs font-medium tracking-[0.2em] uppercase text-stone-400">
+                <div className="mt-2 text-xs font-medium tracking-[0.2em] uppercase text-pacific-mid/70">
                   {stat.label}
                 </div>
               </StaggerItem>
@@ -159,38 +170,39 @@ export function AboutContent() {
       </section>
 
       {/* Story */}
-      <section className="bg-white">
+      <section className="bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <AnimatedSection animation="slideInLeft">
-              <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+              <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
                 Who We Are
               </span>
-              <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+              <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
                 From Vision to Surface
               </h2>
-              <div className="mt-8 space-y-6 text-stone-500 font-light leading-relaxed">
+              <div className="mt-8 space-y-6 text-pacific-mid font-light leading-relaxed">
                 <p>
-                  With over 273 unique designs across 44 curated collections — from the bold
-                  Chromia series to the celestial Kosmic range — we offer the widest selection of
-                  premium surfaces in India.
+                  With over 273 unique designs across 44 curated collections —
+                  from the bold Chromia series to the celestial Kosmic range —
+                  we offer the widest selection of premium surfaces in India.
                 </p>
                 <p>
-                  Our patented textures and proprietary finishes are the result of years of
-                  research and development. Each slab is engineered to meet the highest
-                  international standards, making our surfaces ideal for kitchen countertops,
-                  bathroom vanities, wall cladding, flooring, and statement furniture.
+                  Our patented textures and proprietary finishes are the result
+                  of years of research and development. Each slab is engineered
+                  to meet the highest international standards, making our
+                  surfaces ideal for kitchen countertops, bathroom vanities,
+                  wall cladding, flooring, and statement furniture.
                 </p>
                 <p>
-                  We believe every surface should be a work of art — engineered for life,
-                  designed for the extraordinary.
+                  We believe every surface should be a work of art — engineered
+                  for life, designed for the extraordinary.
                 </p>
               </div>
             </AnimatedSection>
 
             <AnimatedSection animation="slideInRight" delay={0.2}>
               <div className="relative">
-                <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-stone-100">
+                <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-white/5">
                   <img
                     src="https://static.wixstatic.com/media/79abd5_1ef7e4c1e66f4ed49a4bcbbc547d4663~mv2.jpg"
                     alt="Premium surface craftsmanship"
@@ -198,9 +210,9 @@ export function AboutContent() {
                   />
                 </div>
                 {/* Floating accent */}
-                <div className="absolute -bottom-6 -left-6 bg-stone-900 text-white p-8 rounded-2xl">
+                <div className="absolute -bottom-6 -left-6 bg-white text-[#112732] p-8 rounded-2xl">
                   <div className="text-2xl font-light">10+</div>
-                  <div className="text-xs tracking-wider uppercase text-stone-400 mt-1">
+                  <div className="text-xs tracking-wider uppercase text-[#112732]/60 mt-1">
                     Years of Excellence
                   </div>
                 </div>
@@ -211,16 +223,16 @@ export function AboutContent() {
       </section>
 
       {/* Disruptive Technology */}
-      <section className="bg-white">
+      <section className="bg-[#0e2030]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Manufacturing Excellence
             </span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
               Disruptive Technology
             </h2>
-            <p className="mt-4 text-stone-500 font-light max-w-2xl mx-auto">
+            <p className="mt-4 text-pacific-mid font-light max-w-2xl mx-auto">
               Integrating Technology with Innovation
             </p>
           </AnimatedSection>
@@ -230,30 +242,33 @@ export function AboutContent() {
               {
                 icon: Cpu,
                 title: "Integrating Technology with Innovation",
-                description: "We believe in the power of technology to enhance craftsmanship and redefine industry standards. Our new plant represents a fusion of advanced machinery and creative innovation, resulting in products that surpass expectations. We have invested in the latest manufacturing technologies to streamline processes, minimize waste, and optimize production output.",
+                description:
+                  "We believe in the power of technology to enhance craftsmanship and redefine industry standards. Our new plant represents a fusion of advanced machinery and creative innovation, resulting in products that surpass expectations. We have invested in the latest manufacturing technologies to streamline processes, minimize waste, and optimize production output.",
               },
               {
                 icon: Zap,
                 title: "High-Speed Production Line",
-                description: "With our high-speed production line, we have significantly accelerated the manufacturing process without compromising on quality. Our plant boasts an impressive capacity to meet the ever-growing demands of our clients, ensuring timely delivery and superior craftsmanship. From cutting to polishing, our automated systems guarantee precision and consistency in every slab.",
+                description:
+                  "With our high-speed production line, we have significantly accelerated the manufacturing process without compromising on quality. Our plant boasts an impressive capacity to meet the ever-growing demands of our clients, ensuring timely delivery and superior craftsmanship. From cutting to polishing, our automated systems guarantee precision and consistency in every slab.",
               },
               {
                 icon: Leaf,
                 title: "Sustainable Manufacturing Plant",
-                description: "Sustainability is at the core of our operations. Our new fully automated plant incorporates eco-friendly practices throughout the production cycle, ensuring minimal impact on the environment. By choosing our products, you are not only embracing elegance and quality but also contributing to a greener and more sustainable future.",
+                description:
+                  "Sustainability is at the core of our operations. Our new fully automated plant incorporates eco-friendly practices throughout the production cycle, ensuring minimal impact on the environment. By choosing our products, you are not only embracing elegance and quality but also contributing to a greener and more sustainable future.",
               },
             ].map((item) => {
               const Icon = item.icon;
               return (
                 <StaggerItem key={item.title}>
-                  <div className="bg-stone-50 rounded-2xl p-8 h-full">
-                    <div className="p-3 bg-white rounded-xl w-fit">
-                      <Icon className="w-6 h-6 text-stone-600" />
+                  <div className="bg-white/5 rounded-2xl p-8 h-full border border-white/10">
+                    <div className="p-3 bg-white/10 rounded-xl w-fit">
+                      <Icon className="w-6 h-6 text-pacific-mid" />
                     </div>
-                    <h3 className="mt-6 text-base font-medium text-stone-900">
+                    <h3 className="mt-6 text-base font-medium text-white">
                       {item.title}
                     </h3>
-                    <p className="mt-3 text-sm text-stone-600 font-light leading-relaxed">
+                    <p className="mt-3 text-sm text-pacific-mid font-light leading-relaxed">
                       {item.description}
                     </p>
                   </div>
@@ -271,13 +286,13 @@ export function AboutContent() {
       <TeamSection />
 
       {/* Values */}
-      <section className="bg-stone-50">
+      <section className="bg-[#0e2030]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               What Drives Us
             </span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
               Our Commitment
             </h2>
           </AnimatedSection>
@@ -287,14 +302,14 @@ export function AboutContent() {
               const Icon = value.icon;
               return (
                 <StaggerItem key={value.title}>
-                  <div className="bg-white rounded-2xl p-8 h-full border border-stone-100 hover:border-stone-200 hover:shadow-lg transition-all duration-500">
-                    <div className="p-3 bg-stone-50 rounded-xl w-fit">
-                      <Icon className="w-5 h-5 text-stone-600" />
+                  <div className="bg-white/5 rounded-2xl p-8 h-full border border-white/10 hover:border-white/15 transition-all duration-500">
+                    <div className="p-3 bg-white/5 rounded-xl w-fit">
+                      <Icon className="w-5 h-5 text-pacific-mid" />
                     </div>
-                    <h3 className="mt-6 text-base font-medium text-stone-900">
+                    <h3 className="mt-6 text-base font-medium text-white">
                       {value.title}
                     </h3>
-                    <p className="mt-3 text-sm text-stone-500 font-light leading-relaxed">
+                    <p className="mt-3 text-sm text-pacific-mid font-light leading-relaxed">
                       {value.description}
                     </p>
                   </div>
@@ -306,14 +321,17 @@ export function AboutContent() {
       </section>
 
       {/* Grow with PACIFIC */}
-      <section className="bg-white border-b border-stone-100">
+      <section className="bg-[#112732] border-b border-white/10">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32 text-center">
           <AnimatedSection>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900 max-w-xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Grow with PACIFIC
             </h2>
-            <p className="mt-4 text-stone-600 font-light max-w-2xl mx-auto">
-              Join us and become a part of a dynamic team where your talents are valued, and your contributions make a real impact. Explore career opportunities at PACIFIC and discover a workplace where our values shape our culture every day.
+            <p className="mt-4 text-pacific-mid font-light max-w-2xl mx-auto">
+              Join us and become a part of a dynamic team where your talents are
+              valued, and your contributions make a real impact. Explore career
+              opportunities at PACIFIC and discover a workplace where our values
+              shape our culture every day.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <MagneticButton href="/careers" variant="primary" size="lg">
@@ -332,7 +350,8 @@ export function AboutContent() {
               Ready to find the perfect surface?
             </h2>
             <p className="mt-4 text-stone-400 font-light max-w-md mx-auto">
-              Let our specialists help you choose the ideal material for your project.
+              Let our specialists help you choose the ideal material for your
+              project.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <MagneticButton href="/contact" variant="primary" size="lg">
@@ -351,20 +370,20 @@ export function AboutContent() {
 
 function TimelineSection() {
   return (
-    <section className="bg-stone-50">
+    <section className="bg-[#112732]">
       <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
         <AnimatedSection className="text-center mb-16">
-          <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+          <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
             Our Journey
           </span>
-          <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+          <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
             Milestones & Growth
           </h2>
         </AnimatedSection>
 
         <div className="relative">
           {/* Vertical timeline line */}
-          <div className="absolute left-0 lg:left-1/2 top-0 bottom-0 w-1 bg-stone-200 lg:-translate-x-1/2" />
+          <div className="absolute left-0 lg:left-1/2 top-0 bottom-0 w-1 bg-white/10 lg:-translate-x-1/2" />
 
           <div className="space-y-12 lg:space-y-16">
             {timeline.map((item, index) => (
@@ -373,25 +392,29 @@ function TimelineSection() {
                 animation="fadeUp"
                 delay={index * 0.15}
               >
-                <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 items-start relative`}>
+                <div
+                  className={`grid grid-cols-1 lg:grid-cols-2 gap-8 items-start relative`}
+                >
                   {/* Timeline dot */}
-                  <div className="absolute left-0 top-6 w-4 h-4 bg-stone-900 rounded-full -translate-x-1.5 lg:left-1/2 lg:-translate-x-1/2 z-10" />
+                  <div className="absolute left-0 top-6 w-4 h-4 bg-white rounded-full -translate-x-1.5 lg:left-1/2 lg:-translate-x-1/2 z-10" />
 
                   {/* Content positioning */}
-                  <div className={`lg:col-span-1 ${index % 2 === 0 ? "lg:text-right" : "lg:col-start-2"} pl-8 lg:pl-0`}>
+                  <div
+                    className={`lg:col-span-1 ${index % 2 === 0 ? "lg:text-right" : "lg:col-start-2"} pl-8 lg:pl-0`}
+                  >
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.5 }}
                     >
-                      <span className="text-sm font-medium tracking-[0.2em] uppercase text-stone-400 block mb-2">
+                      <span className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid/70 block mb-2">
                         {item.year}
                       </span>
-                      <h3 className="text-xl font-light tracking-tight text-stone-900 mb-3">
+                      <h3 className="text-xl font-light tracking-tight text-white mb-3">
                         {item.title}
                       </h3>
-                      <p className="text-stone-600 font-light leading-relaxed max-w-md">
+                      <p className="text-pacific-mid font-light leading-relaxed max-w-md">
                         {item.description}
                       </p>
                     </motion.div>
@@ -408,17 +431,19 @@ function TimelineSection() {
 
 function TeamSection() {
   return (
-    <section className="bg-white">
+    <section className="bg-[#0e2030]">
       <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
         <AnimatedSection className="text-center mb-16">
-          <span className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4 block">
+          <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
             Leadership
           </span>
-          <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+          <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
             The Team
           </h2>
-          <p className="mt-4 text-stone-500 font-light max-w-2xl mx-auto">
-            Meet the passionate and dedicated team driving innovation at PACIFIC, blending creativity and expertise to bring you the finest in Quartz design.
+          <p className="mt-4 text-pacific-mid font-light max-w-2xl mx-auto">
+            Meet the passionate and dedicated team driving innovation at
+            PACIFIC, blending creativity and expertise to bring you the finest
+            in Quartz design.
           </p>
         </AnimatedSection>
 
@@ -437,22 +462,24 @@ function TeamSection() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5 }}
-                  className="bg-stone-50 rounded-2xl p-6 text-center border border-stone-100 hover:border-stone-200 hover:shadow-lg transition-all duration-500"
+                  className="bg-white/5 rounded-2xl p-6 text-center border border-white/10 hover:border-white/15 transition-all duration-500"
                 >
                   {/* Avatar */}
                   <div className="flex justify-center mb-4">
-                    <div className="w-16 h-16 rounded-full bg-stone-100 border-2 border-stone-200 flex items-center justify-center">
-                      <span className="text-sm font-medium text-stone-600">{initials}</span>
+                    <div className="w-16 h-16 rounded-full bg-white/5 border-2 border-white/10 flex items-center justify-center">
+                      <span className="text-sm font-medium text-pacific-mid">
+                        {initials}
+                      </span>
                     </div>
                   </div>
 
                   {/* Name */}
-                  <h3 className="text-base font-light tracking-tight text-stone-900">
+                  <h3 className="text-base font-light tracking-tight text-white">
                     {member.name}
                   </h3>
 
                   {/* Role */}
-                  <p className="mt-2 text-xs font-medium tracking-[0.15em] uppercase text-stone-400">
+                  <p className="mt-2 text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid/70">
                     {member.role}
                   </p>
                 </motion.div>

@@ -27,11 +27,11 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
   return (
     <>
       {/* Hero */}
-      <section ref={heroRef} className="relative min-h-[70vh] flex items-center bg-stone-950 overflow-hidden">
-        <motion.div
-          style={{ y: heroY }}
-          className="absolute inset-0"
-        >
+      <section
+        ref={heroRef}
+        className="relative min-h-[70vh] flex items-center bg-stone-950 overflow-hidden"
+      >
+        <motion.div style={{ y: heroY }} className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-b from-stone-950/40 via-stone-950/80 to-stone-950" />
           <div
             className="absolute inset-0 opacity-[0.03]"
@@ -56,7 +56,11 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
+            transition={{
+              duration: 0.7,
+              delay: 0.2,
+              ease: [0.25, 0.4, 0.25, 1],
+            }}
             className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl mx-auto"
           >
             True Jewels of Nature
@@ -67,22 +71,24 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
             transition={{ duration: 0.7, delay: 0.35 }}
             className="mt-6 text-lg text-stone-400 max-w-2xl mx-auto font-light leading-relaxed"
           >
-            Discover semi-precious stone surfaces that transform interiors into extraordinary showcases of natural beauty and elegance.
+            Discover semi-precious stone surfaces that transform interiors into
+            extraordinary showcases of natural beauty and elegance.
           </motion.p>
         </motion.div>
       </section>
 
       {/* Products Grid */}
-      <section className="bg-white">
+      <section className="bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
           {products.length > 0 ? (
             <>
               <AnimatedSection className="mb-12">
-                <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-stone-900">
+                <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
                   Our Collection
                 </h2>
-                <p className="mt-3 text-stone-600 font-light">
-                  Explore our curated selection of premium semi-precious stone surfaces.
+                <p className="mt-3 text-pacific-light font-light">
+                  Explore our curated selection of premium semi-precious stone
+                  surfaces.
                 </p>
               </AnimatedSection>
 
@@ -94,16 +100,20 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
                 className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
               >
                 {products.map((product, index) => (
-                  <ProductCard key={product._id} product={product} index={index} />
+                  <ProductCard
+                    key={product._id}
+                    product={product}
+                    index={index}
+                  />
                 ))}
               </motion.div>
             </>
           ) : (
             <div className="text-center py-16">
-              <p className="text-stone-600 font-light text-lg">
+              <p className="text-pacific-light font-light text-lg">
                 No semi-precious stone surfaces available at this time.
               </p>
-              <p className="mt-2 text-stone-400 font-light">
+              <p className="mt-2 text-pacific-mid/70 font-light">
                 Please check back soon for new additions to our collection.
               </p>
             </div>
@@ -119,7 +129,8 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
               Ready to elevate your space?
             </h2>
             <p className="mt-4 text-stone-400 font-light max-w-md mx-auto">
-              Let our specialists help you select the perfect semi-precious surface for your project.
+              Let our specialists help you select the perfect semi-precious
+              surface for your project.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <MagneticButton href="/contact" variant="primary" size="lg">

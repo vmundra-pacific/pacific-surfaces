@@ -3,21 +3,13 @@
 /**
  * FilterBar — the sticky top bar containing all filter pills, the result
  * count, the grid-density toggle, and the sort control.
- *
- * Sits directly below the site header and stays pinned while the user
- * scrolls the catalogue grid. Glass/backdrop-blur styling echoes the
- * Obsidian Assembly reference adapted to Pacific's palette.
  */
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, LayoutGrid, Grid3x3 } from "lucide-react";
+import { ChevronDown, LayoutGrid, Grid3x3, Search, X } from "lucide-react";
 import { FilterPill } from "./FilterPill";
 import {
   HUE_OPTIONS,
-  COLLECTIONS,
-  PATTERNS,
-  FINISHES,
-  THICKNESSES,
   type Hue,
   type Collection,
   type Pattern,
@@ -37,7 +29,6 @@ export function FilterBar({ api, total }: Props) {
   const [openKey, setOpenKey] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
-  // Close any open popover when the user clicks outside the bar.
   useEffect(() => {
     function handle(e: MouseEvent) {
       if (!barRef.current) return;
@@ -57,15 +48,38 @@ export function FilterBar({ api, total }: Props) {
     <div
       ref={barRef}
       className={[
-        "sticky top-0 z-40",
+        "sticky top-[72px] z-40",
         "border-y border-white/10",
-        "bg-pacific-dark/75 backdrop-blur-xl supports-[backdrop-filter]:bg-pacific-dark/60",
+        "bg-[#112732]/95 backdrop-blur-xl",
       ].join(" ")}
     >
-      <div className="mx-auto max-w-[1760px] px-6 lg:px-12 py-3.5 flex flex-wrap items-center justify-between gap-4">
-
-        {/* Left — filter pills */}
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+        {/* Left — search + filter pills */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Search input */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-pacific-mid pointer-events-none" />
+            <input
+              type="text"
+              value={api.query}
+              onChange={(e) => api.setQuery(e.target.value)}
+              placeholder="Search designs…"
+              className={[
+                "w-44 rounded-full py-2 pl-9 pr-8 text-sm",
+                "bg-white/5 border border-white/15 text-white placeholder-pacific-mid/60",
+                "outline-none transition-all duration-200",
+                "focus:w-56 focus:border-white/40 focus:bg-white/10",
+              ].join(" ")}
+            />
+            {api.query && (
+              <button
+                onClick={() => api.setQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-pacific-mid hover:text-white transition-colors"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
 
           {/* Hue */}
           <FilterPill
@@ -92,7 +106,9 @@ export function FilterBar({ api, total }: Props) {
                       selected
                         ? "border-white scale-[1.03]"
                         : "border-transparent hover:scale-[1.05]",
-                      count === 0 && !selected ? "opacity-30 cursor-not-allowed" : "",
+                      count === 0 && !selected
+                        ? "opacity-30 cursor-not-allowed"
+                        : "",
                     ].join(" ")}
                     style={{ background: opt.color }}
                     aria-label={`${opt.label} hue — ${count} designs`}
@@ -119,8 +135,8 @@ export function FilterBar({ api, total }: Props) {
             onToggle={() => toggleOpen("collection")}
           >
             <PopoverCheckList
-              title="Collection · 7 series"
-              items={COLLECTIONS.map((c) => ({
+              title={`Collection · ${api.uniqueCollections.length} series`}
+              items={api.uniqueCollections.map((c) => ({
                 value: c,
                 label: c,
                 count: api.countFor("collections", c),
@@ -139,7 +155,7 @@ export function FilterBar({ api, total }: Props) {
           >
             <PopoverCheckList
               title="Pattern · visual character"
-              items={PATTERNS.map((p) => ({
+              items={api.uniquePatterns.map((p) => ({
                 value: p,
                 label: p,
                 count: api.countFor("patterns", p),
@@ -158,7 +174,7 @@ export function FilterBar({ api, total }: Props) {
           >
             <PopoverCheckList
               title="Surface finish"
-              items={FINISHES.map((f) => ({
+              items={api.uniqueFinishes.map((f) => ({
                 value: f,
                 label: f,
                 count: api.countFor("finishes", f),
@@ -177,7 +193,7 @@ export function FilterBar({ api, total }: Props) {
           >
             <PopoverCheckList
               title="Slab thickness"
-              items={THICKNESSES.map((t) => ({
+              items={api.uniqueThicknesses.map((t) => ({
                 value: t,
                 label: t,
                 count: api.countFor("thicknesses", t),
@@ -196,13 +212,15 @@ export function FilterBar({ api, total }: Props) {
           </div>
 
           {/* Grid density */}
-          <div className="flex gap-1 rounded-full border border-white/10 bg-white/5 p-1">
+          <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-1">
             <button
               onClick={() => api.setDense(false)}
               aria-label="Comfortable grid"
               className={[
                 "flex h-7 w-7 items-center justify-center rounded-full transition-colors",
-                !api.dense ? "bg-pacific-light text-pacific-dark" : "text-pacific-mid hover:text-white",
+                !api.dense
+                  ? "bg-white text-pacific-dark"
+                  : "text-pacific-mid hover:text-white",
               ].join(" ")}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
@@ -212,7 +230,9 @@ export function FilterBar({ api, total }: Props) {
               aria-label="Dense grid"
               className={[
                 "flex h-7 w-7 items-center justify-center rounded-full transition-colors",
-                api.dense ? "bg-pacific-light text-pacific-dark" : "text-pacific-mid hover:text-white",
+                api.dense
+                  ? "bg-white text-pacific-dark"
+                  : "text-pacific-mid hover:text-white",
               ].join(" ")}
             >
               <Grid3x3 className="h-3.5 w-3.5" />
@@ -232,9 +252,7 @@ export function FilterBar({ api, total }: Props) {
   );
 }
 
-/* ------------------------------------------------------------------ *
- * Popover body: vertical checkbox list with live counts               *
- * ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------ */
 
 function PopoverCheckList({
   title,
@@ -260,23 +278,33 @@ function PopoverCheckList({
               "flex items-center justify-between gap-3 rounded-lg px-3 py-2.5",
               "text-sm text-pacific-light transition-colors",
               "hover:bg-white/5",
-              it.count === 0 && !it.selected ? "opacity-40 cursor-not-allowed hover:bg-transparent" : "",
+              it.count === 0 && !it.selected
+                ? "opacity-40 cursor-not-allowed hover:bg-transparent"
+                : "",
             ].join(" ")}
           >
             <span>{it.label}</span>
             <span className="flex items-center gap-2.5">
-              <span className="text-[11px] text-pacific-mid tabular-nums">{it.count}</span>
+              <span className="text-[11px] text-pacific-mid tabular-nums">
+                {it.count}
+              </span>
               <span
                 className={[
                   "flex h-4 w-4 items-center justify-center rounded border-[1.5px] transition-all",
                   it.selected
-                    ? "bg-pacific-light border-pacific-light text-pacific-dark"
-                    : "border-pacific-mid",
+                    ? "bg-white border-white text-pacific-dark"
+                    : "border-white/30",
                 ].join(" ")}
               >
                 {it.selected && (
                   <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
-                    <path d="M1 3.5L3.5 6L8 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M1 3.5L3.5 6L8 1"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 )}
               </span>
@@ -288,9 +316,7 @@ function PopoverCheckList({
   );
 }
 
-/* ------------------------------------------------------------------ *
- * Sort control — dropdown                                             *
- * ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------ */
 
 const SORT_LABELS: Record<SortKey, string> = {
   new: "New arrivals",
@@ -315,16 +341,18 @@ function SortControl({
       <button
         type="button"
         onClick={onToggle}
-        className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3.5 py-2 text-sm text-pacific-light hover:border-pacific-mid/60"
+        className="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-pacific-light hover:border-white/30"
       >
         <span className="hidden sm:inline text-pacific-mid">Sort:</span>
         <span>{SORT_LABELS[value]}</span>
-        <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDown
+          className={`h-3 w-3 transition-transform ${isOpen ? "rotate-180" : ""}`}
+        />
       </button>
       {isOpen && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute right-0 top-full mt-2 z-50 min-w-[180px] rounded-[12px] border border-white/15 bg-pacific-dark/95 p-2 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
+          className="absolute right-0 top-full mt-2 z-50 min-w-[180px] rounded-[12px] border border-white/15 bg-[#112732] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
         >
           {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
             <button
@@ -335,7 +363,9 @@ function SortControl({
               }}
               className={[
                 "w-full text-left rounded-md px-3 py-2 text-sm transition-colors",
-                value === k ? "bg-white/10 text-white" : "text-pacific-light hover:bg-white/5",
+                value === k
+                  ? "bg-white/10 text-white"
+                  : "text-pacific-mid hover:bg-white/5 hover:text-pacific-light",
               ].join(" ")}
             >
               {SORT_LABELS[k]}

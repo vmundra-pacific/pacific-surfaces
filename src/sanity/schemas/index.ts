@@ -8,6 +8,7 @@ import signatureProject from "./signatureProject";
 import applicationCard from "./applicationCard";
 import inspirationImage from "./inspirationImage";
 import dealer from "./dealer";
+import resource from "./resource";
 
 export const schemaTypes = [
   product,
@@ -20,4 +21,5 @@ export const schemaTypes = [
   applicationCard,
   inspirationImage,
   dealer,
+  resource,
 ];

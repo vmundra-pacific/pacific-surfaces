@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  type ReactNode,
   forwardRef,
   useCallback,
   useEffect,
@@ -19,12 +20,18 @@ import {
 import { applySlabToRegion, renderSlabTile } from "./slab-texture";
 import type { DemoSurface } from "./demo-rooms";
 import type { AIMask } from "./use-segment";
+import { ManualFrameEditor } from "./ManualFrameEditor";
 
 interface RoomCanvasProps {
   /** Image source (data URL or remote URL) */
   src: string;
-  /** Currently selected slab */
-  activeSlab: Slab | null;
+  /** Per-surface slab assignments. Each AI / polygon surface id maps
+   *  to a slab. The recomposite loop renders each surface with its
+   *  own slab — different surfaces can show different colours. */
+  surfaceSlabs: Record<string, Slab>;
+  /** Called whenever the user taps a surface (or otherwise focuses one)
+   *  so the parent can route slab-picker clicks to that surface. */
+  onFocusChange?: (id: string | null) => void;
   /** Hand-curated polygons for demo rooms. When present, these replace the
    *  tap-to-select flow entirely. */
   polygons?: DemoSurface[];
@@ -33,6 +40,41 @@ interface RoomCanvasProps {
   aiMasks?: AIMask[];
   /** Called whenever the active region changes */
   onRegionChange?: (c: SurfaceCandidate | null, surfaceId?: string) => void;
+  /** Called when the user taps somewhere outside any existing mask in
+   *  AI-mode. Coordinates are normalised to [0, 1]. The parent should
+   *  call SAM-2 point-prompted segmentation and append the resulting mask
+   *  to `aiMasks`. */
+  onPointTap?: (relX: number, relY: number) => void;
+  /** When SAM-2 fails, the parent sets this to the tap location and
+   *  the canvas opens the manual frame editor on top. */
+  manualTap?: { x: number; y: number } | null;
+  /** Optional starting polygon for the manual editor (used when
+   *  editing an existing surface via double-tap). */
+  manualInitialPolygon?: {
+    points: [number, number][];
+    controls: ([number, number] | null)[];
+  };
+  /** Called when the user confirms the manual polygon. */
+  onManualConfirm?: (
+    points: [number, number][],
+    controls: ([number, number] | null)[],
+    imgW: number,
+    imgH: number
+  ) => void;
+  /** Called when the user cancels the manual frame. */
+  onManualCancel?: () => void;
+  /** Called when the user double-taps an already-selected AI surface
+   *  to enter edit mode. The polygon is pre-computed in normalised
+   *  image coords (from the surface's bbox) and passed through, so
+   *  the parent can hand it straight to the manual editor. */
+  onEditExisting?: (
+    surfaceId: string,
+    initialPolygon: {
+      points: [number, number][];
+      controls: ([number, number] | null)[];
+    },
+    centerTap: { x: number; y: number }
+  ) => void;
   /** Fill parent container (vs intrinsic 16:10 aspect) */
   fill?: boolean;
 }
@@ -46,10 +88,17 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
   function RoomCanvas(
     {
       src,
-      activeSlab,
+      surfaceSlabs,
+      onFocusChange,
       polygons,
       aiMasks,
       onRegionChange,
+      onPointTap,
+      manualTap,
+      manualInitialPolygon,
+      onManualConfirm,
+      onManualCancel,
+      onEditExisting,
       fill = false,
     }: RoomCanvasProps,
     ref
@@ -71,6 +120,30 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
       h: 1,
     });
     const [hoveredId, setHoveredId] = useState<string | null>(null);
+    // Tracks which AI mask IDs we've already processed. Lets the aiMasks
+    // effect tell new masks (added via point-tap) apart from masks that have
+    // been around since the original AMG run, so we don't blow away the
+    // user's existing selections every time a single new mask appears.
+    const seenAiIdsRef = useRef<Set<string>>(new Set());
+    // The location of the user's most recent tap-to-detect. Used to render
+    // a localised hazy ripple while SAM-2 is running so the user gets
+    // immediate feedback that the right point was registered. Cleared when
+    // a new mask arrives (success) or after a 30-second safety timeout.
+    const [pendingTap, setPendingTap] = useState<{
+      relX: number;
+      relY: number;
+      // True if the underlying surface at the tap point is BRIGHT (e.g.
+      // a white slab area) — used to flip the ripple from light to dark
+      // so it's visible against the surface.
+      isBright: boolean;
+    } | null>(null);
+    // Tracks the aiMasks length so the effect below can detect "a new mask
+    // just arrived" and clear the pending ripple.
+    const aiMasksLengthRef = useRef(aiMasks?.length ?? 0);
+    // Tracks the last AI-mask tap so we can detect a double-tap on the
+    // SAME surface (within ~450ms) and fire onEditExisting instead of
+    // toggling. Used by the edit-existing-surface flow.
+    const lastTapRef = useRef<{ id: string; time: number } | null>(null);
     const [precomputed, setPrecomputed] = useState<
       { surface: DemoSurface; candidate: SurfaceCandidate }[]
     >([]);
@@ -85,6 +158,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
       setActive(null);
       setActiveIds([]);
       setPrecomputed([]);
+      seenAiIdsRef.current = new Set();
       onRegionChange?.(null);
 
       const img = new Image();
@@ -229,11 +303,41 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         }
         if (!cancelled) {
           setAiSurfaces(results);
-          // Auto-select the first surface
-          if (results.length > 0) {
-            setActive(results[0].candidate);
-            setActiveIds([results[0].id]);
-            onRegionChange?.(results[0].candidate, results[0].id);
+
+          // Figure out which IDs are brand-new (never seen before this
+          // effect run). Mark them seen, then append them to activeIds in
+          // one update — strictly additive, never replacing.
+          const newSurfaces: typeof results = [];
+          for (const r of results) {
+            if (!seenAiIdsRef.current.has(r.id)) {
+              newSurfaces.push(r);
+              seenAiIdsRef.current.add(r.id);
+            }
+          }
+
+          if (newSurfaces.length > 0) {
+            const target = newSurfaces[newSurfaces.length - 1];
+            setActive(target.candidate);
+            setActiveIds((prev) => {
+              const next = [...prev];
+              for (const s of newSurfaces) {
+                if (!next.includes(s.id)) next.push(s.id);
+              }
+              console.log(
+                "[RoomCanvas] activeIds update:",
+                "prev=",
+                prev,
+                "newSurfaceIds=",
+                newSurfaces.map((s) => s.id),
+                "next=",
+                next
+              );
+              return next;
+            });
+            onRegionChange?.(target.candidate, target.id);
+            // Auto-focus the newest surface so the slab picker assigns
+            // the user's next pick to it.
+            onFocusChange?.(target.id);
           }
         }
       })();
@@ -244,6 +348,16 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [aiMasks]);
 
+    // ---------------- Clear pending tap ripple when a new mask arrives ----------------
+    useEffect(() => {
+      const len = aiMasks?.length ?? 0;
+      if (len > aiMasksLengthRef.current) {
+        // A new mask just arrived → SAM-2 finished; remove the ripple.
+        setPendingTap(null);
+      }
+      aiMasksLengthRef.current = len;
+    }, [aiMasks]);
+
     // ---------------- Paint overlay mask (polygon fills + outlines) ----------------
     useEffect(() => {
       const ov = overlayRef.current;
@@ -252,48 +366,36 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
       if (!ctx) return;
       ctx.clearRect(0, 0, ov.width, ov.height);
 
+      // Outline drawing is disabled. Selection is conveyed entirely via
+      // the numbered badges (with check marks) and via the slab fill
+      // itself. The previous "marching ants" mask outlines were noisy
+      // and competed with the slab visual. We only paint a *hover*
+      // overlay (a soft fill, no stroke) so the user has subtle
+      // feedback when their cursor is over a surface they could add or
+      // remove.
       if (precomputed.length > 0) {
-        // Polygon mode. Two visual states:
-        //   - No slab picked yet → outline every surface so the user
-        //     can see what's tappable. Active gets a solid bold ring,
-        //     unselected gets a faint dashed hint, hover gets a brighter ring.
-        //   - Slab picked → suppress all outlines so the scene reads
-        //     cleanly. Hover still brings the outline back briefly so
-        //     the user has a cue when they're about to add/remove a
-        //     surface. Numbered badges remain visible regardless.
         for (const { surface, candidate } of precomputed) {
-          const isActive = activeIds.includes(surface.id);
-          const isHovered = hoveredId === surface.id;
-          if (activeSlab && !isHovered) continue;
+          if (hoveredId !== surface.id) continue;
           paintPolygon(ctx, candidate, surface.polygon, ov.width, ov.height, {
-            fillAlpha: isActive ? 0 : isHovered ? 0.22 : 0.1,
-            strokeAlpha: isActive ? 1 : isHovered ? 0.85 : 0.45,
-            strokeWidth: isActive ? 4 : 2,
-            dashed: !isActive && !isHovered,
+            fillAlpha: 0.18,
+            strokeAlpha: 0,
+            strokeWidth: 0,
+            dashed: false,
           });
         }
       } else if (aiSurfaces.length > 0) {
         for (const { id, candidate } of aiSurfaces) {
-          const isActive = activeIds.includes(id);
-          const isHovered = hoveredId === id;
-          if (activeSlab && !isHovered) continue;
+          if (hoveredId !== id) continue;
           paintMaskOverlay(ctx, candidate.mask, {
-            fillAlpha: isActive ? 0 : isHovered ? 0.22 : 0.1,
-            strokeAlpha: isActive ? 1 : isHovered ? 0.85 : 0.45,
-            strokeWidth: isActive ? 4 : 2,
+            fillAlpha: 0.18,
+            strokeAlpha: 0,
+            strokeWidth: 0,
           });
         }
-      } else if (active && !activeSlab) {
-        // Tap-based flood-fill fallback (no precomputed polygons / no AI).
-        paintMaskOverlay(ctx, active.mask, {
-          fillAlpha: 0.28,
-          strokeAlpha: 1,
-          strokeWidth: 3,
-        });
       }
-    }, [precomputed, aiSurfaces, active, activeIds, hoveredId, activeSlab]);
+    }, [precomputed, aiSurfaces, active, activeIds, hoveredId, surfaceSlabs]);
 
-    // ---------------- Recomposite with slab ----------------
+    // ---------------- Recomposite with PER-SURFACE slabs ----------------
     useEffect(() => {
       let cancelled = false;
       const run = async () => {
@@ -303,42 +405,48 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         const ctx = canvas.getContext("2d")!;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(base, 0, 0);
-        if (!activeSlab) return;
 
-        // Collect every selected mask. Multi-select: each ID resolves to
-        // either a polygon-derived candidate or an AI-detected one.
-        const masks: ImageData[] = [];
+        // Build the per-surface render queue. Each entry is a
+        // { mask, slab } pair — every active surface that has a slab
+        // assigned in surfaceSlabs gets its own entry.
+        type Job = { mask: ImageData; slab: Slab };
+        const jobs: Job[] = [];
         for (const id of activeIds) {
+          const slab = surfaceSlabs[id];
+          if (!slab) continue;
           const poly = precomputed.find((p) => p.surface.id === id);
           if (poly) {
-            masks.push(poly.candidate.mask);
+            jobs.push({ mask: poly.candidate.mask, slab });
             continue;
           }
           const ai = aiSurfaces.find((a) => a.id === id);
-          if (ai) masks.push(ai.candidate.mask);
+          if (ai) jobs.push({ mask: ai.candidate.mask, slab });
         }
-        // The tap-fallback `active` mask only paints when we're truly in
-        // flood-fill mode (no precomputed polygons, no AI surfaces).
-        // Otherwise deselecting all AI surfaces would leave the last
-        // tap's mask painting forever, so the canvas would never revert.
-        const inFallbackMode =
-          precomputed.length === 0 && aiSurfaces.length === 0;
-        if (masks.length === 0 && inFallbackMode && active) {
-          masks.push(active.mask);
-        }
-        if (masks.length === 0) return;
+        if (jobs.length === 0) return;
 
-        const tile = await renderSlabTile(activeSlab, 1024, 1024);
-        if (cancelled) return;
-        for (const m of masks) {
-          applySlabToRegion(ctx, base, m, tile, { opacity: 0.95 });
+        // Cache slab tiles by slab id so we don't re-render the same
+        // tile if multiple surfaces share a slab.
+        const tileCache = new Map<string, HTMLCanvasElement>();
+        for (const job of jobs) {
+          if (!tileCache.has(job.slab.id)) {
+            const tile = await renderSlabTile(job.slab, 1024, 1024);
+            if (cancelled) return;
+            tileCache.set(job.slab.id, tile);
+          }
+        }
+
+        // Composite each surface with its own slab.
+        for (const { mask, slab } of jobs) {
+          const tile = tileCache.get(slab.id);
+          if (!tile) continue;
+          applySlabToRegion(ctx, base, mask, tile, { opacity: 0.95 });
         }
       };
       run();
       return () => {
         cancelled = true;
       };
-    }, [active, activeIds, activeSlab, precomputed, aiSurfaces]);
+    }, [activeIds, surfaceSlabs, precomputed, aiSurfaces]);
 
     // ---------------- Pointer handlers ----------------
     const mapPointToImage = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -358,6 +466,11 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
 
     const handleTap = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
+        // While the manual frame editor is open, taps on the canvas
+        // should NOT trigger SAM-2 / segmentation. The editor handles
+        // its own pointer events for corner drag, edge insert, etc.
+        if (manualTap) return;
+
         const pt = mapPointToImage(e);
         if (!pt) return;
 
@@ -365,11 +478,19 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
           // Polygon mode: tap toggles the polygon into/out of the selection.
           for (const { surface, candidate } of precomputed) {
             if (pointInPolygon([pt.relX, pt.relY], surface.polygon)) {
-              setActiveIds((prev) =>
-                prev.includes(surface.id)
+              setActiveIds((prev) => {
+                const has = prev.includes(surface.id);
+                const next = has
                   ? prev.filter((x) => x !== surface.id)
-                  : [...prev, surface.id]
-              );
+                  : [...prev, surface.id];
+                // Focus update: if we just added → focus this id;
+                // if we removed → focus the previous most-recent
+                // remaining id (or null).
+                onFocusChange?.(
+                  has ? (next[next.length - 1] ?? null) : surface.id
+                );
+                return next;
+              });
               setActive(candidate);
               onRegionChange?.(candidate, surface.id);
               return;
@@ -378,26 +499,97 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
           return; // ignore taps outside any polygon
         }
 
-        if (aiSurfaces.length > 0) {
-          // AI mask mode: tap toggles the surface under the cursor.
+        // SAM-2 point-detect mode (user uploaded a photo and the parent
+        // wired up onPointTap). This branch is the primary tap behaviour
+        // for user uploads — it runs whether or not we already have any
+        // detected surfaces.
+        if (onPointTap) {
           const ix = Math.floor(pt.ix);
           const iy = Math.floor(pt.iy);
+          // First check: did the tap land on any already-detected mask?
           for (const { id, candidate } of aiSurfaces) {
             const w = candidate.mask.width;
             const idx = (iy * w + ix) * 4 + 3; // alpha channel
             if (candidate.mask.data[idx] > 128) {
-              setActiveIds((prev) =>
-                prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-              );
+              const now = Date.now();
+              const isDoubleTap =
+                lastTapRef.current &&
+                lastTapRef.current.id === id &&
+                now - lastTapRef.current.time < 450;
+              lastTapRef.current = { id, time: now };
+
+              // DOUBLE-TAP on an already-selected surface → open the
+              // manual editor pre-loaded with this surface's polygon
+              // (from its bbox, normalised to image coords) so the
+              // user can refine it. We compute the starting polygon
+              // here because RoomCanvas knows the natural image dims.
+              if (isDoubleTap && activeIds.includes(id) && onEditExisting) {
+                const nx = (v: number) => v / Math.max(1, imgSize.w);
+                const ny = (v: number) => v / Math.max(1, imgSize.h);
+                const bx = candidate.bbox.x;
+                const by = candidate.bbox.y;
+                const bw = candidate.bbox.w;
+                const bh = candidate.bbox.h;
+                const initial = {
+                  points: [
+                    [nx(bx), ny(by)] as [number, number],
+                    [nx(bx + bw), ny(by)] as [number, number],
+                    [nx(bx + bw), ny(by + bh)] as [number, number],
+                    [nx(bx), ny(by + bh)] as [number, number],
+                  ],
+                  controls: [null, null, null, null] as (
+                    | [number, number]
+                    | null
+                  )[],
+                };
+                onEditExisting(id, initial, {
+                  x: nx(candidate.centroid.x),
+                  y: ny(candidate.centroid.y),
+                });
+                return;
+              }
+
+              // Single tap → toggle in/out of the selection.
+              setActiveIds((prev) => {
+                const has = prev.includes(id);
+                const next = has ? prev.filter((x) => x !== id) : [...prev, id];
+                onFocusChange?.(has ? (next[next.length - 1] ?? null) : id);
+                return next;
+              });
               setActive(candidate);
               onRegionChange?.(candidate, id);
               return;
             }
           }
-          return; // ignore taps outside any detected surface
+          // Tap landed somewhere new — fire SAM-2 to detect the surface
+          // under the cursor. The new mask flows back through `aiMasks`
+          // and the additive effect above auto-selects it.
+          // Show the localised hazy ripple immediately for feedback;
+          // the mask-arrival effect clears it on success, the safety
+          // timeout below clears it if the request hangs / fails.
+          // Sample the underlying canvas (which already reflects any
+          // applied slab) to decide whether the ripple should be light
+          // or dark for visibility against the surface.
+          const isBright = sampleAreaIsBright(
+            canvasRef.current,
+            pt.relX,
+            pt.relY
+          );
+          const tap = { relX: pt.relX, relY: pt.relY, isBright };
+          setPendingTap(tap);
+          window.setTimeout(() => {
+            setPendingTap((current) =>
+              current && current.relX === tap.relX && current.relY === tap.relY
+                ? null
+                : current
+            );
+          }, 30000);
+          onPointTap(pt.relX, pt.relY);
+          return;
         }
 
-        // Fallback: tap-based flood fill for user uploads (no AI)
+        // Fallback: tap-based flood fill for environments where the
+        // SAM-2 endpoint isn't wired up at all.
         const img = imgRef.current!;
         setWorking(true);
         setTimeout(() => {
@@ -410,7 +602,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
           setWorking(false);
         }, 20);
       },
-      [precomputed, aiSurfaces, onRegionChange]
+      [precomputed, aiSurfaces, onRegionChange, onPointTap, manualTap]
     );
 
     const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -494,103 +686,88 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         {/* Polygon hotspot badges — every surface stays visible so users
             can keep adding/removing selections after a slab is picked. */}
         {!loading &&
-          precomputed.map(({ surface, candidate }, i) => {
-            const cx = (candidate.centroid.x / imgSize.w) * 100;
-            const cy = (candidate.centroid.y / imgSize.h) * 100;
-            const isActive = activeIds.includes(surface.id);
-            const isHovered = hoveredId === surface.id;
-            return (
-              <motion.div
-                key={surface.id}
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{
-                  opacity: 1,
-                  scale: isHovered ? 1.06 : 1,
-                }}
-                transition={{ delay: i * 0.05, duration: 0.3 }}
-                className="pointer-events-none absolute"
-                style={{
-                  left: `${cx}%`,
-                  top: `${cy}%`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all ring-2 ${
-                      isActive
-                        ? "bg-pacific-light text-pacific-dark ring-pacific-light/60 shadow-[0_0_24px_rgba(218,225,232,.55)]"
-                        : isHovered
-                          ? "bg-white text-pacific-dark ring-white/60 shadow-[0_0_18px_rgba(218,225,232,.35)]"
-                          : "bg-pacific-dark/85 text-pacific-light ring-white/50 backdrop-blur"
-                    }`}
-                  >
-                    {isActive ? "✓" : i + 1}
-                  </div>
-                  <div
-                    className={`text-[10px] tracking-[.22em] uppercase px-2.5 py-1 rounded bg-pacific-dark/85 backdrop-blur-md border transition-colors ${
-                      isActive
-                        ? "border-pacific-light/50 text-pacific-light"
-                        : "border-white/10 text-white/90"
-                    }`}
-                  >
-                    {surface.label}
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+          precomputed.map(({ surface, candidate }, i) =>
+            renderBadge({
+              key: surface.id,
+              cx: (candidate.centroid.x / imgSize.w) * 100,
+              cy: (candidate.centroid.y / imgSize.h) * 100,
+              isActive: activeIds.includes(surface.id),
+              isHovered: hoveredId === surface.id,
+              dotContent: activeIds.includes(surface.id) ? "✓" : i + 1,
+              labelContent: surface.label,
+              animationDelay: i * 0.05,
+            })
+          )}
 
         {/* AI mask hotspot badges — same multi-select treatment. */}
         {!loading &&
-          aiSurfaces.map(({ id, label, candidate }, i) => {
-            const cx = (candidate.centroid.x / imgSize.w) * 100;
-            const cy = (candidate.centroid.y / imgSize.h) * 100;
-            const isActive = activeIds.includes(id);
-            const isHovered = hoveredId === id;
-            return (
-              <motion.div
-                key={id}
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{
-                  opacity: 1,
-                  scale: isHovered ? 1.06 : 1,
-                }}
-                transition={{ delay: i * 0.05, duration: 0.3 }}
-                className="pointer-events-none absolute"
-                style={{
-                  left: `${cx}%`,
-                  top: `${cy}%`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all ring-2 ${
-                      isActive
-                        ? "bg-pacific-light text-pacific-dark ring-pacific-light/60 shadow-[0_0_24px_rgba(218,225,232,.55)]"
-                        : isHovered
-                          ? "bg-white text-pacific-dark ring-white/60 shadow-[0_0_18px_rgba(218,225,232,.35)]"
-                          : "bg-pacific-dark/85 text-pacific-light ring-white/50 backdrop-blur"
-                    }`}
-                  >
-                    {isActive ? "✓" : i + 1}
-                  </div>
-                  <div
-                    className={`text-[10px] tracking-[.22em] uppercase px-2.5 py-1 rounded bg-pacific-dark/85 backdrop-blur-md border transition-colors ${
-                      isActive
-                        ? "border-pacific-light/50 text-pacific-light"
-                        : "border-white/10 text-white/90"
-                    }`}
-                  >
-                    {label}
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+          aiSurfaces.map(({ id, label, candidate }, i) =>
+            renderBadge({
+              key: id,
+              cx: (candidate.centroid.x / imgSize.w) * 100,
+              cy: (candidate.centroid.y / imgSize.h) * 100,
+              isActive: activeIds.includes(id),
+              isHovered: hoveredId === id,
+              dotContent: activeIds.includes(id) ? "✓" : i + 1,
+              labelContent: label,
+              animationDelay: i * 0.05,
+            })
+          )}
 
-        {/* Loading / working */}
+        {/* Localised tap-ripple — shows immediately on tap, replaces the
+            full-canvas loading overlay with feedback at the click point.
+            Two stacked layers: a soft hazy disc that spreads outward, and
+            a tighter pulsing ring at the exact pixel. */}
+        <AnimatePresence>
+          {pendingTap && (
+            <motion.div
+              key="pending-ripple"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="pointer-events-none absolute"
+              style={{
+                left: `${pendingTap.relX * 100}%`,
+                top: `${pendingTap.relY * 100}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              {/* Outer hazy bloom — inverted on bright surfaces. */}
+              <motion.div
+                initial={{ scale: 0.4, opacity: 0.6 }}
+                animate={{ scale: 1.6, opacity: 0 }}
+                transition={{
+                  duration: 1.6,
+                  repeat: Infinity,
+                  ease: "easeOut",
+                }}
+                className="absolute -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full"
+                style={{
+                  background: pendingTap.isBright
+                    ? "radial-gradient(circle, rgba(10,22,32,0.55) 0%, rgba(10,22,32,0.20) 40%, transparent 70%)"
+                    : "radial-gradient(circle, rgba(218,225,232,0.45) 0%, rgba(218,225,232,0.15) 40%, transparent 70%)",
+                  backdropFilter: "blur(3px)",
+                }}
+              />
+              {/* Inner pulsing dot at the exact tap pixel */}
+              <motion.div
+                animate={{ scale: [1, 1.25, 1], opacity: [0.95, 0.7, 0.95] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+                className={
+                  pendingTap.isBright
+                    ? "absolute -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-pacific-dark shadow-[0_0_16px_rgba(10,22,32,.85)]"
+                    : "absolute -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-pacific-light shadow-[0_0_16px_rgba(218,225,232,.85)]"
+                }
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Image-load / flood-fill working overlay (covers the canvas). We
+            keep this for the brief image-load and tap-flood-fill states,
+            but NOT for SAM-2 point detection — the ripple above handles
+            that without obscuring the rest of the photo. */}
         <AnimatePresence>
           {(loading || working) && (
             <motion.div
@@ -606,12 +783,142 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Manual frame editor — shown when SAM-2 missed and the user
+            needs to draw the surface boundary themselves. Has corner
+            drag, edge-click-to-add-corner, undo, and curve toggle. */}
+        {manualTap && onManualConfirm && onManualCancel && (
+          <ManualFrameEditor
+            tap={manualTap}
+            initialPolygon={manualInitialPolygon}
+            imgW={imgSize.w}
+            imgH={imgSize.h}
+            onConfirm={onManualConfirm}
+            onCancel={onManualCancel}
+          />
+        )}
       </div>
     );
   }
 );
 
 /* -------------------- helpers -------------------- */
+
+/**
+ * Sample a small area around a normalised (0-1) tap point on a canvas
+ * and return true if the average luminance is bright (i.e. above
+ * mid-grey). Used to decide whether the tap-ripple animation should be
+ * dark (visible against bright surfaces) or light (visible against
+ * dark surfaces).
+ */
+function sampleAreaIsBright(
+  canvas: HTMLCanvasElement | null,
+  relX: number,
+  relY: number
+): boolean {
+  if (!canvas) return false;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return false;
+  const cx = Math.floor(relX * canvas.width);
+  const cy = Math.floor(relY * canvas.height);
+  const sample = 12;
+  const x = Math.max(0, Math.min(canvas.width - sample, cx - sample / 2));
+  const y = Math.max(0, Math.min(canvas.height - sample, cy - sample / 2));
+  try {
+    const data = ctx.getImageData(x, y, sample, sample).data;
+    let sumLum = 0;
+    let count = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      sumLum += 0.299 * r + 0.587 * g + 0.114 * b;
+      count++;
+    }
+    return count > 0 && sumLum / count > 140;
+  } catch {
+    // CORS-tainted canvas → can't read pixels. Fall back to light ripple.
+    return false;
+  }
+}
+
+/**
+ * Render a numbered badge anchored at a percentage position on the canvas.
+ *
+ * Edge-aware: when the centroid is in the right portion of the canvas, the
+ * label flips to the left side of the dot so it doesn't overflow past the
+ * canvas's `overflow-hidden` wrapper. Vertical position is also nudged
+ * inward when the badge would otherwise be clipped at the top or bottom.
+ */
+function renderBadge({
+  key,
+  cx,
+  cy,
+  isActive,
+  isHovered,
+  dotContent,
+  labelContent,
+  animationDelay,
+}: {
+  key: string;
+  cx: number;
+  cy: number;
+  isActive: boolean;
+  isHovered: boolean;
+  dotContent: ReactNode;
+  labelContent: ReactNode;
+  animationDelay: number;
+}) {
+  // Flip the label to the LEFT of the dot when the centroid is in the
+  // right ~30% of the canvas. Without this the label runs past the right
+  // edge and gets clipped by the wrapper's overflow-hidden.
+  const labelOnLeft = cx > 70;
+
+  // Vertical anchoring: if the centroid is right at the top edge, anchor
+  // the badge so it extends DOWN (instead of being centered, which clips
+  // the top half). Same idea at the bottom.
+  const translateY = cy < 8 ? "0%" : cy > 92 ? "-100%" : "-50%";
+
+  return (
+    <motion.div
+      key={key}
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: isHovered ? 1.06 : 1 }}
+      transition={{ delay: animationDelay, duration: 0.3 }}
+      className="pointer-events-none absolute"
+      style={{
+        left: `${cx}%`,
+        top: `${cy}%`,
+        transform: `translate(-50%, ${translateY})`,
+      }}
+    >
+      <div
+        className={`flex items-center gap-2 ${labelOnLeft ? "flex-row-reverse" : "flex-row"}`}
+      >
+        <div
+          className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all ring-2 shrink-0 ${
+            isActive
+              ? "bg-pacific-light text-pacific-dark ring-pacific-light/60 shadow-[0_0_24px_rgba(218,225,232,.55)]"
+              : isHovered
+                ? "bg-white text-pacific-dark ring-white/60 shadow-[0_0_18px_rgba(218,225,232,.35)]"
+                : "bg-pacific-dark/85 text-pacific-light ring-white/50 backdrop-blur"
+          }`}
+        >
+          {dotContent}
+        </div>
+        <div
+          className={`text-[10px] tracking-[.22em] uppercase px-2.5 py-1 rounded bg-pacific-dark/85 backdrop-blur-md border whitespace-nowrap transition-colors ${
+            isActive
+              ? "border-pacific-light/50 text-pacific-light"
+              : "border-white/10 text-white/90"
+          }`}
+        >
+          {labelContent}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 /**
  * Point-in-polygon test (ray casting). `point` and polygon verts in the same
@@ -667,10 +974,14 @@ function paintPolygon(
     ctx.fillStyle = `rgba(218, 225, 232, ${fillAlpha})`;
     ctx.fill();
   }
-  ctx.lineWidth = strokeWidth;
-  ctx.strokeStyle = `rgba(255, 255, 255, ${strokeAlpha})`;
-  if (dashed) ctx.setLineDash([14, 10]);
-  ctx.stroke();
+  // Only stroke if both width and alpha are non-zero. Some browsers
+  // draw a 1px default line when lineWidth=0 is set explicitly.
+  if (strokeWidth > 0 && strokeAlpha > 0) {
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeStyle = `rgba(255, 255, 255, ${strokeAlpha})`;
+    if (dashed) ctx.setLineDash([14, 10]);
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
@@ -705,19 +1016,28 @@ function paintMaskOverlay(
   const dstW = ctx.canvas.width;
   const dstH = ctx.canvas.height;
 
-  const fill = document.createElement("canvas");
-  fill.width = w;
-  fill.height = h;
-  const fctx = fill.getContext("2d")!;
-  fctx.fillStyle = `rgba(218, 225, 232, ${fillAlpha})`;
-  fctx.fillRect(0, 0, w, h);
-  const tmp = document.createElement("canvas");
-  tmp.width = w;
-  tmp.height = h;
-  tmp.getContext("2d")!.putImageData(mask, 0, 0);
-  fctx.globalCompositeOperation = "destination-in";
-  fctx.drawImage(tmp, 0, 0);
-  ctx.drawImage(fill, 0, 0, dstW, dstH);
+  // Soft fill (only when fillAlpha > 0). This is what we use for the
+  // hover overlay now that the marching-ants stroke is gone.
+  if (fillAlpha > 0) {
+    const fill = document.createElement("canvas");
+    fill.width = w;
+    fill.height = h;
+    const fctx = fill.getContext("2d")!;
+    fctx.fillStyle = `rgba(218, 225, 232, ${fillAlpha})`;
+    fctx.fillRect(0, 0, w, h);
+    const tmp = document.createElement("canvas");
+    tmp.width = w;
+    tmp.height = h;
+    tmp.getContext("2d")!.putImageData(mask, 0, 0);
+    fctx.globalCompositeOperation = "destination-in";
+    fctx.drawImage(tmp, 0, 0);
+    ctx.drawImage(fill, 0, 0, dstW, dstH);
+  }
+
+  // Edge stroke — skipped entirely when stroke is invisible (we now
+  // never draw it in the main flow, but the parameter still exists for
+  // any future callers that want a marching-ants effect back).
+  if (strokeAlpha <= 0 || strokeWidth <= 0) return;
 
   const step = 2;
   const edgeCanvas = document.createElement("canvas");
