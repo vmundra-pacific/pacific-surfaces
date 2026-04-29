@@ -1104,6 +1104,11 @@ function OpacityGatedVideo({
       key={src}
       className={className}
       src={src}
+      poster={
+        src.startsWith("/videos/")
+          ? src.replace(/\.mp4$/, "-poster.jpg")
+          : undefined
+      }
       muted
       playsInline
       preload="metadata"

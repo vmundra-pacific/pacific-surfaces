@@ -259,11 +259,16 @@ export function CareersContent({ pageData, openings }: Props) {
             <video
               key={heroVideoUrl}
               src={heroVideoUrl}
+              poster={
+                heroVideoUrl.startsWith("/videos/")
+                  ? heroVideoUrl.replace(/\.mp4$/, "-poster.jpg")
+                  : undefined
+              }
               autoPlay
               loop
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
               aria-hidden="true"
               className="absolute inset-0 w-full h-full object-cover"
             />

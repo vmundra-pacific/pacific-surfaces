@@ -57,6 +57,14 @@ export function QuartzHeroVideo(props: QuartzHeroVideoProps = {}) {
     ...props,
   };
 
+  // Derive poster path from the video URL — every shipped /videos/X.mp4
+  // has a matching /videos/X-poster.jpg next to it (extracted via
+  // ffmpeg -ss 1 -frames:v 1). External URLs (someone passes an https://
+  // value) get no poster — the video simply loads without one.
+  const posterSrc = videoSrc.startsWith("/videos/")
+    ? videoSrc.replace(/\.mp4$/, "-poster.jpg")
+    : undefined;
+
   return (
     <section className="relative w-full h-screen overflow-hidden bg-pacific-dark">
       {/* Background video — fills the frame. `key` on the video tag
@@ -67,6 +75,7 @@ export function QuartzHeroVideo(props: QuartzHeroVideoProps = {}) {
         key={videoSrc}
         className="absolute inset-0 w-full h-full object-cover"
         src={videoSrc}
+        poster={posterSrc}
         autoPlay
         loop
         muted

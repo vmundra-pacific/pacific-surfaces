@@ -59,6 +59,7 @@ export function VideoLoadingScreen({
       <video
         className="absolute inset-0 w-full h-full object-cover"
         src="/videos/loading.mp4"
+        poster="/videos/loading-poster.jpg"
         autoPlay
         loop={loop}
         muted

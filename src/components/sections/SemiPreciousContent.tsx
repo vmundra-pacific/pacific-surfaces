@@ -40,11 +40,12 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
           <video
             className="absolute inset-0 w-full h-full object-cover"
             src="/videos/semi-precious.mp4"
+            poster="/videos/semi-precious-poster.jpg"
             autoPlay
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="auto"
             aria-hidden="true"
           />
           {/* Gradient scrim — lighter at the top so the video reads

@@ -365,6 +365,11 @@ function ProjectVideo({ src, className }: { src: string; className?: string }) {
       ref={ref}
       key={src}
       src={src}
+      poster={
+        src.startsWith("/videos/")
+          ? src.replace(/\.mp4$/, "-poster.jpg")
+          : undefined
+      }
       loop
       muted
       playsInline

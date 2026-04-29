@@ -161,11 +161,16 @@ export function NaturalStoneFinishesContent({
             <video
               key={heroVideoUrl}
               src={heroVideoUrl}
+              poster={
+                heroVideoUrl.startsWith("/videos/")
+                  ? heroVideoUrl.replace(/\.mp4$/, "-poster.jpg")
+                  : undefined
+              }
               autoPlay
               loop
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
               aria-hidden="true"
               className="absolute inset-0 w-full h-full object-cover"
             />
@@ -229,6 +234,11 @@ export function NaturalStoneFinishesContent({
                 <video
                   key={introLeftVideoUrl}
                   src={introLeftVideoUrl}
+                  poster={
+                    introLeftVideoUrl.startsWith("/videos/")
+                      ? introLeftVideoUrl.replace(/\.mp4$/, "-poster.jpg")
+                      : undefined
+                  }
                   autoPlay
                   loop
                   muted
@@ -274,6 +284,11 @@ export function NaturalStoneFinishesContent({
                   <video
                     key={introRightVideoUrl}
                     src={introRightVideoUrl}
+                    poster={
+                      introRightVideoUrl.startsWith("/videos/")
+                        ? introRightVideoUrl.replace(/\.mp4$/, "-poster.jpg")
+                        : undefined
+                    }
                     autoPlay
                     loop
                     muted

@@ -153,11 +153,12 @@ export function AboutContent() {
           <video
             className="absolute inset-0 w-full h-full object-cover"
             src="/videos/about-hero.mp4"
+            poster="/videos/about-hero-poster.jpg"
             autoPlay
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="auto"
             aria-hidden="true"
           />
           {/* Gradient scrim — lighter at the top so the video reads
@@ -446,11 +447,12 @@ function TimelineSection() {
       <video
         className="absolute inset-0 w-full h-full object-cover -z-10"
         src="/videos/milestones-growth.mp4"
+        poster="/videos/milestones-growth-poster.jpg"
         autoPlay
         loop
         muted
         playsInline
-        preload="auto"
+        preload="metadata"
         aria-hidden="true"
       />
       {/* Tint overlay — deep navy at ~70% opacity preserves the brand
