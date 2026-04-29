@@ -90,7 +90,7 @@ export function SinksContent({ products }: SinksContentProps) {
           />
         </motion.div>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-32 pb-20">
+        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-24 sm:pt-32 pb-12 sm:pb-20">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -135,7 +135,7 @@ export function SinksContent({ products }: SinksContentProps) {
 
       {/* Products Grid */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
           <AnimatedSection className="mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Integra Collection
@@ -162,6 +162,7 @@ export function SinksContent({ products }: SinksContentProps) {
                 >
                   <div className="relative aspect-square overflow-hidden rounded-lg bg-white/5 mb-4">
                     {product.mainImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={product.mainImage}
                         alt={product.name}
@@ -244,7 +245,7 @@ export function SinksContent({ products }: SinksContentProps) {
 
       {/* Care & Maintenance */}
       <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
           <AnimatedSection className="text-center mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Care Guide
@@ -270,7 +271,7 @@ export function SinksContent({ products }: SinksContentProps) {
 
       {/* Purchase Policies */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
           <AnimatedSection className="text-center mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Policies
@@ -335,7 +336,7 @@ export function SinksContent({ products }: SinksContentProps) {
 
       {/* CTA */}
       <section className="bg-stone-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Find the Perfect Sink for Your Kitchen

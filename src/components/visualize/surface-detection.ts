@@ -84,7 +84,8 @@ function sobel(data: Uint8ClampedArray, w: number, h: number): Float32Array {
   const lum = new Float32Array(w * h);
   for (let i = 0; i < w * h; i++) {
     const k = i * 4;
-    lum[i] = (0.2126 * data[k] + 0.7152 * data[k + 1] + 0.0722 * data[k + 2]) / 255;
+    lum[i] =
+      (0.2126 * data[k] + 0.7152 * data[k + 1] + 0.0722 * data[k + 2]) / 255;
   }
   const out = new Float32Array(w * h);
   for (let y = 1; y < h - 1; y++) {
@@ -118,8 +119,12 @@ function floodFillInternal(
   img: HTMLImageElement,
   clickX: number,
   clickY: number,
-  opts: FloodOptions,
-): { mask: ImageData; bbox: { x: number; y: number; w: number; h: number }; centroid: { x: number; y: number } } | null {
+  opts: FloodOptions
+): {
+  mask: ImageData;
+  bbox: { x: number; y: number; w: number; h: number };
+  centroid: { x: number; y: number };
+} | null {
   const tolerance = opts.tolerance ?? 0.16;
   const edgeGate = opts.edgeGate ?? 0.28;
 
@@ -156,7 +161,11 @@ function floodFillInternal(
   }
 
   const seedIdx = (seedY * w + seedX) * 4;
-  const seedLab = toLab(pix.data[seedIdx], pix.data[seedIdx + 1], pix.data[seedIdx + 2]);
+  const seedLab = toLab(
+    pix.data[seedIdx],
+    pix.data[seedIdx + 1],
+    pix.data[seedIdx + 2]
+  );
 
   const visited = new Uint8Array(w * h);
   const stack: number[] = [seedY * w + seedX];
@@ -272,7 +281,7 @@ function featherAlpha(img: ImageData, radius: number) {
 export function maskFromPolygon(
   polygon: [number, number][],
   width: number,
-  height: number,
+  height: number
 ): ImageData {
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -292,12 +301,115 @@ export function maskFromPolygon(
 }
 
 /**
+ * Build a SurfaceCandidate from a PNG mask URL.
+ *
+ * Used by demo rooms whose surfaces are pre-painted in Photoshop and
+ * exported as a PNG. The mask can be either:
+ *   - paint-on-transparent (alpha > 0 = surface)  ← typical PSD export
+ *   - black-and-white (white = surface, black = ignore)
+ *
+ * Both encodings are normalised here into the canonical RGBA format
+ * `applySlabToRegion` expects (white pixels with alpha=255 = surface).
+ *
+ * The mask PNG is expected to be the same aspect ratio as the room
+ * photo. We rescale it to (width × height) so it composes cleanly with
+ * the room image regardless of the source export size.
+ */
+export async function candidateFromMaskURL(
+  url: string,
+  width: number,
+  height: number
+): Promise<SurfaceCandidate | null> {
+  // Load the mask PNG.
+  const img = await new Promise<HTMLImageElement | null>((resolve) => {
+    const el = new Image();
+    el.crossOrigin = "anonymous";
+    el.onload = () => resolve(el);
+    el.onerror = () => resolve(null);
+    el.src = url;
+  });
+  if (!img) return null;
+
+  // Surface the most common mis-paint cause: the mask PNG's natural
+  // dimensions don't match the room photo's dimensions. The render
+  // pipeline scales the mask to fit, which shifts every painted edge
+  // by a sub-pixel amount and shows up as misregistration around the
+  // cutout boundaries. Warn so the user sees it during PSD iteration.
+  if (img.naturalWidth !== width || img.naturalHeight !== height) {
+    console.warn(
+      `[demo-room mask] ${url}: dimensions ${img.naturalWidth}×${img.naturalHeight} ` +
+        `don't match room ${width}×${height}. Re-export at document size to fix alignment.`
+    );
+  }
+
+  // Rasterise to room-image dimensions.
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(img, 0, 0, width, height);
+  const maskData = ctx.getImageData(0, 0, width, height);
+  const data = maskData.data;
+
+  // Normalise: any pixel that is opaque OR bright is part of the
+  // surface. Otherwise zero it out. We also collect bbox + centroid
+  // in the same pass so we don't traverse the buffer twice.
+  let minX = width;
+  let minY = height;
+  let maxX = 0;
+  let maxY = 0;
+  let sumX = 0;
+  let sumY = 0;
+  let count = 0;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      const a = data[i + 3];
+      const bright = data[i] + data[i + 1] + data[i + 2] > 384;
+      const isSurface = a > 32 || bright;
+      if (isSurface) {
+        data[i] = 255;
+        data[i + 1] = 255;
+        data[i + 2] = 255;
+        data[i + 3] = 255;
+        sumX += x;
+        sumY += y;
+        count++;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      } else {
+        data[i] = 0;
+        data[i + 1] = 0;
+        data[i + 2] = 0;
+        data[i + 3] = 0;
+      }
+    }
+  }
+  // Sanity check: a real surface should be at least a few hundred px.
+  if (count < 100) return null;
+
+  return {
+    score: 1,
+    mask: maskData,
+    bbox: {
+      x: minX,
+      y: minY,
+      w: maxX - minX + 1,
+      h: maxY - minY + 1,
+    },
+    centroid: { x: sumX / count, y: sumY / count },
+  };
+}
+
+/**
  * Build a SurfaceCandidate from a normalised polygon.
  */
 export function candidateFromPolygon(
   polygon: [number, number][],
   width: number,
-  height: number,
+  height: number
 ): SurfaceCandidate {
   const mask = maskFromPolygon(polygon, width, height);
   let minX = width;
@@ -335,7 +447,7 @@ export function selectAtTap(
   img: HTMLImageElement,
   clickX: number,
   clickY: number,
-  opts: FloodOptions = {},
+  opts: FloodOptions = {}
 ): SurfaceCandidate | null {
   const r = floodFillInternal(img, clickX, clickY, opts);
   if (!r) return null;
@@ -351,7 +463,7 @@ export function addToMask(
   previous: SurfaceCandidate,
   clickX: number,
   clickY: number,
-  opts: FloodOptions = {},
+  opts: FloodOptions = {}
 ): SurfaceCandidate | null {
   const newer = floodFillInternal(img, clickX, clickY, opts);
   if (!newer) return previous;
@@ -367,7 +479,7 @@ export function subtractFromMask(
   previous: SurfaceCandidate,
   clickX: number,
   clickY: number,
-  opts: FloodOptions = {},
+  opts: FloodOptions = {}
 ): SurfaceCandidate | null {
   const newer = floodFillInternal(img, clickX, clickY, opts);
   if (!newer) return previous;

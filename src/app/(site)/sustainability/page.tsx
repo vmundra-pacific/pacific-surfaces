@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { client } from "@/sanity/lib/client";
+import { sustainabilityPageQuery } from "@/sanity/lib/queries";
 import { SustainabilityContent } from "@/components/sections/SustainabilityContent";
 
 export const metadata: Metadata = {
@@ -7,6 +9,13 @@ export const metadata: Metadata = {
     "Discover Pacific Surfaces' commitment to environmental sustainability. Powered by renewable energy, water conservation, and low-silica ecosurfaces.",
 };
 
-export default function SustainabilityPage() {
-  return <SustainabilityContent />;
+/**
+ * /sustainability — fetches the sustainabilityPage singleton from
+ * Sanity and hands it to the client component for render. The
+ * component owns sensible defaults so the page is fully populated
+ * even if the singleton hasn't been created yet.
+ */
+export default async function SustainabilityPage() {
+  const data = await client.fetch(sustainabilityPageQuery);
+  return <SustainabilityContent data={data} />;
 }

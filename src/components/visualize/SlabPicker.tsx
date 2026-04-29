@@ -77,27 +77,41 @@ export function SlabPicker({
                 }`}
                 aria-label={s.name}
               >
-                {s.photoUrl ? (
-                  // Real product photo from Sanity — preferred when available
+                {/* ALWAYS render the procedural swatch + overlay as
+                    the base layer. Two reasons:
+                      1. Lazy-loaded photos take a moment to arrive,
+                         and we never want users staring at empty
+                         thumbnails while the dock scrolls.
+                      2. If a Sanity photo fails to load (404, slow
+                         CDN), the swatch keeps the slab visually
+                         identifiable instead of dropping to a blank
+                         tile.
+                    The product photo, when present, is layered on top
+                    with native lazy loading. Browser only fetches it
+                    when the thumbnail enters the viewport. */}
+                <div
+                  className="absolute inset-0"
+                  style={{ backgroundImage: s.swatch }}
+                />
+                {s.overlay && (
+                  <div
+                    className="absolute inset-0 opacity-80 mix-blend-overlay"
+                    style={{ backgroundImage: s.overlay }}
+                  />
+                )}
+                {s.photoUrl && (
+                  // Real product photo from Sanity layered over the
+                  // swatch. Lazy + async decode keeps the dock
+                  // responsive when there are 13+ thumbnails. If the
+                  // request fails the swatch beneath remains visible.
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={s.photoUrl}
                     alt={s.name}
+                    loading="lazy"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
-                ) : (
-                  <>
-                    <div
-                      className="absolute inset-0"
-                      style={{ backgroundImage: s.swatch }}
-                    />
-                    {s.overlay && (
-                      <div
-                        className="absolute inset-0 opacity-80 mix-blend-overlay"
-                        style={{ backgroundImage: s.overlay }}
-                      />
-                    )}
-                  </>
                 )}
                 <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/70 to-transparent">
                   <div className="text-[9px] tracking-[.1em] uppercase text-white/90 text-left leading-tight line-clamp-2">

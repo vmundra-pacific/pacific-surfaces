@@ -15,17 +15,30 @@ const navigation = [
     name: "Products",
     href: "/products",
     children: [
-      { name: "Quartz Surfaces", href: "/products" },
-      { name: "Exotic Collection", href: "/collections" },
-      { name: "Semi-Precious Stones", href: "/semi-precious" },
-      { name: "Kosmic Collection", href: "/collections/kosmic-collection" },
-      { name: "Nebula Collection", href: "/collections/nebula-collection" },
-      { name: "Centrepiece Couture", href: "/collections/centrepiece-couture" },
-      { name: "Integra (Sinks)", href: "/sinks" },
-      { name: "Fab Creations", href: "/products" },
-      { name: "Ecosurfaces", href: "/ecosurfaces" },
-      { name: "Granites", href: "/granites" },
-      { name: "Natural Stone Finishes", href: "/granites" },
+      // Single-segment URLs under /products. Each maps to a config
+      // entry in src/app/(site)/products/_lib/category.ts —
+      // CATEGORY_PAGES — which controls the hero video, copy, and
+      // which Sanity collection / productType to scope the catalogue
+      // to. "All Products" alone owns the bare /products path.
+      { name: "Quartz Surfaces", href: "/products/quartz" },
+      { name: "Exotic Collection", href: "/products/exotic" },
+      { name: "Semi-Precious Stones", href: "/products/semi-precious" },
+      // Vision uses the existing Chromia collection page, which is
+      // already wired with the Vision Series video via
+      // COLLECTION_HERO in /products/[slug]/[item]/page.tsx.
+      { name: "Vision", href: "/products/quartz/chromia" },
+      {
+        name: "Centrepiece Couture",
+        href: "/products/centrepiece-couture",
+      },
+      { name: "Integra (Sinks)", href: "/products/integra" },
+      { name: "Fab Creations", href: "/products/fab-creations" },
+      { name: "Ecosurfaces", href: "/products/ecosurfaces" },
+      { name: "Granites", href: "/products/granites" },
+      {
+        name: "Natural Stone Finishes",
+        href: "/products/natural-stone-finishes",
+      },
       { name: "All Products", href: "/products" },
     ],
   },
@@ -46,7 +59,6 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {

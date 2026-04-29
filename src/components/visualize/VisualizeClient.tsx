@@ -90,7 +90,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
   // uploaded image in the background. RoomCanvas uses it (when ready)
   // to estimate each surface's plane orientation and warp the slab in
   // perspective so it follows the surface like a real installation.
-  const { depth: depthMap, run: runDepth, clear: clearDepth } = useDepth();
+  const { run: runDepth, clear: clearDepth } = useDepth();
 
   // Tap-to-detect: when the user taps the canvas, run SAM-2. If
   // SAM-2 succeeds, the mask flows back through `aiMasks` and
@@ -534,7 +534,6 @@ function StageCanvas({
   surfaceSlabs,
   polygons,
   aiMasks,
-  segLoading,
   segError,
   canvasRef,
   setActiveRegion,

@@ -33,7 +33,7 @@ const partnerCards = [
 
 export function PartnerWithUs() {
   return (
-    <section className="relative py-28 sm:py-36 px-6 bg-stone-950 overflow-hidden">
+    <section className="relative py-20 sm:py-28 md:py-36 px-6 bg-stone-950 overflow-hidden">
       {/* Grain overlay */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -43,10 +43,10 @@ export function PartnerWithUs() {
       />
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section header */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-12 sm:mb-20">
           <TextReveal
             as="h2"
-            className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-white"
+            className="text-3xl sm:text-5xl md:text-6xl font-light tracking-tight text-white"
           >
             Partner With Us
           </TextReveal>
@@ -67,7 +67,7 @@ export function PartnerWithUs() {
                 <motion.div
                   whileHover={{ y: -8 }}
                   transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-                  className="group p-8 bg-stone-900 rounded-2xl border border-stone-800 hover:border-stone-700 transition-colors h-full flex flex-col"
+                  className="group p-6 sm:p-8 bg-stone-900 rounded-2xl border border-stone-800 hover:border-stone-700 transition-colors h-full flex flex-col"
                 >
                   {/* Title */}
                   <h3 className="text-2xl font-light text-white tracking-tight mb-4">
@@ -96,7 +96,7 @@ export function PartnerWithUs() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-20 flex justify-center"
+          className="mt-12 sm:mt-20 flex justify-center"
         >
           <MagneticButton
             href="/contact"

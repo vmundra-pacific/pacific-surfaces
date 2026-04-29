@@ -13,10 +13,10 @@ const steps = [
 
 export function VisualizerStrip() {
   return (
-    <section className="py-20 md:py-28 px-6 bg-stone-950">
+    <section className="py-16 sm:py-20 md:py-28 px-6 bg-stone-950">
       <div className="mx-auto max-w-7xl">
         {/* Section header */}
-        <div className="flex flex-col lg:flex-row items-start justify-between gap-8 mb-16">
+        <div className="flex flex-col lg:flex-row items-start justify-between gap-6 sm:gap-8 mb-10 sm:mb-16">
           <div className="lg:max-w-lg">
             <motion.div
               initial={{ opacity: 0 }}

@@ -279,7 +279,7 @@ function ResourceSection({
 
   return (
     <section className={`${bgClass} border-b border-white/10`}>
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
         <AnimatedSection className="mb-12">
           <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-white">
             {meta.title}

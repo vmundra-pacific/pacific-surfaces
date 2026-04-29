@@ -7,14 +7,16 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import type { Hue, Collection, Pattern, Finish, Thickness } from "@/data/slabs";
+import type { Collection, Pattern, Finish, Thickness } from "@/data/slabs";
 import type { useFilterState, FilterKey } from "./useFilterState";
 
 type FilterApi = ReturnType<typeof useFilterState>;
 
 interface Chip {
   key: FilterKey;
-  value: Hue | Collection | Pattern | Finish | Thickness;
+  // Hue widened to `string` to accept editor-defined custom hues
+  // alongside the predefined Hue union values.
+  value: string | Collection | Pattern | Finish | Thickness;
   label: string;
 }
 

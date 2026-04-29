@@ -9,9 +9,16 @@ interface PageHeaderProps {
   dark?: boolean;
 }
 
-export function PageHeader({ badge, title, description, dark = false }: PageHeaderProps) {
+export function PageHeader({
+  badge,
+  title,
+  description,
+  dark = false,
+}: PageHeaderProps) {
   return (
-    <section className={`relative overflow-hidden ${dark ? "bg-stone-950 text-white" : "bg-stone-50 text-stone-900"}`}>
+    <section
+      className={`relative overflow-hidden ${dark ? "bg-stone-950 text-white" : "bg-stone-50 text-stone-900"}`}
+    >
       {/* Grain overlay */}
       {dark && (
         <div
@@ -21,7 +28,7 @@ export function PageHeader({ badge, title, description, dark = false }: PageHead
           }}
         />
       )}
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-32 pb-16 relative z-10">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-24 sm:pt-32 pb-12 sm:pb-16 relative z-10">
         {badge && (
           <motion.span
             initial={{ opacity: 0, y: 10 }}
@@ -46,7 +53,11 @@ export function PageHeader({ badge, title, description, dark = false }: PageHead
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.35, ease: [0.25, 0.4, 0.25, 1] }}
+            transition={{
+              duration: 0.6,
+              delay: 0.35,
+              ease: [0.25, 0.4, 0.25, 1],
+            }}
             className={`mt-4 text-lg max-w-2xl font-light leading-relaxed ${
               dark ? "text-stone-400" : "text-stone-500"
             }`}
@@ -56,7 +67,9 @@ export function PageHeader({ badge, title, description, dark = false }: PageHead
         )}
       </div>
       {/* Bottom gradient line */}
-      <div className={`h-px ${dark ? "bg-gradient-to-r from-transparent via-stone-700/50 to-transparent" : "bg-gradient-to-r from-transparent via-stone-300/50 to-transparent"}`} />
+      <div
+        className={`h-px ${dark ? "bg-gradient-to-r from-transparent via-stone-700/50 to-transparent" : "bg-gradient-to-r from-transparent via-stone-300/50 to-transparent"}`}
+      />
     </section>
   );
 }

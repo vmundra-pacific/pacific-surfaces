@@ -15,7 +15,6 @@
 import { useMemo, useState } from "react";
 import type {
   Slab,
-  Hue,
   Collection,
   Pattern,
   Finish,
@@ -25,7 +24,14 @@ import type {
 export type SortKey = "new" | "name-asc" | "name-desc" | "collection";
 
 export interface FilterState {
-  hues: Set<Hue>;
+  /**
+   * Hue selection — `string` rather than the predefined `Hue` union
+   * so editors can add custom hue tags via Sanity (e.g. "lavender")
+   * and have them flow through the filter set unchanged. Predefined
+   * hues retain their hand-tuned gradients in HUE_OPTIONS; custom
+   * ones get a neutral fallback gradient in the FilterBar.
+   */
+  hues: Set<string>;
   collections: Set<Collection>;
   patterns: Set<Pattern>;
   finishes: Set<Finish>;
@@ -154,7 +160,7 @@ export function useFilterState(slabs: Slab[]) {
         if (set.size === 0) continue;
 
         if (fk === "hues") {
-          if (!s.hues.some((h) => (set as Set<Hue>).has(h))) return false;
+          if (!s.hues.some((h) => (set as Set<string>).has(h))) return false;
         } else if (fk === "collections") {
           if (!(set as Set<Collection>).has(s.collection)) return false;
         } else if (fk === "patterns") {
@@ -168,7 +174,7 @@ export function useFilterState(slabs: Slab[]) {
         }
       }
       // Then check if this slab matches the candidate value for `key`
-      if (key === "hues") return s.hues.includes(value as Hue);
+      if (key === "hues") return s.hues.includes(value as string);
       if (key === "collections") return s.collection === value;
       if (key === "patterns") return s.pattern === value;
       if (key === "finishes") return s.finishes.includes(value as Finish);
@@ -192,6 +198,10 @@ export function useFilterState(slabs: Slab[]) {
   );
   const uniquePatterns = useMemo(
     () => Array.from(new Set(slabs.map((s) => s.pattern))).sort() as Pattern[],
+    [slabs]
+  );
+  const uniqueHues = useMemo(
+    () => Array.from(new Set(slabs.flatMap((s) => s.hues))).sort(),
     [slabs]
   );
   const uniqueFinishes = useMemo(
@@ -223,6 +233,7 @@ export function useFilterState(slabs: Slab[]) {
     activeCount,
     uniqueCollections,
     uniquePatterns,
+    uniqueHues,
     uniqueFinishes,
     uniqueThicknesses,
   };

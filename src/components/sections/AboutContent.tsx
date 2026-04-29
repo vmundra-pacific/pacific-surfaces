@@ -38,14 +38,42 @@ const timeline = [
   },
 ];
 
-const team = [
-  { name: "Mohanlal Somani", role: "Chairman" },
-  { name: "Varun Somani", role: "Managing Director" },
-  { name: "Varun Mundra", role: "Director" },
-  { name: "Abhijeet Mankotia", role: "VP — Global Sales" },
-  { name: "Anish Datta", role: "VP — Business Development" },
-  { name: "Paulina Popławska", role: "Director, Pacific Polska" },
-  { name: "Nagesh P K", role: "Commercial Manager, Pacific Granites India" },
+const team: { name: string; role: string; photo?: string }[] = [
+  {
+    name: "Mohanlal Somani",
+    role: "Chairman",
+    photo: "/team/mohanlal-somani.png",
+  },
+  {
+    name: "Varun Somani",
+    role: "Managing Director",
+    photo: "/team/varun-somani.png",
+  },
+  {
+    name: "Varun Mundra",
+    role: "Director",
+    photo: "/team/varun-mundra.png",
+  },
+  {
+    name: "Abhijeet Mankotia",
+    role: "VP — Global Sales",
+    photo: "/team/abhijeet-mankotia.png",
+  },
+  {
+    name: "Anish Datta",
+    role: "VP — Business Development",
+    photo: "/team/anish-datta.png",
+  },
+  {
+    name: "Paulina Popławska",
+    role: "Director, Pacific Polska",
+    photo: "/team/paulina-poplawska.png",
+  },
+  {
+    name: "Nagesh P K",
+    role: "Commercial Manager, Pacific Granites India",
+    photo: "/team/nagesh-pk.png",
+  },
 ];
 
 const values = [
@@ -101,11 +129,43 @@ export function AboutContent() {
       {/* Hero */}
       <section
         ref={heroRef}
-        className="relative min-h-[70vh] flex items-center bg-stone-950 overflow-hidden"
+        // Full viewport height so the video occupies the entire
+        // first screen — the user lands on it before any other
+        // content is visible. items-end keeps the text container
+        // pinned to the bottom-left corner over the video,
+        // leaving the upper area of the frame open to show the
+        // playing footage.
+        className="relative min-h-screen flex items-end bg-stone-950 overflow-hidden"
       >
-        {/* Background texture */}
+        {/* Background layers — video, scrim, and noise texture, all
+            inside the same parallax wrapper so they translate together
+            with scroll. Order top-to-bottom = bottom-to-top in z-stack:
+              1. <video>           — actual content (deepest layer)
+              2. gradient scrim    — darkens lower half so text reads
+              3. noise SVG         — faint stone-like grain on top
+            The headline + paragraph sit in the foreground motion.div
+            below this block. */}
         <motion.div style={{ y: heroY }} className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/40 via-stone-950/80 to-stone-950" />
+          {/* Background video — autoplays muted-looped behind the text.
+              Drop the file at /public/videos/about-hero.mp4 (see the
+              PowerShell instruction in the assistant message that
+              shipped this change). */}
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            src="/videos/about-hero.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+          />
+          {/* Gradient scrim — lighter at the top so the video reads
+              through, ramping to fully opaque at the bottom so the
+              section transitions seamlessly into the next block.
+              Tuned so the headline copy in the lower-middle of the
+              hero stays comfortably legible against any frame. */}
+          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/30 via-stone-950/60 to-stone-950" />
           <div
             className="absolute inset-0 opacity-[0.03]"
             style={{
@@ -116,13 +176,19 @@ export function AboutContent() {
 
         <motion.div
           style={{ opacity: heroOpacity }}
-          className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-32 pb-20"
+          // Bottom-left positioning: mx-auto removed so the block
+          // hugs the section's left edge (still inset by the
+          // px-6/px-8 gutter so it lines up with page content
+          // below). pt-32 dropped since items-end on the section
+          // already pulls us to the bottom — the old pt was
+          // padding for a vertically-centred hero.
+          className="relative z-10 max-w-3xl px-6 lg:px-8 pb-12"
         >
           <motion.span
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-6"
+            className="inline-block text-[10px] md:text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4"
           >
             Our Story
           </motion.span>
@@ -134,7 +200,7 @@ export function AboutContent() {
               delay: 0.2,
               ease: [0.25, 0.4, 0.25, 1],
             }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl"
+            className="text-2xl sm:text-3xl lg:text-4xl font-light tracking-tight text-white max-w-xl"
           >
             Crafting Surfaces That Tell a Story
           </motion.h1>
@@ -142,7 +208,7 @@ export function AboutContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.35 }}
-            className="mt-6 text-lg text-pacific-mid/70 max-w-2xl font-light leading-relaxed"
+            className="mt-4 text-sm md:text-base text-pacific-mid/70 max-w-md font-light leading-relaxed"
           >
             Pacific Surfaces is India&apos;s premier manufacturer of engineered
             quartz and granite surfaces, dedicated to transforming spaces with
@@ -171,7 +237,7 @@ export function AboutContent() {
 
       {/* Story */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <AnimatedSection animation="slideInLeft">
               <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
@@ -203,14 +269,15 @@ export function AboutContent() {
             <AnimatedSection animation="slideInRight" delay={0.2}>
               <div className="relative">
                 <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-white/5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="https://static.wixstatic.com/media/79abd5_1ef7e4c1e66f4ed49a4bcbbc547d4663~mv2.jpg"
+                    src="/about-vision.png"
                     alt="Premium surface craftsmanship"
                     className="h-full w-full object-cover"
                   />
                 </div>
                 {/* Floating accent */}
-                <div className="absolute -bottom-6 -left-6 bg-white text-[#112732] p-8 rounded-2xl">
+                <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 bg-white text-[#112732] p-5 sm:p-8 rounded-2xl">
                   <div className="text-2xl font-light">10+</div>
                   <div className="text-xs tracking-wider uppercase text-[#112732]/60 mt-1">
                     Years of Excellence
@@ -224,8 +291,8 @@ export function AboutContent() {
 
       {/* Disruptive Technology */}
       <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
-          <AnimatedSection className="text-center mb-16">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
+          <AnimatedSection className="text-center mb-12 sm:mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Manufacturing Excellence
             </span>
@@ -237,31 +304,31 @@ export function AboutContent() {
             </p>
           </AnimatedSection>
 
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
             {[
               {
                 icon: Cpu,
                 title: "Integrating Technology with Innovation",
                 description:
-                  "We believe in the power of technology to enhance craftsmanship and redefine industry standards. Our new plant represents a fusion of advanced machinery and creative innovation, resulting in products that surpass expectations. We have invested in the latest manufacturing technologies to streamline processes, minimize waste, and optimize production output.",
+                  "Our new plant fuses advanced machinery with creative innovation. We've invested in the latest manufacturing tech to streamline processes, minimize waste, and optimize output — surpassing expectations on every slab.",
               },
               {
                 icon: Zap,
                 title: "High-Speed Production Line",
                 description:
-                  "With our high-speed production line, we have significantly accelerated the manufacturing process without compromising on quality. Our plant boasts an impressive capacity to meet the ever-growing demands of our clients, ensuring timely delivery and superior craftsmanship. From cutting to polishing, our automated systems guarantee precision and consistency in every slab.",
+                  "Our automated production line accelerates manufacturing without compromising quality. From cutting to polishing, automated systems guarantee precision and consistency — delivering at the capacity our clients demand.",
               },
               {
                 icon: Leaf,
                 title: "Sustainable Manufacturing Plant",
                 description:
-                  "Sustainability is at the core of our operations. Our new fully automated plant incorporates eco-friendly practices throughout the production cycle, ensuring minimal impact on the environment. By choosing our products, you are not only embracing elegance and quality but also contributing to a greener and more sustainable future.",
+                  "Sustainability is core to our operations. Our fully-automated plant builds eco-friendly practices into every step of the production cycle — elegance and quality, with a measurably lighter footprint.",
               },
             ].map((item) => {
               const Icon = item.icon;
               return (
-                <StaggerItem key={item.title}>
-                  <div className="bg-white/5 rounded-2xl p-8 h-full border border-white/10">
+                <StaggerItem key={item.title} className="h-full">
+                  <div className="bg-white/5 rounded-2xl p-6 sm:p-8 h-full border border-white/10 flex flex-col">
                     <div className="p-3 bg-white/10 rounded-xl w-fit">
                       <Icon className="w-6 h-6 text-pacific-mid" />
                     </div>
@@ -287,8 +354,8 @@ export function AboutContent() {
 
       {/* Values */}
       <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
-          <AnimatedSection className="text-center mb-16">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
+          <AnimatedSection className="text-center mb-12 sm:mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               What Drives Us
             </span>
@@ -297,12 +364,12 @@ export function AboutContent() {
             </h2>
           </AnimatedSection>
 
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
             {values.map((value) => {
               const Icon = value.icon;
               return (
-                <StaggerItem key={value.title}>
-                  <div className="bg-white/5 rounded-2xl p-8 h-full border border-white/10 hover:border-white/15 transition-all duration-500">
+                <StaggerItem key={value.title} className="h-full">
+                  <div className="bg-white/5 rounded-2xl p-8 h-full border border-white/10 hover:border-white/15 transition-all duration-500 flex flex-col">
                     <div className="p-3 bg-white/5 rounded-xl w-fit">
                       <Icon className="w-5 h-5 text-pacific-mid" />
                     </div>
@@ -322,7 +389,7 @@ export function AboutContent() {
 
       {/* Grow with PACIFIC */}
       <section className="bg-[#112732] border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Grow with PACIFIC
@@ -344,7 +411,7 @@ export function AboutContent() {
 
       {/* CTA */}
       <section className="bg-stone-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Ready to find the perfect surface?
@@ -357,7 +424,7 @@ export function AboutContent() {
               <MagneticButton href="/contact" variant="primary" size="lg">
                 Get in Touch
               </MagneticButton>
-              <MagneticButton href="/products" variant="outline" size="lg">
+              <MagneticButton href="/products" variant="outline-dark" size="lg">
                 Explore Surfaces
               </MagneticButton>
             </div>
@@ -370,9 +437,28 @@ export function AboutContent() {
 
 function TimelineSection() {
   return (
-    <section className="bg-[#112732]">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
-        <AnimatedSection className="text-center mb-16">
+    // relative + isolate so the looping background video can sit
+    // behind the content without bleeding into neighbouring sections.
+    // The video is muted/looped/playsInline so iOS autoplays it; an
+    // overlay tints it down so white text stays legible.
+    <section className="relative isolate overflow-hidden bg-[#112732]">
+      {/* Background video — silent, looping, full-bleed cover */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover -z-10"
+        src="/videos/milestones-growth.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+      />
+      {/* Tint overlay — deep navy at ~70% opacity preserves the brand
+          mood and keeps the timeline text readable over the video. */}
+      <div className="absolute inset-0 bg-[#112732]/72 -z-10" />
+
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
+        <AnimatedSection className="text-center mb-12 sm:mb-16">
           <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
             Our Journey
           </span>
@@ -432,8 +518,8 @@ function TimelineSection() {
 function TeamSection() {
   return (
     <section className="bg-[#0e2030]">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
-        <AnimatedSection className="text-center mb-16">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
+        <AnimatedSection className="text-center mb-12 sm:mb-16">
           <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
             Leadership
           </span>
@@ -447,7 +533,7 @@ function TeamSection() {
           </p>
         </AnimatedSection>
 
-        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
           {team.map((member) => {
             const initials = member.name
               .split(" ")
@@ -456,32 +542,53 @@ function TeamSection() {
               .toUpperCase();
 
             return (
-              <StaggerItem key={`${member.name}-${member.role}`}>
+              <StaggerItem
+                key={`${member.name}-${member.role}`}
+                className="h-full"
+              >
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5 }}
-                  className="bg-white/5 rounded-2xl p-6 text-center border border-white/10 hover:border-white/15 transition-all duration-500"
+                  className="group relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-500 h-full"
                 >
-                  {/* Avatar */}
-                  <div className="flex justify-center mb-4">
-                    <div className="w-16 h-16 rounded-full bg-white/5 border-2 border-white/10 flex items-center justify-center">
-                      <span className="text-sm font-medium text-pacific-mid">
+                  {/* Full-bleed photo. Photos are square / portrait
+                      headshots; object-cover fills the 3:4 card
+                      regardless of source aspect. Falls back to a
+                      gradient + initials when no photo is set. */}
+                  {member.photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={member.photo}
+                      alt={member.name}
+                      // object-top anchors the crop to the top of the
+                      // photo so the head and hair stay in frame when
+                      // the 3:4 card is taller than the source. The
+                      // default 50/50 anchor was clipping foreheads.
+                      className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900 flex items-center justify-center">
+                      <span className="text-3xl font-light text-white/30 tracking-wider">
                         {initials}
                       </span>
                     </div>
+                  )}
+
+                  {/* Gradient scrim at the bottom — keeps the name
+                      and role legible against any photo. */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+
+                  {/* Text — pinned to the bottom of the card. */}
+                  <div className="absolute bottom-0 left-0 right-0 p-5">
+                    <h3 className="text-base font-medium text-white tracking-tight">
+                      {member.name}
+                    </h3>
+                    <p className="mt-1 text-[10px] font-medium tracking-[0.2em] uppercase text-white/75">
+                      {member.role}
+                    </p>
                   </div>
-
-                  {/* Name */}
-                  <h3 className="text-base font-light tracking-tight text-white">
-                    {member.name}
-                  </h3>
-
-                  {/* Role */}
-                  <p className="mt-2 text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid/70">
-                    {member.role}
-                  </p>
                 </motion.div>
               </StaggerItem>
             );

@@ -137,9 +137,79 @@ export function applySlabToRegion(
   room: HTMLImageElement | HTMLCanvasElement,
   mask: ImageData,
   tile: HTMLCanvasElement,
-  opts: { opacity?: number } = {}
+  opts: {
+    opacity?: number;
+    precise?: boolean;
+    /**
+     * Optional grayscale shadow pass painted on top of the surface.
+     * Multiplied over the slab so dark areas of the shadow PNG dim
+     * the rendered slab (under-cabinet shadow, lip drop-off, etc.).
+     * White / transparent pixels leave the slab unchanged.
+     */
+    shadow?: HTMLImageElement;
+    /**
+     * Multiplier for the shadow pass effect. 1.0 = single multiply
+     * pass. >1.0 stacks the multiply for stronger darkening. <1.0
+     * blends a softer pass via globalAlpha. Default 2.0 — two full
+     * multiply passes give the shadow good visual weight on both
+     * pale and dark slabs. Pull down toward 1.0 if a particular
+     * shadow.png has very dark blacks and starts crushing the slab.
+     */
+    shadowStrength?: number;
+    /**
+     * Optional grayscale highlights / reflections pass. Screen-blended
+     * over the slab so bright pixels (window reflections, pendant
+     * spill, edge sheen) lift the slab toward white in those zones.
+     * Black / transparent pixels leave the slab unchanged.
+     */
+    highlights?: HTMLImageElement;
+    /**
+     * Multiplier for the highlights pass — same semantics as
+     * shadowStrength but for the screen blend. Default 1.0; increase
+     * if the reflections look too subtle.
+     */
+    highlightsStrength?: number;
+    /**
+     * Optional bounding box of the surface mask in the same
+     * coordinate space as `mask`. When provided, the slab tile is
+     * cover-fit to the bbox instead of the whole canvas — meaning
+     * one slab covers one surface at natural scale, instead of
+     * showing a tiny zoomed-in slice of a slab the size of the room.
+     * Demo rooms pass this from `candidate.bbox`. AI surfaces also
+     * have it, but pass `undefined` to fall back to canvas cover-fit
+     * if you ever want the old behavior.
+     */
+    bbox?: { x: number; y: number; w: number; h: number };
+    /**
+     * Multiplier on the cover-fit scale.
+     *   1.0  = slab exactly covers the bbox (one whole slab on the
+     *          surface).
+     *   <1.0 = slab is smaller than the bbox, tiled to fill it.
+     *          Pattern features look smaller / more numerous — like
+     *          looking at a real countertop where you can see several
+     *          slabs' worth of veining variation.
+     *   >1.0 = slab is larger than the bbox, only the center portion
+     *          shows. Pattern features look bigger / more zoomed in.
+     * Default 0.8 (about 25% more pattern visible than 1:1 cover-fit).
+     */
+    slabZoom?: number;
+  } = {}
 ) {
-  const { opacity = 1 } = opts;
+  const {
+    opacity = 1,
+    precise = false,
+    shadow,
+    shadowStrength = 2,
+    highlights,
+    // 0 = highlights pass off by default. The screen blend was
+    // washing texture out on light slabs; killing it preserves full
+    // slab veining contrast. shadow.png alone provides enough lighting
+    // integration. Re-enable per-call with `highlightsStrength: 0.4`
+    // for darker slabs that need a sheen lift.
+    highlightsStrength = 0,
+    bbox,
+    slabZoom = 1,
+  } = opts;
   const w = dst.canvas.width;
   const h = dst.canvas.height;
 
@@ -175,38 +245,51 @@ export function applySlabToRegion(
   }
   // b) Modest dilation — covers SAM-2's typical few-pixel inset at the
   //    surface edge so the slab reaches the actual visible boundary.
+  //    `precise: true` skips this entirely: hand-painted PSD masks (and
+  //    eyeballed demo-room polygons) already trace the true edge, so
+  //    dilation just spills the slab over adjoining pixels and creates
+  //    the white halo that demo-room previews were showing.
   const dilatedMask = document.createElement("canvas");
   dilatedMask.width = w;
   dilatedMask.height = h;
   const dmCtx = dilatedMask.getContext("2d")!;
-  const dilatePx = Math.max(
-    4,
-    Math.min(10, Math.round(Math.max(w, h) * 0.006))
-  );
-  const halfDilate = Math.round(dilatePx / 2);
-  for (const [dx, dy] of [
-    [0, 0],
-    [-dilatePx, 0],
-    [dilatePx, 0],
-    [0, -dilatePx],
-    [0, dilatePx],
-    [-halfDilate, -halfDilate],
-    [halfDilate, -halfDilate],
-    [-halfDilate, halfDilate],
-    [halfDilate, halfDilate],
-  ]) {
-    dmCtx.drawImage(sourceMask, dx, dy);
+  if (precise) {
+    // No dilation — copy source as-is.
+    dmCtx.drawImage(sourceMask, 0, 0);
+  } else {
+    const dilatePx = Math.max(
+      4,
+      Math.min(10, Math.round(Math.max(w, h) * 0.006))
+    );
+    const halfDilate = Math.round(dilatePx / 2);
+    for (const [dx, dy] of [
+      [0, 0],
+      [-dilatePx, 0],
+      [dilatePx, 0],
+      [0, -dilatePx],
+      [0, dilatePx],
+      [-halfDilate, -halfDilate],
+      [halfDilate, -halfDilate],
+      [-halfDilate, halfDilate],
+      [halfDilate, halfDilate],
+    ]) {
+      dmCtx.drawImage(sourceMask, dx, dy);
+    }
   }
   // c) Feather the dilated mask for a soft edge against the
-  //    surrounding photo (no dark halos around obstructions).
+  //    surrounding photo. Two settings:
+  //      - default (SAM-2): 2-8px blur to fade slab into the room
+  //        across imprecise mask edges.
+  //      - precise: 1px hairline blur, just enough to defeat aliasing
+  //        on the diagonal pixels of a hand-painted mask without
+  //        eating into the visible surface.
   const maskCanvas = document.createElement("canvas");
   maskCanvas.width = w;
   maskCanvas.height = h;
   const mctx = maskCanvas.getContext("2d")!;
-  const featherPx = Math.max(
-    2,
-    Math.min(8, Math.round(Math.max(w, h) * 0.004))
-  );
+  const featherPx = precise
+    ? 1
+    : Math.max(2, Math.min(8, Math.round(Math.max(w, h) * 0.004)));
   mctx.filter = `blur(${featherPx}px)`;
   mctx.drawImage(dilatedMask, 0, 0);
   mctx.filter = "none";
@@ -216,18 +299,69 @@ export function applySlabToRegion(
   compose.height = h;
   const cctx = compose.getContext("2d")!;
 
-  // 1) Cover-fit the slab to the whole canvas. Each masked region
-  //    samples a continuous chunk of one big slab — no tiling seams.
-  //    (Tried perspective warp via mask-corner detection; the corners
-  //    found by "x±y extremes" misfired on irregular mask shapes,
-  //    distorting the slab pattern. Reverted to cover-fit. Real
-  //    perspective will need depth-based corner refinement.)
-  const scaleCover = Math.max(w / tile.width, h / tile.height);
-  const drawW = tile.width * scaleCover;
-  const drawH = tile.height * scaleCover;
-  const drawX = (w - drawW) / 2;
-  const drawY = (h - drawH) / 2;
-  cctx.drawImage(tile, drawX, drawY, drawW, drawH);
+  // 1) Cover-fit the slab. Two modes:
+  //    - With bbox supplied: cover-fit to the surface's bounding box,
+  //      then multiply by slabZoom. slabZoom < 1 means the slab is
+  //      smaller than the bbox and gets tiled. slabZoom >= 1 means
+  //      the slab is drawn once, possibly extending past the bbox.
+  //    - Without bbox: cover-fit to the whole canvas (legacy behaviour
+  //      for AI/SAM-2 surfaces).
+  //    The mask's natural dimensions can differ from dst — bbox is
+  //    in mask coords, so scale it to dst before fitting.
+  let bX: number, bY: number, bW: number, bH: number, scaleCover: number;
+  if (bbox) {
+    const sx = w / mask.width;
+    const sy = h / mask.height;
+    bX = bbox.x * sx;
+    bY = bbox.y * sy;
+    bW = bbox.w * sx;
+    bH = bbox.h * sy;
+    scaleCover = Math.max(bW / tile.width, bH / tile.height);
+  } else {
+    bX = 0;
+    bY = 0;
+    bW = w;
+    bH = h;
+    scaleCover = Math.max(w / tile.width, h / tile.height);
+  }
+  const targetScale = scaleCover * slabZoom;
+
+  if (slabZoom >= 1) {
+    // Single draw, slab covers (and may extend past) the bbox.
+    const drawW = tile.width * targetScale;
+    const drawH = tile.height * targetScale;
+    const drawX = bX + (bW - drawW) / 2;
+    const drawY = bY + (bH - drawH) / 2;
+    cctx.drawImage(tile, drawX, drawY, drawW, drawH);
+  } else {
+    // Slab is smaller than the bbox — tile it. Pre-scale the tile to
+    // its target rendering size, then use createPattern to repeat it
+    // across the bbox area. The mask clip later trims tiling to the
+    // actual surface shape.
+    const scaledTileW = Math.max(1, Math.round(tile.width * targetScale));
+    const scaledTileH = Math.max(1, Math.round(tile.height * targetScale));
+    const scaledTile = document.createElement("canvas");
+    scaledTile.width = scaledTileW;
+    scaledTile.height = scaledTileH;
+    scaledTile
+      .getContext("2d")!
+      .drawImage(tile, 0, 0, scaledTileW, scaledTileH);
+
+    const pattern = cctx.createPattern(scaledTile, "repeat");
+    if (pattern) {
+      cctx.save();
+      cctx.fillStyle = pattern;
+      cctx.fillRect(bX, bY, bW, bH);
+      cctx.restore();
+    } else {
+      // Pattern creation failed — fall back to single cover-fit draw.
+      const drawW = tile.width * scaleCover;
+      const drawH = tile.height * scaleCover;
+      const drawX = bX + (bW - drawW) / 2;
+      const drawY = bY + (bH - drawH) / 2;
+      cctx.drawImage(tile, drawX, drawY, drawW, drawH);
+    }
+  }
 
   // 2) Soft-light a HEAVILY BLURRED copy of the room onto the slab.
   //    The blur kills the original surface's pattern (veining,
@@ -235,20 +369,101 @@ export function applySlabToRegion(
   //    shadows, ambient gradients). Soft-light blends those onto the
   //    slab so it inherits the scene's lighting without the previous
   //    surface's pattern bleeding through.
-  const blurPx = Math.max(8, Math.min(40, Math.round(Math.max(w, h) * 0.012)));
-  const blurredRoom = document.createElement("canvas");
-  blurredRoom.width = w;
-  blurredRoom.height = h;
-  const brCtx = blurredRoom.getContext("2d")!;
-  brCtx.filter = `blur(${blurPx}px)`;
-  brCtx.drawImage(room, 0, 0, w, h);
-  brCtx.filter = "none";
+  //
+  //    SKIP THIS PASS when an explicit shadow layer was provided.
+  //    shadow.png is a much higher-fidelity replacement: it tells us
+  //    exactly where shadows fall, with whatever density the user
+  //    chose, instead of approximating from the original photo's
+  //    luminance. Running both stacks two lighting sources on top of
+  //    each other and produces blown-out blacks wherever the original
+  //    photo happened to be dark (e.g. the slab reads as charcoal on
+  //    a back wall that originally had black stone). The soft-light
+  //    pass remains the default for AI/SAM-2 surfaces that don't
+  //    ship a shadow layer.
+  if (!shadow) {
+    const blurPx = Math.max(
+      8,
+      Math.min(40, Math.round(Math.max(w, h) * 0.012))
+    );
+    const blurredRoom = document.createElement("canvas");
+    blurredRoom.width = w;
+    blurredRoom.height = h;
+    const brCtx = blurredRoom.getContext("2d")!;
+    brCtx.filter = `blur(${blurPx}px)`;
+    brCtx.drawImage(room, 0, 0, w, h);
+    brCtx.filter = "none";
 
-  cctx.globalCompositeOperation = "soft-light";
-  cctx.globalAlpha = 0.85;
-  cctx.drawImage(blurredRoom, 0, 0);
-  cctx.globalAlpha = 1;
-  cctx.globalCompositeOperation = "source-over";
+    cctx.globalCompositeOperation = "soft-light";
+    cctx.globalAlpha = 0.85;
+    cctx.drawImage(blurredRoom, 0, 0);
+    cctx.globalAlpha = 1;
+    cctx.globalCompositeOperation = "source-over";
+  }
+
+  // 2b) Multiply the optional shadow pass over the slab. Black pixels
+  //     in the shadow PNG darken the slab (under-cabinet shadows,
+  //     lip drop-off), white pixels leave it untouched, transparent
+  //     pixels are ignored entirely. This is what makes the surface
+  //     read as "installed" rather than "stamped on" — without it,
+  //     the slab is uniformly bright everywhere the mask covers.
+  //
+  //     `shadowStrength` lets us run more (or less) than one full
+  //     multiply pass: integer passes at full alpha, then a fractional
+  //     residual pass via globalAlpha. e.g. strength=1.5 = one full
+  //     multiply + one half-alpha multiply, giving a stronger crush
+  //     without re-exporting darker blacks from PS.
+  //
+  //     Order matters: we run multiply AFTER the soft-light room
+  //     blend (so the shadow stacks on top of the ambient lighting
+  //     pass) but BEFORE the destination-in mask clip (so the
+  //     multiply is constrained to the same area as the slab).
+  if (shadow && shadowStrength > 0) {
+    // Adaptive shadow scaling: a single shadowStrength setting can't
+    // serve both ends of the slab brightness spectrum. Multiply at
+    // 2.0 looks great on a black marble (deep, atmospheric shadows)
+    // but turns a white calacatta to gray. So we sample the slab's
+    // average brightness and scale the effective multiply count down
+    // hard for light slabs, keeping it full for dark ones.
+    //   brightness  0  (black) → factor 1.00 → full shadowStrength
+    //   brightness 255 (white) → factor 0.15 → 15% shadowStrength
+    //   linear in between
+    // The aggressive 0.15 floor means a pure white slab only gets a
+    // gentle 0.3-strength multiply (with shadowStrength: 2 default),
+    // preserving its brightness while still grounding it with a
+    // hint of shadow integration.
+    const tileBrightness = sampleTileBrightness(tile);
+    const brightnessFactor = 1 - 0.85 * (tileBrightness / 255);
+    const effectiveStrength = shadowStrength * brightnessFactor;
+
+    cctx.globalCompositeOperation = "multiply";
+    let remaining = effectiveStrength;
+    while (remaining > 0) {
+      cctx.globalAlpha = Math.min(1, remaining);
+      cctx.drawImage(shadow, 0, 0, w, h);
+      remaining -= 1;
+    }
+    cctx.globalAlpha = 1;
+    cctx.globalCompositeOperation = "source-over";
+  }
+
+  // 2c) Screen the optional highlights pass over the slab — same
+  //     stacking trick as shadow, but with `screen` blend so bright
+  //     pixels add light. Window reflections + pendant spill paint
+  //     here. Order: highlights ride on top of shadow so a bright
+  //     reflection on a shadowed corner still reads as bright (a
+  //     real glossy slab does this — sheen wins over ambient
+  //     occlusion at the surface boundary).
+  if (highlights && highlightsStrength > 0) {
+    cctx.globalCompositeOperation = "screen";
+    let remaining = highlightsStrength;
+    while (remaining > 0) {
+      cctx.globalAlpha = Math.min(1, remaining);
+      cctx.drawImage(highlights, 0, 0, w, h);
+      remaining -= 1;
+    }
+    cctx.globalAlpha = 1;
+    cctx.globalCompositeOperation = "source-over";
+  }
 
   // 3) Clip to the feathered mask.
   cctx.globalCompositeOperation = "destination-in";
@@ -263,8 +478,17 @@ export function applySlabToRegion(
   //     The gradient is made by blurring the OUTSIDE of the mask in
   //     dark, then re-clipping to the mask — produces a dark vignette
   //     hugging the mask boundary.
+  //
+  //     SKIP when an explicit shadow layer was supplied. The user's
+  //     shadow.png already controls every aspect of edge darkening
+  //     (under-lip drop, corner shading, sink rim). Running this pass
+  //     on top stacks an auto-vignette over the authored shadow and
+  //     produces the dark band on the right edge of the island / dark
+  //     line along the floor that the user was flagging. AI/SAM-2
+  //     surfaces (no shadow layer) still get the vignette as their
+  //     only grounding cue.
   const slabBrightness = sampleTileBrightness(tile);
-  if (slabBrightness > 175) {
+  if (slabBrightness > 175 && !shadow) {
     const innerShadow = document.createElement("canvas");
     innerShadow.width = w;
     innerShadow.height = h;
@@ -332,221 +556,10 @@ function sampleTileBrightness(tile: HTMLCanvasElement): number {
 }
 
 /* ------------------------------------------------------------------ *
- * Phase 1: perspective-aware slab placement                          *
+ * Removed: an earlier perspective-warp chain (findMaskCorners +      *
+ * warpImageToQuad + drawAffineTriangle) that warped the slab to      *
+ * follow surface plane orientation via "extremes of x±y" corner      *
+ * detection. The corners misfired on irregular masks (sink cutouts,  *
+ * chamfered edges); cover-fit replaced it. Stripped pre-deploy as    *
+ * part of the simplification audit.                                  *
  * ------------------------------------------------------------------ */
-
-interface Pt {
-  x: number;
-  y: number;
-}
-
-/**
- * Find 4 dominant corners (TL, TR, BR, BL) of a binary mask.
- *
- * Uses the "extremes of x±y" trick: a quadrilateral's 4 corners are
- * the unique points that minimise/maximise (x+y) and (x-y) over the
- * shape. Works robustly for any roughly-quadrilateral mask, regardless
- * of rotation or perspective. Falls back to null when the mask is too
- * small or degenerate (e.g. all 4 corners collinear).
- *
- * Returns coordinates in DST canvas dimensions (w × h), not the
- * mask's natural dimensions — so the caller can draw the warp
- * directly onto the dst-sized compose canvas.
- */
-function findMaskCorners(
-  mask: ImageData,
-  dstW: number,
-  dstH: number
-): [Pt, Pt, Pt, Pt] | null {
-  const { width, height, data } = mask;
-  let minSum = Infinity;
-  let maxSum = -Infinity;
-  let minDiff = Infinity;
-  let maxDiff = -Infinity;
-  let tl: Pt = { x: 0, y: 0 };
-  let tr: Pt = { x: 0, y: 0 };
-  let br: Pt = { x: 0, y: 0 };
-  let bl: Pt = { x: 0, y: 0 };
-  let found = false;
-
-  // Sampled at step=2 for speed. For typical mask sizes this is
-  // ~250k–600k iterations — runs in a few ms.
-  const step = 2;
-  for (let y = 0; y < height; y += step) {
-    for (let x = 0; x < width; x += step) {
-      const ai = (y * width + x) * 4 + 3;
-      if (data[ai] <= 128) continue;
-      found = true;
-      const sum = x + y;
-      const diff = x - y;
-      if (sum < minSum) {
-        minSum = sum;
-        tl = { x, y };
-      }
-      if (sum > maxSum) {
-        maxSum = sum;
-        br = { x, y };
-      }
-      if (diff > maxDiff) {
-        maxDiff = diff;
-        tr = { x, y };
-      }
-      if (diff < minDiff) {
-        minDiff = diff;
-        bl = { x, y };
-      }
-    }
-  }
-
-  if (!found) return null;
-
-  // Reject degenerate quads — area too small or any two corners
-  // coincident (which would crash the warp's affine solver).
-  const area = Math.abs(
-    (tr.x - tl.x) * (br.y - tl.y) - (br.x - tl.x) * (tr.y - tl.y)
-  );
-  if (area < 100) return null;
-
-  // Scale corners from mask coords (natural dims) into dst coords.
-  const sx = dstW / width;
-  const sy = dstH / height;
-  return [
-    { x: tl.x * sx, y: tl.y * sy },
-    { x: tr.x * sx, y: tr.y * sy },
-    { x: br.x * sx, y: br.y * sy },
-    { x: bl.x * sx, y: bl.y * sy },
-  ];
-}
-
-/**
- * Warp an image into a 4-point quadrilateral on the destination
- * canvas using piecewise-affine triangle splatting.
- *
- * Approach: split the source rectangle into a NxN grid of triangles,
- * compute where each triangle lands in the destination quad via
- * bilinear interpolation across the quad's edges, then draw each
- * triangle with the appropriate affine transform. With N=24 this
- * gives a smooth perspective-style warp — visually indistinguishable
- * from a true homography for textures at typical canvas sizes,
- * without needing WebGL.
- *
- * `corners` are in the order [TL, TR, BR, BL] in dst pixel coords.
- */
-function warpImageToQuad(
-  ctx: CanvasRenderingContext2D,
-  source: HTMLCanvasElement,
-  corners: [Pt, Pt, Pt, Pt]
-): void {
-  const [tl, tr, br, bl] = corners;
-  const sw = source.width;
-  const sh = source.height;
-  const N = 24; // grid resolution — higher = smoother but slower
-
-  for (let i = 0; i < N; i++) {
-    for (let j = 0; j < N; j++) {
-      const u0 = i / N;
-      const u1 = (i + 1) / N;
-      const v0 = j / N;
-      const v1 = (j + 1) / N;
-
-      // Source rectangle for this cell.
-      const sx0 = u0 * sw;
-      const sx1 = u1 * sw;
-      const sy0 = v0 * sh;
-      const sy1 = v1 * sh;
-
-      // Destination cell corners via bilinear interpolation across
-      // the destination quad. (1-u)(1-v)·TL + u(1-v)·TR + uv·BR + (1-u)v·BL
-      const dest = (u: number, v: number): Pt => ({
-        x:
-          (1 - u) * (1 - v) * tl.x +
-          u * (1 - v) * tr.x +
-          u * v * br.x +
-          (1 - u) * v * bl.x,
-        y:
-          (1 - u) * (1 - v) * tl.y +
-          u * (1 - v) * tr.y +
-          u * v * br.y +
-          (1 - u) * v * bl.y,
-      });
-      const d00 = dest(u0, v0);
-      const d10 = dest(u1, v0);
-      const d11 = dest(u1, v1);
-      const d01 = dest(u0, v1);
-
-      // Two triangles per cell: (00, 10, 01) and (10, 11, 01).
-      drawAffineTriangle(
-        ctx,
-        source,
-        [sx0, sy0],
-        [sx1, sy0],
-        [sx0, sy1],
-        d00,
-        d10,
-        d01
-      );
-      drawAffineTriangle(
-        ctx,
-        source,
-        [sx1, sy0],
-        [sx1, sy1],
-        [sx0, sy1],
-        d10,
-        d11,
-        d01
-      );
-    }
-  }
-}
-
-/**
- * Draw a triangle from `source` to `ctx` by computing the unique
- * affine transform that maps source triangle (s0, s1, s2) to
- * destination triangle (d0, d1, d2), then clipping to the destination
- * triangle and drawing the source image with that transform applied.
- */
-function drawAffineTriangle(
-  ctx: CanvasRenderingContext2D,
-  source: HTMLCanvasElement,
-  s0: [number, number],
-  s1: [number, number],
-  s2: [number, number],
-  d0: Pt,
-  d1: Pt,
-  d2: Pt
-): void {
-  // Solve the affine transform: d = M * s + t where M is 2x2, t is 2x1.
-  // System: dN.x = a*sN.x + c*sN.y + e for N=0,1,2 (and similarly for y).
-  const [sx0, sy0] = s0;
-  const [sx1, sy1] = s1;
-  const [sx2, sy2] = s2;
-
-  const det = (sx1 - sx0) * (sy2 - sy0) - (sy1 - sy0) * (sx2 - sx0);
-  if (Math.abs(det) < 1e-9) return; // collinear source — skip
-  const invDet = 1 / det;
-
-  const a =
-    ((d1.x - d0.x) * (sy2 - sy0) - (d2.x - d0.x) * (sy1 - sy0)) * invDet;
-  const c =
-    ((d2.x - d0.x) * (sx1 - sx0) - (d1.x - d0.x) * (sx2 - sx0)) * invDet;
-  const e = d0.x - a * sx0 - c * sy0;
-
-  const b =
-    ((d1.y - d0.y) * (sy2 - sy0) - (d2.y - d0.y) * (sy1 - sy0)) * invDet;
-  const d =
-    ((d2.y - d0.y) * (sx1 - sx0) - (d1.y - d0.y) * (sx2 - sx0)) * invDet;
-  const f = d0.y - b * sx0 - d * sy0;
-
-  ctx.save();
-  // Clip to the destination triangle so the affine drawImage doesn't
-  // bleed past the triangle's edges into adjacent cells.
-  ctx.beginPath();
-  ctx.moveTo(d0.x, d0.y);
-  ctx.lineTo(d1.x, d1.y);
-  ctx.lineTo(d2.x, d2.y);
-  ctx.closePath();
-  ctx.clip();
-  ctx.transform(a, b, c, d, e, f);
-  ctx.drawImage(source, 0, 0);
-  ctx.restore();
-}

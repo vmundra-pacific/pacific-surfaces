@@ -6,6 +6,15 @@
  * we can iterate on the filter UX without blocking on a CMS migration.
  */
 
+/**
+ * The known/predefined Hue values. These get the hand-tuned color
+ * gradients in HUE_OPTIONS for the filter UI. The Slab type's
+ * `hues` field is widened to `string[]` (see Slab below) so editors
+ * can add custom hue tags via the Sanity Hue Override field — those
+ * propagate as new dynamic filter chips on the catalogue. Anything
+ * outside this set falls back to a neutral grey gradient in the
+ * filter UI's swatch column.
+ */
 export type Hue =
   | "white"
   | "cream"
@@ -14,7 +23,8 @@ export type Hue =
   | "dark"
   | "brown"
   | "blue"
-  | "gold";
+  | "gold"
+  | "pink";
 
 export type Collection = string;
 
@@ -27,7 +37,14 @@ export interface Slab {
   id: string;
   name: string;
   slug: string;
-  hues: Hue[];
+  /**
+   * Widened to `string[]` so editor-supplied custom hues
+   * (lavender, sage, etc.) flow through alongside the predefined
+   * Hue values. The catalogue's filter UI shows predefined Hue
+   * chips with hand-tuned gradients, plus any custom value seen in
+   * the data with a neutral grey gradient.
+   */
+  hues: string[];
   collection: Collection;
   pattern: Pattern;
   finishes: Finish[];
@@ -436,6 +453,11 @@ export const HUE_OPTIONS: { value: Hue; label: string; color: string }[] = [
     value: "gold",
     label: "Gold",
     color: "linear-gradient(135deg,#e0d8c0,#a89878)",
+  },
+  {
+    value: "pink",
+    label: "Pink",
+    color: "linear-gradient(135deg,#fde4ea,#e6a4b3)",
   },
 ];
 

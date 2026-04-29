@@ -1,16 +1,59 @@
 import { groq } from "next-sanity";
 
-// Catalogue page — lightweight projection for filter UI
+// Catalogue page — lightweight projection for filter UI.
+//
+// `dominantColor` pulls Sanity's auto-computed palette so the hue
+// filter can tag products by the slab's actual photographic colour
+// rather than guessing from its name. Falls back to keyword-derivation
+// in mapSanityToCatalogue when the palette is missing (older assets
+// uploaded before metadata extraction was enabled).
 export const catalogueProductsQuery = groq`
   *[_type == "product"] | order(name asc) {
     _id,
     name,
     slug,
     "mainImage": mainImage.asset->url,
+    "dominantColor": mainImage.asset->metadata.palette.dominant.background,
     "collectionName": collection->name,
     finishes,
     thickness,
     ribbons,
+    manualHues,
+    manualPattern,
+    visible
+  }
+`;
+
+/**
+ * Catalogue projection scoped to a collection slug + optional
+ * productType. Same shape as catalogueProductsQuery so the result
+ * plugs into mapSanityToCatalogue / CatalogueClient unchanged, but
+ * filters down to:
+ *   - products in the named collection
+ *   - PLUS (when productType is non-null) every product of that type
+ *     regardless of which sub-collection they're filed under.
+ *
+ * Used by /products/[slug]/[item]/page.tsx so category pages
+ * (/products/quartz/quartz, /products/granite/granite, …) render the
+ * full filter UI from the old /products catalogue, with their content
+ * pre-scoped to the right product family.
+ */
+export const catalogueProductsByCollectionOrTypeQuery = groq`
+  *[_type == "product" && (
+    collection._ref in *[_type == "collection" && slug.current == $slug]._id
+    || ($productType != null && productType == $productType)
+  )] | order(name asc) {
+    _id,
+    name,
+    slug,
+    "mainImage": mainImage.asset->url,
+    "dominantColor": mainImage.asset->metadata.palette.dominant.background,
+    "collectionName": collection->name,
+    finishes,
+    thickness,
+    ribbons,
+    manualHues,
+    manualPattern,
     visible
   }
 `;
@@ -79,30 +122,7 @@ export const productBySlugQuery = groq`
   }
 `;
 
-export const productsByCollectionQuery = groq`
-  *[_type == "product" && collection._ref in *[_type == "collection" && slug.current == $slug]._id] | order(name asc) {
-    _id,
-    name,
-    slug,
-    "mainImage": mainImage.asset->url,
-    price,
-    ribbons,
-    collection->{_id, name, slug}
-  }
-`;
-
 // Collections
-export const allCollectionsQuery = groq`
-  *[_type == "collection"] | order(order asc) {
-    _id,
-    name,
-    slug,
-    description,
-    "image": image.asset->url,
-    "productCount": count(*[_type == "product" && collection._ref == ^._id])
-  }
-`;
-
 export const collectionBySlugQuery = groq`
   *[_type == "collection" && slug.current == $slug][0] {
     _id,
@@ -147,19 +167,20 @@ export const blogPostBySlugQuery = groq`
   }
 `;
 
-// Pages (for static pages like About, Contact, etc.)
-export const pageBySlugQuery = groq`
-  *[_type == "page" && slug.current == $slug][0] {
-    _id,
-    title,
-    slug,
-    body,
-    seoTitle,
-    seoDescription
-  }
-`;
-
-// Collections for homepage showcase (includes homepage-specific fields)
+// Collections for homepage showcase (includes homepage-specific fields).
+//
+// productCount is the number of products that should be considered
+// "in" this collection on the homepage carousel. For category-level
+// collections (Quartz, Granite, Semi-Precious, Sinks/Integra) we
+// AGGREGATE: count every product whose collection._ref points at
+// this collection PLUS every product of the matching productType
+// (e.g. a Kosmic-collection product with productType "quartz-slab"
+// is counted toward the Quartz category card). Sub-collections fall
+// through to the simple collection-ref count.
+//
+// Keep this category map in sync with CATEGORY_PRODUCT_TYPE in
+// src/app/(site)/products/[slug]/[item]/page.tsx — both should agree
+// on which slugs trigger which productType expansion.
 export const homepageCollectionsQuery = groq`
   *[_type == "collection"] | order(order asc) {
     _id,
@@ -170,30 +191,61 @@ export const homepageCollectionsQuery = groq`
     headline,
     finishCount,
     showcaseLayout,
-    "productCount": count(*[_type == "product" && collection._ref == ^._id])
+    "productCount": count(*[_type == "product" && (
+      collection._ref == ^._id ||
+      (^.slug.current == "quartz" && productType == "quartz-slab") ||
+      (^.slug.current == "granite" && productType == "granite-slab") ||
+      ((^.slug.current == "semi-precious" || ^.slug.current == "semi-precious-stones" || ^.slug.current == "semiprecious") && productType == "semi-precious") ||
+      ((^.slug.current == "integra" || ^.slug.current == "sinks") && productType == "quartz-sink")
+    )])
   }
 `;
 
 // Signature Projects
+//
+// `videoUrl` resolves to whichever source is set, with the direct
+// upload winning over the manual URL string. Component sees a
+// single field; editors choose the workflow that fits.
+//
+// `order` is projected so the component can place each project
+// into a specific card slot (1–5) on the homepage grid. See
+// SignatureProjects.tsx for slot semantics.
 export const signatureProjectsQuery = groq`
   *[_type == "signatureProject"] | order(order asc) {
     _id,
     name,
     location,
     "image": image.asset->url,
-    link
+    "videoUrl": coalesce(videoFile.asset->url, videoUrl),
+    link,
+    order
   }
 `;
 
 // Application Cards
+//
+// `videoUrl` resolves to whichever source is set, with the direct
+// upload taking precedence over the URL string. The component sees
+// one field; editors get to pick the workflow that suits them.
+//
+// `section` is the explicit homepage-section binding when set;
+// the component prefers this over label-substring matching.
 export const applicationCardsQuery = groq`
   *[_type == "applicationCard"] | order(order asc) {
     _id,
     label,
+    section,
+    order,
+    "videoUrl": coalesce(videoFile.asset->url, videoUrl),
     title,
     description,
     "image": image.asset->url,
-    link
+    link,
+    "frames": frames[]{
+      label,
+      "videoUrl": coalesce(videoFile.asset->url, videoUrl),
+      "image": image.asset->url
+    }
   }
 `;
 
@@ -209,23 +261,6 @@ export const inspirationImagesQuery = groq`
 `;
 
 // Dealers
-export const allDealersQuery = groq`
-  *[_type == "dealer"] | order(name asc) {
-    _id,
-    name,
-    type,
-    address,
-    city,
-    country,
-    phone,
-    email,
-    website,
-    description,
-    mapPin,
-    featured
-  }
-`;
-
 export const featuredDealersQuery = groq`
   *[_type == "dealer" && featured == true] | order(name asc) {
     _id,
@@ -253,14 +288,136 @@ export const allResourcesQuery = groq`
   }
 `;
 
-// Site Settings
-export const siteSettingsQuery = groq`
-  *[_type == "siteSettings"][0] {
+// Careers — page-level copy (singleton).
+//
+// Returns null when the careersPage document hasn't been created
+// yet, so the component should always have sensible defaults
+// hardcoded as a fallback.
+export const careersPageQuery = groq`
+  *[_type == "careersPage"][0] {
+    heroEyebrow,
+    heroHeadline,
+    heroDescription,
+    "heroImage": heroImage.asset->url,
+    heroVideoUrl,
+    values[]{
+      title,
+      description
+    },
+    openPositionsHeading,
+    openPositionsDescription,
+    applyHeading,
+    applyDescription,
+    ctaHeading,
+    ctaDescription
+  }
+`;
+
+// Job Openings — sorted by display order then title, filtered to
+// visible only. The page builds the Job Title and Location
+// dropdowns from this list at render time, so adding a new
+// opening in Studio automatically extends the dropdowns.
+export const jobOpeningsQuery = groq`
+  *[_type == "jobOpening" && visible == true] | order(coalesce(order, 999), title asc) {
+    _id,
     title,
-    description,
-    logo,
-    "logoUrl": logo.asset->url,
-    socialLinks,
-    contactInfo
+    location,
+    department,
+    description
+  }
+`;
+
+// Sustainability — singleton with all editor-managed copy.
+// Returns null when not yet created; the component falls back to
+// hardcoded defaults so the page never breaks.
+export const sustainabilityPageQuery = groq`
+  *[_type == "sustainabilityPage"][0] {
+    heroEyebrow,
+    heroHeadline,
+    heroBody,
+    "heroImage": heroImage.asset->url,
+    heroVideoUrl,
+    initiatives[]{
+      title,
+      description,
+      "image": image.asset->url
+    },
+    ecosurfacesEyebrow,
+    ecosurfacesHeadline,
+    ecosurfacesDescription,
+    ecosurfacesLink,
+    "ecosurfacesImage": ecosurfacesImage.asset->url,
+    ecosurfacesVideoUrl,
+    pillarsHeadline,
+    pillars,
+    greenEyebrow,
+    greenHeadline,
+    greenBody,
+    "greenImage": greenImage.asset->url,
+    greenVideoUrl,
+    sdgsHeadline,
+    sdgsIntro,
+    sdgs[]{
+      title,
+      description
+    },
+    ctaHeadline,
+    ctaDescription,
+    ctaButtonLabel,
+    ctaButtonHref,
+    "ctaImage": ctaImage.asset->url
+  }
+`;
+
+// Natural Stone Finishes — page-level copy (singleton).
+//
+// Returns null when the document hasn't been created yet, so the
+// component falls back to hardcoded defaults.
+export const naturalStoneFinishesPageQuery = groq`
+  *[_type == "naturalStoneFinishesPage"][0] {
+    heroEyebrow,
+    heroHeadline,
+    heroDescription,
+    "heroImage": heroImage.asset->url,
+    heroVideoUrl,
+    "introLeftImage": introLeftImage.asset->url,
+    introLeftVideoUrl,
+    "introRightImage": introRightImage.asset->url,
+    introRightImageUrl,
+    introRightVideoUrl,
+    introSubheading,
+    introBody,
+    featuresEyebrow,
+    featuresHeadline,
+    features[]{
+      title,
+      body
+    },
+    gridEyebrow,
+    gridHeadline,
+    gridDescription,
+    collectionSlug
+  }
+`;
+
+// Natural Stone Finishes — products in a named Collection.
+//
+// Pulls every product whose `collection` reference points at the
+// collection with slug $slug. Each card shows the product's name +
+// mainImage; the lightbox shows the same image at full resolution.
+// Editors add a finish by creating a Product in Studio, uploading
+// its mainImage, and assigning the collection.
+export const naturalStoneFinishesProductsQuery = groq`
+  *[_type == "product" &&
+    visible != false &&
+    collection._ref in *[_type == "collection" && slug.current == $slug]._id
+  ] | order(name asc) {
+    _id,
+    name,
+    "slug": slug.current,
+    "mainImage": mainImage.asset->url,
+    "fullImage": mainImage.asset->url + "?w=2400&fit=max&auto=format",
+    finishes,
+    description
   }
 `;

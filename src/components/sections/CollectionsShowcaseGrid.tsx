@@ -162,14 +162,14 @@ export function CollectionsShowcaseGrid({
   // match "Vanity Couture" but NOT "Monolith Quartz Vanity". Edit
   // this array to retune the carousel.
   const CURATED_NAMES = [
-    "Vision",
     "Quartz",
+    "Vision",
     "Granite",
     "Exotic",
     "Semi Precious",
     "Fab Creations",
     "Integra",
-    "Table",
+    "Centrepiece Couture",
     "Vanity",
   ];
   const items = CURATED_NAMES.map((target) =>

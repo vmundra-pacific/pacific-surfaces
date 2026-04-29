@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react";
 
 export function ClosingCTA() {
   return (
-    <section className="relative py-32 sm:py-40 px-6 bg-[#112732] overflow-hidden">
+    <section className="relative py-20 sm:py-32 md:py-40 px-6 bg-[#112732] overflow-hidden">
       {/* Grain */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -19,7 +19,7 @@ export function ClosingCTA() {
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         <TextReveal
           as="h2"
-          className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-white leading-[1.1] justify-center"
+          className="text-3xl sm:text-5xl md:text-6xl font-light tracking-tight text-white leading-[1.1] justify-center"
         >
           Your next project starts with a sample.
         </TextReveal>
@@ -29,7 +29,7 @@ export function ClosingCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.4 }}
-          className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <MagneticButton
             href="/contact"

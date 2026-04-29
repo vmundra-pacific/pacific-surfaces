@@ -47,18 +47,6 @@ const CROSSFADE_DURATION = 0.04;
 const LUMP_Y_OFFSET_FRAC = 0.15545;
 const LUMP_X_OFFSET_FRAC = -0.0052;
 
-interface Chapter {
-  label: string;
-  range: [number, number]; // scroll progress range (KITCHEN-LOCAL)
-}
-
-const chapters: Chapter[] = [
-  { label: "01 · The Space", range: [0, 0.22] },
-  { label: "02 · The Slab", range: [0.22, 0.45] },
-  { label: "03 · The Matter", range: [0.45, 0.7] },
-  { label: "04 · The Promise", range: [0.7, 1] },
-];
-
 const headlines = [
   {
     range: [0.08, 0.22] as [number, number],
@@ -77,11 +65,7 @@ const headlines = [
   {
     range: [0.42, 0.56] as [number, number],
     kicker: "",
-    lines: [
-      "93% aggregates at its core.",
-      "7% Advanced Resin.",
-      "0 compromise.",
-    ],
+    lines: ["A refined blend of quartz inspired by nature", "Zero compromise"],
   },
   {
     range: [0.6, 0.72] as [number, number],
@@ -446,9 +430,6 @@ export function HeroScrollCanvas() {
   // evaluating those ranges — keeps the original kitchen story
   // pacing intact instead of squashing it.
   const phase1Progress = Math.min(progress / PHASE_KITCHEN_END, 1);
-  const activeChapter = chapters.findIndex(
-    (c) => phase1Progress >= c.range[0] && phase1Progress < c.range[1]
-  );
   const showScrollHint = progress < 0.02;
   const showCta = phase1Progress >= 0.78 && progress < PHASE_KITCHEN_END;
   const overlayOpacity = (() => {

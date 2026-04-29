@@ -37,8 +37,39 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        // /collections still bounces into the unified product
+        // hierarchy. /products itself is now its own page (the All
+        // Products landing) — see src/app/(site)/products/page.tsx —
+        // so the previous /products redirect has been removed.
         source: "/collections",
-        destination: "/products",
+        destination: "/products/quartz",
+        permanent: true,
+      },
+      // The four legacy standalone product landings each had their
+      // own bespoke layout (SinksContent, GranitesContent, etc.).
+      // Now that every category renders through the unified
+      // /products/<slug> Catalogue UI, these old URLs redirect into
+      // their new equivalents. The page files still exist on disk
+      // so the work isn't lost — the redirect just intercepts before
+      // they're served.
+      {
+        source: "/sinks",
+        destination: "/products/integra",
+        permanent: true,
+      },
+      {
+        source: "/granites",
+        destination: "/products/granites",
+        permanent: true,
+      },
+      {
+        source: "/semi-precious",
+        destination: "/products/semi-precious",
+        permanent: true,
+      },
+      {
+        source: "/ecosurfaces",
+        destination: "/products/ecosurfaces",
         permanent: true,
       },
     ];

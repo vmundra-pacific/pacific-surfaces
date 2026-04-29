@@ -32,7 +32,26 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
         className="relative min-h-[70vh] flex items-center bg-stone-950 overflow-hidden"
       >
         <motion.div style={{ y: heroY }} className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/40 via-stone-950/80 to-stone-950" />
+          {/* Background video — autoplays muted-looped behind the
+              text. Drop the file at
+              /public/videos/semi-precious.mp4 (see the PowerShell
+              instruction in the assistant message that shipped this
+              change). Same hero treatment as /about. */}
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            src="/videos/semi-precious.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+          />
+          {/* Gradient scrim — lighter at the top so the video reads
+              through, ramping to fully opaque at the bottom so the
+              section transitions cleanly into the products grid
+              below. */}
+          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/30 via-stone-950/60 to-stone-950" />
           <div
             className="absolute inset-0 opacity-[0.03]"
             style={{
@@ -43,7 +62,7 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
 
         <motion.div
           style={{ opacity: heroOpacity }}
-          className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-32 pb-20 text-center"
+          className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-24 sm:pt-32 pb-12 sm:pb-20 text-center"
         >
           <motion.span
             initial={{ opacity: 0, y: 10 }}
@@ -123,7 +142,7 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
 
       {/* CTA */}
       <section className="bg-stone-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Ready to elevate your space?

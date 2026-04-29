@@ -3,15 +3,21 @@
 import { motion } from "framer-motion";
 
 /**
- * Hero video block for the Quartz Surfaces (/products) page.
+ * Hero video block used at the top of every collection / catalogue
+ * page (/products/[slug]/[item]).
  *
- * Plays the dolly-zoom slab render as a fixed-height background with
- * a small editorial caption pinned in the bottom-left corner. The
- * video lives in normal document flow — NOT a fixed/sticky overlay —
- * so the page scrolls past it normally while the video continues to
- * play. By the time the user has scrolled to the catalogue grid, the
- * video has scrolled off-screen and stops playing only when removed
- * from view (browser default for muted autoplay).
+ * Plays a looping slab render as a fixed-height background with a
+ * small editorial caption pinned in the bottom-left corner. The video
+ * lives in normal document flow — NOT a fixed/sticky overlay — so the
+ * page scrolls past it normally while the video continues to play. By
+ * the time the user reaches the catalogue grid, the video has scrolled
+ * off-screen and stops playing (browser default for muted autoplay).
+ *
+ * Defaults render the original Quartz hero — that's what /products
+ * (and the unspecific /products/quartz/quartz) shows. Pass overrides
+ * to swap the video and copy on a per-collection basis without
+ * cloning the component (e.g. /products/quartz/chromia uses the
+ * Vision Series render).
  *
  * Behaviour:
  *   - autoPlay + loop + muted + playsInline so it starts on every
@@ -23,13 +29,44 @@ import { motion } from "framer-motion";
  *   - text uses the brand pacific-light + tracked-out caps treatment
  *     to match the rest of the site.
  */
-export function QuartzHeroVideo() {
+export interface QuartzHeroVideoProps {
+  /** Public-relative path or absolute URL. Defaults to /videos/quartz-hero.mp4. */
+  videoSrc?: string;
+  /** Tracked-out caps line above the headline. */
+  eyebrow?: string;
+  /** First line of the headline (rendered upright). */
+  headline?: string;
+  /** Second line of the headline (rendered italic, lighter weight). */
+  headlineItalic?: string;
+  /** Body paragraph below the headline. */
+  description?: string;
+}
+
+const DEFAULTS: Required<QuartzHeroVideoProps> = {
+  videoSrc: "/videos/quartz-hero.mp4",
+  eyebrow: "Pacific Surfaces · Quartz",
+  headline: "Engineered stone,",
+  headlineItalic: "crafted for the everyday.",
+  description:
+    "Premium quartz slabs designed for kitchens, vanities, and feature walls — beautiful under any light, durable through any season.",
+};
+
+export function QuartzHeroVideo(props: QuartzHeroVideoProps = {}) {
+  const { videoSrc, eyebrow, headline, headlineItalic, description } = {
+    ...DEFAULTS,
+    ...props,
+  };
+
   return (
     <section className="relative w-full h-screen overflow-hidden bg-pacific-dark">
-      {/* Background video — fills the frame */}
+      {/* Background video — fills the frame. `key` on the video tag
+          forces the element to remount when the source URL changes,
+          so route-level swaps reload the video instead of holding the
+          previous frame. */}
       <video
+        key={videoSrc}
         className="absolute inset-0 w-full h-full object-cover"
-        src="/videos/quartz-hero.mp4"
+        src={videoSrc}
         autoPlay
         loop
         muted
@@ -67,7 +104,7 @@ export function QuartzHeroVideo() {
             textShadow: "0 1px 3px rgba(0,0,0,.85), 0 2px 18px rgba(0,0,0,.75)",
           }}
         >
-          Pacific Surfaces · Quartz
+          {eyebrow}
         </div>
         <h1
           className="text-white font-light leading-[1.05] text-3xl md:text-5xl lg:text-6xl tracking-tight"
@@ -75,10 +112,10 @@ export function QuartzHeroVideo() {
             textShadow: "0 2px 6px rgba(0,0,0,.9), 0 6px 32px rgba(0,0,0,.8)",
           }}
         >
-          Engineered stone,
+          {headline}
           <br />
           <em className="italic font-extralight text-white/90">
-            crafted for the everyday.
+            {headlineItalic}
           </em>
         </h1>
         <p
@@ -87,8 +124,7 @@ export function QuartzHeroVideo() {
             textShadow: "0 1px 4px rgba(0,0,0,.85), 0 2px 18px rgba(0,0,0,.75)",
           }}
         >
-          Premium quartz slabs designed for kitchens, vanities, and feature
-          walls — beautiful under any light, durable through any season.
+          {description}
         </p>
       </motion.div>
     </section>

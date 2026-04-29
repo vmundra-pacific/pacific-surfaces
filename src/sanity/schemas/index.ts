@@ -9,6 +9,11 @@ import applicationCard from "./applicationCard";
 import inspirationImage from "./inspirationImage";
 import dealer from "./dealer";
 import resource from "./resource";
+import jobOpening from "./jobOpening";
+import careersPage from "./careersPage";
+import jobApplication from "./jobApplication";
+import sustainabilityPage from "./sustainabilityPage";
+import naturalStoneFinishesPage from "./naturalStoneFinishesPage";
 
 export const schemaTypes = [
   product,
@@ -22,4 +27,9 @@ export const schemaTypes = [
   inspirationImage,
   dealer,
   resource,
+  jobOpening,
+  careersPage,
+  jobApplication,
+  sustainabilityPage,
+  naturalStoneFinishesPage,
 ];

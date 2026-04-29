@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import {
   StaggerContainer,
   StaggerItem,
@@ -92,7 +91,7 @@ export function InspirationGrid({
         image: insp.image,
         productSlug: insp.productSlug,
       }))
-    : fallbackInspirations.map((insp, i) => ({
+    : fallbackInspirations.map((insp) => ({
         key: insp.name,
         name: insp.name,
         cat: insp.cat,
@@ -105,10 +104,10 @@ export function InspirationGrid({
     active === "All" ? items : items.filter((i) => i.cat === active);
 
   return (
-    <section className="py-20 md:py-28 px-6 bg-[#DAE1E8]">
+    <section className="py-16 sm:py-20 md:py-28 px-6 bg-[#DAE1E8]">
       <div className="mx-auto max-w-7xl">
         {/* Header + filters */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-14">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-10 sm:mb-14">
           <div>
             <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-3">
               06 · Inspiration

@@ -5,7 +5,10 @@ import { TextReveal } from "@/components/ui/text-reveal";
 
 export function HeritageSection() {
   return (
-    <section className="py-20 md:py-28 px-6 bg-[#0e2030]" id="heritage">
+    <section
+      className="py-16 sm:py-20 md:py-28 px-6 bg-[#0e2030]"
+      id="heritage"
+    >
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
         {/* Left — text */}
         <motion.div
@@ -31,7 +34,7 @@ export function HeritageSection() {
           </p>
 
           {/* Pillars */}
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               {
                 title: "Designed",

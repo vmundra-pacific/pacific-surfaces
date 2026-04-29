@@ -5,18 +5,34 @@
  * count, the grid-density toggle, and the sort control.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, LayoutGrid, Grid3x3, Search, X } from "lucide-react";
 import { FilterPill } from "./FilterPill";
 import {
   HUE_OPTIONS,
-  type Hue,
   type Collection,
   type Pattern,
   type Finish,
   type Thickness,
 } from "@/data/slabs";
 import type { useFilterState, SortKey } from "./useFilterState";
+
+/**
+ * Default gradient for hue values that aren't in the predefined
+ * HUE_OPTIONS list — i.e. custom values an editor typed into the
+ * Hue Override field in Sanity (e.g. "lavender", "sage"). Predefined
+ * hues keep their hand-tuned gradients; custom ones get this neutral
+ * fallback so they at least render consistently.
+ */
+const CUSTOM_HUE_GRADIENT = "linear-gradient(135deg,#5a6772,#3a444d)";
+
+function titleCase(value: string): string {
+  if (!value) return value;
+  return value
+    .split(/[\s-_]+/)
+    .map((part) => (part ? part[0].toUpperCase() + part.slice(1) : ""))
+    .join(" ");
+}
 
 type FilterApi = ReturnType<typeof useFilterState>;
 
@@ -28,6 +44,27 @@ interface Props {
 export function FilterBar({ api, total }: Props) {
   const [openKey, setOpenKey] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Hue chips to render — predefined HUE_OPTIONS in their canonical
+   * order, PLUS any custom hue strings that show up in the data
+   * (sourced from `api.uniqueHues`) but aren't in the predefined
+   * set. Custom ones inherit the neutral fallback gradient and a
+   * Title Case label. This is the dynamic-discovery half of the
+   * "editors can add new hues in Sanity" feature.
+   */
+  const hueChipOptions = useMemo(() => {
+    const predefinedValues = new Set(HUE_OPTIONS.map((o) => o.value));
+    const customHues = api.uniqueHues.filter(
+      (h) => !predefinedValues.has(h as never)
+    );
+    const customOptions = customHues.map((h) => ({
+      value: h,
+      label: titleCase(h),
+      color: CUSTOM_HUE_GRADIENT,
+    }));
+    return [...HUE_OPTIONS, ...customOptions];
+  }, [api.uniqueHues]);
 
   useEffect(() => {
     function handle(e: MouseEvent) {
@@ -92,7 +129,7 @@ export function FilterBar({ api, total }: Props) {
               Filter by hue
             </div>
             <div className="grid grid-cols-4 gap-2.5">
-              {HUE_OPTIONS.map((opt) => {
+              {hueChipOptions.map((opt) => {
                 const selected = api.filters.hues.has(opt.value);
                 const count = api.countFor("hues", opt.value);
                 return (

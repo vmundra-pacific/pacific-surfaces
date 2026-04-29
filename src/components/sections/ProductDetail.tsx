@@ -113,7 +113,6 @@ export function ProductDetail({ product }: { product: Product }) {
   // hover the slab, it's already there. If the image hasn't quite
   // finished loading yet, the magnifier still appears immediately
   // (the <img> just paints whatever pixels it has).
-  const zoomSlab = zoomImageUrl(slabImage);
 
   // Build thumbnail list (MSI-style: Slab → Close Up → Vignettes → Room Scenes)
   const thumbnails: { src: string; label: string; type: ImageView }[] = [];
@@ -141,21 +140,16 @@ export function ProductDetail({ product }: { product: Product }) {
   });
 
   // ---- Derived data ----
-  const finishes = product.finishes?.length
-    ? product.finishes
-    : ["Polished", "Honed"];
+  // Finishes / applications now come ONLY from Sanity. No hardcoded
+  // fallbacks — if an editor leaves these blank on a product, the
+  // corresponding sections hide entirely (handled in the render
+  // code below) instead of misleadingly showing "Polished / Honed"
+  // or a generic 5-item Applications grid.
+  const finishes = product.finishes ?? [];
   const thicknesses = product.thickness?.length
     ? product.thickness
     : ["2 cm", "3 cm"];
-  const applications = product.application?.length
-    ? product.application
-    : [
-        "Kitchen Countertops",
-        "Bathroom Vanities",
-        "Backsplashes",
-        "Wall Cladding",
-        "Commercial Interiors",
-      ];
+  const applications = product.application ?? [];
   const size = product.size || '126" x 63"';
   const categoryLabel =
     product.category?.name || product.collection?.name || "Quartz Surfaces";
@@ -174,7 +168,6 @@ export function ProductDetail({ product }: { product: Product }) {
   // Zoom-on-hover state (only for slab/main image)
   const [zoomActive, setZoomActive] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
-  const [zoomReady, setZoomReady] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const thumbStripRef = useRef<HTMLDivElement>(null);
   const zoomImgRef = useRef<HTMLImageElement>(null);
@@ -186,21 +179,16 @@ export function ProductDetail({ product }: { product: Product }) {
   // soon as we know the URL. The browser already started downloading
   // it (SSR preload + react-dom preload + hidden <img>) — `decode()`
   // pushes the bytes through the decoder so they're ready for paint
-  // BEFORE the user hovers. By the time `zoomReady` flips true, a
-  // hover triggers nothing more than an opacity change on a real
-  // <img> element that's already mounted, decoded, and composited.
+  // before the user hovers. The decode result is fire-and-forget; the
+  // hover renders a real <img> element regardless of decode status,
+  // and the decode call simply warms the cache so first paint after
+  // hover is instant. (Previously gated a `zoomReady` flag that
+  // nothing rendered against — removed in the cleanup pass.)
   useEffect(() => {
-    if (!zoomSrc) {
-      setZoomReady(false);
-      return;
-    }
-    setZoomReady(false);
+    if (!zoomSrc) return;
     const img = new window.Image();
     img.src = zoomSrc;
-    img
-      .decode()
-      .then(() => setZoomReady(true))
-      .catch(() => setZoomReady(true)); // even on error, allow hover
+    img.decode().catch(() => {});
   }, [zoomSrc]);
 
   // Compare mode — handled by CompareSliderSection at bottom of page
@@ -781,7 +769,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 key={id}
                 onClick={() => scrollToSection(id)}
                 className={cn(
-                  "px-6 py-5 text-sm font-medium tracking-[0.2em] uppercase whitespace-nowrap border-b-[2px] -mb-px transition-colors",
+                  "px-4 sm:px-6 py-4 sm:py-5 text-xs sm:text-sm font-medium tracking-[0.15em] sm:tracking-[0.2em] uppercase whitespace-nowrap border-b-[2px] -mb-px transition-colors",
                   activeSection === id
                     ? "text-white border-white"
                     : "text-pacific-mid/70 border-transparent hover:text-pacific-light"
@@ -829,7 +817,7 @@ export function ProductDetail({ product }: { product: Product }) {
         className="bg-[#112732] scroll-mt-16"
       >
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 lg:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12 lg:gap-20">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 lg:gap-20">
             {/* Left — name + description */}
             <AnimatedSection animation="fadeUp">
               {/* Category tag */}
@@ -837,7 +825,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 {categoryLabel}
               </div>
 
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight text-white mb-10 leading-[1.05]">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-10 leading-[1.05]">
                 {product.name}
               </h1>
 
@@ -890,7 +878,7 @@ export function ProductDetail({ product }: { product: Product }) {
 
             {/* Right — CTAs panel (MSI-style sidebar) */}
             <AnimatedSection animation="slideInRight">
-              <div className="bg-[#0e2030] rounded-2xl p-8 border border-white/10">
+              <div className="bg-[#0e2030] rounded-2xl p-6 sm:p-8 border border-white/10">
                 {/* Primary CTAs */}
                 <div className="space-y-3 mb-6">
                   <button
@@ -966,31 +954,39 @@ export function ProductDetail({ product }: { product: Product }) {
       {/* ===== SPECS STRIP (Finishes | Thicknesses | Format | Resources) ===== */}
       <div className="border-y border-white/10 bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-white/10">
-            {/* Finishes Available */}
-            <div className="py-6 lg:py-8 px-4 lg:px-6 first:pl-0">
-              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white">
-                Finishes Available
-              </h4>
-              <div className="space-y-1.5">
-                {finishes.map((f) => (
-                  <div key={f}>
-                    <div className="text-base font-medium text-white uppercase tracking-wide">
-                      {f}
+          {/* Column count adapts to whether Finishes Available has
+              data — 4-col when finishes exist, 3-col when not, so
+              the row stays balanced and there's no empty column. */}
+          <div
+            className={`grid grid-cols-2 ${finishes.length > 0 ? "lg:grid-cols-4" : "lg:grid-cols-3"} divide-x divide-white/10`}
+          >
+            {/* Finishes Available — hidden entirely when no finishes
+                are set on the product in Sanity. */}
+            {finishes.length > 0 && (
+              <div className="py-6 lg:py-8 px-4 lg:px-6 first:pl-0">
+                <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white">
+                  Finishes Available
+                </h4>
+                <div className="space-y-1.5">
+                  {finishes.map((f) => (
+                    <div key={f}>
+                      <div className="text-base font-medium text-white uppercase tracking-wide">
+                        {f}
+                      </div>
+                      <div className="text-xs text-pacific-mid font-light">
+                        {f === "Polished"
+                          ? "More vibrant and intense colors and reflections"
+                          : f === "Honed"
+                            ? "Smooth matte surface with soft texture"
+                            : f === "Leathered"
+                              ? "Textured finish with natural tactile feel"
+                              : "Premium surface finish"}
+                      </div>
                     </div>
-                    <div className="text-xs text-pacific-mid font-light">
-                      {f === "Polished"
-                        ? "More vibrant and intense colors and reflections"
-                        : f === "Honed"
-                          ? "Smooth matte surface with soft texture"
-                          : f === "Leathered"
-                            ? "Textured finish with natural tactile feel"
-                            : "Premium surface finish"}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Thicknesses */}
             <div className="py-6 lg:py-8 px-4 lg:px-6">
@@ -1089,7 +1085,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 key={key}
                 onClick={() => setActiveInfoTab(key)}
                 className={cn(
-                  "px-6 py-5 text-sm font-medium tracking-[0.2em] uppercase whitespace-nowrap -mb-px border-b-[2px] transition-colors",
+                  "px-4 sm:px-6 py-4 sm:py-5 text-xs sm:text-sm font-medium tracking-[0.15em] sm:tracking-[0.2em] uppercase whitespace-nowrap -mb-px border-b-[2px] transition-colors",
                   activeInfoTab === key
                     ? "text-white border-white"
                     : "text-pacific-mid border-transparent hover:text-white"
@@ -1125,8 +1121,8 @@ export function ProductDetail({ product }: { product: Product }) {
                         label="Edge Profiles"
                         value="Straight, Eased, Bevel, Bullnose, Ogee"
                       />
-                      <SpecRow label="Water Absorption" value="< 0.5%" />
-                      <SpecRow label="Mohs Hardness" value="6 – 7" />
+                      <SpecRow label="Water Absorption" value="< 0.03%" />
+                      <SpecRow label="Mohs Hardness" value="7" />
                       <SpecRow
                         label="Manufactured By"
                         value="Pacific Engineered Surfaces Pvt. Ltd."
@@ -1164,41 +1160,49 @@ export function ProductDetail({ product }: { product: Product }) {
                       </div>
                     </div>
 
-                    {/* Finishes */}
-                    <div>
-                      <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
-                        Available Finishes
-                      </h3>
-                      <div className="flex flex-wrap gap-3">
-                        {finishes.map((f) => (
-                          <span
-                            key={f}
-                            className="px-5 py-2.5 rounded-full text-sm font-medium tracking-[0.1em] uppercase border border-white/10 text-pacific-light"
-                          >
-                            {f}
-                          </span>
-                        ))}
+                    {/* Finishes — hidden when no finishes set in Sanity. */}
+                    {finishes.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
+                          Available Finishes
+                        </h3>
+                        <div className="flex flex-wrap gap-3">
+                          {finishes.map((f) => (
+                            <span
+                              key={f}
+                              className="px-5 py-2.5 rounded-full text-sm font-medium tracking-[0.1em] uppercase border border-white/10 text-pacific-light"
+                            >
+                              {f}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
 
-                {activeInfoTab === "applications" && (
-                  <StaggerContainer>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-w-4xl">
-                      {applications.map((a) => (
-                        <StaggerItem key={a}>
-                          <div className="flex items-center gap-3 px-6 py-5 bg-white/5 border border-white/10 rounded-2xl">
-                            <Check className="w-5 h-5 text-white shrink-0" />
-                            <span className="text-base text-pacific-light font-light">
-                              {a}
-                            </span>
-                          </div>
-                        </StaggerItem>
-                      ))}
-                    </div>
-                  </StaggerContainer>
-                )}
+                {activeInfoTab === "applications" &&
+                  (applications.length > 0 ? (
+                    <StaggerContainer>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-w-4xl">
+                        {applications.map((a) => (
+                          <StaggerItem key={a}>
+                            <div className="flex items-center gap-3 px-6 py-5 bg-white/5 border border-white/10 rounded-2xl">
+                              <Check className="w-5 h-5 text-white shrink-0" />
+                              <span className="text-base text-pacific-light font-light">
+                                {a}
+                              </span>
+                            </div>
+                          </StaggerItem>
+                        ))}
+                      </div>
+                    </StaggerContainer>
+                  ) : (
+                    <p className="text-pacific-mid font-light max-w-2xl">
+                      No specific applications listed. Get in touch for
+                      application guidance on your project.
+                    </p>
+                  ))}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -1234,7 +1238,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 <div className="text-sm font-medium tracking-[0.3em] uppercase text-pacific-mid mb-4">
                   Similar Styles
                 </div>
-                <h2 className="text-4xl sm:text-5xl font-light tracking-tight text-white mb-12">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white mb-10 sm:mb-12">
                   You May Also Like
                 </h2>
               </AnimatedSection>
@@ -1487,17 +1491,6 @@ export function ProductDetail({ product }: { product: Product }) {
 }
 
 /* ── Helper components ── */
-
-function SpecCell({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-1">
-        {label}
-      </div>
-      <div className="text-sm text-pacific-light font-light">{value}</div>
-    </div>
-  );
-}
 
 function SpecRow({ label, value }: { label: string; value: string }) {
   return (
@@ -1858,7 +1851,6 @@ function CompareSliderSection({
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onUp);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDragging]);
 
   if (!leftImage) return null;

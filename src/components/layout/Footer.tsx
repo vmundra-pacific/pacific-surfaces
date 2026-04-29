@@ -34,14 +34,22 @@ const footerLinks = {
 const socialLinks = [
   { name: "Instagram", href: "https://www.instagram.com/pacific_surfaces/" },
   { name: "Facebook", href: "https://www.facebook.com/thepacificstone/" },
-  { name: "LinkedIn", href: "https://www.linkedin.com/company/pacific-granites-india-pvt-ltd/" },
+  {
+    name: "LinkedIn",
+    href: "https://www.linkedin.com/company/pacific-granites-india-pvt-ltd/",
+  },
   { name: "Pinterest", href: "https://in.pinterest.com/thepacificstone" },
-  { name: "YouTube", href: "https://www.youtube.com/channel/UCWeTO3mX6zInSev42K9h5Fw" },
+  {
+    name: "YouTube",
+    href: "https://www.youtube.com/channel/UCWeTO3mX6zInSev42K9h5Fw",
+  },
 ];
 
 export default function Footer() {
   const [newsletter, setNewsletter] = useState({ firstName: "", email: "" });
-  const [newsletterState, setNewsletterState] = useState<"idle" | "sending" | "sent">("idle");
+  const [newsletterState, setNewsletterState] = useState<
+    "idle" | "sending" | "sent"
+  >("idle");
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +67,7 @@ export default function Footer() {
       <div className="h-px bg-gradient-to-r from-transparent via-stone-700/50 to-transparent" />
 
       {/* Newsletter Section */}
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-20 border-b border-stone-800/50">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 sm:py-16 lg:py-20 border-b border-stone-800/50">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -71,7 +79,8 @@ export default function Footer() {
             Join us on this exciting journey as we shape the future of stones.
           </h3>
           <p className="text-stone-500 font-light mb-8">
-            Subscribe for updates on new collections, design inspiration, and exclusive offers.
+            Subscribe for updates on new collections, design inspiration, and
+            exclusive offers.
           </p>
 
           {newsletterState === "sent" ? (
@@ -83,13 +92,18 @@ export default function Footer() {
               Thank you for subscribing!
             </motion.div>
           ) : (
-            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-xl">
+            <form
+              onSubmit={handleNewsletterSubmit}
+              className="flex flex-col sm:flex-row gap-4 max-w-xl"
+            >
               <div className="flex-1">
                 <input
                   type="text"
                   placeholder="First name"
                   value={newsletter.firstName}
-                  onChange={(e) => setNewsletter({ ...newsletter, firstName: e.target.value })}
+                  onChange={(e) =>
+                    setNewsletter({ ...newsletter, firstName: e.target.value })
+                  }
                   className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-700 text-white text-sm focus:outline-none focus:border-stone-500 transition-colors placeholder:text-stone-600"
                 />
               </div>
@@ -98,7 +112,9 @@ export default function Footer() {
                   type="email"
                   placeholder="Email address"
                   value={newsletter.email}
-                  onChange={(e) => setNewsletter({ ...newsletter, email: e.target.value })}
+                  onChange={(e) =>
+                    setNewsletter({ ...newsletter, email: e.target.value })
+                  }
                   required
                   className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-700 text-white text-sm focus:outline-none focus:border-stone-500 transition-colors placeholder:text-stone-600"
                 />
@@ -123,7 +139,7 @@ export default function Footer() {
       </div>
 
       {/* Main footer content */}
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-20 pb-12">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-12 sm:pt-20 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
           {/* Brand column */}
           <motion.div
@@ -142,8 +158,9 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm text-stone-500 leading-relaxed max-w-sm mb-8 font-light">
-              India&apos;s premier destination for engineered quartz, granite, and eco surfaces.
-              Crafted for architects, designers, and spaces that demand the extraordinary.
+              India&apos;s premier destination for engineered quartz, granite,
+              and eco surfaces. Crafted for architects, designers, and spaces
+              that demand the extraordinary.
             </p>
 
             {/* Contact info */}
@@ -255,7 +272,7 @@ export default function Footer() {
         >
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             {/* Social links */}
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 sm:gap-6">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
@@ -272,7 +289,8 @@ export default function Footer() {
 
             {/* Copyright */}
             <p className="text-xs text-stone-600 font-light">
-              &copy; {new Date().getFullYear()} Pacific Surfaces. All rights reserved.
+              &copy; {new Date().getFullYear()} Pacific Surfaces. All rights
+              reserved.
             </p>
           </div>
         </motion.div>

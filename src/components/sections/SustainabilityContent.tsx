@@ -1,8 +1,25 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
-import { Wind, Sun, Droplets } from "lucide-react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Wind,
+  Sun,
+  Droplets,
+  Leaf,
+  Recycle,
+  Battery,
+  Footprints,
+  HeartPulse,
+  Users,
+  Briefcase,
+  Lightbulb,
+  ShoppingBag,
+  Globe2,
+  ArrowRight,
+  ImageIcon,
+} from "lucide-react";
 import {
   AnimatedSection,
   StaggerContainer,
@@ -10,206 +27,551 @@ import {
 } from "@/components/ui/animated-section";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 
-const pillars = [
-  {
-    icon: Wind,
-    title: "Windmill Energy",
-    description:
-      "Powered by Siemens Gamesa technology, our windmill systems significantly reduce our carbon footprint while maintaining premium production standards.",
-  },
-  {
-    icon: Sun,
-    title: "Solar Energy",
-    description:
-      "2 MW solar power capacity makes us one of the largest solar-powered quartz companies in India, leading the industry toward renewable manufacturing.",
-  },
-  {
-    icon: Droplets,
-    title: "Water Conservation",
-    description:
-      "Our advanced water recycling technology ensures we replenish more water than we consume, protecting this precious natural resource.",
-  },
-];
+/* ------------------------------------------------------------------ *
+ * Sanity data shape                                                   *
+ * ------------------------------------------------------------------ */
+interface Initiative {
+  title: string;
+  description: string;
+  image?: string | null;
+}
 
-const sdgGoals = [
-  {
-    number: 3,
-    title: "Good Health & Well-Being",
-    description:
-      "Creating surfaces with low crystalline silica content that promote safer indoor environments for homeowners, fabricators, and installers.",
-  },
-  {
-    number: 5,
-    title: "Gender Equality",
-    description:
-      "Building an inclusive workforce where women lead innovation and operations at Pacific Surfaces, championing equal opportunities at every level.",
-  },
-  {
-    number: 8,
-    title: "Decent Work & Economic Growth",
-    description:
-      "Providing fair employment practices, career growth opportunities, and safe working conditions across our manufacturing facilities in India and Poland.",
-  },
-  {
-    number: 9,
-    title: "Industry, Innovation & Infrastructure",
-    description:
-      "Investing in patented technologies, Bretonstone manufacturing, and innovations that transform the surface industry with state-of-the-art production.",
-  },
-  {
-    number: 12,
-    title: "Responsible Consumption & Production",
-    description:
-      "Designing products with lifecycle sustainability in mind, minimizing waste at every production stage, and using recycled materials in our ecosurfaces.",
-  },
-  {
-    number: 13,
-    title: "Climate Action",
-    description:
-      "Committing to net-zero emissions through 2MW solar power, Siemens Gamesa windmill technology, and continuous environmental improvement initiatives.",
-  },
-];
+interface SDGEntry {
+  title: string;
+  description: string;
+}
 
-export function SustainabilityContent() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    company: "",
-    country: "",
-    email: "",
-    subscribe: false,
-  });
+interface SustainabilityPageData {
+  heroEyebrow?: string | null;
+  heroHeadline?: string | null;
+  heroBody?: string[] | null;
+  heroImage?: string | null;
+  heroVideoUrl?: string | null;
+  initiatives?: Initiative[] | null;
+  ecosurfacesEyebrow?: string | null;
+  ecosurfacesHeadline?: string | null;
+  ecosurfacesDescription?: string | null;
+  ecosurfacesLink?: string | null;
+  ecosurfacesImage?: string | null;
+  ecosurfacesVideoUrl?: string | null;
+  pillarsHeadline?: string | null;
+  pillars?: string[] | null;
+  greenEyebrow?: string | null;
+  greenHeadline?: string | null;
+  greenBody?: string[] | null;
+  greenImage?: string | null;
+  greenVideoUrl?: string | null;
+  sdgsHeadline?: string | null;
+  sdgsIntro?: string | null;
+  sdgs?: SDGEntry[] | null;
+  ctaHeadline?: string | null;
+  ctaDescription?: string | null;
+  ctaButtonLabel?: string | null;
+  ctaButtonHref?: string | null;
+  ctaImage?: string | null;
+}
 
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+/* ------------------------------------------------------------------ *
+ * Media placeholder helpers                                          *
+ *                                                                    *
+ * MediaSlot renders one of three things, in priority order:          *
+ *   1. <video> if `videoUrl` is set                                  *
+ *   2. <Image> if `imageUrl` is set                                  *
+ *   3. MediaPlaceholder — a tasteful empty state with a centred icon *
+ *      and faint dashed border, designed to read as "intentional     *
+ *      design choice" rather than "broken/missing image."            *
+ *                                                                    *
+ * Every section that takes media uses MediaSlot, so the empty-state  *
+ * styling is consistent across the page.                             *
+ * ------------------------------------------------------------------ */
+function MediaPlaceholder({
+  className = "",
+  label = "Image or video",
+}: {
+  className?: string;
+  label?: string;
+}) {
+  return (
+    <div
+      className={`relative bg-gradient-to-br from-emerald-900/20 via-white/[0.03] to-emerald-900/10 border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center overflow-hidden ${className}`}
+    >
+      <div
+        className="absolute inset-0 opacity-[0.04] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        }}
+      />
+      <div className="relative z-10 text-center px-6">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/5 border border-white/10 mb-4">
+          <ImageIcon
+            className="w-6 h-6 text-emerald-300/60"
+            strokeWidth={1.5}
+          />
+        </div>
+        <p className="text-[10px] tracking-[0.3em] uppercase text-white/40 font-medium">
+          {label}
+        </p>
+      </div>
+    </div>
+  );
+}
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Newsletter signup:", formData);
-    setFormData({
-      firstName: "",
-      lastName: "",
-      company: "",
-      country: "",
-      email: "",
-      subscribe: false,
-    });
-  };
+function MediaSlot({
+  imageUrl,
+  videoUrl,
+  alt,
+  aspect = "aspect-video",
+  rounded = "rounded-2xl",
+  placeholderLabel = "Image or video",
+  fallbackToPlaceholder = true,
+  fill = false,
+}: {
+  imageUrl?: string | null;
+  videoUrl?: string | null;
+  alt: string;
+  aspect?: string;
+  rounded?: string;
+  placeholderLabel?: string;
+  fallbackToPlaceholder?: boolean;
+  /** When true, the slot fills its parent container (absolute inset-0) instead of using its own aspect ratio. */
+  fill?: boolean;
+}) {
+  if (videoUrl) {
+    return (
+      <video
+        key={videoUrl}
+        src={videoUrl}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        aria-hidden="true"
+        className={
+          fill
+            ? `absolute inset-0 w-full h-full object-cover ${rounded}`
+            : `w-full ${aspect} object-cover ${rounded}`
+        }
+      />
+    );
+  }
+  if (imageUrl) {
+    if (fill) {
+      return (
+        <Image
+          src={imageUrl}
+          alt={alt}
+          fill
+          className={`object-cover ${rounded}`}
+          sizes="100vw"
+        />
+      );
+    }
+    return (
+      <Image
+        src={imageUrl}
+        alt={alt}
+        width={1400}
+        height={900}
+        className={`w-full ${aspect} object-cover ${rounded}`}
+      />
+    );
+  }
+  if (!fallbackToPlaceholder) return null;
+  return (
+    <MediaPlaceholder
+      className={fill ? `absolute inset-0 ${rounded}` : `w-full ${aspect}`}
+      label={placeholderLabel}
+    />
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Defaults — used until the Sanity singleton is created. Mirrors    *
+ * the editor-supplied source content provided for migration.        *
+ * ------------------------------------------------------------------ */
+const DEFAULTS = {
+  heroEyebrow: "Harmony in Business",
+  heroHeadline: "A Greener Future",
+  heroBody: [
+    "At PACIFIC, sustainability is more than a commitment — it's a way of life. We recognize that sustainable development is an ongoing journey that demands continuous evaluation, adaptation, and innovation. Our mission is to craft products that not only meet the highest standards of quality but also make a lasting, positive impact on the environment.",
+    "Through our green initiatives, we aim to create practices and products that endure the test of time, benefitting both our customers and the planet. By incorporating renewable energy, advanced water conservation systems, and eco-friendly materials into our processes, we actively minimize our environmental footprint. Beyond mere compliance, we are driven to lead the industry in sustainable practices, constantly innovating to create better solutions. As part of our commitment, we have introduced Ecosurfaces with low crystalline silica, designed with safety and environmental responsibility in mind. These surfaces reflect our dedication to protecting nature's resources while prioritizing the health and safety of those who interact with our products.",
+    "We work tirelessly to balance durability, safety, and environmental stewardship in everything we do, ensuring a better tomorrow for generations to come. Together, we are shaping a future where innovation and sustainability go hand in hand.",
+  ],
+  initiatives: [
+    {
+      title: "Windmill Energy",
+      description:
+        "In our pursuit of sustainable development, we have made significant investments in renewable energy. One of the cornerstones of our strategy is our windmill installation, powered by Siemens Gamesa, a globally renowned leader in wind energy. This initiative not only reduces our reliance on non-renewable energy sources but also significantly lowers our carbon footprint, aligning with our commitment to environmental protection.",
+      image:
+        "https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=1400&q=80",
+    },
+    {
+      title: "Solar Energy",
+      description:
+        "Our dedication to reducing humanity's carbon footprint is reflected in our extensive use of solar energy. We have harnessed the power of the sun to fuel our operations, making us one of the largest solar-powered quartz companies in India. Our solar power generates 2 MW of renewable energy, which fully supports our manufacturing processes. This commitment to solar energy helps us operate sustainably while contributing to global efforts to combat climate change.",
+      image:
+        "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1400&q=80",
+    },
+    {
+      title: "Water Conservation",
+      description:
+        "Water conservation is a crucial aspect of our environmental strategy. At PACIFIC, we are committed to being a responsible global citizen by actively seeking ways to save and replenish more water than we consume in our production processes. Our water conservation efforts include advanced technologies and practices that reduce water usage and improve efficiency, ensuring that our operations are both eco-friendly and sustainable.",
+      image: "/water-conservation.jpg",
+    },
+  ] satisfies Initiative[],
+  ecosurfacesEyebrow: "Safe, Sustainable & Stunning",
+  ecosurfacesHeadline: "Ecosurfaces",
+  ecosurfacesDescription:
+    "Revolutionary Surfaces crafted with people and environment in mind.",
+  ecosurfacesLink: "/products/ecosurfaces",
+  pillarsHeadline:
+    "We are committed to protecting and sustaining the environment with a focus on material use, energy, water and waste.",
+  pillars: [
+    "Reducing Carbon Footprint",
+    "Reducing Our Water Wastage",
+    "Use of Renewable Resources",
+    "Use of Recycled Materials",
+  ],
+  greenEyebrow: "Green Development",
+  greenHeadline: "Building a Sustainable Tomorrow",
+  greenBody: [
+    "At PACIFIC, commitment to the environment goes beyond responsibility — it is a cornerstone of everything we do. We believe that a sustainable future begins with conscious choices and innovative practices. By integrating renewable energy, advanced water recycling systems, and eco-friendly materials into our operations, we actively reduce our environmental footprint.",
+    "Our initiatives are designed to protect natural resources, minimize waste, and promote long-term sustainability. This approach reflects our dedication to crafting products that not only enhance spaces but also contribute to a healthier planet. At PACIFIC, we strive to set new benchmarks for environmental stewardship in the surfaces industry.",
+  ],
+  sdgsHeadline: "Sustainable Development Goals (SDGs)",
+  sdgsIntro:
+    "As a global leader, PACIFIC recognizes its responsibility to contribute meaningfully to the United Nations Sustainable Development Goals (SDGs). Established in 2015 as part of the 2030 Agenda for Sustainable Development, these 17 goals address the world's most critical social, environmental, health, and economic challenges, aiming to create a better and more sustainable future for all. At PACIFIC, we have identified the SDGs that align most closely with our values and areas of impact. These goals guide our strategies, shaping the policies and actions we implement to drive positive change. By focusing on these key areas, we aim to address pressing global issues while fostering innovation, inclusivity, and environmental stewardship in everything we do. Through our commitment to the SDGs, PACIFIC strives to lead by example, demonstrating how businesses can be a force for good in building a sustainable future.",
+  sdgs: [
+    {
+      title: "Good Health and Well-Being",
+      description:
+        "We prioritize the health and safety of our workforce, suppliers, and partners through global standards and comprehensive training. NSF Certification underscores our reliability and builds customer trust — surfaces engineered to be durable, beautiful, and safe for everyday use.",
+    },
+    {
+      title: "Gender Equality",
+      description:
+        "We create a workplace where opportunities are equitable and contributions valued regardless of gender. Policies ensure fair hiring, equal pay, and a supportive environment for growth — embedding gender equality as the standard, not the exception.",
+    },
+    {
+      title: "Decent Work and Economic Growth",
+      description:
+        "Safe, inclusive workplaces that empower employees and partners to thrive. Compliance with global labor standards, fair wages, and equal growth opportunities. We support local economies by sourcing responsibly and investing in skill development across the communities we operate in.",
+    },
+    {
+      title: "Industry, Innovation & Infrastructure",
+      description:
+        "We leverage advanced technologies and sustainable practices to drive progress within the surfaces industry. Cutting-edge processes — water recycling, renewable energy integration — reduce environmental impact while enhancing efficiency, setting new benchmarks for industrial sustainability.",
+    },
+    {
+      title: "Responsible Consumption & Production",
+      description:
+        "Eco-friendly manufacturing prioritizes resource efficiency and waste minimization. Integrating recycled materials and water-recycling systems reduces our footprint significantly. ISO 9001:2015 and NSF certifications validate our commitment to quality and food-contact safety.",
+    },
+    {
+      title: "Climate Action",
+      description:
+        "We measure and reduce greenhouse gas emissions through renewable energy, water recycling, and lower-carbon manufacturing. Pacific's 2 MW solar capacity and on-site windmill power the bulk of operations with carbon-free energy — concrete steps toward a measurably lighter footprint.",
+    },
+  ] satisfies SDGEntry[],
+  ctaHeadline: "Let's Talk Stone",
+  ctaDescription:
+    "Talk to our team about a project, a sample request, or our sustainability programme.",
+  ctaButtonLabel: "Get in Touch",
+  ctaButtonHref: "/contact",
+};
+
+/* ------------------------------------------------------------------ *
+ * Icon assignments — by initiative title and pillar copy.            *
+ * Falls back to a generic Leaf icon if the title doesn't match.      *
+ * ------------------------------------------------------------------ */
+function iconForInitiative(title: string) {
+  const t = title.toLowerCase();
+  if (t.includes("wind")) return Wind;
+  if (t.includes("solar") || t.includes("sun")) return Sun;
+  if (t.includes("water")) return Droplets;
+  return Leaf;
+}
+
+function iconForPillar(label: string) {
+  const t = label.toLowerCase();
+  if (t.includes("carbon") || t.includes("footprint")) return Footprints;
+  if (t.includes("water")) return Droplets;
+  if (t.includes("renewable") || t.includes("energy")) return Battery;
+  if (t.includes("recycle")) return Recycle;
+  return Leaf;
+}
+
+function iconForSDG(title: string) {
+  const t = title.toLowerCase();
+  if (t.includes("health") || t.includes("well")) return HeartPulse;
+  if (t.includes("gender")) return Users;
+  if (t.includes("decent") || t.includes("economic")) return Briefcase;
+  if (t.includes("industry") || t.includes("innovation")) return Lightbulb;
+  if (t.includes("consumption") || t.includes("production")) return ShoppingBag;
+  if (t.includes("climate")) return Globe2;
+  return Leaf;
+}
+
+/* ================================================================== *
+ *  Main component                                                     *
+ * ================================================================== */
+export function SustainabilityContent({
+  data,
+}: {
+  data: SustainabilityPageData | null;
+}) {
+  const heroEyebrow = data?.heroEyebrow || DEFAULTS.heroEyebrow;
+  const heroHeadline = data?.heroHeadline || DEFAULTS.heroHeadline;
+  const heroBody =
+    data?.heroBody && data.heroBody.length > 0
+      ? data.heroBody
+      : DEFAULTS.heroBody;
+  const initiatives =
+    data?.initiatives && data.initiatives.length > 0
+      ? data.initiatives
+      : DEFAULTS.initiatives;
+  const ecosurfacesEyebrow =
+    data?.ecosurfacesEyebrow || DEFAULTS.ecosurfacesEyebrow;
+  const ecosurfacesHeadline =
+    data?.ecosurfacesHeadline || DEFAULTS.ecosurfacesHeadline;
+  const ecosurfacesDescription =
+    data?.ecosurfacesDescription || DEFAULTS.ecosurfacesDescription;
+  const ecosurfacesLink = data?.ecosurfacesLink || DEFAULTS.ecosurfacesLink;
+  const pillarsHeadline = data?.pillarsHeadline || DEFAULTS.pillarsHeadline;
+  const pillars =
+    data?.pillars && data.pillars.length > 0 ? data.pillars : DEFAULTS.pillars;
+  const greenEyebrow = data?.greenEyebrow || DEFAULTS.greenEyebrow;
+  const greenHeadline = data?.greenHeadline || DEFAULTS.greenHeadline;
+  const greenBody =
+    data?.greenBody && data.greenBody.length > 0
+      ? data.greenBody
+      : DEFAULTS.greenBody;
+  const sdgsHeadline = data?.sdgsHeadline || DEFAULTS.sdgsHeadline;
+  const sdgsIntro = data?.sdgsIntro || DEFAULTS.sdgsIntro;
+  const sdgs = data?.sdgs && data.sdgs.length > 0 ? data.sdgs : DEFAULTS.sdgs;
+  const ctaHeadline = data?.ctaHeadline || DEFAULTS.ctaHeadline;
+  const ctaDescription = data?.ctaDescription || DEFAULTS.ctaDescription;
+  const ctaButtonLabel = data?.ctaButtonLabel || DEFAULTS.ctaButtonLabel;
+  const ctaButtonHref = data?.ctaButtonHref || DEFAULTS.ctaButtonHref;
+
+  // Media slots. Defaults point at /public asset paths so the page
+  // works the moment those files land in pacific-surfaces/public/
+  // — no Sanity upload required. Editors can still override any
+  // slot from Studio if they prefer to manage media there.
+  const heroImage = data?.heroImage ?? null;
+  const heroVideoUrl = data?.heroVideoUrl ?? "/videos/sustainability-hero.mp4";
+  const ecosurfacesImage = data?.ecosurfacesImage ?? "/eco-surfaces.jpg";
+  const ecosurfacesVideoUrl = data?.ecosurfacesVideoUrl ?? null;
+  const greenImage = data?.greenImage ?? "/green-development.jpg";
+  const greenVideoUrl = data?.greenVideoUrl ?? null;
+  const ctaImage = data?.ctaImage ?? null;
 
   return (
     <>
-      {/* Hero */}
-      <section
-        ref={heroRef}
-        className="relative min-h-[70vh] flex items-center bg-stone-950 overflow-hidden"
-      >
-        <motion.div style={{ y: heroY }} className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/40 via-stone-950/80 to-stone-950" />
+      {/* Hero — full screen. Background video (or image) sits
+          full-bleed behind the headline; gradient + scrim keep the
+          copy readable against any frame. */}
+      <section className="relative min-h-screen flex items-end bg-stone-950 overflow-hidden">
+        {/* Fallback gradient — always rendered behind the media so
+            if the video file is missing or fails, the section still
+            looks intentional rather than blank. */}
+        <div className="absolute inset-0 z-0">
           <div
-            className="absolute inset-0 opacity-[0.03]"
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(160deg, #1e3a2a 0%, #112732 55%, #0a1620 100%)",
+            }}
+          />
+          <div
+            className="absolute inset-0 opacity-[0.04]"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
             }}
           />
-        </motion.div>
+        </div>
 
+        {/* Hero media — full-bleed video or image. */}
+        <div className="absolute inset-0 z-0">
+          <MediaSlot
+            imageUrl={heroImage}
+            videoUrl={heroVideoUrl}
+            alt={heroHeadline}
+            fill
+            rounded=""
+            fallbackToPlaceholder={false}
+          />
+          {/* Scrim — darkens the lower half so the bottom-aligned
+              headline reads cleanly regardless of video frame. */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent" />
+        </div>
         <motion.div
-          style={{ opacity: heroOpacity }}
-          className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-32 pb-20"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
+          className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pb-12 sm:pb-16 lg:pb-24 pt-24 sm:pt-32"
         >
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-6"
-          >
-            Environmental Commitment
-          </motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.7,
-              delay: 0.2,
-              ease: [0.25, 0.4, 0.25, 1],
-            }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl"
-          >
-            Building a Sustainable Tomorrow
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.35 }}
-            className="mt-6 text-lg text-stone-400 max-w-2xl font-light leading-relaxed"
-          >
-            At Pacific Surfaces, sustainability isn&apos;t a commitment —
-            it&apos;s the harmony between exceptional business practices and
-            environmental responsibility.
-          </motion.p>
+          <div className="text-xs font-medium tracking-[0.3em] uppercase text-emerald-300/80 mb-6">
+            {heroEyebrow}
+          </div>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-tight text-white max-w-4xl leading-[1.05]">
+            {heroHeadline}
+          </h1>
         </motion.div>
       </section>
 
-      {/* Intro Section */}
-      <section className="bg-[#112732] border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
-          <AnimatedSection
-            animation="fadeUp"
-            className="max-w-3xl mx-auto text-center"
-          >
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white mb-8">
-              Sustainability as a Way of Life
-            </h2>
-            <div className="space-y-6 text-pacific-mid font-light leading-relaxed text-lg">
-              <p>
-                At Pacific Surfaces, environmental responsibility is woven into
-                every aspect of our operations. We believe that creating
-                premium, durable surfaces and protecting our planet aren&apos;t
-                competing goals — they&apos;re complementary values that define
-                who we are.
-              </p>
-              <p>
-                From eco-friendly manufacturing practices and renewable energy
-                integration to advanced water conservation technologies and low
-                crystalline silica ecosurfaces, we&apos;re committed to leaving
-                a positive environmental legacy while delivering the exceptional
-                surfaces our customers deserve.
-              </p>
-            </div>
-          </AnimatedSection>
+      {/* Lead body */}
+      <section className="bg-[#0a1620]">
+        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28">
+          <div className="space-y-6 text-base lg:text-lg font-light text-pacific-light/85 leading-relaxed">
+            {heroBody.map((para, i) => (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.08 }}
+              >
+                {para}
+              </motion.p>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Three Pillars */}
-      <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
-          <AnimatedSection className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
-              Our Three Pillars of Sustainability
-            </h2>
-          </AnimatedSection>
-
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {pillars.map((pillar) => {
-              const Icon = pillar.icon;
-              return (
-                <StaggerItem key={pillar.title}>
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-8 h-full hover:border-white/20 transition-all duration-500">
-                    <div className="p-3 bg-white/5 rounded-xl w-fit">
-                      <Icon className="w-6 h-6 text-pacific-mid" />
-                    </div>
-                    <h3 className="mt-6 text-xl font-light text-white">
-                      {pillar.title}
-                    </h3>
-                    <p className="mt-3 text-sm text-pacific-mid font-light leading-relaxed">
-                      {pillar.description}
-                    </p>
+      {/* Three initiatives — alternating image/text rows */}
+      <section className="bg-[#112732]">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28 space-y-14 sm:space-y-20 lg:space-y-28">
+          {initiatives.map((init, i) => {
+            const Icon = iconForInitiative(init.title);
+            const reverse = i % 2 === 1;
+            return (
+              <motion.div
+                key={`${init.title}-${i}`}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
+                className={`grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center ${
+                  reverse ? "lg:[&>*:first-child]:order-2" : ""
+                }`}
+              >
+                {/* Image with corner icon badge */}
+                <div className="relative aspect-[5/4] rounded-2xl overflow-hidden bg-white/5 border border-white/10">
+                  {init.image ? (
+                    <Image
+                      src={init.image}
+                      alt={init.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/40 to-stone-900" />
+                  )}
+                  <div className="absolute top-5 left-5 w-12 h-12 rounded-full bg-white/95 flex items-center justify-center shadow-lg">
+                    <Icon className="w-5 h-5 text-emerald-700" />
                   </div>
+                </div>
+                {/* Text */}
+                <div>
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="text-[10px] tracking-[0.3em] uppercase text-emerald-300/70 font-medium">
+                      0{i + 1} · Initiative
+                    </span>
+                  </div>
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white mb-6 leading-tight">
+                    {init.title}
+                  </h2>
+                  <p className="text-base lg:text-lg font-light text-pacific-light/80 leading-relaxed">
+                    {init.description}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Ecosurfaces callout — text card on the left, media slot on
+          the right. When no media uploaded, the right side renders
+          a placeholder card so the layout stays balanced. */}
+      <section className="bg-[#0e2030]">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center"
+          >
+            {/* Left — text card */}
+            <div className="lg:col-span-7 relative bg-gradient-to-br from-emerald-900/30 via-emerald-800/15 to-transparent border border-emerald-300/20 rounded-3xl p-6 sm:p-10 lg:p-14 overflow-hidden">
+              <Leaf
+                className="absolute -top-8 -right-8 w-48 h-48 text-emerald-300/[0.04] rotate-45"
+                strokeWidth={1}
+              />
+              <div className="relative z-10">
+                <div className="text-xs font-medium tracking-[0.3em] uppercase text-emerald-300/80 mb-5">
+                  {ecosurfacesEyebrow}
+                </div>
+                <h2 className="text-3xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white mb-6">
+                  {ecosurfacesHeadline}
+                </h2>
+                <p className="text-lg lg:text-xl font-light text-pacific-light/85 max-w-2xl mb-10 leading-relaxed">
+                  {ecosurfacesDescription}
+                </p>
+                <Link
+                  href={ecosurfacesLink}
+                  className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-white text-[#112732] text-sm font-medium tracking-wide hover:bg-pacific-light transition-colors group"
+                >
+                  Learn More
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+            {/* Right — media slot (placeholder if empty) */}
+            <div className="lg:col-span-5">
+              <MediaSlot
+                imageUrl={ecosurfacesImage}
+                videoUrl={ecosurfacesVideoUrl}
+                alt={ecosurfacesHeadline}
+                aspect="aspect-[4/5]"
+                placeholderLabel="Ecosurfaces media"
+              />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Four pillars */}
+      <section className="bg-[#112732]">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28">
+          <AnimatedSection className="max-w-3xl mb-14 lg:mb-20">
+            <p className="text-xl sm:text-2xl lg:text-3xl font-light tracking-tight text-white leading-snug">
+              {pillarsHeadline}
+            </p>
+          </AnimatedSection>
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {pillars.map((label, i) => {
+              const Icon = iconForPillar(label);
+              return (
+                <StaggerItem key={`${label}-${i}`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.05 }}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-6 lg:p-8 hover:border-emerald-300/30 hover:bg-white/[0.07] transition-all duration-500 h-full"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-emerald-300/10 border border-emerald-300/20 flex items-center justify-center mb-5">
+                      <Icon className="w-6 h-6 text-emerald-300" />
+                    </div>
+                    <div className="text-sm lg:text-base font-medium text-white tracking-wide leading-snug">
+                      {label}
+                    </div>
+                  </motion.div>
                 </StaggerItem>
               );
             })}
@@ -217,231 +579,131 @@ export function SustainabilityContent() {
         </div>
       </section>
 
-      {/* Certifications */}
-      <section className="bg-[#112732] border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16">
-          <AnimatedSection className="text-center">
-            <h3 className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-8">
-              Certified Excellence
-            </h3>
-            <div className="flex flex-wrap justify-center gap-6">
-              <div className="px-6 py-3 bg-white/5 rounded-full border border-white/10">
-                <span className="text-sm font-light text-pacific-light">
-                  ISO 9001:2015
-                </span>
-              </div>
-              <div className="px-6 py-3 bg-white/5 rounded-full border border-white/10">
-                <span className="text-sm font-light text-pacific-light">
-                  NSF Certification
-                </span>
-              </div>
-              <div className="px-6 py-3 bg-white/5 rounded-full border border-white/10">
-                <span className="text-sm font-light text-pacific-light">
-                  Greenguard Certified
-                </span>
-              </div>
-              <div className="px-6 py-3 bg-white/5 rounded-full border border-white/10">
-                <span className="text-sm font-light text-pacific-light">
-                  CE Marking
-                </span>
+      {/* Green Development — media on the left (or placeholder),
+          eyebrow + headline + body on the right. Reverses the
+          earlier Ecosurfaces split so the page reads with visual
+          rhythm rather than two same-shaped sections in a row. */}
+      <section className="bg-[#0e2030]">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            {/* Media — left, full-height card */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="lg:col-span-5"
+            >
+              <MediaSlot
+                imageUrl={greenImage}
+                videoUrl={greenVideoUrl}
+                alt={greenHeadline}
+                aspect="aspect-[4/5]"
+                placeholderLabel="Green Development media"
+              />
+            </motion.div>
+            {/* Text — right */}
+            <div className="lg:col-span-7">
+              <AnimatedSection className="mb-8">
+                <div className="text-xs font-medium tracking-[0.3em] uppercase text-emerald-300/80 mb-5">
+                  {greenEyebrow}
+                </div>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white leading-tight">
+                  {greenHeadline}
+                </h2>
+              </AnimatedSection>
+              <div className="space-y-6 text-base lg:text-lg font-light text-pacific-light/80 leading-relaxed">
+                {greenBody.map((para, i) => (
+                  <motion.p
+                    key={i}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: i * 0.1 }}
+                  >
+                    {para}
+                  </motion.p>
+                ))}
               </div>
             </div>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* Ecosurfaces CTA Banner */}
-      <section className="bg-stone-900 overflow-hidden relative">
-        <div className="absolute inset-0 opacity-5">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-            }}
-          />
-        </div>
-
-        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <AnimatedSection animation="slideInLeft">
-              <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white mb-6">
-                Ecosurfaces
-              </h2>
-              <p className="text-lg text-stone-300 font-light leading-relaxed mb-8">
-                Safe, Sustainable &amp; Stunning — Revolutionary low and zero
-                silica surfaces that prove environmental responsibility and
-                premium aesthetics can coexist beautifully.
-              </p>
-              <MagneticButton href="/ecosurfaces" variant="primary">
-                Learn More
-              </MagneticButton>
-            </AnimatedSection>
-
-            <AnimatedSection animation="slideInRight" delay={0.2}>
-              <div className="bg-stone-800 rounded-2xl p-8 border border-stone-700">
-                <div className="text-sm font-medium tracking-[0.2em] uppercase text-stone-400 mb-4">
-                  Why Choose Ecosurfaces
-                </div>
-                <ul className="space-y-4 text-stone-300 font-light text-sm">
-                  <li className="flex items-start gap-3">
-                    <span className="text-stone-400 mt-1">•</span>
-                    <span>
-                      Reduced silica dust exposure for safer workplaces
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-stone-400 mt-1">•</span>
-                    <span>Manufactured with renewable energy sources</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-stone-400 mt-1">•</span>
-                    <span>Advanced water recycling integration</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-stone-400 mt-1">•</span>
-                    <span>
-                      Certified for health and environmental standards
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </AnimatedSection>
           </div>
         </div>
       </section>
 
-      {/* UN SDGs Section */}
+      {/* SDGs */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
-          <AnimatedSection className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
-              Sustainable Development Goals
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28">
+          <AnimatedSection className="max-w-3xl mb-12 lg:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white mb-6">
+              {sdgsHeadline}
             </h2>
-            <p className="mt-4 text-pacific-mid font-light max-w-2xl mx-auto">
-              Our commitment aligns with the United Nations&apos; Sustainable
-              Development Goals, creating impact across multiple dimensions of
-              human and environmental wellbeing.
+            <p className="text-base lg:text-lg font-light text-pacific-light/80 leading-relaxed">
+              {sdgsIntro}
             </p>
           </AnimatedSection>
-
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {sdgGoals.map((goal) => (
-              <StaggerItem key={goal.number}>
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 h-full hover:border-white/20 transition-all duration-500">
-                  <div className="text-3xl font-light text-white mb-3">
-                    SDG {goal.number}
-                  </div>
-                  <h3 className="text-lg font-light text-white mb-4">
-                    {goal.title}
-                  </h3>
-                  <p className="text-sm text-pacific-mid font-light leading-relaxed">
-                    {goal.description}
-                  </p>
-                </div>
-              </StaggerItem>
-            ))}
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+            {sdgs.map((sdg, i) => {
+              const Icon = iconForSDG(sdg.title);
+              return (
+                <StaggerItem key={`${sdg.title}-${i}`} className="h-full">
+                  <motion.article
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: (i % 3) * 0.08 }}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-7 lg:p-8 h-full hover:border-emerald-300/30 hover:bg-white/[0.07] transition-all duration-500 flex flex-col"
+                  >
+                    <div className="flex items-start justify-between gap-4 mb-5">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-300/10 border border-emerald-300/20 flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-6 h-6 text-emerald-300" />
+                      </div>
+                      <div className="text-3xl font-light text-emerald-300/40 tabular-nums leading-none mt-1">
+                        {String(i + 1).padStart(2, "0")}
+                      </div>
+                    </div>
+                    <h3 className="text-lg lg:text-xl font-medium text-white tracking-tight mb-4 leading-snug">
+                      {sdg.title}
+                    </h3>
+                    <p className="text-sm lg:text-base font-light text-pacific-light/75 leading-relaxed">
+                      {sdg.description}
+                    </p>
+                  </motion.article>
+                </StaggerItem>
+              );
+            })}
           </StaggerContainer>
         </div>
       </section>
 
-      {/* Newsletter CTA */}
-      <section className="bg-stone-950">
-        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-20 lg:py-32">
-          <AnimatedSection className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
-              Join Us in Shaping the Future of Stones
-            </h2>
-            <p className="mt-4 text-stone-400 font-light">
-              Stay updated on our sustainability initiatives and new ecosystem
-              products.
-            </p>
-          </AnimatedSection>
-
-          <motion.form
-            onSubmit={handleSubmit}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true, margin: "-100px" }}
-            className="space-y-4"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="First name"
-                value={formData.firstName}
-                onChange={(e) =>
-                  setFormData({ ...formData, firstName: e.target.value })
-                }
-                className="w-full px-6 py-3 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-stone-500 transition-colors font-light"
-              />
-              <input
-                type="text"
-                placeholder="Last name"
-                value={formData.lastName}
-                onChange={(e) =>
-                  setFormData({ ...formData, lastName: e.target.value })
-                }
-                className="w-full px-6 py-3 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-stone-500 transition-colors font-light"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Company"
-                value={formData.company}
-                onChange={(e) =>
-                  setFormData({ ...formData, company: e.target.value })
-                }
-                className="w-full px-6 py-3 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-stone-500 transition-colors font-light"
-              />
-              <input
-                type="text"
-                placeholder="Country"
-                value={formData.country}
-                onChange={(e) =>
-                  setFormData({ ...formData, country: e.target.value })
-                }
-                className="w-full px-6 py-3 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-stone-500 transition-colors font-light"
-              />
-            </div>
-
-            <input
-              type="email"
-              placeholder="Email address"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              required
-              className="w-full px-6 py-3 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-stone-500 transition-colors font-light"
+      {/* Closing CTA — optional atmospheric background image when
+          uploaded, plain dark surface when not. No placeholder
+          when empty: this section reads cleanly as a quiet closer
+          on flat dark navy. */}
+      <section className="relative bg-stone-950 overflow-hidden">
+        {ctaImage && (
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={ctaImage}
+              alt=""
+              fill
+              className="object-cover opacity-30"
+              sizes="100vw"
             />
-
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.subscribe}
-                onChange={(e) =>
-                  setFormData({ ...formData, subscribe: e.target.checked })
-                }
-                className="w-5 h-5 rounded accent-stone-500"
-              />
-              <span className="text-sm text-stone-400 font-light">
-                I&apos;d like to receive updates about Pacific Surfaces&apos;
-                sustainability initiatives
-              </span>
-            </label>
-
-            <div className="pt-4">
-              <button
-                type="submit"
-                className="w-full px-8 py-3 bg-white text-stone-950 rounded-xl font-light tracking-wide hover:bg-stone-100 transition-colors duration-300"
-              >
-                Subscribe
-              </button>
-            </div>
-          </motion.form>
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/85 to-stone-950/70" />
+          </div>
+        )}
+        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-24 text-center">
+          <AnimatedSection>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white mb-5">
+              {ctaHeadline}
+            </h2>
+            <p className="text-base lg:text-lg font-light text-stone-400 max-w-xl mx-auto mb-10 leading-relaxed">
+              {ctaDescription}
+            </p>
+            <MagneticButton href={ctaButtonHref} variant="primary" size="lg">
+              {ctaButtonLabel}
+            </MagneticButton>
+          </AnimatedSection>
         </div>
       </section>
     </>

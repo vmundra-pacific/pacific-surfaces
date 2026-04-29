@@ -210,7 +210,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   query.trim().length > 1 && (
                     <div className="text-center py-8">
                       <div className="text-pacific-mid text-sm">
-                        No surfaces found for "{query.trim()}"
+                        No surfaces found for &ldquo;{query.trim()}&rdquo;
                       </div>
                       <Link
                         href="/products"

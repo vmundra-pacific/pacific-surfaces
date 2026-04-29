@@ -5,7 +5,7 @@ import { TextReveal } from "@/components/ui/text-reveal";
 
 export function OriginStats() {
   return (
-    <section className="py-20 md:py-28 px-6 bg-[#112732]">
+    <section className="py-16 sm:py-20 md:py-28 px-6 bg-[#112732]">
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         {/* Left — copy + stats */}
         <motion.div
@@ -30,14 +30,14 @@ export function OriginStats() {
             stand behind them for 15 years.
           </p>
 
-          <div className="flex gap-10">
+          <div className="flex flex-wrap gap-6 sm:gap-10">
             {[
               { n: "14", l: "Days per slab" },
               { n: "1,200T", l: "Press force" },
               { n: '131"', l: "Max slab width" },
             ].map((s) => (
               <div key={s.l}>
-                <div className="text-3xl sm:text-4xl font-light tracking-tight text-white">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-light tracking-tight text-white">
                   {s.n}
                 </div>
                 <div className="text-[10px] font-medium tracking-[0.2em] uppercase text-pacific-mid mt-1">

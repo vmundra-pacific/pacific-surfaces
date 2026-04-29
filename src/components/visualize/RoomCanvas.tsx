@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import type { Slab } from "@/data/slabs";
 import {
+  candidateFromMaskURL,
   candidateFromPolygon,
   selectAtTap,
   type SurfaceCandidate,
@@ -145,7 +146,15 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
     // toggling. Used by the edit-existing-surface flow.
     const lastTapRef = useRef<{ id: string; time: number } | null>(null);
     const [precomputed, setPrecomputed] = useState<
-      { surface: DemoSurface; candidate: SurfaceCandidate }[]
+      {
+        surface: DemoSurface;
+        candidate: SurfaceCandidate;
+        // Optional shadow pass (lever 2) + highlights pass (lever 3).
+        // Both are loaded once when the room mounts and reused for
+        // every slab swap on this surface.
+        shadow?: HTMLImageElement;
+        highlights?: HTMLImageElement;
+      }[]
     >([]);
     const [aiSurfaces, setAiSurfaces] = useState<
       { id: string; label: string; candidate: SurfaceCandidate }[]
@@ -190,25 +199,111 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
           ov.width = w;
           ov.height = h;
         }
+
         setLoading(false);
 
-        // Pre-compute masks for each hand-curated polygon at full image resolution.
+        // Pre-compute masks for each demo-room surface at full image
+        // resolution. Each surface ships with EITHER a normalised
+        // polygon (rasterised in-process) OR a maskUrl pointing to a
+        // PSD-exported PNG (fetched + alpha-checked). Polygon surfaces
+        // resolve synchronously, mask-URL surfaces resolve async; we
+        // run them through Promise.all so the order in `polygons` is
+        // preserved in the output array.
         if (polygons && polygons.length > 0) {
-          const computed = polygons.map((s) => ({
-            surface: s,
-            candidate: candidateFromPolygon(
-              s.polygon,
-              img.naturalWidth,
-              img.naturalHeight
-            ),
-          }));
-          setPrecomputed(computed);
-          // Auto-select the first surface on load so there's an immediate preview hint
-          if (computed.length > 0) {
-            setActive(computed[0].candidate);
-            setActiveIds([computed[0].surface.id]);
-            onRegionChange?.(computed[0].candidate, computed[0].surface.id);
-          }
+          (async () => {
+            const computed = await Promise.all(
+              polygons.map(async (s) => {
+                // Load the mask + the (optional) shadow + highlights
+                // passes in parallel — all are network fetches against
+                // /public/demo-rooms/<id>/, and waiting on the mask
+                // first would needlessly stall the auxiliary requests.
+                const [cand, shadow, highlights] = await Promise.all([
+                  s.maskUrl
+                    ? candidateFromMaskURL(
+                        s.maskUrl,
+                        img.naturalWidth,
+                        img.naturalHeight
+                      )
+                    : s.polygon
+                      ? Promise.resolve(
+                          candidateFromPolygon(
+                            s.polygon,
+                            img.naturalWidth,
+                            img.naturalHeight
+                          )
+                        )
+                      : Promise.resolve(null),
+                  s.shadowUrl
+                    ? loadImageEl(s.shadowUrl)
+                        .then((el) => {
+                          // Demo-room masks/passes have to match the
+                          // room photo's natural dimensions exactly,
+                          // or alignment drifts by a few pixels at
+                          // every painted boundary. Warn loudly when
+                          // they don't so misregistration is easy to
+                          // diagnose during PSD export iteration.
+                          if (
+                            el.naturalWidth !== img.naturalWidth ||
+                            el.naturalHeight !== img.naturalHeight
+                          ) {
+                            console.warn(
+                              `[demo-room ${s.id}] shadow.png dimensions ` +
+                                `${el.naturalWidth}×${el.naturalHeight} don't ` +
+                                `match room.jpg ${img.naturalWidth}×${img.naturalHeight}. ` +
+                                "Re-export at document size to fix mis-alignment."
+                            );
+                          }
+                          return el;
+                        })
+                        .catch(() => undefined)
+                    : Promise.resolve(undefined),
+                  s.highlightsUrl
+                    ? loadImageEl(s.highlightsUrl)
+                        .then((el) => {
+                          if (
+                            el.naturalWidth !== img.naturalWidth ||
+                            el.naturalHeight !== img.naturalHeight
+                          ) {
+                            console.warn(
+                              `[demo-room ${s.id}] highlights.png dimensions ` +
+                                `${el.naturalWidth}×${el.naturalHeight} don't ` +
+                                `match room.jpg ${img.naturalWidth}×${img.naturalHeight}. ` +
+                                "Re-export at document size to fix mis-alignment."
+                            );
+                          }
+                          return el;
+                        })
+                        .catch(() => undefined)
+                    : Promise.resolve(undefined),
+                ]);
+                if (!cand) return null;
+                return {
+                  surface: s,
+                  candidate: cand,
+                  shadow: shadow ?? undefined,
+                  highlights: highlights ?? undefined,
+                };
+              })
+            );
+            if (cancelled) return;
+            const valid = computed.filter(
+              (
+                x
+              ): x is {
+                surface: DemoSurface;
+                candidate: SurfaceCandidate;
+                shadow: HTMLImageElement | undefined;
+                highlights: HTMLImageElement | undefined;
+              } => x !== null
+            );
+            setPrecomputed(valid);
+            // Auto-select the first surface so there's an immediate preview hint.
+            if (valid.length > 0) {
+              setActive(valid[0].candidate);
+              setActiveIds([valid[0].surface.id]);
+              onRegionChange?.(valid[0].candidate, valid[0].surface.id);
+            }
+          })();
         }
       };
       img.onerror = () => {
@@ -376,12 +471,23 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
       if (precomputed.length > 0) {
         for (const { surface, candidate } of precomputed) {
           if (hoveredId !== surface.id) continue;
-          paintPolygon(ctx, candidate, surface.polygon, ov.width, ov.height, {
-            fillAlpha: 0.18,
-            strokeAlpha: 0,
-            strokeWidth: 0,
-            dashed: false,
-          });
+          // Polygon surfaces get the polygon-fill overlay; mask-URL
+          // surfaces have no polygon, so paint the candidate's mask
+          // directly (same path the AI surfaces use).
+          if (surface.polygon) {
+            paintPolygon(ctx, candidate, surface.polygon, ov.width, ov.height, {
+              fillAlpha: 0.18,
+              strokeAlpha: 0,
+              strokeWidth: 0,
+              dashed: false,
+            });
+          } else {
+            paintMaskOverlay(ctx, candidate.mask, {
+              fillAlpha: 0.18,
+              strokeAlpha: 0,
+              strokeWidth: 0,
+            });
+          }
         }
       } else if (aiSurfaces.length > 0) {
         for (const { id, candidate } of aiSurfaces) {
@@ -391,6 +497,43 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
             strokeAlpha: 0,
             strokeWidth: 0,
           });
+        }
+      }
+
+      // ---------- ?debug=masks overlay ----------
+      // Paint every precomputed mask in semi-transparent red on top of
+      // everything so you can verify mask vs photo alignment without
+      // picking a slab. Lives on the overlay canvas (above the main
+      // canvas), so the slab-render effect's clear+redraw of the main
+      // canvas can't wipe it. Re-runs on every overlay repaint, which
+      // means it survives hover state changes and surface selection.
+      if (
+        typeof window !== "undefined" &&
+        new URLSearchParams(window.location.search).get("debug") === "masks" &&
+        precomputed.length > 0
+      ) {
+        for (const { candidate } of precomputed) {
+          // Use the in-memory mask ImageData directly — no async
+          // image loading required. The mask was already rasterised
+          // when the room mounted.
+          const src = document.createElement("canvas");
+          src.width = candidate.mask.width;
+          src.height = candidate.mask.height;
+          src.getContext("2d")!.putImageData(candidate.mask, 0, 0);
+
+          const tinted = document.createElement("canvas");
+          tinted.width = ov.width;
+          tinted.height = ov.height;
+          const tctx = tinted.getContext("2d")!;
+          tctx.drawImage(src, 0, 0, ov.width, ov.height);
+          tctx.globalCompositeOperation = "source-in";
+          tctx.fillStyle = "#ff2d55";
+          tctx.fillRect(0, 0, ov.width, ov.height);
+
+          ctx.save();
+          ctx.globalAlpha = 0.5;
+          ctx.drawImage(tinted, 0, 0);
+          ctx.restore();
         }
       }
     }, [precomputed, aiSurfaces, active, activeIds, hoveredId, surfaceSlabs]);
@@ -407,20 +550,43 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         ctx.drawImage(base, 0, 0);
 
         // Build the per-surface render queue. Each entry is a
-        // { mask, slab } pair — every active surface that has a slab
-        // assigned in surfaceSlabs gets its own entry.
-        type Job = { mask: ImageData; slab: Slab };
+        // { mask, slab, precise } triple. `precise` is true for
+        // demo-room surfaces (whose masks are either hand-painted in
+        // Photoshop or eyeballed polygons — both trace the actual
+        // edge), and false for AI / SAM-2 masks (which need dilation
+        // + feather to compensate for their inherent inset).
+        type Job = {
+          mask: ImageData;
+          slab: Slab;
+          precise: boolean;
+          shadow?: HTMLImageElement;
+          highlights?: HTMLImageElement;
+          bbox: { x: number; y: number; w: number; h: number };
+        };
         const jobs: Job[] = [];
         for (const id of activeIds) {
           const slab = surfaceSlabs[id];
           if (!slab) continue;
           const poly = precomputed.find((p) => p.surface.id === id);
           if (poly) {
-            jobs.push({ mask: poly.candidate.mask, slab });
+            jobs.push({
+              mask: poly.candidate.mask,
+              slab,
+              precise: true,
+              shadow: poly.shadow,
+              highlights: poly.highlights,
+              bbox: poly.candidate.bbox,
+            });
             continue;
           }
           const ai = aiSurfaces.find((a) => a.id === id);
-          if (ai) jobs.push({ mask: ai.candidate.mask, slab });
+          if (ai)
+            jobs.push({
+              mask: ai.candidate.mask,
+              slab,
+              precise: false,
+              bbox: ai.candidate.bbox,
+            });
         }
         if (jobs.length === 0) return;
 
@@ -435,11 +601,27 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
           }
         }
 
-        // Composite each surface with its own slab.
-        for (const { mask, slab } of jobs) {
+        // Composite each surface with its own slab. `precise` is
+        // forwarded into applySlabToRegion so demo-room masks render
+        // with tight edges (no dilation, hairline feather) while AI
+        // masks keep their forgiving dilate + feather defaults.
+        for (const { mask, slab, precise, shadow, highlights, bbox } of jobs) {
           const tile = tileCache.get(slab.id);
           if (!tile) continue;
-          applySlabToRegion(ctx, base, mask, tile, { opacity: 0.95 });
+          // opacity: 0.9 — paints the slab at 90% strength so a hint
+          // (10%) of the original photo bleeds through. Lets the
+          // underlying lighting / micro-shadows / surface character
+          // read through subtly, so the slab feels integrated with
+          // the room rather than pasted on. The hand-painted shadow
+          // and highlight layers do most of the integration work;
+          // this last 10% is the polish pass.
+          applySlabToRegion(ctx, base, mask, tile, {
+            opacity: 0.9,
+            precise,
+            shadow,
+            highlights,
+            bbox,
+          });
         }
       };
       run();
@@ -475,22 +657,35 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         if (!pt) return;
 
         if (precomputed.length > 0) {
-          // Polygon mode: tap toggles the polygon into/out of the selection.
+          // Demo-room mode: hit-test by polygon when we have one
+          // (fast path), or by sampling the candidate mask's alpha
+          // channel for mask-URL surfaces (pixel-perfect path).
           for (const { surface, candidate } of precomputed) {
-            if (pointInPolygon([pt.relX, pt.relY], surface.polygon)) {
-              setActiveIds((prev) => {
-                const has = prev.includes(surface.id);
-                const next = has
-                  ? prev.filter((x) => x !== surface.id)
-                  : [...prev, surface.id];
-                // Focus update: if we just added → focus this id;
-                // if we removed → focus the previous most-recent
-                // remaining id (or null).
-                onFocusChange?.(
-                  has ? (next[next.length - 1] ?? null) : surface.id
-                );
-                return next;
-              });
+            const hit = surface.polygon
+              ? pointInPolygon([pt.relX, pt.relY], surface.polygon)
+              : (() => {
+                  const mw = candidate.mask.width;
+                  const mh = candidate.mask.height;
+                  const mx = Math.floor(pt.relX * mw);
+                  const my = Math.floor(pt.relY * mh);
+                  if (mx < 0 || my < 0 || mx >= mw || my >= mh) return false;
+                  return candidate.mask.data[(my * mw + mx) * 4 + 3] > 128;
+                })();
+            if (hit) {
+              // Compute next state synchronously from current activeIds
+              // (instead of from inside the updater) so we can call the
+              // parent's onFocusChange without triggering React's
+              // "setState during render" warning. Calling a parent
+              // setState from inside another component's setState
+              // updater is what was tripping the error before.
+              const has = activeIds.includes(surface.id);
+              const next = has
+                ? activeIds.filter((x) => x !== surface.id)
+                : [...activeIds, surface.id];
+              setActiveIds(next);
+              onFocusChange?.(
+                has ? (next[next.length - 1] ?? null) : surface.id
+              );
               setActive(candidate);
               onRegionChange?.(candidate, surface.id);
               return;
@@ -602,7 +797,20 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
           setWorking(false);
         }, 20);
       },
-      [precomputed, aiSurfaces, onRegionChange, onPointTap, manualTap]
+      // imgSize.h/w and onEditExisting intentionally omitted — they're
+      // referenced in the closure but only matter on the next user
+      // interaction (not on render); including them would re-bind the
+      // handler on every imgSize change and reset interaction state.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [
+        precomputed,
+        aiSurfaces,
+        onRegionChange,
+        onPointTap,
+        manualTap,
+        activeIds,
+        onFocusChange,
+      ]
     );
 
     const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -611,8 +819,20 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
 
       if (precomputed.length > 0) {
         let found: string | null = null;
-        for (const { surface } of precomputed) {
-          if (pointInPolygon([pt.relX, pt.relY], surface.polygon)) {
+        for (const { surface, candidate } of precomputed) {
+          // Polygon hit-test for polygon surfaces, alpha-channel
+          // hit-test for mask-URL surfaces.
+          const hit = surface.polygon
+            ? pointInPolygon([pt.relX, pt.relY], surface.polygon)
+            : (() => {
+                const mw = candidate.mask.width;
+                const mh = candidate.mask.height;
+                const mx = Math.floor(pt.relX * mw);
+                const my = Math.floor(pt.relY * mh);
+                if (mx < 0 || my < 0 || mx >= mw || my >= mh) return false;
+                return candidate.mask.data[(my * mw + mx) * 4 + 3] > 128;
+              })();
+          if (hit) {
             found = surface.id;
             break;
           }

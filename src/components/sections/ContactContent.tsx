@@ -223,7 +223,7 @@ export function ContactContent() {
       {/* Contact Content */}
       <section className="bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16">
             {/* Form */}
             <AnimatedSection className="lg:col-span-3" animation="slideInLeft">
               {formState === "sent" ? (
@@ -503,7 +503,7 @@ export function ContactContent() {
                         <p className="text-xs text-pacific-mid/70 tracking-wide">
                           Email
                         </p>
-                        <p className="mt-1 text-sm text-white font-medium group-hover:text-pacific-mid transition-colors">
+                        <p className="mt-1 text-sm text-white font-medium group-hover:text-pacific-mid transition-colors break-all">
                           info@thepacific.group
                         </p>
                       </div>
@@ -611,7 +611,7 @@ export function ContactContent() {
               <StaggerItem key={idx}>
                 <motion.div
                   whileHover={{ y: -4 }}
-                  className="bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-white/15 transition-colors"
+                  className="bg-white/5 rounded-2xl p-6 sm:p-8 border border-white/10 hover:border-white/15 transition-colors"
                 >
                   <h3 className="text-lg font-medium text-white mb-6">
                     {dept.name}
@@ -637,9 +637,9 @@ export function ContactContent() {
                           {contact.email && (
                             <a
                               href={`mailto:${contact.email}`}
-                              className="flex items-center gap-2 text-sm text-pacific-mid hover:text-white transition-colors"
+                              className="flex items-center gap-2 text-sm text-pacific-mid hover:text-white transition-colors break-all"
                             >
-                              <Mail className="w-4 h-4" />
+                              <Mail className="w-4 h-4 shrink-0" />
                               {contact.email}
                             </a>
                           )}

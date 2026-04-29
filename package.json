@@ -9,7 +9,12 @@
     "start": "next start -H 0.0.0.0",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "backfill:palette": "node --env-file=.env.local scripts/backfill-image-palette.mjs",
+    "backfill:palette:dry": "node --env-file=.env.local scripts/backfill-image-palette.mjs --dry",
+    "backfill:palette:force": "node --env-file=.env.local scripts/backfill-image-palette.mjs --force",
+    "backfill:palette:force:dry": "node --env-file=.env.local scripts/backfill-image-palette.mjs --force --dry",
+    "test:careers-email": "node --env-file=.env.local scripts/test-careers-email.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -29,6 +34,7 @@
     "next-sanity": "^11.6.12",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "resend": "^4.0.1",
     "sanity": "^4.22.0",
     "styled-components": "^6.3.12",
     "tailwind-merge": "^3.5.0",
@@ -46,6 +52,7 @@
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.3",
     "puppeteer": "^24.41.0",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

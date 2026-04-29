@@ -85,7 +85,7 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
           />
         </motion.div>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-32 pb-20">
+        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-24 sm:pt-32 pb-12 sm:pb-20">
           <motion.span
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -124,7 +124,7 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
 
       {/* What are Ecosurfaces */}
       <section className="bg-[#112732] border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
           <AnimatedSection
             animation="fadeUp"
             className="max-w-3xl mx-auto text-center"
@@ -148,7 +148,7 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
 
       {/* Products Grid */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
           <AnimatedSection className="mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Our Collection
@@ -184,7 +184,7 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
 
       {/* Features */}
       <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
           <AnimatedSection className="text-center mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Why Choose Ecosurfaces
@@ -219,7 +219,7 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
 
       {/* CTA */}
       <section className="bg-stone-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 lg:py-32 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Ready to experience eco-conscious luxury?

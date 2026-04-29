@@ -83,7 +83,7 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
         );
 
   return (
-    <section className="py-20 md:py-28 px-6 bg-[#112732]" id="dealer">
+    <section className="py-16 sm:py-20 md:py-28 px-6 bg-[#112732]" id="dealer">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
           {/* Left side */}
@@ -139,14 +139,14 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
             </div>
 
             {/* Stats */}
-            <div className="flex gap-10">
+            <div className="flex flex-wrap gap-6 sm:gap-10">
               {[
                 { n: "140+", l: "Dealers" },
                 { n: "30", l: "Countries" },
                 { n: "4", l: "Continents" },
               ].map((s) => (
                 <div key={s.l}>
-                  <div className="text-3xl font-light tracking-tight text-white">
+                  <div className="text-2xl sm:text-3xl font-light tracking-tight text-white">
                     {s.n}
                   </div>
                   <div className="text-[10px] font-medium tracking-[0.2em] uppercase text-pacific-mid mt-1">

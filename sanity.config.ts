@@ -43,6 +43,31 @@ export default defineConfig({
             S.divider(),
             S.documentTypeListItem("resource").title("Resources"),
             S.divider(),
+            // Careers — page-level copy is a singleton (one doc),
+            // openings + applications are normal document lists.
+            S.listItem()
+              .title("Careers Page")
+              .child(
+                S.document().schemaType("careersPage").documentId("careersPage")
+              ),
+            S.documentTypeListItem("jobOpening").title("Job Openings"),
+            S.documentTypeListItem("jobApplication").title("Job Applications"),
+            S.divider(),
+            S.listItem()
+              .title("Sustainability Page")
+              .child(
+                S.document()
+                  .schemaType("sustainabilityPage")
+                  .documentId("sustainabilityPage")
+              ),
+            S.listItem()
+              .title("Natural Stone Finishes Page")
+              .child(
+                S.document()
+                  .schemaType("naturalStoneFinishesPage")
+                  .documentId("naturalStoneFinishesPage")
+              ),
+            S.divider(),
             S.documentTypeListItem("blogPost").title("Blog Posts"),
             S.documentTypeListItem("page").title("Pages"),
           ]),
