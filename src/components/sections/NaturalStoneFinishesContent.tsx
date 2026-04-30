@@ -32,6 +32,7 @@ import {
   StaggerItem,
 } from "@/components/ui/animated-section";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { OrderSampleModal } from "@/components/ui/order-sample-modal";
 
 /* ---------- types ----------------------------------------------- */
 
@@ -456,42 +457,113 @@ function FinishTile({
   index: number;
   onSelect: () => void;
 }) {
+  // Sample / Enquire modals — same treatment used by the catalogue
+  // SlabCard. Tile is no longer a single <button>; the image area
+  // triggers the lightbox via onSelect, while the bottom hover row
+  // exposes View / + Sample / Enquire CTAs.
+  const [sampleOpen, setSampleOpen] = useState(false);
+  const [enquireOpen, setEnquireOpen] = useState(false);
+
   return (
-    <motion.button
-      type="button"
-      onClick={onSelect}
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: (index % 4) * 0.05 }}
-      className="group relative aspect-[4/5] rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:border-white/30 transition-all duration-500 text-left w-full"
-    >
-      {finish.mainImage ? (
-        <Image
-          src={finish.mainImage}
-          alt={finish.name}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900" />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 p-5">
-        <div className="text-base lg:text-lg font-medium text-white tracking-tight">
-          {finish.name}
-        </div>
-        {finish.finishes && finish.finishes.length > 0 && (
-          <div className="text-[10px] tracking-[0.2em] uppercase text-white/60 mt-1">
-            {finish.finishes.join(" · ")}
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: (index % 4) * 0.05 }}
+        className="group relative aspect-[4/5] rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:border-white/30 transition-all duration-500"
+      >
+        {/* Click target for the lightbox — covers the whole tile.
+            Sits BENEATH the hover overlay in z-stacking so the
+            buttons take precedence when hovered, but a click in any
+            blank area of the tile still opens the lightbox. */}
+        <button
+          type="button"
+          onClick={onSelect}
+          aria-label={`View ${finish.name} at full resolution`}
+          className="absolute inset-0 z-10"
+        >
+          {finish.mainImage ? (
+            <Image
+              src={finish.mainImage}
+              alt={finish.name}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-5 text-left">
+            <div className="text-base lg:text-lg font-medium text-white tracking-tight">
+              {finish.name}
+            </div>
+            {finish.finishes && finish.finishes.length > 0 && (
+              <div className="text-[10px] tracking-[0.2em] uppercase text-white/60 mt-1">
+                {finish.finishes.join(" · ")}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <ZoomIn className="w-4 h-4 text-white" />
-      </div>
-    </motion.button>
+          <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <ZoomIn className="w-4 h-4 text-white" />
+          </div>
+        </button>
+
+        {/* Hover overlay — three CTAs (View Texture / + Sample /
+            Enquire). z-20 so it sits above the click target. */}
+        <div className="absolute inset-0 z-20 flex flex-wrap items-center justify-center gap-2 p-3 bg-pacific-dark/60 opacity-0 backdrop-blur-[2px] transition-all duration-300 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 pointer-events-none">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onSelect();
+            }}
+            className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform hover:scale-[1.04] pointer-events-auto"
+          >
+            View Texture
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setSampleOpen(true);
+            }}
+            className="rounded-full border border-white/40 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-white transition-colors hover:bg-white/10 pointer-events-auto"
+          >
+            + Sample
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setEnquireOpen(true);
+            }}
+            className="rounded-full border border-white/40 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-white transition-colors hover:bg-white/10 pointer-events-auto"
+          >
+            Enquire
+          </button>
+        </div>
+      </motion.div>
+
+      <OrderSampleModal
+        open={sampleOpen}
+        onClose={() => setSampleOpen(false)}
+        productName={finish.name}
+        productCategory="Natural Stone Finishes"
+        mode="sample"
+      />
+      <OrderSampleModal
+        open={enquireOpen}
+        onClose={() => setEnquireOpen(false)}
+        productName={finish.name}
+        productCategory="Natural Stone Finishes"
+        mode="enquire"
+      />
+    </>
   );
 }
 

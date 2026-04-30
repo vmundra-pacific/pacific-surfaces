@@ -14,6 +14,10 @@
     "backfill:palette:dry": "node --env-file=.env.local scripts/backfill-image-palette.mjs --dry",
     "backfill:palette:force": "node --env-file=.env.local scripts/backfill-image-palette.mjs --force",
     "backfill:palette:force:dry": "node --env-file=.env.local scripts/backfill-image-palette.mjs --force --dry",
+    "cleanup:thickness-finish": "node --env-file=.env.local scripts/cleanup-thickness-finish.mjs",
+    "cleanup:thickness-finish:dry": "node --env-file=.env.local scripts/cleanup-thickness-finish.mjs --dry",
+    "fix:blog-slugs": "node --env-file=.env.local scripts/fix-blog-slugs.mjs",
+    "fix:blog-slugs:dry": "node --env-file=.env.local scripts/fix-blog-slugs.mjs --dry",
     "test:careers-email": "node --env-file=.env.local scripts/test-careers-email.mjs"
   },
   "dependencies": {

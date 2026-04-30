@@ -64,8 +64,13 @@ export function CatalogueClient({
           Explore the Collection
         </h1>
         <p className="text-lg text-pacific-mid font-light max-w-2xl leading-relaxed">
-          273+ premium surfaces engineered for beauty, crafted for durability.
-          Find the perfect slab for your space.
+          {/* Count derives from the slabs prop so per-category pages
+              (Quartz / Granite / etc.) report their actual count
+              instead of the catalogue-wide 273+. The eyebrow above
+              uses the same value so the two figures stay in sync. */}
+          {slabs.length} premium{" "}
+          {slabs.length === 1 ? "surface" : "surfaces"} engineered for beauty,
+          crafted for durability. Find the perfect slab for your space.
         </p>
       </section>
 

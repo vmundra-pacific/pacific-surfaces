@@ -13,7 +13,10 @@ const steps = [
 
 export function VisualizerStrip() {
   return (
-    <section className="py-16 sm:py-20 md:py-28 px-6 bg-stone-950">
+    <section
+      id="sec-visualize"
+      className="py-16 sm:py-20 md:py-28 px-6 bg-stone-950 scroll-mt-20"
+    >
       <div className="mx-auto max-w-7xl">
         {/* Section header */}
         <div className="flex flex-col lg:flex-row items-start justify-between gap-6 sm:gap-8 mb-10 sm:mb-16">
@@ -24,7 +27,7 @@ export function VisualizerStrip() {
               viewport={{ once: true }}
               className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-4"
             >
-              02 · Visualize · New
+              07 · Visualize · New
             </motion.div>
             <TextReveal
               as="h2"

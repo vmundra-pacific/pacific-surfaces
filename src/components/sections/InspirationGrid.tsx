@@ -104,7 +104,10 @@ export function InspirationGrid({
     active === "All" ? items : items.filter((i) => i.cat === active);
 
   return (
-    <section className="py-16 sm:py-20 md:py-28 px-6 bg-[#DAE1E8]">
+    <section
+      id="sec-inspiration"
+      className="py-16 sm:py-20 md:py-28 px-6 bg-[#DAE1E8] scroll-mt-20"
+    >
       <div className="mx-auto max-w-7xl">
         {/* Header + filters */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-10 sm:mb-14">

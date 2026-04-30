@@ -142,7 +142,7 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
             <div className="flex flex-wrap gap-6 sm:gap-10">
               {[
                 { n: "140+", l: "Dealers" },
-                { n: "30", l: "Countries" },
+                { n: "45+", l: "Countries" },
                 { n: "4", l: "Continents" },
               ].map((s) => (
                 <div key={s.l}>

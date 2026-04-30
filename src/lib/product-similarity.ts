@@ -1,73 +1,19 @@
 /**
  * Heuristic "similarity" picker for the product page's
- * "You May Also Like" rail.
+ * "You May Also Like" rail (and the Compare Colors picker, which
+ * shares the same ranked candidate list).
  *
- * The rail must be ONE row of N cards (default 5), ranked by:
- *   1. Same collection as the source product
- *   2. Same tone bucket as the source product (light vs dark vs warm)
+ * Ranking — strict priority order:
+ *   Tier 1: Same collection as the source product
+ *   Tier 2: Shares at least one hue value with the source product
+ *   Tier 3: Everything else (deterministic name order)
  *
- * Tone is inferred from the product NAME because the Sanity product
- * schema doesn't carry a hue field today. Keyword classifier below is
- * conservative — anything not matching dark/warm falls into "light",
- * which is the right default for Pacific's catalogue (mostly white
- * stones, only a handful of black ones).
+ * Hues come from the product's `manualHues` field in Sanity (an array
+ * of strings — "white", "cream", "grey", "dark", "brown", etc.). The
+ * editor sets these per product. A product with hues ["grey","cream"]
+ * matches another product with hues ["grey"] OR ["cream","white"]
+ * because the intersection is non-empty.
  */
-
-export type Tone = "light" | "dark" | "warm";
-
-const DARK_KEYWORDS = [
-  "black",
-  "nero",
-  "noir",
-  "midnight",
-  "graphite",
-  "obsidian",
-  "atlantic deep",
-  "deep",
-  "charcoal",
-  "smoke",
-  "onyx",
-  "anthracite",
-  "shadow",
-  "carbon",
-  "ebony",
-  "espresso",
-];
-
-const WARM_KEYWORDS = [
-  "amber",
-  "brown",
-  "desert",
-  "tan",
-  "kedar",
-  "amazonik",
-  "dorado",
-  "gold",
-  "bronze",
-  "copper",
-  "rust",
-  "sienna",
-  "terra",
-  "sand",
-  "honey",
-  "caramel",
-  "cognac",
-  "wood",
-  "oak",
-];
-
-/**
- * Classify a product into a coarse tone bucket from its name.
- * Defaults to "light" when nothing matches — most of the catalogue
- * is white/calacatta-style.
- */
-export function toneFromName(name: string | undefined | null): Tone {
-  if (!name) return "light";
-  const n = name.toLowerCase();
-  if (DARK_KEYWORDS.some((k) => n.includes(k))) return "dark";
-  if (WARM_KEYWORDS.some((k) => n.includes(k))) return "warm";
-  return "light";
-}
 
 interface SimilarCandidate {
   _id: string;
@@ -75,29 +21,46 @@ interface SimilarCandidate {
   slug: { current: string };
   mainImage?: string;
   price?: number;
-  /** Optional collection name; passed through if available so the
-   *  ranker can use it. Same-collection matches always beat tone
-   *  matches. */
+  /** Collection name; passed through if available so the ranker can
+   *  use it. Same-collection matches always beat hue matches. */
   collectionName?: string;
   categoryName?: string;
+  /** Editor-set hues from Sanity. May be missing on older imports. */
+  manualHues?: string[];
 }
 
 interface SourceProduct {
   _id: string;
   name: string;
   collection?: { name: string };
+  manualHues?: string[];
+}
+
+/**
+ * Return true when source and candidate share at least one hue. Case-
+ * insensitive, whitespace-tolerant. Empty / missing hue arrays return
+ * false so untagged products don't accidentally match each other on
+ * "both have no hues."
+ */
+function shareHue(
+  sourceHues: string[] | undefined,
+  candidateHues: string[] | undefined
+): boolean {
+  if (!sourceHues?.length || !candidateHues?.length) return false;
+  const norm = (s: string) => s.trim().toLowerCase();
+  const set = new Set(sourceHues.map(norm));
+  return candidateHues.some((h) => set.has(norm(h)));
 }
 
 /**
  * Pick up to N (default 5) candidates ranked for similarity.
  *
- *   Tier 1: same collection (regardless of tone) — these are the most
- *           obvious siblings the user would expect to see together.
- *   Tier 2: same tone, any collection.
- *   Tier 3: anything else, ordered by name (deterministic so the rail
- *           is stable across renders).
+ *   Tier 1: same collection
+ *   Tier 2: shares at least one hue
+ *   Tier 3: anything else
  *
- * Within each tier, items keep their input order. We dedupe by _id.
+ * Within each tier, items keep their input order (caller is expected
+ * to pre-sort). Dedupes by _id.
  */
 export function pickSimilar(
   source: SourceProduct,
@@ -106,7 +69,7 @@ export function pickSimilar(
   n: number = 5
 ): SimilarCandidate[] {
   const sourceCollection = source.collection?.name;
-  const sourceTone = toneFromName(source.name);
+  const sourceHues = source.manualHues;
 
   // Build the candidate pool — `related` is already filtered to
   // same-collection by the GROQ query, so it's our Tier 1.
@@ -124,10 +87,10 @@ export function pickSimilar(
       !!sourceCollection &&
       !!c.collectionName &&
       c.collectionName === sourceCollection;
-    const sameTone = toneFromName(c.name) === sourceTone;
+    const sameHue = shareHue(sourceHues, c.manualHues);
     let tier = 3;
     if (sameCollection) tier = 1;
-    else if (sameTone) tier = 2;
+    else if (sameHue) tier = 2;
     scored.push({ c, tier, idx: idx++ });
   }
 

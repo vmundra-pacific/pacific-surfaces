@@ -302,6 +302,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
               setActive(valid[0].candidate);
               setActiveIds([valid[0].surface.id]);
               onRegionChange?.(valid[0].candidate, valid[0].surface.id);
+              onFocusChange?.(valid[0].surface.id);
             }
           })();
         }

@@ -59,6 +59,7 @@ interface Product {
   thickness?: string[];
   application?: string[];
   careAndMaintenance?: string | PortableTextBlock[];
+  manualHues?: string[];
   relatedProducts?: {
     _id: string;
     name: string;
@@ -67,6 +68,7 @@ interface Product {
     price?: number;
     collectionName?: string;
     categoryName?: string;
+    manualHues?: string[];
   }[];
   allOtherProducts?: {
     _id: string;
@@ -76,6 +78,7 @@ interface Product {
     price?: number;
     categoryName?: string;
     collectionName?: string;
+    manualHues?: string[];
   }[];
 }
 
@@ -102,6 +105,22 @@ const SECTION_IDS = [
 ];
 
 export function ProductDetail({ product }: { product: Product }) {
+  // ---- Similar-product ranking — single source of truth ----
+  // Computed once here and reused by:
+  //   - the "You May Also Like" rail below, AND
+  //   - the Compare Colors picker (shows the same 5 picks as initial
+  //     visible chips, then a popup for searching all products)
+  // Both touchpoints now share the same ranked candidate list, so the
+  // colours offered for comparison match the ones we're recommending.
+  // Ranking lives in src/lib/product-similarity.ts:
+  //   Tier 1 = same collection, Tier 2 = same hue, Tier 3 = anything else.
+  const picks = pickSimilar(
+    product,
+    product.relatedProducts ?? [],
+    product.allOtherProducts ?? [],
+    5
+  );
+
   // ---- Image sets ----
   const slabImage = product.mainImage || "";
   const galleryImages = product.gallery?.length ? product.gallery : [];
@@ -154,6 +173,40 @@ export function ProductDetail({ product }: { product: Product }) {
   const categoryLabel =
     product.category?.name || product.collection?.name || "Quartz Surfaces";
 
+  // Specialty products (Semi-Precious / Exotic / Centrepiece Couture
+  // / Integra / Natural Stone Finishes) are NOT standard quartz slabs.
+  // Several quartz-only UI bits are hidden for them:
+  //   - "Specs" tab in Product Info (water absorption, Mohs, etc.)
+  //   - Thicknesses listing in Sizes & Finishes
+  //   - "Slab" / "Close Up" thumbnail labels (the items are pieces,
+  //     not slab-stock — those labels read wrong on a sink or a
+  //     gallery centrepiece)
+  //   - "View in a Room" Visualizer thumbnail (visualizer is built
+  //     around standard slab compositing)
+  //   - Compare Colors section (slab-on-slab comparison is moot for
+  //     specialty pieces)
+  // Match by category slug or collection name, case-insensitive
+  // prefix so editor renames don't break the gating.
+  const isSpecialtyProduct = (() => {
+    const cat = (
+      product.category?.slug?.current ||
+      product.category?.name ||
+      ""
+    ).toLowerCase();
+    const col = (product.collection?.name || "").toLowerCase();
+    const haystacks = `${cat} ${col}`;
+    return (
+      haystacks.includes("semi") ||
+      haystacks.includes("exotic") ||
+      haystacks.includes("centrepiece") ||
+      haystacks.includes("integra") ||
+      haystacks.includes("natural stone") ||
+      haystacks.includes("natural-stone") ||
+      haystacks.includes("stone finish") ||
+      haystacks.includes("stone-finish")
+    );
+  })();
+
   // ---- State ----
   const [selectedImage, setSelectedImage] = useState(slabImage);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -161,9 +214,25 @@ export function ProductDetail({ product }: { product: Product }) {
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
   const [roomScenesOpen, setRoomScenesOpen] = useState(false);
+  // The Sizes & Finishes tab has two possible blocks:
+  //   - Thicknesses (hidden for specialty products)
+  //   - Available Finishes (only when finishes are set in Sanity)
+  // If neither will render, the tab body is empty and the tab itself
+  // should be suppressed.
+  const hasSizesContent =
+    (!isSpecialtyProduct && thicknesses.length > 0) || finishes.length > 0;
+
+  // Default active tab — pick the first tab that will actually render
+  // content. Specs first (when not specialty), then Sizes (when it has
+  // content), then Applications as the always-on fallback.
+  const defaultTab: "specs" | "sizes" | "applications" = isSpecialtyProduct
+    ? hasSizesContent
+      ? "sizes"
+      : "applications"
+    : "specs";
   const [activeInfoTab, setActiveInfoTab] = useState<
     "specs" | "sizes" | "applications"
-  >("specs");
+  >(defaultTab);
 
   // Zoom-on-hover state (only for slab/main image)
   const [zoomActive, setZoomActive] = useState(false);
@@ -405,18 +474,27 @@ export function ProductDetail({ product }: { product: Product }) {
                           sizes="140px"
                         />
                       </div>
-                      {/* Separate label band below the image */}
-                      <div className="bg-stone-700/80 py-1.5 px-2">
-                        <span className="text-[10px] font-medium tracking-[0.05em] text-white/95 block text-center truncate">
-                          {thumb.label}
-                        </span>
-                      </div>
+                      {/* Label band under the image — hidden for
+                          specialty products (Semi-Precious, Exotic,
+                          Centrepiece Couture, Integra, Natural Stone
+                          Finishes) where labels like "Slab" /
+                          "Close Up" misrepresent the piece. */}
+                      {!isSpecialtyProduct && (
+                        <div className="bg-stone-700/80 py-1.5 px-2">
+                          <span className="text-[10px] font-medium tracking-[0.05em] text-white/95 block text-center truncate">
+                            {thumb.label}
+                          </span>
+                        </div>
+                      )}
                     </button>
                   );
                 })}
 
-                {/* "View in a Room" card — uses the first room scene as
-                    its thumbnail with text overlay, matching ss2. */}
+                {/* "View in a Room" Visualizer card — hidden for
+                    specialty products (visualizer is built around
+                    slab-on-countertop compositing, doesn't apply to
+                    sinks / centrepieces / semi-precious / etc.). */}
+                {!isSpecialtyProduct && (
                 <Link
                   href="/visualize"
                   className="relative shrink-0 w-full overflow-hidden rounded-[2px] hover:opacity-100 opacity-95 transition-all shadow-[0_6px_18px_-6px_rgba(0,0,0,.5)] hover:shadow-[0_8px_22px_-4px_rgba(0,0,0,.55)] group/room"
@@ -448,6 +526,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     </span>
                   </div>
                 </Link>
+                )}
               </div>
 
               {/* Single down-arrow at the bottom (matches ss2). Only
@@ -560,9 +639,14 @@ export function ProductDetail({ product }: { product: Product }) {
                 </>
               )}
 
-              {/* Ribbons */}
+              {/* Ribbons — moved from top-left to top-right because
+                  the left-aligned vertical thumbnail rail floats over
+                  the same area at md+, hiding the ribbon (Luxury
+                  Drop, Patented, New Arrival, etc.) behind the rail.
+                  Right-edge anchor keeps the ribbon visible across
+                  every breakpoint. */}
               {product.ribbons && product.ribbons.length > 0 && (
-                <div className="absolute top-6 left-6 flex flex-col gap-2 z-10">
+                <div className="absolute top-6 right-6 flex flex-col gap-2 z-10 items-end">
                   {product.ribbons.map((r) => (
                     <span
                       key={r}
@@ -587,8 +671,15 @@ export function ProductDetail({ product }: { product: Product }) {
                 </div>
               )}
 
-              {/* ===== BOTTOM TOOLBAR (Silestone-style) ===== */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-stone-900/70 backdrop-blur-md rounded-full px-2 py-1.5">
+              {/* ===== BOTTOM TOOLBAR (Silestone-style) =====
+                  - Zoom button: icon only (the action is universally
+                    legible)
+                  - Hairline separator between the two controls so
+                    they read as distinct affordances rather than a
+                    single cluster
+                  - Visualizer button: icon + "Visualizer" text label
+                    so users know what the home glyph leads to */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-stone-900/70 backdrop-blur-md rounded-full pl-2 pr-3 py-1.5">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -599,13 +690,21 @@ export function ProductDetail({ product }: { product: Product }) {
                 >
                   <ZoomIn className="w-4 h-4" />
                 </button>
+                {/* Vertical hairline separator between zoom + viz */}
+                <span
+                  aria-hidden="true"
+                  className="w-px h-5 bg-white/20 mx-1"
+                />
                 <Link
                   href="/visualize"
                   onClick={(e) => e.stopPropagation()}
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors"
                   title="View in a Room"
                 >
                   <Home className="w-4 h-4" />
+                  <span className="text-[11px] font-medium tracking-[0.18em] uppercase">
+                    Visualizer
+                  </span>
                 </Link>
               </div>
             </div>
@@ -1072,12 +1171,29 @@ export function ProductDetail({ product }: { product: Product }) {
         className="bg-[#0e2030] border-y border-white/10 scroll-mt-16"
       >
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          {/* Tab bar */}
+          {/* Tab bar.
+                - Specs tab hidden for specialty products (the spec
+                  rows below are quartz-slab specific: edge profiles,
+                  water absorption, Mohs hardness — none of which
+                  apply to a sink or a semi-precious piece).
+                - Sizes & Finishes tab hidden whenever the body would
+                  be empty: specialty product without finishes set
+                  (thicknesses are also suppressed for specialty
+                  products), or any product with no thicknesses AND
+                  no finishes.
+                - Applications tab is always shown — it has a
+                  fallback empty-state message ("No specific
+                  applications listed…") so users always have a
+                  contact prompt. */}
           <div className="flex gap-0 border-b border-white/10 overflow-x-auto no-scrollbar">
             {(
               [
-                ["specs", "Specs"],
-                ["sizes", "Sizes & Finishes"],
+                ...(isSpecialtyProduct
+                  ? []
+                  : [["specs", "Specs"] as const]),
+                ...(hasSizesContent
+                  ? [["sizes", "Sizes & Finishes"] as const]
+                  : []),
                 ["applications", "Applications"],
               ] as const
             ).map(([key, label]) => (
@@ -1110,7 +1226,10 @@ export function ProductDetail({ product }: { product: Product }) {
                   <div className="max-w-3xl">
                     <dl className="divide-y divide-white/10 border-y border-white/10 text-base">
                       <SpecRow label="Product Name" value={product.name} />
-                      <SpecRow label="Category" value={categoryLabel} />
+                      {/* Category row removed per editorial direction —
+                          collection alone is the meaningful tag, the
+                          category was redundant given how Pacific names
+                          its collections. */}
                       {product.collection && (
                         <SpecRow
                           label="Collection"
@@ -1121,8 +1240,32 @@ export function ProductDetail({ product }: { product: Product }) {
                         label="Edge Profiles"
                         value="Straight, Eased, Bevel, Bullnose, Ogee"
                       />
-                      <SpecRow label="Water Absorption" value="< 0.03%" />
-                      <SpecRow label="Mohs Hardness" value="7" />
+                      {/* Water absorption + Mohs hardness vary by
+                          category — quartz is engineered and far
+                          tighter on both metrics than natural granite.
+                          Detect granite via category slug or name and
+                          swap the values; everything else keeps the
+                          original quartz-spec defaults. */}
+                      {(() => {
+                        const cat = (
+                          product.category?.slug?.current ||
+                          product.category?.name ||
+                          ""
+                        ).toLowerCase();
+                        const isGranite = cat.includes("granite");
+                        return (
+                          <>
+                            <SpecRow
+                              label="Water Absorption"
+                              value={isGranite ? "Avg. 0.1 – 0.6%" : "< 0.03%"}
+                            />
+                            <SpecRow
+                              label="Mohs Hardness"
+                              value={isGranite ? "6" : "7"}
+                            />
+                          </>
+                        );
+                      })()}
                       <SpecRow
                         label="Manufactured By"
                         value="Pacific Engineered Surfaces Pvt. Ltd."
@@ -1133,32 +1276,37 @@ export function ProductDetail({ product }: { product: Product }) {
 
                 {activeInfoTab === "sizes" && (
                   <div className="max-w-3xl space-y-8">
-                    {/* Slabs */}
-                    <div>
-                      <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
-                        Slabs
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {thicknesses.map((t) => (
-                          <div
-                            key={t}
-                            className="flex items-center justify-between px-6 py-5 bg-white/5 border border-white/10 rounded-2xl"
-                          >
-                            <div>
-                              <div className="text-base font-medium text-white">
-                                {t}
+                    {/* Slabs / thicknesses — hidden for specialty
+                        products (sinks, semi-precious, centrepieces,
+                        natural stone finishes don't carry the same
+                        slab thickness options as quartz). */}
+                    {!isSpecialtyProduct && (
+                      <div>
+                        <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
+                          Slabs
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {thicknesses.map((t) => (
+                            <div
+                              key={t}
+                              className="flex items-center justify-between px-6 py-5 bg-white/5 border border-white/10 rounded-2xl"
+                            >
+                              <div>
+                                <div className="text-base font-medium text-white">
+                                  {t}
+                                </div>
+                                <div className="text-sm text-pacific-mid font-light">
+                                  {size}
+                                </div>
                               </div>
-                              <div className="text-sm text-pacific-mid font-light">
-                                {size}
-                              </div>
+                              <span className="text-xs tracking-[0.2em] uppercase text-pacific-mid/70 font-medium">
+                                Slab
+                              </span>
                             </div>
-                            <span className="text-xs tracking-[0.2em] uppercase text-pacific-mid/70 font-medium">
-                              Slab
-                            </span>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Finishes — hidden when no finishes set in Sanity. */}
                     {finishes.length > 0 && (
@@ -1215,18 +1363,12 @@ export function ProductDetail({ product }: { product: Product }) {
           see the "BENEFITS SECTION" block after the compare slider. */}
 
       {/* ===== SIMILAR STYLES — single row of 5, ranked by collection
-              first, then matching tone (light/dark/warm). See
-              src/lib/product-similarity.ts for the ranking logic. ===== */}
-      {(() => {
-        const picks = pickSimilar(
-          product,
-          product.relatedProducts ?? [],
-          product.allOtherProducts ?? [],
-          5
-        );
-        if (picks.length === 0) return null;
-        return (
-          <section
+              first, then by matching hue. The `picks` array is computed
+              once at the top of this component and reused by the
+              Compare Colors strip below, so both surfaces show the
+              same candidate set. See src/lib/product-similarity.ts. */}
+      {picks.length > 0 && (
+        <section
             id="sec-similar-colors"
             ref={(el) => {
               sectionRefs.current["sec-similar-colors"] = el;
@@ -1298,8 +1440,7 @@ export function ProductDetail({ product }: { product: Product }) {
               </StaggerContainer>
             </div>
           </section>
-        );
-      })()}
+      )}
 
       {/* ===== CERTIFICATIONS STRIP — inline-SVG mark renditions on
               white tiles so they read against the dark backdrop. We
@@ -1335,12 +1476,22 @@ export function ProductDetail({ product }: { product: Product }) {
         </div>
       </section>
 
-      {/* ===== COMPARE SLIDER SECTION ===== */}
-      <CompareSliderSection
-        product={product}
-        relatedProducts={product.relatedProducts || []}
-        allOtherProducts={product.allOtherProducts || []}
-      />
+      {/* ===== COMPARE SLIDER SECTION =====
+              `picks` is the same ranked similar-products array used by
+              the "You May Also Like" rail above — Compare Colors
+              shows the same five as the initial visible chips, so
+              comparison candidates match the recommendations.
+              Hidden for specialty products: side-by-side slab
+              comparison doesn't make sense for sinks, centrepieces,
+              semi-precious or natural-stone-finishes pieces. */}
+      {!isSpecialtyProduct && (
+        <CompareSliderSection
+          product={product}
+          picks={picks}
+          relatedProducts={product.relatedProducts || []}
+          allOtherProducts={product.allOtherProducts || []}
+        />
+      )}
 
       {/* ===== BENEFITS SECTION — moved to the very bottom of the
               product page so it acts as the closing pitch before the
@@ -1697,14 +1848,10 @@ function CEMark() {
 
 /* ── Compare Slider Section ── */
 
-function shuffleArray<T>(arr: T[]): T[] {
-  const shuffled = [...arr];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
+// Removed `shuffleArray` — Compare Colors now seeds its visible chips
+// from the ranked `picks` array (same as "You May Also Like"). The
+// pick ranking is deliberately ordered (Tier 1 same collection, Tier
+// 2 same hue), so shuffling would scramble the recommendation logic.
 
 type CompareProduct = {
   _id: string;
@@ -1718,10 +1865,12 @@ type CompareProduct = {
 
 function CompareSliderSection({
   product,
+  picks,
   relatedProducts,
   allOtherProducts,
 }: {
   product: Product;
+  picks: CompareProduct[];
   relatedProducts: NonNullable<Product["relatedProducts"]>;
   allOtherProducts: NonNullable<Product["allOtherProducts"]>;
 }) {
@@ -1730,7 +1879,8 @@ function CompareSliderSection({
   const [isDragging, setIsDragging] = useState(false);
   const MAX_VISIBLE = 5;
 
-  // All available products for the popup picker
+  // All available products for the popup picker (search the entire
+  // catalogue, not just the picks).
   const allProducts: CompareProduct[] = [
     ...relatedProducts,
     ...allOtherProducts.filter(
@@ -1738,26 +1888,23 @@ function CompareSliderSection({
     ),
   ];
 
-  // Visible compare strip — deterministic initial pick (first 5),
-  // then shuffle client-side to avoid hydration mismatch from Math.random()
-  const [visibleColors, setVisibleColors] = useState<CompareProduct[]>(() =>
-    allProducts.slice(0, MAX_VISIBLE)
-  );
+  // Visible compare strip — initialised with the same `picks` array
+  // used by the "You May Also Like" rail. Order is meaningful (Tier 1
+  // = same collection, Tier 2 = same hue), so we DO NOT shuffle —
+  // shuffling would scramble that ranking. Falls back to the first
+  // few products from the full pool only if picks is empty (which
+  // shouldn't happen except on a brand-new catalogue).
+  const initialVisible: CompareProduct[] =
+    picks.length > 0 ? picks.slice(0, MAX_VISIBLE) : allProducts.slice(0, MAX_VISIBLE);
 
-  // Currently selected right-side product
+  const [visibleColors, setVisibleColors] =
+    useState<CompareProduct[]>(initialVisible);
+
+  // Currently selected right-side product — first pick is the most
+  // similar option per the ranking.
   const [rightProduct, setRightProduct] = useState<CompareProduct | undefined>(
-    allProducts[0]
+    initialVisible[0]
   );
-
-  // Shuffle after mount (client-only) so SSR and first client render match
-  useEffect(() => {
-    if (allProducts.length > 0) {
-      const shuffled = shuffleArray(allProducts);
-      setVisibleColors(shuffled.slice(0, MAX_VISIBLE));
-      setRightProduct(shuffled[0]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Color picker popup
   const [pickerOpen, setPickerOpen] = useState(false);

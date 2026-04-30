@@ -1168,12 +1168,18 @@ export function ApplicationsScrollSections({
   return (
     <>
       {/* Section header — single editorial intro before the four
-          scroll sections kick in. Replaces the old grid's heading. */}
-      <section className="relative bg-[#0a1620] pt-20 md:pt-28 pb-8 md:pb-12">
+          scroll sections kick in. Replaces the old grid's heading.
+          id="sec-applications" + scroll-mt-20 anchors the homepage
+          left-side section nav to the start of this block, with the
+          margin offset clearing the fixed header. */}
+      <section
+        id="sec-applications"
+        className="relative bg-[#0a1620] pt-20 md:pt-28 pb-8 md:pb-12 scroll-mt-20"
+      >
         <div className="mx-auto max-w-7xl px-6 lg:px-12 flex flex-col lg:flex-row items-start justify-between gap-8">
           <div className="lg:max-w-lg">
             <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-4">
-              03 · Applications
+              02 · Applications
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08]">
               Wherever stone would normally be.

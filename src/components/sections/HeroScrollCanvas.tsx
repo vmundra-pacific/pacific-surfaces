@@ -6,46 +6,14 @@ import Image from "next/image";
 const TOTAL_FRAMES = 1039;
 const pad = (n: number) => String(n).padStart(3, "0");
 
-/* ─── Lump sequence (extends the kitchen parallax) ──────────────────
-   206 sequential frames preloaded after the kitchen frames so the
-   loading-screen budget still depends only on the first 60 kitchen
-   frames. The lump phase scrubs immediately after the kitchen one,
-   with a crossfade window around the boundary where the kitchen's
-   final frame and lump-000 share the canvas at complementary alpha
-   for a seamless handoff. */
-const LUMP_FRAMES_TOTAL = 206;
-const lumpPad = (n: number) => String(n).padStart(3, "0");
-
-/* Global-progress phase boundary. 0 → KITCHEN (existing parallax),
-   PHASE_KITCHEN_END → LUMP (lump scrub), 1 = end of hero scroll.
-   Tuned so vh-per-frame in the lump phase matches the kitchen
-   phase — both sequences scrub at the same scroll density. */
-const PHASE_KITCHEN_END = 0.8;
-
-/* Crossfade duration AFTER the kitchen finishes. The kitchen plays
-   cleanly through all 1039 frames first; once the user crosses
-   PHASE_KITCHEN_END, the canvas holds kitchen-1038 (its last frame)
-   while lump-000 fades in over CROSSFADE_DURATION of scroll. So the
-   ONLY kitchen frame that overlaps with the lump is the very last
-   one. After the crossfade ends, the lump scrub continues from
-   frame 001 onward (frame 000 was the overlap companion). */
-const CROSSFADE_DURATION = 0.04;
-
-/* Visual alignment shim for the lump sequence.
-   Lump-000's subject sits at canvas centre; the kitchen's final
-   frame (frame-1039) has its subject just BELOW centre. Without
-   a shim the crossfade looks like two separate shapes at different
-   positions instead of one continuous form. Shifting every lump
-   frame DOWN by LUMP_Y_OFFSET_FRAC × canvas-height brings the
-   lump's subject onto kitchen-1039's apparent position, so the
-   subjects literally overlap during the dissolve.
-     LUMP_Y_OFFSET_FRAC: positive = shift lump DOWN, fraction of canvas height
-     LUMP_X_OFFSET_FRAC: positive = shift lump RIGHT, fraction of canvas width
-   Tune by eye: scroll into the crossfade, see if the overlap reads
-   as one continuous form, adjust until it does. Set both to 0 to
-   restore raw centred drawing. */
-const LUMP_Y_OFFSET_FRAC = 0.15545;
-const LUMP_X_OFFSET_FRAC = -0.0052;
+/* The lump sequence (a 206-frame slab cross-section reveal that used
+   to play after the kitchen scrub) was removed. The kitchen frames
+   now scrub through the entire scroll length end to end. If the
+   lump experience is ever wanted back: restore /public/lump-frames/,
+   re-add the LUMP_FRAMES_TOTAL constant + drawLumpFrame helper +
+   crossfade branch in the tick loop. The frame folder is deleted
+   intentionally — `git log --diff-filter=D -- public/lump-frames/`
+   if you need to recover it from history. */
 
 const headlines = [
   {
@@ -65,7 +33,7 @@ const headlines = [
   {
     range: [0.42, 0.56] as [number, number],
     kicker: "",
-    lines: ["A refined blend of quartz inspired by nature", "Zero compromise"],
+    lines: ["Where every detail reflects", "our zero compromise approach"],
   },
   {
     range: [0.6, 0.72] as [number, number],
@@ -78,13 +46,7 @@ export function HeroScrollCanvas() {
   const trackRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
-  // Parallel image array for the lump sequence — loaded after the
-  // kitchen frames so first paint isn't slowed.
-  const lumpImagesRef = useRef<HTMLImageElement[]>([]);
   const lastIdxRef = useRef(0);
-  // Track the last-drawn lump frame separately so the tick loop
-  // can avoid redundant draws across phase changes.
-  const lastLumpIdxRef = useRef(-1);
   const sizedRef = useRef(false);
 
   // Lerp refs — smoothedProgress chases targetProgress every frame
@@ -98,7 +60,6 @@ export function HeroScrollCanvas() {
   // Progressive frame preloading:
   // Phase 1: Load first INITIAL_BATCH kitchen frames → dismiss loading
   // Phase 2: Continue loading remaining kitchen frames in background
-  // Phase 3: Load all lump frames in background (parallel with phase 2)
   useEffect(() => {
     const INITIAL_BATCH = 60; // enough for first ~10% scroll
     let count = 0;
@@ -142,35 +103,6 @@ export function HeroScrollCanvas() {
         Promise.all(batch).then(loadNextBatch);
       };
       loadNextBatch();
-
-      // Phase 3 — lump frames stream in parallel with kitchen phase 2.
-      // They aren't needed until ~80% of scroll, so the leisurely load
-      // is fine. Smaller batch size to keep network polite.
-      const lumpImgs: HTMLImageElement[] = new Array(LUMP_FRAMES_TOTAL);
-      lumpImagesRef.current = lumpImgs;
-
-      const LUMP_BATCH = 16;
-      let lumpCursor = 0;
-
-      const loadLumpFrame = (i: number): Promise<void> =>
-        new Promise((resolve) => {
-          const img = new window.Image();
-          img.src = `/lump-frames/lump-${lumpPad(i)}.jpg`;
-          img.onload = img.onerror = () => {
-            lumpImgs[i] = img;
-            resolve();
-          };
-        });
-
-      const loadNextLumpBatch = () => {
-        if (cancelled || lumpCursor >= LUMP_FRAMES_TOTAL) return;
-        const end = Math.min(lumpCursor + LUMP_BATCH, LUMP_FRAMES_TOTAL);
-        const batch = [];
-        for (let i = lumpCursor; i < end; i++) batch.push(loadLumpFrame(i));
-        lumpCursor = end;
-        Promise.all(batch).then(loadNextLumpBatch);
-      };
-      loadNextLumpBatch();
     });
 
     return () => {
@@ -239,64 +171,6 @@ export function HeroScrollCanvas() {
     [sizeCanvas]
   );
 
-  // Draws a lump frame the same way as the kitchen frame but from
-  // lumpImagesRef. Falls back to the nearest loaded lump frame if
-  // the requested one hasn't streamed in yet.
-  const drawLumpFrame = useCallback(
-    (idx: number) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d", { alpha: false });
-      if (!ctx) return;
-
-      if (!sizedRef.current) {
-        sizeCanvas();
-        sizedRef.current = true;
-      }
-
-      let img = lumpImagesRef.current[idx];
-      if (!img || !img.complete) {
-        for (let j = idx - 1; j >= 0; j--) {
-          const fallback = lumpImagesRef.current[j];
-          if (fallback && fallback.complete) {
-            img = fallback;
-            break;
-          }
-        }
-        if (!img || !img.complete) return;
-      }
-
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      const iR = img.naturalWidth / img.naturalHeight;
-      const cR = w / h;
-      let dw: number, dh: number, dx: number, dy: number;
-      if (iR > cR) {
-        dh = h;
-        dw = h * iR;
-        dx = (w - dw) / 2;
-        dy = 0;
-      } else {
-        dw = w;
-        dh = w / iR;
-        dx = 0;
-        dy = (h - dh) / 2;
-      }
-      // Apply alignment shim — shifts every lump frame uniformly so
-      // its subject overlaps the kitchen's final-frame subject during
-      // the crossfade. See LUMP_Y_OFFSET_FRAC / LUMP_X_OFFSET_FRAC
-      // comment block at the top of the file for tuning notes.
-      ctx.drawImage(
-        img,
-        dx + w * LUMP_X_OFFSET_FRAC,
-        dy + h * LUMP_Y_OFFSET_FRAC,
-        dw,
-        dh
-      );
-    },
-    [sizeCanvas]
-  );
-
   // Scroll controller with lerp smoothing.
   // We track the last value we PUSHED to React state separately
   // from `smoothedProgressRef` so we can throttle setProgress to only
@@ -342,61 +216,17 @@ export function HeroScrollCanvas() {
         setProgress(p);
       }
 
-      // Phase routing.
-      //   p < PHASE_KITCHEN_END                            → PURE KITCHEN
-      //   PHASE_KITCHEN_END ≤ p < END + CROSSFADE_DURATION → CROSSFADE
-      //   p ≥ END + CROSSFADE_DURATION                     → PURE LUMP
-      // The kitchen plays through ALL 1039 of its frames before
-      // anything overlaps. Only kitchen-1038 (the very last frame)
-      // appears during the crossfade. After the crossfade, the lump
-      // continues from frame 001 onward — frame 000 was the overlap
-      // companion, so we don't show it twice.
+      // Kitchen scrub spans the entire scroll length now (the lump
+      // phase + crossfade were removed). Map progress directly to a
+      // frame index and only redraw when the index actually advances.
       if (ready) {
-        const crossfadeEnd = PHASE_KITCHEN_END + CROSSFADE_DURATION;
-
-        if (p < PHASE_KITCHEN_END) {
-          // PURE KITCHEN — full 1039-frame parallax through to its
-          // last frame.
-          const localP = p / PHASE_KITCHEN_END;
-          const idx = Math.min(
-            TOTAL_FRAMES - 1,
-            Math.floor(localP * TOTAL_FRAMES)
-          );
-          if (idx !== lastIdxRef.current) {
-            drawFrame(idx);
-            lastIdxRef.current = idx;
-          }
-        } else if (p < crossfadeEnd) {
-          // CROSSFADE OVERLAP — kitchen-1038 stays painted at full
-          // opacity, lump-000 fades in on top of it. Net pixel
-          // value: lump * blendT + kitchen * (1 - blendT).
-          const blendT = (p - PHASE_KITCHEN_END) / CROSSFADE_DURATION;
-          const canvas = canvasRef.current;
-          const ctx = canvas?.getContext("2d", { alpha: false });
-          if (ctx) {
-            ctx.globalAlpha = 1;
-            drawFrame(TOTAL_FRAMES - 1);
-            ctx.globalAlpha = blendT;
-            drawLumpFrame(0);
-            ctx.globalAlpha = 1;
-          }
-          lastIdxRef.current = -1;
-          lastLumpIdxRef.current = -1;
-        } else {
-          // PURE LUMP — frames 001 → 205 in numerical order.
-          // Frame 000 was the crossfade companion; skipping it here
-          // avoids re-showing the same image and starts the
-          // animation cleanly with the next frame.
-          const localP = (p - crossfadeEnd) / (1 - crossfadeEnd);
-          const remaining = LUMP_FRAMES_TOTAL - 1; // 205 frames left
-          const idx = Math.min(
-            LUMP_FRAMES_TOTAL - 1,
-            1 + Math.floor(localP * remaining)
-          );
-          if (idx !== lastLumpIdxRef.current) {
-            drawLumpFrame(idx);
-            lastLumpIdxRef.current = idx;
-          }
+        const idx = Math.min(
+          TOTAL_FRAMES - 1,
+          Math.floor(p * TOTAL_FRAMES)
+        );
+        if (idx !== lastIdxRef.current) {
+          drawFrame(idx);
+          lastIdxRef.current = idx;
         }
       }
 
@@ -415,7 +245,7 @@ export function HeroScrollCanvas() {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", handleResize);
     };
-  }, [ready, drawFrame, drawLumpFrame]);
+  }, [ready, drawFrame]);
 
   // Draw first frame once ready
   useEffect(() => {
@@ -423,31 +253,30 @@ export function HeroScrollCanvas() {
   }, [ready, drawFrame]);
 
   // Derived state.
-  // Existing chapters / headlines / CTA / overlay-opacity ranges are
-  // authored in [0..1] units local to the KITCHEN phase. Since the
-  // overall track also contains a lump phase on the back end, we
-  // rescale global progress into a phase-1 local progress before
-  // evaluating those ranges — keeps the original kitchen story
-  // pacing intact instead of squashing it.
-  const phase1Progress = Math.min(progress / PHASE_KITCHEN_END, 1);
+  // Chapter / headline / CTA / overlay ranges below are evaluated
+  // directly against `progress` now that the lump phase is gone and
+  // the kitchen scrub spans the whole scroll. (Previously progress
+  // was rescaled into a phase-1 local progress because only 0–0.8
+  // of the scroll was kitchen.)
   const showScrollHint = progress < 0.02;
-  const showCta = phase1Progress >= 0.78 && progress < PHASE_KITCHEN_END;
+  // CTA appears at 78% of scroll and stays visible through to the
+  // end so it's on screen when the section unsticks into the next
+  // page section.
+  const showCta = progress >= 0.78;
   const overlayOpacity = (() => {
     const baseOpacity =
-      phase1Progress < 0.06
+      progress < 0.06
         ? 0.25
-        : phase1Progress < 0.18
+        : progress < 0.18
           ? 0.15
-          : phase1Progress < 0.72
+          : progress < 0.72
             ? 0.55
             : 0.45;
 
-    // End-of-parallax fade-out. The last ~100vh of the scroll track
-    // is the sticky child sliding up out of view; during that range
-    // progress is clamped at 1.0, so the canvas would hold
-    // whatever lump frame was last drawn. Ramping the dark overlay
-    // to full opacity over the final 8% of progress dissolves the
-    // lump into black BEFORE the sticky-unstick begins.
+    // End-of-parallax fade-out. The last 8% of progress ramps the
+    // dark overlay to full opacity so the kitchen final frame
+    // dissolves into black BEFORE the sticky-unstick begins, giving
+    // the next section a clean dark seam to rise out of.
     const FADE_START = 0.92;
     if (progress > FADE_START) {
       const fadeT = Math.min(1, (progress - FADE_START) / (1 - FADE_START));
@@ -490,14 +319,13 @@ export function HeroScrollCanvas() {
         </div>
       </div>
 
-      {/* Scroll track — 1000vh. Allocation:
-            • 800vh kitchen scrub (1039 frames at ~0.77vh/frame)
-            •  40vh crossfade overlap (kitchen-1038 ↔ lump-000)
-            • 160vh lump scrub (205 remaining frames at ~0.78vh/frame)
-          The matched per-frame density means the lump phase doesn't
-          feel hurried compared to the kitchen — both sequences
-          scrub at roughly the same pixels-per-frame rate. */}
-      <section ref={trackRef} className="relative" style={{ height: "1000vh" }}>
+      {/* Scroll track — 700vh of kitchen scrub end-to-end. The lump
+          phase + crossfade overlay were removed; scrub length per
+          frame is now 700vh / 1039 frames ≈ 0.67vh per frame. To
+          slow the scrub down further without lengthening the section,
+          thin the contents of /public/hero-frames/ and update the
+          TOTAL_FRAMES constant at the top of this file. */}
+      <section ref={trackRef} className="relative" style={{ height: "700vh" }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden">
           {/* Canvas */}
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
@@ -521,11 +349,11 @@ export function HeroScrollCanvas() {
           {/* Headlines */}
           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
             {headlines.map((hl, i) => {
-              // Headline ranges are local to the kitchen phase. Use
-              // phase1Progress so they fire inside the kitchen scrub
-              // instead of getting compressed by the longer track.
+              // Headline ranges evaluated directly against progress
+              // (kitchen scrub now spans the whole scroll, so progress
+              // and the previous phase1Progress are the same value).
               const visible =
-                phase1Progress >= hl.range[0] && phase1Progress <= hl.range[1];
+                progress >= hl.range[0] && progress <= hl.range[1];
               return (
                 <div
                   key={i}

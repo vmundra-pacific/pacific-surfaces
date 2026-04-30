@@ -10,37 +10,47 @@ export const metadata: Metadata = {
 };
 
 /**
- * /blog — the editorial index.
+ * /blog — the editorial index, revamped.
  *
- * Layout:
- *   1. Slim full-width dark-navy ribbon at the top with the
- *      site-wide editorial tagline (the brand stamp on every blog
- *      page — same ribbon repeats on the post detail page).
- *   2. Cream body surface (#f4efe8) with a serif-feel "Field Notes"
- *      title in dark navy, set against the cream for editorial
- *      contrast. Optional intro paragraph below.
- *   3. Uniform 4-column card grid, every post the same shape (no
- *      featured post). Card design lives in BlogGrid.tsx.
+ * Layout from top to bottom:
  *
- * Every card is fully Sanity-driven — each card on this index
- * comes from a `blogPost` document in Sanity Studio. Edit the
- * document → card updates. The body field of each post is Portable
- * Text, so editors can compose paragraphs, headings, and inline
- * images in any combination.
+ *   1. Slim navy ribbon (brand stamp; same ribbon repeats on the
+ *      blog post detail page so the two views feel like the same
+ *      magazine).
+ *
+ *   2. Cream editorial masthead. Three-column header layout on
+ *      desktop:
+ *        - Left:  oversized "Field Notes" wordmark in dark navy.
+ *        - Right: tracked-out small caps eyebrow + a short
+ *                introduction paragraph + the issue meta (count
+ *                of articles, last updated). Reads like the
+ *                colophon on a print magazine cover.
+ *      The header sits above a thin hairline rule that visually
+ *      anchors the body grid below.
+ *
+ *   3. BlogGrid renders a featured cover-story card for the most
+ *      recent post, then a 3-column uniform grid for the rest.
+ *      Section divider between the two sections so the magazine
+ *      hierarchy is unambiguous.
  */
+
 export default async function BlogPage() {
   const posts = await client.fetch(allBlogPostsQuery);
+  const totalCount = posts.length;
+  const lastUpdated =
+    posts.length > 0
+      ? new Date(posts[0].publishedAt).toLocaleDateString("en-IN", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : null;
 
   return (
-    // Top padding pushes the ribbon below the site's `fixed top-0`
-    // navbar (Header.tsx) so the two don't overlap. The header
-    // averages ~72px tall depending on viewport — pt-20 leaves a
-    // comfortable buffer at every breakpoint.
+    // pt-20 clears the site's fixed top-0 navbar so the navy ribbon
+    // doesn't slide under it.
     <div className="pt-20">
-      {/* Dark-navy ribbon — full-width, slim. Tracked-out caps,
-          editorial stamp. Same ribbon also appears on each post's
-          breadcrumb bar so brand continuity carries across the
-          two views. */}
+      {/* Brand stamp ribbon — slim, dark, full-width. */}
       <div className="bg-[#112732] py-3 lg:py-4">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
           <p className="text-[11px] md:text-xs font-medium tracking-[0.3em] uppercase text-pacific-light">
@@ -52,20 +62,56 @@ export default async function BlogPage() {
       {/* Cream body */}
       <div className="bg-[#f4efe8] min-h-screen">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
-          {/* Editorial title */}
-          <header className="max-w-3xl mb-14 lg:mb-20">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-[#112732] leading-[1.05]">
-              Field Notes
-            </h1>
-            <p className="mt-6 text-base lg:text-lg font-light text-stone-600 leading-relaxed max-w-xl">
-              Trends, guides, and stories from the world of premium surfaces —
-              new entries from the Pacific editorial team.
-            </p>
+          {/* Editorial masthead — three-column header on desktop:
+              wordmark left, copy + colophon right. Stacks on mobile. */}
+          <header className="mb-14 lg:mb-20">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start lg:items-end">
+              {/* Wordmark — left column on desktop */}
+              <div className="lg:col-span-7">
+                <p className="text-[11px] sm:text-xs font-medium tracking-[0.32em] uppercase text-stone-500 mb-4 lg:mb-6">
+                  The Pacific Journal · Issue {String(totalCount).padStart(2, "0")}
+                </p>
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-tight text-[#112732] leading-[0.95]">
+                  Field
+                  <br />
+                  <em className="not-italic text-stone-500">Notes</em>
+                </h1>
+              </div>
+
+              {/* Colophon — right column on desktop */}
+              <div className="lg:col-span-5 lg:pb-3">
+                <p className="text-base lg:text-lg font-light text-stone-600 leading-relaxed mb-8 max-w-md">
+                  Trends, guides, and stories from the world of premium
+                  surfaces — new entries from the Pacific editorial team.
+                </p>
+                <dl className="grid grid-cols-2 gap-6 max-w-md text-sm">
+                  <div>
+                    <dt className="text-[10px] tracking-[0.28em] uppercase text-stone-500 font-medium mb-1">
+                      Articles
+                    </dt>
+                    <dd className="text-2xl font-light text-[#112732] tracking-tight">
+                      {totalCount.toString().padStart(2, "0")}
+                    </dd>
+                  </div>
+                  {lastUpdated && (
+                    <div>
+                      <dt className="text-[10px] tracking-[0.28em] uppercase text-stone-500 font-medium mb-1">
+                        Last Update
+                      </dt>
+                      <dd className="text-sm font-light text-[#112732] tracking-tight pt-1.5">
+                        {lastUpdated}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+            </div>
+
+            {/* Hairline rule anchoring the masthead to the body */}
+            <div className="mt-12 lg:mt-16 h-px bg-[#112732]/15" />
           </header>
 
-          {/* Card grid — every card driven by a Sanity blogPost
-              document. Add / edit / publish from /studio →
-              Blog Posts. */}
+          {/* Featured cover-story card + uniform 3-column grid below */}
           <BlogGrid posts={posts} />
         </div>
       </div>

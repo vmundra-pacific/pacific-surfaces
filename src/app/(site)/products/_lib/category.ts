@@ -73,7 +73,16 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   },
   "semi-precious": {
     match: "semi",
-    productType: "semi-precious",
+    // productType removed — Semi-Precious is a single Sanity
+    // collection, not a multi-collection aggregation like Quartz or
+    // Granite. With productType set, the OR logic in the GROQ query
+    // pulls in any product tagged with productType="semi-precious"
+    // regardless of its collection ref, which let a mis-tagged
+    // Vision Series product bleed onto this page. Keeping only the
+    // collection match restricts results to the Semi Precious Stones
+    // collection (the intended set). With one collection, the
+    // FilterBar's `singleCollection` heuristic auto-hides the
+    // Collection filter pill and the "By collection" sort option.
     hero: {
       videoSrc: "/videos/semi-precious.mp4",
       eyebrow: "Pacific Surfaces · Semi-Precious",

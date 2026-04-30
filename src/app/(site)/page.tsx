@@ -5,7 +5,7 @@ import {
   signatureProjectsQuery,
   applicationCardsQuery,
   inspirationImagesQuery,
-  featuredDealersQuery,
+  // featuredDealersQuery, // disabled — DealerLocator section hidden below
 } from "@/sanity/lib/queries";
 import { HeroScrollCanvas } from "@/components/sections/HeroScrollCanvas";
 import { TrustStrip } from "@/components/sections/TrustStrip";
@@ -13,7 +13,9 @@ import { CollectionsShowcaseGrid } from "@/components/sections/CollectionsShowca
 import { StatementSection } from "@/components/sections/StatementSection";
 import { VisualizerStrip } from "@/components/sections/VisualizerStrip";
 import { ApplicationsScrollSections } from "@/components/sections/ApplicationsScrollSections";
-import { DealerLocator } from "@/components/sections/DealerLocator";
+// DealerLocator import preserved (commented) — render is hidden below;
+// uncomment both this line and the JSX line to restore.
+// import { DealerLocator } from "@/components/sections/DealerLocator";
 import { HeritageSection } from "@/components/sections/HeritageSection";
 import { OriginStats } from "@/components/sections/OriginStats";
 import { SignatureProjects } from "@/components/sections/SignatureProjects";
@@ -22,6 +24,7 @@ import { InspirationGrid } from "@/components/sections/InspirationGrid";
 import { PartnerWithUs } from "@/components/sections/PartnerWithUs";
 import { ClosingCTA } from "@/components/sections/ClosingCTA";
 import { VideoPrefetch } from "@/components/global/VideoPrefetch";
+import { HomepageSectionNav } from "@/components/global/HomepageSectionNav";
 
 export const metadata: Metadata = {
   title: "Pacific Surfaces — Premium Quartz & Granite Surfaces",
@@ -38,14 +41,16 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  // Fetch all homepage data from Sanity in parallel
-  const [collections, projects, applications, inspirations, dealers] =
+  // Fetch all homepage data from Sanity in parallel.
+  // (featuredDealersQuery removed temporarily — DealerLocator section
+  //  is hidden below. Restore the fetch + the destructured `dealers`
+  //  slot when the section is re-enabled.)
+  const [collections, projects, applications, inspirations] =
     await Promise.all([
       client.fetch(homepageCollectionsQuery),
       client.fetch(signatureProjectsQuery),
       client.fetch(applicationCardsQuery),
       client.fetch(inspirationImagesQuery),
-      client.fetch(featuredDealersQuery),
     ]);
 
   // Collect every video URL referenced by the homepage so we can warm
@@ -70,6 +75,11 @@ export default async function HomePage() {
           loading window; the visible <video> elements later pull
           from cache instead of re-fetching. */}
       <VideoPrefetch urls={prefetchVideoUrls} />
+      {/* Pinned left-middle section nav. Stays visible for the entire
+          homepage scroll, highlights whichever section is centred in
+          viewport, and lets the user click any chapter number to jump
+          straight there. Hidden below 1024px wide. */}
+      <HomepageSectionNav />
       <HeroScrollCanvas />
       <TrustStrip />
       <CollectionsShowcaseGrid collections={collections} />
@@ -78,7 +88,12 @@ export default async function HomePage() {
         theme="light"
       />
       <ApplicationsScrollSections applications={applications} />
-      <DealerLocator dealers={dealers} />
+      {/* DealerLocator hidden temporarily — content not finalised.
+          The dealers Sanity query above still runs (cheap, cached) so
+          when we want this back, just uncomment the line below. If
+          we decide to remove permanently, delete this comment + the
+          import + the dealers fetch above. */}
+      {/* <DealerLocator dealers={dealers} /> */}
       <HeritageSection />
       <OriginStats />
       <SignatureProjects projects={projects} />

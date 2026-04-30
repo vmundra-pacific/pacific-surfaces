@@ -106,7 +106,7 @@ export function SlabPicker({
                   // request fails the swatch beneath remains visible.
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={s.photoUrl}
+                    src={s.photoUrl.includes("cdn.sanity.io") ? s.photoUrl + (s.photoUrl.includes("?") ? "&" : "?") + "w=240&h=180&fit=crop&q=70&auto=format" : s.photoUrl}
                     alt={s.name}
                     loading="lazy"
                     decoding="async"

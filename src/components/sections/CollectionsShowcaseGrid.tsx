@@ -167,7 +167,10 @@ export function CollectionsShowcaseGrid({
     "Granite",
     "Exotic",
     "Semi Precious",
-    "Fab Creations",
+    // "Fab Creations" — hidden from the homepage showcase until the
+    // collection has at least one published product. Re-enable by
+    // uncommenting the line above the matching entry in
+    // src/components/layout/Header.tsx as well.
     "Integra",
     "Centrepiece Couture",
     "Vanity",
@@ -218,9 +221,9 @@ export function CollectionsShowcaseGrid({
   return (
     <section
       ref={sectionRef}
-      className="relative bg-[#112732]"
+      id="sec-collections"
+      className="relative bg-[#112732] scroll-mt-20"
       style={{ height: `${sectionHeightVh}vh` }}
-      id="collections"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col">
         {/* Header — stays fixed at the top of the sticky child while
@@ -240,7 +243,7 @@ export function CollectionsShowcaseGrid({
                 as="h2"
                 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08]"
               >
-                A library of surfaces drawn from every continent.
+                Curated to define luxury that lasts a lifetime.
               </TextReveal>
             </div>
             <motion.div

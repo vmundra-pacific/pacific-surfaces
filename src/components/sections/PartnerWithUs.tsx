@@ -75,15 +75,9 @@ export function PartnerWithUs() {
                   </h3>
 
                   {/* Description */}
-                  <p className="text-sm text-stone-400 font-light leading-relaxed flex-grow mb-6">
+                  <p className="text-sm text-stone-400 font-light leading-relaxed flex-grow">
                     {card.description}
                   </p>
-
-                  {/* Arrow icon */}
-                  <div className="flex items-center gap-2 text-xs font-medium tracking-wider uppercase text-stone-500 group-hover:text-white transition-colors">
-                    <span>Learn More</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </div>
                 </motion.div>
               </Link>
             </StaggerItem>

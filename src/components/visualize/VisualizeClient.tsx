@@ -52,6 +52,9 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     null
   );
   const [inspectorOpen, setInspectorOpen] = useState(true);
+  // "Coming soon" modal — fired by the 3D showroom buttons in both
+  // the intake screen and the workspace header.
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const canvasRef = useRef<RoomCanvasHandle>(null);
 
   // The slab currently being shown as "active" in the picker — the
@@ -187,6 +190,70 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     return picked;
   }, [sanitySlabs]);
 
+  // ---- Surface-aware slab filtering ----
+  // Some collections only make sense for specific surface types:
+  //   - Integra (Sinks)        → only show when the focused surface
+  //                              has "sink" in its label
+  //   - Centrepiece Couture    → only show when the focused surface
+  //                              has "table" in its label (small
+  //                              feature tables, gallery centrepieces)
+  // Editors label surfaces in demo-rooms.ts (or via Sanity) — so a
+  // demo room marking its sink area `label: "Kitchen Sink"` will get
+  // Integra options surfaced; everything else stays general.
+  //
+  // When no surface is focused yet, we hide both specialty
+  // collections — the user hasn't picked a surface, so we don't yet
+  // know which catalogue to show.
+  const focusedSurface = useMemo(() => {
+    if (!focusedSurfaceId) return null;
+    // Demo room surfaces (polygons / masks) come from activeDemo.
+    if (activeDemo) {
+      return (
+        activeDemo.surfaces.find((s) => s.id === focusedSurfaceId) ?? null
+      );
+    }
+    // AI / SAM-2 surfaces from user uploads.
+    return aiMasks.find((m) => m.id === focusedSurfaceId) ?? null;
+  }, [focusedSurfaceId, activeDemo, aiMasks]);
+
+  const focusedSurfaceLabel = (focusedSurface?.label ?? "").toLowerCase();
+
+  const filteredCurated = useMemo(() => {
+    const isSink = focusedSurfaceLabel.includes("sink");
+    const isTable = focusedSurfaceLabel.includes("table");
+
+    return curated.filter((slab) => {
+      const col = (slab.collection ?? "").toLowerCase();
+      const isIntegra = col.includes("integra");
+      const isCentrepiece = col.includes("centrepiece");
+
+      if (isSink) {
+        // Sink surface: only Integra collection slabs.
+        return isIntegra;
+      }
+      if (isTable) {
+        // Small-table surface: only Centrepiece Couture.
+        return isCentrepiece;
+      }
+
+      // General surfaces (countertop, vanity, backsplash, etc., or
+      // unfocused state): show only the standard catalogue —
+      // quartz collections, granite, semi-precious, exotic. Drop
+      // specialty collections that have a dedicated surface type
+      // (Integra sinks, Centrepiece tables) plus other niche
+      // collections that don't fit a generic slab application.
+      const specialtyDenylist = [
+        "integra",
+        "centrepiece",
+        "fab creation",
+        "ecosurface",
+        "natural stone finish",
+        "stone finish",
+      ];
+      return !specialtyDenylist.some((kw) => col.includes(kw));
+    });
+  }, [curated, focusedSurfaceLabel]);
+
   // When user uploads their own photo, start with a clean canvas. We
   // skip the AMG auto-detect pass on purpose — tap-to-detect gives
   // precise per-surface control. We DO kick off depth estimation in
@@ -255,7 +322,11 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
               "radial-gradient(ellipse at 30% 10%, rgba(154,168,182,.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 90%, rgba(218,225,232,.06) 0%, transparent 55%)",
           }}
         />
-        <div className="relative max-w-[1400px] mx-auto px-5 md:px-8 pt-8 md:pt-12 pb-24">
+        {/* pt-24 / pt-28 clears the site's fixed h-20 top navbar so
+            "Back home" + the visualizer eyebrow no longer slide
+            under it. Was pt-8 / pt-12 (just intra-page breathing
+            room) which assumed there was no parent header. */}
+        <div className="relative max-w-[1400px] mx-auto px-5 md:px-8 pt-24 md:pt-28 pb-24">
           <div className="flex items-center justify-between mb-10 md:mb-14">
             <Link
               href="/"
@@ -265,16 +336,21 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
               Back home
             </Link>
             <div className="flex items-center gap-3">
-              <Link
-                href="/visualize/showroom"
+              {/* 3D showroom — was a Link to /visualize/showroom; now
+                  opens a "Coming soon" modal instead since the
+                  showroom isn't ready for production users yet. */}
+              <button
+                type="button"
+                onClick={() => setComingSoonOpen(true)}
                 className="inline-flex items-center gap-1.5 text-pacific-mid hover:text-pacific-light text-[10px] tracking-[.22em] uppercase px-3 py-1.5 border border-white/10 rounded-full hover:border-white/30 transition-colors"
               >
                 <Box className="w-3 h-3" />
                 3D showroom
-              </Link>
+              </button>
+              {/* "· beta" removed per editorial direction. */}
               <div className="hidden md:flex items-center gap-2 text-[10px] tracking-[.24em] uppercase text-pacific-mid">
                 <Sparkles className="w-3.5 h-3.5" />
-                Pacific visualiser · beta
+                Pacific visualiser
               </div>
             </div>
           </div>
@@ -294,20 +370,29 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
               </em>
             </h1>
             <p className="mt-6 text-pacific-mid/90 text-base md:text-lg max-w-xl leading-relaxed">
-              Upload a photo. Tap any surface to select it. Apply any Pacific
-              slab to see the finished look — photoreal in seconds, no measuring
-              required.
+              Pick a demo room below to see the visualiser in action — every
+              surface is precision-mapped for photoreal results. Or upload your
+              own photo to try tap-to-detect on your space.
             </p>
           </header>
 
+          {/* Layout swapped + reweighted: Demo room takes the larger
+              left column (1.4fr) since the curated rooms render
+              best, and Upload-your-own sits on the right (1fr) as a
+              secondary path. Was upload-left / demo-right with
+              upload taking the larger column. */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="grid md:grid-cols-[1.2fr_1fr] gap-6"
+            className="grid md:grid-cols-[1.4fr_1fr] gap-6"
           >
-            <UploadZone onImage={handleUserUpload} />
-            <div className="rounded-2xl border border-white/10 bg-white/[.02] p-6">
+            {/* PRIMARY: demo rooms — three category sections
+                (Kitchens / Bathrooms / Living Room) rendered inside
+                the card. The "Recommended" badge + "Start here"
+                eyebrow + footer note were removed; the categorical
+                sections now ARE the card. */}
+            <div className="rounded-2xl border border-white/20 bg-white/[.04] p-6 lg:p-8 relative overflow-hidden">
               <DemoRoomStrip
                 activeId={activeDemo?.id}
                 onPick={(r) => {
@@ -316,19 +401,34 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
                   clearSegment(); // demo rooms use hand-curated polygons, not AI
                 }}
               />
+            </div>
+
+            {/* SECONDARY: upload — narrower, less emphasis. Same
+                UploadZone component; only the framing wrapper differs. */}
+            <div className="rounded-2xl border border-white/10 bg-white/[.02] p-6 lg:p-8">
+              <div className="text-[10px] md:text-xs tracking-[.28em] uppercase text-pacific-mid mb-4">
+                Or upload your own
+              </div>
+              <UploadZone onImage={handleUserUpload} />
               <div className="mt-6 pt-6 border-t border-white/10 text-xs text-pacific-mid leading-relaxed">
                 <div className="flex items-start gap-2">
                   <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                   <p>
                     Tap-to-detect works best on well-lit, uncluttered surfaces.
-                    Tap each surface you want to swap; they all take the same
-                    slab.
+                    Results vary with photo quality.
                   </p>
                 </div>
               </div>
             </div>
           </motion.div>
         </div>
+
+        {/* "Coming soon" modal for the 3D showroom button. Lives
+            outside the main scroll so it floats above everything. */}
+        <ComingSoonModal
+          open={comingSoonOpen}
+          onClose={() => setComingSoonOpen(false)}
+        />
       </main>
     );
   }
@@ -352,13 +452,17 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link
-            href="/visualize/showroom"
+          {/* 3D showroom — opens "Coming soon" modal (same modal
+              the intake screen uses). The 3D showroom route exists
+              but isn't ready for production users yet. */}
+          <button
+            type="button"
+            onClick={() => setComingSoonOpen(true)}
             className="hidden md:inline-flex items-center gap-1.5 text-pacific-mid hover:text-pacific-light text-[10px] tracking-[.2em] uppercase px-3 py-1.5 border border-white/10 rounded-full hover:border-white/30 transition-colors"
           >
             <Box className="w-3 h-3" />
             3D showroom
-          </Link>
+          </button>
           {/* Explicit entry point into manual mode — opens the editor
               centred on the canvas without waiting for SAM-2 to fail. */}
           <button
@@ -448,9 +552,9 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 40, opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="hidden lg:flex w-[340px] shrink-0 border-l border-white/8 bg-pacific-dark/40 backdrop-blur-xl flex-col"
+              className="hidden lg:flex w-[340px] shrink-0 border-l border-white/8 bg-pacific-dark/40 backdrop-blur-xl flex-col min-h-0"
             >
-              <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
+              <div className="shrink-0 flex items-center justify-between px-5 py-4 border-b border-white/8">
                 <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid">
                   Inspector
                 </div>
@@ -462,7 +566,15 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <InspectorContents slab={focusedSlab} region={activeRegion} />
+              <InspectorContents
+                slab={focusedSlab}
+                region={activeRegion}
+                surfaceLabel={focusedSurface?.label ?? null}
+                surfaceCount={Object.keys(surfaceSlabs).length}
+                totalSurfaces={
+                  activeDemo ? activeDemo.surfaces.length : aiMasks.length
+                }
+              />
             </motion.aside>
           )}
         </AnimatePresence>
@@ -479,16 +591,22 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
         )}
       </div>
 
-      {/* Slab dock */}
+      {/* Slab dock — uses filteredCurated so specialty collections
+          (Integra sinks / Centrepiece tables) only appear for the
+          surface types they apply to, and general surfaces show only
+          quartz / granite / semi-precious / exotic. Surface label
+          drives the filter; see the focusedSurface + filteredCurated
+          memos at the top of this component for the matching rules. */}
       <div className="shrink-0 border-t border-white/8 bg-pacific-dark/60 backdrop-blur-xl px-4 md:px-6 py-4">
         <SlabPicker
-          slabs={curated}
+          slabs={filteredCurated}
           active={focusedSlab}
           onPick={handlePickSlab}
           focusedSurfaceLabel={
-            focusedSurfaceId
+            focusedSurface?.label ??
+            (focusedSurfaceId
               ? `surface ${aiMasks.findIndex((m) => m.id === focusedSurfaceId) + 1 || "?"}`
-              : null
+              : null)
           }
           canApplyToAll={!!focusedSlab && aiMasks.length >= 2}
           onApplyToAll={() => handleApplyToAll(aiMasks.map((m) => m.id))}
@@ -503,9 +621,9 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="lg:hidden fixed inset-x-0 bottom-0 top-24 z-40 bg-pacific-dark/95 backdrop-blur-xl border-t border-white/10 rounded-t-3xl flex flex-col"
+            className="lg:hidden fixed inset-x-0 bottom-0 top-24 z-40 bg-pacific-dark/95 backdrop-blur-xl border-t border-white/10 rounded-t-3xl flex flex-col min-h-0"
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
+            <div className="shrink-0 flex items-center justify-between px-5 py-4 border-b border-white/8">
               <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid">
                 Inspector
               </div>
@@ -517,11 +635,98 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <InspectorContents slab={focusedSlab} region={activeRegion} />
+            <InspectorContents
+              slab={focusedSlab}
+              region={activeRegion}
+              surfaceLabel={focusedSurface?.label ?? null}
+              surfaceCount={Object.keys(surfaceSlabs).length}
+              totalSurfaces={
+                activeDemo ? activeDemo.surfaces.length : aiMasks.length
+              }
+            />
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* "Coming soon" modal — same instance as intake screen, mounted
+          here too so it works from the workspace header's 3D showroom
+          button. Modal is the same shared component either way. */}
+      <ComingSoonModal
+        open={comingSoonOpen}
+        onClose={() => setComingSoonOpen(false)}
+      />
     </main>
+  );
+}
+
+/* --------------------------------------------------------------------- *
+ * "Coming soon" modal for the 3D showroom button.                       *
+ * Lightweight standalone component — small overlay with a centred       *
+ * card. Doesn't reuse the larger OrderSampleModal because that has      *
+ * form inputs we don't need here.                                       *
+ * --------------------------------------------------------------------- */
+
+function ComingSoonModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          // z-[100] to clear all sticky / fixed siblings on the page
+          className="fixed inset-0 z-[100] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 20 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.4, 0.25, 1] }}
+            onClick={(e) => e.stopPropagation()}
+            className="relative bg-pacific-dark border border-white/10 rounded-2xl shadow-2xl px-8 py-10 max-w-md w-full text-center"
+          >
+            <button
+              aria-label="Close"
+              onClick={onClose}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full text-pacific-mid hover:text-white hover:bg-white/10 flex items-center justify-center transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/5 border border-white/10 mb-5">
+              <Box className="w-6 h-6 text-pacific-light" strokeWidth={1.5} />
+            </div>
+            <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid mb-2">
+              3D Showroom
+            </div>
+            <h3 className="text-2xl font-light tracking-tight text-white mb-3">
+              Coming soon.
+            </h3>
+            <p className="text-sm font-light text-pacific-mid leading-relaxed mb-6">
+              An immersive walk-through of the Pacific catalogue is on the
+              way. In the meantime, try the visualiser on a curated demo
+              room — every surface is precision-mapped for photoreal
+              previews.
+            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-[11px] tracking-[0.25em] uppercase text-white border-b border-white/40 pb-1 hover:border-white transition-colors"
+            >
+              Got it
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -615,125 +820,230 @@ function StageCanvas({
 function InspectorContents({
   slab,
   region,
+  surfaceLabel,
+  surfaceCount,
+  totalSurfaces,
 }: {
   slab: Slab | null;
   region: SurfaceCandidate | null;
+  surfaceLabel: string | null;
+  surfaceCount: number;
+  totalSurfaces: number;
 }) {
-  return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-6">
-      {slab ? (
-        <div>
-          <div className="relative rounded-xl overflow-hidden aspect-[4/3] ring-1 ring-white/10 mb-4">
-            {slab.photoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={slab.photoUrl}
-                alt={slab.name}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            ) : (
-              <>
-                <div
-                  className="absolute inset-0"
-                  style={{ backgroundImage: slab.swatch }}
-                />
-                {slab.overlay && (
-                  <div
-                    className="absolute inset-0 mix-blend-overlay opacity-80"
-                    style={{ backgroundImage: slab.overlay }}
-                  />
-                )}
-              </>
-            )}
-            <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
-              <div className="text-pacific-light text-lg leading-tight">
-                {slab.name}
-              </div>
-              <div className="text-pacific-mid text-xs">
-                {slab.collection} · {slab.pattern}
-              </div>
-            </div>
-          </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 text-sm">
-            <dt className="text-pacific-mid text-xs tracking-[.14em] uppercase self-center">
-              Finishes
-            </dt>
-            <dd className="text-pacific-light">{slab.finishes.join(", ")}</dd>
-            <dt className="text-pacific-mid text-xs tracking-[.14em] uppercase self-center">
-              Thickness
-            </dt>
-            <dd className="text-pacific-light">
-              {slab.thicknesses.join(", ")}
-            </dd>
-            <dt className="text-pacific-mid text-xs tracking-[.14em] uppercase self-center">
-              Tone
-            </dt>
-            <dd className="text-pacific-light capitalize">
-              {slab.hues.join(", ")}
-            </dd>
-            <dt className="text-pacific-mid text-xs tracking-[.14em] uppercase self-center">
-              Ribbon
-            </dt>
-            <dd className="text-pacific-light capitalize">
-              {slab.ribbon ?? "—"}
-            </dd>
-          </dl>
-          <Link
-            href="/catalogue"
-            className="mt-5 w-full inline-flex items-center justify-center gap-1.5 bg-pacific-light text-pacific-dark text-[10px] tracking-[.22em] uppercase px-4 py-2.5 rounded-full hover:bg-white transition-colors"
-          >
-            Request a sample
-            <ArrowUpRight className="w-3 h-3" />
-          </Link>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-white/10 p-4 text-sm text-pacific-mid">
-          Pick a slab from the dock below to preview it on your scene.
-        </div>
-      )}
+  // Build a tidy slug for product-detail deep-links — falls back to
+  // the catalogue if the slab doesn't carry one.
+  const productHref = slab?.slug
+    ? `/products/${slab.slug}`
+    : "/catalogue";
 
-      <div className="rounded-xl border border-white/10 p-4">
-        <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid mb-3">
-          Selection
+  return (
+    <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+      {/* ─────────────── Surface state ─────────────── */}
+      <section className="px-5 pt-5 pb-4 border-b border-white/8">
+        <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid mb-2">
+          Active surface
         </div>
-        {region ? (
-          <div className="text-sm text-pacific-light">
-            Surface locked.{" "}
-            <span className="text-pacific-mid">
-              {Math.round(region.bbox.w)} × {Math.round(region.bbox.h)} px ·
-              confidence {(region.score * 100).toFixed(0)}
-            </span>
+        {surfaceLabel ? (
+          <div className="flex items-baseline justify-between gap-3">
+            <div className="text-pacific-light text-base leading-tight capitalize truncate">
+              {surfaceLabel}
+            </div>
+            {totalSurfaces > 0 && (
+              <div className="text-[10px] text-pacific-mid tabular-nums shrink-0">
+                {surfaceCount}/{totalSurfaces} coloured
+              </div>
+            )}
           </div>
         ) : (
-          <div className="text-sm text-pacific-mid">
-            No surface selected yet. Tap a highlighted region in the scene.
+          <div className="text-sm text-pacific-mid font-light leading-relaxed">
+            Tap a highlighted surface in the scene to begin.
           </div>
         )}
-      </div>
+        {region && (
+          <div className="mt-2 text-[10px] tracking-[.12em] uppercase text-pacific-mid/70 tabular-nums">
+            {Math.round(region.bbox.w)} × {Math.round(region.bbox.h)} px ·
+            confidence {(region.score * 100).toFixed(0)}%
+          </div>
+        )}
+      </section>
 
-      <div className="rounded-xl border border-white/10 p-4">
+      {/* ─────────────── Slab preview ─────────────── */}
+      <section className="px-5 py-5 border-b border-white/8">
+        <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid mb-3">
+          Selected slab
+        </div>
+        {slab ? (
+          <>
+            <div className="relative rounded-xl overflow-hidden aspect-[4/3] ring-1 ring-white/10 mb-4">
+              {slab.photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={slab.photoUrl}
+                  alt={slab.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <>
+                  <div
+                    className="absolute inset-0"
+                    style={{ backgroundImage: slab.swatch }}
+                  />
+                  {slab.overlay && (
+                    <div
+                      className="absolute inset-0 mix-blend-overlay opacity-80"
+                      style={{ backgroundImage: slab.overlay }}
+                    />
+                  )}
+                </>
+              )}
+              <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                <div className="text-pacific-light text-base leading-tight font-light">
+                  {slab.name}
+                </div>
+                <div className="text-pacific-mid text-[11px] tracking-[.04em]">
+                  {slab.collection}
+                  {slab.pattern ? ` · ${slab.pattern}` : ""}
+                </div>
+              </div>
+            </div>
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+              {slab.finishes?.length > 0 && (
+                <>
+                  <dt className="text-pacific-mid text-[10px] tracking-[.18em] uppercase self-center">
+                    Finishes
+                  </dt>
+                  <dd className="text-pacific-light/90 font-light">
+                    {slab.finishes.join(", ")}
+                  </dd>
+                </>
+              )}
+              {slab.thicknesses?.length > 0 && (
+                <>
+                  <dt className="text-pacific-mid text-[10px] tracking-[.18em] uppercase self-center">
+                    Thickness
+                  </dt>
+                  <dd className="text-pacific-light/90 font-light">
+                    {slab.thicknesses.join(", ")}
+                  </dd>
+                </>
+              )}
+              {slab.hues?.length > 0 && (
+                <>
+                  <dt className="text-pacific-mid text-[10px] tracking-[.18em] uppercase self-center">
+                    Tone
+                  </dt>
+                  <dd className="text-pacific-light/90 font-light capitalize">
+                    {slab.hues.join(", ")}
+                  </dd>
+                </>
+              )}
+              {slab.ribbon && (
+                <>
+                  <dt className="text-pacific-mid text-[10px] tracking-[.18em] uppercase self-center">
+                    Ribbon
+                  </dt>
+                  <dd className="text-pacific-light/90 font-light capitalize">
+                    {slab.ribbon}
+                  </dd>
+                </>
+              )}
+            </dl>
+            <div className="mt-5 flex gap-2">
+              <Link
+                href={productHref}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 bg-pacific-light text-pacific-dark text-[10px] tracking-[.22em] uppercase px-4 py-2.5 rounded-full hover:bg-white transition-colors"
+              >
+                View product
+                <ArrowUpRight className="w-3 h-3" />
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center gap-1.5 border border-white/20 text-pacific-light text-[10px] tracking-[.22em] uppercase px-4 py-2.5 rounded-full hover:border-white/50 transition-colors"
+              >
+                Sample
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className="rounded-xl border border-dashed border-white/10 bg-white/[.02] p-5 text-center">
+            <p className="text-sm text-pacific-mid font-light leading-relaxed">
+              Pick a slab from the dock below to preview it on the focused
+              surface.
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* ─────────────── How it works ─────────────── */}
+      <section className="px-5 py-5 border-b border-white/8">
         <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid mb-3">
           How it works
         </div>
-        <ol className="space-y-2.5 text-sm text-pacific-light/85">
+        <ol className="space-y-3 text-sm text-pacific-light/80 font-light leading-relaxed">
           <li className="flex gap-3">
-            <span className="text-pacific-mid w-4 shrink-0">01</span>
-            Upload a photo of any kitchen, bath, or work area.
-          </li>
-          <li className="flex gap-3">
-            <span className="text-pacific-mid w-4 shrink-0">02</span>
+            <span className="text-pacific-mid text-[10px] tracking-[.18em] w-6 shrink-0 pt-0.5">
+              01
+            </span>
             <span>
-              Tap each surface you want to swap. AI segments the surface under
-              your finger in a couple of seconds.
+              Start with a demo room or upload a photo of your own space.
             </span>
           </li>
           <li className="flex gap-3">
-            <span className="text-pacific-mid w-4 shrink-0">03</span>
-            Pick a slab. We preserve your room&apos;s lighting while replacing
-            the stone.
+            <span className="text-pacific-mid text-[10px] tracking-[.18em] w-6 shrink-0 pt-0.5">
+              02
+            </span>
+            <span>
+              Tap each surface you want to swap — countertops, vanities,
+              splashbacks, sinks, tables.
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span className="text-pacific-mid text-[10px] tracking-[.18em] w-6 shrink-0 pt-0.5">
+              03
+            </span>
+            <span>
+              Pick a slab from the dock. We keep the room&apos;s lighting and
+              shadows so the preview reads true to life.
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span className="text-pacific-mid text-[10px] tracking-[.18em] w-6 shrink-0 pt-0.5">
+              04
+            </span>
+            <span>
+              Export the result, or request a physical sample of the slab you
+              love.
+            </span>
           </li>
         </ol>
-      </div>
+      </section>
+
+      {/* ─────────────── Tips ─────────────── */}
+      <section className="px-5 py-5">
+        <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid mb-3">
+          Tips
+        </div>
+        <ul className="space-y-2 text-[12px] text-pacific-light/70 font-light leading-relaxed">
+          <li className="flex gap-2">
+            <span className="text-pacific-mid">·</span>
+            Use bright, head-on photos for the most accurate detection.
+          </li>
+          <li className="flex gap-2">
+            <span className="text-pacific-mid">·</span>
+            Tap multiple surfaces to colour them independently — each keeps its
+            own slab.
+          </li>
+          <li className="flex gap-2">
+            <span className="text-pacific-mid">·</span>
+            If AI misses, use Manual surface in the top bar to draw the area
+            yourself.
+          </li>
+        </ul>
+      </section>
+
+      {/* Bottom safety pad so the last item never sits flush against
+          the slab dock when the panel is mid-scroll. */}
+      <div className="h-4" />
     </div>
   );
 }

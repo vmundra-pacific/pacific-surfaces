@@ -17,6 +17,16 @@
   --color-pacific-light: #dae1e8;
 }
 
+html {
+  /* Always reserve space for the vertical scrollbar so the page
+     doesn't shift horizontally when scrollbars appear/disappear
+     (e.g. between routes, when overlays close, or when a browser
+     toggles overlay-scrollbar mode mid-scroll). This is what was
+     causing the header content to drift left when the scrolled
+     state kicked in. */
+  scrollbar-gutter: stable;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -48,29 +58,19 @@ body {
   scrollbar-width: none;
 }
 
-/* GPU-composited marquee — replaces Framer Motion infinite loop */
+/* GPU-composited marquee — replaces Framer Motion infinite loop.
+   translateX(-50%) is exact (no repeating decimal) — pairs with a
+   2× content duplication so the second copy at 0% offset is visually
+   identical to the first copy at -50% offset. Keyframe wrap is
+   pixel-invisible. */
 @keyframes marquee {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translateX(-33.333%);
+    transform: translate3d(-50%, 0, 0);
   }
 }
 .animate-marquee {
   animation: marquee 25s linear infinite;
-}
-
-/* Smooth bounce for scroll indicator */
-@keyframes bounce-slow {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(8px);
-  }
-}
-.animate-bounce-slow {
-  animation: bounce-slow 1.8s ease-in-out infinite;
-}
+  /* will-change hi

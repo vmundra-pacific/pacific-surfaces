@@ -19,26 +19,32 @@ const navigation = [
       // entry in src/app/(site)/products/_lib/category.ts —
       // CATEGORY_PAGES — which controls the hero video, copy, and
       // which Sanity collection / productType to scope the catalogue
-      // to. "All Products" alone owns the bare /products path.
+      // to. Order mirrors the footer: Quartz → Vision → Granite →
+      // Semi-Precious → … → All Products at the bottom.
       { name: "Quartz Surfaces", href: "/products/quartz" },
-      { name: "Exotic Collection", href: "/products/exotic" },
-      { name: "Semi-Precious Stones", href: "/products/semi-precious" },
       // Vision uses the existing Chromia collection page, which is
       // already wired with the Vision Series video via
       // COLLECTION_HERO in /products/[slug]/[item]/page.tsx.
       { name: "Vision", href: "/products/quartz/chromia" },
+      { name: "Granites", href: "/products/granites" },
+      { name: "Semi-Precious Stones", href: "/products/semi-precious" },
+      { name: "Exotic Collection", href: "/products/exotic" },
       {
         name: "Centrepiece Couture",
         href: "/products/centrepiece-couture",
       },
       { name: "Integra (Sinks)", href: "/products/integra" },
-      { name: "Fab Creations", href: "/products/fab-creations" },
-      { name: "Ecosurfaces", href: "/products/ecosurfaces" },
-      { name: "Granites", href: "/products/granites" },
+      // Fab Creations + Ecosurfaces both hidden until each collection
+      // has at least one published product. Re-enable by uncommenting
+      // the matching line below.
+      // { name: "Fab Creations", href: "/products/fab-creations" },
+      // { name: "Ecosurfaces", href: "/products/ecosurfaces" },
       {
         name: "Natural Stone Finishes",
         href: "/products/natural-stone-finishes",
       },
+      // All Products owns the bare /products path; lives at the
+      // bottom as a catch-all for users browsing the full catalogue.
       { name: "All Products", href: "/products" },
     ],
   },
@@ -48,6 +54,11 @@ const navigation = [
   { name: "Careers", href: "/careers" },
   { name: "Contact", href: "/contact" },
 ];
+
+// Desktop nav drops "Contact" because the "Get a Quote" CTA already
+// routes there — listing it twice was crowding the row. Mobile menu
+// still uses the full `navigation` array.
+const desktopNavigation = navigation.filter((item) => item.name !== "Contact");
 
 interface NavItem {
   name: string;
@@ -187,13 +198,13 @@ export default function Header() {
             </Link>
 
             {/* Desktop nav */}
-            <div className="hidden md:flex md:items-center md:gap-x-10">
-              {navigation.map((item: NavItem) => (
+            <div className="hidden md:flex md:items-center md:gap-x-6 lg:gap-x-8">
+              {desktopNavigation.map((item: NavItem) => (
                 <div key={item.name} className="relative group">
                   <Link
                     href={item.href}
                     className={cn(
-                      "relative text-[13px] font-medium tracking-[0.08em] uppercase transition-colors duration-300 py-2",
+                      "relative text-[12px] lg:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
                       // Same colour treatment in both states now —
                       // header bg is dark in both cases.
                       "text-stone-300 hover:text-white"
@@ -224,32 +235,53 @@ export default function Header() {
             </div>
 
             {/* CTA + Search + Mobile toggle */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 lg:gap-2.5">
               <button
                 onClick={() => setSearchOpen(true)}
                 className={cn(
-                  "hidden sm:flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300",
+                  "hidden sm:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
                   // Dark in both states — same hover treatment.
                   "text-stone-300 hover:text-white hover:bg-white/10"
                 )}
               >
-                <Search className="w-4.5 h-4.5" />
+                <Search className="w-4 h-4" />
               </button>
+
+              {/* Visualizer — same pill treatment as Get a Quote so the
+                  two CTAs read as a matched pair. Both pills carry a
+                  border in BOTH scroll states (transparent when
+                  scrolled, white/20 when not) so their outer width is
+                  pixel-stable across the transition — otherwise the
+                  border appearing/disappearing was nudging the row
+                  layout each scroll, which the user could see as a
+                  small left-shift. */}
+              <Link
+                href="/visualize"
+                className={cn(
+                  "hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
+                  scrolled
+                    ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
+                    : "bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20"
+                )}
+              >
+                Visualizer
+                <ArrowRight className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
+              </Link>
 
               <Link
                 href="/contact"
                 className={cn(
-                  "hidden sm:inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-medium tracking-[0.1em] uppercase transition-all duration-300",
+                  "hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
                   // Scrolled now uses a solid white pill for max
                   // contrast against the dark navy header. Top of
                   // page keeps the translucent glass-pill style.
                   scrolled
-                    ? "bg-white text-[#112732] hover:bg-stone-100"
+                    ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
                     : "bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20"
                 )}
               >
                 Get a Quote
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
               </Link>
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
@@ -324,20 +356,6 @@ export default function Header() {
                   )}
                 </motion.div>
               ))}
-
-              <motion.button
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 }}
-                onClick={() => {
-                  setSearchOpen(true);
-                  setMobileOpen(false);
-                }}
-                className="md:hidden text-stone-300 hover:text-white transition-colors mt-4"
-              >
-                <Search className="w-6 h-6" />
-              </motion.button>
-
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

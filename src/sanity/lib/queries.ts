@@ -106,18 +106,21 @@ export const productBySlugQuery = groq`
     seoDescription,
     seoKeywords,
     visible,
+    manualHues,
     "relatedProducts": coalesce(
       *[_type == "product" && collection._ref == ^.collection._ref && _id != ^._id][0...12] {
         _id, name, slug, "mainImage": mainImage.asset->url, price,
         "collectionName": collection->name,
-        "categoryName": category->name
+        "categoryName": category->name,
+        manualHues
       },
       []
     ),
     "allOtherProducts": *[_type == "product" && _id != ^._id] | order(name asc) {
       _id, name, slug, "mainImage": mainImage.asset->url, price,
       "categoryName": category->name,
-      "collectionName": collection->name
+      "collectionName": collection->name,
+      manualHues
     }
   }
 `;

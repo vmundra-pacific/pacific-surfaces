@@ -173,7 +173,10 @@ export function SignatureProjects({
   const row2 = items.slice(2);
 
   return (
-    <section className="py-16 sm:py-20 md:py-28 px-6 bg-stone-950">
+    <section
+      id="sec-projects"
+      className="py-16 sm:py-20 md:py-28 px-6 bg-stone-950 scroll-mt-20"
+    >
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="flex flex-col lg:flex-row items-start justify-between gap-6 sm:gap-8 mb-10 sm:mb-16">
@@ -184,7 +187,7 @@ export function SignatureProjects({
               viewport={{ once: true }}
               className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-4"
             >
-              05 · Signature Projects
+              04 · Architects
             </motion.div>
             <TextReveal
               as="h2"
@@ -203,7 +206,7 @@ export function SignatureProjects({
             <p className="text-base font-light text-stone-400 leading-relaxed">
               From residential villas in Mumbai to commercial towers in Warsaw
               and quick-service chains across North America — Pacific has
-              shipped slabs into more than 30 countries.
+              shipped slabs into more than 45 countries.
             </p>
           </motion.div>
         </div>

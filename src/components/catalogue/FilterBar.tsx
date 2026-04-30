@@ -45,6 +45,14 @@ export function FilterBar({ api, total }: Props) {
   const [openKey, setOpenKey] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
+  // When the catalogue is already scoped to a single collection
+  // (e.g. /products/quartz/chromia for the Vision Series), the
+  // Collection filter and the "By collection" sort option are both
+  // meaningless — they'd offer one option each. Hide them in that
+  // case. The all-products page and category landings (which span
+  // multiple collections) keep both controls.
+  const singleCollection = api.uniqueCollections.length <= 1;
+
   /**
    * Hue chips to render — predefined HUE_OPTIONS in their canonical
    * order, PLUS any custom hue strings that show up in the data
@@ -164,24 +172,29 @@ export function FilterBar({ api, total }: Props) {
             </div>
           </FilterPill>
 
-          {/* Collection */}
-          <FilterPill
-            label="Collection"
-            count={api.filters.collections.size}
-            isOpen={openKey === "collection"}
-            onToggle={() => toggleOpen("collection")}
-          >
-            <PopoverCheckList
-              title={`Collection · ${api.uniqueCollections.length} series`}
-              items={api.uniqueCollections.map((c) => ({
-                value: c,
-                label: c,
-                count: api.countFor("collections", c),
-                selected: api.filters.collections.has(c),
-              }))}
-              onToggle={(v) => api.toggle("collections", v as Collection)}
-            />
-          </FilterPill>
+          {/* Collection — only when the catalogue spans more than one
+              collection. On collection-scoped pages (Vision, Centre-
+              piece Couture, etc.) the filter offers a single option,
+              which is noise; hide it. */}
+          {!singleCollection && (
+            <FilterPill
+              label="Collection"
+              count={api.filters.collections.size}
+              isOpen={openKey === "collection"}
+              onToggle={() => toggleOpen("collection")}
+            >
+              <PopoverCheckList
+                title={`Collection · ${api.uniqueCollections.length} series`}
+                items={api.uniqueCollections.map((c) => ({
+                  value: c,
+                  label: c,
+                  count: api.countFor("collections", c),
+                  selected: api.filters.collections.has(c),
+                }))}
+                onToggle={(v) => api.toggle("collections", v as Collection)}
+              />
+            </FilterPill>
+          )}
 
           {/* Pattern */}
           <FilterPill
@@ -276,12 +289,15 @@ export function FilterBar({ api, total }: Props) {
             </button>
           </div>
 
-          {/* Sort */}
+          {/* Sort — "By collection" is hidden on single-collection
+              pages (sorting by collection has no effect when there's
+              only one). */}
           <SortControl
             value={api.sort}
             onChange={api.setSort}
             isOpen={openKey === "sort"}
             onToggle={() => toggleOpen("sort")}
+            hideCollectionOption={singleCollection}
           />
         </div>
       </div>
@@ -367,12 +383,24 @@ function SortControl({
   onChange,
   isOpen,
   onToggle,
+  hideCollectionOption = false,
 }: {
   value: SortKey;
   onChange: (v: SortKey) => void;
   isOpen: boolean;
   onToggle: () => void;
+  /** When the catalogue is scoped to a single collection, the
+   *  "By collection" sort option is meaningless; setting this hides
+   *  that option from the dropdown. */
+  hideCollectionOption?: boolean;
 }) {
+  // Filter the sort options at render time so the rest of the
+  // dropdown stays unchanged. Keeps SORT_LABELS as the single
+  // source of truth for option labels.
+  const visibleKeys = (Object.keys(SORT_LABELS) as SortKey[]).filter(
+    (k) => !(hideCollectionOption && k === "collection")
+  );
+
   return (
     <div className="relative">
       <button
@@ -391,7 +419,7 @@ function SortControl({
           onClick={(e) => e.stopPropagation()}
           className="absolute right-0 top-full mt-2 z-50 min-w-[180px] rounded-[12px] border border-white/15 bg-[#112732] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
         >
-          {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
+          {visibleKeys.map((k) => (
             <button
               key={k}
               onClick={() => {
