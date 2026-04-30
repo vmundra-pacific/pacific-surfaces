@@ -78,6 +78,11 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Hide the global site header on the visualizer route — that page has
+  // its own dedicated workspace toolbar and the floating site nav was
+  // overlapping it. Same treatment applied to the Footer.
+  if (pathname?.startsWith("/visualize")) return null;
+
   // LOGO swap rule — three layered variants picked by context.
   //
   //   1. monogram-dark.png  (Inverted — black tile + light mark)

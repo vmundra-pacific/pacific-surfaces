@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -159,6 +161,7 @@ const socialLinks: {
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
   const [newsletter, setNewsletter] = useState({ firstName: "", email: "" });
   const [newsletterState, setNewsletterState] = useState<
     "idle" | "sending" | "sent"
@@ -173,6 +176,11 @@ export default function Footer() {
       setTimeout(() => setNewsletterState("idle"), 3000);
     }, 1000);
   };
+
+  // Hide the global site footer on the visualizer route — that page
+  // owns the full viewport. Placed AFTER all hooks so React's hook
+  // order stays consistent across renders (Rules of Hooks).
+  if (pathname?.startsWith("/visualize")) return null;
 
   return (
     <footer className="bg-stone-950 text-stone-400 overflow-hidden">

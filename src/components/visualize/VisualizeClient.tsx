@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -56,6 +56,34 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
   // the intake screen and the workspace header.
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const canvasRef = useRef<RoomCanvasHandle>(null);
+
+  // Lock the page scroll while the visualizer is mounted. Two reasons:
+  //   1. The global `scrollbar-gutter: stable` rule (added in
+  //      globals.css to stabilise the site header) reserves a vertical
+  //      scrollbar gutter even on pages that don't actually scroll —
+  //      that gutter was visible at the right edge of /visualize.
+  //   2. When the inspector reaches its scroll bounds, the wheel event
+  //      otherwise propagates to the body, scrolling the (mostly
+  //      empty) page underneath. Locking body overflow keeps every
+  //      wheel event inside the inspector or the slab dock.
+  // We override the gutter to `auto` so no space is reserved on this
+  // page, and restore the prior values when the visualizer unmounts.
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevGutter = html.style.scrollbarGutter;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    html.style.scrollbarGutter = "auto";
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      html.style.scrollbarGutter = prevGutter;
+    };
+  }, []);
+
 
   // The slab currently being shown as "active" in the picker — the
   // one assigned to the focused surface, if any.
@@ -448,7 +476,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
           </button>
           <div className="hidden md:flex items-center gap-2 text-[10px] tracking-[.24em] uppercase text-pacific-mid">
             <Sparkles className="w-3.5 h-3.5" />
-            Pacific visualiser · beta
+            Pacific visualiser
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -488,6 +516,12 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
             <Download className="w-3 h-3" />
             Export
           </button>
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-1.5 text-pacific-mid hover:text-pacific-light text-[10px] tracking-[.2em] uppercase px-3 py-1.5 border border-white/10 rounded-full hover:border-white/30 transition-colors"
+          >
+            Contact us
+          </Link>
           <button
             onClick={() => setInspectorOpen((v) => !v)}
             className="lg:hidden inline-flex items-center justify-center w-9 h-9 border border-white/10 rounded-full hover:border-white/30 transition-colors"
@@ -552,7 +586,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 40, opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="hidden lg:flex w-[340px] shrink-0 border-l border-white/8 bg-pacific-dark/40 backdrop-blur-xl flex-col min-h-0"
+              className="hidden lg:flex w-[340px] shrink-0 border-l border-white/8 bg-pacific-dark/40 backdrop-blur-xl flex-col min-h-0 overscroll-contain"
             >
               <div className="shrink-0 flex items-center justify-between px-5 py-4 border-b border-white/8">
                 <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid">
@@ -836,8 +870,25 @@ function InspectorContents({
     ? `/products/${slab.slug}`
     : "/catalogue";
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  // Hover-to-scroll: forward wheel events into our own scrollTop and
+  // suppress the page-level handler. Without this, when the inner
+  // content fits, wheel events fall through to the body even though
+  // overflow-y-auto is set — so the user feels like nothing happens
+  // when they hover over the inspector and try to flick scroll.
+  const onInspectorWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop += e.deltaY;
+    e.stopPropagation();
+  };
+
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+    <div
+      ref={scrollRef}
+      onWheel={onInspectorWheel}
+      className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
+    >
       {/* ─────────────── Surface state ─────────────── */}
       <section className="px-5 pt-5 pb-4 border-b border-white/8">
         <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid mb-2">
@@ -956,12 +1007,16 @@ function InspectorContents({
                 View product
                 <ArrowUpRight className="w-3 h-3" />
               </Link>
-              <Link
-                href="/contact"
+              <a
+                href={`mailto:bindu@thepacific.group?subject=${encodeURIComponent(
+                  `Sample Request - ${slab.name}`,
+                )}&body=${encodeURIComponent(
+                  `Hi Pacific team,\n\nI'd like to request a sample of ${slab.name}.\n\nThanks!`,
+                )}`}
                 className="inline-flex items-center justify-center gap-1.5 border border-white/20 text-pacific-light text-[10px] tracking-[.22em] uppercase px-4 py-2.5 rounded-full hover:border-white/50 transition-colors"
               >
                 Sample
-              </Link>
+              </a>
             </div>
           </>
         ) : (

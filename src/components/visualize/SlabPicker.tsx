@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import type { Slab } from "@/data/slabs";
@@ -30,6 +32,23 @@ export function SlabPicker({
   canApplyToAll,
   onApplyToAll,
 }: SlabPickerProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  // Map vertical wheel motion to horizontal scrolling so the user can
+  // flick through the slab dock without having to hold Shift or use
+  // a trackpad swipe. e.preventDefault on the WheelEvent (cast to
+  // native) keeps the page from also scrolling.
+  const onDockWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // Some users WILL flick horizontally on a trackpad — respect
+    // whichever delta is larger so vertical-mostly + horizontal-mostly
+    // both feel right.
+    const delta =
+      Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    el.scrollLeft += delta;
+    e.stopPropagation();
+  };
+
   return (
     <div className="relative">
       <div className="flex items-baseline justify-between mb-4 gap-3">
@@ -61,7 +80,11 @@ export function SlabPicker({
         </div>
       </div>
 
-      <div className="overflow-x-auto pb-2 -mx-1 scrollbar-thin">
+      <div
+        ref={scrollRef}
+        onWheel={onDockWheel}
+        className="overflow-x-auto pb-2 -mx-1 scrollbar-thin"
+      >
         <div className="flex gap-3 px-1">
           {slabs.map((s) => {
             const isActive = active?.id === s.id;

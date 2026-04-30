@@ -73,4 +73,21 @@ body {
 }
 .animate-marquee {
   animation: marquee 25s linear infinite;
-  /* will-change hi
+  /* will-change hints the compositor to promote this layer so the
+     transform animation runs on the GPU without repaint cost. */
+  will-change: transform;
+}
+
+/* Smooth bounce for scroll indicator */
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 1.8s ease-in-out infinite;
+}
