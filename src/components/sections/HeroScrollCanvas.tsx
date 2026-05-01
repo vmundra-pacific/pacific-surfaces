@@ -67,76 +67,90 @@ export function HeroScrollCanvas() {
     const imgs: HTMLImageElement[] = new Array(TOTAL_FRAMES);
     imagesRef.current = imgs;
 
-    // Load a single kitchen frame. Try AVIF first (40-60% smaller
-    // than JPG at the same visual quality, ~95% browser support
-    // globally) and fall back to JPG on error so older browsers and
-    // any frames that haven't been converted yet still render.
-    const loadFrame = (i: number): Promise<void> =>
+    // One-shot AVIF feature detection. Probes a single AVIF — if it
+    // loads, all subsequent frames request `.avif` directly; if it
+    // fails (browser doesn't support AVIF, or the conversion hasn't
+    // run yet), we lock to `.jpg` for every remaining frame. This
+    // avoids paying a round-trip-per-frame penalty for the
+    // try-AVIF-then-retry-JPG approach we had before.
+    const detectExt = (): Promise<"avif" | "jpg"> =>
       new Promise((resolve) => {
-        const img = new window.Image();
-        const base = `/hero-frames/frame-${pad(i + 1)}`;
-        let triedFallback = false;
-        img.onload = () => {
-          imgs[i] = img;
-          if (!cancelled) {
-            count++;
-            setLoaded(count);
-          }
-          resolve();
+        const probe = new window.Image();
+        const t = setTimeout(() => resolve("jpg"), 1500);
+        probe.onload = () => {
+          clearTimeout(t);
+          resolve("avif");
         };
-        img.onerror = () => {
-          if (!triedFallback) {
-            // AVIF missing or unsupported — swap to the JPG and let
-            // the same handlers fire on the second attempt.
-            triedFallback = true;
-            img.src = `${base}.jpg`;
-            return;
-          }
-          // Both failed; still resolve so we don't stall the queue.
-          imgs[i] = img;
-          if (!cancelled) {
-            count++;
-            setLoaded(count);
-          }
-          resolve();
+        probe.onerror = () => {
+          clearTimeout(t);
+          resolve("jpg");
         };
-        img.src = `${base}.avif`;
+        probe.src = `/hero-frames/frame-${pad(1)}.avif`;
       });
 
-    // Phase 1 — load initial batch in parallel
-    const phase1 = Array.from({ length: INITIAL_BATCH }, (_, i) =>
-      loadFrame(i)
-    );
-    Promise.all(phase1).then(() => {
+    // Load a single kitchen frame, locked to the chosen extension.
+    const loadFrame = (i: number, ext: "avif" | "jpg"): Promise<void> =>
+      new Promise((resolve) => {
+        const img = new window.Image();
+        img.src = `/hero-frames/frame-${pad(i + 1)}.${ext}`;
+        img.onload = img.onerror = () => {
+          imgs[i] = img;
+          if (!cancelled) {
+            count++;
+            setLoaded(count);
+          }
+          resolve();
+        };
+      });
+
+    // Hard safety timeout — if any frame stalls (network blip, CDN
+    // miss), the user shouldn't sit on the loading screen forever.
+    // 8s is long enough for any reasonable connection to load 60
+    // frames at AVIF sizes (~30 KB each = ~1.8 MB).
+    const safety = setTimeout(() => {
+      if (!cancelled) setReady(true);
+    }, 8000);
+
+    // Detect, then kick off Phase 1 with the locked extension.
+    let phase1: Promise<void>[];
+    detectExt().then((ext) => {
       if (cancelled) return;
-      setTimeout(() => {
-        setReady(true);
-        // Tell the site splash screen it can dismiss without showing
-        // an empty canvas. Fire-and-forget; if no listener exists
-        // (e.g. user navigated past the splash already), this is a
-        // no-op.
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new Event("pacific:hero-ready"));
-        }
-      }, 200);
+      phase1 = Array.from({ length: INITIAL_BATCH }, (_, i) =>
+        loadFrame(i, ext)
+      );
+      Promise.all(phase1).then(() => {
+        if (cancelled) return;
+        clearTimeout(safety);
+        setTimeout(() => {
+          setReady(true);
+          // Tell the site splash screen it can dismiss without
+          // showing an empty canvas. Fire-and-forget; if no listener
+          // exists (e.g. user navigated past the splash already),
+          // this is a no-op.
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("pacific:hero-ready"));
+          }
+        }, 200);
 
-      // Phase 2 — load remaining kitchen frames in small batches
-      const BATCH = 20;
-      let cursor = INITIAL_BATCH;
+        // Phase 2 — load remaining kitchen frames in small batches
+        const BATCH = 20;
+        let cursor = INITIAL_BATCH;
 
-      const loadNextBatch = () => {
-        if (cancelled || cursor >= TOTAL_FRAMES) return;
-        const end = Math.min(cursor + BATCH, TOTAL_FRAMES);
-        const batch = [];
-        for (let i = cursor; i < end; i++) batch.push(loadFrame(i));
-        cursor = end;
-        Promise.all(batch).then(loadNextBatch);
-      };
-      loadNextBatch();
+        const loadNextBatch = () => {
+          if (cancelled || cursor >= TOTAL_FRAMES) return;
+          const end = Math.min(cursor + BATCH, TOTAL_FRAMES);
+          const batch = [];
+          for (let i = cursor; i < end; i++) batch.push(loadFrame(i, ext));
+          cursor = end;
+          Promise.all(batch).then(loadNextBatch);
+        };
+        loadNextBatch();
+      });
     });
 
     return () => {
       cancelled = true;
+      clearTimeout(safety);
     };
   }, []);
 
@@ -318,9 +332,13 @@ export function HeroScrollCanvas() {
   // Loading screen shows progress of the initial batch (60 frames),
   // not all 1039 — so it dismisses quickly while the rest loads in background
   const INITIAL_BATCH = 60;
-  const loadPct = ready
-    ? 100
-    : Math.round((Math.min(loaded, INITIAL_BATCH) / INITIAL_BATCH) * 100);
+  // Cap visible progress at 90% until `ready` (canvas drew its
+  // first frame) so the bar never reads 100% while the user is
+  // still staring at the loading screen waiting for paint.
+  const rawPct = Math.round(
+    (Math.min(loaded, INITIAL_BATCH) / INITIAL_BATCH) * 100
+  );
+  const loadPct = ready ? 100 : Math.min(rawPct, 90);
 
   return (
     <>
