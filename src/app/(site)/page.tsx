@@ -99,11 +99,12 @@ export default async function HomePage() {
       <SignatureProjects projects={projects} />
       <TestimonialsSection />
       <InspirationGrid inspirations={inspirations} />
-      <PartnerWithUs />
-      {/* VisualizerStrip moved to bottom — sits just before the
-          closing CTA so it acts as the final interactive prompt
-          before the page-ending call-to-action. */}
+      {/* VisualizerStrip lives between Projects and PartnerWithUs so
+          the visualizer demo flows naturally out of the project
+          showcase, then PartnerWithUs and ClosingCTA close out the
+          page. */}
       <VisualizerStrip />
+      <PartnerWithUs />
       <ClosingCTA />
     </>
   );

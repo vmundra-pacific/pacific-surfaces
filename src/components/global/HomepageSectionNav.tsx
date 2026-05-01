@@ -41,9 +41,9 @@ const SECTIONS: { id: string; num: string; label: string }[] = [
   // SignatureProjects section is framed as architect endorsement
   // ("specified by architects on every continent") — the nav label
   // reflects that angle directly rather than the generic "Projects".
-  { id: "sec-projects", num: "04", label: "Architects" },
+  { id: "sec-architects", num: "04", label: "Architects" },
   { id: "sec-voices", num: "05", label: "Voices" },
-  { id: "sec-inspiration", num: "06", label: "Inspiration" },
+  { id: "sec-projects", num: "06", label: "Projects" },
   { id: "sec-visualize", num: "07", label: "Visualize" },
 ];
 

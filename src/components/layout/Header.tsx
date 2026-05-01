@@ -58,7 +58,7 @@ const navigation = [
 // Desktop nav drops "Contact" because the "Get a Quote" CTA already
 // routes there — listing it twice was crowding the row. Mobile menu
 // still uses the full `navigation` array.
-const desktopNavigation = navigation.filter((item) => item.name !== "Contact");
+const desktopNavigation = navigation;
 
 interface NavItem {
   name: string;
@@ -141,7 +141,7 @@ export default function Header() {
           scrolled ? "bg-[#112732]/95 backdrop-blur-xl" : "bg-transparent"
         )}
       >
-        <nav className="mx-auto max-w-7xl px-6 lg:px-8">
+        <nav className="mx-auto max-w-[1400px] px-6 lg:px-8">
           <div className="flex h-20 items-center justify-between">
             {/* Logo — monogram + wordmark.
                 The monogram swaps based on header state so it always
@@ -208,7 +208,7 @@ export default function Header() {
               </span>
               <span
                 className={cn(
-                  "text-lg font-light tracking-[0.15em] transition-colors duration-300",
+                  "hidden xl:inline text-lg font-light tracking-[0.15em] transition-colors duration-300",
                   "text-stone-300"
                 )}
               >
@@ -217,13 +217,13 @@ export default function Header() {
             </Link>
 
             {/* Desktop nav */}
-            <div className="hidden md:flex md:items-center md:gap-x-6 lg:gap-x-8">
+            <div className="hidden md:flex md:items-center md:gap-x-5 lg:gap-x-6 xl:gap-x-9">
               {desktopNavigation.map((item: NavItem) => (
                 <div key={item.name} className="relative group">
                   <Link
                     href={item.href}
                     className={cn(
-                      "relative text-[12px] lg:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
+                      "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
                       // Same colour treatment in both states now —
                       // header bg is dark in both cases.
                       "text-stone-300 hover:text-white"
@@ -254,7 +254,7 @@ export default function Header() {
             </div>
 
             {/* CTA + Search + Mobile toggle */}
-            <div className="flex items-center gap-2 lg:gap-2.5">
+            <div className="flex items-center gap-2 lg:gap-2.5 xl:gap-3">
               <button
                 onClick={() => setSearchOpen(true)}
                 className={cn(
@@ -277,7 +277,7 @@ export default function Header() {
               <Link
                 href="/visualize"
                 className={cn(
-                  "hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
+                  "hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 xl:px-6 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
                   scrolled
                     ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
                     : "bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20"
@@ -290,7 +290,7 @@ export default function Header() {
               <Link
                 href="/contact"
                 className={cn(
-                  "hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
+                  "hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 xl:px-6 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
                   // Scrolled now uses a solid white pill for max
                   // contrast against the dark navy header. Top of
                   // page keeps the translucent glass-pill style.

@@ -187,35 +187,63 @@ export function ContactContent() {
           }}
         />
         <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-32 pb-16">
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4"
-          >
-            Get in Touch
-          </motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.6,
-              delay: 0.2,
-              ease: [0.25, 0.4, 0.25, 1],
-            }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-2xl"
-          >
-            Let&apos;s Create Something Extraordinary
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.35 }}
-            className="mt-4 text-lg text-pacific-mid/70 max-w-xl font-light"
-          >
-            Whether you need a quote, samples, or expert advice on surface
-            selection — we&apos;re here to help.
-          </motion.p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Left — existing copy */}
+            <div>
+              <motion.span
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4"
+              >
+                Get in Touch
+              </motion.span>
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.2,
+                  ease: [0.25, 0.4, 0.25, 1],
+                }}
+                className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-2xl"
+              >
+                Let&apos;s Create Something Extraordinary
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.35 }}
+                className="mt-4 text-lg text-pacific-mid/70 max-w-xl font-light"
+              >
+                Whether you need a quote, samples, or expert advice on surface
+                selection — we&apos;re here to help.
+              </motion.p>
+            </div>
+
+            {/* Right — looping map animation. Same compression treatment
+                as every other site video (H.264 crf 28, faststart, no
+                audio); poster paints first while the file streams. */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-stone-900"
+            >
+              <video
+                src="/videos/contact-map.mp4"
+                poster="/videos/contact-map-poster.jpg"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 ring-1 ring-inset ring-white/10 pointer-events-none rounded-2xl" />
+            </motion.div>
+          </div>
         </div>
         <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       </section>
