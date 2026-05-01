@@ -102,13 +102,15 @@ export function SlabCard({ slab, index }: Props) {
         onMouseEnter={warmCache}
         onTouchStart={warmCache}
         onFocus={warmCache}
-        onClick={(e) => {
-          // Only toggle on touch devices — desktop uses hover. We
-          // detect via the PointerEvent's pointerType ("touch" or
-          // "pen"). If a tap lands on the overlay's own buttons /
-          // links those handlers stopPropagation so this won't fire.
-          const pt = (e.nativeEvent as PointerEvent).pointerType;
-          if (pt === "touch" || pt === "pen") {
+        onClick={() => {
+          // Tap-to-reveal only on devices WITHOUT a fine pointer.
+          // matchMedia is more reliable than PointerEvent.pointerType
+          // which some Android browsers report as "" or "mouse" even
+          // on touch. Buttons inside the overlay stopPropagation so
+          // they navigate without retoggling the card.
+          if (typeof window === "undefined") return;
+          const canHover = window.matchMedia("(hover: hover)").matches;
+          if (!canHover) {
             setTappedOpen((v) => !v);
           }
         }}
@@ -174,7 +176,7 @@ export function SlabCard({ slab, index }: Props) {
 
         {/* Hover overlay — three CTAs (or two for product collections).
             flex-wrap so the buttons don't crowd on narrow cards. */}
-        <div className={["absolute inset-0 z-30 flex flex-wrap items-center justify-center gap-2 p-3 bg-pacific-dark/60 backdrop-blur-[2px] transition-all duration-300 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0", tappedOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"].join(" ")}>
+        <div className={["absolute inset-0 z-30 flex flex-wrap items-center justify-center gap-2 p-3 bg-pacific-dark/60 backdrop-blur-[2px] transition-all duration-300 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:pointer-events-auto", tappedOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-2 pointer-events-none"].join(" ")}>
           <Link
             href={`/products/${slab.slug}`}
             className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform [@media(hover:hover)]:hover:scale-[1.04]"

@@ -141,7 +141,7 @@ export default function Header() {
           scrolled ? "bg-[#112732]/95 backdrop-blur-xl" : "bg-transparent"
         )}
       >
-        <nav className="mx-auto max-w-[1400px] px-6 lg:px-8">
+        <nav className="mx-auto max-w-[1400px] px-6 lg:px-8" style={{ paddingLeft: "max(1.5rem, env(safe-area-inset-left))", paddingRight: "max(1.5rem, env(safe-area-inset-right))" }}>
           <div className="flex h-20 items-center justify-between">
             {/* Logo — monogram + wordmark.
                 The monogram swaps based on header state so it always
@@ -217,7 +217,7 @@ export default function Header() {
             </Link>
 
             {/* Desktop nav */}
-            <div className="hidden md:flex md:items-center md:gap-x-5 lg:gap-x-6 xl:gap-x-9">
+            <div className="hidden lg:flex lg:items-center lg:gap-x-6 xl:gap-x-9">
               {desktopNavigation.map((item: NavItem) => (
                 <div key={item.name} className="relative group">
                   <Link
@@ -305,7 +305,7 @@ export default function Header() {
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className={cn(
-                  "md:hidden p-2 rounded-lg transition-colors",
+                  "lg:hidden p-2 rounded-lg transition-colors",
                   // Always white now since both states are dark.
                   "text-white"
                 )}
@@ -329,7 +329,7 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[60] bg-stone-950/95 backdrop-blur-xl md:hidden overflow-y-auto overscroll-contain"
+            className="fixed inset-0 z-[60] bg-stone-950/95 backdrop-blur-xl lg:hidden overflow-y-auto overscroll-contain"
             onClick={() => setMobileOpen(false)}
           >
             <button

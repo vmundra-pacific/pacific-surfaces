@@ -17,6 +17,16 @@
   --color-pacific-light: #dae1e8;
 }
 
+/* Safe-area on iPhone landscape — without these the notch sides
+   stay black. We extend the body background under the notch, then
+   header / slab-dock components add their own
+   padding-left: env(safe-area-inset-left) so content clears it. */
+@supports (padding: max(0px)) {
+  body {
+    background-color: var(--background);
+  }
+}
+
 html,
 body {
   /* Mobile: kill horizontal overflow + rubber-band entirely so the

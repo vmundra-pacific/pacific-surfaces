@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import GlobalDustMount from "@/components/global/GlobalDustMount";
@@ -7,6 +7,17 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
+
+// `viewportFit: "cover"` lets the page render edge-to-edge on
+// iPhone in landscape — without it iOS Safari leaves black bars
+// where the notch is. Components that touch the screen edge (the
+// header, the slab dock, hero scrim) read env(safe-area-inset-*)
+// in CSS to keep their content clear of the notch itself.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: {
