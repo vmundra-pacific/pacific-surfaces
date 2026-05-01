@@ -8,7 +8,7 @@ import {
 import { TextReveal } from "@/components/ui/text-reveal";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface SanityProject {
   _id: string;
@@ -343,10 +343,50 @@ function thumbUrl(src: string): string {
   return `${src}${sep}w=800&fit=max&q=70&auto=format`;
 }
 
-function ProjectVideo({ src, className, poster }: { src: string; className?: string; poster?: string }) {
+function ProjectVideo({
+  src,
+  className,
+  poster,
+}: {
+  src: string;
+  className?: string;
+  poster?: string;
+}) {
   const ref = useRef<HTMLVideoElement>(null);
+  // The poster image is mounted for every card from page load with
+  // priority/eager loading, so by the time any card scrolls into
+  // view its still frame is already painted. The <video> only fades
+  // in once it can actually play frames; until then the poster
+  // covers it.
+  const [canPlay, setCanPlay] = useState(false);
+  // Slow-network / low-RAM gate. We snapshot once at mount and
+  // never reload — flapping between cellular and Wi-Fi mid-page
+  // would flicker the layout otherwise. When `skipVideo` is true the
+  // <video> element is never rendered and we deliver only the
+  // poster image.
+  const [skipVideo, setSkipVideo] = useState(false);
 
   useEffect(() => {
+    if (typeof navigator === "undefined") return;
+    type NavConnection = {
+      effectiveType?: string;
+      saveData?: boolean;
+    };
+    const conn = (
+      navigator as unknown as { connection?: NavConnection }
+    ).connection;
+    const memGB = (navigator as unknown as { deviceMemory?: number })
+      .deviceMemory;
+    const slowNet =
+      conn?.saveData === true ||
+      (conn?.effectiveType !== undefined &&
+        ["slow-2g", "2g", "3g"].includes(conn.effectiveType));
+    const lowMem = typeof memGB === "number" && memGB <= 2;
+    if (slowNet || lowMem) setSkipVideo(true);
+  }, []);
+
+  useEffect(() => {
+    if (skipVideo) return;
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(
@@ -371,29 +411,53 @@ function ProjectVideo({ src, className, poster }: { src: string; className?: str
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [skipVideo]);
+
+  // Resolve a poster URL identically to the old video poster prop
+  // logic, so the eager <Image> matches what the <video> would have
+  // shown otherwise.
+  const posterSrc =
+    poster ??
+    (src.startsWith("/videos/")
+      ? src.replace(/\.mp4$/, "-poster.jpg")
+      : undefined);
 
   return (
-    <video
-      ref={ref}
-      key={src}
-      src={src}
-      poster={
-        // Prefer an explicit poster (Sanity image for Sanity-hosted
-        // videos). Otherwise auto-derive for /videos/X.mp4 -> /videos/
-        // X-poster.jpg. Otherwise no poster (browser shows nothing
-        // until the first frame decodes).
-        poster ??
-        (src.startsWith("/videos/")
-          ? src.replace(/\.mp4$/, "-poster.jpg")
-          : undefined)
-      }
-      loop
-      muted
-      playsInline
-      preload="none"
-      aria-hidden="true"
-      className={className}
-    />
+    <>
+      {posterSrc && (
+        <Image
+          src={posterSrc}
+          alt=""
+          aria-hidden="true"
+          fill
+          // priority: load eagerly, on first paint, before any
+          // video bytes are even requested. The poster covers the
+          // video element until canPlay flips, so the user always
+          // sees imagery on entry — never a black frame.
+          priority
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className={`object-cover transition-opacity duration-500 ${
+            !skipVideo && canPlay ? "opacity-0" : "opacity-100"
+          }`}
+        />
+      )}
+      {!skipVideo && (
+        <video
+          ref={ref}
+          key={src}
+          src={src}
+          poster={posterSrc}
+          loop
+          muted
+          playsInline
+          preload="none"
+          onCanPlay={() => setCanPlay(true)}
+          aria-hidden="true"
+          className={`${className ?? ""} transition-opacity duration-500 ${
+            canPlay ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      )}
+    </>
   );
 }
