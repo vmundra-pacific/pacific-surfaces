@@ -267,6 +267,7 @@ function ProjectCard({
       {item.videoUrl ? (
         <ProjectVideo
           src={item.videoUrl}
+          poster={item.image ? thumbUrl(item.image) : undefined}
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       ) : item.image ? (
@@ -282,16 +283,15 @@ function ProjectCard({
           className={`absolute inset-0 bg-gradient-to-br ${item.bg || fallbackBg}`}
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
       <div
         className="absolute inset-0 opacity-[0.04]"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
       />
-      <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
-        <div className="text-sm font-medium text-white">{item.name}</div>
-      </div>
+      {/* Caption + bottom scrim removed per editorial direction —
+          cards now read as pure imagery without the project name
+          band underneath. */}
     </>
   );
 
@@ -333,7 +333,17 @@ function ProjectCard({
  * photograph aesthetic of the existing showcase), then pauses
  * cleanly on exit so the GPU can rest.
  */
-function ProjectVideo({ src, className }: { src: string; className?: string }) {
+// Sanity image CDN tweak: shrink mainImage to ~800px for use as a
+// video poster. Saves bytes (multi-MB master -> ~30 KB AVIF/WebP)
+// without losing visible quality for the time it's on screen before
+// the video plays.
+function thumbUrl(src: string): string {
+  if (!src.includes("cdn.sanity.io")) return src;
+  const sep = src.includes("?") ? "&" : "?";
+  return `${src}${sep}w=800&fit=max&q=70&auto=format`;
+}
+
+function ProjectVideo({ src, className, poster }: { src: string; className?: string; poster?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -369,9 +379,14 @@ function ProjectVideo({ src, className }: { src: string; className?: string }) {
       key={src}
       src={src}
       poster={
-        src.startsWith("/videos/")
+        // Prefer an explicit poster (Sanity image for Sanity-hosted
+        // videos). Otherwise auto-derive for /videos/X.mp4 -> /videos/
+        // X-poster.jpg. Otherwise no poster (browser shows nothing
+        // until the first frame decodes).
+        poster ??
+        (src.startsWith("/videos/")
           ? src.replace(/\.mp4$/, "-poster.jpg")
-          : undefined
+          : undefined)
       }
       loop
       muted
