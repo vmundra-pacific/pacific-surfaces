@@ -45,7 +45,7 @@ const headlines = [
 export function HeroScrollCanvas() {
   const trackRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imagesRef = useRef<(HTMLImageElement | ImageBitmap)[]>([]);
+  const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastIdxRef = useRef(0);
   const sizedRef = useRef(false);
 
@@ -64,7 +64,7 @@ export function HeroScrollCanvas() {
     const INITIAL_BATCH = 60; // enough for first ~10% scroll
     let count = 0;
     let cancelled = false;
-    const imgs: (HTMLImageElement | ImageBitmap)[] = new Array(TOTAL_FRAMES);
+    const imgs: HTMLImageElement[] = new Array(TOTAL_FRAMES);
     imagesRef.current = imgs;
 
     // One-shot AVIF feature detection. Probes a single AVIF — if it
@@ -89,62 +89,18 @@ export function HeroScrollCanvas() {
       });
 
     // Load a single kitchen frame, locked to the chosen extension.
-    // After download, eager-decode (img.decode()) and convert to an
-    // ImageBitmap. Both steps move per-frame work OFF the main draw
-    // thread:
-    //   - decode() forces the browser to decode pixels into its
-    //     internal cache now, instead of lazily on first drawImage
-    //     (which would block the main thread for ~5-15ms and cause
-    //     scroll jank on mobile).
-    //   - createImageBitmap() returns a fully-decoded GPU-friendly
-    //     texture; drawImage(ImageBitmap) is significantly faster
-    //     than drawImage(HTMLImageElement) and skips re-decode on
-    //     repeated draws.
-    // Both steps are best-effort — on failure we fall back to the
-    // raw HTMLImageElement so the frame still renders.
     const loadFrame = (i: number, ext: "avif" | "jpg"): Promise<void> =>
       new Promise((resolve) => {
         const img = new window.Image();
-        img.decoding = "async";
-        img.onload = async () => {
-          // Eager decode — into the browser's internal cache.
-          try {
-            if (typeof img.decode === "function") {
-              await img.decode();
-            }
-          } catch {
-            /* decode rejected (rare); swallow and keep going */
-          }
-          // Convert to ImageBitmap when supported. createImageBitmap
-          // is available on all modern browsers; the typeof check is
-          // belt-and-braces for very old environments.
-          let stored: HTMLImageElement | ImageBitmap = img;
-          try {
-            if (typeof createImageBitmap === "function") {
-              stored = await createImageBitmap(img);
-            }
-          } catch {
-            /* bitmap conversion rejected; fall back to the img */
-          }
-          if (!cancelled) {
-            imgs[i] = stored;
-            count++;
-            setLoaded(count);
-          }
-          resolve();
-        };
-        img.onerror = () => {
-          // Network/decode failure — store the (broken) img so the
-          // canvas falls back to the previous loaded frame, and let
-          // the queue continue.
-          if (!cancelled) {
-            imgs[i] = img;
-            count++;
-            setLoaded(count);
-          }
-          resolve();
-        };
         img.src = `/hero-frames/frame-${pad(i + 1)}.${ext}`;
+        img.onload = img.onerror = () => {
+          imgs[i] = img;
+          if (!cancelled) {
+            count++;
+            setLoaded(count);
+          }
+          resolve();
+        };
       });
 
     // Hard safety timeout — if any frame stalls (network blip, CDN
@@ -224,44 +180,22 @@ export function HeroScrollCanvas() {
         sizedRef.current = true;
       }
 
-      // ImageBitmap and HTMLImageElement expose readiness +
-      // dimensions through different properties. Helpers normalise
-      // the access so the rest of drawFrame stays clean.
-      const isReady = (
-        x: HTMLImageElement | ImageBitmap | undefined
-      ): boolean => {
-        if (!x) return false;
-        // ImageBitmap is always ready once we have a reference (we
-        // only store it after `await createImageBitmap`).
-        if (typeof ImageBitmap !== "undefined" && x instanceof ImageBitmap)
-          return true;
-        return (x as HTMLImageElement).complete;
-      };
-      const widthOf = (x: HTMLImageElement | ImageBitmap): number =>
-        typeof ImageBitmap !== "undefined" && x instanceof ImageBitmap
-          ? x.width
-          : (x as HTMLImageElement).naturalWidth;
-      const heightOf = (x: HTMLImageElement | ImageBitmap): number =>
-        typeof ImageBitmap !== "undefined" && x instanceof ImageBitmap
-          ? x.height
-          : (x as HTMLImageElement).naturalHeight;
-
       // Find the requested frame, or fall back to nearest loaded frame
       let img = imagesRef.current[idx];
-      if (!isReady(img)) {
+      if (!img || !img.complete) {
         for (let j = idx - 1; j >= 0; j--) {
           const fallback = imagesRef.current[j];
-          if (isReady(fallback)) {
+          if (fallback && fallback.complete) {
             img = fallback;
             break;
           }
         }
-        if (!isReady(img)) return;
+        if (!img || !img.complete) return;
       }
 
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
-      const iR = widthOf(img) / heightOf(img);
+      const iR = img.naturalWidth / img.naturalHeight;
       const cR = w / h;
       let dw: number, dh: number, dx: number, dy: number;
 
