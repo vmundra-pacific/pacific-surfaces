@@ -67,12 +67,16 @@ export function HeroScrollCanvas() {
     const imgs: HTMLImageElement[] = new Array(TOTAL_FRAMES);
     imagesRef.current = imgs;
 
-    // Load a single kitchen frame
+    // Load a single kitchen frame. Try AVIF first (40-60% smaller
+    // than JPG at the same visual quality, ~95% browser support
+    // globally) and fall back to JPG on error so older browsers and
+    // any frames that haven't been converted yet still render.
     const loadFrame = (i: number): Promise<void> =>
       new Promise((resolve) => {
         const img = new window.Image();
-        img.src = `/hero-frames/frame-${pad(i + 1)}.jpg`;
-        img.onload = img.onerror = () => {
+        const base = `/hero-frames/frame-${pad(i + 1)}`;
+        let triedFallback = false;
+        img.onload = () => {
           imgs[i] = img;
           if (!cancelled) {
             count++;
@@ -80,6 +84,23 @@ export function HeroScrollCanvas() {
           }
           resolve();
         };
+        img.onerror = () => {
+          if (!triedFallback) {
+            // AVIF missing or unsupported — swap to the JPG and let
+            // the same handlers fire on the second attempt.
+            triedFallback = true;
+            img.src = `${base}.jpg`;
+            return;
+          }
+          // Both failed; still resolve so we don't stall the queue.
+          imgs[i] = img;
+          if (!cancelled) {
+            count++;
+            setLoaded(count);
+          }
+          resolve();
+        };
+        img.src = `${base}.avif`;
       });
 
     // Phase 1 — load initial batch in parallel
@@ -88,7 +109,16 @@ export function HeroScrollCanvas() {
     );
     Promise.all(phase1).then(() => {
       if (cancelled) return;
-      setTimeout(() => setReady(true), 200);
+      setTimeout(() => {
+        setReady(true);
+        // Tell the site splash screen it can dismiss without showing
+        // an empty canvas. Fire-and-forget; if no listener exists
+        // (e.g. user navigated past the splash already), this is a
+        // no-op.
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("pacific:hero-ready"));
+        }
+      }, 200);
 
       // Phase 2 — load remaining kitchen frames in small batches
       const BATCH = 20;

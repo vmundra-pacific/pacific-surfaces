@@ -61,12 +61,42 @@ export default function SiteSplashScreen() {
       /* ignore */
     }
 
-    // Safety ceiling — if the video never fires `ended` (missing file,
-    // codec issue, network stall) we still let the user through.
+    // Two-condition dismiss gate:
+    //   1. The brand video has reached its end (`videoEnded`), and
+    //   2. The homepage hero has loaded its first batch of frames
+    //      (`pacific:hero-ready`).
+    // Whichever finishes second flips `visible` to false. The 20s
+    // safety ceiling still applies as the absolute upper bound.
+    let videoEnded = false;
+    let heroReady = false;
+    const tryDismiss = () => {
+      if (videoEnded && heroReady) setVisible(false);
+    };
+    const onHeroReady = () => {
+      heroReady = true;
+      tryDismiss();
+    };
+    window.addEventListener("pacific:hero-ready", onHeroReady);
+
+    // Expose a setter the VideoLoadingScreen can call from onEnded.
+    // We attach it to a ref-like object on `window` so the inline
+    // arrow in the JSX below can flip the flag without the component
+    // having to thread state through.
+    (window as unknown as { __pacificSplashOnVideoEnd?: () => void }).__pacificSplashOnVideoEnd =
+      () => {
+        videoEnded = true;
+        tryDismiss();
+      };
+
+    // Safety ceiling — if either the video or the hero loader stalls
+    // beyond MAX_DISPLAY_MS we still let the user through.
     const ceiling = window.setTimeout(() => setVisible(false), MAX_DISPLAY_MS);
 
     return () => {
       window.clearTimeout(ceiling);
+      window.removeEventListener("pacific:hero-ready", onHeroReady);
+      delete (window as unknown as { __pacificSplashOnVideoEnd?: () => void })
+        .__pacificSplashOnVideoEnd;
     };
   }, []);
 
@@ -158,7 +188,17 @@ export default function SiteSplashScreen() {
             message="Welcome to Pacific Surfaces"
             subMessage="Setting the stage — your slabs are loading."
             loop={false}
-            onEnded={() => setVisible(false)}
+            onEnded={() => {
+              const w = window as unknown as {
+                __pacificSplashOnVideoEnd?: () => void;
+              };
+              if (typeof w.__pacificSplashOnVideoEnd === "function") {
+                w.__pacificSplashOnVideoEnd();
+              } else {
+                // Effect hasn't bound yet; just dismiss.
+                setVisible(false);
+              }
+            }}
           />
         </div>
       )}
