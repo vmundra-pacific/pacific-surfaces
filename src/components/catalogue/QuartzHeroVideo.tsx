@@ -40,6 +40,10 @@ export interface QuartzHeroVideoProps {
   headlineItalic?: string;
   /** Body paragraph below the headline. */
   description?: string;
+  /** When true, the caption block is centered horizontally + vertically
+   *  inside the hero with center-aligned text. Default `false` keeps the
+   *  bottom-left editorial layout used by every collection page. */
+  centered?: boolean;
 }
 
 const DEFAULTS: Required<QuartzHeroVideoProps> = {
@@ -49,10 +53,11 @@ const DEFAULTS: Required<QuartzHeroVideoProps> = {
   headlineItalic: "crafted for the everyday.",
   description:
     "Premium quartz slabs designed for kitchens, vanities, and feature walls — beautiful under any light, durable through any season.",
+  centered: false,
 };
 
 export function QuartzHeroVideo(props: QuartzHeroVideoProps = {}) {
-  const { videoSrc, eyebrow, headline, headlineItalic, description } = {
+  const { videoSrc, eyebrow, headline, headlineItalic, description, centered = false } = {
     ...DEFAULTS,
     ...props,
   };
@@ -103,7 +108,11 @@ export function QuartzHeroVideo(props: QuartzHeroVideoProps = {}) {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute left-6 md:left-10 bottom-6 md:bottom-10 max-w-md"
+        className={
+          centered
+            ? "absolute inset-0 flex flex-col items-center justify-center text-center px-6 max-w-3xl mx-auto"
+            : "absolute left-6 md:left-10 bottom-6 md:bottom-10 max-w-md"
+        }
       >
         <div
           className="text-[10px] md:text-xs tracking-[0.3em] uppercase text-pacific-light/95 mb-3"
@@ -128,7 +137,10 @@ export function QuartzHeroVideo(props: QuartzHeroVideoProps = {}) {
           </em>
         </h1>
         <p
-          className="mt-4 text-sm md:text-base text-pacific-light/95 font-light leading-relaxed max-w-sm"
+          className={
+            "mt-4 text-sm md:text-base text-pacific-light/95 font-light leading-relaxed " +
+            (centered ? "max-w-xl" : "max-w-sm")
+          }
           style={{
             textShadow: "0 1px 4px rgba(0,0,0,.85), 0 2px 18px rgba(0,0,0,.75)",
           }}

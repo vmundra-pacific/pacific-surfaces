@@ -72,7 +72,8 @@ export default async function AllProductsPage() {
         eyebrow="Pacific Surfaces"
         headline="The full collection,"
         headlineItalic="in one place."
-        description={`${slabs.length} surfaces. ${collectionCount} collections. Every quartz, granite, and semi-precious stone we make — ready to filter.`}
+        description="Infinite possibilities — every quartz, granite, exotic, and semi-precious surface we make, ready to filter, compare, and request."
+        centered
       />
 
       {/* 2. Heritage stats — already polished, no need to reinvent. */}
