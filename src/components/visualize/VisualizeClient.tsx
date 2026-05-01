@@ -499,14 +499,14 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
             className="inline-flex items-center gap-1.5 text-pacific-mid hover:text-pacific-light text-[10px] tracking-[.2em] uppercase px-3 py-1.5 border border-white/10 rounded-full hover:border-white/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Box className="w-3 h-3" />
-            Manual surface
+            <span className="hidden sm:inline">Manual surface</span>
           </button>
           <button
             onClick={() => canvasRef.current?.reset()}
-            className="inline-flex items-center gap-1.5 text-pacific-mid hover:text-pacific-light text-[10px] tracking-[.2em] uppercase px-3 py-1.5 border border-white/10 rounded-full hover:border-white/30 transition-colors"
+            className="hidden md:inline-flex items-center gap-1.5 text-pacific-mid hover:text-pacific-light text-[10px] tracking-[.2em] uppercase px-3 py-1.5 border border-white/10 rounded-full hover:border-white/30 transition-colors"
           >
             <RotateCcw className="w-3 h-3" />
-            Reset
+            <span className="hidden sm:inline">Reset</span>
           </button>
           <button
             onClick={handleExport}
@@ -514,7 +514,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
             className="inline-flex items-center gap-1.5 bg-pacific-light text-pacific-dark text-[10px] tracking-[.2em] uppercase px-3 py-1.5 rounded-full hover:bg-white disabled:opacity-40 disabled:hover:bg-pacific-light transition-colors"
           >
             <Download className="w-3 h-3" />
-            Export
+            <span className="hidden sm:inline">Export</span>
           </button>
           <Link
             href="/contact"

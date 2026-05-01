@@ -18,7 +18,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import type { Slab } from "@/data/slabs";
 import { zoomImageUrl } from "@/lib/zoom-image";
@@ -45,6 +45,27 @@ function isProductCollection(collection?: string | null): boolean {
 export function SlabCard({ slab, index }: Props) {
   const [sampleOpen, setSampleOpen] = useState(false);
   const [enquireOpen, setEnquireOpen] = useState(false);
+  // tappedOpen: touch-device tap-to-reveal state for the action
+  // overlay. On hover-capable devices this stays false and the
+  // overlay is driven by group-hover. On touch we toggle this on
+  // tap; an outside-tap listener clears it.
+  const [tappedOpen, setTappedOpen] = useState(false);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+
+  // Close the overlay when the user taps anywhere outside this card.
+  // Only attach the listener while the card is in the open state to
+  // keep the global pointerdown population at zero by default.
+  useEffect(() => {
+    if (!tappedOpen) return;
+    const handler = (e: PointerEvent) => {
+      const node = cardRef.current;
+      if (node && !node.contains(e.target as Node)) {
+        setTappedOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", handler);
+    return () => document.removeEventListener("pointerdown", handler);
+  }, [tappedOpen]);
 
   // Whether this slab is part of a "product" collection (gets View
   // Product label, no Sample button).
@@ -68,6 +89,7 @@ export function SlabCard({ slab, index }: Props) {
   return (
     <>
       <motion.div
+        ref={cardRef}
         layout
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
@@ -80,6 +102,16 @@ export function SlabCard({ slab, index }: Props) {
         onMouseEnter={warmCache}
         onTouchStart={warmCache}
         onFocus={warmCache}
+        onClick={(e) => {
+          // Only toggle on touch devices — desktop uses hover. We
+          // detect via the PointerEvent's pointerType ("touch" or
+          // "pen"). If a tap lands on the overlay's own buttons /
+          // links those handlers stopPropagation so this won't fire.
+          const pt = (e.nativeEvent as PointerEvent).pointerType;
+          if (pt === "touch" || pt === "pen") {
+            setTappedOpen((v) => !v);
+          }
+        }}
         className={[
           "group relative aspect-[4/5] overflow-hidden rounded-xl",
           "border border-white/10 bg-pacific-dark",
@@ -88,7 +120,7 @@ export function SlabCard({ slab, index }: Props) {
       >
         {/* Slab image or fallback swatch */}
         {slab.photoUrl ? (
-          <div className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] group-hover:scale-[1.04]">
+          <div className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]">
             <Image
               src={slab.photoUrl}
               alt={slab.name}
@@ -100,12 +132,12 @@ export function SlabCard({ slab, index }: Props) {
         ) : (
           <>
             <div
-              className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] group-hover:scale-[1.04]"
+              className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]"
               style={{ background: slab.swatch }}
             />
             {slab.overlay && (
               <div
-                className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] group-hover:scale-[1.04]"
+                className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]"
                 style={{ background: slab.overlay, mixBlendMode: "normal" }}
               />
             )}
@@ -142,10 +174,10 @@ export function SlabCard({ slab, index }: Props) {
 
         {/* Hover overlay — three CTAs (or two for product collections).
             flex-wrap so the buttons don't crowd on narrow cards. */}
-        <div className="absolute inset-0 z-30 flex flex-wrap items-center justify-center gap-2 p-3 bg-pacific-dark/60 opacity-0 backdrop-blur-[2px] transition-all duration-300 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0">
+        <div className={["absolute inset-0 z-30 flex flex-wrap items-center justify-center gap-2 p-3 bg-pacific-dark/60 backdrop-blur-[2px] transition-all duration-300 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0", tappedOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"].join(" ")}>
           <Link
             href={`/products/${slab.slug}`}
-            className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform hover:scale-[1.04]"
+            className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform [@media(hover:hover)]:hover:scale-[1.04]"
           >
             {productCollection ? "View Product" : "View Slab"}
           </Link>

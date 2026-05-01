@@ -200,6 +200,8 @@ export function ProductDetail({ product }: { product: Product }) {
       haystacks.includes("exotic") ||
       haystacks.includes("centrepiece") ||
       haystacks.includes("integra") ||
+      haystacks.includes("sink") ||
+      haystacks.includes("sinks") ||
       haystacks.includes("natural stone") ||
       haystacks.includes("natural-stone") ||
       haystacks.includes("stone finish") ||
@@ -679,7 +681,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     single cluster
                   - Visualizer button: icon + "Visualizer" text label
                     so users know what the home glyph leads to */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-stone-900/70 backdrop-blur-md rounded-full pl-2 pr-3 py-1.5">
+              <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-stone-900/70 backdrop-blur-md rounded-full pl-2 pr-3 py-1.5">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -1387,7 +1389,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <StaggerContainer>
                 {/* Single row of up to 5. Mobile collapses to 2 cols
                     so cards stay legible. */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 lg:gap-6">
+                <div className="flex overflow-x-auto snap-x snap-mandatory -mx-6 px-6 sm:mx-0 sm:px-0 sm:overflow-visible sm:grid sm:grid-cols-3 md:grid-cols-5 gap-4 lg:gap-6 [&>*]:shrink-0 [&>*]:w-[60%] sm:[&>*]:w-auto [&>*]:snap-start">
                   {picks.map((rp) => (
                     <StaggerItem key={rp._id}>
                       <Link
@@ -1600,7 +1602,7 @@ export function ProductDetail({ product }: { product: Product }) {
 
             {/* Lightbox thumbnails */}
             {thumbnails.length > 1 && (
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+              <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
                 {thumbnails.slice(0, 8).map((thumb, i) => (
                   <button
                     key={i}

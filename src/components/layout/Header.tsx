@@ -78,6 +78,20 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock body scroll while the mobile menu is open so the page
+  // beneath doesn't scroll under the user's finger when they swipe
+  // the menu list. Restored on close. Mobile-only; on desktop the
+  // mobile panel is `md:hidden` so this effect runs but mobileOpen
+  // never goes true.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
+
   // Hide the global site header on the visualizer route — that page has
   // its own dedicated workspace toolbar and the floating site nav was
   // overlapping it. Same treatment applied to the Footer.
@@ -315,14 +329,27 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-stone-950/95 backdrop-blur-xl md:hidden"
+            className="fixed inset-0 z-[60] bg-stone-950/95 backdrop-blur-xl md:hidden overflow-y-auto overscroll-contain"
+            onClick={() => setMobileOpen(false)}
           >
+            <button
+              type="button"
+              aria-label="Close menu"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMobileOpen(false);
+              }}
+              className="absolute top-5 right-5 z-10 w-10 h-10 rounded-full border border-white/15 text-white flex items-center justify-center"
+            >
+              <X className="w-5 h-5" />
+            </button>
             <motion.nav
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="flex flex-col items-center justify-center h-full gap-8 px-6"
+              className="flex flex-col items-center justify-center min-h-full gap-8 py-24 px-6"
+              onClick={(e) => e.stopPropagation()}
             >
               {navigation.map((item: NavItem, i) => (
                 <motion.div
@@ -330,6 +357,7 @@ export default function Header() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.15 + i * 0.06 }}
+                  className="flex flex-col items-center text-center"
                 >
                   <Link
                     href={item.href}

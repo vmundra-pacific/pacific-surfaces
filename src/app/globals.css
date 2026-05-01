@@ -17,14 +17,31 @@
   --color-pacific-light: #dae1e8;
 }
 
-html {
-  /* Always reserve space for the vertical scrollbar so the page
-     doesn't shift horizontally when scrollbars appear/disappear
-     (e.g. between routes, when overlays close, or when a browser
-     toggles overlay-scrollbar mode mid-scroll). This is what was
-     causing the header content to drift left when the scrolled
-     state kicked in. */
-  scrollbar-gutter: stable;
+html,
+body {
+  /* Mobile: kill horizontal overflow + rubber-band entirely so the
+     page can't scroll left/right when there's no horizontal content,
+     and so phantom right-edge gutters don't show as white bars when
+     a section uses 100vw. `overflow-x: clip` avoids breaking
+     position:fixed elements (which `overflow-x: hidden` does on
+     ancestors). Desktop overrides this in the lg breakpoint below. */
+  overflow-x: clip;
+}
+
+@media (min-width: 1024px) {
+  html {
+    /* Always reserve space for the vertical scrollbar on desktop so
+       the page doesn't shift horizontally when scrollbars appear or
+       disappear (between routes, when overlays close, etc.). On
+       mobile this rule shows up as a white gutter band on the right
+       edge — particularly painful when filter modals open — so we
+       scope it to desktop only. */
+    scrollbar-gutter: stable;
+    overflow-x: visible;
+  }
+  body {
+    overflow-x: visible;
+  }
 }
 
 body {
