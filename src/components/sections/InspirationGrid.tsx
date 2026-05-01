@@ -6,21 +6,47 @@ import Image from "next/image";
 
 /**
  * Project showcase — full-bleed slideshow.
- * Eyebrow + heading float OVER the image/video so the entire section
- * is filled by the media. Image slides advance every 5s; the video
- * (last slide) plays through to its native end via onEnded then loops
- * back to slide 0.
+ *
+ * Lazy-loaded: media doesn't fetch until the section enters the
+ * viewport, and the auto-advance timer doesn't start cycling until
+ * the user can actually see the section. So a viewer arriving at
+ * the section always sees slide 0 first, never a mid-cycle frame
+ * the timer landed on while the section was off-screen.
+ *
+ * Image slides advance every 5s; the video (last slide) plays through
+ * to its native end via onEnded then loops back to slide 0.
  */
 type Slide =
   | { kind: "image"; src: string; name: string }
   | { kind: "video"; src: string; poster: string; name: string };
 
 const SLIDES: Slide[] = [
-  { kind: "image", src: "/projects/ruskin-kitchen-counter.jpg", name: "Ruskin · Kitchen Counter" },
-  { kind: "image", src: "/projects/latte-luxe.jpg", name: "Latte Luxe · Installed" },
-  { kind: "image", src: "/projects/cappuccino-1.jpg", name: "Cappuccino · Detail" },
-  { kind: "image", src: "/projects/cappuccino-3.jpg", name: "Cappuccino · Vignette" },
-  { kind: "video", src: "/projects/cappuccino-installed.mp4", poster: "/projects/cappuccino-installed-poster.jpg", name: "Cappuccino · Installed" },
+  {
+    kind: "image",
+    src: "/projects/ruskin-kitchen-counter.jpg",
+    name: "Ruskin · Kitchen Counter",
+  },
+  {
+    kind: "image",
+    src: "/projects/latte-luxe.jpg",
+    name: "Latte Luxe · Installed",
+  },
+  {
+    kind: "image",
+    src: "/projects/cappuccino-1.jpg",
+    name: "Cappuccino · Detail",
+  },
+  {
+    kind: "image",
+    src: "/projects/cappuccino-3.jpg",
+    name: "Cappuccino · Vignette",
+  },
+  {
+    kind: "video",
+    src: "/projects/cappuccino-installed.mp4",
+    poster: "/projects/cappuccino-installed-poster.jpg",
+    name: "Cappuccino · Installed",
+  },
 ];
 
 const IMAGE_DURATION_MS = 5000;
@@ -39,67 +65,155 @@ export function InspirationGrid({
   inspirations?: SanityInspiration[];
 } = {}) {
   const [active, setActive] = useState(0);
+  const [inView, setInView] = useState(false);
+  // Reset to false when the active slide changes; flip to true when
+  // the video element fires `onCanPlay`. Until then we keep the
+  // poster image visible so the user never stares at black.
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
+  const sectionRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const advance = useCallback(() => {
     setActive((prev) => (prev + 1) % SLIDES.length);
   }, []);
 
+  // IntersectionObserver: flip `inView` true the first time any part
+  // of the section enters the viewport. We never reset it back to
+  // false — once the user has seen the section, the slideshow stays
+  // mounted so re-entering doesn't reset to slide 0.
   useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
+    if (typeof IntersectionObserver === "undefined") {
+      // Old browsers: render eagerly.
+      setInView(true);
+      return;
+    }
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setInView(true);
+            obs.disconnect();
+            break;
+          }
+        }
+      },
+      { threshold: 0.15 }
+    );
+    obs.observe(node);
+    return () => obs.disconnect();
+  }, []);
+
+  // Auto-advance: timer for image slides, native onEnded for the
+  // video slide. Both gated on `inView` so the carousel stays paused
+  // (and slide 0 stays visible) until the user reaches the section.
+  useEffect(() => {
+    if (!inView) return;
     const slide = SLIDES[active];
     if (slide.kind === "image") {
       const t = setTimeout(advance, IMAGE_DURATION_MS);
       return () => clearTimeout(t);
     }
+    // Video slide: reset its currentTime on entry so re-visits show
+    // the full clip from the start, then attempt play().
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => {
+        /* autoplay restrictions — poster keeps painting */
+      });
     }
-  }, [active, advance]);
+  }, [active, advance, inView]);
+
+  // Reset videoLoaded whenever the active slide changes — so when we
+  // switch to the video slide, we start in poster-fallback mode and
+  // wait for onCanPlay before swapping in the live <video>.
+  useEffect(() => {
+    setVideoLoaded(false);
+  }, [active]);
 
   const slide = SLIDES[active];
   const textShadow = "0 2px 8px rgba(0,0,0,.65), 0 6px 28px rgba(0,0,0,.55)";
 
   return (
     <section
+      ref={sectionRef}
       id="sec-projects"
       className="relative w-full h-screen overflow-hidden bg-stone-950 scroll-mt-20"
     >
-      {/* Slide media (full-bleed) */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={slide.src}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-0"
-        >
-          {slide.kind === "image" ? (
-            <Image
-              src={slide.src}
-              alt={slide.name}
-              fill
-              priority={active === 0}
-              className="object-cover"
-              sizes="100vw"
-            />
-          ) : (
-            <video
-              ref={videoRef}
-              src={slide.src}
-              poster={slide.poster}
-              muted
-              playsInline
-              preload="metadata"
-              autoPlay
-              onEnded={advance}
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          )}
-        </motion.div>
-      </AnimatePresence>
+      {/* Until the section is in view, render slide 0's image as a
+          static placeholder so the section reserves height and the
+          eyebrow/heading sit on real imagery. As soon as the user
+          scrolls in, swap to the live AnimatePresence stack. */}
+      {!inView ? (
+        <Image
+          src={
+            SLIDES[0].kind === "image"
+              ? SLIDES[0].src
+              : SLIDES[0].poster
+          }
+          alt=""
+          aria-hidden="true"
+          fill
+          className="object-cover"
+          sizes="100vw"
+          priority={false}
+        />
+      ) : (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={slide.src}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0"
+          >
+            {slide.kind === "image" ? (
+              <Image
+                src={slide.src}
+                alt={slide.name}
+                fill
+                priority={active === 0}
+                className="object-cover"
+                sizes="100vw"
+              />
+            ) : (
+              <>
+                {/* Poster always rendered. Fades out only when the
+                    video is genuinely ready to paint frames. If the
+                    video stalls or never finishes loading, the poster
+                    stays visible — far better than black. */}
+                <Image
+                  src={slide.poster}
+                  alt={slide.name}
+                  fill
+                  className={`object-cover transition-opacity duration-500 ${
+                    videoLoaded ? "opacity-0" : "opacity-100"
+                  }`}
+                  sizes="100vw"
+                />
+                <video
+                  ref={videoRef}
+                  src={slide.src}
+                  poster={slide.poster}
+                  muted
+                  playsInline
+                  preload="auto"
+                  autoPlay
+                  onCanPlay={() => setVideoLoaded(true)}
+                  onEnded={advance}
+                  aria-hidden="true"
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                    videoLoaded ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      )}
 
       {/* Top + bottom scrim — keeps eyebrow/heading + caption legible
           regardless of which frame the slide is on. */}
