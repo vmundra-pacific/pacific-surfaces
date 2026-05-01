@@ -772,33 +772,37 @@ export function ProductDetail({ product }: { product: Product }) {
               </div>
             )}
 
-            {/* Mobile thumbnail strip — horizontal (hidden on desktop) */}
-            {thumbnails.length > 1 && (
-              <div className="md:hidden flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar bg-stone-950">
-                {thumbnails.map((thumb, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedImage(thumb.src)}
-                    className={cn(
-                      "relative shrink-0 w-16 h-16 overflow-hidden rounded-lg border-2 transition-all",
-                      selectedImage === thumb.src
-                        ? "border-white"
-                        : "border-stone-700"
-                    )}
-                  >
-                    <Image
-                      src={thumb.src}
-                      alt={thumb.label}
-                      fill
-                      className="object-cover"
-                      sizes="64px"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
+
+        {/* Mobile thumbnail strip — sibling of the fixed-height
+            slab container so it stacks below it instead of being
+            clipped by the next section. Hidden on desktop, where
+            the vertical rail inside the slab area handles thumbs. */}
+        {thumbnails.length > 1 && (
+          <div className="md:hidden flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar bg-stone-950">
+            {thumbnails.map((thumb, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedImage(thumb.src)}
+                className={cn(
+                  "relative shrink-0 w-16 h-16 overflow-hidden rounded-lg border-2 transition-all",
+                  selectedImage === thumb.src
+                    ? "border-white"
+                    : "border-stone-700"
+                )}
+              >
+                <Image
+                  src={thumb.src}
+                  alt={thumb.label}
+                  fill
+                  className="object-cover"
+                  sizes="64px"
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ===== ROOM SCENES OVERLAY (MSI-style horizontal gallery) ===== */}
