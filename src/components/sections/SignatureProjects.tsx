@@ -230,7 +230,7 @@ export function SignatureProjects({
               as="h2"
               className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08]"
             >
-              Specified by architects on every continent.
+              Specified by leading architects.
             </TextReveal>
           </div>
           <motion.div
