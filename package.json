@@ -20,7 +20,9 @@
     "fix:blog-slugs:dry": "node --env-file=.env.local scripts/fix-blog-slugs.mjs --dry",
     "test:careers-email": "node --env-file=.env.local scripts/test-careers-email.mjs",
     "compress:sanity-videos": "node --env-file=.env.local scripts/compress-sanity-videos.mjs",
-    "compress:sanity-videos:dry": "node --env-file=.env.local scripts/compress-sanity-videos.mjs --dry"
+    "compress:sanity-videos:dry": "node --env-file=.env.local scripts/compress-sanity-videos.mjs --dry",
+    "thumbnails:videos": "node --env-file=.env.local scripts/extract-video-thumbnails.mjs",
+    "thumbnails:videos:dry": "node --env-file=.env.local scripts/extract-video-thumbnails.mjs --dry"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
