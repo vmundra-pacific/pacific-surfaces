@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { preload as reactPreload } from "react-dom";
 import { client } from "@/sanity/lib/client";
 import {
@@ -17,13 +18,13 @@ import { ApplicationsScrollSections } from "@/components/sections/ApplicationsSc
 // DealerLocator import preserved (commented) — render is hidden below;
 // uncomment both this line and the JSX line to restore.
 // import { DealerLocator } from "@/components/sections/DealerLocator";
-import { HeritageSection } from "@/components/sections/HeritageSection";
-import { OriginStats } from "@/components/sections/OriginStats";
+const HeritageSection = dynamic(() => import("@/components/sections/HeritageSection").then((m) => m.HeritageSection));
+const OriginStats = dynamic(() => import("@/components/sections/OriginStats").then((m) => m.OriginStats));
 import { SignatureProjects } from "@/components/sections/SignatureProjects";
-import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
-import { InspirationGrid } from "@/components/sections/InspirationGrid";
-import { PartnerWithUs } from "@/components/sections/PartnerWithUs";
-import { ClosingCTA } from "@/components/sections/ClosingCTA";
+const TestimonialsSection = dynamic(() => import("@/components/sections/TestimonialsSection").then((m) => m.TestimonialsSection));
+const InspirationGrid = dynamic(() => import("@/components/sections/InspirationGrid").then((m) => m.InspirationGrid));
+const PartnerWithUs = dynamic(() => import("@/components/sections/PartnerWithUs").then((m) => m.PartnerWithUs));
+const ClosingCTA = dynamic(() => import("@/components/sections/ClosingCTA").then((m) => m.ClosingCTA));
 import { VideoPrefetch } from "@/components/global/VideoPrefetch";
 import { HomepageSectionNav } from "@/components/global/HomepageSectionNav";
 

@@ -109,7 +109,7 @@ export function HomepageSectionNav() {
                 // a side-margin annotation rather than a chunky nav.
                 // Active item is full white (high contrast inversion);
                 // rest sit at lower opacity for subtle hierarchy.
-                className={`group flex items-center gap-1.5 text-[8px] sm:text-[9px] tracking-[0.18em] uppercase transition-opacity duration-300 text-white ${
+                className={`group flex items-center gap-1.5 text-[8px] sm:text-[9px] tracking-[0.18em] uppercase transition-opacity duration-300 text-white py-2.5 ${
                   isActive ? "opacity-100" : "opacity-50 hover:opacity-90"
                 }`}
               >

@@ -34,6 +34,7 @@ export function WhatsAppFAB() {
           }}
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
+          aria-label="Chat on WhatsApp"
           className="fixed bottom-6 right-6 z-50 group"
         >
           {/* Pulsing background ring */}

@@ -1178,7 +1178,7 @@ export function ApplicationsScrollSections({
       >
         <div className="mx-auto max-w-7xl px-6 lg:px-12 flex flex-col lg:flex-row items-start justify-between gap-8">
           <div className="lg:max-w-lg">
-            <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-4">
+            <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4">
               02 · Applications
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08]">

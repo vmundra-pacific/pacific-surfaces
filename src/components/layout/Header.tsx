@@ -257,6 +257,7 @@ export default function Header() {
             <div className="flex items-center gap-2 lg:gap-2.5 xl:gap-3">
               <button
                 onClick={() => setSearchOpen(true)}
+                aria-label="Open search"
                 className={cn(
                   "hidden sm:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
                   // Dark in both states — same hover treatment.
@@ -304,6 +305,8 @@ export default function Header() {
               </Link>
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileOpen}
                 className={cn(
                   "lg:hidden p-2 rounded-lg transition-colors",
                   // Always white now since both states are dark.

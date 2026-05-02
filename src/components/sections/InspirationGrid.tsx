@@ -273,12 +273,17 @@ export function InspirationGrid({
             type="button"
             aria-label={`Show ${s.name}`}
             onClick={() => setActive(i)}
-            className={`h-2 rounded-full transition-all ${
-              i === active
-                ? "w-6 bg-white"
-                : "w-2 bg-white/45 hover:bg-white/70"
-            }`}
-          />
+            className="grid place-items-center h-6 w-6"
+          >
+            <span
+              aria-hidden="true"
+              className={`block h-2 rounded-full transition-all ${
+                i === active
+                  ? "w-6 bg-white"
+                  : "w-2 bg-white/45 group-hover:bg-white/70"
+              }`}
+            />
+          </button>
         ))}
       </div>
     </section>

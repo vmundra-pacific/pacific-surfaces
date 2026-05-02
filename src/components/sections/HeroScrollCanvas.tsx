@@ -132,19 +132,49 @@ export function HeroScrollCanvas() {
           }
         }, 200);
 
-        // Phase 2 — load remaining kitchen frames in small batches
+        // Phase 2 — pyramid (progressive refinement) loader.
+        //
+        // Instead of loading frames 60..N contiguously (which leaves
+        // late frames empty for many seconds), we run 4 passes of
+        // halving stride:
+        //   - Pass 1 stride 8: covers full timeline at every 9th
+        //     frame, ~58 frames. drawFrame nearest-loaded fallback
+        //     paints these as the parallax frames for any scroll
+        //     position. Done in a few seconds.
+        //   - Pass 2 stride 4: fills in midpoints, halving stride.
+        //   - Pass 3 stride 2: every-other frame loaded.
+        //   - Pass 4 stride 1: full fidelity.
+        //
+        // Result: a user scrolling to 80% in the first 5 seconds
+        // sees a frame from near 80% (slightly stale but visually
+        // present) instead of holding on frame 60. Each pass roughly
+        // doubles perceived smoothness. Total bytes loaded = same
+        // 520 frames, just in a smarter order.
         const BATCH = 20;
-        let cursor = INITIAL_BATCH;
+        const loadedSet = new Set<number>();
+        for (let i = 0; i < INITIAL_BATCH; i++) loadedSet.add(i);
 
-        const loadNextBatch = () => {
-          if (cancelled || cursor >= TOTAL_FRAMES) return;
-          const end = Math.min(cursor + BATCH, TOTAL_FRAMES);
-          const batch = [];
-          for (let i = cursor; i < end; i++) batch.push(loadFrame(i, ext));
-          cursor = end;
-          Promise.all(batch).then(loadNextBatch);
+        const pyramidQueue: number[] = [];
+        for (const stride of [8, 4, 2, 1]) {
+          for (let i = 0; i < TOTAL_FRAMES; i += stride) {
+            if (!loadedSet.has(i)) {
+              loadedSet.add(i);
+              pyramidQueue.push(i);
+            }
+          }
+        }
+
+        let qIdx = 0;
+        const tickPyramid = () => {
+          if (cancelled || qIdx >= pyramidQueue.length) return;
+          const upTo = Math.min(qIdx + BATCH, pyramidQueue.length);
+          const batch: Promise<void>[] = [];
+          for (; qIdx < upTo; qIdx++) {
+            batch.push(loadFrame(pyramidQueue[qIdx], ext));
+          }
+          Promise.all(batch).then(tickPyramid);
         };
-        loadNextBatch();
+        tickPyramid();
       });
     });
 
