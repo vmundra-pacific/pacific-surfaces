@@ -172,12 +172,31 @@ export function SignatureProjects({
   }));
   const claimed = new Set<number>();
 
+  // Pin the curated project showcase video to slot 0 (top-left, the
+  // largest card in the row). The local /public/projects/* assets are
+  // first-party so no proxy needed; the poster jpg shows immediately
+  // and is what phones see (videos are skipped on phone via the
+  // ProjectVideo skipVideo gate). Pinning before the Sanity binding
+  // pass means a Sanity project with Display Order 1 will fall through
+  // to Pass 2 and land in the next free slot rather than colliding.
+  slots[0] = {
+    name: "Project Showcase",
+    loc: "Pacific Surfaces · Featured",
+    image: "/projects/project-showcase-poster.jpg",
+    imageLqip: null,
+    videoUrl: "/projects/project-showcase.mp4",
+    link: null,
+  };
+  claimed.add(0);
+
   // Pass 1 — place every Sanity project that has a valid 1-5 order
-  // into its bound slot.
+  // into its bound slot. Slot 0 is reserved for the project showcase
+  // above, so a Sanity project requesting order=1 falls through to
+  // Pass 2 and takes the next available slot.
   const deferred: SanityProject[] = [];
   for (const p of sanityProjects) {
     const slotIdx = typeof p.order === "number" ? p.order - 1 : -1;
-    if (slotIdx >= 0 && slotIdx < TARGET_SLOTS) {
+    if (slotIdx > 0 && slotIdx < TARGET_SLOTS) {
       slots[slotIdx] = toItem(p);
       claimed.add(slotIdx);
     } else {

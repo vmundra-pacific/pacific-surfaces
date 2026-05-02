@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -59,11 +59,14 @@ interface SanityInspiration {
   productSlug: string | null;
 }
 
-export function InspirationGrid({
-  inspirations: _inspirations,
-}: {
+export function InspirationGrid(_props: {
   inspirations?: SanityInspiration[];
 } = {}) {
+  // The Sanity inspirations prop is currently unused — the grid
+  // renders a fixed set of curated SLIDES below. Accepting the prop
+  // keeps the section's call sites stable so we can re-enable
+  // Sanity-driven content later without an API change.
+  void _props;
   const [active, setActive] = useState(0);
   const [inView, setInView] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -87,10 +90,14 @@ export function InspirationGrid({
     }
   }, []);
 
-  // Filter slides: phones never see the video slide.
-  const slides = isPhone
-    ? SLIDES.filter((s) => s.kind !== "video")
-    : SLIDES;
+  // Filter slides: phones never see the video slide. Memoized so the
+  // array reference is stable across renders — without that, the
+  // auto-advance useEffect (which depends on `slides`) would tear
+  // down and re-create its timer on every render.
+  const slides = useMemo(
+    () => (isPhone ? SLIDES.filter((s) => s.kind !== "video") : SLIDES),
+    [isPhone]
+  );
 
   const advance = useCallback(() => {
     setActive((prev) => (prev + 1) % slides.length);
@@ -142,7 +149,7 @@ export function InspirationGrid({
         /* autoplay restrictions — poster keeps painting */
       });
     }
-  }, [active, advance, inView]);
+  }, [active, advance, inView, slides]);
 
   // Reset videoLoaded whenever the active slide changes — so when we
   // switch to the video slide, we start in poster-fallback mode and

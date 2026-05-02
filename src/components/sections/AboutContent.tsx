@@ -236,57 +236,77 @@ export function AboutContent() {
         </div>
       </section>
 
-      {/* Story */}
-      <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <AnimatedSection animation="slideInLeft">
-              <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
-                Who We Are
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
-                From Vision to Surface
-              </h2>
-              <div className="mt-8 space-y-6 text-pacific-mid font-light leading-relaxed">
-                <p>
-                  With over 273 unique designs across 44 curated collections —
-                  from the bold Chromia series to the celestial Kosmic range —
-                  we offer the widest selection of premium surfaces in India.
-                </p>
-                <p>
-                  Our patented textures and proprietary finishes are the result
-                  of years of research and development. Each slab is engineered
-                  to meet the highest international standards, making our
-                  surfaces ideal for kitchen countertops, bathroom vanities,
-                  wall cladding, flooring, and statement furniture.
-                </p>
-                <p>
-                  We believe every surface should be a work of art — engineered
-                  for life, designed for the extraordinary.
-                </p>
-              </div>
-            </AnimatedSection>
+      {/* Story — full-bleed team video as background, centered copy
+          on top. Replaces the previous side-by-side layout where a
+          family portrait sat next to the text; the video gives the
+          section more atmosphere and frees the copy to occupy the
+          frame on its own. The "10+ Years of Excellence" stat that
+          floated off the old portrait is now a small inline caption
+          beneath the headline so the brand stamp survives. */}
+      <section className="relative overflow-hidden bg-[#112732]">
+        {/* Background video. Muted/looped/playsInline so iOS Safari
+            autoplays without user gesture. Poster is the first
+            beautifully-lit frame, served via the file ffmpeg pulled
+            at t=1.5s. Falls back to the poster if the network can't
+            keep up — the dark scrim above means readability never
+            depends on the video frame underneath. */}
+        <video
+          src="/videos/team-section.mp4"
+          poster="/videos/team-section-poster.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        {/* Dark scrim — keeps the body copy at full WCAG contrast
+            regardless of which frame is on screen behind it. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[#112732]/75"
+        />
 
-            <AnimatedSection animation="slideInRight" delay={0.2}>
-              <div className="relative">
-                <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-white/5">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/about-vision.png"
-                    alt="Premium surface craftsmanship"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                {/* Floating accent */}
-                <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 bg-white text-[#112732] p-5 sm:p-8 rounded-2xl">
-                  <div className="text-2xl font-light">10+</div>
-                  <div className="text-xs tracking-wider uppercase text-[#112732]/60 mt-1">
-                    Years of Excellence
-                  </div>
-                </div>
-              </div>
-            </AnimatedSection>
-          </div>
+        <div className="relative mx-auto max-w-3xl px-6 lg:px-8 py-20 sm:py-28 lg:py-36 text-center">
+          <AnimatedSection animation="fadeIn">
+            <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/80 mb-5 block">
+              Who We Are
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-tight">
+              From Vision to Surface
+            </h2>
+
+            {/* "10+ Years of Excellence" — preserved from the
+                previous floating accent, now as a small inline
+                colophon under the headline. */}
+            <div className="mt-5 inline-flex items-center gap-3 text-pacific-mid/80">
+              <span className="block w-6 h-px bg-pacific-mid/40" />
+              <span className="text-[11px] tracking-[0.3em] uppercase font-medium">
+                10+ Years of Excellence
+              </span>
+              <span className="block w-6 h-px bg-pacific-mid/40" />
+            </div>
+
+            <div className="mt-10 space-y-6 text-pacific-mid font-light leading-relaxed text-base sm:text-lg">
+              <p>
+                With over 273 unique designs across 44 curated collections —
+                from the bold Chromia series to the celestial Kosmic range —
+                we offer the widest selection of premium surfaces in India.
+              </p>
+              <p>
+                Our patented textures and proprietary finishes are the result
+                of years of research and development. Each slab is engineered
+                to meet the highest international standards, making our
+                surfaces ideal for kitchen countertops, bathroom vanities,
+                wall cladding, flooring, and statement furniture.
+              </p>
+              <p>
+                We believe every surface should be a work of art — engineered
+                for life, designed for the extraordinary.
+              </p>
+            </div>
+          </AnimatedSection>
         </div>
       </section>
 

@@ -49,15 +49,10 @@ export default async function AllProductsPage() {
   const products = await client.fetch(catalogueProductsQuery);
   const slabs = mapSanityToCatalogue(products);
 
-  // Count of distinct collections referenced by the catalogue, used
-  // alongside slabs.length in the hero description so both numbers
-  // reflect the actual catalogue state. Filters out slabs without a
-  // collection so the count is honest.
-  const collectionCount = new Set(
-    slabs
-      .map((s) => s.collection)
-      .filter((c): c is string => Boolean(c && c.length))
-  ).size;
+  // (Previously computed `collectionCount` for use in the hero copy,
+  // but the literal description below no longer references it. Drop
+  // the calc rather than carrying a dead variable; restore from git
+  // history if the copy ever needs the count back.)
 
   return (
     <>
