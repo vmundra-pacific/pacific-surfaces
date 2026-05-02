@@ -1,11 +1,71 @@
 import type { NextConfig } from "next";
 
+/**
+ * Security headers applied to every HTML route.
+ *
+ *   - Strict-Transport-Security: forces HTTPS for one year + applies to
+ *     subdomains. Standard hardening — Vercel already serves HTTPS,
+ *     this just commits browsers to it.
+ *   - X-Content-Type-Options: blocks MIME sniffing.
+ *   - Referrer-Policy: only send the origin (not the full path) when
+ *     navigating cross-origin — privacy-preserving without breaking
+ *     analytics on first-party links.
+ *   - Permissions-Policy: explicitly deny APIs we never use. Lighthouse
+ *     and Chrome's Issues panel both flag the absence.
+ *   - X-Frame-Options: prevent the site from being framed by third
+ *     parties — minor clickjacking defense.
+ *
+ * Notably absent: Content-Security-Policy. Adding a strict CSP would
+ * collide with the inline style attributes we use for the parallax
+ * canvas and a few dynamic backgrounds; that's a separate, non-trivial
+ * task once nonces are wired through.
+ */
+const securityHeaders = [
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=31536000; includeSubDomains; preload",
+  },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+  },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+];
+
 const nextConfig: NextConfig = {
+  /* Strip dev-time console.log/info/debug calls during production builds.
+     Keeps console.error and console.warn so real production issues still
+     surface. Lighthouse's `errors-in-console` audit is friendlier without
+     stray dev logs leaking into the bundle. */
+  compiler: {
+    removeConsole: { exclude: ["error", "warn"] },
+  },
+
+  /* Emit JS source maps for production bundles. Lighthouse audits
+     `valid-source-maps`; the bundles also become debuggable in error
+     monitoring (Sentry, Vercel logs). Adds ~10–15% to total deploy
+     bytes, but maps are served on-demand by browsers that explicitly
+     request them, so end-user payload is unaffected. */
+  productionBrowserSourceMaps: true,
+
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "cdn.sanity.io" },
     ],
+  },
+
+  /* Security headers — applied to every route. See `securityHeaders`
+     above for the per-header rationale. */
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+    ];
   },
   // Allow LAN origins to fetch /_next/* dev assets when accessing the
   // dev server from another device (phone, second laptop) on the same

@@ -1,5 +1,9 @@
 import { ImageResponse } from "next/og";
-import { client } from "@/sanity/lib/client";
+// rawClient bypasses the cdn.sanity.io → /api/cdn/* rewrite so the
+// edge runtime baking this PNG can fetch the source image directly
+// from Sanity's CDN. The proxy is for browser requests; OG generation
+// is server-to-server and doesn't carry cookies anyway.
+import { rawClient as client } from "@/sanity/lib/client";
 import { productBySlugQuery } from "@/sanity/lib/queries";
 import { sanityImg } from "@/lib/sanity-img";
 import {

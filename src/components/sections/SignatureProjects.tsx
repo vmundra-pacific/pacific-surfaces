@@ -9,6 +9,7 @@ import { TextReveal } from "@/components/ui/text-reveal";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { sanityProxyUrl } from "@/lib/sanity-img";
 
 interface SanityProject {
   _id: string;
@@ -154,9 +155,14 @@ export function SignatureProjects({
   const toItem = (p: SanityProject): Item => ({
     name: p.name,
     loc: p.location,
-    image: p.image,
+    // Proxy Sanity-hosted media through /api/cdn/* so the browser
+    // doesn't pick up the third-party `sanitySession` cookie. Both
+    // the still image and the video go through the same proxy. The
+    // helper passes non-Sanity URLs through unchanged, so any future
+    // image hosted elsewhere keeps working without a branch here.
+    image: p.image ? sanityProxyUrl(p.image) : p.image,
     imageLqip: p.imageLqip,
-    videoUrl: p.videoUrl,
+    videoUrl: p.videoUrl ? sanityProxyUrl(p.videoUrl) : p.videoUrl,
     link: p.link,
   });
 
@@ -383,9 +389,16 @@ function ProjectCard({
 // without losing visible quality for the time it's on screen before
 // the video plays.
 function thumbUrl(src: string): string {
-  if (!src.includes("cdn.sanity.io")) return src;
+  // Pass-through for non-Sanity URLs (or already-proxied /api/cdn/*
+  // URLs we may receive from a parent that pre-rewrote them).
+  if (!src.includes("cdn.sanity.io") && !src.startsWith("/api/cdn/"))
+    return src;
   const sep = src.includes("?") ? "&" : "?";
-  return `${src}${sep}w=800&fit=max&q=70&auto=format`;
+  const withParams = `${src}${sep}w=800&fit=max&q=70&auto=format`;
+  // Route through the first-party proxy if we still have a raw
+  // cdn.sanity.io URL. (If src already starts with /api/cdn/ this is
+  // a no-op via sanityProxyUrl's pass-through.)
+  return sanityProxyUrl(withParams);
 }
 
 function ProjectVideo({

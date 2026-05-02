@@ -53,6 +53,7 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import { sanityProxyUrl } from "@/lib/sanity-img";
 
 /* ------------------------------------------------------------------ *
  * Sanity data shape                                                   *
@@ -254,9 +255,12 @@ function buildMediaResolver(applications?: SanityApplicationCard[]) {
 
     if (!card) return {};
     claimed.add(card._id);
+    // Normalise URLs through the first-party proxy so cdn.sanity.io's
+    // `sanitySession` cookie never reaches the browser. Helper is a
+    // pass-through for non-Sanity URLs.
     return {
-      videoUrl: card.videoUrl ?? undefined,
-      imageUrl: card.image ?? undefined,
+      videoUrl: card.videoUrl ? sanityProxyUrl(card.videoUrl) : undefined,
+      imageUrl: card.image ? sanityProxyUrl(card.image) : undefined,
       // Normalise frames into the component's local shape. Filter
       // out frames with no media at all so the cycle doesn't show
       // empty slots — and drop the `frames` key entirely if nothing
@@ -266,8 +270,8 @@ function buildMediaResolver(applications?: SanityApplicationCard[]) {
         const cleaned = (card.frames ?? [])
           .map((f) => ({
             label: f.label ?? undefined,
-            videoUrl: f.videoUrl ?? undefined,
-            imageUrl: f.image ?? undefined,
+            videoUrl: f.videoUrl ? sanityProxyUrl(f.videoUrl) : undefined,
+            imageUrl: f.image ? sanityProxyUrl(f.image) : undefined,
           }))
           .filter((f) => f.videoUrl || f.imageUrl);
         return cleaned.length > 0 ? cleaned : undefined;
