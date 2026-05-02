@@ -219,6 +219,7 @@ export const signatureProjectsQuery = groq`
     name,
     location,
     "image": image.asset->url,
+    "imageLqip": image.asset->metadata.lqip,
     "videoUrl": coalesce(videoFile.asset->url, videoUrl),
     link,
     order

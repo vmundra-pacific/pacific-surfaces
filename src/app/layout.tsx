@@ -41,6 +41,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/*
+          Resource hints. Tell the browser to start DNS + TLS
+          handshakes to the asset CDNs *before* it sees the first
+          <img src=...sanity.io...> in the body. Saves 100-300ms on
+          first image fetch.
+            - cdn.sanity.io — every product image, every blog photo,
+              every project poster comes from here
+            - fonts.googleapis.com / fonts.gstatic.com — Inter is
+              loaded via next/font, which already injects the right
+              hints, but we add them explicitly as a belt-and-braces
+              safety net
+        */}
+        <link rel="preconnect" href="https://cdn.sanity.io" />
+        <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+      </head>
       {/*
         suppressHydrationWarning is on <html> and <body> because
         browser extensions (Grammarly, Dark Reader, ad-blockers,

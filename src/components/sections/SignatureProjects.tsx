@@ -15,6 +15,11 @@ interface SanityProject {
   name: string;
   location: string;
   image: string | null;
+  // Sanity-generated low-quality (~20-byte base64) blur placeholder.
+  // Painted instantly as a blurDataURL while the real poster loads —
+  // gives the user a soft preview rather than a black tile during
+  // the network round-trip on slow connections.
+  imageLqip: string | null;
   /**
    * Optional resolved video URL. The GROQ projection coalesces a
    * direct file upload with the manual URL field, so the component
@@ -128,6 +133,7 @@ export function SignatureProjects({
     name: string;
     loc: string;
     image: string | null;
+    imageLqip: string | null;
     videoUrl: string | null;
     link: string | null;
     bg?: string;
@@ -137,6 +143,7 @@ export function SignatureProjects({
     name: p.name,
     loc: p.loc,
     image: null,
+    imageLqip: null,
     videoUrl: null,
     link: null,
     bg: p.bg,
@@ -148,6 +155,7 @@ export function SignatureProjects({
     name: p.name,
     loc: p.location,
     image: p.image,
+    imageLqip: p.imageLqip,
     videoUrl: p.videoUrl,
     link: p.link,
   });
@@ -284,6 +292,7 @@ function ProjectCard({
     name: string;
     loc: string;
     image: string | null;
+    imageLqip: string | null;
     videoUrl: string | null;
     link: string | null;
     bg?: string;
@@ -297,6 +306,7 @@ function ProjectCard({
         <ProjectVideo
           src={item.videoUrl}
           poster={item.image ? thumbUrl(item.image) : undefined}
+          posterLqip={item.imageLqip ?? undefined}
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       ) : item.image ? (
@@ -304,6 +314,12 @@ function ProjectCard({
           src={item.image}
           alt={item.name}
           fill
+          {...(item.imageLqip
+            ? {
+                placeholder: "blur" as const,
+                blurDataURL: item.imageLqip,
+              }
+            : {})}
           className="object-cover group-hover:scale-105 transition-transform duration-500"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
@@ -376,10 +392,12 @@ function ProjectVideo({
   src,
   className,
   poster,
+  posterLqip,
 }: {
   src: string;
   className?: string;
   poster?: string;
+  posterLqip?: string;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   // The poster image is mounted for every card from page load with
@@ -473,11 +491,15 @@ function ProjectVideo({
           alt=""
           aria-hidden="true"
           fill
-          // priority: load eagerly, on first paint, before any
-          // video bytes are even requested. The poster covers the
-          // video element until canPlay flips, so the user always
-          // sees imagery on entry — never a black frame.
-          priority
+          // Sanity LQIP gives an instant (sub-50 ms) blur placeholder
+          // while the real poster streams in. Without this, slow
+          // cellular shows a black tile for 1-3 s.
+          {...(posterLqip
+            ? {
+                placeholder: "blur" as const,
+                blurDataURL: posterLqip,
+              }
+            : {})}
           sizes="(max-width: 768px) 100vw, 33vw"
           className={`object-cover transition-opacity duration-500 ${
             !skipVideo && canPlay ? "opacity-0" : "opacity-100"

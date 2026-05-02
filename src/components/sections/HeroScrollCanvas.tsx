@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 
-const TOTAL_FRAMES = 1039;
+const TOTAL_FRAMES = 520;
 const pad = (n: number) => String(n).padStart(3, "0");
 
 /* The lump sequence (a 206-frame slab cross-section reveal that used
