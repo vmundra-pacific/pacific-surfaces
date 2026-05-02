@@ -514,9 +514,15 @@ function ProjectVideo({
               }
             : {})}
           sizes="(max-width: 768px) 100vw, 33vw"
-          className={`object-cover transition-opacity duration-500 ${
-            !skipVideo && canPlay ? "opacity-0" : "opacity-100"
-          }`}
+          // Stays at full opacity always. The video on top fades IN
+          // over it when canPlay fires; once the video reaches 100%
+          // opacity, it opaquely covers this Image (same content,
+          // same pixels). Used to crossfade Image out + Video in
+          // simultaneously, but at the midpoint both layers were at
+          // ~50% opacity which let the dark section background bleed
+          // through — visible as a one-shot flicker on scroll-into-
+          // view. Keeping Image solid eliminates the alpha gap.
+          className="object-cover"
         />
       )}
       {!skipVideo && (
@@ -524,17 +530,15 @@ function ProjectVideo({
           ref={ref}
           key={src}
           src={src}
-          // Intentionally NO poster attribute. The <Image> layered above
-          // already paints the still frame via Next/Image (which proxies
-          // through /_next/image, applies AVIF/WebP, and strips Sanity's
-          // sanitySession cookie). Setting `poster` here would make the
-          // browser ALSO fetch the same JPG directly from cdn.sanity.io,
-          // which (a) costs ~2.7 MB on the master file we saw on the
-          // homepage, and (b) drags the third-party cookie back into the
-          // page — Lighthouse Best Practices was failing on exactly that
-          // request. The Image fades out when canPlay flips true, so the
-          // video element only becomes visible once it has frames to
-          // render; users never see a posterless flash.
+          // Intentionally NO poster attribute. The <Image> layered
+          // beneath already paints the still via Next/Image (which
+          // proxies through /_next/image, applies AVIF/WebP, and
+          // strips Sanity's sanitySession cookie). Setting `poster`
+          // here would make the browser ALSO fetch the same JPG
+          // directly from cdn.sanity.io — both expensive and a
+          // third-party cookie leak. The video starts at opacity-0
+          // and fades up to 100 once canPlay fires; until then the
+          // <Image> fills the frame so users never see a black box.
           loop
           muted
           playsInline
