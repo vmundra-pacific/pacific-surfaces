@@ -68,6 +68,8 @@ export default defineConfig({
                   .documentId("naturalStoneFinishesPage")
               ),
             S.divider(),
+            S.documentTypeListItem("faqPage").title("FAQ Pages"),
+            S.divider(),
             S.documentTypeListItem("blogPost").title("Blog Posts"),
             S.documentTypeListItem("page").title("Pages"),
           ]),
