@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const TOTAL_FRAMES = 520;
 const pad = (n: number) => String(n).padStart(4, "0");
@@ -517,7 +518,7 @@ export function HeroScrollCanvas() {
                 <em className="text-[#9AA8B6] not-italic">forward.</em>
               </h2>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
-                <a
+                <Link
                   href="/products"
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-[#112732] text-xs font-medium tracking-[0.15em] uppercase rounded-full hover:bg-stone-100 transition-colors"
                 >
@@ -532,13 +533,13 @@ export function HeroScrollCanvas() {
                   >
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/visualize"
                   className="inline-flex items-center gap-2 px-7 py-3.5 border border-white/30 text-white text-xs font-medium tracking-[0.15em] uppercase rounded-full hover:bg-white/10 transition-colors"
                 >
                   Try the Visualizer
-                </a>
+                </Link>
               </div>
             </div>
           </div>
