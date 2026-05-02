@@ -5,6 +5,8 @@ import { client } from "@/sanity/lib/client";
 import { productBySlugQuery } from "@/sanity/lib/queries";
 import { ProductDetail } from "@/components/sections/ProductDetail";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
+import { FAQ } from "@/components/sections/FAQ";
+import { getFaqs, type FaqPageKey } from "@/lib/faqs";
 import { zoomImageUrl } from "@/lib/zoom-image";
 import {
   CATEGORY_PAGES,
@@ -86,7 +88,37 @@ export default async function ProductOrCategoryPage({ params }: Props) {
   if (isCategorySlug(slug)) {
     const data = await resolveCategoryPage(slug);
     if (!data) notFound();
-    return <CatalogueClient slabs={data.slabs} hero={data.config.hero} />;
+    // Map known category slugs to FAQ page keys. If a category
+    // doesn't have FAQs yet we just don't render the section. We
+    // use a Set<string> for the lookup so the typecheck doesn't
+    // demand the array's element type matches the wider FaqPageKey
+    // union (which includes "sustainability"/"about" served by
+    // separate routes).
+    const CATEGORY_FAQ_KEYS = new Set<string>([
+      "quartz",
+      "granites",
+      "semi-precious",
+      "exotic",
+      "integra",
+      "centrepiece-couture",
+      "natural-stone-finishes",
+    ]);
+    const faqKey: FaqPageKey | null = CATEGORY_FAQ_KEYS.has(slug)
+      ? (slug as FaqPageKey)
+      : null;
+    const faqs = faqKey ? await getFaqs(faqKey) : [];
+    return (
+      <>
+        <CatalogueClient slabs={data.slabs} hero={data.config.hero} />
+        {faqs.length > 0 && (
+          <FAQ
+            questions={faqs}
+            theme="dark"
+            heading="Frequently Asked Questions"
+          />
+        )}
+      </>
+    );
   }
 
   // Product detail branch — original logic unchanged.

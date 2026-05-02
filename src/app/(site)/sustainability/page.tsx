@@ -3,6 +3,8 @@ import { client } from "@/sanity/lib/client";
 import { sustainabilityPageQuery } from "@/sanity/lib/queries";
 import { SustainabilityContent } from "@/components/sections/SustainabilityContent";
 
+import { FAQ } from "@/components/sections/FAQ";
+import { getFaqs } from "@/lib/faqs";
 export const metadata: Metadata = {
   title: "Sustainability — Pacific Surfaces",
   description:
@@ -17,5 +19,11 @@ export const metadata: Metadata = {
  */
 export default async function SustainabilityPage() {
   const data = await client.fetch(sustainabilityPageQuery);
-  return <SustainabilityContent data={data} />;
+  const faqs = await getFaqs("sustainability");
+  return (
+    <>
+      <SustainabilityContent data={data} />
+      <FAQ questions={faqs} theme="light" />
+    </>
+  );
 }

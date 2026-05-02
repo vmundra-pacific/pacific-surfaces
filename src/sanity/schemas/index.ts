@@ -15,6 +15,7 @@ import jobApplication from "./jobApplication";
 import sustainabilityPage from "./sustainabilityPage";
 import naturalStoneFinishesPage from "./naturalStoneFinishesPage";
 
+import faqPage from "./faqPage";
 export const schemaTypes = [
   product,
   collection,
@@ -32,4 +33,5 @@ export const schemaTypes = [
   jobApplication,
   sustainabilityPage,
   naturalStoneFinishesPage,
+  faqPage,
 ];
