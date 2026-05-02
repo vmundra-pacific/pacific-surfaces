@@ -943,7 +943,25 @@ function commercialFrameKeyframes(
   };
 }
 
-function CommercialSection({ media }: { media: SectionMedia }) {
+function CommercialSection({
+  media,
+  skipVideos = false,
+}: {
+  media: SectionMedia;
+  skipVideos?: boolean;
+}) {
+  // On phone (skipVideos = true) the multi-frame cycle would render
+  // the SAME poster image while the "Now: Hospitality / Healthcare /
+  // Retail" sub-labels rotated underneath — confusing UX, since the
+  // visual never changes. Mobile gets the static single-image render
+  // below instead. Desktop keeps the full sticky scroll-driven cycle.
+  if (skipVideos) {
+    return <CommercialSectionMobile media={media} />;
+  }
+  return <CommercialSectionDesktop media={media} />;
+}
+
+function CommercialSectionDesktop({ media }: { media: SectionMedia }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -1038,6 +1056,49 @@ function CommercialSection({ media }: { media: SectionMedia }) {
               ))
             )}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Mobile/skipVideos variant of CommercialSection.
+ *
+ * The desktop version pins the section for ~240vh while it cycles
+ * through Hospitality / Healthcare / Retail / Office sub-labels driven
+ * by scroll progress. On phone we have nothing to cycle (every frame
+ * shows the same still poster), so the rotating sub-labels would be
+ * misleading — user scrolls and the caption changes but the picture
+ * doesn't. Render a single-screen, non-sticky layout instead: eyebrow
+ * + headline + paragraph above, hero image below, normal scroll. One
+ * screen of scroll and you're past the section.
+ */
+function CommercialSectionMobile({ media }: { media: SectionMedia }) {
+  const copy = SECTION_COPY.commercial;
+  return (
+    <section className="relative bg-[#0a1620] py-16 px-6">
+      <div className="max-w-7xl mx-auto flex flex-col gap-8">
+        <div>
+          <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4">
+            {copy.label}
+          </div>
+          <h3 className="text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.08]">
+            {copy.title}{" "}
+            <em className="text-[#9AA8B6] not-italic">{copy.titleAccent}</em>
+          </h3>
+          <p className="mt-6 text-base text-pacific-mid font-light leading-relaxed">
+            {copy.description}
+          </p>
+        </div>
+        <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
+          <MediaSlot
+            media={media}
+            alt={`${copy.title} ${copy.titleAccent}`}
+            placeholderGradient={copy.placeholderGradient}
+            placeholderVariant="warm"
+            videoSizes="100vw"
+          />
         </div>
       </div>
     </section>
@@ -1307,7 +1368,10 @@ export function ApplicationsScrollSections({
       <KitchenSection media={resolveMedia("kitchen")} />
       <BathSection media={resolveMedia("bath")} />
       <ArchitectureSection media={resolveMedia("architecture")} />
-      <CommercialSection media={resolveMedia("commercial")} />
+      <CommercialSection
+        media={resolveMedia("commercial")}
+        skipVideos={skipVideos}
+      />
     </>
   );
 }
