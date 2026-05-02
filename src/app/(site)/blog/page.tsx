@@ -82,8 +82,7 @@ export default async function BlogPage() {
               {/* Colophon — right column on desktop */}
               <div className="lg:col-span-5 lg:pb-3">
                 <p className="text-base lg:text-lg font-light text-stone-600 leading-relaxed mb-8 max-w-md">
-                  Trends, guides, and stories from the world of premium
-                  surfaces — new entries from the Pacific editorial team.
+                  The ultimate design ledger curated for you.
                 </p>
                 <dl className="grid grid-cols-2 gap-6 max-w-md text-sm">
                   <div>
