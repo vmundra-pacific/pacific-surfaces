@@ -164,10 +164,18 @@ function DustField({
 
   // Smoothed opacity state so fade in/out of the Origin section is graceful
   const smoothedOpacity = useRef(1);
+  // Manual time accumulator — avoids reading state.clock.elapsedTime,
+  // which routes through THREE.Clock. Three.js has been signaling
+  // Clock as deprecated in favor of the Timer addon, and Lighthouse's
+  // deprecations audit picks up the resulting console output. Driving
+  // uTime ourselves with the delta R3F already computes is identical
+  // visually and keeps the audit clean.
+  const elapsedRef = useRef(0);
 
-  useFrame((state) => {
+  useFrame((_, delta) => {
+    elapsedRef.current += delta;
     const u = material.uniforms;
-    u.uTime.value = state.clock.elapsedTime;
+    u.uTime.value = elapsedRef.current;
     u.uScroll.value = scrollRef.current ?? 0;
     u.uScrollVel.value = scrollVelRef.current ?? 0;
     const m = mouseRef.current;
