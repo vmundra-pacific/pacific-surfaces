@@ -79,6 +79,24 @@ export function SignatureProjects({
 }: {
   projects?: SanityProject[];
 }) {
+  // Phone detection — phones don't load project videos (see
+  // ProjectVideo's `skipVideo` gate). If a Sanity project has a
+  // `videoUrl` but no `image`, the card renders empty on phone
+  // because there's nothing to paint. We filter those cards out
+  // entirely at this level so phones never see a blank tile.
+  const [isPhone, setIsPhone] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      setIsPhone(
+        window.matchMedia("(pointer: coarse)").matches &&
+          window.innerWidth < 1024
+      );
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   /**
    * Item assembly. The grid is always laid out as a 5-card layout
    * (2 in row 1, 3 in row 2) so a single real project doesn't
@@ -167,8 +185,19 @@ export function SignatureProjects({
     }
   }
 
-  const items: Item[] = [...slots, ...overflow];
+  const rawItems: Item[] = [...slots, ...overflow];
 
+  // On phone: drop cards that would render empty (videoUrl-only,
+  // no image to fall back to). Keep everything else, including
+  // fallback placeholders (which have neither video nor image but
+  // do have a `bg` gradient).
+  const items: Item[] = isPhone
+    ? rawItems.filter((it) => !(it.videoUrl && !it.image))
+    : rawItems;
+
+  // Recompute row split after filtering. row1 still gets up to 2
+  // cards; row2 takes the rest. On phone the grid reflows to a
+  // single column so a missing card just shrinks the section.
   const row1 = items.slice(0, 2);
   const row2 = items.slice(2);
 
