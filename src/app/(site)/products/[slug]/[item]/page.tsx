@@ -9,6 +9,7 @@ import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVideo";
+import { CATEGORY_PAGES } from "../../_lib/category";
 
 /**
  * Maps a "category-level" collection slug to the product `productType`
@@ -110,7 +111,18 @@ export default async function CollectionPage({ params }: Props) {
   if (!collection) notFound();
 
   const slabs = mapSanityToCatalogue(products);
-  const hero = COLLECTION_HERO[item.toLowerCase()];
+  // Hero resolution, in priority order:
+  //   1. Per-collection override from COLLECTION_HERO (e.g. chromia
+  //      gets the Vision Series video).
+  //   2. Category-level hero from CATEGORY_PAGES, keyed on the [slug]
+  //      segment — so /products/granites/<anything> picks up the
+  //      Granite hero video instead of falling through to
+  //      CatalogueClient's Quartz default. This was the bug that made
+  //      every product page on the site read as quartz-themed.
+  //   3. undefined → CatalogueClient renders its built-in Quartz hero.
+  const hero =
+    COLLECTION_HERO[item.toLowerCase()] ??
+    CATEGORY_PAGES[slug.toLowerCase()]?.hero;
 
   return (
     <>
