@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 /**
  * Off-screen video preloader.
  *
@@ -12,27 +14,41 @@
  * IntersectionObserver later calls play(), the browser pulls from
  * its HTTP cache instead of doing a fresh network round-trip.
  *
- * The intent is to use the splash-screen window — when the user is
- * waiting on the brand video and can't interact yet — as free time
- * to warm caches for the videos further down the page. By the time
- * the splash dismisses, most clips have fully buffered, so the
- * Signature Projects section reads instantly when reached.
- *
- * Why a hidden <video> instead of <link rel="preload">?
- *   - <link rel="preload" as="video"> works in some browsers but
- *     has spotty support and doesn't always promote the bytes the
- *     way a real <video> element does.
- *   - <video preload="auto"> is the closest thing to a "fetch and
- *     decode metadata" hint that the browser reliably honours.
- *
- * Why not display: none?
- *   - Some browsers skip loading for fully-display:none video.
- *     We use a 1×1 invisible, pointer-events:none, clipped element
- *     parked off-screen so the browser still treats it as a "real"
- *     resource and fetches it.
+ * Phone gate: on touch devices with narrow viewports we render
+ * NOTHING. Mobile shouldn't be downloading 30-50 MB of project
+ * videos — Lighthouse mobile run was logging 146 MB total page
+ * weight, with the top four entries all being prefetched Sanity
+ * .mp4 files. Mobile users get the static poster images instead;
+ * the on-screen video components also skip rendering on phone (see
+ * SignatureProjects' ProjectVideo skipVideo gate + the analogous
+ * gate in ApplicationsScrollSections).
  */
 export function VideoPrefetch({ urls }: { urls: string[] }) {
-  if (urls.length === 0) return null;
+  const [shouldPrefetch, setShouldPrefetch] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let isPhone = false;
+    try {
+      isPhone =
+        window.matchMedia("(pointer: coarse)").matches &&
+        window.innerWidth < 1024;
+    } catch {
+      /* ignore — older browsers without matchMedia */
+    }
+    // Also bail on Save-Data / 2g/3g — even desktop on a tethered
+    // phone shouldn't pre-fetch tens of MB of video.
+    type NavConn = { saveData?: boolean; effectiveType?: string };
+    const conn = (navigator as unknown as { connection?: NavConn })
+      .connection;
+    const slowNet =
+      conn?.saveData === true ||
+      (conn?.effectiveType !== undefined &&
+        ["slow-2g", "2g", "3g"].includes(conn.effectiveType));
+    setShouldPrefetch(!isPhone && !slowNet);
+  }, []);
+
+  if (urls.length === 0 || !shouldPrefetch) return null;
   return (
     <div
       aria-hidden="true"

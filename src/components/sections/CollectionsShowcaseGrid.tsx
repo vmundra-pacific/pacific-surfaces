@@ -130,10 +130,29 @@ const CATEGORY_RULES: Array<{ matches: string[]; category: string }> = [
       "luminara",
     ],
   },
-  { category: "granite", matches: ["granite"] },
-  { category: "semiprecious", matches: ["semi", "exotic"] },
-  { category: "sinks", matches: ["integra"] },
+  { category: "granites", matches: ["granite"] },
+  { category: "semi-precious", matches: ["semi", "exotic"] },
+  { category: "integra", matches: ["integra"] },
+  // Vanity collections in Sanity (e.g. "Vanity Couture") used to fall
+  // through to the bare /products/<slug> fallback below, which 404s
+  // because there's no top-level vanity category. They live under the
+  // Centrepiece Couture catalogue, so route them there.
+  { category: "centrepiece-couture", matches: ["vanity", "centrepiece"] },
 ];
+
+// Category slugs that resolve to real top-level routes — used to
+// validate the rule output and the bare-slug fallback. If a fallback
+// produces a slug that ISN'T in this set, we redirect the link to the
+// /products catalogue index rather than 404.
+const VALID_CATEGORY_SLUGS = new Set([
+  "quartz",
+  "granites",
+  "semi-precious",
+  "exotic",
+  "centrepiece-couture",
+  "integra",
+  "natural-stone-finishes",
+]);
 
 function urlForCollection(name: string, slug: string): string {
   const n = name.toLowerCase();
@@ -142,9 +161,12 @@ function urlForCollection(name: string, slug: string): string {
       return `/products/${rule.category}/${slug}`;
     }
   }
-  // Fallback for items that don't fit a category yet — keeps the
-  // /products/ prefix so we never fall back to /collections/ again.
-  return `/products/${slug}`;
+  // No category rule matched. If the slug itself is a known top-level
+  // category (rare but happens with seed data), use it directly.
+  // Otherwise route to the products catalogue index — clicking the
+  // card still lands users on a real page instead of a 404.
+  if (VALID_CATEGORY_SLUGS.has(slug)) return `/products/${slug}`;
+  return `/products`;
 }
 
 export function CollectionsShowcaseGrid({

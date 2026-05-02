@@ -42,7 +42,7 @@
  * still-image gimmick.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   animate,
@@ -242,9 +242,13 @@ const SECTION_ORDER: SectionKey[] = [
  *
  * Video wins over image when both are populated on the matched card.
  */
-function buildMediaResolver(applications?: SanityApplicationCard[]) {
+function buildMediaResolver(
+  applications?: SanityApplicationCard[],
+  opts: { skipVideos?: boolean } = {}
+) {
   const claimed = new Set<string>();
   const pool = applications ?? [];
+  const skipVideos = opts.skipVideos === true;
 
   return (sectionKey: SectionKey): SectionMedia => {
     const sectionIndex = SECTION_ORDER.indexOf(sectionKey);
@@ -274,8 +278,19 @@ function buildMediaResolver(applications?: SanityApplicationCard[]) {
     // Normalise URLs through the first-party proxy so cdn.sanity.io's
     // `sanitySession` cookie never reaches the browser. Helper is a
     // pass-through for non-Sanity URLs.
+    //
+    // Phone branch (skipVideos=true): we deliberately drop every
+    // videoUrl so MediaSlot falls through to the imageUrl branch and
+    // serves a static still instead. Mobile users were downloading
+    // 30+ MB of Sanity .mp4 per card on first paint; the still
+    // tells the same product story without the network cost. Frames
+    // get the same treatment so the multi-frame slideshow renders
+    // as a sequence of stills (each frame keeps its imageUrl).
     return {
-      videoUrl: card.videoUrl ? sanityProxyUrl(card.videoUrl) : undefined,
+      videoUrl:
+        !skipVideos && card.videoUrl
+          ? sanityProxyUrl(card.videoUrl)
+          : undefined,
       imageUrl: card.image ? sanityProxyUrl(card.image) : undefined,
       // Normalise frames into the component's local shape. Filter
       // out frames with no media at all so the cycle doesn't show
@@ -286,7 +301,10 @@ function buildMediaResolver(applications?: SanityApplicationCard[]) {
         const cleaned = (card.frames ?? [])
           .map((f) => ({
             label: f.label ?? undefined,
-            videoUrl: f.videoUrl ? sanityProxyUrl(f.videoUrl) : undefined,
+            videoUrl:
+              !skipVideos && f.videoUrl
+                ? sanityProxyUrl(f.videoUrl)
+                : undefined,
             imageUrl: f.image ? sanityProxyUrl(f.image) : undefined,
           }))
           .filter((f) => f.videoUrl || f.imageUrl);
@@ -1189,7 +1207,36 @@ export function ApplicationsScrollSections({
 }: {
   applications?: SanityApplicationCard[];
 }) {
-  const resolveMedia = buildMediaResolver(applications);
+  // Phone gate. On touch + narrow viewport (or Save-Data / 2g/3g) we
+  // drop every videoUrl from the resolver so MediaSlot serves stills
+  // instead of <video>. Lighthouse mobile was logging 60-150 MB of
+  // page weight, almost all of it from these autoplay Sanity videos
+  // — kitchen card alone was 47 MB. The poster tells the same story
+  // without the network hit. Initial value is `false` so SSR renders
+  // the desktop tree; the effect re-evaluates client-side once we
+  // can read window/navigator.
+  const [skipVideos, setSkipVideos] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let isPhone = false;
+    try {
+      isPhone =
+        window.matchMedia("(pointer: coarse)").matches &&
+        window.innerWidth < 1024;
+    } catch {
+      /* ignore */
+    }
+    type NavConn = { saveData?: boolean; effectiveType?: string };
+    const conn = (navigator as unknown as { connection?: NavConn })
+      .connection;
+    const slowNet =
+      conn?.saveData === true ||
+      (conn?.effectiveType !== undefined &&
+        ["slow-2g", "2g", "3g"].includes(conn.effectiveType));
+    setSkipVideos(isPhone || slowNet);
+  }, []);
+
+  const resolveMedia = buildMediaResolver(applications, { skipVideos });
 
   return (
     <>

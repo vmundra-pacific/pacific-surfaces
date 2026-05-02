@@ -1,9 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { TextReveal } from "@/components/ui/text-reveal";
 
 export function OriginStats() {
+  // Phone gate. The 2.8 MB origin.mp4 was downloading on every mobile
+  // visit and contributing to the 100+ MB total page weight Lighthouse
+  // was logging. On phone (and on Save-Data / 2g/3g) we render the
+  // poster JPG as a static <img> instead. Same composition, no video
+  // bytes. Falls back to the desktop branch on first SSR paint and
+  // re-evaluates client-side once we can read window/navigator.
+  const [skipVideo, setSkipVideo] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let isPhone = false;
+    try {
+      isPhone =
+        window.matchMedia("(pointer: coarse)").matches &&
+        window.innerWidth < 1024;
+    } catch {
+      /* ignore */
+    }
+    type NavConn = { saveData?: boolean; effectiveType?: string };
+    const conn = (navigator as unknown as { connection?: NavConn })
+      .connection;
+    const slowNet =
+      conn?.saveData === true ||
+      (conn?.effectiveType !== undefined &&
+        ["slow-2g", "2g", "3g"].includes(conn.effectiveType));
+    setSkipVideo(isPhone || slowNet);
+  }, []);
+
   return (
     // relative + isolate so the looping background video can sit
     // behind the content without bleeding into neighbouring sections.
@@ -17,18 +45,32 @@ export function OriginStats() {
           Drop the clip at /public/videos/origin.mp4 (and a poster JPG
           alongside it for instant first paint). Playback will start
           automatically. Until the file is present, the section falls
-          back to the dark-navy bg above with no visible breakage. */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover -z-10"
-        src="/videos/origin.mp4"
-        poster="/videos/origin-poster.jpg"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        aria-hidden="true"
-      />
+          back to the dark-navy bg above with no visible breakage.
+          On phone we serve the poster as a still image instead so the
+          section doesn't pull a multi-MB video into a phone session. */}
+      {skipVideo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          className="absolute inset-0 w-full h-full object-cover -z-10"
+          src="/videos/origin-poster.jpg"
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <video
+          className="absolute inset-0 w-full h-full object-cover -z-10"
+          src="/videos/origin.mp4"
+          poster="/videos/origin-poster.jpg"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+        />
+      )}
       {/* Tint overlay — deep navy at ~70% opacity so the headline and
           body text remain legible over any frame of the clip. */}
       <div className="absolute inset-0 bg-[#112732]/72 -z-10" />
