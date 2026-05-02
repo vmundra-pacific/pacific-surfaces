@@ -20,10 +20,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: {
-    template: "%s — Pacific Surfaces",
-    default: "Pacific Surfaces — Premium Quartz & Granite Surfaces",
-  },
+  // Plain string instead of { template, default } — the previous
+  // template was double-suffixing every page ("Vanity — Pacific
+  // Surfaces — Pacific Surfaces"). With a string layout title and
+  // each page setting its own `title`, the page's title fully
+  // replaces it on that route — Next.js doesn't append anything.
+  // Pages that don't set their own title fall back to this string.
+  title: "Pacific Surfaces — Premium Quartz & Granite Surfaces",
   description:
     "Premium quartz slabs, granite surfaces, and semi-precious stones for countertops, vanities, flooring, and wall cladding. Crafted for beauty, engineered for durability.",
   metadataBase: new URL("https://www.pacific-surfaces.com"),

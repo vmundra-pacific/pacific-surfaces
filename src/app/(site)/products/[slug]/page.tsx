@@ -48,13 +48,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (isCategorySlug(slug)) {
     const data = await resolveCategoryPage(slug);
     if (!data) return { title: "Collection Not Found" };
-    const { collection } = data;
+    const { collection, config } = data;
+    const label = config.displayName ?? collection.name;
     return {
-      title: collection.seoTitle || `${collection.name} — Pacific Surfaces`,
+      title: collection.seoTitle || `${label} — Pacific Surfaces`,
       description:
         collection.seoDescription ||
         collection.description ||
-        `Browse the ${collection.name} collection from Pacific Surfaces.`,
+        `Browse the ${label} collection from Pacific Surfaces.`,
       alternates: { canonical: `/products/${slug}` },
     };
   }
@@ -116,13 +117,14 @@ export default async function ProductOrCategoryPage({ params }: Props) {
       ? (slug as FaqPageKey)
       : null;
     const faqs = faqKey ? await getFaqs(faqKey) : [];
+    const breadcrumbLabel = data.config.displayName ?? data.collection.name;
     return (
       <>
         <BreadcrumbList
           items={[
             { name: "Home", url: "/" },
             { name: "Products", url: "/products" },
-            { name: data.collection.name, url: `/products/${slug}` },
+            { name: breadcrumbLabel, url: `/products/${slug}` },
           ]}
         />
         <CatalogueClient slabs={data.slabs} hero={data.config.hero} />

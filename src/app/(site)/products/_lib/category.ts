@@ -43,6 +43,14 @@ export interface CategoryConfig {
    */
   collectionSlug?: string;
   /**
+   * Optional display name override — used in the page title and
+   * breadcrumb when the Sanity collection's own `name` is the wrong
+   * label for the URL category (e.g. URL "/products/granites" plural,
+   * Sanity collection "Granite" singular — set displayName "Granites"
+   * to keep the visible label consistent with the URL).
+   */
+  displayName?: string;
+  /**
    * Optional product type to also pull in regardless of which
    * sub-collection a product sits under. Used by category-level
    * landings like Quartz / Granite / Semi-Precious where we want
@@ -61,6 +69,11 @@ export interface CategoryConfig {
 export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   quartz: {
     match: "quartz",
+    // Pin the slug — "quartz*" name match alone would also hit
+    // sub-collections like "Monolith Quartz Vanity", and that
+    // collection winning the createdAt tiebreak made /products/quartz
+    // render with the wrong page title.
+    collectionSlug: "quartz",
     productType: "quartz-slab",
     hero: {
       videoSrc: "/videos/quartz-hero.mp4",
@@ -164,6 +177,10 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   },
   granites: {
     match: "granite",
+    // Sanity collection is named "Granite" (singular) but the URL,
+    // header nav, and footer all use "Granites" plural. Override the
+    // displayName so page title + breadcrumb match the URL.
+    displayName: "Granites",
     productType: "granite-slab",
     hero: {
       videoSrc: "/videos/granites.mp4",

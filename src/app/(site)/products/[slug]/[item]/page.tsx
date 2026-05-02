@@ -145,13 +145,20 @@ export default async function CollectionPage({ params }: Props) {
     : null;
   const faqs = faqKey ? await getFaqs(faqKey) : [];
 
+  // Category breadcrumb label — prefer the explicit displayName from
+  // CATEGORY_PAGES so /products/granites/* renders "Granites" (plural,
+  // matching the URL) rather than the Sanity-name title-cased URL.
+  const parentLabel =
+    CATEGORY_PAGES[slug.toLowerCase()]?.displayName ??
+    slug.charAt(0).toUpperCase() + slug.slice(1);
+
   return (
     <>
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },
           { name: "Products", url: "/products" },
-          { name: slug.charAt(0).toUpperCase() + slug.slice(1), url: `/products/${slug}` },
+          { name: parentLabel, url: `/products/${slug}` },
           { name: collection.name, url: `/products/${slug}/${item}` },
         ]}
       />

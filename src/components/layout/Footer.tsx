@@ -100,13 +100,17 @@ const footerLinks = {
     // Vision = Vision Series collection — the same target the
     // header's Products dropdown uses (/products/quartz/chromia).
     { name: "Vision", href: "/products/quartz/chromia" },
-    { name: "Granite", href: "/products/granites" },
+    // "Granites" plural to match the URL + header nav. Sanity's
+    // collection is named singular "Granite" but the page label is
+    // overridden to "Granites" via CategoryConfig.displayName.
+    { name: "Granites", href: "/products/granites" },
     { name: "Semi-Precious", href: "/products/semi-precious" },
-    // Ecosurfaces + Sinks removed from the footer per editorial
-    // direction — users who want them reach the full catalogue via
-    // "All Surfaces" below. Header dropdown still surfaces every
-    // category. (Lighthouse SEO: descriptive link text instead of
-    // "More" — the previous label was an a11y/SEO anti-pattern.)
+    // Vanity is a top-level category; previously missing from the
+    // footer even though the header dropdown surfaces it.
+    { name: "Vanity", href: "/products/vanity" },
+    // Ecosurfaces + Sinks remain absent from the footer per editorial
+    // direction — users reach them through the header dropdown +
+    // All Surfaces.
     { name: "All Surfaces", href: "/products" },
   ],
   company: [
@@ -122,8 +126,10 @@ const footerLinks = {
     // hierarchy.
     { name: "Resources", href: "/resources" },
     { name: "Visualizer", href: "/visualize" },
-    { name: "Terms & Conditions", href: "#" },
-    { name: "Privacy Policy", href: "#" },
+    // Terms & Conditions / Privacy Policy removed — they previously
+    // pointed at href="#" which is a dead link. Add them back when
+    // the legal pages exist (probably as /terms and /privacy under
+    // app/(site)/).
   ],
 };
 

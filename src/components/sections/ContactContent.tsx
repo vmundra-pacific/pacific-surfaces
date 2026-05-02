@@ -356,11 +356,13 @@ export function ContactContent() {
                         htmlFor="phone"
                         className="block text-xs font-medium tracking-wider uppercase text-pacific-mid/70 mb-2"
                       >
-                        Phone
+                        Phone <span aria-hidden="true">*</span>
                       </label>
                       <input
                         type="tel"
                         id="phone"
+                        required
+                        aria-required="true"
                         value={formData.phone}
                         onChange={(e) =>
                           setFormData({ ...formData, phone: e.target.value })

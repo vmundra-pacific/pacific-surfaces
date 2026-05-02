@@ -141,9 +141,14 @@ export default function Header() {
           // Scrolled state uses the same dark navy as the page
           // sections (#112732) so the header reads as a continuation
           // of the section underneath rather than a contrasting bar.
-          // No bottom border or drop shadow — the seamless join is
-          // the point; a divider would draw the eye to a fake edge.
-          scrolled ? "bg-[#112732]/95 backdrop-blur-xl" : "bg-transparent"
+          // At scroll=0 we apply a subtle top-down gradient scrim so
+          // the white logo + nav stay readable on both bright marble
+          // heroes (homepage) AND dark video heroes (granites,
+          // careers). Previous "bg-transparent" left the header
+          // invisible on either extreme.
+          scrolled
+            ? "bg-[#112732]/95 backdrop-blur-xl"
+            : "bg-gradient-to-b from-black/45 via-black/20 to-transparent backdrop-blur-[2px]"
         )}
       >
         <nav className="mx-auto max-w-[1400px] px-6 lg:px-8" style={{ paddingLeft: "max(1.5rem, env(safe-area-inset-left))", paddingRight: "max(1.5rem, env(safe-area-inset-right))" }}>

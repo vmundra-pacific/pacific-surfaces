@@ -1109,11 +1109,23 @@ export function ProductDetail({ product }: { product: Product }) {
       {/* ===== SPECS STRIP (Finishes | Thicknesses | Format | Resources) ===== */}
       <div className="border-y border-white/10 bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          {/* Column count adapts to whether Finishes Available has
-              data — 4-col when finishes exist, 3-col when not, so
-              the row stays balanced and there's no empty column. */}
+          {/* Column count adapts to which optional sections are
+              present:
+                - Finishes Available — hidden when finishes is empty.
+                - Thicknesses — hidden for specialty product
+                  categories (vanity, semi-precious, exotic,
+                  centrepiece, integra/sinks, natural-stone-finishes).
+                  Format + Professional Resources always render. The
+                  grid-cols class is derived from the count so the row
+                  stays balanced and there's never an empty column. */}
           <div
-            className={`grid grid-cols-2 ${finishes.length > 0 ? "lg:grid-cols-4" : "lg:grid-cols-3"} divide-x divide-white/10`}
+            className={`grid grid-cols-2 ${
+              finishes.length > 0 && !isSpecialtyProduct
+                ? "lg:grid-cols-4"
+                : finishes.length > 0 || !isSpecialtyProduct
+                  ? "lg:grid-cols-3"
+                  : "lg:grid-cols-2"
+            } divide-x divide-white/10`}
           >
             {/* Finishes Available — hidden entirely when no finishes
                 are set on the product in Sanity. */}
@@ -1143,20 +1155,25 @@ export function ProductDetail({ product }: { product: Product }) {
               </div>
             )}
 
-            {/* Thicknesses */}
-            <div className="py-6 lg:py-8 px-4 lg:px-6">
-              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white">
-                Thicknesses
-              </h4>
-              <div className="space-y-2.5">
-                {thicknesses.map((t) => (
-                  <div key={t} className="flex items-center gap-3">
-                    <span className="w-8 h-[3px] bg-white rounded-full" />
-                    <span className="text-base text-pacific-light">{t}</span>
-                  </div>
-                ))}
+            {/* Thicknesses — hidden for specialty products (vanity,
+                semi-precious, exotic, centrepiece, integra/sinks,
+                natural-stone-finishes). Same gate as the Slabs and
+                Sizes-tab thickness blocks elsewhere on the PDP. */}
+            {!isSpecialtyProduct && (
+              <div className="py-6 lg:py-8 px-4 lg:px-6">
+                <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white">
+                  Thicknesses
+                </h4>
+                <div className="space-y-2.5">
+                  {thicknesses.map((t) => (
+                    <div key={t} className="flex items-center gap-3">
+                      <span className="w-8 h-[3px] bg-white rounded-full" />
+                      <span className="text-base text-pacific-light">{t}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Format / Slab Size */}
             <div className="py-6 lg:py-8 px-4 lg:px-6">

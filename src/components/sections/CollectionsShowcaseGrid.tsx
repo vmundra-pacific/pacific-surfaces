@@ -165,8 +165,21 @@ const VALID_CATEGORY_SLUGS = new Set([
 
 function urlForCollection(name: string, slug: string): string {
   const n = name.toLowerCase();
+  const s = slug.toLowerCase();
   for (const rule of CATEGORY_RULES) {
     if (rule.matches.some((m) => n.startsWith(m))) {
+      // If this collection IS the category root (e.g. Sanity collection
+      // "Granite" with slug "granite" routing to the "granites"
+      // category), link straight to the category landing instead of
+      // /products/<category>/<root-slug>. Otherwise it'd render the
+      // exact same content under a deeper, redundant URL.
+      // Detection: slug equals the category, or one starts with the
+      // other (catches singular/plural pairs like granite/granites).
+      const isCategoryRoot =
+        s === rule.category ||
+        rule.category.startsWith(s) ||
+        s.startsWith(rule.category);
+      if (isCategoryRoot) return `/products/${rule.category}`;
       return `/products/${rule.category}/${slug}`;
     }
   }
