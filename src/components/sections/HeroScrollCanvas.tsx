@@ -59,9 +59,9 @@ export function HeroScrollCanvas() {
 
   // Progressive frame preloading:
   // Phase 1: Load first INITIAL_BATCH kitchen frames → dismiss loading
-  // Phase 2: Continue loading remaining kitchen frames in background
+  // Phase 2: Wide-then-dense pyramid; tail passes drain via idle.
   useEffect(() => {
-    const INITIAL_BATCH = 60; // enough for first ~10% scroll
+    const INITIAL_BATCH = 80; // enough for first ~15% scroll
     let count = 0;
     let cancelled = false;
     const imgs: HTMLImageElement[] = new Array(TOTAL_FRAMES);
@@ -105,8 +105,8 @@ export function HeroScrollCanvas() {
 
     // Hard safety timeout — if any frame stalls (network blip, CDN
     // miss), the user shouldn't sit on the loading screen forever.
-    // 8s is long enough for any reasonable connection to load 60
-    // frames at AVIF sizes (~30 KB each = ~1.8 MB).
+    // 8s is long enough for any reasonable connection to load 80
+    // frames at AVIF sizes (~30 KB each ≈ 2.4 MB).
     const safety = setTimeout(() => {
       if (!cancelled) setReady(true);
     }, 8000);
@@ -132,49 +132,88 @@ export function HeroScrollCanvas() {
           }
         }, 200);
 
-        // Phase 2 — pyramid (progressive refinement) loader.
+        // Phase 2 — wide-then-dense pyramid with a slow tail.
         //
-        // Instead of loading frames 60..N contiguously (which leaves
-        // late frames empty for many seconds), we run 4 passes of
-        // halving stride:
-        //   - Pass 1 stride 8: covers full timeline at every 9th
-        //     frame, ~58 frames. drawFrame nearest-loaded fallback
-        //     paints these as the parallax frames for any scroll
-        //     position. Done in a few seconds.
-        //   - Pass 2 stride 4: fills in midpoints, halving stride.
-        //   - Pass 3 stride 2: every-other frame loaded.
-        //   - Pass 4 stride 1: full fidelity.
+        // After eager 0..79 (Phase 1), spread coverage across the full
+        // 520-frame range as fast as possible, then progressively
+        // densify, then quietly fill in the gaps. Pass strides:
         //
-        // Result: a user scrolling to 80% in the first 5 seconds
-        // sees a frame from near 80% (slightly stale but visually
-        // present) instead of holding on frame 60. Each pass roughly
-        // doubles perceived smoothness. Total bytes loaded = same
-        // 520 frames, just in a smarter order.
-        const BATCH = 20;
+        //   Pass A — stride 80 → ~6 frames spread over the whole range.
+        //   Pass B — stride 40 → ~7 more, halving the worst-case gap.
+        //   Pass C — stride 20 → ~13 more.
+        //   Pass D — stride 10 → ~25 more.
+        //   Pass E — stride 5  → ~50 more.
+        //   --- aggressive phase ends; ~100 frames after eager ---
+        //   Pass F — stride 2  → fills every-other gap (slow drain).
+        //   Pass G — stride 1  → fills remaining (slow drain).
+        //
+        // Aggressive passes drain back-to-back in 20-frame batches so
+        // the user gets full-range coverage in a few seconds. Tail
+        // passes (stride <= 2) drain via requestIdleCallback / setTimeout
+        // so they don't compete with scroll, paint, or other late-loading
+        // assets. Total bytes loaded = same 520 frames, smarter order.
+        const FAST_BATCH = 20;
+        const SLOW_BATCH = 8;
+        const FAST_STRIDES = [80, 40, 20, 10, 5];
+        const SLOW_STRIDES = [2, 1];
+
         const loadedSet = new Set<number>();
         for (let i = 0; i < INITIAL_BATCH; i++) loadedSet.add(i);
 
-        const pyramidQueue: number[] = [];
-        for (const stride of [8, 4, 2, 1]) {
-          for (let i = 0; i < TOTAL_FRAMES; i += stride) {
-            if (!loadedSet.has(i)) {
-              loadedSet.add(i);
-              pyramidQueue.push(i);
+        const buildQueue = (strides: number[]) => {
+          const q: number[] = [];
+          for (const stride of strides) {
+            for (let i = 0; i < TOTAL_FRAMES; i += stride) {
+              if (!loadedSet.has(i)) {
+                loadedSet.add(i);
+                q.push(i);
+              }
             }
           }
-        }
-
-        let qIdx = 0;
-        const tickPyramid = () => {
-          if (cancelled || qIdx >= pyramidQueue.length) return;
-          const upTo = Math.min(qIdx + BATCH, pyramidQueue.length);
-          const batch: Promise<void>[] = [];
-          for (; qIdx < upTo; qIdx++) {
-            batch.push(loadFrame(pyramidQueue[qIdx], ext));
-          }
-          Promise.all(batch).then(tickPyramid);
+          return q;
         };
-        tickPyramid();
+
+        const fastQueue = buildQueue(FAST_STRIDES);
+        const slowQueue = buildQueue(SLOW_STRIDES);
+
+        const drainFast = (qIdx: number): Promise<void> => {
+          if (cancelled || qIdx >= fastQueue.length) return Promise.resolve();
+          const upTo = Math.min(qIdx + FAST_BATCH, fastQueue.length);
+          const batch: Promise<void>[] = [];
+          for (let i = qIdx; i < upTo; i++) {
+            batch.push(loadFrame(fastQueue[i], ext));
+          }
+          return Promise.all(batch).then(() => drainFast(upTo));
+        };
+
+        const idle = (cb: () => void) => {
+          const w = window as unknown as {
+            requestIdleCallback?: (
+              cb: () => void,
+              opts?: { timeout: number }
+            ) => number;
+          };
+          if (typeof w.requestIdleCallback === "function") {
+            w.requestIdleCallback(cb, { timeout: 1500 });
+          } else {
+            setTimeout(cb, 100);
+          }
+        };
+
+        const drainSlow = (qIdx: number) => {
+          if (cancelled || qIdx >= slowQueue.length) return;
+          const upTo = Math.min(qIdx + SLOW_BATCH, slowQueue.length);
+          const batch: Promise<void>[] = [];
+          for (let i = qIdx; i < upTo; i++) {
+            batch.push(loadFrame(slowQueue[i], ext));
+          }
+          Promise.all(batch).then(() => idle(() => drainSlow(upTo)));
+        };
+
+        drainFast(0).then(() => {
+          if (cancelled) return;
+          idle(() => drainSlow(0));
+        });
       });
     });
 
@@ -359,9 +398,9 @@ export function HeroScrollCanvas() {
     return baseOpacity;
   })();
 
-  // Loading screen shows progress of the initial batch (60 frames),
-  // not all 1039 — so it dismisses quickly while the rest loads in background
-  const INITIAL_BATCH = 60;
+  // Loading screen shows progress of the initial batch (80 frames),
+  // not all 520 — so it dismisses quickly while the rest loads in background
+  const INITIAL_BATCH = 80;
   // Cap visible progress at 90% until `ready` (canvas drew its
   // first frame) so the bar never reads 100% while the user is
   // still staring at the loading screen waiting for paint.
@@ -398,12 +437,7 @@ export function HeroScrollCanvas() {
         </div>
       </div>
 
-      {/* Scroll track — 700vh of kitchen scrub end-to-end. The lump
-          phase + crossfade overlay were removed; scrub length per
-          frame is now 700vh / 1039 frames ≈ 0.67vh per frame. To
-          slow the scrub down further without lengthening the section,
-          thin the contents of /public/hero-frames/ and update the
-          TOTAL_FRAMES constant at the top of this file. */}
+      {/* Scroll track — 700vh of kitchen scrub end-to-end. */}
       <section ref={trackRef} className="relative" style={{ height: "700vh" }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden">
           {/* Canvas */}
@@ -415,10 +449,7 @@ export function HeroScrollCanvas() {
             style={{ opacity: overlayOpacity }}
           />
 
-          {/* Brand footer — bottom-left. The chapter rail (01 · The
-              Space / 02 · The Slab / 03 · The Matter / 04 · The
-              Promise) was removed per request; the brand stamp stays
-              for context. */}
+          {/* Brand footer — bottom-left. */}
           <div className="absolute bottom-8 left-8 z-20 hidden md:flex flex-col gap-3">
             <div className="text-[10px] tracking-[0.2em] text-white/30 font-mono">
               PACIFIC · EST 2011 · INDIA
@@ -428,9 +459,6 @@ export function HeroScrollCanvas() {
           {/* Headlines */}
           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
             {headlines.map((hl, i) => {
-              // Headline ranges evaluated directly against progress
-              // (kitchen scrub now spans the whole scroll, so progress
-              // and the previous phase1Progress are the same value).
               const visible =
                 progress >= hl.range[0] && progress <= hl.range[1];
               return (
@@ -450,12 +478,6 @@ export function HeroScrollCanvas() {
                   <h1
                     className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight leading-[1.05]"
                     style={{
-                      // Liquid-glass text: vertical gradient fill that
-                      // suggests reflective glass (bright white at top
-                      // and bottom, cooler tint in the middle), clipped
-                      // to the letterforms so each character looks like
-                      // it's been carved from translucent glass. Layered
-                      // drop-shadows give depth and a soft outer halo.
                       backgroundImage:
                         "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(200,220,235,0.82) 48%, rgba(160,185,210,0.78) 60%, rgba(255,255,255,0.95) 100%)",
                       WebkitBackgroundClip: "text",
