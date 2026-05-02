@@ -63,7 +63,20 @@ const SAFE_PASSTHROUGH_HEADERS = new Set([
   "content-range",
 ]);
 
-export const runtime = "edge";
+// Use Node.js runtime, NOT edge.
+//
+// Edge functions on Vercel have a strict response-body cap (~4 MB free,
+// ~4.5 MB Pro) and unreliable behavior when streaming larger payloads.
+// Sanity-hosted videos for application cards routinely exceed this, and
+// the symptom is exactly what we saw: the browser fetches /api/cdn/
+// files/...mp4, the edge function silently truncates or stalls, and the
+// <video> element falls back to its empty background. Node.js runtime
+// has no such cap on streaming responses, so videos pass through fine.
+//
+// Tradeoff: Node functions cold-start slightly slower (~150 ms vs ~50 ms
+// for edge). For asset proxying that's negligible — once the response
+// hits Vercel's CDN it's served straight from the edge anyway.
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 interface RouteContext {
