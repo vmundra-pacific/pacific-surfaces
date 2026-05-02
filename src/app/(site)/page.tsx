@@ -48,11 +48,11 @@ export default async function HomePage() {
   // with the JS bundle, instead of waiting for hydration. Drops mobile
   // LCP from ~3.2s to ~1.5s on 4G. AVIF + JPG fallback so the right
   // format wins for whichever browser the user is on.
+  // Only preload AVIF — modern browsers (~95% support) will use it,
+  // and the JPG fallback inside HeroScrollCanvas's loader handles the
+  // rare browser without AVIF. Preloading both means the JPG downloads
+  // and never paints, triggering "preloaded but not used" warnings.
   reactPreload("/hero-frames/frame-0001.avif", {
-    as: "image",
-    fetchPriority: "high",
-  });
-  reactPreload("/hero-frames/frame-0001.jpg", {
     as: "image",
     fetchPriority: "high",
   });

@@ -252,7 +252,7 @@ export function SignatureProjects({
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
           {row1.map((p, i) => (
             <StaggerItem
-              key={p.name}
+              key={`${p.name}-${i}`}
               className={i === 0 ? "md:col-span-3" : "md:col-span-2"}
             >
               <ProjectCard
@@ -267,7 +267,7 @@ export function SignatureProjects({
         {/* Row 2 */}
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {row2.map((p, i) => (
-            <StaggerItem key={p.name}>
+            <StaggerItem key={`${p.name}-${i}`}>
               <ProjectCard
                 item={p}
                 aspect="aspect-[4/3]"

@@ -353,6 +353,7 @@ export function HeroScrollCanvas() {
           alt="Pacific Surfaces logo"
           width={160}
           height={40}
+          style={{ height: "auto" }}
           className="mb-8 object-contain"
           priority
         />
