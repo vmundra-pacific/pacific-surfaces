@@ -131,13 +131,21 @@ const CATEGORY_RULES: Array<{ matches: string[]; category: string }> = [
     ],
   },
   { category: "granites", matches: ["granite"] },
-  { category: "semi-precious", matches: ["semi", "exotic"] },
+  // Exotic gets its own top-level category route, NOT lumped under
+  // semi-precious. Both have their own hero video + landing page;
+  // routing Exotic into semi-precious played the wrong clip and
+  // produced a misleading URL like /products/semi-precious/exotic-
+  // collection. Listing exotic before semi here so the prefix match
+  // resolves to "exotic" first when both could match.
+  { category: "exotic", matches: ["exotic"] },
+  { category: "semi-precious", matches: ["semi"] },
   { category: "integra", matches: ["integra"] },
-  // Vanity collections in Sanity (e.g. "Vanity Couture") used to fall
-  // through to the bare /products/<slug> fallback below, which 404s
-  // because there's no top-level vanity category. They live under the
-  // Centrepiece Couture catalogue, so route them there.
-  { category: "centrepiece-couture", matches: ["vanity", "centrepiece"] },
+  // Vanity is its own top-level category at /products/vanity. Match
+  // is a prefix on the Sanity collection name so any "Vanity *"
+  // collection routes there. The standalone "centrepiece" rule below
+  // catches the parent Centrepiece Couture collection.
+  { category: "vanity", matches: ["vanity"] },
+  { category: "centrepiece-couture", matches: ["centrepiece"] },
 ];
 
 // Category slugs that resolve to real top-level routes — used to
@@ -152,6 +160,7 @@ const VALID_CATEGORY_SLUGS = new Set([
   "centrepiece-couture",
   "integra",
   "natural-stone-finishes",
+  "vanity",
 ]);
 
 function urlForCollection(name: string, slug: string): string {

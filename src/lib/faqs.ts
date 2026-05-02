@@ -15,6 +15,7 @@ export type FaqPageKey =
   | "integra"
   | "centrepiece-couture"
   | "natural-stone-finishes"
+  | "vanity"
   | "sustainability"
   | "about";
 
@@ -131,6 +132,28 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     {
       q: "How do I clean an Integra sink?",
       a: "Daily warm water and mild soap. For mineral build-up, use a stone-safe limescale remover. Avoid abrasive scouring pads, harsh acid cleaners, and bleach left to soak — the same care rules as your countertop.",
+    },
+  ],
+  vanity: [
+    {
+      q: "Why a quartz vanity over natural stone?",
+      a: "Engineered quartz is non-porous, so it shrugs off water marks, toothpaste spills, cosmetic stains, and the daily abuse a bathroom counter takes. Natural stone in the bath looks beautiful but needs sealing and periodic re-sealing; an Integra vanity in quartz is essentially zero-maintenance for the same finished look.",
+    },
+    {
+      q: "Can the vanity top be made as a single piece?",
+      a: "Yes — Pacific slabs are 79 inches wide and 137 inches long, which covers single- and double-bowl vanities up to that size in one continuous piece with no joints. Larger or unusually shaped vanities use a colour-matched seam at the basin centre, which all but disappears once polished.",
+    },
+    {
+      q: "Are integrated sinks available with the vanity tops?",
+      a: "Yes. Pacific Integra sinks are cast from the same engineered quartz body as the vanity top and bonded directly into the cutout. The result is a single seamless surface from worktop to bowl — no rim, no joint, no metal. Perfect for a clean, contemporary bath.",
+    },
+    {
+      q: "What thicknesses are available?",
+      a: "Standard 18 mm and 30 mm tops, with the 30 mm option offering a more substantial visual presence (especially for vanities with no apron or backsplash). Mitered edges to simulate even thicker profiles are available on request.",
+    },
+    {
+      q: "How is the vanity cared for day-to-day?",
+      a: "Warm water and mild soap for daily wipe-downs. For build-up around taps, use a pH-neutral stone cleaner. Avoid bleach, oven cleaners, and abrasive scouring pads. Pacific quartz tolerates the everyday products in a bathroom — toothpaste, shampoo, perfume, lotions — without staining or etching.",
     },
   ],
   "centrepiece-couture": [

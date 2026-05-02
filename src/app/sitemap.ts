@@ -17,6 +17,7 @@ const STATIC_PATHS = [
   "/products/centrepiece-couture",
   "/products/integra",
   "/products/natural-stone-finishes",
+  "/products/vanity",
   "/products/quartz/chromia",
   "/granites",
   "/semi-precious",

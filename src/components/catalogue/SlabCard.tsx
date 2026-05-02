@@ -18,6 +18,7 @@
 import Image from "next/image";
 import { sanityImg } from "@/lib/sanity-img";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
@@ -37,10 +38,29 @@ interface Props {
 // case-insensitive so editor renames don't break the check.
 const PRODUCT_COLLECTION_PREFIXES = ["centrepiece", "integra"];
 
+// URL prefixes that ALWAYS indicate a product-piece context, even if
+// the slab's `collection` field is a sub-collection name that
+// wouldn't match the prefixes above. e.g. on
+// /products/centrepiece-couture/vanity every product has
+// `collection === "Vanity"`, which fails the centrepiece prefix
+// check — so we ALSO check the URL category segment.
+const PRODUCT_PIECE_URL_PREFIXES = [
+  "/products/centrepiece-couture",
+  "/products/integra",
+  "/products/vanity",
+];
+
 function isProductCollection(collection?: string | null): boolean {
   if (!collection) return false;
   const lower = collection.toLowerCase();
   return PRODUCT_COLLECTION_PREFIXES.some((prefix) => lower.startsWith(prefix));
+}
+
+function isProductUrl(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return PRODUCT_PIECE_URL_PREFIXES.some((prefix) =>
+    pathname.startsWith(prefix)
+  );
 }
 
 export function SlabCard({ slab, index }: Props) {
@@ -68,9 +88,17 @@ export function SlabCard({ slab, index }: Props) {
     return () => document.removeEventListener("pointerdown", handler);
   }, [tappedOpen]);
 
-  // Whether this slab is part of a "product" collection (gets View
-  // Product label, no Sample button).
-  const productCollection = isProductCollection(slab.collection);
+  // Whether this card is in a "product" context — either because the
+  // slab's own collection name matches a product prefix (Centrepiece
+  // Couture / Integra) OR because the page URL is under a product-
+  // piece category. The URL check catches sub-collection pages like
+  // /products/centrepiece-couture/vanity where the slabs' own
+  // `collection` is "Vanity" (not "Centrepiece Couture") and the
+  // prefix check alone would miss. Either signal flips the card to
+  // the View-Product / no-Sample treatment.
+  const pathname = usePathname();
+  const productCollection =
+    isProductCollection(slab.collection) || isProductUrl(pathname);
 
   // Prefetch the SAME zoom-resolution URL the next page's magnifier
   // will use, so by the time the user clicks "View slab" the image

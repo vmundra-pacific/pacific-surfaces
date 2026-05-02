@@ -98,6 +98,26 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        // Vanity used to live as a sub-collection at
+        // /products/centrepiece-couture/vanity but is now its own
+        // top-level category at /products/vanity. Old bookmarks and
+        // any external links still pointing at the deep URL bounce
+        // to the new landing.
+        source: "/products/centrepiece-couture/vanity",
+        destination: "/products/vanity",
+        permanent: true,
+      },
+      {
+        // Exotic collections used to be mistakenly routed under
+        // /products/semi-precious/* because the homepage carousel
+        // lumped both "semi" and "exotic" name prefixes into the
+        // semi-precious category. Anything still pointing at the old
+        // URL shape rebounces under the correct Exotic top-level.
+        source: "/products/semi-precious/:slug(exotic.*)",
+        destination: "/products/exotic/:slug",
+        permanent: true,
+      },
+      {
         // /collections still bounces into the unified product
         // hierarchy. /products itself is now its own page (the All
         // Products landing) — see src/app/(site)/products/page.tsx —

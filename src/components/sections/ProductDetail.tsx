@@ -189,25 +189,43 @@ export function ProductDetail({ product }: { product: Product }) {
   // Match by category slug or collection name, case-insensitive
   // prefix so editor renames don't break the gating.
   const isSpecialtyProduct = (() => {
-    const cat = (
-      product.category?.slug?.current ||
-      product.category?.name ||
-      ""
-    ).toLowerCase();
-    const col = (product.collection?.name || "").toLowerCase();
-    const haystacks = `${cat} ${col}`;
-    return (
-      haystacks.includes("semi") ||
-      haystacks.includes("exotic") ||
-      haystacks.includes("centrepiece") ||
-      haystacks.includes("integra") ||
-      haystacks.includes("sink") ||
-      haystacks.includes("sinks") ||
-      haystacks.includes("natural stone") ||
-      haystacks.includes("natural-stone") ||
-      haystacks.includes("stone finish") ||
-      haystacks.includes("stone-finish")
-    );
+    const catSlug = (product.category?.slug?.current || "").toLowerCase();
+    const catName = (product.category?.name || "").toLowerCase();
+    const colName = (product.collection?.name || "").toLowerCase();
+    const haystacks = `${catSlug} ${catName} ${colName}`;
+
+    // SPECIALTY OVERRIDE — categories that are ALWAYS specialty,
+    // even if the product's collection name happens to contain
+    // "quartz" or "granite". This is the case for things like
+    // "Quartz Vanity Couture" where the underlying material is
+    // quartz but it's a finished vanity piece, not a slab — so the
+    // thickness selector and slab-comparison sections would be
+    // misleading. Match is loose-substring across the cat slug,
+    // cat name, and collection name (case-insensitive).
+    const SPECIALTY_PATTERNS = [
+      "vanity",
+      "semi", // semi-precious, semiprecious
+      "exotic",
+      "centrepiece",
+      "integra",
+      "sink",
+      "natural-stone",
+      "natural stone",
+      "stone finish",
+      "stone-finish",
+    ];
+    if (SPECIALTY_PATTERNS.some((p) => haystacks.includes(p))) return true;
+
+    // STANDARD-SLAB ALLOWLIST — only quartz and granite products
+    // show thicknesses + the other slab-only sections. Everything
+    // else falls through to specialty (safer default: if a new
+    // category is introduced and editorial forgets to wire this
+    // up, products will under-render rather than over-render
+    // misleading slab fields).
+    if (haystacks.includes("quartz") || haystacks.includes("granite")) {
+      return false;
+    }
+    return true;
   })();
 
   // ---- State ----

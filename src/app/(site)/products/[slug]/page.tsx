@@ -97,12 +97,18 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     // demand the array's element type matches the wider FaqPageKey
     // union (which includes "sustainability"/"about" served by
     // separate routes).
+    // Categories that show an FAQ block under the catalogue. Keep
+    // identical to the same set in ../[item]/page.tsx so category and
+    // sub-collection pages stay consistent.
+    // Removed by editorial request: exotic, integra, vanity (FAQ
+    // doesn't add value on those pages — they're product-piece /
+    // statement collections that don't lend themselves to a Q&A
+    // format). Their FAQ_DEFAULTS data still exists in src/lib/faqs.ts
+    // in case it's wanted back; this allowlist is the gate.
     const CATEGORY_FAQ_KEYS = new Set<string>([
       "quartz",
       "granites",
       "semi-precious",
-      "exotic",
-      "integra",
       "centrepiece-couture",
       "natural-stone-finishes",
     ]);

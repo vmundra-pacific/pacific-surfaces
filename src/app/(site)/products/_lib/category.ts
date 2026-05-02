@@ -163,6 +163,27 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
         "Natural granite slabs sourced and finished in-house. Heat, scratch, and stain resistant by nature.",
     },
   },
+  // Vanity is its own top-level category at /products/vanity (not
+  // nested under centrepiece-couture). Vanity products are full
+  // pieces — SlabCard's PRODUCT_PIECE_URL_PREFIXES catches the URL
+  // and flips the cards to View-Product / no-Sample treatment, same
+  // as Centrepiece Couture and Integra.
+  // posterOnly: no /videos/vanity.mp4 yet — the hero shows just the
+  // editorial still (downloaded from the Vanity Sanity collection's
+  // image and saved at /public/videos/vanity-poster.jpg). Drop a real
+  // clip in later and remove `posterOnly` to switch back to video.
+  vanity: {
+    match: "vanity",
+    hero: {
+      posterSrc: "/videos/vanity-poster.jpg",
+      posterOnly: true,
+      eyebrow: "Pacific Surfaces · Vanity",
+      headline: "Stone for the bath,",
+      headlineItalic: "designed to last.",
+      description:
+        "Hand-finished vanity tops engineered to anchor the bath — seamless joints, heat- and stain-resistant, designed to read as a single piece.",
+    },
+  },
   // natural-stone-finishes was removed from this map because that
   // URL is now served by a bespoke static route at
   // /products/natural-stone-finishes (see ../natural-stone-finishes/page.tsx)

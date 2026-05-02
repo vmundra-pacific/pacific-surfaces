@@ -10,6 +10,8 @@ import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVideo";
 import { CATEGORY_PAGES } from "../../_lib/category";
+import { FAQ } from "@/components/sections/FAQ";
+import { getFaqs, type FaqPageKey } from "@/lib/faqs";
 
 /**
  * Maps a "category-level" collection slug to the product `productType`
@@ -124,6 +126,25 @@ export default async function CollectionPage({ params }: Props) {
     COLLECTION_HERO[item.toLowerCase()] ??
     CATEGORY_PAGES[slug.toLowerCase()]?.hero;
 
+  // Sub-collection pages reuse the parent category's FAQ. /products/
+  // semi-precious/exotic-collection (etc) inherits the semi-precious
+  // FAQ block. Same allowlist as the category landing in
+  // ../page.tsx — keep both in sync if you add a category.
+  // Editorially excluded: exotic, integra, vanity (no FAQ block on
+  // those pages or any of their sub-collections).
+  const CATEGORY_FAQ_KEYS = new Set<string>([
+    "quartz",
+    "granites",
+    "semi-precious",
+    "centrepiece-couture",
+    "natural-stone-finishes",
+  ]);
+  const slugLower = slug.toLowerCase();
+  const faqKey: FaqPageKey | null = CATEGORY_FAQ_KEYS.has(slugLower)
+    ? (slugLower as FaqPageKey)
+    : null;
+  const faqs = faqKey ? await getFaqs(faqKey) : [];
+
   return (
     <>
       <BreadcrumbList
@@ -135,6 +156,13 @@ export default async function CollectionPage({ params }: Props) {
         ]}
       />
       <CatalogueClient slabs={slabs} hero={hero} />
+      {faqs.length > 0 && (
+        <FAQ
+          questions={faqs}
+          theme="dark"
+          heading="Frequently Asked Questions"
+        />
+      )}
     </>
   );
 }

@@ -43,6 +43,11 @@ const navigation = [
         name: "Natural Stone Finishes",
         href: "/products/natural-stone-finishes",
       },
+      // Vanity is its own top-level category — not nested under
+      // Centrepiece Couture. Sits right above the All Products
+      // catch-all so it reads as a discrete category alongside
+      // Quartz / Granites / Semi-Precious / etc.
+      { name: "Vanity", href: "/products/vanity" },
       // All Products owns the bare /products path; lives at the
       // bottom as a catch-all for users browsing the full catalogue.
       { name: "All Products", href: "/products" },

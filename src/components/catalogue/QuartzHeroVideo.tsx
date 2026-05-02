@@ -32,6 +32,15 @@ import { motion } from "framer-motion";
 export interface QuartzHeroVideoProps {
   /** Public-relative path or absolute URL. Defaults to /videos/quartz-hero.mp4. */
   videoSrc?: string;
+  /** Explicit poster path. By default this is derived from videoSrc by
+   *  swapping `.mp4` for `-poster.jpg`. Provide this to override (e.g.
+   *  for a posterOnly hero where the poster is hosted at an unrelated
+   *  filename). */
+  posterSrc?: string;
+  /** When true, render only the poster image — no <video> element.
+   *  Use for categories that have an editorial still but no hero clip,
+   *  so we don't fire a 404 against /videos/<category>.mp4. */
+  posterOnly?: boolean;
   /** Tracked-out caps line above the headline. */
   eyebrow?: string;
   /** First line of the headline (rendered upright). */
@@ -46,7 +55,7 @@ export interface QuartzHeroVideoProps {
   centered?: boolean;
 }
 
-const DEFAULTS: Required<QuartzHeroVideoProps> = {
+const DEFAULTS = {
   videoSrc: "/videos/quartz-hero.mp4",
   eyebrow: "Pacific Surfaces · Quartz",
   headline: "Engineered stone,",
@@ -54,40 +63,64 @@ const DEFAULTS: Required<QuartzHeroVideoProps> = {
   description:
     "Premium quartz slabs designed for kitchens, vanities, and feature walls — beautiful under any light, durable through any season.",
   centered: false,
-};
+  posterOnly: false,
+} satisfies Partial<QuartzHeroVideoProps>;
 
 export function QuartzHeroVideo(props: QuartzHeroVideoProps = {}) {
-  const { videoSrc, eyebrow, headline, headlineItalic, description, centered = false } = {
-    ...DEFAULTS,
-    ...props,
-  };
+  const merged = { ...DEFAULTS, ...props };
+  const {
+    videoSrc,
+    eyebrow,
+    headline,
+    headlineItalic,
+    description,
+    centered,
+    posterOnly,
+  } = merged;
 
-  // Derive poster path from the video URL — every shipped /videos/X.mp4
-  // has a matching /videos/X-poster.jpg next to it (extracted via
-  // ffmpeg -ss 1 -frames:v 1). External URLs (someone passes an https://
-  // value) get no poster — the video simply loads without one.
-  const posterSrc = videoSrc.startsWith("/videos/")
-    ? videoSrc.replace(/\.mp4$/, "-poster.jpg")
-    : undefined;
+  // Derive poster path. Explicit `posterSrc` wins (used for image-only
+  // heroes where the still isn't co-located with a /videos/X.mp4).
+  // Otherwise: every shipped /videos/X.mp4 has a matching
+  // /videos/X-poster.jpg (extracted via ffmpeg -ss 1 -frames:v 1).
+  // External URLs (someone passes an https:// value) get no poster.
+  const posterSrc =
+    merged.posterSrc ??
+    (videoSrc.startsWith("/videos/")
+      ? videoSrc.replace(/\.mp4$/, "-poster.jpg")
+      : undefined);
 
   return (
     <section className="relative w-full h-screen overflow-hidden bg-pacific-dark">
-      {/* Background video — fills the frame. `key` on the video tag
-          forces the element to remount when the source URL changes,
-          so route-level swaps reload the video instead of holding the
-          previous frame. */}
-      <video
-        key={videoSrc}
-        className="absolute inset-0 w-full h-full object-cover"
-        src={videoSrc}
-        poster={posterSrc}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        aria-hidden="true"
-      />
+      {/* Background — either an autoplay <video> or, when posterOnly
+          is set, just the still image. posterOnly avoids hitting the
+          network for a /videos/<X>.mp4 that doesn't exist; the result
+          looks identical to a video that's stuck on its first frame. */}
+      {posterOnly ? (
+        posterSrc ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={posterSrc}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
+          />
+        ) : null
+      ) : (
+        <video
+          key={videoSrc}
+          className="absolute inset-0 w-full h-full object-cover"
+          src={videoSrc}
+          poster={posterSrc}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+        />
+      )}
 
       {/* Soft scrim — keeps the caption readable regardless of which
           frame the video is on, and ramps to the catalogue's exact
