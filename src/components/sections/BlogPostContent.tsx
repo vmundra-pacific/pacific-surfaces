@@ -70,6 +70,7 @@ const portableTextComponents: PortableTextComponents = {
             src={url}
             alt={value.alt ?? ""}
             loading="lazy"
+            decoding="async"
             className="w-full h-auto rounded-2xl shadow-sm"
           />
           {value.caption && (

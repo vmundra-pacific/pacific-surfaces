@@ -1,5 +1,5 @@
 /**
- * Single source of truth for Sanity CDN URLs (images AND files).
+ * Single source of truth for Sanity CDN image URLs.
  *
  * Sanity master images come back via `mainImage.asset->url` at full
  * resolution — typically 2-4 MB JPGs. Render targets are a fraction
@@ -7,20 +7,20 @@
  * helper appends transform params so the CDN serves an appropriately
  * sized AVIF/WebP instead of the raw master.
  *
- * Two responsibilities:
- *
- *   1. Append CDN transform params (`?w=720&q=70&auto=format`).
- *   2. Rewrite cdn.sanity.io URLs through our first-party proxy at
- *      /api/cdn/* so the requests no longer pick up the
- *      `sanitySession` third-party cookie that Sanity sets on every
- *      asset response. Lighthouse's BP audits flagged that cookie;
- *      proxying makes those requests first-party and the audits pass.
- *
  * Pass-through for any non-Sanity URL so callers can wire it into
  * every image source without branching.
  *
  * Defaults: q=70, fit=max, auto=format. Always pass `w` to actually
  * benefit — without it the CDN still serves the master.
+ *
+ * Note on cookie hardening: cdn.sanity.io serves cookies on /files/
+ * (videos, HD downloads) but NOT on /images/. The /api/cdn/* proxy
+ * exists to strip those file cookies; image URLs are NOT rewritten,
+ * because the Next/Image optimizer at /_next/image already proxies
+ * cdn.sanity.io/images/* requests through Next's pipeline (cookies
+ * stripped, AVIF/WebP applied). Routing image URLs through our own
+ * proxy would short-circuit Next/Image and tank LCP — see
+ * `src/sanity/lib/client.ts` for the same warning.
  */
 export type SanityImgOpts = {
   w?: number;
@@ -30,29 +30,21 @@ export type SanityImgOpts = {
 };
 
 const SANITY_HOST_RE = /^https?:\/\/cdn\.sanity\.io\//;
-const PROXIED_RE = /^\/api\/cdn\//;
+const SANITY_FILES_RE = /^https?:\/\/cdn\.sanity\.io\/files\//;
+const PROXIED_FILES_RE = /^\/api\/cdn\/files\//;
 
 /**
- * Convert any cdn.sanity.io URL into a same-origin /api/cdn/* URL.
- * Already-proxied or external URLs pass through unchanged.
+ * Convert a cdn.sanity.io /files/* URL (videos, HD downloads) into a
+ * same-origin /api/cdn/files/* URL. Image URLs and non-Sanity URLs
+ * pass through unchanged — Next/Image handles those.
  *
- * Exported so callers handling URLs without needing transform params
- * (e.g. video src, HD downloads) can still ensure first-party routing.
+ * Exported so callers that need first-party routing for video src
+ * attributes can opt in explicitly.
  */
 export function sanityProxyUrl(url: string): string {
-  if (PROXIED_RE.test(url)) return url; // already proxied
-  if (!SANITY_HOST_RE.test(url)) return url; // non-Sanity
-  return url.replace(SANITY_HOST_RE, "/api/cdn/");
-}
-
-/**
- * Returns true if the URL points at Sanity's CDN, in either the raw
- * cdn.sanity.io form or the same-origin /api/cdn/* proxy form. This
- * is what callers care about when deciding "should I append transform
- * params" — both forms accept Sanity's image transform query string.
- */
-function isSanityUrl(url: string): boolean {
-  return SANITY_HOST_RE.test(url) || PROXIED_RE.test(url);
+  if (PROXIED_FILES_RE.test(url)) return url; // already proxied
+  if (!SANITY_FILES_RE.test(url)) return url; // image or non-Sanity
+  return url.replace(SANITY_FILES_RE, "/api/cdn/files/");
 }
 
 export function sanityImg(
@@ -61,12 +53,12 @@ export function sanityImg(
 ): string | undefined {
   if (!url) return undefined;
   // For non-Sanity URLs (e.g. images.unsplash.com, local /public/...),
-  // pass through unchanged — no transforms, no proxying.
-  if (!isSanityUrl(url)) return url;
+  // pass through unchanged — no transforms.
+  if (!SANITY_HOST_RE.test(url)) return url;
 
   // Append CDN transform params. Sanity's transform engine reads them
-  // from the query string regardless of host; the proxy forwards the
-  // full query string upstream to cdn.sanity.io.
+  // from the query string; for /images/ URLs these are honored
+  // upstream when Next/Image proxies the request.
   const { w, h, q = 70, fit = "max" } = opts;
   const params: string[] = [];
   if (w) params.push(`w=${w}`);
@@ -75,10 +67,5 @@ export function sanityImg(
   params.push(`fit=${fit}`);
   params.push("auto=format");
   const sep = url.includes("?") ? "&" : "?";
-  const withParams = `${url}${sep}${params.join("&")}`;
-
-  // Always finish in proxied form. If the URL was already proxied,
-  // sanityProxyUrl is a no-op; if it was a raw cdn.sanity.io URL,
-  // it gets rewritten to /api/cdn/*.
-  return sanityProxyUrl(withParams);
+  return `${url}${sep}${params.join("&")}`;
 }

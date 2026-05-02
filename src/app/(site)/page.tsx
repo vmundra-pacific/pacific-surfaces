@@ -13,16 +13,24 @@ import { HeroScrollCanvas } from "@/components/sections/HeroScrollCanvas";
 import { TrustStrip } from "@/components/sections/TrustStrip";
 import { CollectionsShowcaseGrid } from "@/components/sections/CollectionsShowcaseGrid";
 import { StatementSection } from "@/components/sections/StatementSection";
-import { VisualizerStrip } from "@/components/sections/VisualizerStrip";
-import { ApplicationsScrollSections } from "@/components/sections/ApplicationsScrollSections";
 // DealerLocator import preserved (commented) — render is hidden below;
 // uncomment both this line and the JSX line to restore.
 // import { DealerLocator } from "@/components/sections/DealerLocator";
+//
+// Below-the-fold sections are dynamic-imported so the homepage's first
+// JS bundle only contains hero + trust + collections + statement.
+// Everything else streams in as the user scrolls. Pure code-splitting
+// — same components, same UI, same behavior; just smaller initial JS.
+// HeroScrollCanvas + TrustStrip + CollectionsShowcaseGrid + Statement
+// stay static-imported because they're either above the fold or render
+// in the first viewport on most laptops.
+const ApplicationsScrollSections = dynamic(() => import("@/components/sections/ApplicationsScrollSections").then((m) => m.ApplicationsScrollSections));
 const HeritageSection = dynamic(() => import("@/components/sections/HeritageSection").then((m) => m.HeritageSection));
 const OriginStats = dynamic(() => import("@/components/sections/OriginStats").then((m) => m.OriginStats));
-import { SignatureProjects } from "@/components/sections/SignatureProjects";
+const SignatureProjects = dynamic(() => import("@/components/sections/SignatureProjects").then((m) => m.SignatureProjects));
 const TestimonialsSection = dynamic(() => import("@/components/sections/TestimonialsSection").then((m) => m.TestimonialsSection));
 const InspirationGrid = dynamic(() => import("@/components/sections/InspirationGrid").then((m) => m.InspirationGrid));
+const VisualizerStrip = dynamic(() => import("@/components/sections/VisualizerStrip").then((m) => m.VisualizerStrip));
 const PartnerWithUs = dynamic(() => import("@/components/sections/PartnerWithUs").then((m) => m.PartnerWithUs));
 const ClosingCTA = dynamic(() => import("@/components/sections/ClosingCTA").then((m) => m.ClosingCTA));
 import { VideoPrefetch } from "@/components/global/VideoPrefetch";

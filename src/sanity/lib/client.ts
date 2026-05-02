@@ -9,23 +9,33 @@ const baseClient = createClient({
 });
 
 /**
- * Recursively walk an arbitrary JSON value and rewrite every Sanity
- * CDN URL string to a same-origin proxy path. This lets us strip the
- * `sanitySession` third-party cookie that cdn.sanity.io sets on every
- * asset response — Lighthouse's Best Practices audit was failing on
- * those cookies.
+ * Recursively walk an arbitrary JSON value and rewrite Sanity CDN
+ * *file* URLs (videos, HD downloads) to a same-origin proxy path.
+ * This strips the `sanitySession` cookie that cdn.sanity.io sets on
+ * file responses, which was failing the third-party-cookies audit.
+ *
+ * IMPORTANT: We deliberately DO NOT rewrite cdn.sanity.io/images/*
+ * URLs. Those are consumed by Next/Image, which already proxies them
+ * through /_next/image — that pipeline strips cookies, applies AVIF/
+ * WebP transforms, and serves a much smaller payload. Rewriting
+ * /images/ URLs would short-circuit the Next/Image optimizer and ship
+ * full-size masters to the browser, tanking LCP. Performance regressed
+ * from ~96 to ~65 the first time we made that mistake; don't repeat it.
  *
  * Pure function, side-effect-free; returns a new object with shared
- * subtrees rebuilt only along paths that actually contained a CDN URL.
+ * subtrees rebuilt only along paths that actually contained a file URL.
  *
  * The proxy route is implemented at src/app/api/cdn/[...path]/route.ts.
  */
-const SANITY_HOST_RE = /^https?:\/\/cdn\.sanity\.io\//;
+const SANITY_FILES_RE = /^https?:\/\/cdn\.sanity\.io\/files\//;
 
 function rewriteSanityUrls<T>(value: T): T {
   if (typeof value === "string") {
-    if (SANITY_HOST_RE.test(value)) {
-      return value.replace(SANITY_HOST_RE, "/api/cdn/") as unknown as T;
+    if (SANITY_FILES_RE.test(value)) {
+      return value.replace(
+        SANITY_FILES_RE,
+        "/api/cdn/files/"
+      ) as unknown as T;
     }
     return value;
   }

@@ -168,6 +168,7 @@ export function SinksContent({ products }: SinksContentProps) {
                         alt={`${product.name} — Pacific Integra sink`}
                         className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                         loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="h-full w-full flex items-center justify-center text-pacific-mid/70">

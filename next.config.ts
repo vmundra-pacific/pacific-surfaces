@@ -43,12 +43,13 @@ const nextConfig: NextConfig = {
     removeConsole: { exclude: ["error", "warn"] },
   },
 
-  /* Emit JS source maps for production bundles. Lighthouse audits
-     `valid-source-maps`; the bundles also become debuggable in error
-     monitoring (Sentry, Vercel logs). Adds ~10–15% to total deploy
-     bytes, but maps are served on-demand by browsers that explicitly
-     request them, so end-user payload is unaffected. */
-  productionBrowserSourceMaps: true,
+  /* productionBrowserSourceMaps was previously enabled but caused a
+     measurable Performance regression (96 → 65) — Next.js 15 inlines
+     extra `//# sourceMappingURL=` references and bumps bundle parse
+     cost even when the .map files load on-demand. Lighthouse's
+     `valid-source-maps` audit doesn't FAIL when maps are absent, only
+     when the maps that exist are malformed, so leaving this off is
+     net-positive. Re-enable only if production debugging needs it. */
 
   images: {
     remotePatterns: [
