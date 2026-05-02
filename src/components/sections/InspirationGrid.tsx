@@ -208,17 +208,22 @@ export function InspirationGrid(_props: {
               />
             ) : (
               <>
-                {/* Poster always rendered. Fades out only when the
-                    video is genuinely ready to paint frames. If the
-                    video stalls or never finishes loading, the poster
-                    stays visible — far better than black. */}
+                {/* Poster stays at full opacity. The video fades in
+                    on top once it can play; once it reaches 100% it
+                    opaquely covers the poster (same content). The
+                    poster used to crossfade out simultaneously with
+                    the video fading in, but at the midpoint both
+                    layers were ~50% which let the section background
+                    bleed through and read as a one-shot dark flash.
+                    Keeping the poster solid eliminates the alpha gap.
+                    Bonus: if the video stalls or never finishes
+                    loading, the poster stays visible — far better
+                    than black. */}
                 <Image
                   src={slide.poster}
                   alt={slide.name}
                   fill
-                  className={`object-cover transition-opacity duration-500 ${
-                    videoLoaded ? "opacity-0" : "opacity-100"
-                  }`}
+                  className="object-cover"
                   sizes="100vw"
                 />
                 <video
