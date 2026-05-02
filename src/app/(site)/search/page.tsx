@@ -98,7 +98,12 @@ export default async function SearchPage({
                     <div className="aspect-[4/5] overflow-hidden bg-stone-200 mb-3 rounded-sm">
                       {r.mainImage && (
                         <Image
-                          src={sanityImg(r.mainImage, { w: 720, q: 75 })}
+                          // sanityImg returns string | undefined per its
+                          // declared signature; the `r.mainImage &&` guard
+                          // narrows the input to string but TS can't carry
+                          // that through. Fall back to the raw URL so the
+                          // src prop is always string.
+                          src={sanityImg(r.mainImage, { w: 720, q: 75 }) ?? r.mainImage}
                           alt={r.name}
                           width={720}
                           height={900}
