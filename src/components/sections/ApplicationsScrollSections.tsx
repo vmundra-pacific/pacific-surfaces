@@ -480,11 +480,32 @@ function MediaSlot({
   videoSizes?: string;
 }) {
   if (media.videoUrl) {
+    // Layered render: <Image> (poster) underneath, <PlayOnceVideo> on
+    // top. While the video has only fetched metadata, the <video>
+    // element is transparent — the Image shows through. Once the
+    // first frame decodes, the video naturally covers the image (same
+    // visual content) and we get smooth playback. No opacity wiring
+    // required because PlayOnceVideo never explicitly hides itself
+    // except during its own replay-fade sequence, where the
+    // poster reappearing for ~200ms reads as polished rather than
+    // janky. If imageUrl is missing the <Image> branch is omitted —
+    // pre-thumbnail-migration cards still render exactly as they did.
     return (
-      <PlayOnceVideo
-        src={media.videoUrl}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+      <>
+        {media.imageUrl && (
+          <Image
+            src={media.imageUrl}
+            alt={alt}
+            fill
+            className="object-cover"
+            sizes={videoSizes}
+          />
+        )}
+        <PlayOnceVideo
+          src={media.videoUrl}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </>
     );
   }
   if (media.imageUrl) {
@@ -1056,11 +1077,28 @@ function CommercialFrameSlot({
   return (
     <motion.div style={{ opacity, filter }} className="absolute inset-0">
       {frame.videoUrl ? (
-        <OpacityGatedVideo
-          src={frame.videoUrl}
-          activity={opacity}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        // Same layered pattern as MediaSlot above — Image (still)
+        // paints underneath and shows through while the video is
+        // preloading metadata. Once the video has frames it covers
+        // the image. Mobile path doesn't see this branch because
+        // skipVideos already nulled videoUrl in the resolver, so it
+        // falls into the standalone Image branch below.
+        <>
+          {frame.imageUrl && (
+            <Image
+              src={frame.imageUrl}
+              alt={frame.label ?? `${copy.title} ${copy.titleAccent}`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 60vw"
+            />
+          )}
+          <OpacityGatedVideo
+            src={frame.videoUrl}
+            activity={opacity}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </>
       ) : frame.imageUrl ? (
         <Image
           src={frame.imageUrl}
