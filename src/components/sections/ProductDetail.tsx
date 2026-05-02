@@ -228,6 +228,32 @@ export function ProductDetail({ product }: { product: Product }) {
     return true;
   })();
 
+  // Separate gate for the Compare Slider section. Stone-on-stone
+  // comparison is useful for any browseable-stone category — not
+  // just the thickness-bearing slab ones. So semi-precious and
+  // exotic are INCLUDED here (where they're excluded from
+  // isSpecialtyProduct above). The compare slider is hidden ONLY for
+  // truly full-piece products: vanities, centrepieces, sinks, and
+  // natural-stone-finishes (where the section is a finish picker,
+  // not a stone picker).
+  const hideCompareSlider = (() => {
+    const catSlug = (product.category?.slug?.current || "").toLowerCase();
+    const catName = (product.category?.name || "").toLowerCase();
+    const colName = (product.collection?.name || "").toLowerCase();
+    const haystacks = `${catSlug} ${catName} ${colName}`;
+    const FULL_PIECE_PATTERNS = [
+      "vanity",
+      "centrepiece",
+      "integra",
+      "sink",
+      "natural-stone",
+      "natural stone",
+      "stone finish",
+      "stone-finish",
+    ];
+    return FULL_PIECE_PATTERNS.some((p) => haystacks.includes(p));
+  })();
+
   // ---- State ----
   const [selectedImage, setSelectedImage] = useState(slabImage);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -1272,27 +1298,45 @@ export function ProductDetail({ product }: { product: Product }) {
                       />
                       {/* Water absorption + Mohs hardness vary by
                           category — quartz is engineered and far
-                          tighter on both metrics than natural granite.
-                          Detect granite via category slug or name and
-                          swap the values; everything else keeps the
-                          original quartz-spec defaults. */}
+                          tighter on both metrics than natural granite,
+                          and natural-stone categories (semi-precious,
+                          exotic) sit closer to granite than quartz.
+                          Check the category AND the collection name
+                          (some products are only filed under a
+                          collection without an explicit category, so
+                          the slug-only check used to miss). Quartz
+                          values stay the default. */}
                       {(() => {
-                        const cat = (
-                          product.category?.slug?.current ||
-                          product.category?.name ||
-                          ""
+                        const catSlug = (
+                          product.category?.slug?.current || ""
                         ).toLowerCase();
-                        const isGranite = cat.includes("granite");
+                        const catName = (
+                          product.category?.name || ""
+                        ).toLowerCase();
+                        const colName = (
+                          product.collection?.name || ""
+                        ).toLowerCase();
+                        const haystacks = `${catSlug} ${catName} ${colName}`;
+                        const isGranite = haystacks.includes("granite");
+                        const isSemiPrecious =
+                          haystacks.includes("semi") ||
+                          haystacks.includes("exotic");
+                        let waterAbsorption = "< 0.03%"; // quartz default
+                        let mohs = "7"; // quartz default
+                        if (isGranite) {
+                          waterAbsorption = "Avg. 0.1 – 0.6%";
+                          mohs = "6";
+                        } else if (isSemiPrecious) {
+                          waterAbsorption = "Avg. 0.2 – 0.5%";
+                          mohs = "6.5 – 7";
+                        }
                         return (
                           <>
                             <SpecRow
                               label="Water Absorption"
-                              value={isGranite ? "Avg. 0.1 – 0.6%" : "< 0.03%"}
+                              value={waterAbsorption}
                             />
-                            <SpecRow
-                              label="Mohs Hardness"
-                              value={isGranite ? "6" : "7"}
-                            />
+                            <SpecRow label="Mohs Hardness" value={mohs} />
                           </>
                         );
                       })()}
@@ -1511,10 +1555,15 @@ export function ProductDetail({ product }: { product: Product }) {
               the "You May Also Like" rail above — Compare Colors
               shows the same five as the initial visible chips, so
               comparison candidates match the recommendations.
-              Hidden for specialty products: side-by-side slab
-              comparison doesn't make sense for sinks, centrepieces,
-              semi-precious or natural-stone-finishes pieces. */}
-      {!isSpecialtyProduct && (
+              Visible for any browseable-stone category (quartz,
+              granite, semi-precious, exotic). Hidden for full-piece
+              categories where slab-on-slab comparison doesn't apply:
+              vanity, centrepiece, integra/sinks, natural-stone-
+              finishes. Note this is a SEPARATE gate from
+              `isSpecialtyProduct` because semi-precious and exotic
+              should still surface the comparison even though their
+              thickness sections are suppressed. */}
+      {!hideCompareSlider && (
         <CompareSliderSection
           product={product}
           picks={picks}
