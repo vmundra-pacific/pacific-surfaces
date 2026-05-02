@@ -518,7 +518,7 @@ export function HeroScrollCanvas() {
               </h2>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
                 <a
-                  href="#collections"
+                  href="/products"
                   className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-[#112732] text-xs font-medium tracking-[0.15em] uppercase rounded-full hover:bg-stone-100 transition-colors"
                 >
                   Explore the Collection
