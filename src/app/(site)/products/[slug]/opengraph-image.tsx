@@ -6,11 +6,7 @@ import { ImageResponse } from "next/og";
 import { rawClient as client } from "@/sanity/lib/client";
 import { productBySlugQuery } from "@/sanity/lib/queries";
 import { sanityImg } from "@/lib/sanity-img";
-import {
-  CATEGORY_PAGES,
-  isCategorySlug,
-  resolveCategoryPage,
-} from "../_lib/category";
+import { isCategorySlug, resolveCategoryPage } from "../_lib/category";
 
 /**
  * Per-product / per-category OG image. Generated on the edge from the
@@ -95,7 +91,6 @@ function renderCard({
       >
         {/* Background image */}
         {bgImage && (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={bgImage}
             alt=""

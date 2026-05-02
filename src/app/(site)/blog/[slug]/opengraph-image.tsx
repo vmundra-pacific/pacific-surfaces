@@ -48,7 +48,6 @@ export default async function Image({ params }: Props) {
         }}
       >
         {bgImage && (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={bgImage}
             alt=""

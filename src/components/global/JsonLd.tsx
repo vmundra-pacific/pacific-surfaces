@@ -42,7 +42,6 @@ export function BreadcrumbList({ items }: { items: BreadcrumbItem[] }) {
   return (
     <script
       type="application/ld+json"
-      // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
     />
   );
@@ -120,7 +119,6 @@ export function ProductSchema({
   return (
     <script
       type="application/ld+json"
-      // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
     />
   );
@@ -170,7 +168,6 @@ export function ArticleSchema({
   return (
     <script
       type="application/ld+json"
-      // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
     />
   );
