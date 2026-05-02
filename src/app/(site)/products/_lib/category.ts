@@ -32,6 +32,17 @@ export interface CategoryConfig {
    */
   match: string;
   /**
+   * Optional EXACT Sanity collection slug. When set, the resolver
+   * looks the collection up by `slug.current == this` instead of
+   * doing the name-prefix match. Use this for categories where the
+   * name match would otherwise hit multiple collections — e.g.
+   * "vanity*" matches BOTH the parent "Vanity" collection and a
+   * sub-collection named "Monolith Quartz Vanity", and the wrong
+   * one would win the chronological tiebreak. Setting
+   * `collectionSlug: "vanity"` pins the lookup to the correct doc.
+   */
+  collectionSlug?: string;
+  /**
    * Optional product type to also pull in regardless of which
    * sub-collection a product sits under. Used by category-level
    * landings like Quartz / Granite / Semi-Precious where we want
@@ -174,6 +185,10 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   // clip in later and remove `posterOnly` to switch back to video.
   vanity: {
     match: "vanity",
+    // Disambiguates from "Monolith Quartz Vanity" (and any other
+    // sub-collection with "vanity" in its name) — the parent
+    // collection's slug is exactly "vanity", so pin the lookup.
+    collectionSlug: "vanity",
     hero: {
       posterSrc: "/videos/vanity-poster.jpg",
       posterOnly: true,
@@ -194,6 +209,16 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
 
 const collectionByMatchQuery = groq`
   *[_type == "collection" && lower(name) match $pattern] | order(_createdAt asc)[0] {
+    _id,
+    name,
+    description,
+    seoTitle,
+    seoDescription
+  }
+`;
+
+const collectionBySlugQueryLocal = groq`
+  *[_type == "collection" && slug.current == $slug][0] {
     _id,
     name,
     description,
@@ -246,9 +271,16 @@ export async function resolveCategoryPage(
   const config = CATEGORY_PAGES[slug];
   if (!config) return null;
 
-  const collection = await client.fetch(collectionByMatchQuery, {
-    pattern: `${config.match.toLowerCase()}*`,
-  });
+  // Prefer slug-exact lookup when the config supplies one (it's the
+  // unambiguous path). Fall back to the broader name-prefix match
+  // for categories that don't pin a slug.
+  const collection = config.collectionSlug
+    ? await client.fetch(collectionBySlugQueryLocal, {
+        slug: config.collectionSlug,
+      })
+    : await client.fetch(collectionByMatchQuery, {
+        pattern: `${config.match.toLowerCase()}*`,
+      });
   if (!collection) return null;
 
   const products = await client.fetch(productsByCollectionOrTypeQuery, {

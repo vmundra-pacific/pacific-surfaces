@@ -21,7 +21,9 @@ interface SearchResult {
 
 const quickLinks = [
   { name: "Products", href: "/products" },
-  { name: "Collections", href: "/collections" },
+  // "Collections" shortcut removed — the /collections URL space was
+  // retired in favor of /products/[category]/[slug] (see redirects in
+  // next.config.ts) and the shortcut was leading to the legacy bounce.
   { name: "Ecosurfaces", href: "/ecosurfaces" },
   { name: "Granites", href: "/granites" },
   { name: "Contact", href: "/contact" },
