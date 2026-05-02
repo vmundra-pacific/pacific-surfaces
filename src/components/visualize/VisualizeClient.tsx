@@ -69,6 +69,15 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
   // We override the gutter to `auto` so no space is reserved on this
   // page, and restore the prior values when the visualizer unmounts.
   useEffect(() => {
+    // Only lock body scroll on desktop. Phones need to scroll the
+    // visualizer page freely since the workspace stacks vertically
+    // on narrow viewports (canvas, slab dock, status all need to be
+    // reachable). On desktop the workspace is `h-screen` and the
+    // inspector handles its own scrolling, so the lock prevents
+    // wheel events from leaking out to the body.
+    if (typeof window === "undefined") return;
+    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+    if (!isDesktop) return;
     const html = document.documentElement;
     const body = document.body;
     const prevHtmlOverflow = html.style.overflow;
@@ -463,7 +472,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
 
   // -------------------- Workspace screen --------------------
   return (
-    <main className="h-screen w-screen overflow-hidden bg-[#0a1620] text-pacific-light flex flex-col">
+    <main className="min-h-screen lg:h-screen w-screen lg:overflow-hidden bg-[#0a1620] text-pacific-light flex flex-col">
       {/* Top bar */}
       <header className="shrink-0 h-14 px-4 md:px-6 flex items-center justify-between border-b border-white/8 bg-pacific-dark/60 backdrop-blur-xl">
         <div className="flex items-center gap-5">

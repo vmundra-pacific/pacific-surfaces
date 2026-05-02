@@ -60,7 +60,8 @@ export function VisualizerStrip() {
           as="h2"
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.05] mb-6 sm:mb-8"
         >
-          See any surface in your room.
+          See any surface in
+          your room.
         </TextReveal>
 
         <motion.p

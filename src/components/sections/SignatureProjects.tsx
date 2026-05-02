@@ -382,7 +382,21 @@ function ProjectVideo({
       (conn?.effectiveType !== undefined &&
         ["slow-2g", "2g", "3g"].includes(conn.effectiveType));
     const lowMem = typeof memGB === "number" && memGB <= 2;
-    if (slowNet || lowMem) setSkipVideo(true);
+    // Phone gate: any touch device with a narrow viewport gets the
+    // poster-only treatment regardless of network. Architects-section
+    // videos on phone were costing too much for too little — first
+    // and last cards in particular were stuttering on entry. Posters
+    // already convey the editorial feel; videos are a desktop
+    // augmentation.
+    let isPhone = false;
+    try {
+      isPhone =
+        window.matchMedia("(pointer: coarse)").matches &&
+        window.innerWidth < 1024;
+    } catch {
+      /* ignore — older browsers */
+    }
+    if (slowNet || lowMem || isPhone) setSkipVideo(true);
   }, []);
 
   useEffect(() => {

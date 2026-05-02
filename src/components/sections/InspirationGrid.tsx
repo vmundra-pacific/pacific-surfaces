@@ -66,17 +66,35 @@ export function InspirationGrid({
 } = {}) {
   const [active, setActive] = useState(0);
   const [inView, setInView] = useState(false);
-  // Reset to false when the active slide changes; flip to true when
-  // the video element fires `onCanPlay`. Until then we keep the
-  // poster image visible so the user never stares at black.
   const [videoLoaded, setVideoLoaded] = useState(false);
+  // Phone detection — drops the video slide entirely on touch
+  // devices with narrow viewports. The video was costing too much to
+  // load on phones; the 4 images alone tell the same story.
+  const [isPhone, setIsPhone] = useState(false);
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const advance = useCallback(() => {
-    setActive((prev) => (prev + 1) % SLIDES.length);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      setIsPhone(
+        window.matchMedia("(pointer: coarse)").matches &&
+          window.innerWidth < 1024
+      );
+    } catch {
+      /* ignore */
+    }
   }, []);
+
+  // Filter slides: phones never see the video slide.
+  const slides = isPhone
+    ? SLIDES.filter((s) => s.kind !== "video")
+    : SLIDES;
+
+  const advance = useCallback(() => {
+    setActive((prev) => (prev + 1) % slides.length);
+  }, [slides.length]);
 
   // IntersectionObserver: flip `inView` true the first time any part
   // of the section enters the viewport. We never reset it back to
@@ -111,7 +129,7 @@ export function InspirationGrid({
   // (and slide 0 stays visible) until the user reaches the section.
   useEffect(() => {
     if (!inView) return;
-    const slide = SLIDES[active];
+    const slide = slides[active];
     if (slide.kind === "image") {
       const t = setTimeout(advance, IMAGE_DURATION_MS);
       return () => clearTimeout(t);
@@ -133,7 +151,9 @@ export function InspirationGrid({
     setVideoLoaded(false);
   }, [active]);
 
-  const slide = SLIDES[active];
+  // Guard for empty filter result (shouldn't happen — SLIDES has
+  // 4 images even after filtering).
+  const slide = slides[active] ?? slides[0];
   const textShadow = "0 2px 8px rgba(0,0,0,.65), 0 6px 28px rgba(0,0,0,.55)";
 
   return (
@@ -149,9 +169,9 @@ export function InspirationGrid({
       {!inView ? (
         <Image
           src={
-            SLIDES[0].kind === "image"
-              ? SLIDES[0].src
-              : SLIDES[0].poster
+            slides[0].kind === "image"
+              ? slides[0].src
+              : slides[0].poster
           }
           alt=""
           aria-hidden="true"
@@ -247,7 +267,7 @@ export function InspirationGrid({
 
       {/* Dots — bottom-right */}
       <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 z-10 flex items-center gap-2">
-        {SLIDES.map((s, i) => (
+        {slides.map((s, i) => (
           <button
             key={s.src}
             type="button"

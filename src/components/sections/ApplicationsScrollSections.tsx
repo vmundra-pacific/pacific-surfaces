@@ -149,7 +149,7 @@ const SECTION_COPY: Record<SectionKey, SectionCopy> = {
     title: "Countertops",
     titleAccent: "& Islands",
     description:
-      'Heat-, stain-, and scratch-resistant. Seamless 131" slabs reduce the need for joints on large islands.',
+      'Heat-, stain-, and scratch-resistant. Seamless 137" slabs reduce the need for joints on large islands.',
     match: "kitchen",
     // Light marble: warm cream → soft white with a faint vein wash.
     placeholderGradient:
