@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Semi-Precious Stone Surfaces | Pacific Group",
   description:
     "Discover the rarest semi-precious stone surfaces. True jewels of nature that transform interiors with unparalleled elegance and beauty.",
+  alternates: { canonical: "/semi-precious" },
 };
 
 interface Product {

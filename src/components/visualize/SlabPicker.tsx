@@ -130,7 +130,7 @@ export function SlabPicker({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={s.photoUrl.includes("cdn.sanity.io") ? s.photoUrl + (s.photoUrl.includes("?") ? "&" : "?") + "w=240&h=180&fit=crop&q=70&auto=format" : s.photoUrl}
-                    alt={s.name}
+                    alt={`${s.name} slab swatch`}
                     loading="lazy"
                     decoding="async"
                     className="absolute inset-0 w-full h-full object-cover"

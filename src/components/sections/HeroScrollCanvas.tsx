@@ -350,7 +350,7 @@ export function HeroScrollCanvas() {
       >
         <Image
           src="/logo-pacific-white.png"
-          alt="Pacific Surfaces"
+          alt="Pacific Surfaces logo"
           width={160}
           height={40}
           className="mb-8 object-contain"

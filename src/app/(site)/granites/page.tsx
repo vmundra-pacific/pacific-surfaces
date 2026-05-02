@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Premium Natural Granite Collection | Pacific Surfaces",
   description:
     "Explore our premium natural granite slabs and finishes. Each piece displays legendary stories and timeless textures of nature.",
+  alternates: { canonical: "/granites" },
 };
 
 interface Product {

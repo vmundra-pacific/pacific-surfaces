@@ -80,13 +80,14 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { item } = await params;
+  const { slug, item } = await params;
   const collection = await client.fetch(collectionBySlugQuery, { slug: item });
   if (!collection) return { title: "Collection Not Found" };
 
   return {
     title: collection.seoTitle || `${collection.name} — Pacific Surfaces`,
     description: collection.seoDescription || collection.description,
+    alternates: { canonical: `/products/${slug}/${item}` },
   };
 }
 

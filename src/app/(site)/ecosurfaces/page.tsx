@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Ecosurfaces — Safe, Sustainable & Stunning | Pacific Surfaces",
   description:
     "Discover our revolutionary low and zero silica engineered quartz surfaces. Safe, sustainable, and beautifully crafted.",
+  alternates: { canonical: "/ecosurfaces" },
 };
 
 interface Product {

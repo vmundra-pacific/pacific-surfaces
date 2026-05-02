@@ -54,6 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         collection.seoDescription ||
         collection.description ||
         `Browse the ${collection.name} collection from Pacific Surfaces.`,
+      alternates: { canonical: `/products/${slug}` },
     };
   }
 
@@ -66,6 +67,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       product.seoDescription ||
       `Discover ${product.name} from Pacific Surfaces. Premium quartz and granite surfaces for modern spaces.`,
     keywords: product.seoKeywords,
+    alternates: { canonical: `/products/${slug}` },
   };
 }
 

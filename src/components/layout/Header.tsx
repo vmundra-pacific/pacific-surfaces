@@ -161,7 +161,7 @@ export default function Header() {
               <span className="relative w-9 h-9 shrink-0">
                 <Image
                   src="/logos/monogram-dark.png"
-                  alt="Pacific Surfaces"
+                  alt="Pacific Surfaces logo"
                   fill
                   sizes="36px"
                   priority

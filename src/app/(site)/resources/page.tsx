@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Resources — Pacific Surfaces",
   description:
     "Download premium stone catalogs, technical documentation, and design guides. Browse quartz, granite, and ecosurface collections.",
+  alternates: { canonical: "/resources" },
 };
 
 export default async function ResourcesPage() {

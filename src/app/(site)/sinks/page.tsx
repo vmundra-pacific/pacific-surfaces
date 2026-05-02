@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Integra Sinks — Pacific Quartz Sink Collection",
   description:
     "Discover seamless integrated sink designs from our premium Integra collection. Beautiful, durable quartz sinks for modern kitchens.",
+  alternates: { canonical: "/sinks" },
 };
 
 interface Product {

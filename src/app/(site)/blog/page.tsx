@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Field Notes — Pacific Surfaces",
   description:
     "Quartz & stone — guides, news, and industry insight from the Pacific Surfaces editorial team.",
+  alternates: { canonical: "/blog" },
 };
 
 /**

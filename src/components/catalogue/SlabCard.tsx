@@ -126,7 +126,7 @@ export function SlabCard({ slab, index }: Props) {
           <div className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]">
             <Image
               src={sanityImg(slab.photoUrl, { w: 720 }) ?? slab.photoUrl}
-              alt={slab.name}
+              alt={`${slab.name} — ${slab.collection ?? "Pacific Surfaces"} slab`}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover"

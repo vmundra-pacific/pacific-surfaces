@@ -19,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "All Products — Pacific Surfaces",
     description: `Browse the full Pacific Surfaces catalogue — ${count} premium quartz slabs, granite surfaces, semi-precious stones, sinks, and finishes.`,
+    alternates: { canonical: "/products" },
   };
 }
 

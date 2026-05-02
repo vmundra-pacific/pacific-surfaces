@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Natural Stone Finishes — Pacific Surfaces",
   description:
     "Polished, honed, leathered, brushed — explore the full palette of finishes available across Pacific's quartz and granite collections.",
+  alternates: { canonical: "/products/natural-stone-finishes" },
 };
 
 /**

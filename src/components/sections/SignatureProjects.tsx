@@ -312,7 +312,7 @@ function ProjectCard({
       ) : item.image ? (
         <Image
           src={item.image}
-          alt={item.name}
+          alt={`${item.name} — Pacific Surfaces project`}
           fill
           {...(item.imageLqip
             ? {

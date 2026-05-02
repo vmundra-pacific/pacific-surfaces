@@ -17,7 +17,7 @@ import { resolveCategoryPage } from "../_lib/category";
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await resolveCategoryPage("exotic");
-  if (!data) return { title: "Exotic Collection — Pacific Surfaces" };
+  if (!data) return { title: "Exotic Collection — Pacific Surfaces", alternates: { canonical: "/products/exotic" } };
   return {
     title:
       data.collection.seoTitle || `${data.collection.name} — Pacific Surfaces`,
@@ -25,6 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
       data.collection.seoDescription ||
       data.collection.description ||
       "Premium exotic stone surfaces with rare patterns and bold veining.",
+    alternates: { canonical: "/products/exotic" },
   };
 }
 

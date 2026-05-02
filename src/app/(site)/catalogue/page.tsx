@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Catalogue — Pacific Surfaces",
   description:
     "Browse the full Pacific Surfaces catalogue. Filter by hue, collection, pattern, finish and thickness to discover the quartz or granite slab engineered for your space.",
+  alternates: { canonical: "/catalogue" },
 };
 
 export default async function CataloguePage() {

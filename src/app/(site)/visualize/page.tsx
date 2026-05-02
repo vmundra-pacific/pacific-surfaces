@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Visualiser — See Pacific slabs in your space",
   description:
     "Upload a photo of your kitchen or bath and preview any Pacific Surfaces slab in place. Auto-detect finds your countertop — you pick the stone.",
+  alternates: { canonical: "/visualize" },
 };
 
 // Re-validate every 60s so newly-published products show up in the

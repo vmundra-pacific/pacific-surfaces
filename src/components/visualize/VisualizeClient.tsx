@@ -939,7 +939,7 @@ function InspectorContents({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={slab.photoUrl}
-                  alt={slab.name}
+                  alt={`${slab.name} slab preview — Pacific Surfaces`}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : (

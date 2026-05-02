@@ -602,7 +602,7 @@ export function ProductDetail({ product }: { product: Product }) {
               {selectedImage ? (
                 <Image
                   src={sanityImg(selectedImage, { w: 1600 }) ?? selectedImage}
-                  alt={product.name}
+                  alt={`${product.name} — Pacific Surfaces ${product.collection?.name ?? "premium surface"}`}
                   fill
                   className="object-cover"
                   sizes="100vw"
@@ -1597,7 +1597,7 @@ export function ProductDetail({ product }: { product: Product }) {
             >
               <Image
                 src={sanityImg(selectedImage, { w: 1600 }) ?? selectedImage}
-                alt={product.name}
+                alt={`${product.name} — Pacific Surfaces ${product.collection?.name ?? "premium surface"}`}
                 fill
                 className="object-contain"
                 sizes="100vw"
@@ -2064,7 +2064,7 @@ function CompareSliderSection({
             >
               <Image
                 src={leftImage}
-                alt={product.name}
+                alt={`${product.name} — Pacific Surfaces ${product.collection?.name ?? "premium surface"}`}
                 fill
                 className="object-cover"
                 sizes="100vw"

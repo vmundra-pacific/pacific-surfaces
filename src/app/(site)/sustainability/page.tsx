@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: "Sustainability — Pacific Surfaces",
   description:
     "Discover Pacific Surfaces' commitment to environmental sustainability. Powered by renewable energy, water conservation, and low-silica ecosurfaces.",
+  alternates: { canonical: "/sustainability" },
 };
 
 /**

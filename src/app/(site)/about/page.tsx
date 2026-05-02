@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "About — Pacific Surfaces",
   description:
     "Learn about Pacific Surfaces, India's premium quartz and granite surface manufacturer. Quality, innovation, and craftsmanship.",
+  alternates: { canonical: "/about" },
 };
 
 export default async function AboutPage() {

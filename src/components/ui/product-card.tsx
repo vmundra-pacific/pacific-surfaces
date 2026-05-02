@@ -42,7 +42,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={product.mainImage}
-              alt={product.name}
+              alt={`${product.name} — Pacific Surfaces`}
               className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
               loading="lazy"
             />

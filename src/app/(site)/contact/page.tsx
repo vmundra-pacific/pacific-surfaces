@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Contact — Pacific Surfaces",
   description:
     "Get in touch with Pacific Surfaces for quotes, samples, and project inquiries.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {
