@@ -5,6 +5,7 @@ import {
   naturalStoneFinishesProductsQuery,
 } from "@/sanity/lib/queries";
 import { NaturalStoneFinishesContent } from "@/components/sections/NaturalStoneFinishesContent";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 
 export const metadata: Metadata = {
   title: "Natural Stone Finishes — Pacific Surfaces",
@@ -56,9 +57,18 @@ export default async function NaturalStoneFinishesPage() {
   ]);
 
   return (
-    <NaturalStoneFinishesContent
-      pageData={pageData}
-      finishes={finishes ?? []}
-    />
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Products", url: "/products" },
+          { name: "Natural Stone Finishes", url: "/products/natural-stone-finishes" },
+        ]}
+      />
+      <NaturalStoneFinishesContent
+        pageData={pageData}
+        finishes={finishes ?? []}
+      />
+    </>
   );
 }

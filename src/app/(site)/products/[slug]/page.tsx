@@ -8,6 +8,7 @@ import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { FAQ } from "@/components/sections/FAQ";
 import { getFaqs, type FaqPageKey } from "@/lib/faqs";
 import { zoomImageUrl } from "@/lib/zoom-image";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 import {
   CATEGORY_PAGES,
   isCategorySlug,
@@ -111,6 +112,13 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     const faqs = faqKey ? await getFaqs(faqKey) : [];
     return (
       <>
+        <BreadcrumbList
+          items={[
+            { name: "Home", url: "/" },
+            { name: "Products", url: "/products" },
+            { name: data.collection.name, url: `/products/${slug}` },
+          ]}
+        />
         <CatalogueClient slabs={data.slabs} hero={data.config.hero} />
         {faqs.length > 0 && (
           <FAQ
@@ -141,5 +149,19 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     });
   }
 
-  return <ProductDetail product={product} />;
+  const categoryName = product.collection?.name ?? product.category?.name ?? "Products";
+  const categorySlugForCrumb = product.collection?.slug?.current ?? product.category?.slug?.current ?? slug;
+  return (
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Products", url: "/products" },
+          { name: categoryName, url: `/products/${categorySlugForCrumb}` },
+          { name: product.name, url: `/products/${slug}` },
+        ]}
+      />
+      <ProductDetail product={product} />
+    </>
+  );
 }

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { client } from "@/sanity/lib/client";
 import { blogPostBySlugQuery } from "@/sanity/lib/queries";
 import { BlogPostContent } from "@/components/sections/BlogPostContent";
+import { BreadcrumbList, ArticleSchema } from "@/components/global/JsonLd";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -26,5 +27,25 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound();
 
-  return <BlogPostContent post={post} />;
+  return (
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Blog", url: "/blog" },
+          { name: post.title, url: `/blog/${slug}` },
+        ]}
+      />
+      <ArticleSchema
+        headline={post.title}
+        image={post.mainImage}
+        datePublished={post.publishedAt}
+        dateModified={post._updatedAt ?? post.publishedAt}
+        authorName={post.author?.name ?? undefined}
+        url={`/blog/${slug}`}
+        description={post.seoDescription || post.excerpt}
+      />
+      <BlogPostContent post={post} />
+    </>
+  );
 }

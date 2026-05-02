@@ -43,8 +43,6 @@ export default defineConfig({
             S.divider(),
             S.documentTypeListItem("resource").title("Resources"),
             S.divider(),
-            // Careers — page-level copy is a singleton (one doc),
-            // openings + applications are normal document lists.
             S.listItem()
               .title("Careers Page")
               .child(

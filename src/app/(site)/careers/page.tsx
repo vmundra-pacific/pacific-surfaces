@@ -4,9 +4,9 @@ import { careersPageQuery, jobOpeningsQuery } from "@/sanity/lib/queries";
 import { CareersContent } from "@/components/sections/CareersContent";
 
 export const metadata: Metadata = {
-  title: "Careers — Grow with Pacific | Pacific Surfaces",
+  title: "Careers at Pacific Surfaces — Join Our Team",
   description:
-    "Join our dynamic team and grow your career with Pacific Surfaces. Explore exciting opportunities across departments and locations.",
+    "Join Pacific Surfaces — engineered stone manufacturer with 13+ years of growth, shipping to 45+ countries. View open roles in design, manufacturing, and operations.",
   alternates: { canonical: "/careers" },
 };
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { resolveCategoryPage } from "../_lib/category";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 
 /**
  * Static route for /products/exotic.
@@ -32,5 +33,16 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ExoticPage() {
   const data = await resolveCategoryPage("exotic");
   if (!data) notFound();
-  return <CatalogueClient slabs={data.slabs} hero={data.config.hero} />;
+  return (
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Products", url: "/products" },
+          { name: "Exotic Collection", url: "/products/exotic" },
+        ]}
+      />
+      <CatalogueClient slabs={data.slabs} hero={data.config.hero} />
+    </>
+  );
 }

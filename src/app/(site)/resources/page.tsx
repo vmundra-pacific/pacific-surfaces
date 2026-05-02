@@ -7,9 +7,9 @@ import {
 } from "@/components/sections/ResourcesContent";
 
 export const metadata: Metadata = {
-  title: "Resources — Pacific Surfaces",
+  title: "Resources — Spec Sheets, Brochures & Guides | Pacific Surfaces",
   description:
-    "Download premium stone catalogs, technical documentation, and design guides. Browse quartz, granite, and ecosurface collections.",
+    "Download Pacific Surfaces spec sheets, brochures, care guides, and project case studies. Everything architects, designers, and fabricators need to spec our slabs.",
   alternates: { canonical: "/resources" },
 };
 

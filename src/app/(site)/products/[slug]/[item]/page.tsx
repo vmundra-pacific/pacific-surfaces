@@ -7,6 +7,7 @@ import {
 } from "@/sanity/lib/queries";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVideo";
 
 /**
@@ -92,7 +93,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CollectionPage({ params }: Props) {
-  const { item } = await params;
+  const { slug, item } = await params;
   // If the item is a category-level slug (quartz / granite / etc.),
   // pass the matching productType so the query also pulls in every
   // product of that type filed under sub-collections.
@@ -111,5 +112,17 @@ export default async function CollectionPage({ params }: Props) {
   const slabs = mapSanityToCatalogue(products);
   const hero = COLLECTION_HERO[item.toLowerCase()];
 
-  return <CatalogueClient slabs={slabs} hero={hero} />;
+  return (
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Products", url: "/products" },
+          { name: slug.charAt(0).toUpperCase() + slug.slice(1), url: `/products/${slug}` },
+          { name: collection.name, url: `/products/${slug}/${item}` },
+        ]}
+      />
+      <CatalogueClient slabs={slabs} hero={hero} />
+    </>
+  );
 }

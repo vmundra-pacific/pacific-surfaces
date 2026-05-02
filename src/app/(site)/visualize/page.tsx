@@ -5,9 +5,9 @@ import { catalogueProductsQuery } from "@/sanity/lib/queries";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 
 export const metadata: Metadata = {
-  title: "Visualiser — See Pacific slabs in your space",
+  title: "Visualizer — See Pacific Slabs in Your Space",
   description:
-    "Upload a photo of your kitchen or bath and preview any Pacific Surfaces slab in place. Auto-detect finds your countertop — you pick the stone.",
+    "Upload a photo or pick a demo room. Apply any Pacific quartz, granite, or semi-precious surface. Compare finishes side-by-side and request a sample instantly.",
   alternates: { canonical: "/visualize" },
 };
 

@@ -6,9 +6,9 @@ import { SustainabilityContent } from "@/components/sections/SustainabilityConte
 import { FAQ } from "@/components/sections/FAQ";
 import { getFaqs } from "@/lib/faqs";
 export const metadata: Metadata = {
-  title: "Sustainability — Pacific Surfaces",
+  title: "Sustainability — Green Manufacturing | Pacific Surfaces",
   description:
-    "Discover Pacific Surfaces' commitment to environmental sustainability. Powered by renewable energy, water conservation, and low-silica ecosurfaces.",
+    "100% recycled water, solar-powered facility, Greenguard Gold certified. Pacific Surfaces commits to sustainable engineered stone manufacturing.",
   alternates: { canonical: "/sustainability" },
 };
 

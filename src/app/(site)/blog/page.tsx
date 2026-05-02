@@ -4,9 +4,9 @@ import { allBlogPostsQuery } from "@/sanity/lib/queries";
 import { BlogGrid } from "@/components/sections/BlogGrid";
 
 export const metadata: Metadata = {
-  title: "Field Notes — Pacific Surfaces",
+  title: "Field Notes — The Pacific Journal",
   description:
-    "Quartz & stone — guides, news, and industry insight from the Pacific Surfaces editorial team.",
+    "The ultimate design ledger curated for you. Trends, guides, and stories from Pacific Surfaces — premium quartz and stone for architects and homeowners.",
   alternates: { canonical: "/blog" },
 };
 
