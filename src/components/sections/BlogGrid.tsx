@@ -20,6 +20,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Clock, ArrowRight } from "lucide-react";
+import { sanityImg } from "@/lib/sanity-img";
 import {
   StaggerContainer,
   StaggerItem,
@@ -103,7 +104,7 @@ function FeaturedCard({ post }: { post: BlogPost }) {
         {post.mainImage ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={post.mainImage}
+            src={sanityImg(post.mainImage, { w: 1200 }) ?? post.mainImage}
             alt={post.title}
             loading="eager"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
@@ -187,7 +188,7 @@ function StandardCard({ post }: { post: BlogPost }) {
         {post.mainImage ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={post.mainImage}
+            src={sanityImg(post.mainImage, { w: 1200 }) ?? post.mainImage}
             alt={post.title}
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"

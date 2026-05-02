@@ -16,6 +16,7 @@
  */
 
 import Image from "next/image";
+import { sanityImg } from "@/lib/sanity-img";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -124,7 +125,7 @@ export function SlabCard({ slab, index }: Props) {
         {slab.photoUrl ? (
           <div className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]">
             <Image
-              src={slab.photoUrl}
+              src={sanityImg(slab.photoUrl, { w: 720 }) ?? slab.photoUrl}
               alt={slab.name}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

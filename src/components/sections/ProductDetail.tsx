@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { sanityImg } from "@/lib/sanity-img";
 import { preload } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -600,7 +601,7 @@ export function ProductDetail({ product }: { product: Product }) {
             >
               {selectedImage ? (
                 <Image
-                  src={selectedImage}
+                  src={sanityImg(selectedImage, { w: 1600 }) ?? selectedImage}
                   alt={product.name}
                   fill
                   className="object-cover"
@@ -1595,7 +1596,7 @@ export function ProductDetail({ product }: { product: Product }) {
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={selectedImage}
+                src={sanityImg(selectedImage, { w: 1600 }) ?? selectedImage}
                 alt={product.name}
                 fill
                 className="object-contain"

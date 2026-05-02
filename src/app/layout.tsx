@@ -56,6 +56,43 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased`}
       >
         <GlobalDustMount />
+        {/*
+          Organization JSON-LD — gives Google enough metadata to
+          show the brand panel in search results (logo, social
+          links, contact). One emit at the layout level so it
+          covers every page on the site. BreadcrumbList is added
+          per-nested-route where the path is meaningful.
+        */}
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Pacific Surfaces",
+              alternateName: "Pacific Surfaces (Pacific Group)",
+              url: "https://www.pacific-surfaces.com",
+              logo: "https://www.pacific-surfaces.com/logos/monogram-light.png",
+              description:
+                "Premium quartz, granite, and semi-precious stone surfaces for kitchens, bathrooms, and architectural applications. Engineered in India, shipped to 45+ countries.",
+              sameAs: [
+                "https://www.instagram.com/pacific.surfaces/",
+                "https://www.linkedin.com/company/pacific-surfaces/",
+              ],
+              contactPoint: [
+                {
+                  "@type": "ContactPoint",
+                  contactType: "customer service",
+                  email: "info@thepacific.group",
+                  telephone: "+91-7305477549",
+                  areaServed: "Worldwide",
+                  availableLanguage: ["en"],
+                },
+              ],
+            }),
+          }}
+        />
         {children}
       </body>
     </html>
