@@ -53,7 +53,23 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import { sanityProxyUrl } from "@/lib/sanity-img";
+import { sanityProxyUrl, sanityImageProxyUrl } from "@/lib/sanity-img";
+
+/**
+ * Wraps a Sanity image URL for use in CSS `background-image` (and
+ * other contexts that bypass Next/Image). Routes through /api/cdn/
+ * to strip the third-party `sanitySession` cookie, AND appends a
+ * width/quality transform so the 3×3 tile grid below doesn't pull a
+ * 2.7 MB master JPG just to slice into a decorative scatter. Skipped
+ * for non-Sanity URLs.
+ */
+const SANITY_HOST_LITERAL = "cdn.sanity.io";
+function tileBackgroundUrl(url: string): string {
+  if (!url.includes(SANITY_HOST_LITERAL)) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  const transformed = `${url}${sep}w=1200&fit=max&q=70&auto=format`;
+  return sanityImageProxyUrl(transformed);
+}
 
 /* ------------------------------------------------------------------ *
  * Sanity data shape                                                   *
@@ -800,7 +816,13 @@ function ArchitectureTile({
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `url(${imageUrl})`,
+            // Route through /api/cdn/images/* so the request becomes
+            // first-party (sanitySession cookie stripped at our edge
+            // function) and add Sanity transform params so we don't
+            // fetch the multi-megabyte master just to slice into a 3×3
+            // tile grid. ~1200px wide is plenty since the grid only
+            // displays a third of the image at any given tile.
+            backgroundImage: `url(${tileBackgroundUrl(imageUrl)})`,
             backgroundSize: "300% 300%",
             backgroundPosition: bgPos,
             backgroundRepeat: "no-repeat",

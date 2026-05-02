@@ -31,7 +31,8 @@ export type SanityImgOpts = {
 
 const SANITY_HOST_RE = /^https?:\/\/cdn\.sanity\.io\//;
 const SANITY_FILES_RE = /^https?:\/\/cdn\.sanity\.io\/files\//;
-const PROXIED_FILES_RE = /^\/api\/cdn\/files\//;
+const SANITY_IMAGES_RE = /^https?:\/\/cdn\.sanity\.io\/images\//;
+const PROXIED_RE = /^\/api\/cdn\//;
 
 /**
  * Convert a cdn.sanity.io /files/* URL (videos, HD downloads) into a
@@ -42,9 +43,30 @@ const PROXIED_FILES_RE = /^\/api\/cdn\/files\//;
  * attributes can opt in explicitly.
  */
 export function sanityProxyUrl(url: string): string {
-  if (PROXIED_FILES_RE.test(url)) return url; // already proxied
+  if (PROXIED_RE.test(url)) return url; // already proxied
   if (!SANITY_FILES_RE.test(url)) return url; // image or non-Sanity
   return url.replace(SANITY_FILES_RE, "/api/cdn/files/");
+}
+
+/**
+ * Direct-fetch image proxy. Use ONLY for places that bypass Next/Image
+ * — i.e. CSS `background-image: url(...)`, `<video poster>` attrs, or
+ * raw `<img>` tags that can't be replaced with `<Image>`. Routes the
+ * cdn.sanity.io request through /api/cdn/images/* so Sanity's
+ * `sanitySession` cookie never reaches the browser. Lighthouse's
+ * third-party-cookies audit flags any direct browser request to
+ * cdn.sanity.io because the response sets cookies; first-party
+ * routing strips them.
+ *
+ * Do NOT use this for `<Image>` src — Next/Image already handles it
+ * via its own /_next/image optimizer (which strips cookies AND applies
+ * AVIF/WebP). Wrapping `<Image>` URLs through here short-circuits the
+ * optimizer and ships full-size masters to the browser.
+ */
+export function sanityImageProxyUrl(url: string): string {
+  if (PROXIED_RE.test(url)) return url; // already proxied
+  if (!SANITY_IMAGES_RE.test(url)) return url; // file or non-Sanity
+  return url.replace(SANITY_IMAGES_RE, "/api/cdn/images/");
 }
 
 export function sanityImg(
