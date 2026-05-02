@@ -8,7 +8,7 @@ import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { FAQ } from "@/components/sections/FAQ";
 import { getFaqs, type FaqPageKey } from "@/lib/faqs";
 import { zoomImageUrl } from "@/lib/zoom-image";
-import { BreadcrumbList } from "@/components/global/JsonLd";
+import { BreadcrumbList, ProductSchema } from "@/components/global/JsonLd";
 import {
   CATEGORY_PAGES,
   isCategorySlug,
@@ -151,6 +151,28 @@ export default async function ProductOrCategoryPage({ params }: Props) {
 
   const categoryName = product.collection?.name ?? product.category?.name ?? "Products";
   const categorySlugForCrumb = product.collection?.slug?.current ?? product.category?.slug?.current ?? slug;
+
+  // Material classification for Product schema. Maps the product's
+  // category to a generic stone-industry term Google understands. Falls
+  // back to the literal category name if we don't have a mapping.
+  const materialMap: Record<string, string> = {
+    quartz: "Engineered Quartz",
+    granites: "Granite",
+    granite: "Granite",
+    "semi-precious": "Semi-Precious Stone",
+    exotic: "Exotic Stone",
+    integra: "Engineered Quartz",
+    "centrepiece-couture": "Engineered Quartz",
+    "natural-stone-finishes": "Natural Stone",
+  };
+  const categorySlugLower = (
+    product.category?.slug?.current ??
+    product.collection?.slug?.current ??
+    ""
+  ).toLowerCase();
+  const material =
+    materialMap[categorySlugLower] ?? product.category?.name ?? undefined;
+
   return (
     <>
       <BreadcrumbList
@@ -160,6 +182,20 @@ export default async function ProductOrCategoryPage({ params }: Props) {
           { name: categoryName, url: `/products/${categorySlugForCrumb}` },
           { name: product.name, url: `/products/${slug}` },
         ]}
+      />
+      <ProductSchema
+        name={product.name}
+        url={`/products/${slug}`}
+        image={product.mainImage}
+        additionalImages={product.gallery}
+        description={
+          product.seoDescription ??
+          product.description ??
+          `${product.name} from Pacific Surfaces — premium ${material ?? "stone"} surface.`
+        }
+        material={material}
+        category={categoryName}
+        sku={slug}
       />
       <ProductDetail product={product} />
     </>

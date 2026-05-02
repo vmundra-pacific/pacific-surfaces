@@ -901,8 +901,13 @@ export function ProductDetail({ product }: { product: Product }) {
           {product.collection && (
             <>
               <ChevronRight className="w-3 h-3 text-white/15" />
+              {/* Was /collections/<slug> — that URL space was retired in
+                  favor of /products/<category>. Pointing the breadcrumb
+                  at the new canonical category page so the link both
+                  works AND matches the BreadcrumbList JSON-LD on the
+                  page. */}
               <Link
-                href={`/collections/${product.collection.slug.current}`}
+                href={`/products/${product.collection.slug.current}`}
                 className="hover:text-white transition-colors"
               >
                 {product.collection.name}

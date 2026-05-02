@@ -62,6 +62,70 @@ interface ArticleSchemaProps {
   description?: string;
 }
 
+interface ProductSchemaProps {
+  name: string;
+  /** Path or absolute URL of the product page. */
+  url: string;
+  /** Primary image URL. Will be made absolute if relative. */
+  image?: string;
+  /** Optional gallery images, also made absolute. */
+  additionalImages?: string[];
+  description?: string;
+  /** Material name (e.g. "Engineered Quartz", "Granite"). */
+  material?: string;
+  /** Category / collection display name. */
+  category?: string;
+  /** Stable identifier — use product slug if no SKU exists. */
+  sku?: string;
+  /** Brand name; defaults to Pacific Surfaces. */
+  brandName?: string;
+}
+
+/**
+ * Product JSON-LD without offers/price. Eligible for rich product
+ * cards, image carousels, and Discover. Pricing block is intentionally
+ * omitted — Pacific Surfaces sells through dealers and doesn't list
+ * MSRP. Adding a fake price or a placeholder triggers Google's
+ * "Pricing inaccurate" warnings; the schema is still valid without it.
+ */
+export function ProductSchema({
+  name,
+  url,
+  image,
+  additionalImages,
+  description,
+  material,
+  category,
+  sku,
+  brandName = "Pacific Surfaces",
+}: ProductSchemaProps) {
+  const absUrl = url.startsWith("http") ? url : `${SITE_URL}${url}`;
+  const toAbs = (u: string) => (u.startsWith("http") ? u : `${SITE_URL}${u}`);
+  const allImages = [
+    ...(image ? [toAbs(image)] : []),
+    ...(additionalImages ?? []).filter(Boolean).map(toAbs),
+  ];
+  const json: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name,
+    url: absUrl,
+    brand: { "@type": "Brand", name: brandName },
+    ...(allImages.length ? { image: allImages } : {}),
+    ...(description ? { description } : {}),
+    ...(material ? { material } : {}),
+    ...(category ? { category } : {}),
+    ...(sku ? { sku } : {}),
+  };
+  return (
+    <script
+      type="application/ld+json"
+      // eslint-disable-next-line react/no-danger
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
+    />
+  );
+}
+
 export function ArticleSchema({
   headline,
   image,

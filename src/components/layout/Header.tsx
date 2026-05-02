@@ -206,9 +206,14 @@ export default function Header() {
               >
                 PACIFIC
               </span>
+              {/* SURFACES wordmark only shows at 2xl+ (≥1536px). On
+                  Mac viewports (1280–1535) it pushed the nav row into
+                  truncation — "About" was clipped into "ABO…". Keep
+                  the brand stamp on truly wide screens; the monogram
+                  + PACIFIC alone reads as the brand at smaller sizes. */}
               <span
                 className={cn(
-                  "hidden xl:inline text-lg font-light tracking-[0.15em] transition-colors duration-300",
+                  "hidden 2xl:inline text-lg font-light tracking-[0.15em] transition-colors duration-300",
                   "text-stone-300"
                 )}
               >
@@ -267,18 +272,18 @@ export default function Header() {
                 <Search className="w-4 h-4" />
               </button>
 
-              {/* Visualizer — same pill treatment as Get a Quote so the
-                  two CTAs read as a matched pair. Both pills carry a
-                  border in BOTH scroll states (transparent when
-                  scrolled, white/20 when not) so their outer width is
-                  pixel-stable across the transition — otherwise the
-                  border appearing/disappearing was nudging the row
-                  layout each scroll, which the user could see as a
-                  small left-shift. */}
+              {/* Visualizer pill only shows at 2xl+ (≥1536px). Below
+                  that — i.e. every Mac viewport up to 16" Pro at
+                  default scaling — the row gets crowded by the 6 nav
+                  items and the Get-a-Quote pill, so we drop the
+                  secondary CTA and surface it in the mobile menu and
+                  homepage hero instead. The Get-a-Quote pill stays
+                  visible at all desktop widths because it's the
+                  primary conversion path. */}
               <Link
                 href="/visualize"
                 className={cn(
-                  "hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 xl:px-6 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
+                  "hidden 2xl:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 xl:px-6 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
                   scrolled
                     ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
                     : "bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20"
@@ -392,11 +397,17 @@ export default function Header() {
                   )}
                 </motion.div>
               ))}
+              {/* Mobile / non-2xl CTA pair. Get a Quote is the primary
+                  pill (filled white). Visualizer sits next to it as a
+                  ghost pill — Visualizer was removed from the header
+                  row at all widths below 2xl, so this is now the only
+                  way users on Mac-class viewports reach it from the
+                  menu. */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="mt-8"
+                className="mt-8 flex flex-col sm:flex-row items-center gap-3"
               >
                 <Link
                   href="/contact"
@@ -404,6 +415,14 @@ export default function Header() {
                   className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-medium tracking-wider uppercase bg-white text-stone-900"
                 >
                   Get a Quote
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/visualize"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-medium tracking-wider uppercase border border-white/30 text-white hover:bg-white/10 transition-colors"
+                >
+                  Try Visualizer
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>

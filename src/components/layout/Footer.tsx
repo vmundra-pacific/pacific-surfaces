@@ -104,8 +104,10 @@ const footerLinks = {
     { name: "Semi-Precious", href: "/products/semi-precious" },
     // Ecosurfaces + Sinks removed from the footer per editorial
     // direction — users who want them reach the full catalogue via
-    // "More" below. Header dropdown still surfaces every category.
-    { name: "More", href: "/products" },
+    // "All Surfaces" below. Header dropdown still surfaces every
+    // category. (Lighthouse SEO: descriptive link text instead of
+    // "More" — the previous label was an a11y/SEO anti-pattern.)
+    { name: "All Surfaces", href: "/products" },
   ],
   company: [
     { name: "Our Story", href: "/about" },

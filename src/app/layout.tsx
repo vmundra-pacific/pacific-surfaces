@@ -92,6 +92,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
+              "@id": "https://www.pacific-surfaces.com/#organization",
               name: "Pacific Surfaces",
               alternateName: "Pacific Surfaces (Pacific Group)",
               url: "https://www.pacific-surfaces.com",
@@ -112,6 +113,84 @@ export default function RootLayout({
                   availableLanguage: ["en"],
                 },
               ],
+            }),
+          }}
+        />
+        {/*
+          LocalBusiness JSON-LD — child type HomeAndConstructionBusiness
+          inherits all Organization fields and adds business-specific
+          ones (priceRange, geo, address, opening hours). Eligible for
+          the Google local pack and "stone fabricator near me" queries.
+
+          NOTE: address is country-only for now. Once the showroom address
+          is canonicalized in Sanity siteSettings, swap the hardcoded
+          values out for a server-fetched version. priceRange "$$$"
+          signals premium tier without exposing actual pricing.
+        */}
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "HomeAndConstructionBusiness",
+              "@id": "https://www.pacific-surfaces.com/#localbusiness",
+              name: "Pacific Surfaces",
+              url: "https://www.pacific-surfaces.com",
+              logo: "https://www.pacific-surfaces.com/logos/monogram-light.png",
+              image:
+                "https://www.pacific-surfaces.com/logos/monogram-light.png",
+              telephone: "+91-7305477549",
+              email: "info@thepacific.group",
+              priceRange: "$$$",
+              description:
+                "Premium quartz, granite, and semi-precious stone surfaces for architects, designers, and homeowners.",
+              address: {
+                "@type": "PostalAddress",
+                addressCountry: "IN",
+              },
+              areaServed: [
+                { "@type": "Country", name: "India" },
+                { "@type": "Country", name: "United Arab Emirates" },
+                { "@type": "Country", name: "United States" },
+                { "@type": "Country", name: "United Kingdom" },
+              ],
+              sameAs: [
+                "https://www.instagram.com/pacific.surfaces/",
+                "https://www.linkedin.com/company/pacific-surfaces/",
+              ],
+            }),
+          }}
+        />
+        {/*
+          WebSite + SearchAction — eligible for the sitelinks search box
+          that Google shows under your brand SERP. The SearchAction
+          target points to /search?q={...}; that route forwards to the
+          products grid filtered by the term. If you later build a
+          dedicated search page, just keep the URL pattern stable.
+        */}
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "@id": "https://www.pacific-surfaces.com/#website",
+              url: "https://www.pacific-surfaces.com",
+              name: "Pacific Surfaces",
+              publisher: {
+                "@id": "https://www.pacific-surfaces.com/#organization",
+              },
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate:
+                    "https://www.pacific-surfaces.com/search?q={search_term_string}",
+                },
+                "query-input": "required name=search_term_string",
+              },
             }),
           }}
         />
