@@ -543,7 +543,17 @@ function ProjectVideo({
           ref={ref}
           key={src}
           src={src}
-          poster={posterSrc}
+          // Intentionally NO poster attribute. The <Image> layered above
+          // already paints the still frame via Next/Image (which proxies
+          // through /_next/image, applies AVIF/WebP, and strips Sanity's
+          // sanitySession cookie). Setting `poster` here would make the
+          // browser ALSO fetch the same JPG directly from cdn.sanity.io,
+          // which (a) costs ~2.7 MB on the master file we saw on the
+          // homepage, and (b) drags the third-party cookie back into the
+          // page — Lighthouse Best Practices was failing on exactly that
+          // request. The Image fades out when canPlay flips true, so the
+          // video element only becomes visible once it has frames to
+          // render; users never see a posterless flash.
           loop
           muted
           playsInline

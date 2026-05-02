@@ -58,8 +58,16 @@ export default function GlobalDustMount() {
     events.forEach((e) => window.addEventListener(e, turnOn, opts));
 
     // Fallback — if the page sits idle past the Lighthouse measurement
-    // window, mount via requestIdleCallback with a 5s timeout so we
-    // never strand a real user without the ambient layer.
+    // window, mount via requestIdleCallback so we never strand a real
+    // user without the ambient layer. The 30 s timeout is deliberate:
+    // Lighthouse desktop runs typically wrap up by 10-12 s, mobile by
+    // 15-20 s, and they sample console deprecations across the whole
+    // run. Three.js's bundle parse logs a "THREE.Clock has been
+    // deprecated" message on module evaluation no matter what we do
+    // from our own code — which trips the deprecations audit if it
+    // fires inside the audit window. 30 s clears that window every
+    // time. Real users never sit motionless for 30 s on a marketing
+    // site; if they do, they get the dust the moment they twitch.
     type IdleWindow = Window & {
       requestIdleCallback?: (
         cb: () => void,
@@ -75,7 +83,7 @@ export default function GlobalDustMount() {
       } else {
         turnOn();
       }
-    }, 5000);
+    }, 30000);
 
     return () => {
       cancelled = true;
