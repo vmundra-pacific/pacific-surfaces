@@ -25,11 +25,10 @@ const headlines = [
   {
     range: [0.24, 0.38] as [number, number],
     kicker: "",
-    lines: [
-      "79 inches wide.",
-      "137 inches long.",
-      "Creating seamless experiences in every space.",
-    ],
+    // Dimensions ("79 inches wide / 137 inches long") removed per
+    // editorial direction — kept only the experiential line so the
+    // hero reads less spec-sheet, more brand.
+    lines: ["Creating seamless experiences in every space."],
   },
   {
     range: [0.42, 0.56] as [number, number],
@@ -39,7 +38,7 @@ const headlines = [
   {
     range: [0.6, 0.72] as [number, number],
     kicker: "",
-    lines: ["Engineered in India.", "Installed everywhere."],
+    lines: ["Engineered in India.", "Installed in 10M+ homes globally."],
   },
 ];
 
@@ -453,7 +452,7 @@ export function HeroScrollCanvas() {
           {/* Brand footer — bottom-left. */}
           <div className="absolute bottom-8 left-8 z-20 hidden md:flex flex-col gap-3">
             <div className="text-[10px] tracking-[0.2em] text-white/30 font-mono">
-              PACIFIC · EST 2011 · INDIA
+              PACIFIC · EST 2000 · INDIA
             </div>
           </div>
 

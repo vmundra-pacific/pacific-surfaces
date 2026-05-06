@@ -13,7 +13,7 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 const stats = [
   { value: "273+", label: "Unique Designs" },
   { value: "44", label: "Collections" },
-  { value: "10+", label: "Years Experience" },
+  { value: "25+", label: "Years Experience" },
   { value: "500+", label: "Projects Delivered" },
 ];
 
@@ -22,7 +22,7 @@ const timeline = [
     year: "2011",
     title: "Pacific Granites India Pvt. Ltd.",
     description:
-      "Tapped into the export market with a gang saw granite processing unit. The Pacific Group was established and is now poised to be the largest exporters of natural and engineered stones in the Indian stone industry with a growth rate of 25% year after year.",
+      "Tapped into the export market with a gang saw granite processing unit. Now poised to be the largest exporters of natural and engineered stones in the Indian stone industry with a growth rate of 25% year after year.",
   },
   {
     year: "2018",
@@ -277,13 +277,13 @@ export function AboutContent() {
               From Vision to Surface
             </h2>
 
-            {/* "10+ Years of Excellence" — preserved from the
+            {/* "25+ Years of Excellence" — preserved from the
                 previous floating accent, now as a small inline
                 colophon under the headline. */}
             <div className="mt-5 inline-flex items-center gap-3 text-pacific-mid/80">
               <span className="block w-6 h-px bg-pacific-mid/40" />
               <span className="text-[11px] tracking-[0.3em] uppercase font-medium">
-                10+ Years of Excellence
+                25+ Years of Excellence
               </span>
               <span className="block w-6 h-px bg-pacific-mid/40" />
             </div>
