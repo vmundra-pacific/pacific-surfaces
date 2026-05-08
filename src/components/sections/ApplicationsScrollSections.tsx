@@ -166,7 +166,7 @@ const SECTION_COPY: Record<SectionKey, SectionCopy> = {
     title: "Countertops",
     titleAccent: "& Islands",
     description:
-      'Heat-, stain-, and scratch-resistant. Seamless 137" slabs reduce the need for joints on large islands.',
+      "Built for the way India cooks. Heat-, stain-, and scratch-resistant surfaces that handle daily cooking, turmeric, and oil without flinching. Our super-jumbo slabs minimise joints on large islands — giving you one seamless, stunning surface.",
     match: "kitchen",
     // Light marble: warm cream → soft white with a faint vein wash.
     placeholderGradient:
@@ -177,7 +177,7 @@ const SECTION_COPY: Record<SectionKey, SectionCopy> = {
     title: "Vanities",
     titleAccent: "& Shower Walls",
     description:
-      "Non-porous. Will not harbour bacteria or absorb water. Greenguard Gold certified for indoor air quality.",
+      "Non-porous by nature. Will not harbour bacteria, absorb moisture, or stain over time. Pacific surfaces bring the look of luxury marble to your bathroom — without the maintenance marble demands.",
     match: "bath",
     // Cool tonal — porcelain white with a hint of glacial blue.
     placeholderGradient:
@@ -188,7 +188,7 @@ const SECTION_COPY: Record<SectionKey, SectionCopy> = {
     title: "Wall Cladding",
     titleAccent: "& Façades",
     description:
-      'Never tile a wall again. At 137" × 79", our slabs are the largest format made — clad an entire wall in a single continuous piece.',
+      'Never tile a wall again. At 137" × 79", Pacific slabs are among the largest engineered stone formats available in India — clad an entire feature wall in a single, uninterrupted piece of stone.',
     match: "architecture",
     // Dark architectural stone — graphite to deep slate.
     placeholderGradient:
@@ -199,7 +199,7 @@ const SECTION_COPY: Record<SectionKey, SectionCopy> = {
     title: "Hospitality",
     titleAccent: "& Healthcare",
     description:
-      "NSF/ANSI 51 food-contact safe. Used across QSR chains, luxury hotels, and hospital clean surfaces.",
+      "Food-contact safe and hygienic by design. Specified across luxury hotels, QSR chains, hospitals and airports — surfaces that take high-traffic punishment while looking like they were installed yesterday.",
     match: "commercial",
     // Warm bronze — hospitality-leaning, gold-amber.
     placeholderGradient:
@@ -1326,8 +1326,7 @@ export function ApplicationsScrollSections({
       /* ignore */
     }
     type NavConn = { saveData?: boolean; effectiveType?: string };
-    const conn = (navigator as unknown as { connection?: NavConn })
-      .connection;
+    const conn = (navigator as unknown as { connection?: NavConn }).connection;
     const slowNet =
       conn?.saveData === true ||
       (conn?.effectiveType !== undefined &&
@@ -1354,13 +1353,13 @@ export function ApplicationsScrollSections({
               02 · Applications
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08]">
-              Wherever stone would normally be.
+              Wherever stone belongs, Pacific belongs.
             </h2>
           </div>
           <p className="lg:max-w-md lg:pt-12 text-base font-light text-stone-400 leading-relaxed">
             Rated for residential and commercial use. Passes food-contact,
-            low-emission, and fire safety standards in North America, the EU,
-            and India.
+            low-emission, and fire safety standards across India, the EU, and
+            North America. Lifetime warranty on every slab.
           </p>
         </div>
       </section>

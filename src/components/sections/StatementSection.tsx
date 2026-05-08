@@ -6,11 +6,20 @@ import { useRef } from "react";
 interface StatementSectionProps {
   statement: string;
   theme?: "light" | "dark";
+  /**
+   * When true, renders the brand-statement layout from the Sidharth
+   * UI/UX deck — typographic block on one side, an image placeholder
+   * (brand-toned) on the other. Used right after the parallax hero.
+   * When false (default), keeps the original full-width centred copy
+   * layout the rest of the site already uses elsewhere.
+   */
+  withImagePlaceholder?: boolean;
 }
 
 export function StatementSection({
   statement,
   theme = "light",
+  withImagePlaceholder = false,
 }: StatementSectionProps) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -23,6 +32,58 @@ export function StatementSection({
 
   const isDark = theme === "dark";
 
+  // Image-placeholder variant — text on the left, brand-toned
+  // placeholder on the right. Same headline copy, just laid out as
+  // a two-column editorial block per the deck mock.
+  if (withImagePlaceholder) {
+    return (
+      <section
+        ref={ref}
+        className={`relative py-20 sm:py-28 md:py-36 px-6 overflow-hidden ${isDark ? "bg-stone-950" : "bg-[#112732]"}`}
+      >
+        <div
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+        <motion.div
+          style={{ y, opacity, willChange: "transform, opacity" }}
+          className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center"
+        >
+          <h2
+            className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] font-light tracking-tight leading-[1.2] ${isDark ? "text-white" : "text-white"}`}
+          >
+            {statement}
+          </h2>
+          {/* Image placeholder — brand-toned gradient block. Drop a
+              real photo into /public/images/sustainability-statement.jpg
+              and replace this div with <Image> when the asset lands.
+              Same aspect ratio as the deck mock so swapping won't
+              reflow the page. */}
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d3947] via-[#2c4a5b] to-[#0f1f29] border border-white/10">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white/40 gap-3 px-8 text-center">
+              <span className="text-[10px] font-medium tracking-[0.3em] uppercase">
+                Pacific brand visual
+              </span>
+              <span className="text-[10px] tracking-[0.2em] uppercase text-white/25">
+                [ image placeholder ]
+              </span>
+            </div>
+            <div
+              className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              }}
+            />
+          </div>
+        </motion.div>
+      </section>
+    );
+  }
+
+  // Default centred / large-display layout (used by other sections
+  // outside the homepage).
   return (
     <section
       ref={ref}

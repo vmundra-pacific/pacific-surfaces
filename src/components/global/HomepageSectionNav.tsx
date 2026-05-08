@@ -38,10 +38,10 @@ const SECTIONS: { id: string; num: string; label: string }[] = [
   { id: "sec-collections", num: "01", label: "Collections" },
   { id: "sec-applications", num: "02", label: "Applications" },
   { id: "sec-origin", num: "03", label: "Origin" },
-  // SignatureProjects section is framed as architect endorsement
-  // ("specified by architects on every continent") — the nav label
-  // reflects that angle directly rather than the generic "Projects".
-  { id: "sec-architects", num: "04", label: "Architects" },
+  // SignatureProjects section is now framed as Community endorsement
+  // — "Recommended by industry stalwarts and leaders" — so the nav
+  // label reads "Community" rather than the older "Architects".
+  { id: "sec-architects", num: "04", label: "Community" },
   { id: "sec-voices", num: "05", label: "Voices" },
   { id: "sec-projects", num: "06", label: "Projects" },
   { id: "sec-visualize", num: "07", label: "Visualize" },

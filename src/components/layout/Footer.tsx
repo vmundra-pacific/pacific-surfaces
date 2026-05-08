@@ -204,12 +204,15 @@ export default function Footer() {
           transition={{ duration: 0.6 }}
           className="max-w-2xl"
         >
+          <p className="text-[10px] sm:text-xs font-medium tracking-[0.3em] uppercase text-stone-500 mb-3">
+            Stay ahead of every trend in stone
+          </p>
           <h3 className="text-2xl lg:text-3xl font-light tracking-tight text-white mb-3">
-            Join us on this exciting journey as we shape the future of stones.
+            Good taste should land in your inbox too.
           </h3>
           <p className="text-stone-500 font-light mb-8">
-            Subscribe for updates on new collections, design inspiration, and
-            exclusive offers.
+            Discover new collections, design inspiration, industry trends and
+            exclusive product launches — straight to your inbox.
           </p>
 
           {newsletterState === "sent" ? (
@@ -287,9 +290,10 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-[13px] text-stone-400 leading-relaxed max-w-sm mb-8 font-light">
-              India&apos;s premier destination for engineered quartz, granite,
-              and eco surfaces. Crafted for architects, designers, and spaces
-              that demand the extraordinary.
+              India&apos;s leading manufacturer of sustainable, premium and
+              luxurious mineral-infused low-silica engineered surfaces such as
+              quartz, granite and natural stone. Crafted for architects,
+              interior designers and spaces that demand the extraordinary.
             </p>
 
             {/* Contact info — matched typography with the rest of the

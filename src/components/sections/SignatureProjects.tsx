@@ -230,13 +230,13 @@ export function SignatureProjects({
               viewport={{ once: true }}
               className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-4"
             >
-              04 · Architects
+              04 · Community
             </motion.div>
             <TextReveal
               as="h2"
               className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08]"
             >
-              Specified by leading architects.
+              Recommended by industry stalwarts and leaders.
             </TextReveal>
           </div>
           <motion.div
@@ -247,9 +247,10 @@ export function SignatureProjects({
             className="lg:max-w-md lg:pt-12"
           >
             <p className="text-base font-light text-stone-400 leading-relaxed">
-              From residential villas in Mumbai to commercial towers in Warsaw
-              and quick-service chains across North America — Pacific has
-              shipped slabs into more than 45 countries.
+              From luxury residences in Mumbai to commercial towers in Dubai and
+              five-star hospitality projects across Southeast Asia. Pacific
+              surfaces have been specified in 45+ countries by architects who
+              refuse to compromise.
             </p>
           </motion.div>
         </div>
@@ -432,9 +433,8 @@ function ProjectVideo({
       effectiveType?: string;
       saveData?: boolean;
     };
-    const conn = (
-      navigator as unknown as { connection?: NavConnection }
-    ).connection;
+    const conn = (navigator as unknown as { connection?: NavConnection })
+      .connection;
     const memGB = (navigator as unknown as { deviceMemory?: number })
       .deviceMemory;
     const slowNet =

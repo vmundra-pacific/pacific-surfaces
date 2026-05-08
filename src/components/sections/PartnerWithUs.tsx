@@ -48,14 +48,16 @@ export function PartnerWithUs() {
             as="h2"
             className="text-3xl sm:text-5xl md:text-6xl font-light tracking-tight text-white"
           >
-            Partner With Us
+            Your vision. Our stone. Let&apos;s build it together.
           </TextReveal>
           <TextReveal
             as="p"
             delay={0.2}
             className="mt-6 text-lg text-stone-400 max-w-2xl mx-auto font-light leading-relaxed"
           >
-            Join us on this exciting journey as we shape the future of stones.
+            Our network of distributors, fabricators and design partners spans
+            across India and the world. So wherever your project is, Pacific
+            Surfaces is already there.
           </TextReveal>
         </div>
 
@@ -98,7 +100,7 @@ export function PartnerWithUs() {
             size="lg"
             className="bg-white text-stone-900 border-white hover:bg-stone-100"
           >
-            Get in Touch
+            Get in touch with us
             <ArrowRight className="w-4 h-4" />
           </MagneticButton>
         </motion.div>

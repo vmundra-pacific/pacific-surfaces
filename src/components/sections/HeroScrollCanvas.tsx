@@ -333,10 +333,7 @@ export function HeroScrollCanvas() {
       // phase + crossfade were removed). Map progress directly to a
       // frame index and only redraw when the index actually advances.
       if (ready) {
-        const idx = Math.min(
-          TOTAL_FRAMES - 1,
-          Math.floor(p * TOTAL_FRAMES)
-        );
+        const idx = Math.min(TOTAL_FRAMES - 1, Math.floor(p * TOTAL_FRAMES));
         if (idx !== lastIdxRef.current) {
           drawFrame(idx);
           lastIdxRef.current = idx;
@@ -464,7 +461,15 @@ export function HeroScrollCanvas() {
               return (
                 <div
                   key={i}
-                  className={`absolute max-w-4xl px-6 text-center transition-all duration-700 ${
+                  // max-w bumped 4xl → 6xl so longer lines like
+                  // "Installed in 10M+ homes globally." don't bleed
+                  // off the right edge. Extra horizontal padding
+                  // (px-8) gives the drop-shadow room so the descender
+                  // on "g" in "globally" isn't visually clipped.
+                  // overflow-visible ensures the multi-layer
+                  // drop-shadow filter renders past the text bounding
+                  // box without the parent box-clipping it.
+                  className={`absolute max-w-6xl px-8 sm:px-10 text-center transition-all duration-700 overflow-visible ${
                     visible
                       ? "opacity-100 translate-y-0"
                       : "opacity-0 translate-y-6"
@@ -485,12 +490,21 @@ export function HeroScrollCanvas() {
                       WebkitTextFillColor: "transparent",
                       filter:
                         "drop-shadow(0 1px 0 rgba(255,255,255,0.45)) drop-shadow(0 4px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(180,210,240,0.25))",
+                      paddingRight: "0.15em", // gives "g"/"y" descenders + drop-shadow tail room before clip
                     }}
                   >
                     {hl.lines.map((line, j) => (
                       <span key={j}>
                         {j === hl.lines.length - 1 ? (
-                          <em className="not-italic block">{line}</em>
+                          // whitespace-nowrap on lg+ keeps the final
+                          // line ("Installed in 10M+ homes globally.")
+                          // on a single line so "homes globally" never
+                          // splits. On small screens we let it wrap
+                          // naturally so it doesn't overflow the
+                          // viewport.
+                          <em className="not-italic block lg:whitespace-nowrap">
+                            {line}
+                          </em>
                         ) : (
                           <>
                             {line}

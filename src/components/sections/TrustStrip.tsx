@@ -152,25 +152,36 @@ export function TrustStrip() {
       transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
       className="relative bg-[#112732] border-y border-white/[0.06]"
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-6">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 sm:py-14">
         {/* Label */}
-        <p className="text-[11px] tracking-[0.15em] uppercase text-[#9AA8B6] text-center mb-5">
+        <p className="text-[11px] tracking-[0.25em] uppercase text-[#9AA8B6] text-center mb-8 sm:mb-10">
           Certified to global standards, delivering proven performance.
         </p>
-        {/* Badges — single scrollable row */}
-        <div className="flex items-center justify-center gap-8 overflow-x-auto no-scrollbar">
+        {/* Square placeholder blocks per Sidharth UI/UX deck (ss6).
+            Real logo artwork is pending — until then, each cert
+            renders as a labeled square block (SVG mark + cert name +
+            sub-label) so the row reads like the Silestone-style
+            certification grid. Drop logo PNG/SVGs into
+            /public/certifications/ and swap each <b.Icon /> for an
+            <Image> when artwork lands. */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
           {badges.map((b) => (
-            <div key={b.title} className="flex items-center gap-2.5 shrink-0">
-              <div className="w-9 h-9 rounded-md bg-white/[0.06] flex items-center justify-center text-white/80">
+            <div
+              key={b.title}
+              className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 aspect-square text-white/85"
+            >
+              <div className="flex items-center justify-center text-white/85">
                 <b.Icon />
               </div>
-              <div>
-                <div className="text-[11px] font-medium text-white/90 leading-tight whitespace-nowrap">
+              <div className="text-center">
+                <div className="text-[11px] sm:text-[12px] font-medium tracking-[0.05em] text-white/90 leading-tight">
                   {b.title}
                 </div>
-                <div className="text-[10px] text-[#9AA8B6] leading-tight whitespace-nowrap">
-                  {b.sub}
-                </div>
+                {b.sub && (
+                  <div className="text-[9px] sm:text-[10px] tracking-[0.1em] uppercase text-[#9AA8B6] leading-tight mt-1">
+                    {b.sub}
+                  </div>
+                )}
               </div>
             </div>
           ))}

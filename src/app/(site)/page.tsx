@@ -24,15 +24,44 @@ import { StatementSection } from "@/components/sections/StatementSection";
 // HeroScrollCanvas + TrustStrip + CollectionsShowcaseGrid + Statement
 // stay static-imported because they're either above the fold or render
 // in the first viewport on most laptops.
-const ApplicationsScrollSections = dynamic(() => import("@/components/sections/ApplicationsScrollSections").then((m) => m.ApplicationsScrollSections));
-const HeritageSection = dynamic(() => import("@/components/sections/HeritageSection").then((m) => m.HeritageSection));
-const OriginStats = dynamic(() => import("@/components/sections/OriginStats").then((m) => m.OriginStats));
-const SignatureProjects = dynamic(() => import("@/components/sections/SignatureProjects").then((m) => m.SignatureProjects));
-const TestimonialsSection = dynamic(() => import("@/components/sections/TestimonialsSection").then((m) => m.TestimonialsSection));
-const InspirationGrid = dynamic(() => import("@/components/sections/InspirationGrid").then((m) => m.InspirationGrid));
-const VisualizerStrip = dynamic(() => import("@/components/sections/VisualizerStrip").then((m) => m.VisualizerStrip));
-const PartnerWithUs = dynamic(() => import("@/components/sections/PartnerWithUs").then((m) => m.PartnerWithUs));
-const ClosingCTA = dynamic(() => import("@/components/sections/ClosingCTA").then((m) => m.ClosingCTA));
+const ApplicationsScrollSections = dynamic(() =>
+  import("@/components/sections/ApplicationsScrollSections").then(
+    (m) => m.ApplicationsScrollSections
+  )
+);
+const EcosurfacesSection = dynamic(() =>
+  import("@/components/sections/EcosurfacesSection").then(
+    (m) => m.EcosurfacesSection
+  )
+);
+const HeritageSection = dynamic(() =>
+  import("@/components/sections/HeritageSection").then((m) => m.HeritageSection)
+);
+const OriginStats = dynamic(() =>
+  import("@/components/sections/OriginStats").then((m) => m.OriginStats)
+);
+const SignatureProjects = dynamic(() =>
+  import("@/components/sections/SignatureProjects").then(
+    (m) => m.SignatureProjects
+  )
+);
+const TestimonialsSection = dynamic(() =>
+  import("@/components/sections/TestimonialsSection").then(
+    (m) => m.TestimonialsSection
+  )
+);
+const InspirationGrid = dynamic(() =>
+  import("@/components/sections/InspirationGrid").then((m) => m.InspirationGrid)
+);
+const VisualizerStrip = dynamic(() =>
+  import("@/components/sections/VisualizerStrip").then((m) => m.VisualizerStrip)
+);
+const PartnerWithUs = dynamic(() =>
+  import("@/components/sections/PartnerWithUs").then((m) => m.PartnerWithUs)
+);
+const ClosingCTA = dynamic(() =>
+  import("@/components/sections/ClosingCTA").then((m) => m.ClosingCTA)
+);
 import { VideoPrefetch } from "@/components/global/VideoPrefetch";
 import { HomepageSectionNav } from "@/components/global/HomepageSectionNav";
 
@@ -70,13 +99,14 @@ export default async function HomePage() {
   // (featuredDealersQuery removed temporarily — DealerLocator section
   //  is hidden below. Restore the fetch + the destructured `dealers`
   //  slot when the section is re-enabled.)
-  const [collections, projects, applications, inspirations] =
-    await Promise.all([
+  const [collections, projects, applications, inspirations] = await Promise.all(
+    [
       client.fetch(homepageCollectionsQuery),
       client.fetch(signatureProjectsQuery),
       client.fetch(applicationCardsQuery),
       client.fetch(inspirationImagesQuery),
-    ]);
+    ]
+  );
 
   // Collect every video URL referenced by the homepage so we can warm
   // the browser cache during the splash-screen window. By the time the
@@ -106,13 +136,25 @@ export default async function HomePage() {
           straight there. Hidden below 1024px wide. */}
       <HomepageSectionNav />
       <HeroScrollCanvas />
+      {/* StatementSection moved up to sit immediately after the
+          parallax hero per Sidharth UI/UX deck (ss5). Two-column
+          variant — typographic block + brand-toned image placeholder
+          — enabled via withImagePlaceholder. Drop a real photo into
+          /public/images/sustainability-statement.jpg and add the
+          <Image> in StatementSection when the asset lands. */}
+      <StatementSection
+        statement="Pacific Surfaces is a low-silica mineral-infused engineered surfaces brand composed of premium and recycled minerals and materials. A leading brand for over 25+ years that inspires designs for kitchens, bathrooms, and home surfaces."
+        theme="light"
+        withImagePlaceholder
+      />
       <TrustStrip />
       <CollectionsShowcaseGrid collections={collections} />
-      <StatementSection
-        statement="Imagine surfaces as an intelligent bridge — seamlessly connecting artistry to architecture."
-        theme="light"
-      />
       <ApplicationsScrollSections applications={applications} />
+      {/* EcosurfacesSection — feature block for the Pacific
+          Ecosurfaces line. Sits right after Applications per ss7
+          ("THE FIRST MINERAL QUARTZ SURFACE WITH LOW SILICA CONTENT").
+          Placeholder image; CTA links to existing /ecosurfaces. */}
+      <EcosurfacesSection />
       {/* DealerLocator hidden temporarily — content not finalised.
           The dealers Sanity query above still runs (cheap, cached) so
           when we want this back, just uncomment the line below. If

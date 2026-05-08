@@ -287,7 +287,7 @@ export function CollectionsShowcaseGrid({
                 as="h2"
                 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08]"
               >
-                Curated to define luxury that lasts a lifetime.
+                Curated to define spaces that endure a lifetime.
               </TextReveal>
             </div>
             <motion.div
@@ -298,10 +298,9 @@ export function CollectionsShowcaseGrid({
               className="lg:max-w-md lg:pt-8"
             >
               <p className="text-base font-light text-pacific-light leading-relaxed">
-                Six signature collections. Over 140 finishes. Each one
-                engineered to pass a fabricator&apos;s test and an
-                architect&apos;s eye — then specified in homes, hotels, and
-                hospitals around the world.
+                Eight signature collections. Over 200 designs. Each one
+                engineered to pass a fabricator&apos;s precision test and an
+                architect&apos;s critical eye.
               </p>
             </motion.div>
           </div>
