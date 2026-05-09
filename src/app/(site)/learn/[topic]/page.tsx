@@ -45,11 +45,11 @@ const TOPIC_COPY: Record<
     description:
       "Semi-precious surfaces are composed of carefully selected gemstone fragments — agate, amethyst, malachite, tiger's eye — bound into translucent slabs that backlight beautifully and behave like a featured gallery piece.",
   },
-  "what-is-natural-stone-finishes": {
-    title: "What are Natural Stone Finishes?",
-    eyebrow: "Material 101 · Natural Stone Finishes",
+  "what-is-facades-and-finishes": {
+    title: "What are Façades and Finishes?",
+    eyebrow: "Material 101 · Façades and Finishes",
     description:
-      "Natural Stone Finishes are large-format surface panels that bring authentic stone character to walls, facades, and feature areas without the weight or thickness penalty of full slabs.",
+      "Façades and Finishes are large-format surface panels that bring authentic stone character to walls, facades, and feature areas without the weight or thickness penalty of full slabs.",
   },
   "what-is-centrepiece-couture": {
     title: "What is Centrepiece Couture?",
@@ -141,7 +141,7 @@ const TOPIC_COPY: Record<
     title: "Architecture Project Gallery",
     eyebrow: "Projects · Architecture",
     description:
-      "Pacific Natural Stone Finishes and large-format Quartz on real architectural projects — facades, feature walls, lobbies, and exterior cladding installations.",
+      "Pacific Façades and Finishes and large-format Quartz on real architectural projects — facades, feature walls, lobbies, and exterior cladding installations.",
   },
   "commercial-inspiration": {
     title: "Commercial Inspiration",

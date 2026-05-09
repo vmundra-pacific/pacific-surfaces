@@ -58,10 +58,9 @@ export function VisualizerStrip() {
 
         <TextReveal
           as="h2"
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.05] mb-6 sm:mb-8"
+          className="text-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.05] mb-6 sm:mb-8"
         >
-          See any surface in
-          your room.
+          See any surface in your room.
         </TextReveal>
 
         <motion.p
@@ -72,11 +71,10 @@ export function VisualizerStrip() {
           className="text-base sm:text-lg text-white/85 max-w-2xl leading-relaxed mb-8 sm:mb-10 font-light"
           style={{ textShadow }}
         >
-          Tap any surface in a curated demo room — or upload a photo of your
-          own space. AI segments the countertop, vanity, splashback, sink, or
-          table in seconds. Apply any Pacific slab, compare finishes
-          side-by-side, save the look, or request a physical sample without
-          leaving the page.
+          Tap any surface in a curated demo room — or upload a photo of your own
+          space. AI segments the countertop, vanity, splashback, sink, or table
+          in seconds. Apply any Pacific slab, compare finishes side-by-side,
+          save the look, or request a physical sample without leaving the page.
         </motion.p>
 
         {/* Inline feature pills — typographic, no boxes */}

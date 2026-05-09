@@ -175,7 +175,7 @@ export function ProductDetail({ product }: { product: Product }) {
     product.category?.name || product.collection?.name || "Quartz Surfaces";
 
   // Specialty products (Semi-Precious / Exotic / Centrepiece Couture
-  // / Integra / Natural Stone Finishes) are NOT standard quartz slabs.
+  // / Integra / Façades and Finishes) are NOT standard quartz slabs.
   // Several quartz-only UI bits are hidden for them:
   //   - "Specs" tab in Product Info (water absorption, Mohs, etc.)
   //   - Thicknesses listing in Sizes & Finishes
@@ -234,7 +234,7 @@ export function ProductDetail({ product }: { product: Product }) {
   // exotic are INCLUDED here (where they're excluded from
   // isSpecialtyProduct above). The compare slider is hidden ONLY for
   // truly full-piece products: vanities, centrepieces, sinks, and
-  // natural-stone-finishes (where the section is a finish picker,
+  // facades-and-finishes (where the section is a finish picker,
   // not a stone picker).
   const hideCompareSlider = (() => {
     const catSlug = (product.category?.slug?.current || "").toLowerCase();
@@ -1113,7 +1113,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 - Finishes Available — hidden when finishes is empty.
                 - Thicknesses — hidden for specialty product
                   categories (vanity, semi-precious, exotic,
-                  centrepiece, integra/sinks, natural-stone-finishes).
+                  centrepiece, integra/sinks, facades-and-finishes).
                   Format + Professional Resources always render. The
                   grid-cols class is derived from the count so the row
                   stays balanced and there's never an empty column. */}
@@ -1156,7 +1156,7 @@ export function ProductDetail({ product }: { product: Product }) {
 
             {/* Thicknesses — hidden for specialty products (vanity,
                 semi-precious, exotic, centrepiece, integra/sinks,
-                natural-stone-finishes). Same gate as the Slabs and
+                facades-and-finishes). Same gate as the Slabs and
                 Sizes-tab thickness blocks elsewhere on the PDP. */}
             {!isSpecialtyProduct && (
               <div className="py-6 lg:py-8 px-4 lg:px-6">
@@ -1366,7 +1366,7 @@ export function ProductDetail({ product }: { product: Product }) {
                   <div className="max-w-3xl space-y-8">
                     {/* Slabs / thicknesses — hidden for specialty
                         products (sinks, semi-precious, centrepieces,
-                        natural stone finishes don't carry the same
+                        façades-and-finishes don't carry the same
                         slab thickness options as quartz). */}
                     {!isSpecialtyProduct && (
                       <div>

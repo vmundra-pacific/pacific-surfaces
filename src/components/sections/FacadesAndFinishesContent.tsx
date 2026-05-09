@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * NaturalStoneFinishesContent — full experience for
- * /products/natural-stone-finishes.
+ * FacadesAndFinishesContent — full experience for
+ * /products/facades-and-finishes.
  *
  * Sections (top → bottom):
  *   1. Hero — full-screen video/image background, eyebrow +
@@ -12,7 +12,7 @@
  *   3. Features — centred "Transform Stones Into Art" eyebrow +
  *      headline + 3 numbered cards.
  *   4. Finish grid — every product tagged to the
- *      "Natural Stone Finishes" Sanity Collection. Tap → lightbox
+ *      "Façades and Finishes" Sanity Collection. Tap → lightbox
  *      with mouse-wheel zoom.
  *
  * Lightbox
@@ -78,6 +78,9 @@ interface PageData {
 const DEFAULTS = {
   heroEyebrow: "Fusion of Aesthetics, Functionality & Innovation",
   heroHeadline: "Stone Finishes Beyond Imagination",
+  // Real file on disk is still named natural-stone-finishes.mp4 — only
+  // the URL slug + display labels were renamed; the video asset itself
+  // wasn't touched. Don't change this without renaming the file too.
   heroVideoUrl: "/videos/natural-stone-finishes.mp4",
   introSubheading: "From Smooth Satin to Rugged Splendor",
   introBody:
@@ -108,7 +111,7 @@ const DEFAULTS = {
 /* ================================================================== *
  *  Main component                                                     *
  * ================================================================== */
-export function NaturalStoneFinishesContent({
+export function FacadesAndFinishesContent({
   pageData,
   finishes,
 }: {
@@ -152,66 +155,87 @@ export function NaturalStoneFinishesContent({
 
   return (
     <>
-      {/* ─── 1. Hero — full-screen, centred copy ─────────── */}
-      <section className="relative min-h-screen flex items-center justify-center bg-[#112732] overflow-hidden">
-        {/* Fallback dark surface (visible if media missing) */}
-        <div className="absolute inset-0 z-0 bg-[#112732]" />
+      {/* ─── 1. Hero — full-screen video, caption pinned bottom-left
+              to match the QuartzHeroVideo treatment used on every
+              other category page (/products/quartz, /granites,
+              /semi-precious, etc.). Layout, type scale, and the
+              layered text-shadow are deliberately the same so the
+              category-landing experience reads consistently. ───── */}
+      <section className="relative w-full h-screen overflow-hidden bg-[#112732]">
         {/* Background media */}
-        <div className="absolute inset-0 z-0">
-          {heroVideoUrl ? (
-            <video
-              key={heroVideoUrl}
-              src={heroVideoUrl}
-              poster={
-                heroVideoUrl.startsWith("/videos/")
-                  ? heroVideoUrl.replace(/\.mp4$/, "-poster.jpg")
-                  : undefined
-              }
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          ) : heroImage ? (
-            <Image
-              src={heroImage}
-              alt=""
-              fill
-              className="object-cover"
-              sizes="100vw"
-              priority
-            />
-          ) : null}
-          {/* Even scrim — keeps the centred copy readable against
-              any frame. Pacific navy at 40% blends rather than
-              clashing if the video frame contains other tones. */}
-          <div className="absolute inset-0 bg-[#0a1620]/45" />
-        </div>
+        {heroVideoUrl ? (
+          <video
+            key={heroVideoUrl}
+            src={heroVideoUrl}
+            poster={
+              heroVideoUrl.startsWith("/videos/")
+                ? heroVideoUrl.replace(/\.mp4$/, "-poster.jpg")
+                : undefined
+            }
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : heroImage ? (
+          <Image
+            src={heroImage}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+        ) : null}
 
+        {/* Soft scrim — keeps the caption readable on any video frame
+            and ramps into the section below's #112732 so there's no
+            visible seam at the bottom edge. Same gradient shape used
+            in QuartzHeroVideo. */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(17,39,50,0.10) 0%, rgba(17,39,50,0.05) 45%, rgba(17,39,50,0.55) 85%, #112732 100%)",
+          }}
+        />
+
+        {/* Bottom-left caption — eyebrow, headline, optional
+            description. Sized + shadowed identically to the Quartz
+            hero. */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
-          className="relative z-10 mx-auto max-w-4xl px-6 lg:px-8 text-center"
+          transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute left-6 md:left-10 bottom-6 md:bottom-10 max-w-md z-10"
         >
-          <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-300 mb-7">
+          <div
+            className="text-[10px] md:text-xs tracking-[0.3em] uppercase text-pacific-light/95 mb-3"
+            style={{
+              textShadow:
+                "0 1px 3px rgba(0,0,0,.85), 0 2px 18px rgba(0,0,0,.75)",
+            }}
+          >
             {heroEyebrow}
           </div>
           <h1
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-tight text-white leading-[1.05]"
+            className="text-white font-light leading-[1.05] text-3xl md:text-5xl lg:text-6xl tracking-tight"
             style={{
-              textShadow: "0 2px 8px rgba(0,0,0,.7), 0 8px 40px rgba(0,0,0,.4)",
+              textShadow: "0 2px 6px rgba(0,0,0,.9), 0 6px 32px rgba(0,0,0,.8)",
             }}
           >
             {heroHeadline}
           </h1>
           {heroDescription && (
             <p
-              className="mt-7 text-base md:text-lg text-stone-300 font-light max-w-2xl mx-auto leading-relaxed"
-              style={{ textShadow: "0 1px 3px rgba(0,0,0,.6)" }}
+              className="mt-4 text-sm md:text-base text-pacific-light/95 font-light leading-relaxed max-w-sm"
+              style={{
+                textShadow:
+                  "0 1px 4px rgba(0,0,0,.85), 0 2px 18px rgba(0,0,0,.75)",
+              }}
             >
               {heroDescription}
             </p>
@@ -553,14 +577,14 @@ function FinishTile({
         open={sampleOpen}
         onClose={() => setSampleOpen(false)}
         productName={finish.name}
-        productCategory="Natural Stone Finishes"
+        productCategory="Façades and Finishes"
         mode="sample"
       />
       <OrderSampleModal
         open={enquireOpen}
         onClose={() => setEnquireOpen(false)}
         productName={finish.name}
-        productCategory="Natural Stone Finishes"
+        productCategory="Façades and Finishes"
         mode="enquire"
       />
     </>
@@ -578,7 +602,7 @@ function EmptyState() {
         Studio has at least one published Product tagged to it, and that the
         collection slug matches the value set in{" "}
         <strong className="text-white">
-          Natural Stone Finishes Page → Grid → Source Collection Slug
+          Façades and Finishes Page → Grid → Source Collection Slug
         </strong>
         .
       </p>

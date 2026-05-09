@@ -11,7 +11,7 @@ import { SearchOverlay } from "@/components/ui/search-overlay";
 
 // PRODUCTS_CATEGORIES drives the Products mega-menu — five cards
 // matching the Sidharth UI/UX deck exactly:
-//   1) Quartz · 2) Natural Stone Finishes · 3) Vision ·
+//   1) Quartz · 2) Façades and Finishes · 3) Vision ·
 //   4) Granites · 5) Semi-Precious
 //
 // Vision is a sub-line of Quartz that lives at /products/quartz/chromia
@@ -36,8 +36,8 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     tagline: "Engineered stone for everyday surfaces.",
   },
   {
-    slug: "natural-stone-finishes",
-    name: "Natural Stone Finishes",
+    slug: "facades-and-finishes",
+    name: "Façades and Finishes",
     tagline: "Large-format facade and feature surfaces.",
   },
   {
@@ -166,8 +166,8 @@ const navigation = [
       { name: "Centrepiece Couture", href: "/products/centrepiece-couture" },
       { name: "Integra (Sinks)", href: "/products/integra" },
       {
-        name: "Natural Stone Finishes",
-        href: "/products/natural-stone-finishes",
+        name: "Façades and Finishes",
+        href: "/products/facades-and-finishes",
       },
       { name: "Vanity", href: "/products/vanity" },
       { name: "All Products", href: "/products" },
@@ -506,10 +506,17 @@ export default function Header() {
                       {openMegaItem === item.name && (
                         <motion.div
                           key={`mega-panel-${item.name}`}
-                          initial={{ opacity: 0, y: -10 }}
+                          // Animation is opacity-only, NOT translate-y.
+                          // The earlier y: -10 → 0 slide caused the
+                          // panel's hover-bridge pseudo to slide down
+                          // past a stationary cursor on the trigger
+                          // Link, firing mouseleave mid-animation and
+                          // closing the menu. Pure opacity fade keeps
+                          // the bridge locked in position throughout
+                          // the open/close so hover never breaks.
+                          initial={{ opacity: 0 }}
                           animate={{
                             opacity: 1,
-                            y: 0,
                             transition: {
                               duration: 0.32,
                               ease: [0.25, 0.4, 0.25, 1],
@@ -517,7 +524,6 @@ export default function Header() {
                           }}
                           exit={{
                             opacity: 0,
-                            y: -8,
                             transition: {
                               duration: 0.4,
                               ease: [0.4, 0, 0.2, 1],
@@ -533,13 +539,13 @@ export default function Header() {
                           as one continuous navy block with the header
                           above; shadow stays for the panel's bottom
                           edge against page content beneath. */}
-                          <div className="bg-[#112732] shadow-[0_18px_60px_rgba(0,0,0,0.4)]">
-                            <div className="mx-auto max-w-[1400px] px-6 lg:px-8 py-8">
+                          <div className="bg-[#112732] shadow-[0_18px_60px_rgba(0,0,0,0.4)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain">
+                            <div className="mx-auto max-w-[1400px] px-6 lg:px-8 py-5 lg:py-6">
                               {/* Cards row — each card is a <button>
                               that toggles its sub-panel. Active card
                               gets a subtle highlight ring. */}
                               <div
-                                className={`grid gap-4 ${
+                                className={`grid gap-3 ${
                                   item.name === "Spaces"
                                     ? "grid-cols-4"
                                     : "grid-cols-5"
@@ -560,32 +566,32 @@ export default function Header() {
                                         )
                                       }
                                       className={cn(
-                                        "flex flex-col text-left rounded-lg p-3 transition-colors",
+                                        "flex flex-col text-left rounded-lg p-2 transition-colors",
                                         isActive
                                           ? "bg-white/[0.06] ring-1 ring-white/15"
                                           : "hover:bg-white/[0.04]"
                                       )}
                                     >
-                                      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
+                                      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
                                         <div className="absolute inset-0 flex items-center justify-center text-stone-500">
-                                          <span className="text-[10px] font-medium tracking-[0.3em] uppercase">
+                                          <span className="text-[9px] font-medium tracking-[0.3em] uppercase">
                                             [ {cat.name.toLowerCase()} ]
                                           </span>
                                         </div>
                                       </div>
-                                      <div className="px-1 pt-4 pb-1">
+                                      <div className="px-1 pt-2.5 pb-0.5">
                                         <div className="flex items-center justify-between gap-1.5">
-                                          <span className="text-lg font-medium text-white tracking-tight">
+                                          <span className="text-sm lg:text-[15px] font-medium text-white tracking-tight">
                                             {cat.name}
                                           </span>
                                           <ChevronDown
                                             className={cn(
-                                              "w-4 h-4 text-stone-400 transition-transform shrink-0",
+                                              "w-3.5 h-3.5 text-stone-400 transition-transform shrink-0",
                                               isActive ? "rotate-180" : ""
                                             )}
                                           />
                                         </div>
-                                        <div className="text-sm font-light text-stone-400 leading-snug mt-1">
+                                        <div className="text-[11px] font-light text-stone-400 leading-snug mt-0.5">
                                           {cat.tagline}
                                         </div>
                                       </div>
@@ -628,7 +634,7 @@ export default function Header() {
                                         }}
                                         style={{ overflow: "hidden" }}
                                       >
-                                        <div className="mt-8 pt-8 border-t border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-8">
+                                        <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-x-6 gap-y-5">
                                           {/* About / Explore column —
                                           Products gets material 101
                                           links (What is / Maintenance /
@@ -636,18 +642,18 @@ export default function Header() {
                                           inspiration / project / design
                                           notes. */}
                                           <div className="lg:col-span-3">
-                                            <h4 className="text-[11px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-4">
+                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
                                               {isSpaces
                                                 ? `Explore ${active.name}`
                                                 : `About ${active.name}`}
                                             </h4>
-                                            <ul className="space-y-2.5">
+                                            <ul className="space-y-2">
                                               {isSpaces ? (
                                                 <>
                                                   <li>
                                                     <Link
                                                       href={`/learn/${active.slug}-inspiration`}
-                                                      className="text-base font-light text-stone-300 hover:text-white transition-colors"
+                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
                                                     >
                                                       Inspiration
                                                     </Link>
@@ -655,7 +661,7 @@ export default function Header() {
                                                   <li>
                                                     <Link
                                                       href={`/learn/${active.slug}-projects`}
-                                                      className="text-base font-light text-stone-300 hover:text-white transition-colors"
+                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
                                                     >
                                                       Project Gallery
                                                     </Link>
@@ -663,7 +669,7 @@ export default function Header() {
                                                   <li>
                                                     <Link
                                                       href="/learn/design-notes"
-                                                      className="text-base font-light text-stone-300 hover:text-white transition-colors"
+                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
                                                     >
                                                       Design Notes
                                                     </Link>
@@ -674,7 +680,7 @@ export default function Header() {
                                                   <li>
                                                     <Link
                                                       href={`/learn/what-is-${active.whatIsSlug ?? active.slug}`}
-                                                      className="text-base font-light text-stone-300 hover:text-white transition-colors"
+                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
                                                     >
                                                       What is {active.name}?
                                                     </Link>
@@ -682,7 +688,7 @@ export default function Header() {
                                                   <li>
                                                     <Link
                                                       href="/learn/maintenance"
-                                                      className="text-base font-light text-stone-300 hover:text-white transition-colors"
+                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
                                                     >
                                                       Maintenance
                                                     </Link>
@@ -690,7 +696,7 @@ export default function Header() {
                                                   <li>
                                                     <Link
                                                       href="/learn/warranty"
-                                                      className="text-base font-light text-stone-300 hover:text-white transition-colors"
+                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
                                                     >
                                                       Warranty
                                                     </Link>
@@ -701,17 +707,17 @@ export default function Header() {
                                           </div>
                                           {/* Applications / Inside column */}
                                           <div className="lg:col-span-6">
-                                            <h4 className="text-[11px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-4">
+                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
                                               {isSpaces
                                                 ? `Inside ${active.name}`
                                                 : `${active.name} Applications`}
                                             </h4>
-                                            <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5">
+                                            <ul className="grid grid-cols-2 gap-x-5 gap-y-2">
                                               {apps.map((app) => (
                                                 <li key={app.slug}>
                                                   <Link
                                                     href={`/learn/${app.slug}`}
-                                                    className="text-base font-light text-stone-300 hover:text-white transition-colors"
+                                                    className="text-sm font-light text-stone-300 hover:text-white transition-colors"
                                                   >
                                                     {app.label}
                                                   </Link>
@@ -731,7 +737,7 @@ export default function Header() {
                                                 active.coloursHref ??
                                                 `/products/${active.slug}`
                                               }
-                                              className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 bg-white text-stone-900 text-xs font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
+                                              className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-white text-stone-900 text-[11px] font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
                                             >
                                               {isSpaces
                                                 ? `Browse ${active.name}`
@@ -753,7 +759,7 @@ export default function Header() {
                             there. */}
                             {item.name !== "Spaces" ? (
                               <div className="border-t border-white/10 bg-[#0d1f29]">
-                                <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-between py-4">
+                                <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-between py-3">
                                   <div className="flex flex-wrap gap-x-7 gap-y-2">
                                     <Link
                                       href="/products/exotic"
@@ -790,7 +796,7 @@ export default function Header() {
                              direction — dropdown supplements the
                              page rather than replacing it). */
                               <div className="border-t border-white/10 bg-[#0d1f29]">
-                                <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-end py-4">
+                                <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-end py-3">
                                   <Link
                                     href="/spaces"
                                     className="text-[12px] font-medium tracking-[0.2em] uppercase text-white inline-flex items-center gap-1.5 hover:gap-2 transition-all"

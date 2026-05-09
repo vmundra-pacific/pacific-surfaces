@@ -137,7 +137,7 @@ export default async function CollectionPage({ params }: Props) {
     "granites",
     "semi-precious",
     "centrepiece-couture",
-    "natural-stone-finishes",
+    "facades-and-finishes",
   ]);
   const slugLower = slug.toLowerCase();
   const faqKey: FaqPageKey | null = CATEGORY_FAQ_KEYS.has(slugLower)

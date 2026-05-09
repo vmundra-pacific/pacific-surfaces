@@ -59,11 +59,11 @@ export default defineConfig({
                   .documentId("sustainabilityPage")
               ),
             S.listItem()
-              .title("Natural Stone Finishes Page")
+              .title("Façades and Finishes Page")
               .child(
                 S.document()
-                  .schemaType("naturalStoneFinishesPage")
-                  .documentId("naturalStoneFinishesPage")
+                  .schemaType("facadesAndFinishesPage")
+                  .documentId("facadesAndFinishesPage")
               ),
             S.divider(),
             S.documentTypeListItem("faqPage").title("FAQ Pages"),

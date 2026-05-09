@@ -216,9 +216,9 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
         "Hand-finished vanity tops engineered to anchor the bath — seamless joints, heat- and stain-resistant, designed to read as a single piece.",
     },
   },
-  // natural-stone-finishes was removed from this map because that
+  // facades-and-finishes was removed from this map because that
   // URL is now served by a bespoke static route at
-  // /products/natural-stone-finishes (see ../natural-stone-finishes/page.tsx)
+  // /products/facades-and-finishes (see ../facades-and-finishes/page.tsx)
   // with its own hero / intro / lightbox grid layout. Static routes
   // win over the [slug] dispatcher in Next.js, so leaving this map
   // empty for that slug is the right thing.

@@ -69,7 +69,7 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
       "Natural stone collections with comprehensive catalogs, finishes, and specifications for every application.",
     fallback: [
       "Natural Stone Catalog",
-      "Natural Stone Finishes",
+      "Façades and Finishes",
       "Cut-to-Size Catalog",
       "Window Sills & Thresholds Flyer",
       "Monument Catalog",

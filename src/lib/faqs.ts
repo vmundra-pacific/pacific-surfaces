@@ -14,7 +14,7 @@ export type FaqPageKey =
   | "exotic"
   | "integra"
   | "centrepiece-couture"
-  | "natural-stone-finishes"
+  | "facades-and-finishes"
   | "vanity"
   | "sustainability"
   | "about";
@@ -35,7 +35,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "What sizes do Pacific quartz slabs come in?",
-      a: "Standard slabs are 137\" x 65\" (≈3480 x 1650 mm), with thicknesses of 12 mm, 20 mm, and 30 mm. The 137\" jumbo format reduces the number of joints needed on long countertops and feature walls. Custom dimensions are available on indent orders.",
+      a: 'Standard slabs are 137" x 65" (≈3480 x 1650 mm), with thicknesses of 12 mm, 20 mm, and 30 mm. The 137" jumbo format reduces the number of joints needed on long countertops and feature walls. Custom dimensions are available on indent orders.',
     },
     {
       q: "How do I clean and maintain quartz?",
@@ -96,7 +96,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
   ],
   exotic: [
     {
-      q: "What makes a slab \"exotic\"?",
+      q: 'What makes a slab "exotic"?',
       a: "The Exotic Collection is our curated range of dramatic engineered quartz designs that push beyond conventional marble looks — bold veining, unusual base tones (deep blacks, warm taupes, blush pinks), and patterns that feel sculpted rather than printed.",
     },
     {
@@ -174,7 +174,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
       a: "Use coasters under hot or wet items as a precaution, even though most stones are highly heat- and moisture-resistant. Daily cleaning is warm water and mild soap. Avoid acidic cleaners which can dull the polish over time.",
     },
   ],
-  "natural-stone-finishes": [
+  "facades-and-finishes": [
     {
       q: "What finishes are available?",
       a: "We offer Polished (mirror-bright reflection), Honed (matte velvet smooth), Leathered (textured natural touch), Brushed (subtle directional grain), and Flamed (rough, slip-resistant — outdoor use). Each finish is applied at our facility under controlled conditions.",

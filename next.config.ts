@@ -153,6 +153,19 @@ const nextConfig: NextConfig = {
         destination: "/products/ecosurfaces",
         permanent: true,
       },
+      {
+        // Natural Stone Finishes was renamed to Façades and Finishes.
+        // Catch the old slug + any deeper sub-paths and bounce to the
+        // new URL space so external links and indexed pages don't 404.
+        source: "/products/natural-stone-finishes",
+        destination: "/products/facades-and-finishes",
+        permanent: true,
+      },
+      {
+        source: "/products/natural-stone-finishes/:path*",
+        destination: "/products/facades-and-finishes/:path*",
+        permanent: true,
+      },
     ];
   },
 };

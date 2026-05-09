@@ -373,12 +373,12 @@ export const sustainabilityPageQuery = groq`
   }
 `;
 
-// Natural Stone Finishes — page-level copy (singleton).
+// Façades and Finishes — page-level copy (singleton).
 //
 // Returns null when the document hasn't been created yet, so the
 // component falls back to hardcoded defaults.
-export const naturalStoneFinishesPageQuery = groq`
-  *[_type == "naturalStoneFinishesPage"][0] {
+export const facadesAndFinishesPageQuery = groq`
+  *[_type == "facadesAndFinishesPage"][0] {
     heroEyebrow,
     heroHeadline,
     heroDescription,
@@ -404,14 +404,14 @@ export const naturalStoneFinishesPageQuery = groq`
   }
 `;
 
-// Natural Stone Finishes — products in a named Collection.
+// Façades and Finishes — products in a named Collection.
 //
 // Pulls every product whose `collection` reference points at the
 // collection with slug $slug. Each card shows the product's name +
 // mainImage; the lightbox shows the same image at full resolution.
 // Editors add a finish by creating a Product in Studio, uploading
 // its mainImage, and assigning the collection.
-export const naturalStoneFinishesProductsQuery = groq`
+export const facadesAndFinishesProductsQuery = groq`
   *[_type == "product" &&
     visible != false &&
     collection._ref in *[_type == "collection" && slug.current == $slug]._id

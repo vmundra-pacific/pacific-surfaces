@@ -13,7 +13,7 @@ import jobOpening from "./jobOpening";
 import careersPage from "./careersPage";
 import jobApplication from "./jobApplication";
 import sustainabilityPage from "./sustainabilityPage";
-import naturalStoneFinishesPage from "./naturalStoneFinishesPage";
+import facadesAndFinishesPage from "./facadesAndFinishesPage";
 
 import faqPage from "./faqPage";
 export const schemaTypes = [
@@ -32,6 +32,6 @@ export const schemaTypes = [
   careersPage,
   jobApplication,
   sustainabilityPage,
-  naturalStoneFinishesPage,
+  facadesAndFinishesPage,
   faqPage,
 ];

@@ -159,7 +159,7 @@ const VALID_CATEGORY_SLUGS = new Set([
   "exotic",
   "centrepiece-couture",
   "integra",
-  "natural-stone-finishes",
+  "facades-and-finishes",
   "vanity",
 ]);
 

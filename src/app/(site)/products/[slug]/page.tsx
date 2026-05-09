@@ -111,7 +111,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
       "granites",
       "semi-precious",
       "centrepiece-couture",
-      "natural-stone-finishes",
+      "facades-and-finishes",
     ]);
     const faqKey: FaqPageKey | null = CATEGORY_FAQ_KEYS.has(slug)
       ? (slug as FaqPageKey)
@@ -157,8 +157,12 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     });
   }
 
-  const categoryName = product.collection?.name ?? product.category?.name ?? "Products";
-  const categorySlugForCrumb = product.collection?.slug?.current ?? product.category?.slug?.current ?? slug;
+  const categoryName =
+    product.collection?.name ?? product.category?.name ?? "Products";
+  const categorySlugForCrumb =
+    product.collection?.slug?.current ??
+    product.category?.slug?.current ??
+    slug;
 
   // Material classification for Product schema. Maps the product's
   // category to a generic stone-industry term Google understands. Falls
@@ -171,7 +175,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     exotic: "Exotic Stone",
     integra: "Engineered Quartz",
     "centrepiece-couture": "Engineered Quartz",
-    "natural-stone-finishes": "Natural Stone",
+    "facades-and-finishes": "Natural Stone",
   };
   const categorySlugLower = (
     product.category?.slug?.current ??

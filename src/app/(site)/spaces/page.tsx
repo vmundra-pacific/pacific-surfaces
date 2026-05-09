@@ -35,7 +35,7 @@ const SPACES = [
     title: "Architecture",
     blurb:
       "Super-jumbo slabs for facades, cladding, and feature walls — large-format surfaces that read as a single uninterrupted plane.",
-    href: "/products/natural-stone-finishes",
+    href: "/products/facades-and-finishes",
   },
   {
     title: "Commercial",
