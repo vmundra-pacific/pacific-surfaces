@@ -34,6 +34,11 @@ const EcosurfacesSection = dynamic(() =>
     (m) => m.EcosurfacesSection
   )
 );
+const CertificationsSection = dynamic(() =>
+  import("@/components/sections/CertificationsSection").then(
+    (m) => m.CertificationsSection
+  )
+);
 const HeritageSection = dynamic(() =>
   import("@/components/sections/HeritageSection").then((m) => m.HeritageSection)
 );
@@ -143,18 +148,25 @@ export default async function HomePage() {
           /public/images/sustainability-statement.jpg and add the
           <Image> in StatementSection when the asset lands. */}
       <StatementSection
-        statement="Pacific Surfaces is a low-silica mineral-infused engineered surfaces brand composed of premium and recycled minerals and materials. A leading brand for over 25+ years that inspires designs for kitchens, bathrooms, and home surfaces."
+        id="sec-sustainability"
+        statement="Pacific Surfaces is a low-silica mineral-infused engineered surfaces brand composed of premium and recycled minerals and materials."
+        subStatement="A leading brand for over 25+ years that inspires designs for kitchens, bathrooms, and home surfaces."
         theme="light"
         withImagePlaceholder
       />
       <TrustStrip />
+      {/* EcosurfacesSection — feature block for the Pacific
+          Ecosurfaces line. Sits directly under TrustStrip per
+          editorial direction so the certification badges flow
+          straight into the low-silica brand statement. Placeholder
+          image; CTA links to existing /ecosurfaces. */}
+      <EcosurfacesSection />
+      {/* CertificationsSection — DNV + SGS independent certification
+          cards (Cosentino-Silestone-style spread). Placeholders for
+          logos and the SGS lab photo until real assets land. */}
+      <CertificationsSection />
       <CollectionsShowcaseGrid collections={collections} />
       <ApplicationsScrollSections applications={applications} />
-      {/* EcosurfacesSection — feature block for the Pacific
-          Ecosurfaces line. Sits right after Applications per ss7
-          ("THE FIRST MINERAL QUARTZ SURFACE WITH LOW SILICA CONTENT").
-          Placeholder image; CTA links to existing /ecosurfaces. */}
-      <EcosurfacesSection />
       {/* DealerLocator hidden temporarily — content not finalised.
           The dealers Sanity query above still runs (cheap, cached) so
           when we want this back, just uncomment the line below. If

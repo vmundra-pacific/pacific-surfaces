@@ -542,37 +542,37 @@ export function ProductDetail({ product }: { product: Product }) {
                     slab-on-countertop compositing, doesn't apply to
                     sinks / centrepieces / semi-precious / etc.). */}
                 {!isSpecialtyProduct && (
-                <Link
-                  href="/visualize"
-                  className="relative shrink-0 w-full overflow-hidden rounded-[2px] hover:opacity-100 opacity-95 transition-all shadow-[0_6px_18px_-6px_rgba(0,0,0,.5)] hover:shadow-[0_8px_22px_-4px_rgba(0,0,0,.55)] group/room"
-                >
-                  <div className="relative w-full aspect-[4/3] bg-stone-800">
-                    {sceneImages[0] ? (
-                      <Image
-                        src={sceneImages[0]}
-                        alt="View in a Room"
-                        fill
-                        className="object-cover"
-                        sizes="140px"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900" />
-                    )}
-                    <div className="absolute inset-0 bg-stone-950/55 flex items-center justify-center">
-                      <div className="text-center leading-tight">
-                        <div className="text-[12px] font-bold tracking-[0.06em] text-white">
-                          VIEW IN
-                          <br />A ROOM
+                  <Link
+                    href="/visualize"
+                    className="relative shrink-0 w-full overflow-hidden rounded-[2px] hover:opacity-100 opacity-95 transition-all shadow-[0_6px_18px_-6px_rgba(0,0,0,.5)] hover:shadow-[0_8px_22px_-4px_rgba(0,0,0,.55)] group/room"
+                  >
+                    <div className="relative w-full aspect-[4/3] bg-stone-800">
+                      {sceneImages[0] ? (
+                        <Image
+                          src={sceneImages[0]}
+                          alt="View in a Room"
+                          fill
+                          className="object-cover"
+                          sizes="140px"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900" />
+                      )}
+                      <div className="absolute inset-0 bg-stone-950/55 flex items-center justify-center">
+                        <div className="text-center leading-tight">
+                          <div className="text-[12px] font-bold tracking-[0.06em] text-white">
+                            VIEW IN
+                            <br />A ROOM
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="bg-stone-700/80 py-1.5 px-2">
-                    <span className="text-[10px] font-medium tracking-[0.05em] text-white/95 block text-center truncate">
-                      Visualizer
-                    </span>
-                  </div>
-                </Link>
+                    <div className="bg-stone-700/80 py-1.5 px-2">
+                      <span className="text-[10px] font-medium tracking-[0.05em] text-white/95 block text-center truncate">
+                        Visualizer
+                      </span>
+                    </div>
+                  </Link>
                 )}
               </div>
 
@@ -816,7 +816,6 @@ export function ProductDetail({ product }: { product: Product }) {
                 </div>
               </div>
             )}
-
           </div>
         </div>
 
@@ -1261,9 +1260,7 @@ export function ProductDetail({ product }: { product: Product }) {
           <div className="flex gap-0 border-b border-white/10 overflow-x-auto no-scrollbar">
             {(
               [
-                ...(isSpecialtyProduct
-                  ? []
-                  : [["specs", "Specs"] as const]),
+                ...(isSpecialtyProduct ? [] : [["specs", "Specs"] as const]),
                 ...(hasSizesContent
                   ? [["sizes", "Sizes & Finishes"] as const]
                   : []),
@@ -1460,77 +1457,77 @@ export function ProductDetail({ product }: { product: Product }) {
               same candidate set. See src/lib/product-similarity.ts. */}
       {picks.length > 0 && (
         <section
-            id="sec-similar-colors"
-            ref={(el) => {
-              sectionRefs.current["sec-similar-colors"] = el;
-            }}
-            className="bg-[#0e2030] border-y border-white/10 scroll-mt-16"
-          >
-            <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
-              <AnimatedSection animation="fadeUp">
-                <div className="text-sm font-medium tracking-[0.3em] uppercase text-pacific-mid mb-4">
-                  Similar Styles
-                </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white mb-10 sm:mb-12">
-                  You May Also Like
-                </h2>
-              </AnimatedSection>
-              <StaggerContainer>
-                {/* Single row of up to 5. Mobile collapses to 2 cols
+          id="sec-similar-colors"
+          ref={(el) => {
+            sectionRefs.current["sec-similar-colors"] = el;
+          }}
+          className="bg-[#0e2030] border-y border-white/10 scroll-mt-16"
+        >
+          <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
+            <AnimatedSection animation="fadeUp">
+              <div className="text-sm font-medium tracking-[0.3em] uppercase text-pacific-mid mb-4">
+                Similar Styles
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white mb-10 sm:mb-12">
+                You May Also Like
+              </h2>
+            </AnimatedSection>
+            <StaggerContainer>
+              {/* Single row of up to 5. Mobile collapses to 2 cols
                     so cards stay legible. */}
-                <div className="flex overflow-x-auto snap-x snap-mandatory -mx-6 px-6 sm:mx-0 sm:px-0 sm:overflow-visible sm:grid sm:grid-cols-3 md:grid-cols-5 gap-4 lg:gap-6 [&>*]:shrink-0 [&>*]:w-[60%] sm:[&>*]:w-auto [&>*]:snap-start">
-                  {picks.map((rp) => (
-                    <StaggerItem key={rp._id}>
-                      <Link
-                        href={`/products/${rp.slug.current}`}
-                        className="group block"
-                        // Pre-warm the next product's magnifier URL on
-                        // hover/touch (same Sanity-resized URL the
-                        // server preload uses) so navigating into it
-                        // is instant.
-                        onMouseEnter={() => {
-                          if (rp.mainImage)
-                            preload(zoomImageUrl(rp.mainImage), {
-                              as: "image",
-                              fetchPriority: "high",
-                            });
-                        }}
-                        onTouchStart={() => {
-                          if (rp.mainImage)
-                            preload(zoomImageUrl(rp.mainImage), {
-                              as: "image",
-                              fetchPriority: "high",
-                            });
-                        }}
-                      >
-                        <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-white/5 mb-3">
-                          {rp.mainImage ? (
-                            <Image
-                              src={rp.mainImage}
-                              alt={rp.name}
-                              fill
-                              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                              sizes="(max-width: 768px) 50vw, 20vw"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-white/10 via-white/5 to-white/10" />
-                          )}
-                        </div>
-                        <h3 className="text-sm font-medium text-white group-hover:text-pacific-mid transition-colors tracking-tight">
-                          {rp.name}
-                        </h3>
-                        {rp.collectionName && (
-                          <div className="text-[11px] text-pacific-mid/70 mt-0.5 tracking-wide">
-                            {rp.collectionName}
-                          </div>
+              <div className="flex overflow-x-auto snap-x snap-mandatory -mx-6 px-6 sm:mx-0 sm:px-0 sm:overflow-visible sm:grid sm:grid-cols-3 md:grid-cols-5 gap-4 lg:gap-6 [&>*]:shrink-0 [&>*]:w-[60%] sm:[&>*]:w-auto [&>*]:snap-start">
+                {picks.map((rp) => (
+                  <StaggerItem key={rp._id}>
+                    <Link
+                      href={`/products/${rp.slug.current}`}
+                      className="group block"
+                      // Pre-warm the next product's magnifier URL on
+                      // hover/touch (same Sanity-resized URL the
+                      // server preload uses) so navigating into it
+                      // is instant.
+                      onMouseEnter={() => {
+                        if (rp.mainImage)
+                          preload(zoomImageUrl(rp.mainImage), {
+                            as: "image",
+                            fetchPriority: "high",
+                          });
+                      }}
+                      onTouchStart={() => {
+                        if (rp.mainImage)
+                          preload(zoomImageUrl(rp.mainImage), {
+                            as: "image",
+                            fetchPriority: "high",
+                          });
+                      }}
+                    >
+                      <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-white/5 mb-3">
+                        {rp.mainImage ? (
+                          <Image
+                            src={rp.mainImage}
+                            alt={rp.name}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                            sizes="(max-width: 768px) 50vw, 20vw"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-white/10 via-white/5 to-white/10" />
                         )}
-                      </Link>
-                    </StaggerItem>
-                  ))}
-                </div>
-              </StaggerContainer>
-            </div>
-          </section>
+                      </div>
+                      <h3 className="text-sm font-medium text-white group-hover:text-pacific-mid transition-colors tracking-tight">
+                        {rp.name}
+                      </h3>
+                      {rp.collectionName && (
+                        <div className="text-[11px] text-pacific-mid/70 mt-0.5 tracking-wide">
+                          {rp.collectionName}
+                        </div>
+                      )}
+                    </Link>
+                  </StaggerItem>
+                ))}
+              </div>
+            </StaggerContainer>
+          </div>
+        </section>
       )}
 
       {/* ===== CERTIFICATIONS STRIP — inline-SVG mark renditions on
@@ -1991,7 +1988,9 @@ function CompareSliderSection({
   // few products from the full pool only if picks is empty (which
   // shouldn't happen except on a brand-new catalogue).
   const initialVisible: CompareProduct[] =
-    picks.length > 0 ? picks.slice(0, MAX_VISIBLE) : allProducts.slice(0, MAX_VISIBLE);
+    picks.length > 0
+      ? picks.slice(0, MAX_VISIBLE)
+      : allProducts.slice(0, MAX_VISIBLE);
 
   const [visibleColors, setVisibleColors] =
     useState<CompareProduct[]>(initialVisible);
@@ -2266,7 +2265,15 @@ function CompareSliderSection({
         </div>
       </div>
 
-      {/* ===== COLOR PICKER POPUP ===== */}
+      {/* ===== COLOR PICKER POPUP =====
+          `data-lenis-prevent` on the backdrop tells the site's
+          Lenis smooth-scroll instance to skip wheel events that
+          start inside this subtree. Without it, scrolling on the
+          modal's grid kept Lenis driving the page underneath even
+          though the body had `overflow: hidden` — Lenis bypasses
+          the body's overflow lock by using transforms on the
+          wrapper, so the only reliable way to stop it is the
+          attribute opt-out. */}
       <AnimatePresence>
         {pickerOpen && (
           <motion.div
@@ -2274,6 +2281,7 @@ function CompareSliderSection({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
+            data-lenis-prevent
             className="fixed inset-0 z-50 bg-stone-950/60 backdrop-blur-sm flex items-center justify-center p-4 overscroll-contain"
             onClick={() => setPickerOpen(false)}
           >
@@ -2282,6 +2290,7 @@ function CompareSliderSection({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.25 }}
+              data-lenis-prevent
               className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
@@ -2352,8 +2361,13 @@ function CompareSliderSection({
                 )}
               </div>
 
-              {/* Product grid */}
-              <div className="flex-1 overflow-y-auto px-6 py-4">
+              {/* Product grid — `data-lenis-prevent` so the wheel
+                  scrolls THIS container natively instead of the
+                  Lenis-driven page underneath. */}
+              <div
+                data-lenis-prevent
+                className="flex-1 overflow-y-auto overscroll-contain px-6 py-4"
+              >
                 {filteredProducts.length === 0 ? (
                   <p className="text-sm text-stone-400 text-center py-8">
                     No colors found

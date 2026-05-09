@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
- * HomepageSectionNav — pinned left-middle vertical nav listing the
- * homepage's major sections by chapter number + name.
+ * HomepageSectionNav — pinned left-middle vertical nav, six labelled
+ * pill tabs in scroll order.
  *
  * Three things to know:
  *
@@ -19,65 +19,92 @@ import { useEffect, useState } from "react";
  * 2. CONTRAST handled via CSS `mix-blend-mode: difference`. The
  *    homepage alternates dark and light backgrounds (e.g. cream
  *    InspirationGrid) — fixed white text would disappear on the
- *    cream section. With difference blending, the text auto-inverts
- *    relative to whatever's behind it: white-on-dark stays light,
+ *    cream section. With difference blending, the pills auto-invert
+ *    relative to whatever's behind them: white-on-dark stays light,
  *    white-on-light becomes dark. Single property, no scroll-tied
  *    color tracking needed.
  *
- * 3. The thin Manufacturer marquee strip is intentionally not in
- *    the nav. It's only ~50px tall, so jumping to its anchor lands
- *    almost exactly where the next section (Origin) starts —
- *    indistinguishable to the user. Skip it; the marquee is
- *    decorative, not a destination.
+ * 3. Sustainability points at the EcosurfacesSection (low-silica
+ *    feature block under TrustStrip). Community = SignatureProjects
+ *    (community endorsement section). Signature Projects =
+ *    InspirationGrid (the project-photo gallery). Voices and
+ *    Visualize were dropped from the rail per the editorial mock —
+ *    they still exist on the page, just not pinned to the side nav.
  *
  * Hidden below `lg` (1024px) — phone/tablet users get the regular
  * scroll experience without an extra UI band overlapping content.
  */
 
-const SECTIONS: { id: string; num: string; label: string }[] = [
-  { id: "sec-collections", num: "01", label: "Collections" },
-  { id: "sec-applications", num: "02", label: "Applications" },
-  { id: "sec-origin", num: "03", label: "Origin" },
-  // SignatureProjects section is now framed as Community endorsement
-  // — "Recommended by industry stalwarts and leaders" — so the nav
-  // label reads "Community" rather than the older "Architects".
-  { id: "sec-architects", num: "04", label: "Community" },
-  { id: "sec-voices", num: "05", label: "Voices" },
-  { id: "sec-projects", num: "06", label: "Projects" },
-  { id: "sec-visualize", num: "07", label: "Visualize" },
+const SECTIONS: { id: string; label: string }[] = [
+  { id: "sec-sustainability", label: "Sustainability" },
+  { id: "sec-collections", label: "Collections" },
+  { id: "sec-applications", label: "Applications" },
+  { id: "sec-origin", label: "Origin" },
+  { id: "sec-architects", label: "Community" },
+  { id: "sec-projects", label: "Signature Projects" },
+  { id: "sec-visualize", label: "Visualize" },
 ];
+
+// Sections whose backgrounds are light AND visually busy (cream
+// papers + photo grids etc.) where mix-blend-difference produces
+// muddy, hard-to-read pill text. While the user is in one of these
+// sections, inactive pills swap to a solid dark backdrop so the
+// labels stay legible. Anywhere else, the chips keep the original
+// mix-blend-difference auto-inversion the user prefers.
+const SECTIONS_NEED_SOLID_BG = new Set<string>(["sec-projects"]);
 
 export function HomepageSectionNav() {
   const [active, setActive] = useState<string | null>(null);
+  // Set of section ids currently inside the active band. Active pill
+  // is recomputed on every observer fire as the topmost intersecting
+  // section in SECTIONS order. When the set is empty (parallax hero,
+  // gaps between tracked sections, page bottom), active drops to
+  // null and no pill is filled — Sustainability no longer "sticks"
+  // through Collections, Collections doesn't bleed into Applications,
+  // etc.
+  const intersectingRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    // Observe each section. When one's centred chunk crosses the
-    // viewport, mark it active. rootMargin shrinks the "active band"
-    // to roughly the middle 10% of viewport height — stable enough
-    // that adjacent sections don't flap at the boundary.
     const observers: IntersectionObserver[] = [];
+    const set = intersectingRef.current;
+
+    const recompute = () => {
+      const next = SECTIONS.find((s) => set.has(s.id))?.id ?? null;
+      setActive(next);
+    };
+
     for (const { id } of SECTIONS) {
       const el = document.getElementById(id);
       if (!el) continue;
       const o = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) setActive(id);
+          if (entry.isIntersecting) set.add(id);
+          else set.delete(id);
+          recompute();
         },
         { rootMargin: "-40% 0px -50% 0px", threshold: 0 }
       );
       o.observe(el);
       observers.push(o);
     }
+
     return () => observers.forEach((o) => o.disconnect());
   }, []);
 
   // Click handler — programmatic scroll via scrollIntoView so Lenis
   // routes through its own animation pipeline rather than the native
-  // anchor jump (which can drop or fight Lenis under load).
+  // anchor jump (which can drop or fight Lenis under load). We also
+  // set `active` IMMEDIATELY so the pill flips to its filled-white
+  // state on click without waiting for the smooth scroll to land
+  // and the IntersectionObserver to fire (otherwise the user clicks
+  // a pill, sees nothing change for ~600 ms, and assumes the click
+  // didn't register). The observer will re-confirm or override once
+  // the scroll settles.
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     const el = document.getElementById(id);
     if (!el) return;
+    setActive(id);
     el.scrollIntoView({ behavior: "smooth", block: "start" });
     // Update the URL hash without forcing the browser to do its own
     // jump — keeps shareable links functional.
@@ -90,36 +117,49 @@ export function HomepageSectionNav() {
       // page content but below the fixed header (z-50). Hidden on
       // mobile / tablet — only shows lg+ where there's room.
       //
-      // mix-blend-mode: difference makes the white text auto-invert
-      // relative to whatever's behind it — readable on both the dark
-      // navy sections AND the cream Inspiration section without any
-      // scroll-tied color tracking.
-      className="fixed left-3 xl:left-5 top-1/2 -translate-y-1/2 z-30 hidden lg:block mix-blend-difference"
+      // Earlier versions tried `mix-blend: difference` for auto-
+      // inversion, but on bright marble heroes the active pill's
+      // dark label blended into the marble veins and read as muddy.
+      // The pills now carry their own contrast layers — see the
+      // per-pill className below.
+      className="fixed left-4 xl:left-6 top-1/2 -translate-y-1/2 z-30 hidden lg:block"
       aria-label="Homepage section navigation"
     >
-      <ul className="flex flex-col gap-2.5">
+      <ul className="flex flex-col gap-2">
         {SECTIONS.map((s) => {
           const isActive = active === s.id;
+          // Switch inactive pills to solid-dark backdrop only when the
+          // user is actively inside one of the busy/light-bg sections
+          // listed above. Default everywhere else: mix-blend-difference
+          // outlined chip (preserved per editorial preference).
+          const useSolidInactive =
+            active !== null && SECTIONS_NEED_SOLID_BG.has(active);
           return (
             <li key={s.id}>
               <a
                 href={`#${s.id}`}
                 onClick={(e) => handleClick(e, s.id)}
-                // Very small font per editorial spec — items read like
-                // a side-margin annotation rather than a chunky nav.
-                // Active item is full white (high contrast inversion);
-                // rest sit at lower opacity for subtle hierarchy.
-                className={`group flex items-center gap-1.5 text-[8px] sm:text-[9px] tracking-[0.18em] uppercase transition-opacity duration-300 text-white py-2.5 ${
-                  isActive ? "opacity-100" : "opacity-50 hover:opacity-90"
+                // Pill / tab style.
+                //  - Inactive (default): outlined chip with
+                //    mix-blend-difference for auto-contrast against
+                //    whatever's behind. Works well over dark navy,
+                //    marble parallax, and most photo backgrounds.
+                //  - Inactive (light/busy section override): solid
+                //    dark glass backdrop instead of mix-blend, so
+                //    the white label stays legible when the section
+                //    bg is too close in value to the text colour.
+                //  - Hover/Active: solid dark pill (bg-stone-900 +
+                //    white text) with a heavy shadow — high contrast
+                //    on every section type.
+                className={`block px-3.5 py-2 text-[10px] tracking-[0.15em] uppercase font-semibold border rounded-md transition-all duration-300 whitespace-nowrap ${
+                  isActive
+                    ? "bg-stone-900 text-white border-stone-900 shadow-[0_4px_14px_rgba(0,0,0,0.35)]"
+                    : useSolidInactive
+                      ? "bg-black/45 backdrop-blur-md border-white/40 text-white hover:bg-stone-900 hover:text-white hover:border-stone-900 hover:shadow-[0_4px_14px_rgba(0,0,0,0.35)]"
+                      : "border-white/70 text-white mix-blend-difference hover:mix-blend-normal hover:bg-stone-900 hover:text-white hover:border-stone-900 hover:shadow-[0_4px_14px_rgba(0,0,0,0.35)]"
                 }`}
               >
-                <span
-                  className={`block h-px transition-all duration-300 bg-current ${
-                    isActive ? "w-4" : "w-2 group-hover:w-3"
-                  }`}
-                />
-                <span className="font-medium tabular-nums">{s.num}</span>
-                <span>{s.label}</span>
+                {s.label}
               </a>
             </li>
           );

@@ -109,12 +109,6 @@ const SPACES_CATEGORIES: MegaCategory[] = [
     tagline: "Hospitality, retail, and workspaces.",
     coloursHref: "/learn/browse-commercial",
   },
-  {
-    slug: "outdoor",
-    name: "Outdoor",
-    tagline: "Pool surrounds, pavers, and outdoor kitchens.",
-    coloursHref: "/learn/browse-outdoor",
-  },
 ];
 
 // SPACES_APPS_BY_SLUG — per-space application list. Routes go to the
@@ -150,12 +144,6 @@ const SPACES_APPS_BY_SLUG: Record<string, { slug: string; label: string }[]> = {
     { slug: "tabletops", label: "Tabletops" },
     { slug: "commercial-cladding", label: "Wall Cladding" },
     { slug: "commercial-flooring", label: "Floor Tiles" },
-  ],
-  outdoor: [
-    { slug: "outdoor-kitchens", label: "Outdoor Kitchens" },
-    { slug: "pool-surrounds", label: "Pool Surrounds" },
-    { slug: "pavers", label: "Pavers" },
-    { slug: "garden-cladding", label: "Garden Cladding" },
   ],
 };
 
@@ -199,7 +187,6 @@ const navigation = [
       { name: "Bathrooms", href: "/spaces#bathrooms" },
       { name: "Architecture", href: "/spaces#architecture" },
       { name: "Commercial", href: "/spaces#commercial" },
-      { name: "Outdoor", href: "/spaces#outdoor" },
     ],
   },
   { name: "Resources", href: "/resources" },
@@ -551,7 +538,13 @@ export default function Header() {
                               {/* Cards row — each card is a <button>
                               that toggles its sub-panel. Active card
                               gets a subtle highlight ring. */}
-                              <div className="grid grid-cols-5 gap-4">
+                              <div
+                                className={`grid gap-4 ${
+                                  item.name === "Spaces"
+                                    ? "grid-cols-4"
+                                    : "grid-cols-5"
+                                }`}
+                              >
                                 {(item.name === "Spaces"
                                   ? SPACES_CATEGORIES
                                   : PRODUCTS_CATEGORIES

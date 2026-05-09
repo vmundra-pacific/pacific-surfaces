@@ -16,14 +16,24 @@ const pad = (n: number) => String(n).padStart(4, "0");
    intentionally — `git log --diff-filter=D -- public/lump-frames/`
    if you need to recover it from history. */
 
-const headlines = [
+// `nowrapLastLine` only flips on for the "homes globally" headline —
+// that one specifically wanted "homes" + "globally" kept on the same
+// line. Every other headline lets the browser wrap naturally so a
+// long one (like "Creating seamless experiences in every space.")
+// doesn't blow past the viewport edge and chop the right side off.
+const headlines: {
+  range: [number, number];
+  kicker: string;
+  lines: string[];
+  nowrapLastLine?: boolean;
+}[] = [
   {
-    range: [0.08, 0.22] as [number, number],
+    range: [0.08, 0.22],
     kicker: "Pacific Surfaces — 2026",
     lines: ["Where every space", "finds its surface."],
   },
   {
-    range: [0.24, 0.38] as [number, number],
+    range: [0.24, 0.38],
     kicker: "",
     // Dimensions ("79 inches wide / 137 inches long") removed per
     // editorial direction — kept only the experiential line so the
@@ -31,14 +41,15 @@ const headlines = [
     lines: ["Creating seamless experiences in every space."],
   },
   {
-    range: [0.42, 0.56] as [number, number],
+    range: [0.42, 0.56],
     kicker: "",
     lines: ["Where every detail reflects", "our zero compromise approach"],
   },
   {
-    range: [0.6, 0.72] as [number, number],
+    range: [0.6, 0.72],
     kicker: "",
     lines: ["Engineered in India.", "Installed in 10M+ homes globally."],
+    nowrapLastLine: true,
   },
 ];
 
@@ -434,8 +445,17 @@ export function HeroScrollCanvas() {
         </div>
       </div>
 
-      {/* Scroll track — 700vh of kitchen scrub end-to-end. */}
-      <section ref={trackRef} className="relative" style={{ height: "700vh" }}>
+      {/* Scroll track — 700vh of kitchen scrub end-to-end.
+          id="sec-hero" lets HomepageSectionNav detect "user is inside
+          the parallax" and clear the active pill while the hero is
+          on screen. The id is not in the nav's SECTIONS list — only
+          the side-rail's separate hero observer cares about it. */}
+      <section
+        id="sec-hero"
+        ref={trackRef}
+        className="relative"
+        style={{ height: "700vh" }}
+      >
         <div className="sticky top-0 h-screen w-full overflow-hidden">
           {/* Canvas */}
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
@@ -490,19 +510,31 @@ export function HeroScrollCanvas() {
                       WebkitTextFillColor: "transparent",
                       filter:
                         "drop-shadow(0 1px 0 rgba(255,255,255,0.45)) drop-shadow(0 4px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(180,210,240,0.25))",
-                      paddingRight: "0.15em", // gives "g"/"y" descenders + drop-shadow tail room before clip
+                      // paddingRight + paddingBottom extend the H1 box
+                      // outside the tight line-height so descenders
+                      // (g, y, p) fall INSIDE the element. Without
+                      // these, `backgroundClip: text` + the drop-
+                      // shadow filter clip at the line-box and the
+                      // bottom of the "g" in "globally" disappears.
+                      paddingRight: "0.15em",
+                      paddingBottom: "0.2em",
                     }}
                   >
                     {hl.lines.map((line, j) => (
                       <span key={j}>
                         {j === hl.lines.length - 1 ? (
-                          // whitespace-nowrap on lg+ keeps the final
-                          // line ("Installed in 10M+ homes globally.")
-                          // on a single line so "homes globally" never
-                          // splits. On small screens we let it wrap
-                          // naturally so it doesn't overflow the
-                          // viewport.
-                          <em className="not-italic block lg:whitespace-nowrap">
+                          // Only the headline whose final line carries
+                          // `nowrapLastLine: true` (currently just the
+                          // "Installed in 10M+ homes globally." one)
+                          // forces single-line at lg+. The others
+                          // wrap naturally so a long single-line
+                          // headline (e.g. "Creating seamless
+                          // experiences in every space.") doesn't
+                          // overflow the viewport and clip on the
+                          // right edge.
+                          <em
+                            className={`not-italic block ${hl.nowrapLastLine ? "lg:whitespace-nowrap" : ""}`}
+                          >
                             {line}
                           </em>
                         ) : (

@@ -22,32 +22,42 @@ import { TextReveal } from "@/components/ui/text-reveal";
  */
 export function EcosurfacesSection() {
   return (
-    <section className="relative bg-stone-50 py-20 sm:py-28 md:py-36 px-6 overflow-hidden">
+    <section className="relative bg-[#112732] py-20 sm:py-28 md:py-36 px-6 overflow-hidden">
+      {/* Subtle grain overlay so the navy reads as deliberate
+          surface, matching the StatementSection treatment elsewhere
+          on the page. */}
+      <div
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        }}
+      />
       <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-        {/* Image placeholder — brand-toned block. Same aspect ratio as a
-            typical editorial kitchen still so swapping in a real photo
-            later doesn't reflow the page. */}
+        {/* Image placeholder — navy-toned gradient block matching the
+            section bg. Same aspect ratio as a typical editorial
+            kitchen still so swapping in a real photo later doesn't
+            reflow the page. */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
-          className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-stone-200 via-stone-100 to-stone-300"
+          className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d3947] via-[#2c4a5b] to-[#0f1f29] border border-white/10"
         >
           {/* Decorative leaf mark + caption so the placeholder reads as
               an intentional visual rather than a missing asset. */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-stone-500 gap-3 px-8 text-center">
-            <Leaf className="w-10 h-10 stroke-[1.2] text-stone-400" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white/40 gap-3 px-8 text-center">
+            <Leaf className="w-10 h-10 stroke-[1.2] text-white/35" />
             <span className="text-[10px] font-medium tracking-[0.3em] uppercase">
               Ecosurfaces visual
             </span>
-            <span className="text-[10px] tracking-[0.2em] uppercase text-stone-400">
+            <span className="text-[10px] tracking-[0.2em] uppercase text-white/25">
               [ image placeholder ]
             </span>
           </div>
           {/* Subtle grain so the gradient doesn't look flat. */}
           <div
-            className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-multiply"
+            className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
             }}
@@ -57,25 +67,27 @@ export function EcosurfacesSection() {
         {/* Type stack */}
         <div>
           <div className="flex items-center gap-2 mb-6">
-            <span className="block w-8 h-px bg-stone-400" />
-            <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-stone-500">
-              Pacific Ecosurfaces
+            <span className="block w-8 h-px bg-white/40" />
+            <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-white/60">
+              Pacific Surfaces
             </span>
           </div>
 
           <TextReveal
             as="h2"
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-light tracking-tight text-stone-900 leading-[1.1]"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.5rem] font-light tracking-tight text-white leading-[1.25]"
           >
-            The first mineral quartz surface with low silica content.
+            Pacific Surfaces is a low-silica mineral-infused engineered surfaces
+            brand composed of premium and recycled minerals and materials.
           </TextReveal>
 
           <TextReveal
             as="p"
             delay={0.15}
-            className="mt-6 text-lg sm:text-xl font-light text-stone-600 leading-relaxed max-w-xl"
+            className="mt-10 sm:mt-12 text-xs sm:text-sm font-medium tracking-[0.18em] uppercase text-white leading-[1.6] max-w-xl"
           >
-            The surface that changed what safe means.
+            A leading brand for over 25+ years that inspires designs for
+            kitchens, bathrooms &amp; home surfaces.
           </TextReveal>
 
           <motion.div
@@ -83,11 +95,11 @@ export function EcosurfacesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-10"
+            className="mt-12 sm:mt-14"
           >
             <Link
               href="/ecosurfaces"
-              className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 bg-stone-900 text-white text-xs font-medium tracking-[0.2em] uppercase hover:bg-stone-800 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 bg-white text-stone-900 text-xs font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
             >
               Learn more about Ecosurfaces
               <ArrowRight className="w-4 h-4" />

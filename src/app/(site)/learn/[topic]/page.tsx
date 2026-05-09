@@ -155,18 +155,6 @@ const TOPIC_COPY: Record<
     description:
       "Hotels, restaurants, offices, and retail interiors finished with Pacific surfaces. Specified for durability, finished for design.",
   },
-  "outdoor-inspiration": {
-    title: "Outdoor Inspiration",
-    eyebrow: "Inspiration · Outdoor",
-    description:
-      "Pavers, pool surrounds, garden cladding, and outdoor-kitchen counters that survive UV, freeze-thaw, and chlorine exposure without fading or cracking.",
-  },
-  "outdoor-projects": {
-    title: "Outdoor Project Gallery",
-    eyebrow: "Projects · Outdoor",
-    description:
-      "Exterior installations using Pacific granite and engineered surfaces — pool decks, garden walls, outdoor kitchens, and landscape features.",
-  },
   "design-notes": {
     title: "Design Notes",
     eyebrow: "Specification & Detailing",
@@ -245,30 +233,6 @@ const TOPIC_COPY: Record<
     description:
       "Floor tiles and large-format panels for commercial interiors. Slip-rated finishes and durability ratings appropriate for hospitality, retail, and office environments.",
   },
-  "outdoor-kitchens": {
-    title: "Outdoor Kitchens",
-    eyebrow: "Application · Outdoor",
-    description:
-      "Counters, splashbacks, and integrated grills for outdoor cooking spaces. Pacific surfaces engineered for UV stability and weather resistance.",
-  },
-  "pool-surrounds": {
-    title: "Pool Surrounds",
-    eyebrow: "Application · Outdoor",
-    description:
-      "Pool decks and waterline cladding rated for chlorine and saltwater exposure. Slip-resistant finishes and freeze-thaw durability built in.",
-  },
-  pavers: {
-    title: "Pavers",
-    eyebrow: "Application · Outdoor",
-    description:
-      "Large-format outdoor pavers for terraces, pathways, and patios. Engineered stone with the look of cut natural stone and the dimensional consistency of engineered material.",
-  },
-  "garden-cladding": {
-    title: "Garden Cladding",
-    eyebrow: "Application · Outdoor",
-    description:
-      "Garden walls, planter cladding, and exterior feature surfaces. Pacific finishes engineered for ground-contact, weathering, and freeze-thaw cycles.",
-  },
 
   // ────────────────────────────────────────────────────────────────
   // Spaces mega-menu — "Browse <Space>" bubble CTA stubs.
@@ -300,12 +264,6 @@ const TOPIC_COPY: Record<
     eyebrow: "Browse · Commercial",
     description:
       "Hospitality, retail, and workspace surfaces specified for high-traffic environments. The full Commercial browser is being built — our team can pull samples and project references on request.",
-  },
-  "browse-outdoor": {
-    title: "Browse Outdoor",
-    eyebrow: "Browse · Outdoor",
-    description:
-      "Pool surrounds, pavers, garden cladding, and outdoor-kitchen surfaces. The full Outdoor browser is being built — until then, talk to us about specific applications and weather requirements.",
   },
 };
 

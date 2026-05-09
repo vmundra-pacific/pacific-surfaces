@@ -14,12 +14,30 @@ interface StatementSectionProps {
    * layout the rest of the site already uses elsewhere.
    */
   withImagePlaceholder?: boolean;
+  /**
+   * Optional smaller second-line copy that renders BELOW the
+   * statement + image-placeholder row, spanning the full container
+   * width. Currently used on the homepage for the "A leading brand
+   * for over 25+ years…" supporting sentence so it reads as a
+   * follow-up rather than as part of the headline.
+   */
+  subStatement?: string;
+  /**
+   * Optional DOM id forwarded to the outer <section>. Used so the
+   * homepage's HomepageSectionNav can anchor "Sustainability" to
+   * this block (since this is where the low-silica brand statement
+   * appears). Other places that reuse this component leave it
+   * unset.
+   */
+  id?: string;
 }
 
 export function StatementSection({
   statement,
   theme = "light",
   withImagePlaceholder = false,
+  subStatement,
+  id,
 }: StatementSectionProps) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -38,6 +56,7 @@ export function StatementSection({
   if (withImagePlaceholder) {
     return (
       <section
+        id={id}
         ref={ref}
         className={`relative py-20 sm:py-28 md:py-36 px-6 overflow-hidden ${isDark ? "bg-stone-950" : "bg-[#112732]"}`}
       >
@@ -49,34 +68,45 @@ export function StatementSection({
         />
         <motion.div
           style={{ y, opacity, willChange: "transform, opacity" }}
-          className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center"
+          className="relative z-10 max-w-7xl mx-auto"
         >
-          <h2
-            className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] font-light tracking-tight leading-[1.2] ${isDark ? "text-white" : "text-white"}`}
-          >
-            {statement}
-          </h2>
-          {/* Image placeholder — brand-toned gradient block. Drop a
-              real photo into /public/images/sustainability-statement.jpg
-              and replace this div with <Image> when the asset lands.
-              Same aspect ratio as the deck mock so swapping won't
-              reflow the page. */}
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d3947] via-[#2c4a5b] to-[#0f1f29] border border-white/10">
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white/40 gap-3 px-8 text-center">
-              <span className="text-[10px] font-medium tracking-[0.3em] uppercase">
-                Pacific brand visual
-              </span>
-              <span className="text-[10px] tracking-[0.2em] uppercase text-white/25">
-                [ image placeholder ]
-              </span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <h2
+              className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] font-light tracking-tight leading-[1.2] ${isDark ? "text-white" : "text-white"}`}
+            >
+              {statement}
+            </h2>
+            {/* Image placeholder — brand-toned gradient block. Drop a
+                real photo into /public/images/sustainability-statement.jpg
+                and replace this div with <Image> when the asset lands.
+                Same aspect ratio as the deck mock so swapping won't
+                reflow the page. */}
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d3947] via-[#2c4a5b] to-[#0f1f29] border border-white/10">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-white/40 gap-3 px-8 text-center">
+                <span className="text-[10px] font-medium tracking-[0.3em] uppercase">
+                  Pacific brand visual
+                </span>
+                <span className="text-[10px] tracking-[0.2em] uppercase text-white/25">
+                  [ image placeholder ]
+                </span>
+              </div>
+              <div
+                className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+                }}
+              />
             </div>
-            <div
-              className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-              }}
-            />
           </div>
+          {/* Sub-statement — smaller second line below the headline +
+              image row, spanning the full container width edge-to-
+              edge. Reads as the supporting follow-up sentence to the
+              main brand statement above. */}
+          {subStatement && (
+            <p className="mt-10 lg:mt-14 text-base sm:text-lg font-light text-stone-300 leading-relaxed">
+              {subStatement}
+            </p>
+          )}
         </motion.div>
       </section>
     );
@@ -86,6 +116,7 @@ export function StatementSection({
   // outside the homepage).
   return (
     <section
+      id={id}
       ref={ref}
       className={`relative py-20 sm:py-32 md:py-44 lg:py-56 px-6 overflow-hidden ${isDark ? "bg-stone-950" : "bg-[#112732]"}`}
     >
