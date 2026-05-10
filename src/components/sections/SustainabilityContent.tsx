@@ -225,7 +225,7 @@ const DEFAULTS = {
       title: "Water Conservation",
       description:
         "Water conservation is a crucial aspect of our environmental strategy. At PACIFIC, we are committed to being a responsible global citizen by actively seeking ways to save and replenish more water than we consume in our production processes. Our water conservation efforts include advanced technologies and practices that reduce water usage and improve efficiency, ensuring that our operations are both eco-friendly and sustainable.",
-      image: "/water-conservation.jpg",
+      image: "/water-conservation.png",
     },
   ] satisfies Initiative[],
   ecosurfacesEyebrow: "Safe, Sustainable & Stunning",
