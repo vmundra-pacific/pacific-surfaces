@@ -166,13 +166,17 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   },
   ecosurfaces: {
     match: "eco",
+    // posterOnly: hero now uses an editorial still rather than the
+    // /videos/ecosurfaces.mp4 clip — the screenshot we approved is
+    // the Eco surfaces brand image, dropped at /public/eco-surfaces-hero.png.
     hero: {
-      videoSrc: "/videos/ecosurfaces.mp4",
+      posterSrc: "/eco-surfaces-hero.png",
+      posterOnly: true,
       eyebrow: "Pacific Surfaces · Eco",
       headline: "Premium quality,",
       headlineItalic: "lower footprint.",
       description:
-        "Ecosurfaces — engineered stone with a fraction of the embodied carbon, no compromise on durability or beauty.",
+        "Ecosurfaces — low-silica engineered stone with less than 40% crystalline silica, for safer fabrication and installation without compromising durability or beauty.",
     },
   },
   granites: {

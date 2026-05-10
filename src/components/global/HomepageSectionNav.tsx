@@ -122,10 +122,17 @@ export function HomepageSectionNav() {
       // dark label blended into the marble veins and read as muddy.
       // The pills now carry their own contrast layers — see the
       // per-pill className below.
-      className="fixed left-4 xl:left-6 top-1/2 -translate-y-1/2 z-30 hidden lg:block"
+      // Below xl (≤1279px) there isn't enough room next to centred
+      // section content for the rail without it overlapping text — at
+      // lg the DNV/SGS cards' inner copy starts ~80px from the viewport
+      // edge and the rail's longest pill ("Signature Projects") is wider
+      // than that. Hide entirely on lg+down.
+      // - xl (1280–1535): compact rail, tight padding + small font.
+      // - 2xl+ (≥1536):    original full-size rail.
+      className="fixed left-2 2xl:left-6 top-1/2 -translate-y-1/2 z-30 hidden xl:block"
       aria-label="Homepage section navigation"
     >
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-1.5 2xl:gap-2">
         {SECTIONS.map((s) => {
           const isActive = active === s.id;
           // Switch inactive pills to solid-dark backdrop only when the
@@ -151,7 +158,7 @@ export function HomepageSectionNav() {
                 //  - Hover/Active: solid dark pill (bg-stone-900 +
                 //    white text) with a heavy shadow — high contrast
                 //    on every section type.
-                className={`block px-3.5 py-2 text-[10px] tracking-[0.15em] uppercase font-semibold border rounded-md transition-all duration-300 whitespace-nowrap ${
+                className={`block px-2 py-1 text-[8.5px] tracking-[0.08em] 2xl:px-3.5 2xl:py-2 2xl:text-[10px] 2xl:tracking-[0.15em] uppercase font-semibold border rounded-md transition-all duration-300 whitespace-nowrap ${
                   isActive
                     ? "bg-stone-900 text-white border-stone-900 shadow-[0_4px_14px_rgba(0,0,0,0.35)]"
                     : useSolidInactive
