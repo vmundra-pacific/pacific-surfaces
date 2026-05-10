@@ -66,6 +66,7 @@ export default defineConfig({
                   .documentId("facadesAndFinishesPage")
               ),
             S.documentTypeListItem("spacePage").title("Space Pages"),
+            S.documentTypeListItem("learnTopic").title("Learn Topics"),
             S.divider(),
             S.documentTypeListItem("faqPage").title("FAQ Pages"),
             S.divider(),

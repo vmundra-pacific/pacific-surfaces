@@ -8,6 +8,23 @@ const baseClient = createClient({
   useCdn: true, // Set to false for always-fresh data
 });
 
+// Always-fresh client (useCdn: false). Use this for editor-managed
+// content where waiting for the Sanity CDN cache to expire is not
+// acceptable — the spacePage and learnTopic image documents in
+// particular, where editors expect their published changes to appear
+// on the site within a render cycle, not "in a minute or two when
+// the CDN catches up".
+//
+// Trade-off: every fetch bypasses Sanity's CDN, costing ~50-150 ms
+// extra latency vs the CDN-cached path. Reserve for content paths
+// where freshness matters more than that latency budget.
+const freshBaseClient = createClient({
+  projectId,
+  dataset,
+  apiVersion,
+  useCdn: false,
+});
+
 /**
  * Recursively walk an arbitrary JSON value and rewrite Sanity CDN
  * *file* URLs (videos, HD downloads) to a same-origin proxy path.
@@ -32,10 +49,7 @@ const SANITY_FILES_RE = /^https?:\/\/cdn\.sanity\.io\/files\//;
 function rewriteSanityUrls<T>(value: T): T {
   if (typeof value === "string") {
     if (SANITY_FILES_RE.test(value)) {
-      return value.replace(
-        SANITY_FILES_RE,
-        "/api/cdn/files/"
-      ) as unknown as T;
+      return value.replace(SANITY_FILES_RE, "/api/cdn/files/") as unknown as T;
     }
     return value;
   }
@@ -87,3 +101,27 @@ export const client = new Proxy(baseClient, {
  * never ends up in the browser. Most callers should use `client`.
  */
 export const rawClient = baseClient;
+
+/**
+ * Always-fresh client (bypasses Sanity CDN) WITH URL rewriting. Use
+ * for editor-managed content where new uploads should appear on
+ * site immediately instead of waiting for the Sanity CDN to expire
+ * its cached version (~1–2 minutes).
+ */
+export const freshClient = new Proxy(freshBaseClient, {
+  get(target, prop, receiver) {
+    if (prop === "fetch") {
+      const originalFetch = Reflect.get(
+        target,
+        prop,
+        receiver
+      ) as typeof target.fetch;
+      return (...args: Parameters<typeof originalFetch>) => {
+        return originalFetch
+          .apply(target, args)
+          .then((res) => rewriteSanityUrls(res));
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+}) as typeof freshBaseClient;

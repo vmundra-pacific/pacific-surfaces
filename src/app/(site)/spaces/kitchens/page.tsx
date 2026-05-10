@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { SpaceFeatureSection } from "@/components/sections/SpaceFeatureSection";
-import { client } from "@/sanity/lib/client";
+import { freshClient } from "@/sanity/lib/client";
 import { spacePageBySlugQuery } from "@/sanity/lib/queries";
 
 interface SpacePageImages {
@@ -58,7 +58,7 @@ export default async function KitchensSpacePage() {
   // doc doesn't exist yet — sections render with gradient
   // placeholders until an editor uploads photos.
   const images =
-    (await client.fetch<SpacePageImages | null>(spacePageBySlugQuery, {
+    (await freshClient.fetch<SpacePageImages | null>(spacePageBySlugQuery, {
       slug: "kitchens",
     })) ?? {};
   const sectionImages = [

@@ -13,6 +13,19 @@ export const spacePageBySlugQuery = groq`
   }
 `;
 
+// Learn topic — fetches the four body-section images for any
+// /learn/<slug> page (what-is-<product>, maintenance-<product>,
+// warranty-quartz). Returns null when no doc exists; sections fall
+// back to gradient placeholders.
+export const learnTopicBySlugQuery = groq`
+  *[_type == "learnTopic" && slug == $slug][0] {
+    "section1Image": section1Image.asset->url,
+    "section2Image": section2Image.asset->url,
+    "section3Image": section3Image.asset->url,
+    "section4Image": section4Image.asset->url
+  }
+`;
+
 // Catalogue page — lightweight projection for filter UI.
 //
 // `dominantColor` pulls Sanity's auto-computed palette so the hue

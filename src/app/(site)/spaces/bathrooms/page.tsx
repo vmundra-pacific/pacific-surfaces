@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { SpaceFeatureSection } from "@/components/sections/SpaceFeatureSection";
-import { client } from "@/sanity/lib/client";
+import { freshClient } from "@/sanity/lib/client";
 import { spacePageBySlugQuery } from "@/sanity/lib/queries";
 
 interface SpacePageImages {
@@ -55,7 +55,7 @@ const SECTIONS = [
 
 export default async function BathroomsSpacePage() {
   const images =
-    (await client.fetch<SpacePageImages | null>(spacePageBySlugQuery, {
+    (await freshClient.fetch<SpacePageImages | null>(spacePageBySlugQuery, {
       slug: "bathrooms",
     })) ?? {};
   const sectionImages = [

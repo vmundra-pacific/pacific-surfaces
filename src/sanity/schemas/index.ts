@@ -15,6 +15,7 @@ import jobApplication from "./jobApplication";
 import sustainabilityPage from "./sustainabilityPage";
 import facadesAndFinishesPage from "./facadesAndFinishesPage";
 import spacePage from "./spacePage";
+import learnTopic from "./learnTopic";
 
 import faqPage from "./faqPage";
 export const schemaTypes = [
@@ -35,5 +36,6 @@ export const schemaTypes = [
   sustainabilityPage,
   facadesAndFinishesPage,
   spacePage,
+  learnTopic,
   faqPage,
 ];

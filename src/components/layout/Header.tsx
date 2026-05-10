@@ -27,6 +27,10 @@ type MegaCategory = {
   coloursHref?: string;
   /** Override — slug used to compose `/learn/what-is-[X]`. Default = slug. */
   whatIsSlug?: string;
+  /** Optional thumbnail rendered inside the dropdown card (full-bleed,
+   *  object-cover). When set, replaces the gradient placeholder.
+   *  Currently used for the Spaces cards. */
+  imageUrl?: string;
 };
 
 const PRODUCTS_CATEGORIES: MegaCategory[] = [
@@ -34,46 +38,33 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     slug: "quartz",
     name: "Quartz",
     tagline: "Engineered stone for everyday surfaces.",
+    imageUrl: "/images/products/quartz.jpg",
   },
   {
     slug: "facades-and-finishes",
     name: "Façades and Finishes",
     tagline: "Large-format facade and feature surfaces.",
+    imageUrl: "/images/products/facades.png",
   },
   {
     slug: "vision",
     name: "Vision",
     tagline: "Inlayered design quartz surfaces.",
     coloursHref: "/products/quartz/chromia",
+    imageUrl: "/images/products/vision.png",
   },
   {
     slug: "granites",
     name: "Granites",
     tagline: "Quarry-to-kitchen natural stone.",
+    imageUrl: "/images/products/granites.png",
   },
   {
     slug: "semi-precious",
     name: "Semi-Precious",
     tagline: "Hand-selected gemstone surfaces.",
+    imageUrl: "/images/products/semi-precious.png",
   },
-];
-
-// PRODUCTS_APPLICATIONS — list of where each surface gets used, shown
-// in the right-hand column of the Products mega sub-panel. Same list
-// for every category (per editorial direction). All routes go to the
-// /learn/[topic] dynamic stub which gracefully falls back for slugs
-// that don't have explicit TOPIC_COPY entries yet.
-const PRODUCTS_APPLICATIONS: { slug: string; label: string }[] = [
-  { slug: "kitchen-countertops", label: "Kitchen Countertops" },
-  { slug: "kitchen-sinks", label: "Kitchen Sinks" },
-  { slug: "kitchen-cladding", label: "Kitchen Cladding" },
-  { slug: "furniture", label: "Furniture" },
-  { slug: "bathroom-countertops", label: "Bathroom Countertops" },
-  { slug: "bathroom-sinks", label: "Bathroom Sinks" },
-  { slug: "bathroom-cladding", label: "Bathroom Cladding" },
-  { slug: "shower-trays", label: "Shower Trays" },
-  { slug: "interior-cladding", label: "Interior Cladding" },
-  { slug: "facades", label: "Facades" },
 ];
 
 // SPACES_CATEGORIES — four rooms / environments where Pacific
@@ -87,62 +78,30 @@ const SPACES_CATEGORIES: MegaCategory[] = [
     name: "Kitchens",
     tagline: "Worktops, islands, and splashbacks.",
     coloursHref: "/spaces/kitchens",
+    imageUrl: "/images/spaces/kitchens.png",
   },
   {
     slug: "bathrooms",
     name: "Bathrooms",
     tagline: "Vanity tops, sinks, and shower trays.",
     coloursHref: "/spaces/bathrooms",
+    imageUrl: "/images/spaces/bathrooms.jpg",
   },
   {
     slug: "architecture",
     name: "Architecture",
     tagline: "Facades, cladding, and feature walls.",
     coloursHref: "/spaces/architecture",
+    imageUrl: "/images/spaces/architecture.png",
   },
   {
     slug: "commercial",
     name: "Commercial",
     tagline: "Hospitality, retail, and workspaces.",
     coloursHref: "/spaces/commercial",
+    imageUrl: "/images/spaces/commercial.jpg",
   },
 ];
-
-// SPACES_APPS_BY_SLUG — per-space application list. Routes go to the
-// /learn/[topic] dynamic stub. The slugs picked here intentionally
-// reuse PRODUCTS_APPLICATIONS where possible (kitchen-countertops,
-// shower-trays, facades) so we don't fragment the topic copy.
-const SPACES_APPS_BY_SLUG: Record<string, { slug: string; label: string }[]> = {
-  kitchens: [
-    { slug: "kitchen-countertops", label: "Kitchen Countertops" },
-    { slug: "kitchen-sinks", label: "Kitchen Sinks" },
-    { slug: "kitchen-islands", label: "Kitchen Islands" },
-    { slug: "kitchen-cladding", label: "Kitchen Cladding" },
-    { slug: "splashbacks", label: "Splashbacks" },
-    { slug: "furniture", label: "Furniture" },
-  ],
-  bathrooms: [
-    { slug: "bathroom-countertops", label: "Vanity Tops" },
-    { slug: "bathroom-sinks", label: "Bathroom Sinks" },
-    { slug: "shower-trays", label: "Shower Trays" },
-    { slug: "bathroom-cladding", label: "Bathroom Cladding" },
-    { slug: "bath-surrounds", label: "Bath Surrounds" },
-  ],
-  architecture: [
-    { slug: "facades", label: "Facades" },
-    { slug: "exterior-cladding", label: "Exterior Cladding" },
-    { slug: "interior-cladding", label: "Interior Cladding" },
-    { slug: "feature-walls", label: "Feature Walls" },
-    { slug: "floor-panels", label: "Floor Panels" },
-  ],
-  commercial: [
-    { slug: "reception-desks", label: "Reception Desks" },
-    { slug: "bar-tops", label: "Bar Tops" },
-    { slug: "tabletops", label: "Tabletops" },
-    { slug: "commercial-cladding", label: "Wall Cladding" },
-    { slug: "commercial-flooring", label: "Floor Tiles" },
-  ],
-};
 
 const navigation = [
   { name: "About", href: "/about" },
@@ -572,11 +531,22 @@ export default function Header() {
                                         className="flex flex-col text-left rounded-lg p-2 transition-colors hover:bg-white/[0.04]"
                                       >
                                         <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
-                                          <div className="absolute inset-0 flex items-center justify-center text-stone-500">
-                                            <span className="text-[9px] font-medium tracking-[0.3em] uppercase">
-                                              [ {cat.name.toLowerCase()} ]
-                                            </span>
-                                          </div>
+                                          {cat.imageUrl ? (
+                                            <Image
+                                              src={cat.imageUrl}
+                                              alt={cat.name}
+                                              fill
+                                              className="object-cover"
+                                              sizes="(min-width: 1024px) 25vw, 50vw"
+                                              priority={false}
+                                            />
+                                          ) : (
+                                            <div className="absolute inset-0 flex items-center justify-center text-stone-500">
+                                              <span className="text-[9px] font-medium tracking-[0.3em] uppercase">
+                                                [ {cat.name.toLowerCase()} ]
+                                              </span>
+                                            </div>
+                                          )}
                                         </div>
                                         <div className="px-1 pt-2.5 pb-0.5">
                                           <span className="text-sm lg:text-[15px] font-medium text-white tracking-tight block">
@@ -609,11 +579,22 @@ export default function Header() {
                                       )}
                                     >
                                       <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
-                                        <div className="absolute inset-0 flex items-center justify-center text-stone-500">
-                                          <span className="text-[9px] font-medium tracking-[0.3em] uppercase">
-                                            [ {cat.name.toLowerCase()} ]
-                                          </span>
-                                        </div>
+                                        {cat.imageUrl ? (
+                                          <Image
+                                            src={cat.imageUrl}
+                                            alt={cat.name}
+                                            fill
+                                            className="object-cover"
+                                            sizes="(min-width: 1024px) 20vw, 50vw"
+                                            priority={false}
+                                          />
+                                        ) : (
+                                          <div className="absolute inset-0 flex items-center justify-center text-stone-500">
+                                            <span className="text-[9px] font-medium tracking-[0.3em] uppercase">
+                                              [ {cat.name.toLowerCase()} ]
+                                            </span>
+                                          </div>
+                                        )}
                                       </div>
                                       <div className="px-1 pt-2.5 pb-0.5">
                                         <div className="flex items-center justify-between gap-1.5">
@@ -651,17 +632,15 @@ export default function Header() {
                                 {item.name !== "Spaces" &&
                                   activeMega &&
                                   (() => {
-                                    const isSpaces = item.name === "Spaces";
-                                    const cats = isSpaces
-                                      ? SPACES_CATEGORIES
-                                      : PRODUCTS_CATEGORIES;
-                                    const active = cats.find(
+                                    // Sub-panel only renders for Products
+                                    // (the gate on AnimatePresence above
+                                    // ensures `item.name !== "Spaces"`),
+                                    // so we can drop the isSpaces branches
+                                    // and the apps list here.
+                                    const active = PRODUCTS_CATEGORIES.find(
                                       (c) => c.slug === activeMega
                                     );
                                     if (!active) return null;
-                                    const apps = isSpaces
-                                      ? (SPACES_APPS_BY_SLUG[active.slug] ?? [])
-                                      : PRODUCTS_APPLICATIONS;
                                     return (
                                       <motion.div
                                         key="mega-sub"
@@ -675,102 +654,57 @@ export default function Header() {
                                         style={{ overflow: "hidden" }}
                                       >
                                         <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-x-6 gap-y-5">
-                                          {/* About / Explore column —
-                                          Products gets material 101
-                                          links (What is / Maintenance /
-                                          Warranty); Spaces gets
-                                          inspiration / project / design
-                                          notes. */}
-                                          <div className="lg:col-span-3">
+                                          {/* About column — material-101
+                                          links: What is, Maintenance,
+                                          Warranty. */}
+                                          <div className="lg:col-span-9">
                                             <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
-                                              {isSpaces
-                                                ? `Explore ${active.name}`
-                                                : `About ${active.name}`}
+                                              About {active.name}
                                             </h4>
                                             <ul className="space-y-2">
-                                              {isSpaces ? (
-                                                <>
-                                                  <li>
-                                                    <Link
-                                                      href={`/learn/${active.slug}-inspiration`}
-                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
-                                                    >
-                                                      Inspiration
-                                                    </Link>
-                                                  </li>
-                                                  <li>
-                                                    <Link
-                                                      href={`/learn/${active.slug}-projects`}
-                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
-                                                    >
-                                                      Project Gallery
-                                                    </Link>
-                                                  </li>
-                                                  <li>
-                                                    <Link
-                                                      href="/learn/design-notes"
-                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
-                                                    >
-                                                      Design Notes
-                                                    </Link>
-                                                  </li>
-                                                </>
-                                              ) : (
-                                                <>
-                                                  <li>
-                                                    <Link
-                                                      href={`/learn/what-is-${active.whatIsSlug ?? active.slug}`}
-                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
-                                                    >
-                                                      What is {active.name}?
-                                                    </Link>
-                                                  </li>
-                                                  <li>
-                                                    <Link
-                                                      href="/learn/maintenance"
-                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
-                                                    >
-                                                      Maintenance
-                                                    </Link>
-                                                  </li>
-                                                  <li>
-                                                    <Link
-                                                      href="/learn/warranty"
-                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
-                                                    >
-                                                      Warranty
-                                                    </Link>
-                                                  </li>
-                                                </>
+                                              <li>
+                                                <Link
+                                                  href={`/learn/what-is-${active.whatIsSlug ?? active.slug}`}
+                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                >
+                                                  What is {active.name}?
+                                                </Link>
+                                              </li>
+                                              <li>
+                                                {/* Per-product maintenance —
+                                                each product has its own
+                                                /learn/maintenance-<slug>
+                                                page with product-specific
+                                                care guidance. */}
+                                                <Link
+                                                  href={`/learn/maintenance-${active.whatIsSlug ?? active.slug}`}
+                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                >
+                                                  Maintenance
+                                                </Link>
+                                              </li>
+                                              {/* Warranty link appears ONLY
+                                              for Quartz — that's the only
+                                              product line carrying the
+                                              lifetime warranty. Other
+                                              products don't surface a
+                                              warranty link in the mega-menu
+                                              by editorial direction. */}
+                                              {active.slug === "quartz" && (
+                                                <li>
+                                                  <Link
+                                                    href="/learn/warranty-quartz"
+                                                    className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                  >
+                                                    Warranty
+                                                  </Link>
+                                                </li>
                                               )}
                                             </ul>
                                           </div>
-                                          {/* Applications / Inside column */}
-                                          <div className="lg:col-span-6">
-                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
-                                              {isSpaces
-                                                ? `Inside ${active.name}`
-                                                : `${active.name} Applications`}
-                                            </h4>
-                                            <ul className="grid grid-cols-2 gap-x-5 gap-y-2">
-                                              {apps.map((app) => (
-                                                <li key={app.slug}>
-                                                  <Link
-                                                    href={`/learn/${app.slug}`}
-                                                    className="text-sm font-light text-stone-300 hover:text-white transition-colors"
-                                                  >
-                                                    {app.label}
-                                                  </Link>
-                                                </li>
-                                              ))}
-                                            </ul>
-                                          </div>
-                                          {/* CTA — "<Cat> Colours" for
-                                          Products (links to catalogue
-                                          page); "Browse <Space>" for
-                                          Spaces (links to the most
-                                          relevant catalogue surface
-                                          for that room type). */}
+                                          {/* CTA pill — "<Cat> Colours"
+                                          links straight to the catalogue
+                                          page for the active category. */}
                                           <div className="lg:col-span-3 flex flex-col items-start lg:items-end justify-end">
                                             <Link
                                               href={
@@ -779,9 +713,7 @@ export default function Header() {
                                               }
                                               className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-white text-stone-900 text-[11px] font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
                                             >
-                                              {isSpaces
-                                                ? `Browse ${active.name}`
-                                                : `${active.name} Colours`}
+                                              {active.name}
                                               <ArrowRight className="w-4 h-4" />
                                             </Link>
                                           </div>
@@ -791,13 +723,12 @@ export default function Header() {
                                   })()}
                               </AnimatePresence>
                             </div>
-                            {/* Footer strip — Products-only secondary nav
-                            for the categories not surfaced as hero
+                            {/* Footer strip — Products-only secondary
+                            nav for the categories not surfaced as hero
                             cards (Exotic, Integra, Vanity) plus the
-                            "All Products" CTA. Hidden for the Spaces
-                            mega since none of those slugs apply
-                            there. */}
-                            {item.name !== "Spaces" ? (
+                            "All Products" CTA. Spaces mega has no
+                            footer strip — just the four cards. */}
+                            {item.name !== "Spaces" && (
                               <div className="border-t border-white/10 bg-[#0d1f29]">
                                 <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-between py-3">
                                   <div className="flex flex-wrap gap-x-7 gap-y-2">
@@ -825,23 +756,6 @@ export default function Header() {
                                     className="text-[12px] font-medium tracking-[0.2em] uppercase text-white inline-flex items-center gap-1.5 hover:gap-2 transition-all"
                                   >
                                     All Products
-                                    <ArrowRight className="w-3.5 h-3.5" />
-                                  </Link>
-                                </div>
-                              </div>
-                            ) : (
-                              /* Spaces mega gets a parallel "All Spaces"
-                             strip linking to the dedicated /spaces
-                             page (which still exists per editorial
-                             direction — dropdown supplements the
-                             page rather than replacing it). */
-                              <div className="border-t border-white/10 bg-[#0d1f29]">
-                                <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-end py-3">
-                                  <Link
-                                    href="/spaces"
-                                    className="text-[12px] font-medium tracking-[0.2em] uppercase text-white inline-flex items-center gap-1.5 hover:gap-2 transition-all"
-                                  >
-                                    Explore All Spaces
                                     <ArrowRight className="w-3.5 h-3.5" />
                                   </Link>
                                 </div>
