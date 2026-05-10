@@ -20,7 +20,7 @@ import { TextReveal } from "@/components/ui/text-reveal";
  *   - Eyebrow:  "PACIFIC SURFACES"
  *   - Headline: brand low-silica statement
  *   - Subhead:  "A LEADING BRAND FOR OVER 25+ YEARS…"
- *   - CTA:      "LEARN MORE ABOUT ECOSURFACES" → /ecosurfaces
+ *   - CTA:      "EXPLORE ECOSURFACES" → /ecosurfaces
  */
 export function EcosurfacesSection() {
   return (
@@ -91,7 +91,7 @@ export function EcosurfacesSection() {
               href="/ecosurfaces"
               className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 bg-white text-stone-900 text-xs font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
             >
-              Learn more about Ecosurfaces
+              Explore Ecosurfaces
               <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>

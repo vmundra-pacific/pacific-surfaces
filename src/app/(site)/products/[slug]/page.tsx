@@ -41,6 +41,12 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+// Bypass Next's data cache so ribbon-driven category pages
+// (Ecosurfaces) reflect Sanity edits on the next request rather than
+// only on a fresh deploy. Other category pages benefit too — toggling
+// a product's collection or visibility now propagates immediately.
+export const revalidate = 0;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
