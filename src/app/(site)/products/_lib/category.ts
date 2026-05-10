@@ -1,6 +1,6 @@
 import "server-only";
 import { groq } from "next-sanity";
-import { client } from "@/sanity/lib/client";
+import { client, freshClient } from "@/sanity/lib/client";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVideo";
 import type { Slab } from "@/data/slabs";
@@ -64,6 +64,17 @@ export interface CategoryConfig {
    * tailored video / copy. Override per-category as videos get made.
    */
   hero?: QuartzHeroVideoProps;
+  /**
+   * Optional ribbon label. When set, the category page filters
+   * products by the `ribbons[]` array on the product instead of by
+   * collection membership. Use for cross-collection programs like
+   * Ecosurfaces, where eligible products sit inside Kosmic /
+   * Nebula / etc. and are tagged via the Eco Surface ribbon.
+   *
+   * Matching is case-insensitive and whitespace-insensitive (so
+   * "Eco Surface" / "EcoSurface" / "eco surface" all match).
+   */
+  ribbon?: string;
 }
 
 export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
@@ -166,6 +177,13 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   },
   ecosurfaces: {
     match: "eco",
+    // Ribbon-driven category. Products live inside their parent
+    // collections (Kosmic, Nebula, Granite, …) and opt in to the
+    // Ecosurfaces page by toggling the "Eco Surface" ribbon in
+    // Sanity. The ribbon match is case- and whitespace-insensitive
+    // so editor typos ("EcoSurface", "eco surface") still resolve.
+    ribbon: "Eco Surface",
+    displayName: "Ecosurfaces",
     // posterOnly: hero now uses an editorial still rather than the
     // /videos/ecosurfaces.mp4 clip — the screenshot we approved is
     // the Eco surfaces brand image, dropped at /public/eco-surfaces-hero.png.
@@ -268,6 +286,30 @@ const productsByCollectionOrTypeQuery = groq`
   }
 `;
 
+// Ribbon-driven product query. Used by cross-collection categories
+// like Ecosurfaces. We pull every product that has at least one
+// ribbon entry, then narrow to the requested ribbon label in JS —
+// GROQ's `match` is token-based so "eco*surface" doesn't catch the
+// two-token string "eco surface". JS-side comparison sidesteps that
+// and lets us be case- and whitespace-insensitive.
+const productsWithAnyRibbonQuery = groq`
+  *[_type == "product" && defined(ribbons) && count(ribbons) > 0]
+    | order(name asc) {
+    _id,
+    name,
+    slug,
+    "mainImage": mainImage.asset->url,
+    "dominantColor": mainImage.asset->metadata.palette.dominant.background,
+    "collectionName": collection->name,
+    finishes,
+    thickness,
+    ribbons,
+    manualHues,
+    manualPattern,
+    visible
+  }
+`;
+
 interface ResolvedCategoryPage {
   config: CategoryConfig;
   collection: {
@@ -291,6 +333,40 @@ export async function resolveCategoryPage(
 ): Promise<ResolvedCategoryPage | null> {
   const config = CATEGORY_PAGES[slug];
   if (!config) return null;
+
+  // Ribbon-driven branch — bypass the collection lookup entirely and
+  // pull every product that has at least one ribbon, then narrow to
+  // the requested ribbon label in JS (case- and whitespace-insensitive
+  // so "Eco Surface" / "EcoSurface" / "eco surface" all match).
+  // GROQ's `match` is tokenised, so doing the comparison server-side
+  // misses two-word ribbon labels — pulling the candidate set and
+  // filtering client-side avoids that quirk entirely.
+  if (config.ribbon) {
+    const products = (await freshClient.fetch(
+      productsWithAnyRibbonQuery
+    )) as Array<Record<string, unknown> & { ribbons?: string[] | null }>;
+    // Normalise: lowercase and strip every non-alphanumeric character
+    // so "Eco Surface", "EcoSurface", "eco-surface", "Eco_Surface" all
+    // collapse to the same bare comparand.
+    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const want = norm(config.ribbon);
+    const filtered = products.filter((p) =>
+      (p.ribbons ?? []).some((r) => typeof r === "string" && norm(r) === want)
+    );
+    return {
+      config,
+      collection: {
+        _id: `__synth__/${slug}`,
+        name: config.displayName ?? config.match,
+        description: config.hero?.description ?? null,
+        seoTitle: null,
+        seoDescription: null,
+      },
+      slabs: mapSanityToCatalogue(
+        filtered as unknown as Parameters<typeof mapSanityToCatalogue>[0]
+      ),
+    };
+  }
 
   // Prefer slug-exact lookup when the config supplies one (it's the
   // unambiguous path). Fall back to the broader name-prefix match
