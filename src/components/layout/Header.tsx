@@ -76,38 +76,35 @@ const PRODUCTS_APPLICATIONS: { slug: string; label: string }[] = [
   { slug: "facades", label: "Facades" },
 ];
 
-// SPACES_CATEGORIES — five rooms / environments where Pacific surfaces
-// live. Mirrors the Products mega's structure: card click expands a
-// sub-panel showing what's inside that space. Each "Browse <Space>"
-// CTA routes to /learn/browse-<slug> — a stub page in the standard
-// /learn/[topic] dynamic route with TOPIC_COPY copy. When proper
-// per-space landing pages get built (likely /spaces/<slug>), update
-// `coloursHref` to point at them and the rest of the mega keeps
-// working unchanged.
+// SPACES_CATEGORIES — four rooms / environments where Pacific
+// surfaces live. Cards in the Spaces mega-menu are direct links
+// (NOT click-to-expand toggles like Products) — each navigates
+// straight to its dedicated /spaces/<slug> landing page, which
+// pairs four Pacific product callouts with image placeholders.
 const SPACES_CATEGORIES: MegaCategory[] = [
   {
     slug: "kitchens",
     name: "Kitchens",
     tagline: "Worktops, islands, and splashbacks.",
-    coloursHref: "/learn/browse-kitchens",
+    coloursHref: "/spaces/kitchens",
   },
   {
     slug: "bathrooms",
     name: "Bathrooms",
     tagline: "Vanity tops, sinks, and shower trays.",
-    coloursHref: "/learn/browse-bathrooms",
+    coloursHref: "/spaces/bathrooms",
   },
   {
     slug: "architecture",
     name: "Architecture",
     tagline: "Facades, cladding, and feature walls.",
-    coloursHref: "/learn/browse-architecture",
+    coloursHref: "/spaces/architecture",
   },
   {
     slug: "commercial",
     name: "Commercial",
     tagline: "Hospitality, retail, and workspaces.",
-    coloursHref: "/learn/browse-commercial",
+    coloursHref: "/spaces/commercial",
   },
 ];
 
@@ -541,9 +538,15 @@ export default function Header() {
                           edge against page content beneath. */}
                           <div className="bg-[#112732] shadow-[0_18px_60px_rgba(0,0,0,0.4)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain">
                             <div className="mx-auto max-w-[1400px] px-6 lg:px-8 py-5 lg:py-6">
-                              {/* Cards row — each card is a <button>
-                              that toggles its sub-panel. Active card
-                              gets a subtle highlight ring. */}
+                              {/* Cards row.
+                              - Products: each card is a <button>
+                                that toggles its sub-panel below.
+                                Active card gets a highlight ring,
+                                chevron rotates.
+                              - Spaces: each card is a direct <Link>
+                                to its destination — NO toggle, NO
+                                chevron, NO sub-panel. Click =
+                                navigate. */}
                               <div
                                 className={`grid gap-3 ${
                                   item.name === "Spaces"
@@ -555,6 +558,39 @@ export default function Header() {
                                   ? SPACES_CATEGORIES
                                   : PRODUCTS_CATEGORIES
                                 ).map((cat) => {
+                                  const isSpacesItem = item.name === "Spaces";
+
+                                  // Spaces — direct Link, no toggle.
+                                  if (isSpacesItem) {
+                                    return (
+                                      <Link
+                                        key={cat.slug}
+                                        href={
+                                          cat.coloursHref ??
+                                          `/products/${cat.slug}`
+                                        }
+                                        className="flex flex-col text-left rounded-lg p-2 transition-colors hover:bg-white/[0.04]"
+                                      >
+                                        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
+                                          <div className="absolute inset-0 flex items-center justify-center text-stone-500">
+                                            <span className="text-[9px] font-medium tracking-[0.3em] uppercase">
+                                              [ {cat.name.toLowerCase()} ]
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <div className="px-1 pt-2.5 pb-0.5">
+                                          <span className="text-sm lg:text-[15px] font-medium text-white tracking-tight block">
+                                            {cat.name}
+                                          </span>
+                                          <div className="text-[11px] font-light text-stone-400 leading-snug mt-0.5">
+                                            {cat.tagline}
+                                          </div>
+                                        </div>
+                                      </Link>
+                                    );
+                                  }
+
+                                  // Products — toggle button as before.
                                   const isActive = activeMega === cat.slug;
                                   return (
                                     <button
@@ -608,8 +644,12 @@ export default function Header() {
                               animate; switching between cards swaps
                               content in place without re-running the
                               expand animation. */}
+                              {/* Sub-panel only renders for Products.
+                                  Spaces cards are direct links — no
+                                  per-card sub-panel. */}
                               <AnimatePresence initial={false}>
-                                {activeMega &&
+                                {item.name !== "Spaces" &&
+                                  activeMega &&
                                   (() => {
                                     const isSpaces = item.name === "Spaces";
                                     const cats = isSpaces

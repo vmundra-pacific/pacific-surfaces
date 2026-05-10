@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
@@ -76,25 +77,18 @@ export function StatementSection({
             >
               {statement}
             </h2>
-            {/* Image placeholder — brand-toned gradient block. Drop a
-                real photo into /public/images/sustainability-statement.jpg
-                and replace this div with <Image> when the asset lands.
-                Same aspect ratio as the deck mock so swapping won't
-                reflow the page. */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d3947] via-[#2c4a5b] to-[#0f1f29] border border-white/10">
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-white/40 gap-3 px-8 text-center">
-                <span className="text-[10px] font-medium tracking-[0.3em] uppercase">
-                  Pacific brand visual
-                </span>
-                <span className="text-[10px] tracking-[0.2em] uppercase text-white/25">
-                  [ image placeholder ]
-                </span>
-              </div>
-              <div
-                className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-                }}
+            {/* Brand visual — real photo at
+              /public/images/sustainability-statement.png. Aspect kept
+              at 4:3 so the layout matches the placeholder version
+              that shipped earlier. */}
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0f1f29]">
+              <Image
+                src="/images/sustainability-statement.png"
+                alt="Pacific Surfaces brand visual — Taj vein bathroom"
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                priority={false}
               />
             </div>
           </div>

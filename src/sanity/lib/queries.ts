@@ -1,5 +1,18 @@
 import { groq } from "next-sanity";
 
+// Space page — fetches the four feature-section images for a single
+// /spaces/<slug> page (Kitchens, Bathrooms, Architecture, Commercial).
+// Returns null when the editor hasn't created a doc for that space
+// yet — the page falls back to gradient placeholders in that case.
+export const spacePageBySlugQuery = groq`
+  *[_type == "spacePage" && slug == $slug][0] {
+    "section1Image": section1Image.asset->url,
+    "section2Image": section2Image.asset->url,
+    "section3Image": section3Image.asset->url,
+    "section4Image": section4Image.asset->url
+  }
+`;
+
 // Catalogue page — lightweight projection for filter UI.
 //
 // `dominantColor` pulls Sanity's auto-computed palette so the hue

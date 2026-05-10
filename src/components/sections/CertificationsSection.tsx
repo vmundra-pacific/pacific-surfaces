@@ -84,29 +84,20 @@ export function CertificationsSection() {
             delay: 0.1,
             ease: [0.25, 0.4, 0.25, 1],
           }}
-          className="relative overflow-hidden bg-gradient-to-br from-[#1d3947] via-[#2c4a5b] to-[#0f1f29] min-h-[420px] lg:min-h-[520px]"
+          className="relative overflow-hidden bg-[#0f1f29] min-h-[420px] lg:min-h-[520px]"
         >
-          {/* Image placeholder caption — sits in the upper-middle
-                of the card so it reads as "where the photo will be"
-                rather than as a floating element. */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white/30 gap-2 px-8 text-center pointer-events-none">
-            <span className="text-[10px] font-medium tracking-[0.3em] uppercase">
-              Lab Certification Visual
-            </span>
-            <span className="text-[10px] tracking-[0.2em] uppercase text-white/20">
-              [ image placeholder ]
-            </span>
-          </div>
-          {/* Subtle grain on the gradient */}
-          <div
-            className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='nB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nB)'/%3E%3C/svg%3E")`,
-            }}
+          {/* Real lab/microscope photo behind the cert content. */}
+          <Image
+            src="/images/sgs-cert.png"
+            alt=""
+            aria-hidden="true"
+            fill
+            className="object-cover"
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            priority={false}
           />
-          {/* Bottom-up scrim so the cert text sits on a readable
-                gradient regardless of what the eventual photo looks
-                like. */}
+          {/* Bottom-up scrim — keeps the cert text + logo readable
+                regardless of which part of the photo it overlays. */}
           <div className="absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-black/85 via-black/55 to-transparent pointer-events-none" />
           {/* Card content — vertically centred, left-aligned text.
                 Inner wrapper is `flex flex-col items-start` so the

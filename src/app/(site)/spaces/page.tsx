@@ -23,25 +23,25 @@ const SPACES = [
     title: "Kitchens",
     blurb:
       "Quartz worktops engineered to take heat, knives, wine, and twenty-five years of weeknight cooking without flinching.",
-    href: "/products/quartz",
+    href: "/spaces/kitchens",
   },
   {
     title: "Bathrooms",
     blurb:
       "Vanity tops and wall surfaces with seamless joints, hand-finished edges, and stain resistance you don't have to think about.",
-    href: "/products/vanity",
+    href: "/spaces/bathrooms",
   },
   {
     title: "Architecture",
     blurb:
       "Super-jumbo slabs for facades, cladding, and feature walls — large-format surfaces that read as a single uninterrupted plane.",
-    href: "/products/facades-and-finishes",
+    href: "/spaces/architecture",
   },
   {
     title: "Commercial",
     blurb:
       "Hospitality, retail, workspace. Surfaces specified for high-traffic environments where appearance and durability both have to last.",
-    href: "/products",
+    href: "/spaces/commercial",
   },
 ];
 

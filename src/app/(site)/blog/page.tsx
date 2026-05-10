@@ -67,15 +67,20 @@ export default async function BlogPage() {
               wordmark left, copy + colophon right. Stacks on mobile. */}
           <header className="mb-14 lg:mb-20">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start lg:items-end">
-              {/* Wordmark — left column on desktop */}
+              {/* Wordmark — left column on desktop. The "Issue NN"
+                  eyebrow has been promoted to be the eyebrow only;
+                  the big-type wordmark below is now "The Pacific
+                  Journal" itself (was "Field / Notes"). Same font
+                  size, weight, and split-italic treatment so the
+                  visual hierarchy stays identical. */}
               <div className="lg:col-span-7">
                 <p className="text-[11px] sm:text-xs font-medium tracking-[0.32em] uppercase text-stone-500 mb-4 lg:mb-6">
-                  The Pacific Journal · Issue {String(totalCount).padStart(2, "0")}
+                  Issue {String(totalCount).padStart(2, "0")}
                 </p>
                 <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-tight text-[#112732] leading-[0.95]">
-                  Field
+                  The Pacific
                   <br />
-                  <em className="not-italic text-stone-500">Notes</em>
+                  <em className="not-italic text-stone-500">Journal</em>
                 </h1>
               </div>
 

@@ -1,71 +1,61 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Leaf } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { TextReveal } from "@/components/ui/text-reveal";
 
 /**
  * EcosurfacesSection — feature block for the Pacific Ecosurfaces line.
  *
- * Sits right after ApplicationsScrollSections on the homepage. Two-column
- * layout: image placeholder on the left, typographic stack + CTA on the
- * right. The "image" is intentionally a brand-toned placeholder block
- * for now — drop a real photo into /public/images/ecosurfaces.jpg and
- * swap the Image import in once the asset lands.
+ * Sits right after TrustStrip on the homepage. The Ecosurfaces photo
+ * (a low-silica slab with the eco material visible underneath) is the
+ * full-section background. A right-side dark gradient scrim ramps from
+ * transparent on the left (so the photo's subject reads cleanly) into
+ * the brand navy on the right (so the typographic stack overlaying it
+ * stays legible).
  *
- * Copy is taken straight from the Sidharth UI/UX deck:
- *   - Eyebrow:  "PACIFIC ECOSURFACES"
- *   - Headline: "THE FIRST MINERAL QUARTZ SURFACE WITH LOW SILICA CONTENT"
- *   - Subhead:  "THE SURFACE THAT CHANGED WHAT SAFE MEANS"
+ * Copy:
+ *   - Eyebrow:  "PACIFIC SURFACES"
+ *   - Headline: brand low-silica statement
+ *   - Subhead:  "A LEADING BRAND FOR OVER 25+ YEARS…"
  *   - CTA:      "LEARN MORE ABOUT ECOSURFACES" → /ecosurfaces
  */
 export function EcosurfacesSection() {
   return (
-    <section className="relative bg-[#112732] py-20 sm:py-28 md:py-36 px-6 overflow-hidden">
-      {/* Subtle grain overlay so the navy reads as deliberate
-          surface, matching the StatementSection treatment elsewhere
-          on the page. */}
-      <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
+    <section className="relative bg-[#0f1f29] overflow-hidden">
+      {/* Full-bleed background photo — covers the entire section
+          edge-to-edge without any side fade so the image is visible
+          across the full width. Object-cover keeps it filling the
+          section regardless of viewport aspect ratio. */}
+      <Image
+        src="/images/ecosurfaces.png"
+        alt=""
+        aria-hidden="true"
+        fill
+        className="object-cover"
+        sizes="100vw"
+        priority={false}
       />
-      <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-        {/* Image placeholder — navy-toned gradient block matching the
-            section bg. Same aspect ratio as a typical editorial
-            kitchen still so swapping in a real photo later doesn't
-            reflow the page. */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
-          className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#1d3947] via-[#2c4a5b] to-[#0f1f29] border border-white/10"
-        >
-          {/* Decorative leaf mark + caption so the placeholder reads as
-              an intentional visual rather than a missing asset. */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white/40 gap-3 px-8 text-center">
-            <Leaf className="w-10 h-10 stroke-[1.2] text-white/35" />
-            <span className="text-[10px] font-medium tracking-[0.3em] uppercase">
-              Ecosurfaces visual
-            </span>
-            <span className="text-[10px] tracking-[0.2em] uppercase text-white/25">
-              [ image placeholder ]
-            </span>
-          </div>
-          {/* Subtle grain so the gradient doesn't look flat. */}
-          <div
-            className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            }}
-          />
-        </motion.div>
 
-        {/* Type stack */}
-        <div>
+      {/* Soft uniform darken — applied across the entire image so the
+          white type stack reads cleanly regardless of which part of
+          the photo it overlays. Light enough that the image still
+          shows through, dark enough to anchor the text. */}
+      <div className="absolute inset-0 bg-black/35 pointer-events-none" />
+
+      {/* Content — stays in the right half on lg+, full-width on
+          smaller screens. min-h ensures the section has presence
+          without needing a fixed image height. */}
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-20 sm:py-28 md:py-36 grid grid-cols-1 lg:grid-cols-2 gap-10 min-h-[600px] lg:min-h-[700px]">
+        {/* Empty left column on lg+ so the photo's subject is visible
+            unobstructed. Hidden on smaller screens where the layout
+            stacks. */}
+        <div className="hidden lg:block" />
+
+        {/* Type stack — right column */}
+        <div className="flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-6">
             <span className="block w-8 h-px bg-white/40" />
             <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-white/60">
