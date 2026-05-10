@@ -186,7 +186,6 @@ export default function Header() {
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastMegaItemRef = useRef<string | null>(null);
   if (openMegaItem) lastMegaItemRef.current = openMegaItem;
-  const renderMegaItem = openMegaItem ?? lastMegaItemRef.current;
   const megaOpen = openMegaItem !== null;
 
   const handleMegaEnter = (itemName: string) => {
