@@ -414,18 +414,37 @@ export default function Header() {
                   }
                   onMouseLeave={item.mega ? handleMegaLeave : undefined}
                 >
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
-                      // Same colour treatment in both states now —
-                      // header bg is dark in both cases.
-                      "text-stone-300 hover:text-white"
-                    )}
-                  >
-                    {item.name}
-                    <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full" />
-                  </Link>
+                  {/* Spaces is intentionally non-clickable at the
+                  top level — hover still opens the mega-menu, but
+                  click should do nothing because navigation is
+                  meant to flow through the four space cards in the
+                  dropdown rather than a top-level /spaces overview
+                  page. Render as a <span> so there's no link target
+                  and no default browser behaviour to suppress. */}
+                  {item.name === "Spaces" ? (
+                    <span
+                      className={cn(
+                        "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2 cursor-default select-none",
+                        "text-stone-300 hover:text-white"
+                      )}
+                    >
+                      {item.name}
+                      <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full" />
+                    </span>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
+                        // Same colour treatment in both states now —
+                        // header bg is dark in both cases.
+                        "text-stone-300 hover:text-white"
+                      )}
+                    >
+                      {item.name}
+                      <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full" />
+                    </Link>
+                  )}
 
                   {/* Dropdown menu for Products — mega-menu variant
                       (5 category cards with sub-section links inside
@@ -704,7 +723,12 @@ export default function Header() {
                                           </div>
                                           {/* CTA pill — "<Cat> Colours"
                                           links straight to the catalogue
-                                          page for the active category. */}
+                                          page for the active category.
+                                          Façades and Finishes is the
+                                          one exception — its label drops
+                                          the "Colours" suffix because
+                                          the brand line isn't sold as a
+                                          colour catalogue. */}
                                           <div className="lg:col-span-3 flex flex-col items-start lg:items-end justify-end">
                                             <Link
                                               href={
@@ -713,7 +737,10 @@ export default function Header() {
                                               }
                                               className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-white text-stone-900 text-[11px] font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
                                             >
-                                              {active.name}
+                                              {active.slug ===
+                                              "facades-and-finishes"
+                                                ? active.name
+                                                : `${active.name} Colours`}
                                               <ArrowRight className="w-4 h-4" />
                                             </Link>
                                           </div>
