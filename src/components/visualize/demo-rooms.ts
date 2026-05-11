@@ -100,4 +100,130 @@ export const DEMO_ROOMS: DemoRoom[] = [
       },
     ],
   },
+  {
+    id: "kitchen-03",
+    label: "Kitchen 03",
+    category: "Kitchen",
+    src: "/demo-rooms/kitchen-03/room.png",
+    thumb: "/demo-rooms/kitchen-03/thumb.jpg",
+    credit: "Pacific Surfaces",
+    surfaces: [
+      {
+        id: "countertop",
+        label: "Countertop",
+        maskUrl: "/demo-rooms/kitchen-03/mask.png",
+        shadowUrl: "/demo-rooms/kitchen-03/shadow.png",
+        highlightsUrl: "/demo-rooms/kitchen-03/highlight.png",
+      },
+    ],
+  },
+  // ── Bathrooms ──
+  {
+    id: "bathroom-01",
+    label: "Bathroom 01",
+    category: "Bathroom",
+    src: "/demo-rooms/bathroom-01/room.png",
+    thumb: "/demo-rooms/bathroom-01/thumb.jpg",
+    credit: "Pacific Surfaces",
+    surfaces: [
+      {
+        id: "vanity",
+        label: "Vanity",
+        maskUrl: "/demo-rooms/bathroom-01/mask.png",
+        shadowUrl: "/demo-rooms/bathroom-01/shadow.png",
+        highlightsUrl: "/demo-rooms/bathroom-01/highlight.png",
+      },
+    ],
+  },
+  {
+    id: "bathroom-02",
+    label: "Bathroom 02",
+    category: "Bathroom",
+    src: "/demo-rooms/bathroom-02/room.png",
+    thumb: "/demo-rooms/bathroom-02/thumb.jpg",
+    credit: "Pacific Surfaces",
+    surfaces: [
+      {
+        id: "vanity",
+        label: "Vanity",
+        maskUrl: "/demo-rooms/bathroom-02/mask.png",
+        shadowUrl: "/demo-rooms/bathroom-02/shadow.png",
+        highlightsUrl: "/demo-rooms/bathroom-02/highlight.png",
+      },
+    ],
+  },
+  {
+    id: "bathroom-03",
+    label: "Bathroom 03",
+    category: "Bathroom",
+    src: "/demo-rooms/bathroom-03/room.png",
+    thumb: "/demo-rooms/bathroom-03/thumb.jpg",
+    credit: "Pacific Surfaces",
+    surfaces: [
+      {
+        id: "vanity",
+        label: "Vanity",
+        maskUrl: "/demo-rooms/bathroom-03/mask.png",
+        shadowUrl: "/demo-rooms/bathroom-03/shadow.png",
+        highlightsUrl: "/demo-rooms/bathroom-03/highlight.png",
+      },
+    ],
+  },
+  // ── Living Rooms ──
+  // Folder names on disk are legacy (wc-02, wc-03, wall-cladding-01)
+  // from earlier labels — the actual scenes are all living-room shots.
+  // Public-facing label + category here reflect what the user sees;
+  // internal asset paths stay unchanged so we don't churn the file
+  // system or break any cached URLs.
+  {
+    id: "wc-02",
+    label: "Living Room 01",
+    category: "Living",
+    src: "/demo-rooms/wc-02/room.png",
+    thumb: "/demo-rooms/wc-02/thumb.jpg",
+    credit: "Pacific Surfaces",
+    surfaces: [
+      {
+        id: "surface",
+        label: "Surface",
+        maskUrl: "/demo-rooms/wc-02/mask.png",
+        shadowUrl: "/demo-rooms/wc-02/shadow.png",
+        highlightsUrl: "/demo-rooms/wc-02/highlight.png",
+      },
+    ],
+  },
+  {
+    id: "wc-03",
+    label: "Living Room 02",
+    category: "Living",
+    src: "/demo-rooms/wc-03/room.png",
+    thumb: "/demo-rooms/wc-03/thumb.jpg",
+    credit: "Pacific Surfaces",
+    surfaces: [
+      {
+        id: "surface",
+        label: "Surface",
+        maskUrl: "/demo-rooms/wc-03/mask.png",
+        shadowUrl: "/demo-rooms/wc-03/shadow.png",
+        highlightsUrl: "/demo-rooms/wc-03/highlight.png",
+      },
+    ],
+  },
+  {
+    id: "wall-cladding-01",
+    label: "Living Room 03",
+    category: "Living",
+    src: "/demo-rooms/wall-cladding-01/room.png",
+    thumb: "/demo-rooms/wall-cladding-01/thumb.jpg",
+    credit: "Pacific Surfaces",
+    surfaces: [
+      {
+        id: "surface",
+        label: "Surface",
+        maskUrl: "/demo-rooms/wall-cladding-01/mask.png",
+        shadowUrl: "/demo-rooms/wall-cladding-01/shadow.png",
+        highlightsUrl: "/demo-rooms/wall-cladding-01/highlight.png",
+      },
+    ],
+  },
 ];
