@@ -110,6 +110,45 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
     const imgRef = useRef<HTMLImageElement | null>(null);
     const [loading, setLoading] = useState(true);
     const [working, setWorking] = useState(false);
+    // ── Zoom + pan (demo rooms only) ────────────────────────────────
+    // Enabled when `polygons` is set (curated demo rooms). Not enabled
+    // for AI-uploaded photos because the slab and surface detection
+    // already moves with the image — adding pan there would fight the
+    // tap-to-detect interaction. Wheel + buttons control zoom (1×–4×);
+    // drag pans when zoomed > 1.
+    const zoomEnabled = Boolean(polygons && polygons.length > 0);
+    const [zoomLevel, setZoomLevel] = useState(1);
+    const [pan, setPan] = useState({ x: 0, y: 0 });
+    const [isPanning, setIsPanning] = useState(false);
+    const panStartRef = useRef({
+      x: 0,
+      y: 0,
+      panX: 0,
+      panY: 0,
+      didMove: false,
+    });
+    const isZoomed = zoomLevel > 1;
+
+    const zoomIn = () =>
+      setZoomLevel((z) => Math.min(4, +(z + 0.5).toFixed(1)));
+    const zoomOut = () =>
+      setZoomLevel((z) => {
+        const next = Math.max(1, +(z - 0.5).toFixed(1));
+        if (next <= 1) setPan({ x: 0, y: 0 });
+        return next;
+      });
+    const resetZoom = () => {
+      setZoomLevel(1);
+      setPan({ x: 0, y: 0 });
+    };
+
+    // Reset zoom on scene change (new src) — otherwise switching rooms
+    // would inherit the previous room's pan position, which feels wrong.
+    useEffect(() => {
+      setZoomLevel(1);
+      setPan({ x: 0, y: 0 });
+    }, [src]);
+
     // Set while a slab-swap recomposite is running. Drives the
     // "Applying" overlay so the user has visible feedback during the
     // 100–600 ms it takes to render a fresh slab tile + composite it
@@ -669,12 +708,59 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
       };
     };
 
+    // ── Zoom + pan handlers ──
+    const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+      if (!zoomEnabled) return;
+      e.preventDefault();
+      if (e.deltaY < 0) zoomIn();
+      else zoomOut();
+    };
+
+    const handlePanStart = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!zoomEnabled) return;
+      panStartRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        panX: pan.x,
+        panY: pan.y,
+        didMove: false,
+      };
+      // Only switch into pan mode when zoomed in; at 1× a mousedown is
+      // always a tap. We still record the start position so we can
+      // detect drag-vs-click for tap suppression later.
+      if (isZoomed) setIsPanning(true);
+    };
+
+    const handlePanMove = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!isPanning) return;
+      const dx = e.clientX - panStartRef.current.x;
+      const dy = e.clientY - panStartRef.current.y;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+        panStartRef.current.didMove = true;
+      }
+      setPan({
+        x: panStartRef.current.panX + dx / zoomLevel,
+        y: panStartRef.current.panY + dy / zoomLevel,
+      });
+    };
+
+    const handlePanEnd = () => {
+      setIsPanning(false);
+    };
+
     const handleTap = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
         // While the manual frame editor is open, taps on the canvas
         // should NOT trigger SAM-2 / segmentation. The editor handles
         // its own pointer events for corner drag, edge insert, etc.
         if (manualTap) return;
+        // Suppress tap when the click was actually a pan drag (mouse
+        // moved >4px between down and up). Without this, releasing
+        // after a pan would always trigger a surface-tap.
+        if (panStartRef.current.didMove) {
+          panStartRef.current.didMove = false;
+          return;
+        }
 
         const pt = mapPointToImage(e);
         if (!pt) return;
@@ -903,6 +989,19 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         }
       : { cursor: "pointer" };
 
+    // Inline style for the inner transformed wrapper. Composes the
+    // current zoom + pan into a single CSS transform. translate is
+    // applied BEFORE scale so the pan offset is measured in pre-scaled
+    // pixels (matches how we update pan in handlePanMove).
+    const transformStyle: React.CSSProperties = zoomEnabled
+      ? {
+          transform: `scale(${zoomLevel}) translate(${pan.x}px, ${pan.y}px)`,
+          transformOrigin: "center center",
+          transition: isPanning ? "none" : "transform 0.18s ease-out",
+          cursor: isZoomed ? (isPanning ? "grabbing" : "grab") : "pointer",
+        }
+      : { cursor: "pointer" };
+
     return (
       <div
         className={
@@ -912,100 +1011,163 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         }
         style={wrapStyle}
         onClick={handleTap}
-        onMouseMove={handleMove}
-        onMouseLeave={() => setHoveredId(null)}
+        onMouseMove={(e) => {
+          handlePanMove(e);
+          handleMove(e);
+        }}
+        onMouseDown={handlePanStart}
+        onMouseUp={handlePanEnd}
+        onWheel={handleWheel}
+        onMouseLeave={() => {
+          handlePanEnd();
+          setHoveredId(null);
+        }}
       >
-        <canvas
-          ref={canvasRef}
-          className="block w-full h-full"
-          style={{ width: "100%", height: "100%" }}
-        />
-        <canvas
-          ref={overlayRef}
-          className="pointer-events-none absolute inset-0 w-full h-full"
-          style={{ width: "100%", height: "100%" }}
-        />
+        {/* Inner transformed wrapper — canvas + overlay + badges
+            scale and pan together. Loading overlay / manual editor /
+            zoom buttons sit OUTSIDE this and stay fixed at native
+            size so UI doesn't zoom with the photo. */}
+        <div className="absolute inset-0 w-full h-full" style={transformStyle}>
+          <canvas
+            ref={canvasRef}
+            className="block w-full h-full"
+            style={{ width: "100%", height: "100%" }}
+          />
+          <canvas
+            ref={overlayRef}
+            className="pointer-events-none absolute inset-0 w-full h-full"
+            style={{ width: "100%", height: "100%" }}
+          />
 
-        {/* Polygon hotspot badges — every surface stays visible so users
+          {/* Polygon hotspot badges — every surface stays visible so users
             can keep adding/removing selections after a slab is picked. */}
-        {!loading &&
-          precomputed.map(({ surface, candidate }, i) =>
-            renderBadge({
-              key: surface.id,
-              cx: (candidate.centroid.x / imgSize.w) * 100,
-              cy: (candidate.centroid.y / imgSize.h) * 100,
-              isActive: activeIds.includes(surface.id),
-              isHovered: hoveredId === surface.id,
-              dotContent: activeIds.includes(surface.id) ? "✓" : i + 1,
-              labelContent: surface.label,
-              animationDelay: i * 0.05,
-            })
-          )}
+          {!loading &&
+            precomputed.map(({ surface, candidate }, i) =>
+              renderBadge({
+                key: surface.id,
+                cx: (candidate.centroid.x / imgSize.w) * 100,
+                cy: (candidate.centroid.y / imgSize.h) * 100,
+                isActive: activeIds.includes(surface.id),
+                isHovered: hoveredId === surface.id,
+                dotContent: activeIds.includes(surface.id) ? "✓" : i + 1,
+                labelContent: surface.label,
+                animationDelay: i * 0.05,
+              })
+            )}
 
-        {/* AI mask hotspot badges — same multi-select treatment. */}
-        {!loading &&
-          aiSurfaces.map(({ id, label, candidate }, i) =>
-            renderBadge({
-              key: id,
-              cx: (candidate.centroid.x / imgSize.w) * 100,
-              cy: (candidate.centroid.y / imgSize.h) * 100,
-              isActive: activeIds.includes(id),
-              isHovered: hoveredId === id,
-              dotContent: activeIds.includes(id) ? "✓" : i + 1,
-              labelContent: label,
-              animationDelay: i * 0.05,
-            })
-          )}
+          {/* AI mask hotspot badges — same multi-select treatment. */}
+          {!loading &&
+            aiSurfaces.map(({ id, label, candidate }, i) =>
+              renderBadge({
+                key: id,
+                cx: (candidate.centroid.x / imgSize.w) * 100,
+                cy: (candidate.centroid.y / imgSize.h) * 100,
+                isActive: activeIds.includes(id),
+                isHovered: hoveredId === id,
+                dotContent: activeIds.includes(id) ? "✓" : i + 1,
+                labelContent: label,
+                animationDelay: i * 0.05,
+              })
+            )}
 
-        {/* Localised tap-ripple — shows immediately on tap, replaces the
+          {/* Localised tap-ripple — shows immediately on tap, replaces the
             full-canvas loading overlay with feedback at the click point.
             Two stacked layers: a soft hazy disc that spreads outward, and
             a tighter pulsing ring at the exact pixel. */}
-        <AnimatePresence>
-          {pendingTap && (
-            <motion.div
-              key="pending-ripple"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="pointer-events-none absolute"
-              style={{
-                left: `${pendingTap.relX * 100}%`,
-                top: `${pendingTap.relY * 100}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              {/* Outer hazy bloom — inverted on bright surfaces. */}
+          <AnimatePresence>
+            {pendingTap && (
               <motion.div
-                initial={{ scale: 0.4, opacity: 0.6 }}
-                animate={{ scale: 1.6, opacity: 0 }}
-                transition={{
-                  duration: 1.6,
-                  repeat: Infinity,
-                  ease: "easeOut",
-                }}
-                className="absolute -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full"
+                key="pending-ripple"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="pointer-events-none absolute"
                 style={{
-                  background: pendingTap.isBright
-                    ? "radial-gradient(circle, rgba(10,22,32,0.55) 0%, rgba(10,22,32,0.20) 40%, transparent 70%)"
-                    : "radial-gradient(circle, rgba(218,225,232,0.45) 0%, rgba(218,225,232,0.15) 40%, transparent 70%)",
-                  backdropFilter: "blur(3px)",
+                  left: `${pendingTap.relX * 100}%`,
+                  top: `${pendingTap.relY * 100}%`,
+                  transform: "translate(-50%, -50%)",
                 }}
-              />
-              {/* Inner pulsing dot at the exact tap pixel */}
-              <motion.div
-                animate={{ scale: [1, 1.25, 1], opacity: [0.95, 0.7, 0.95] }}
-                transition={{ duration: 1.2, repeat: Infinity }}
-                className={
-                  pendingTap.isBright
-                    ? "absolute -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-pacific-dark shadow-[0_0_16px_rgba(10,22,32,.85)]"
-                    : "absolute -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-pacific-light shadow-[0_0_16px_rgba(218,225,232,.85)]"
-                }
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+              >
+                {/* Outer hazy bloom — inverted on bright surfaces. */}
+                <motion.div
+                  initial={{ scale: 0.4, opacity: 0.6 }}
+                  animate={{ scale: 1.6, opacity: 0 }}
+                  transition={{
+                    duration: 1.6,
+                    repeat: Infinity,
+                    ease: "easeOut",
+                  }}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full"
+                  style={{
+                    background: pendingTap.isBright
+                      ? "radial-gradient(circle, rgba(10,22,32,0.55) 0%, rgba(10,22,32,0.20) 40%, transparent 70%)"
+                      : "radial-gradient(circle, rgba(218,225,232,0.45) 0%, rgba(218,225,232,0.15) 40%, transparent 70%)",
+                    backdropFilter: "blur(3px)",
+                  }}
+                />
+                {/* Inner pulsing dot at the exact tap pixel */}
+                <motion.div
+                  animate={{ scale: [1, 1.25, 1], opacity: [0.95, 0.7, 0.95] }}
+                  transition={{ duration: 1.2, repeat: Infinity }}
+                  className={
+                    pendingTap.isBright
+                      ? "absolute -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-pacific-dark shadow-[0_0_16px_rgba(10,22,32,.85)]"
+                      : "absolute -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-pacific-light shadow-[0_0_16px_rgba(218,225,232,.85)]"
+                  }
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        {/* ── End of inner transformed wrapper ─────────────────────
+            Everything below this comment renders at native size and
+            does NOT zoom/pan with the photo (loading overlay,
+            manual editor, zoom controls). */}
+
+        {/* Zoom controls — only visible on demo rooms. Three buttons
+            in the top-right: zoom out, reset, zoom in. Reset is
+            disabled (greyed) when already at 1×. */}
+        {zoomEnabled && !loading && (
+          <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-pacific-dark/85 border border-white/15 rounded-full p-1 shadow-[0_4px_14px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                zoomOut();
+              }}
+              disabled={zoomLevel <= 1}
+              className="w-7 h-7 flex items-center justify-center rounded-full text-pacific-light hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              aria-label="Zoom out"
+            >
+              <span className="text-lg leading-none">−</span>
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                resetZoom();
+              }}
+              disabled={zoomLevel === 1 && pan.x === 0 && pan.y === 0}
+              className="px-2 h-7 flex items-center justify-center rounded-full text-[10px] tracking-[.2em] uppercase text-pacific-light hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors tabular-nums"
+              aria-label="Reset zoom"
+            >
+              {zoomLevel.toFixed(1)}×
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                zoomIn();
+              }}
+              disabled={zoomLevel >= 4}
+              className="w-7 h-7 flex items-center justify-center rounded-full text-pacific-light hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              aria-label="Zoom in"
+            >
+              <span className="text-lg leading-none">+</span>
+            </button>
+          </div>
+        )}
 
         {/* Image-load / flood-fill / slab-apply overlay (covers the
             canvas). We keep this for the brief image-load, tap-flood-
