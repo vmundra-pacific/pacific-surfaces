@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { X, Search, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { sanityImg } from "@/lib/sanity-img";
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -171,7 +172,10 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                         {r.mainImage ? (
                           <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
                             <Image
-                              src={r.mainImage}
+                              src={
+                                sanityImg(r.mainImage, { w: 120 }) ??
+                                r.mainImage
+                              }
                               alt={r.name}
                               fill
                               sizes="56px"

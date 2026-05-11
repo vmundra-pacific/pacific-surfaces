@@ -1503,7 +1503,10 @@ export function ProductDetail({ product }: { product: Product }) {
                       <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-white/5 mb-3">
                         {rp.mainImage ? (
                           <Image
-                            src={rp.mainImage}
+                            src={
+                              sanityImg(rp.mainImage, { w: 600 }) ??
+                              rp.mainImage
+                            }
                             alt={rp.name}
                             fill
                             className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
@@ -2220,7 +2223,7 @@ function CompareSliderSection({
               >
                 {rp.mainImage ? (
                   <Image
-                    src={rp.mainImage}
+                    src={sanityImg(rp.mainImage, { w: 160 }) ?? rp.mainImage}
                     alt={rp.name}
                     fill
                     className="object-cover"
@@ -2388,7 +2391,10 @@ function CompareSliderSection({
                         <div className="relative aspect-square bg-stone-100">
                           {p.mainImage ? (
                             <Image
-                              src={p.mainImage}
+                              src={
+                                sanityImg(p.mainImage, { w: 300 }) ??
+                                p.mainImage
+                              }
                               alt={p.name}
                               fill
                               className="object-cover"

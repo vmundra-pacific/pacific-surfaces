@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { preload as reactPreload } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowRight, Search, ChevronDown } from "lucide-react";
+import { Menu, X, ArrowRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchOverlay } from "@/components/ui/search-overlay";
 
@@ -167,6 +168,23 @@ interface NavItem {
   children?: Array<{ name: string; href: string }>;
 }
 
+// Mega-menu thumbnails live inside <AnimatePresence>, so they don't
+// mount into the DOM until the user hovers — which means Next/Image's
+// lazy-load fires at hover time and the first reveal has a noticeable
+// fetch delay. Preloading them at page-load via React DOM injects
+// <link rel="preload"> hints so the browser pulls them down quietly
+// in the background; by the time someone hovers, they're in cache.
+function preloadMegaThumbs() {
+  if (typeof window === "undefined") return;
+  const urls = [
+    ...PRODUCTS_CATEGORIES.map((c) => c.imageUrl),
+    ...SPACES_CATEGORIES.map((c) => c.imageUrl),
+  ].filter((u): u is string => Boolean(u));
+  for (const url of urls) {
+    reactPreload(url, { as: "image", fetchPriority: "low" });
+  }
+}
+
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -176,13 +194,10 @@ export default function Header() {
   //    ("Products" or "Spaces" or null). Drives header bg colour
   //    (navy whenever any mega is open) and which content renders
   //    inside the shared dropdown panel.
-  //  - `activeMega` — which category card within the open mega has
-  //    its sub-panel expanded.
   //  - `lastMegaItemRef` — last truthy `openMegaItem` value, used so
   //    the panel content stays correct while AnimatePresence runs
   //    its exit animation (during which `openMegaItem` is null).
   const [openMegaItem, setOpenMegaItem] = useState<string | null>(null);
-  const [activeMega, setActiveMega] = useState<string | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastMegaItemRef = useRef<string | null>(null);
   if (openMegaItem) lastMegaItemRef.current = openMegaItem;
@@ -193,22 +208,14 @@ export default function Header() {
       clearTimeout(closeTimerRef.current);
       closeTimerRef.current = null;
     }
-    // When user moves between two different mega triggers (Products
-    // → Spaces or vice versa) the active card from the previous mega
-    // is no longer relevant — reset so the new mega opens cleanly.
-    if (openMegaItem !== itemName) {
-      setActiveMega(null);
-    }
     setOpenMegaItem(itemName);
   };
   const handleMegaLeave = () => {
     // 150 ms grace so moving the cursor across the small gap between
-    // trigger Link and panel (or between cards in the panel) doesn't
-    // snap-close the menu. Anything longer than that is a genuine
-    // exit and the menu collapses + active card resets.
+    // trigger Link and panel doesn't snap-close the menu. Anything
+    // longer than that is a genuine exit and the menu collapses.
     closeTimerRef.current = setTimeout(() => {
       setOpenMegaItem(null);
-      setActiveMega(null);
     }, 150);
   };
 
@@ -218,6 +225,16 @@ export default function Header() {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Preload the 9 mega-menu thumbnails on first mount so they're in
+  // browser cache by the time the user hovers a dropdown trigger.
+  // Without this, Next/Image lazy-loads each <Image> only when its
+  // AnimatePresence parent mounts (i.e. on hover) and the first hover
+  // shows a fetch delay. Low fetchPriority means these don't compete
+  // with above-the-fold content for bandwidth.
+  useEffect(() => {
+    preloadMegaThumbs();
   }, []);
 
   // Lock body scroll while the mobile menu is open so the page
@@ -246,7 +263,6 @@ export default function Header() {
       closeTimerRef.current = null;
     }
     setOpenMegaItem(null);
-    setActiveMega(null);
     setMobileOpen(false);
   }, [pathname]);
 
@@ -275,7 +291,24 @@ export default function Header() {
   // The three <Image>s below are stacked at the same coordinates;
   // only the matching opacity flips to 100. Crossfades are smooth.
   const isHomepage = pathname === "/";
-  const monogramVariant: "dark" | "navy" | "light" = scrolled
+
+  // Some pages render a LIGHT/cream PageHeader directly under the
+  // navbar (Spaces sub-pages, Learn sub-pages, etc.). The default
+  // top-of-page gradient scrim only works over dark video heroes —
+  // over cream it leaves the nav text invisible until the user
+  // scrolls. For these paths, force the header into its "scrolled"
+  // navy treatment from the start so links stay legible.
+  const isLightHeroPath =
+    pathname === "/spaces" ||
+    pathname.startsWith("/spaces/") ||
+    pathname.startsWith("/learn/") ||
+    pathname === "/resources" ||
+    pathname.startsWith("/resources/") ||
+    pathname === "/blog" ||
+    pathname.startsWith("/blog/");
+  const headerDark = scrolled || isLightHeroPath;
+
+  const monogramVariant: "dark" | "navy" | "light" = headerDark
     ? "navy"
     : isHomepage
       ? "dark"
@@ -301,7 +334,7 @@ export default function Header() {
           //    and dark video heroes.
           megaOpen
             ? "bg-[#112732] backdrop-blur-xl"
-            : scrolled
+            : headerDark
               ? "bg-[#112732]/95 backdrop-blur-xl"
               : "bg-gradient-to-b from-black/45 via-black/20 to-transparent backdrop-blur-[2px]"
         )}
@@ -515,15 +548,10 @@ export default function Header() {
                           edge against page content beneath. */}
                           <div className="bg-[#112732] shadow-[0_18px_60px_rgba(0,0,0,0.4)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain">
                             <div className="mx-auto max-w-[1400px] px-6 lg:px-8 py-5 lg:py-6">
-                              {/* Cards row.
-                              - Products: each card is a <button>
-                                that toggles its sub-panel below.
-                                Active card gets a highlight ring,
-                                chevron rotates.
-                              - Spaces: each card is a direct <Link>
-                                to its destination — NO toggle, NO
-                                chevron, NO sub-panel. Click =
-                                navigate. */}
+                              {/* Cards row. Both Products and Spaces
+                              render as direct Links — click =
+                              navigate, no sub-panel, no toggle.
+                              Products: 5-card grid; Spaces: 4-card. */}
                               <div
                                 className={`grid gap-3 ${
                                   item.name === "Spaces"
@@ -535,66 +563,14 @@ export default function Header() {
                                   ? SPACES_CATEGORIES
                                   : PRODUCTS_CATEGORIES
                                 ).map((cat) => {
-                                  const isSpacesItem = item.name === "Spaces";
-
-                                  // Spaces — direct Link, no toggle.
-                                  if (isSpacesItem) {
-                                    return (
-                                      <Link
-                                        key={cat.slug}
-                                        href={
-                                          cat.coloursHref ??
-                                          `/products/${cat.slug}`
-                                        }
-                                        className="flex flex-col text-left rounded-lg p-2 transition-colors hover:bg-white/[0.04]"
-                                      >
-                                        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
-                                          {cat.imageUrl ? (
-                                            <Image
-                                              src={cat.imageUrl}
-                                              alt={cat.name}
-                                              fill
-                                              className="object-cover"
-                                              sizes="(min-width: 1024px) 25vw, 50vw"
-                                              priority={false}
-                                            />
-                                          ) : (
-                                            <div className="absolute inset-0 flex items-center justify-center text-stone-500">
-                                              <span className="text-[9px] font-medium tracking-[0.3em] uppercase">
-                                                [ {cat.name.toLowerCase()} ]
-                                              </span>
-                                            </div>
-                                          )}
-                                        </div>
-                                        <div className="px-1 pt-2.5 pb-0.5">
-                                          <span className="text-sm lg:text-[15px] font-medium text-white tracking-tight block">
-                                            {cat.name}
-                                          </span>
-                                          <div className="text-[11px] font-light text-stone-400 leading-snug mt-0.5">
-                                            {cat.tagline}
-                                          </div>
-                                        </div>
-                                      </Link>
-                                    );
-                                  }
-
-                                  // Products — toggle button as before.
-                                  const isActive = activeMega === cat.slug;
                                   return (
-                                    <button
+                                    <Link
                                       key={cat.slug}
-                                      type="button"
-                                      onClick={() =>
-                                        setActiveMega(
-                                          isActive ? null : cat.slug
-                                        )
+                                      href={
+                                        cat.coloursHref ??
+                                        `/products/${cat.slug}`
                                       }
-                                      className={cn(
-                                        "flex flex-col text-left rounded-lg p-2 transition-colors",
-                                        isActive
-                                          ? "bg-white/[0.06] ring-1 ring-white/15"
-                                          : "hover:bg-white/[0.04]"
-                                      )}
+                                      className="flex flex-col text-left rounded-lg p-2 transition-colors hover:bg-white/[0.04]"
                                     >
                                       <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
                                         {cat.imageUrl ? (
@@ -603,7 +579,11 @@ export default function Header() {
                                             alt={cat.name}
                                             fill
                                             className="object-cover"
-                                            sizes="(min-width: 1024px) 20vw, 50vw"
+                                            sizes={
+                                              item.name === "Spaces"
+                                                ? "(min-width: 1024px) 25vw, 50vw"
+                                                : "(min-width: 1024px) 20vw, 50vw"
+                                            }
                                             priority={false}
                                           />
                                         ) : (
@@ -615,139 +595,17 @@ export default function Header() {
                                         )}
                                       </div>
                                       <div className="px-1 pt-2.5 pb-0.5">
-                                        <div className="flex items-center justify-between gap-1.5">
-                                          <span className="text-sm lg:text-[15px] font-medium text-white tracking-tight">
-                                            {cat.name}
-                                          </span>
-                                          <ChevronDown
-                                            className={cn(
-                                              "w-3.5 h-3.5 text-stone-400 transition-transform shrink-0",
-                                              isActive ? "rotate-180" : ""
-                                            )}
-                                          />
-                                        </div>
+                                        <span className="text-sm lg:text-[15px] font-medium text-white tracking-tight block">
+                                          {cat.name}
+                                        </span>
                                         <div className="text-[11px] font-light text-stone-400 leading-snug mt-0.5">
                                           {cat.tagline}
                                         </div>
                                       </div>
-                                    </button>
+                                    </Link>
                                   );
                                 })}
                               </div>
-
-                              {/* Expanded sub-panel — Framer Motion slide
-                              + fade so opening / closing the panel
-                              feels physical instead of snapping. Key
-                              is constant ("mega-sub") so the wrapper
-                              stays mounted and only height/opacity
-                              animate; switching between cards swaps
-                              content in place without re-running the
-                              expand animation. */}
-                              {/* Sub-panel only renders for Products.
-                                  Spaces cards are direct links — no
-                                  per-card sub-panel. */}
-                              <AnimatePresence initial={false}>
-                                {item.name !== "Spaces" &&
-                                  activeMega &&
-                                  (() => {
-                                    // Sub-panel only renders for Products
-                                    // (the gate on AnimatePresence above
-                                    // ensures `item.name !== "Spaces"`),
-                                    // so we can drop the isSpaces branches
-                                    // and the apps list here.
-                                    const active = PRODUCTS_CATEGORIES.find(
-                                      (c) => c.slug === activeMega
-                                    );
-                                    if (!active) return null;
-                                    return (
-                                      <motion.div
-                                        key="mega-sub"
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: "auto", opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        transition={{
-                                          duration: 0.32,
-                                          ease: [0.25, 0.4, 0.25, 1],
-                                        }}
-                                        style={{ overflow: "hidden" }}
-                                      >
-                                        <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-x-6 gap-y-5">
-                                          {/* About column — material-101
-                                          links: What is, Maintenance,
-                                          Warranty. */}
-                                          <div className="lg:col-span-9">
-                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
-                                              About {active.name}
-                                            </h4>
-                                            <ul className="space-y-2">
-                                              <li>
-                                                <Link
-                                                  href={`/learn/what-is-${active.whatIsSlug ?? active.slug}`}
-                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
-                                                >
-                                                  What is {active.name}?
-                                                </Link>
-                                              </li>
-                                              <li>
-                                                {/* Per-product maintenance —
-                                                each product has its own
-                                                /learn/maintenance-<slug>
-                                                page with product-specific
-                                                care guidance. */}
-                                                <Link
-                                                  href={`/learn/maintenance-${active.whatIsSlug ?? active.slug}`}
-                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
-                                                >
-                                                  Maintenance
-                                                </Link>
-                                              </li>
-                                              {/* Warranty link appears ONLY
-                                              for Quartz — that's the only
-                                              product line carrying the
-                                              lifetime warranty. Other
-                                              products don't surface a
-                                              warranty link in the mega-menu
-                                              by editorial direction. */}
-                                              {active.slug === "quartz" && (
-                                                <li>
-                                                  <Link
-                                                    href="/learn/warranty-quartz"
-                                                    className="text-sm font-light text-stone-300 hover:text-white transition-colors"
-                                                  >
-                                                    Warranty
-                                                  </Link>
-                                                </li>
-                                              )}
-                                            </ul>
-                                          </div>
-                                          {/* CTA pill — "<Cat> Colours"
-                                          links straight to the catalogue
-                                          page for the active category.
-                                          Façades and Finishes is the
-                                          one exception — its label drops
-                                          the "Colours" suffix because
-                                          the brand line isn't sold as a
-                                          colour catalogue. */}
-                                          <div className="lg:col-span-3 flex flex-col items-start lg:items-end justify-end">
-                                            <Link
-                                              href={
-                                                active.coloursHref ??
-                                                `/products/${active.slug}`
-                                              }
-                                              className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-white text-stone-900 text-[11px] font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
-                                            >
-                                              {active.slug ===
-                                              "facades-and-finishes"
-                                                ? active.name
-                                                : `${active.name} Colours`}
-                                              <ArrowRight className="w-4 h-4" />
-                                            </Link>
-                                          </div>
-                                        </div>
-                                      </motion.div>
-                                    );
-                                  })()}
-                              </AnimatePresence>
                             </div>
                             {/* Footer strip — Products-only secondary
                             nav for the categories not surfaced as hero
@@ -838,7 +696,7 @@ export default function Header() {
                 href="/visualize"
                 className={cn(
                   "hidden 2xl:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 xl:px-6 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
-                  scrolled
+                  headerDark
                     ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
                     : "bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20"
                 )}
@@ -854,7 +712,7 @@ export default function Header() {
                   // Scrolled now uses a solid white pill for max
                   // contrast against the dark navy header. Top of
                   // page keeps the translucent glass-pill style.
-                  scrolled
+                  headerDark
                     ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
                     : "bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20"
                 )}

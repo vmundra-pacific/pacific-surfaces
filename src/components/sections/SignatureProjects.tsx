@@ -9,7 +9,7 @@ import { TextReveal } from "@/components/ui/text-reveal";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { sanityProxyUrl } from "@/lib/sanity-img";
+import { sanityImg, sanityProxyUrl } from "@/lib/sanity-img";
 
 interface SanityProject {
   _id: string;
@@ -318,7 +318,7 @@ function ProjectCard({
         />
       ) : item.image ? (
         <Image
-          src={item.image}
+          src={sanityImg(item.image, { w: 1200 }) ?? item.image}
           alt={`${item.name} — Pacific Surfaces project`}
           fill
           {...(item.imageLqip

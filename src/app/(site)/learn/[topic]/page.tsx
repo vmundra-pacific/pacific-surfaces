@@ -201,7 +201,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
       {
         heading: "Inlayered design",
         content:
-          "Vision slabs are built up in layers during the engineered quartz manufacturing process. Pigments and aggregates are placed in specific patterns through the slab's depth — so when the slab is cut, profiled, or mitred, the design continues across the cut face. Conventional quartz has a surface pattern; Vision has a structural one.",
+          "Vision slabs are built up in layers during the engineered quartz manufacturing process. Pigments and aggregates are placed in specific patterns through the slab's depth — so when the slab is cut, profiled, or mitred, the design continues across the cut face.",
         imageLabel: "Inlayered cross-section",
       },
       {

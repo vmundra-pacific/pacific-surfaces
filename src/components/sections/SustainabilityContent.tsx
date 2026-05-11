@@ -26,6 +26,7 @@ import {
   StaggerItem,
 } from "@/components/ui/animated-section";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { sanityImg } from "@/lib/sanity-img";
 
 /* ------------------------------------------------------------------ *
  * Sanity data shape                                                   *
@@ -469,7 +470,7 @@ export function SustainabilityContent({
                 <div className="relative aspect-[5/4] rounded-2xl overflow-hidden bg-white/5 border border-white/10">
                   {init.image ? (
                     <Image
-                      src={init.image}
+                      src={sanityImg(init.image, { w: 1200 }) ?? init.image}
                       alt={init.title}
                       fill
                       className="object-cover"

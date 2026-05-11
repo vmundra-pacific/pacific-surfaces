@@ -132,13 +132,14 @@ export function HomepageSectionNav() {
       className="fixed left-2 2xl:left-6 top-1/2 -translate-y-1/2 z-30 hidden xl:block"
       aria-label="Homepage section navigation"
     >
-      <ul className="flex flex-col gap-1.5 2xl:gap-2">
+      <ul className="flex flex-col gap-2.5 2xl:gap-3">
         {SECTIONS.map((s) => {
           const isActive = active === s.id;
-          // Switch inactive pills to solid-dark backdrop only when the
-          // user is actively inside one of the busy/light-bg sections
-          // listed above. Default everywhere else: mix-blend-difference
-          // outlined chip (preserved per editorial preference).
+          // On light/busy sections (cream Inspiration grid) we lose
+          // mix-blend-difference and use solid-white text + dot. On
+          // every other section the bullet + label use
+          // mix-blend-difference for auto-contrast against whatever's
+          // behind (dark navy, marble, photo).
           const useSolidInactive =
             active !== null && SECTIONS_NEED_SOLID_BG.has(active);
           return (
@@ -146,26 +147,29 @@ export function HomepageSectionNav() {
               <a
                 href={`#${s.id}`}
                 onClick={(e) => handleClick(e, s.id)}
-                // Pill / tab style.
-                //  - Inactive (default): outlined chip with
-                //    mix-blend-difference for auto-contrast against
-                //    whatever's behind. Works well over dark navy,
-                //    marble parallax, and most photo backgrounds.
-                //  - Inactive (light/busy section override): solid
-                //    dark glass backdrop instead of mix-blend, so
-                //    the white label stays legible when the section
-                //    bg is too close in value to the text colour.
-                //  - Hover/Active: solid dark pill (bg-stone-900 +
-                //    white text) with a heavy shadow — high contrast
-                //    on every section type.
-                className={`block px-2 py-1 text-[8.5px] tracking-[0.08em] 2xl:px-3.5 2xl:py-2 2xl:text-[10px] 2xl:tracking-[0.15em] uppercase font-semibold border rounded-md transition-all duration-300 whitespace-nowrap ${
+                // Bulleted nav: a small dot + label. No outline, no
+                // pill background. Active item = filled dot + brighter
+                // label; inactive = hollow ring + dimmer label. Group
+                // hover swells the dot slightly so the click target
+                // feels alive without bringing back a rectangle.
+                className={`group inline-flex items-center gap-2.5 2xl:gap-3 px-1 py-0.5 text-[9px] tracking-[0.18em] 2xl:text-[10.5px] 2xl:tracking-[0.22em] uppercase font-semibold transition-colors duration-300 whitespace-nowrap ${
                   isActive
-                    ? "bg-stone-900 text-white border-stone-900 shadow-[0_4px_14px_rgba(0,0,0,0.35)]"
+                    ? useSolidInactive
+                      ? "text-white"
+                      : "text-white mix-blend-difference"
                     : useSolidInactive
-                      ? "bg-black/45 backdrop-blur-md border-white/40 text-white hover:bg-stone-900 hover:text-white hover:border-stone-900 hover:shadow-[0_4px_14px_rgba(0,0,0,0.35)]"
-                      : "border-white/70 text-white mix-blend-difference hover:mix-blend-normal hover:bg-stone-900 hover:text-white hover:border-stone-900 hover:shadow-[0_4px_14px_rgba(0,0,0,0.35)]"
+                      ? "text-white/70 hover:text-white"
+                      : "text-white/85 mix-blend-difference hover:text-white"
                 }`}
               >
+                <span
+                  className={`inline-block rounded-full transition-all duration-300 ${
+                    isActive
+                      ? "w-2 h-2 2xl:w-2.5 2xl:h-2.5 bg-current"
+                      : "w-1.5 h-1.5 2xl:w-2 2xl:h-2 border border-current bg-transparent group-hover:bg-current"
+                  }`}
+                  aria-hidden="true"
+                />
                 {s.label}
               </a>
             </li>

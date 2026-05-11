@@ -28,6 +28,7 @@ import { motion } from "framer-motion";
 import { ChevronRight, Clock, ArrowLeft } from "lucide-react";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { urlForImage } from "@/sanity/lib/image";
+import { sanityImg } from "@/lib/sanity-img";
 import type { Image as SanityImage } from "sanity";
 
 interface BlogPost {
@@ -178,7 +179,7 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
               className="mb-12 aspect-[16/9] rounded-2xl overflow-hidden bg-stone-200"
             >
               <Image
-                src={post.mainImage}
+                src={sanityImg(post.mainImage, { w: 1600 }) ?? post.mainImage}
                 alt={post.title}
                 width={1400}
                 height={787}

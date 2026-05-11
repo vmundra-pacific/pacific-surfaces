@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/animated-section";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { OrderSampleModal } from "@/components/ui/order-sample-modal";
+import { sanityImg } from "@/lib/sanity-img";
 
 /* ---------- types ----------------------------------------------- */
 
@@ -509,7 +510,7 @@ function FinishTile({
         >
           {finish.mainImage ? (
             <Image
-              src={finish.mainImage}
+              src={sanityImg(finish.mainImage, { w: 800 }) ?? finish.mainImage}
               alt={finish.name}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"

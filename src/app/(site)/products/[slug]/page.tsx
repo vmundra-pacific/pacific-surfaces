@@ -5,6 +5,10 @@ import { client } from "@/sanity/lib/client";
 import { productBySlugQuery } from "@/sanity/lib/queries";
 import { ProductDetail } from "@/components/sections/ProductDetail";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
+import {
+  LearnAboutCategory,
+  type LearnLink,
+} from "@/components/sections/LearnAboutCategory";
 import { FAQ } from "@/components/sections/FAQ";
 import { getFaqs, type FaqPageKey } from "@/lib/faqs";
 import { zoomImageUrl } from "@/lib/zoom-image";
@@ -40,6 +44,117 @@ import {
 interface Props {
   params: Promise<{ slug: string }>;
 }
+
+// Learn-block configuration per category slug. The "About <Cat>"
+// section on each category page (between catalogue and FAQ) renders
+// these as link cards. Only Quartz carries a lifetime warranty, so
+// only that slug has a third Warranty link.
+const LEARN_LINKS_BY_CATEGORY: Record<string, LearnLink[]> = {
+  quartz: [
+    {
+      label: "What is Quartz?",
+      href: "/learn/what-is-quartz",
+      description:
+        "Material 101 — engineered quartz composition, manufacturing, performance, and where Pacific quartz lives.",
+    },
+    {
+      label: "Maintenance",
+      href: "/learn/maintenance-quartz",
+      description:
+        "Daily care, what to avoid, spills, and long-term upkeep for Pacific Quartz.",
+    },
+    {
+      label: "Warranty",
+      href: "/learn/warranty-quartz",
+      description:
+        "Lifetime limited warranty on every Pacific Quartz residential installation — what's covered and how to register.",
+    },
+  ],
+  granites: [
+    {
+      label: "What is Granite?",
+      href: "/learn/what-is-granites",
+      description:
+        "Geological origin, quarrying, finishing, and where Pacific granite shines in residential and commercial projects.",
+    },
+    {
+      label: "Maintenance",
+      href: "/learn/maintenance-granites",
+      description:
+        "Daily care, sealing, heat and impact, and spill response for natural granite.",
+    },
+  ],
+  "semi-precious": [
+    {
+      label: "What is Semi-Precious Stone?",
+      href: "/learn/what-is-semi-precious",
+      description:
+        "Composition, hand-laid craft, and where Pacific semi-precious surfaces work best.",
+    },
+    {
+      label: "Maintenance",
+      href: "/learn/maintenance-semi-precious",
+      description:
+        "Gentle daily care, what to avoid, and where these surfaces work best.",
+    },
+  ],
+  "facades-and-finishes": [
+    {
+      label: "What are Façades and Finishes?",
+      href: "/learn/what-is-facades-and-finishes",
+      description:
+        "The product range, architectural use, and specification of Pacific large-format facade surfaces.",
+    },
+    {
+      label: "Maintenance",
+      href: "/learn/maintenance-facades-and-finishes",
+      description:
+        "Care for polished, honed, leathered, brushed, and flamed surfaces — plus exterior considerations.",
+    },
+  ],
+  "centrepiece-couture": [
+    {
+      label: "What is Centrepiece Couture?",
+      href: "/learn/what-is-centrepiece-couture",
+      description:
+        "Pacific's gallery-grade slab line — what makes it distinct and where it lives.",
+    },
+    {
+      label: "Maintenance",
+      href: "/learn/maintenance-centrepiece-couture",
+      description:
+        "Treat the polish carefully, trivets for hot pans, and long-term character.",
+    },
+  ],
+  exotic: [
+    {
+      label: "What is the Exotic Collection?",
+      href: "/learn/what-is-exotic",
+      description:
+        "Pacific's curated range of dramatic quartz designs — performance, specification, and where it fits.",
+    },
+    {
+      label: "Maintenance",
+      href: "/learn/maintenance-exotic",
+      description:
+        "Standard quartz care, pattern preservation, and replacement.",
+    },
+  ],
+  vanity: [
+    {
+      label: "What is Pacific Vanity?",
+      href: "/learn/what-is-vanity",
+      description:
+        "Bath-specific design, Integra sink integration, and where Pacific Vanity lives.",
+    },
+    {
+      label: "Maintenance",
+      href: "/learn/maintenance-vanity",
+      description:
+        "Daily care, personal-care product spills, and Integra sink upkeep.",
+    },
+  ],
+};
 
 // Bypass Next's data cache so ribbon-driven category pages
 // (Ecosurfaces) reflect Sanity edits on the next request rather than
@@ -124,6 +239,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
       : null;
     const faqs = faqKey ? await getFaqs(faqKey) : [];
     const breadcrumbLabel = data.config.displayName ?? data.collection.name;
+    const learnLinks = LEARN_LINKS_BY_CATEGORY[slug];
     return (
       <>
         <BreadcrumbList
@@ -134,6 +250,12 @@ export default async function ProductOrCategoryPage({ params }: Props) {
           ]}
         />
         <CatalogueClient slabs={data.slabs} hero={data.config.hero} />
+        {learnLinks && learnLinks.length > 0 && (
+          <LearnAboutCategory
+            categoryName={breadcrumbLabel}
+            links={learnLinks}
+          />
+        )}
         {faqs.length > 0 && (
           <FAQ
             questions={faqs}

@@ -9,6 +9,7 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/components/ui/animated-section";
+import { sanityImg } from "@/lib/sanity-img";
 
 interface Product {
   _id: string;
@@ -164,7 +165,10 @@ export function SinksContent({ products }: SinksContentProps) {
                     {product.mainImage ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={product.mainImage}
+                        src={
+                          sanityImg(product.mainImage, { w: 720 }) ??
+                          product.mainImage
+                        }
                         alt={`${product.name} — Pacific Integra sink`}
                         className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                         loading="lazy"
