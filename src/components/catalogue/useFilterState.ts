@@ -56,6 +56,27 @@ const emptyState = (): FilterState => ({
   thicknesses: new Set(),
 });
 
+// Collection names that are actually product-type categories — hidden
+// from the Collection filter because they're surfaced under the new
+// Product Type filter instead. Editors can still tag products with
+// these collection names; the catalogue just doesn't double-list them.
+const COLLECTION_NAMES_TO_HIDE = new Set([
+  "Granite",
+  "Stone Finishes",
+  "Semi Precious Stones",
+  "Semi-Precious Stones",
+  "Vanity",
+  "Integra",
+  "Vision",
+]);
+
+// Product-type values we don't surface in the catalogue filter.
+// `granite-finish` and `luxury` are existing Sanity enum tokens the
+// brand has retired from front-end browsing; `physical` is an
+// editor-typed alternate that crept in. Hiding client-side keeps the
+// filter clean without forcing a Sanity-side migration.
+const PRODUCT_TYPES_TO_HIDE = new Set(["granite-finish", "luxury", "physical"]);
+
 export function useFilterState(slabs: Slab[]) {
   const [filters, setFilters] = useState<FilterState>(emptyState());
   const [sort, setSort] = useState<SortKey>("new");
@@ -212,20 +233,6 @@ export function useFilterState(slabs: Slab[]) {
     filters.thicknesses.size;
 
   /* --- Unique option values derived from current data set ----------- */
-  // Collection names that are actually product-type categories. We
-  // hide these from the Collection filter because they're surfaced
-  // under the new Product Type filter instead. Editors can still tag
-  // products with these collection names; the catalogue just doesn't
-  // double-list them.
-  const COLLECTION_NAMES_TO_HIDE = new Set([
-    "Granite",
-    "Stone Finishes",
-    "Semi Precious Stones",
-    "Semi-Precious Stones",
-    "Vanity",
-    "Integra",
-    "Vision",
-  ]);
   const uniqueCollections = useMemo(
     () =>
       Array.from(new Set(slabs.map((s) => s.collection)))
@@ -233,17 +240,6 @@ export function useFilterState(slabs: Slab[]) {
         .sort(),
     [slabs]
   );
-  // Product-type values we don't want surfacing in the catalogue
-  // filter. "granite-finish" + "luxury" are existing Sanity enum
-  // tokens that the brand has retired from front-end browsing;
-  // "physical" is an editor-typed alternate that crept in. Hiding
-  // them client-side keeps the filter clean without forcing a
-  // Sanity-side migration.
-  const PRODUCT_TYPES_TO_HIDE = new Set([
-    "granite-finish",
-    "luxury",
-    "physical",
-  ]);
   const uniqueProductTypes = useMemo(
     () =>
       Array.from(

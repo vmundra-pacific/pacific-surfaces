@@ -23,9 +23,22 @@ interface Chip {
 const CATEGORY_LABEL: Record<FilterKey, string> = {
   hues: "Hue",
   collections: "Collection",
+  productTypes: "Product Type",
   patterns: "Pattern",
   finishes: "Finish",
   thicknesses: "Thickness",
+};
+
+// Label mapping for productType enum tokens (mirrors FilterBar's
+// PRODUCT_TYPE_LABELS — extracted here so the chip strip and the
+// dropdown stay in sync).
+const PRODUCT_TYPE_LABELS: Record<string, string> = {
+  "quartz-slab": "Quartz",
+  "granite-slab": "Granite",
+  "quartz-sink": "Quartz Sink",
+  "granite-finish": "Granite Finish",
+  "semi-precious": "Semi-Precious",
+  luxury: "Luxury",
 };
 
 function capitalize(s: string) {
@@ -39,6 +52,13 @@ export function ActiveChips({ api }: { api: FilterApi }) {
   );
   api.filters.collections.forEach((c) =>
     chips.push({ key: "collections", value: c, label: c })
+  );
+  api.filters.productTypes.forEach((t) =>
+    chips.push({
+      key: "productTypes",
+      value: t,
+      label: PRODUCT_TYPE_LABELS[t] ?? capitalize(t),
+    })
   );
   api.filters.patterns.forEach((p) =>
     chips.push({ key: "patterns", value: p, label: p })
