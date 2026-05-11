@@ -172,8 +172,15 @@ interface NavItem {
 // mount into the DOM until the user hovers — which means Next/Image's
 // lazy-load fires at hover time and the first reveal has a noticeable
 // fetch delay. Preloading them at page-load via React DOM injects
-// <link rel="preload"> hints so the browser pulls them down quietly
-// in the background; by the time someone hovers, they're in cache.
+// <link rel="preload"> hints so the browser pulls them down on first
+// paint; by the time the user hovers, they're already in cache.
+//
+// fetchPriority "high" because (a) the files are pre-compressed and
+// tiny — total ~3 MB across 9 thumbnails — and (b) the cost of a slow
+// first hover outweighs the marginal LCP impact. Pair this with the
+// `unoptimized` prop on the <Image> tags so the rendered URL EXACTLY
+// matches the preloaded URL (Next/Image would otherwise rewrite the
+// src into `/_next/image?url=...` and the preload would be cache-miss).
 function preloadMegaThumbs() {
   if (typeof window === "undefined") return;
   const urls = [
@@ -181,7 +188,7 @@ function preloadMegaThumbs() {
     ...SPACES_CATEGORIES.map((c) => c.imageUrl),
   ].filter((u): u is string => Boolean(u));
   for (const url of urls) {
-    reactPreload(url, { as: "image", fetchPriority: "low" });
+    reactPreload(url, { as: "image", fetchPriority: "high" });
   }
 }
 
@@ -585,6 +592,17 @@ export default function Header() {
                                                 : "(min-width: 1024px) 20vw, 50vw"
                                             }
                                             priority={false}
+                                            // Skip the /_next/image
+                                            // optimizer pipeline so the
+                                            // rendered URL matches the
+                                            // preloaded URL exactly —
+                                            // otherwise the preload is
+                                            // a cache miss and first
+                                            // hover still has to fetch.
+                                            // Sources are already pre-
+                                            // compressed to <500 KB
+                                            // each.
+                                            unoptimized
                                           />
                                         ) : (
                                           <div className="absolute inset-0 flex items-center justify-center text-stone-500">
