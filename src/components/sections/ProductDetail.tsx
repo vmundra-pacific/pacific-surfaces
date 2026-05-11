@@ -127,12 +127,32 @@ export function ProductDetail({ product }: { product: Product }) {
   const galleryImages = product.gallery?.length ? product.gallery : [];
   const sceneImages = product.roomScenes?.length ? product.roomScenes : [];
 
-  // No more aggressive eager preloading. The magnifier <img> below
-  // mounts on page render with `loading="eager"` so it loads in the
-  // background while the user reads the page — by the time they
-  // hover the slab, it's already there. If the image hasn't quite
-  // finished loading yet, the magnifier still appears immediately
-  // (the <img> just paints whatever pixels it has).
+  // Preload the high-priority hero variants on mount so the browser
+  // starts fetching them at first paint — without these the slab
+  // would only begin downloading when Next/Image resolves the
+  // <Image> JSX a tick later, which is the lag the PDP was showing
+  // ("zoom square loads quickly, main slab/thumbs load slow"). The
+  // <link rel="preload"> tags carry fetchPriority="high" so they win
+  // bandwidth against below-the-fold images.
+  //
+  // Done at module-eval / first-render time. React DOM's `preload`
+  // is idempotent and safe to call on every render (no useEffect
+  // needed) — see https://react.dev/reference/react-dom/preload.
+  if (slabImage) {
+    const heroSrc = sanityImg(slabImage, { w: 1600 }) ?? slabImage;
+    preload(heroSrc, { as: "image", fetchPriority: "high" });
+    // The thumbnail variant is small enough to piggyback in parallel.
+    const thumbSrc = sanityImg(slabImage, { w: 280 }) ?? slabImage;
+    preload(thumbSrc, { as: "image", fetchPriority: "high" });
+  }
+  if (galleryImages[0]) {
+    const closeup = sanityImg(galleryImages[0], { w: 280 }) ?? galleryImages[0];
+    preload(closeup, { as: "image", fetchPriority: "high" });
+  }
+  if (sceneImages[0]) {
+    const scene = sanityImg(sceneImages[0], { w: 280 }) ?? sceneImages[0];
+    preload(scene, { as: "image", fetchPriority: "high" });
+  }
 
   // Build thumbnail list (MSI-style: Slab → Close Up → Vignettes → Room Scenes)
   const thumbnails: { src: string; label: string; type: ImageView }[] = [];
@@ -511,10 +531,14 @@ export function ProductDetail({ product }: { product: Product }) {
                           : "opacity-95 hover:opacity-100 shadow-[0_6px_18px_-6px_rgba(0,0,0,.5)] hover:shadow-[0_8px_22px_-4px_rgba(0,0,0,.55)]"
                       )}
                     >
-                      {/* Thumbnail image */}
+                      {/* Thumbnail image. Wrap src through sanityImg so
+                          Sanity ships a 280px AVIF (2× the 140px render
+                          size, Retina-safe) instead of the full-resolution
+                          master — first-paint gets the strip in under
+                          100ms even on a slow connection. */}
                       <div className="relative w-full aspect-[4/3] bg-stone-900">
                         <Image
-                          src={thumb.src}
+                          src={sanityImg(thumb.src, { w: 280 }) ?? thumb.src}
                           alt={thumb.label}
                           fill
                           className="object-cover"
@@ -549,7 +573,10 @@ export function ProductDetail({ product }: { product: Product }) {
                     <div className="relative w-full aspect-[4/3] bg-stone-800">
                       {sceneImages[0] ? (
                         <Image
-                          src={sceneImages[0]}
+                          src={
+                            sanityImg(sceneImages[0], { w: 280 }) ??
+                            sceneImages[0]
+                          }
                           alt="View in a Room"
                           fill
                           className="object-cover"
