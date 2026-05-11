@@ -33,6 +33,13 @@ export interface FilterState {
    */
   hues: Set<string>;
   collections: Set<Collection>;
+  /**
+   * Product type (Pacific's broad material taxonomy) — separate from
+   * collections so the Collection filter is reserved for actual
+   * brand-line collections (Aurora, Kosmic, etc.) and product
+   * families like Quartz / Granite / Semi-Precious live here.
+   */
+  productTypes: Set<string>;
   patterns: Set<Pattern>;
   finishes: Set<Finish>;
   thicknesses: Set<Thickness>;
@@ -43,6 +50,7 @@ export type FilterKey = keyof FilterState;
 const emptyState = (): FilterState => ({
   hues: new Set(),
   collections: new Set(),
+  productTypes: new Set(),
   patterns: new Set(),
   finishes: new Set(),
   thicknesses: new Set(),
@@ -100,6 +108,13 @@ export function useFilterState(slabs: Slab[]) {
       if (
         filters.collections.size > 0 &&
         !filters.collections.has(s.collection)
+      ) {
+        return false;
+      }
+      // Product Type (Quartz / Granite / etc.)
+      if (
+        filters.productTypes.size > 0 &&
+        (!s.productType || !filters.productTypes.has(s.productType))
       ) {
         return false;
       }
@@ -163,6 +178,9 @@ export function useFilterState(slabs: Slab[]) {
           if (!s.hues.some((h) => (set as Set<string>).has(h))) return false;
         } else if (fk === "collections") {
           if (!(set as Set<Collection>).has(s.collection)) return false;
+        } else if (fk === "productTypes") {
+          if (!s.productType || !(set as Set<string>).has(s.productType))
+            return false;
         } else if (fk === "patterns") {
           if (!(set as Set<Pattern>).has(s.pattern)) return false;
         } else if (fk === "finishes") {
@@ -176,6 +194,7 @@ export function useFilterState(slabs: Slab[]) {
       // Then check if this slab matches the candidate value for `key`
       if (key === "hues") return s.hues.includes(value as string);
       if (key === "collections") return s.collection === value;
+      if (key === "productTypes") return s.productType === value;
       if (key === "patterns") return s.pattern === value;
       if (key === "finishes") return s.finishes.includes(value as Finish);
       if (key === "thicknesses")
@@ -187,13 +206,53 @@ export function useFilterState(slabs: Slab[]) {
   const activeCount =
     filters.hues.size +
     filters.collections.size +
+    filters.productTypes.size +
     filters.patterns.size +
     filters.finishes.size +
     filters.thicknesses.size;
 
   /* --- Unique option values derived from current data set ----------- */
+  // Collection names that are actually product-type categories. We
+  // hide these from the Collection filter because they're surfaced
+  // under the new Product Type filter instead. Editors can still tag
+  // products with these collection names; the catalogue just doesn't
+  // double-list them.
+  const COLLECTION_NAMES_TO_HIDE = new Set([
+    "Granite",
+    "Stone Finishes",
+    "Semi Precious Stones",
+    "Semi-Precious Stones",
+    "Vanity",
+    "Integra",
+    "Vision",
+  ]);
   const uniqueCollections = useMemo(
-    () => Array.from(new Set(slabs.map((s) => s.collection))).sort(),
+    () =>
+      Array.from(new Set(slabs.map((s) => s.collection)))
+        .filter((c) => !COLLECTION_NAMES_TO_HIDE.has(c))
+        .sort(),
+    [slabs]
+  );
+  // Product-type values we don't want surfacing in the catalogue
+  // filter. "granite-finish" + "luxury" are existing Sanity enum
+  // tokens that the brand has retired from front-end browsing;
+  // "physical" is an editor-typed alternate that crept in. Hiding
+  // them client-side keeps the filter clean without forcing a
+  // Sanity-side migration.
+  const PRODUCT_TYPES_TO_HIDE = new Set([
+    "granite-finish",
+    "luxury",
+    "physical",
+  ]);
+  const uniqueProductTypes = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          slabs.map((s) => s.productType).filter((t): t is string => Boolean(t))
+        )
+      )
+        .filter((t) => !PRODUCT_TYPES_TO_HIDE.has(t.toLowerCase()))
+        .sort(),
     [slabs]
   );
   const uniquePatterns = useMemo(
@@ -232,6 +291,7 @@ export function useFilterState(slabs: Slab[]) {
     countFor,
     activeCount,
     uniqueCollections,
+    uniqueProductTypes,
     uniquePatterns,
     uniqueHues,
     uniqueFinishes,

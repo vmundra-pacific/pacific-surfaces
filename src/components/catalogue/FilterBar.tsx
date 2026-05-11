@@ -34,6 +34,18 @@ function titleCase(value: string): string {
     .join(" ");
 }
 
+// Sanity stores `productType` as a short enum token; render it with
+// editorial labels. Anything not in the map falls through to
+// titleCase() so unknown future values still display sensibly.
+const PRODUCT_TYPE_LABELS: Record<string, string> = {
+  "quartz-slab": "Quartz",
+  "granite-slab": "Granite",
+  "quartz-sink": "Quartz Sink",
+  "granite-finish": "Granite Finish",
+  "semi-precious": "Semi-Precious",
+  luxury: "Luxury",
+};
+
 type FilterApi = ReturnType<typeof useFilterState>;
 
 interface Props {
@@ -98,9 +110,15 @@ export function FilterBar({ api, total }: Props) {
         "bg-[#112732]/95 backdrop-blur-xl",
       ].join(" ")}
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      {/* Widened to max-w-[1600px] and the wrapping behaviour tightened so
+          the full bar (search + 6 pills + count + grid toggle + sort) fits
+          on one line at xl+ viewports. At lg and below it still wraps
+          gracefully — flex-wrap on the outer container keeps narrow
+          laptops working. Gaps reduced from 4 / 2.5 → 3 / 2 to claw
+          back the few pixels the Product Type pill adds. */}
+      <div className="mx-auto max-w-[1600px] px-6 lg:px-8 py-3.5 flex flex-wrap xl:flex-nowrap items-center justify-between gap-3">
         {/* Left — search + filter pills */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap xl:flex-nowrap items-center gap-2">
           {/* Search input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-pacific-mid pointer-events-none" />
@@ -175,7 +193,10 @@ export function FilterBar({ api, total }: Props) {
           {/* Collection — only when the catalogue spans more than one
               collection. On collection-scoped pages (Vision, Centre-
               piece Couture, etc.) the filter offers a single option,
-              which is noise; hide it. */}
+              which is noise; hide it. Product-type-like names
+              (Granite, Vision, Integra, etc.) are filtered out
+              upstream in useFilterState's uniqueCollections; they
+              now live under the Product Type pill below. */}
           {!singleCollection && (
             <FilterPill
               label="Collection"
@@ -192,6 +213,33 @@ export function FilterBar({ api, total }: Props) {
                   selected: api.filters.collections.has(c),
                 }))}
                 onToggle={(v) => api.toggle("collections", v as Collection)}
+              />
+            </FilterPill>
+          )}
+
+          {/* Product Type — Pacific's broad material taxonomy
+              (Quartz / Granite / Semi-Precious / Sinks / etc.).
+              Separated from Collection so the Collection pill above
+              stays focused on branded collections only. Sourced from
+              the productType field on each product in Sanity. Only
+              renders when at least one product has the field set
+              AND the catalogue is multi-type. */}
+          {api.uniqueProductTypes.length > 1 && (
+            <FilterPill
+              label="Product Type"
+              count={api.filters.productTypes.size}
+              isOpen={openKey === "productType"}
+              onToggle={() => toggleOpen("productType")}
+            >
+              <PopoverCheckList
+                title={`Product Type · ${api.uniqueProductTypes.length} options`}
+                items={api.uniqueProductTypes.map((t) => ({
+                  value: t,
+                  label: PRODUCT_TYPE_LABELS[t] ?? titleCase(t),
+                  count: api.countFor("productTypes", t),
+                  selected: api.filters.productTypes.has(t),
+                }))}
+                onToggle={(v) => api.toggle("productTypes", v)}
               />
             </FilterPill>
           )}
