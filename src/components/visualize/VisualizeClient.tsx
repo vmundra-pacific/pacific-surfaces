@@ -93,7 +93,6 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     };
   }, []);
 
-
   // The slab currently being shown as "active" in the picker — the
   // one assigned to the focused surface, if any.
   const focusedSlab = focusedSurfaceId
@@ -245,9 +244,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     if (!focusedSurfaceId) return null;
     // Demo room surfaces (polygons / masks) come from activeDemo.
     if (activeDemo) {
-      return (
-        activeDemo.surfaces.find((s) => s.id === focusedSurfaceId) ?? null
-      );
+      return activeDemo.surfaces.find((s) => s.id === focusedSurfaceId) ?? null;
     }
     // AI / SAM-2 surfaces from user uploads.
     return aiMasks.find((m) => m.id === focusedSurfaceId) ?? null;
@@ -274,20 +271,26 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
       }
 
       // General surfaces (countertop, vanity, backsplash, etc., or
-      // unfocused state): show only the standard catalogue —
-      // quartz collections, granite, semi-precious, exotic. Drop
-      // specialty collections that have a dedicated surface type
-      // (Integra sinks, Centrepiece tables) plus other niche
-      // collections that don't fit a generic slab application.
-      const specialtyDenylist = [
-        "integra",
-        "centrepiece",
-        "fab creation",
-        "ecosurface",
-        "natural stone finish",
-        "stone finish",
+      // unfocused state): show ONLY Pacific quartz slabs. Quartz is
+      // the visualizer's primary use case — granite / semi-precious /
+      // exotic / facades aren't part of this picker. We match on the
+      // Sanity `productType` field first; for the legacy local slabs
+      // that don't carry productType, we fall back to a collection
+      // allowlist of Pacific's known quartz brand lines.
+      if (slab.productType) {
+        return slab.productType === "quartz-slab";
+      }
+      const QUARTZ_COLLECTIONS = [
+        "aurora",
+        "celestia",
+        "chromia",
+        "kosmic",
+        "luminara",
+        "nebula",
+        "vision",
+        "top collection",
       ];
-      return !specialtyDenylist.some((kw) => col.includes(kw));
+      return QUARTZ_COLLECTIONS.some((kw) => col.includes(kw));
     });
   }, [curated, focusedSurfaceLabel]);
 
@@ -754,10 +757,9 @@ function ComingSoonModal({
               Coming soon.
             </h3>
             <p className="text-sm font-light text-pacific-mid leading-relaxed mb-6">
-              An immersive walk-through of the Pacific catalogue is on the
-              way. In the meantime, try the visualiser on a curated demo
-              room — every surface is precision-mapped for photoreal
-              previews.
+              An immersive walk-through of the Pacific catalogue is on the way.
+              In the meantime, try the visualiser on a curated demo room — every
+              surface is precision-mapped for photoreal previews.
             </p>
             <button
               type="button"
@@ -875,9 +877,7 @@ function InspectorContents({
 }) {
   // Build a tidy slug for product-detail deep-links — falls back to
   // the catalogue if the slab doesn't carry one.
-  const productHref = slab?.slug
-    ? `/products/${slab.slug}`
-    : "/catalogue";
+  const productHref = slab?.slug ? `/products/${slab.slug}` : "/catalogue";
 
   const scrollRef = useRef<HTMLDivElement>(null);
   // Hover-to-scroll: forward wheel events into our own scrollTop and
@@ -1018,9 +1018,9 @@ function InspectorContents({
               </Link>
               <a
                 href={`mailto:bindu@thepacific.group?subject=${encodeURIComponent(
-                  `Sample Request - ${slab.name}`,
+                  `Sample Request - ${slab.name}`
                 )}&body=${encodeURIComponent(
-                  `Hi Pacific team,\n\nI'd like to request a sample of ${slab.name}.\n\nThanks!`,
+                  `Hi Pacific team,\n\nI'd like to request a sample of ${slab.name}.\n\nThanks!`
                 )}`}
                 className="inline-flex items-center justify-center gap-1.5 border border-white/20 text-pacific-light text-[10px] tracking-[.22em] uppercase px-4 py-2.5 rounded-full hover:border-white/50 transition-colors"
               >

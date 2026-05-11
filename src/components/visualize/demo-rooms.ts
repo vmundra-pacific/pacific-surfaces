@@ -83,4 +83,22 @@ export const DEMO_ROOMS: DemoRoom[] = [
       },
     ],
   },
+  // Test entry — single new kitchen, batch added after validation.
+  {
+    id: "kitchen-test",
+    label: "Kitchen 02",
+    category: "Kitchen",
+    src: "/demo-rooms/kitchen-test/room.png",
+    thumb: "/demo-rooms/kitchen-test/room.png",
+    credit: "Pacific Surfaces",
+    surfaces: [
+      {
+        id: "countertop",
+        label: "Countertop",
+        maskUrl: "/demo-rooms/kitchen-test/mask.png",
+        shadowUrl: "/demo-rooms/kitchen-test/shadow.png",
+        highlightsUrl: "/demo-rooms/kitchen-test/highlight.png",
+      },
+    ],
+  },
 ];
