@@ -60,33 +60,38 @@ export function OrderSampleModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Compose mailto until a backend endpoint is wired up. Subject
-    // and body shape vary by mode so the recipient can triage at a
-    // glance. Address line is only included in sample mode.
-    const subject = isSample
-      ? `Sample Request — ${productName}`
-      : `Enquiry — ${productName}`;
-    const bodyLines = [
-      `Product: ${productName}${productCategory ? ` (${productCategory})` : ""}`,
-      "",
-      `Name: ${form.name}`,
-      `Email: ${form.email}`,
-      `Phone: ${form.phone}`,
-      `Project Type: ${form.project}`,
-    ];
-    if (isSample) {
-      bodyLines.push(`Shipping Address: ${form.address}`);
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/sample-request/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: isSample ? "sample" : "enquire",
+          productName,
+          productCategory,
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          projectType: form.project,
+          address: form.address,
+          notes: form.notes,
+        }),
+      });
+      if (!res.ok) throw new Error("Submission failed");
+      setSubmitted(true);
+    } catch (err) {
+      console.error("[order-sample-modal] submit failed:", err);
+      alert(
+        "Sorry, we couldn't send your request. Please try again or email us directly."
+      );
+    } finally {
+      setSubmitting(false);
     }
-    bodyLines.push("", isSample ? "Notes:" : "Message:", form.notes || "—");
-
-    const href = `mailto:bindu@thepacific.group?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
-
-    window.location.href = href;
-    setSubmitted(true);
   };
 
   // Modal mounts in a portal at document.body so it escapes any
@@ -139,8 +144,8 @@ export function OrderSampleModal({
                 <p className="text-sm text-stone-500 font-light leading-relaxed max-w-sm mx-auto">
                   Your email client should have opened with a pre-filled{" "}
                   {isSample ? "request" : "enquiry"} for{" "}
-                  <strong className="font-medium">{productName}</strong>. Our team
-                  will respond within 1–2 business days.
+                  <strong className="font-medium">{productName}</strong>. Our
+                  team will respond within 1–2 business days.
                 </p>
                 <button
                   onClick={onClose}
@@ -212,7 +217,9 @@ export function OrderSampleModal({
                     rows={isSample ? 3 : 5}
                     value={form.notes}
                     required={!isSample}
-                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, notes: e.target.value })
+                    }
                     placeholder={
                       isSample
                         ? "Tell us about your project, timeline, or any questions."

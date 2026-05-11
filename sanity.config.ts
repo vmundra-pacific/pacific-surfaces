@@ -49,7 +49,28 @@ export default defineConfig({
                 S.document().schemaType("careersPage").documentId("careersPage")
               ),
             S.documentTypeListItem("jobOpening").title("Job Openings"),
-            S.documentTypeListItem("jobApplication").title("Job Applications"),
+            S.divider(),
+            // All inbound form submissions live under one group so
+            // the team has a single inbox-shaped folder to triage —
+            // job applications, contact-form messages, sample
+            // requests / product enquiries.
+            S.listItem()
+              .title("Form Submissions")
+              .child(
+                S.list()
+                  .title("Form Submissions")
+                  .items([
+                    S.documentTypeListItem("contactSubmission").title(
+                      "Contact Submissions"
+                    ),
+                    S.documentTypeListItem("sampleRequest").title(
+                      "Sample Requests & Enquiries"
+                    ),
+                    S.documentTypeListItem("jobApplication").title(
+                      "Job Applications"
+                    ),
+                  ])
+              ),
             S.divider(),
             S.listItem()
               .title("Sustainability Page")

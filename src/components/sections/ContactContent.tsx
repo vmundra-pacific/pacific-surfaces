@@ -184,10 +184,22 @@ export function ContactContent() {
     }
   }, [searchParams]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormState("sending");
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/contact/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          // Carry the ?type= URL param through to Sanity as a
+          // provenance hint — useful for triage (e.g. distinguishing
+          // a Distributor card click from an organic contact form fill).
+          source: searchParams.get("type") || undefined,
+        }),
+      });
+      if (!res.ok) throw new Error("Submission failed");
       setFormState("sent");
       setTimeout(() => {
         setFormState("idle");
@@ -201,7 +213,13 @@ export function ContactContent() {
           message: "",
         });
       }, 3000);
-    }, 1500);
+    } catch (err) {
+      console.error("[contact form] submit failed:", err);
+      setFormState("idle");
+      alert(
+        "Sorry, we couldn't send your message. Please try again or email us directly."
+      );
+    }
   };
 
   return (
