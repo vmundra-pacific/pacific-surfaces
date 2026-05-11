@@ -46,6 +46,15 @@ export interface Slab {
    */
   hues: string[];
   collection: Collection;
+  /**
+   * Pacific's broad product taxonomy (Sanity field). Drives the
+   * "Product Type" catalogue filter — distinct from `collection`,
+   * which is the brand-line a slab belongs to. Values are the
+   * Sanity-side enum tokens: "quartz-slab", "granite-slab",
+   * "quartz-sink", "granite-finish", "semi-precious", "luxury".
+   * Optional — older imported records may be missing it.
+   */
+  productType?: string;
   pattern: Pattern;
   finishes: Finish[];
   thicknesses: Thickness[];

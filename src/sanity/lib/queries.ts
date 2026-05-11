@@ -41,6 +41,7 @@ export const catalogueProductsQuery = groq`
     "mainImage": mainImage.asset->url,
     "dominantColor": mainImage.asset->metadata.palette.dominant.background,
     "collectionName": collection->name,
+    productType,
     finishes,
     thickness,
     ribbons,

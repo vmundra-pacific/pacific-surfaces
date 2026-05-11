@@ -35,6 +35,14 @@ interface SanityProduct {
    */
   manualPattern?: string | null;
   collectionName?: string | null;
+  /**
+   * Editor-set product type from the Sanity Studio "Product Type"
+   * select field. Values: "quartz-slab", "granite-slab",
+   * "quartz-sink", "granite-finish", "semi-precious", "luxury".
+   * Surfaced on the catalogue as its own filter (separate from
+   * Collection) so users can narrow by material/category.
+   */
+  productType?: string | null;
   finishes?: string[] | null;
   thickness?: string[] | null;
   ribbons?: string[] | null;
@@ -441,6 +449,7 @@ export function mapSanityToCatalogue(products: SanityProduct[]): Slab[] {
         slug,
         hues,
         collection,
+        productType: p.productType ?? undefined,
         pattern,
         finishes,
         thicknesses,
