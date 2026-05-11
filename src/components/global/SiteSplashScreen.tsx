@@ -82,11 +82,12 @@ export default function SiteSplashScreen() {
     // We attach it to a ref-like object on `window` so the inline
     // arrow in the JSX below can flip the flag without the component
     // having to thread state through.
-    (window as unknown as { __pacificSplashOnVideoEnd?: () => void }).__pacificSplashOnVideoEnd =
-      () => {
-        videoEnded = true;
-        tryDismiss();
-      };
+    (
+      window as unknown as { __pacificSplashOnVideoEnd?: () => void }
+    ).__pacificSplashOnVideoEnd = () => {
+      videoEnded = true;
+      tryDismiss();
+    };
 
     // Safety ceiling — if either the video or the hero loader stalls
     // beyond MAX_DISPLAY_MS we still let the user through.
@@ -181,8 +182,22 @@ export default function SiteSplashScreen() {
           // Fixed full-viewport wrapper so VideoLoadingScreen (which
           // uses absolute inset-0) sits over the entire page rather
           // than its nearest positioned ancestor.
-          className="fixed inset-0 z-[100]"
+          //
+          // Click-to-dismiss: any tap anywhere on the splash skips the
+          // loading video and reveals the page immediately. Useful for
+          // return visitors and impatient first-timers; the brand
+          // moment is preserved for users who let the video play.
+          className="fixed inset-0 z-[100] cursor-pointer"
           aria-hidden={!visible}
+          role="button"
+          tabIndex={0}
+          onClick={() => setVisible(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " " || e.key === "Escape") {
+              e.preventDefault();
+              setVisible(false);
+            }
+          }}
         >
           <VideoLoadingScreen
             message="Welcome to Pacific Surfaces"
