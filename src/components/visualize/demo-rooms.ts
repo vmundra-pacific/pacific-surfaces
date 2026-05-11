@@ -84,12 +84,15 @@ export const DEMO_ROOMS: DemoRoom[] = [
     ],
   },
   // Test entry — single new kitchen, batch added after validation.
+  // `thumb` points at a 15 KB pre-compressed JPEG so the picker strip
+  // paints fast; `src` stays on the full PNG so the canvas composite
+  // gets the full resolution.
   {
     id: "kitchen-test",
     label: "Kitchen 02",
     category: "Kitchen",
     src: "/demo-rooms/kitchen-test/room.png",
-    thumb: "/demo-rooms/kitchen-test/room.png",
+    thumb: "/demo-rooms/kitchen-test/thumb.jpg",
     credit: "Pacific Surfaces",
     surfaces: [
       {
