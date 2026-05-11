@@ -175,14 +175,29 @@ export default function Footer() {
     "idle" | "sending" | "sent"
   >("idle");
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setNewsletterState("sending");
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: newsletter.firstName,
+          email: newsletter.email,
+        }),
+      });
+      if (!res.ok) throw new Error("Subscribe failed");
       setNewsletterState("sent");
       setNewsletter({ firstName: "", email: "" });
       setTimeout(() => setNewsletterState("idle"), 3000);
-    }, 1000);
+    } catch (err) {
+      console.error("[newsletter] subscribe failed:", err);
+      setNewsletterState("idle");
+      alert(
+        "Sorry, we couldn't subscribe you right now. Please try again in a moment."
+      );
+    }
   };
 
   // Hide the global site footer on the visualizer route — that page

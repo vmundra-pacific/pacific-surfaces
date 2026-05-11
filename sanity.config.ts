@@ -66,6 +66,9 @@ export default defineConfig({
                     S.documentTypeListItem("sampleRequest").title(
                       "Sample Requests & Enquiries"
                     ),
+                    S.documentTypeListItem("newsletterSubscriber").title(
+                      "Newsletter Subscribers"
+                    ),
                     S.documentTypeListItem("jobApplication").title(
                       "Job Applications"
                     ),
