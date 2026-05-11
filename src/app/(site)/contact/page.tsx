@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { ContactContent } from "@/components/sections/ContactContent";
 
 export const metadata: Metadata = {
@@ -9,5 +10,12 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
-  return <ContactContent />;
+  // Suspense boundary required for `useSearchParams` inside
+  // ContactContent — Next.js 15 needs it so static rendering can
+  // hydrate the URL params without blocking the rest of the page.
+  return (
+    <Suspense fallback={null}>
+      <ContactContent />
+    </Suspense>
+  );
 }

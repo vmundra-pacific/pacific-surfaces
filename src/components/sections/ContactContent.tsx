@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Mail,
@@ -142,7 +143,21 @@ const dealerLocations = [
   },
 ];
 
+// Map ?type=<x> URL params to the contact form's "I am" select values.
+// PartnerWithUs section on the homepage links into this page with
+// these short slugs; the select values are slightly different
+// strings, so this map keeps the wiring explicit.
+const TYPE_PARAM_TO_ROLE: Record<string, string> = {
+  distributor: "distributor",
+  architect: "architect",
+  "interior-designer": "interior-designer",
+  fabricator: "fabricator",
+  homeowner: "homeowner",
+  builder: "builder",
+};
+
 export function ContactContent() {
+  const searchParams = useSearchParams();
   const [formState, setFormState] = useState<"idle" | "sending" | "sent">(
     "idle"
   );
@@ -155,6 +170,19 @@ export function ContactContent() {
     application: "",
     message: "",
   });
+
+  // Pre-fill the "I am" select from ?type=<x> if PartnerWithUs (or any
+  // other inbound link) passed one. Runs once when the URL param
+  // changes — subsequent user edits aren't clobbered because this only
+  // fires when the param itself updates.
+  useEffect(() => {
+    const type = searchParams.get("type");
+    if (!type) return;
+    const mappedRole = TYPE_PARAM_TO_ROLE[type];
+    if (mappedRole) {
+      setFormData((prev) => ({ ...prev, role: mappedRole }));
+    }
+  }, [searchParams]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,7 +255,11 @@ export function ContactContent() {
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: 0.7,
+                delay: 0.3,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-stone-900"
             >
               <video
