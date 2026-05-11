@@ -3,6 +3,23 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Award, Cpu, Gem, Leaf, Shield, Users, Zap } from "lucide-react";
+
+// Lucide-react 1.7 ships without a LinkedIn glyph, so inline the
+// official mark as SVG. 24×24 viewBox matches every other icon used
+// on this page; size/color come from parent classes via `currentColor`.
+function LinkedInIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z" />
+    </svg>
+  );
+}
 import {
   AnimatedSection,
   StaggerContainer,
@@ -38,41 +55,57 @@ const timeline = [
   },
 ];
 
-const team: { name: string; role: string; photo?: string }[] = [
+// Team list — `linkedin` is optional. When set, the card becomes a
+// clickable link to that member's profile (opens in a new tab). Cards
+// with no URL stay non-interactive. Paste each member's LinkedIn URL
+// into the `linkedin` field below as they get confirmed.
+const team: {
+  name: string;
+  role: string;
+  photo?: string;
+  linkedin?: string;
+}[] = [
   {
     name: "Mohanlal Somani",
     role: "Chairman",
     photo: "/team/mohanlal-somani.png",
+    linkedin: "",
   },
   {
     name: "Varun Somani",
     role: "Managing Director",
     photo: "/team/varun-somani.png",
+    linkedin: "https://www.linkedin.com/in/varunsomani-pacific/",
   },
   {
     name: "Varun Mundra",
     role: "Director",
     photo: "/team/varun-mundra.png",
+    linkedin: "https://www.linkedin.com/in/varun-mundra-ba4b9589/",
   },
   {
     name: "Abhijeet Mankotia",
     role: "VP — Global Sales",
     photo: "/team/abhijeet-mankotia.png",
+    linkedin: "https://www.linkedin.com/in/abhijeet-mankotia-a7b849172/",
   },
   {
     name: "Anish Datta",
     role: "VP — Business Development",
     photo: "/team/anish-datta.png",
+    linkedin: "https://www.linkedin.com/in/anish-datta-690161159/",
   },
   {
     name: "Paulina Popławska",
     role: "Director, Pacific Polska",
     photo: "/team/paulina-poplawska.png",
+    linkedin: "",
   },
   {
     name: "Nagesh P K",
     role: "Commercial Manager, Pacific Granites India",
     photo: "/team/nagesh-pk.png",
+    linkedin: "",
   },
 ];
 
@@ -263,10 +296,7 @@ export function AboutContent() {
         />
         {/* Dark scrim — keeps the body copy at full WCAG contrast
             regardless of which frame is on screen behind it. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-[#112732]/75"
-        />
+        <div aria-hidden="true" className="absolute inset-0 bg-[#112732]/75" />
 
         <div className="relative mx-auto max-w-3xl px-6 lg:px-8 py-20 sm:py-28 lg:py-36 text-center">
           <AnimatedSection animation="fadeIn">
@@ -291,15 +321,15 @@ export function AboutContent() {
             <div className="mt-10 space-y-6 text-pacific-mid font-light leading-relaxed text-base sm:text-lg">
               <p>
                 With over 273 unique designs across 44 curated collections —
-                from the bold Chromia series to the celestial Kosmic range —
-                we offer the widest selection of premium surfaces in India.
+                from the bold Chromia series to the celestial Kosmic range — we
+                offer the widest selection of premium surfaces in India.
               </p>
               <p>
-                Our patented textures and proprietary finishes are the result
-                of years of research and development. Each slab is engineered
-                to meet the highest international standards, making our
-                surfaces ideal for kitchen countertops, bathroom vanities,
-                wall cladding, flooring, and statement furniture.
+                Our patented textures and proprietary finishes are the result of
+                years of research and development. Each slab is engineered to
+                meet the highest international standards, making our surfaces
+                ideal for kitchen countertops, bathroom vanities, wall cladding,
+                flooring, and statement furniture.
               </p>
               <p>
                 We believe every surface should be a work of art — engineered
@@ -563,55 +593,88 @@ function TeamSection() {
               .join("")
               .toUpperCase();
 
+            const hasLinkedIn = Boolean(member.linkedin);
+            const cardInner = (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 transition-all duration-500 h-full ${
+                  hasLinkedIn
+                    ? "hover:border-[#0a66c2]/60 cursor-pointer"
+                    : "hover:border-white/20"
+                }`}
+              >
+                {/* Full-bleed photo. Photos are square / portrait
+                    headshots; object-cover fills the 3:4 card
+                    regardless of source aspect. Falls back to a
+                    gradient + initials when no photo is set. */}
+                {member.photo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={member.photo}
+                    alt={member.name}
+                    // object-top anchors the crop to the top of the
+                    // photo so the head and hair stay in frame when
+                    // the 3:4 card is taller than the source. The
+                    // default 50/50 anchor was clipping foreheads.
+                    className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900 flex items-center justify-center">
+                    <span className="text-3xl font-light text-white/30 tracking-wider">
+                      {initials}
+                    </span>
+                  </div>
+                )}
+
+                {/* Gradient scrim at the bottom — keeps the name
+                    and role legible against any photo. */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+
+                {/* LinkedIn badge — top-right corner, only when the
+                    member has a profile URL set. Fades in on card
+                    hover so it doesn't clutter the photo at rest. */}
+                {hasLinkedIn && (
+                  <div
+                    className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#0a66c2] text-white opacity-0 translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 shadow-[0_6px_18px_rgba(0,0,0,0.35)]"
+                    aria-hidden="true"
+                  >
+                    <LinkedInIcon className="h-4 w-4" />
+                  </div>
+                )}
+
+                {/* Text — pinned to the bottom of the card. */}
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <h3 className="text-base font-medium text-white tracking-tight">
+                    {member.name}
+                  </h3>
+                  <p className="mt-1 text-[10px] font-medium tracking-[0.2em] uppercase text-white/75">
+                    {member.role}
+                  </p>
+                </div>
+              </motion.div>
+            );
+
             return (
               <StaggerItem
                 key={`${member.name}-${member.role}`}
                 className="h-full"
               >
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5 }}
-                  className="group relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-500 h-full"
-                >
-                  {/* Full-bleed photo. Photos are square / portrait
-                      headshots; object-cover fills the 3:4 card
-                      regardless of source aspect. Falls back to a
-                      gradient + initials when no photo is set. */}
-                  {member.photo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={member.photo}
-                      alt={member.name}
-                      // object-top anchors the crop to the top of the
-                      // photo so the head and hair stay in frame when
-                      // the 3:4 card is taller than the source. The
-                      // default 50/50 anchor was clipping foreheads.
-                      className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900 flex items-center justify-center">
-                      <span className="text-3xl font-light text-white/30 tracking-wider">
-                        {initials}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Gradient scrim at the bottom — keeps the name
-                      and role legible against any photo. */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-
-                  {/* Text — pinned to the bottom of the card. */}
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <h3 className="text-base font-medium text-white tracking-tight">
-                      {member.name}
-                    </h3>
-                    <p className="mt-1 text-[10px] font-medium tracking-[0.2em] uppercase text-white/75">
-                      {member.role}
-                    </p>
-                  </div>
-                </motion.div>
+                {hasLinkedIn ? (
+                  <a
+                    href={member.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${member.name} on LinkedIn`}
+                    className="block h-full focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/60 focus:ring-offset-2 focus:ring-offset-stone-950 rounded-2xl"
+                  >
+                    {cardInner}
+                  </a>
+                ) : (
+                  cardInner
+                )}
               </StaggerItem>
             );
           })}
