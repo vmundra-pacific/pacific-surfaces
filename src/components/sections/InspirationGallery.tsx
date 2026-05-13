@@ -217,7 +217,10 @@ export function InspirationGallery() {
                   <div className="relative overflow-hidden">
                     {/* Plain <img> with w-full h-auto so the card's
                         height is whatever the image's intrinsic
-                        aspect dictates — no cropping. */}
+                        aspect dictates — no cropping. next/image needs
+                        an explicit width+height OR a sized parent, both
+                        of which would defeat the masonry layout. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={p.image}
                       alt={p.title}

@@ -198,6 +198,7 @@ export function FinishLightbox({
               aria-label={`View image ${i + 1} of ${slides.length}`}
               aria-pressed={i === activeIndex}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={src}
                 alt=""

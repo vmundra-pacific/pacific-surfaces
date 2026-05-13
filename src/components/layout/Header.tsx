@@ -534,7 +534,6 @@ export default function Header() {
   //
   // The three <Image>s below are stacked at the same coordinates;
   // only the matching opacity flips to 100. Crossfades are smooth.
-  const isHomepage = pathname === "/";
 
   // Some pages render a LIGHT/cream PageHeader directly under the
   // navbar (Spaces sub-pages, Learn sub-pages, etc.). The default
