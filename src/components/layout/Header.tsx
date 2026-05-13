@@ -56,10 +56,10 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     imageUrl: "/images/products/quartz.jpg",
     brandedImageUrl: "/images/products/branded/quartz.svg",
     topPicks: [
-      { name: "Ruskin", href: "/products/quartz" },
-      { name: "Travertine", href: "/products/quartz" },
-      { name: "Pure White", href: "/products/quartz" },
-      { name: "Carrara", href: "/products/quartz" },
+      { name: "Ruskin", href: "/products/ruskin-5028" },
+      { name: "Adonis", href: "/products/adonis-5060" },
+      { name: "Stellar Ember", href: "/products/stellar-ember-5031" },
+      { name: "Galactic Halo", href: "/products/galactic-halo-5012" },
     ],
   },
   {
@@ -69,10 +69,10 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     imageUrl: "/images/products/facades.png",
     brandedImageUrl: "/images/products/branded/facades-and-finishes.svg",
     topPicks: [
-      { name: "Stoneface", href: "/products/facades-and-finishes" },
-      { name: "Travertine", href: "/products/facades-and-finishes" },
-      { name: "Carbon", href: "/products/facades-and-finishes" },
-      { name: "Aged Concrete", href: "/products/facades-and-finishes" },
+      { name: "Lineal Design", href: "/products/lineal-design" },
+      { name: "Cotton Design", href: "/products/cotton-design" },
+      { name: "Velvet Design", href: "/products/velvet-design" },
+      { name: "Rock Design", href: "/products/rock-design" },
     ],
   },
   {
@@ -83,10 +83,10 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     imageUrl: "/images/products/vision.png",
     brandedImageUrl: "/images/products/branded/vision.svg",
     topPicks: [
-      { name: "Taj Vein", href: "/products/quartz/chromia" },
-      { name: "Pietra Grey", href: "/products/quartz/chromia" },
-      { name: "Statuario", href: "/products/quartz/chromia" },
-      { name: "Calacatta", href: "/products/quartz/chromia" },
+      { name: "Taj Vein", href: "/products/taj-vein-p01" },
+      { name: "Himalayan Vein", href: "/products/himalayan-vein-p14" },
+      { name: "Stone Lily", href: "/products/stone-lily-p13" },
+      { name: "Frost Vein", href: "/products/frost-vein-p18" },
     ],
   },
   {
@@ -96,10 +96,10 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     imageUrl: "/images/products/granites.png",
     brandedImageUrl: "/images/products/branded/granites.svg",
     topPicks: [
-      { name: "Volcano", href: "/products/granites" },
-      { name: "Saffron", href: "/products/granites" },
-      { name: "Forest", href: "/products/granites" },
-      { name: "Patagonia", href: "/products/granites" },
+      { name: "Absolute Black", href: "/products/absolute-black" },
+      { name: "Black Galaxy", href: "/products/black-galaxy" },
+      { name: "Bianco Antico", href: "/products/bianco-antico" },
+      { name: "Coffee Brown", href: "/products/coffee-brown" },
     ],
   },
   {
@@ -109,10 +109,10 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     imageUrl: "/images/products/semi-precious.png",
     brandedImageUrl: "/images/products/branded/semi-precious.svg",
     topPicks: [
-      { name: "Cristallo", href: "/products/semi-precious" },
-      { name: "Agate", href: "/products/semi-precious" },
-      { name: "Amethyst", href: "/products/semi-precious" },
-      { name: "Rose Quartz", href: "/products/semi-precious" },
+      { name: "Amethyst", href: "/products/amethyst" },
+      { name: "Rose Quartz", href: "/products/rose-quartz" },
+      { name: "Tigers Eye", href: "/products/tigers-eye" },
+      { name: "Mother of Pearl", href: "/products/mother-of-pearl" },
     ],
   },
 ];
@@ -1174,7 +1174,7 @@ export default function Header() {
                                               collection page. */}
                                           <div className="lg:col-span-4">
                                             <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
-                                              Top Picks · Collections
+                                              Top Picks · Products
                                             </h4>
                                             <ul className="space-y-2">
                                               {(active.topPicks ?? []).map(
