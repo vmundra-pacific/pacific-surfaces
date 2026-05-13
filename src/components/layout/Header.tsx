@@ -36,6 +36,11 @@ type MegaCategory = {
    *  Soon" modal instead of navigating. Used for routes that aren't
    *  built yet (e.g. 3D Showroom). coloursHref is ignored. */
   comingSoon?: boolean;
+  /** Optional "branded" image - a stylised mark that sits underneath
+   *  the regular photo with `mix-blend-multiply` so it integrates
+   *  with the dark navy panel. Visible at rest; the regular photo
+   *  fades in on hover on top of it. */
+  brandedImageUrl?: string;
 };
 
 const PRODUCTS_CATEGORIES: MegaCategory[] = [
@@ -44,12 +49,14 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     name: "Mineral infused low silica surface",
     tagline: "Engineered stone for everyday surfaces.",
     imageUrl: "/images/products/quartz.jpg",
+    brandedImageUrl: "/images/products/branded/quartz.svg",
   },
   {
     slug: "facades-and-finishes",
     name: "Beyond Finish",
     tagline: "Large-format facade and feature surfaces.",
     imageUrl: "/images/products/facades.png",
+    brandedImageUrl: "/images/products/branded/facades-and-finishes.svg",
   },
   {
     slug: "vision",
@@ -57,18 +64,21 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     tagline: "Inlayered design quartz surfaces.",
     coloursHref: "/products/quartz/chromia",
     imageUrl: "/images/products/vision.png",
+    brandedImageUrl: "/images/products/branded/vision.svg",
   },
   {
     slug: "granites",
     name: "Granites",
-    tagline: "Quarry-to-kitchen natural stone.",
+    tagline: "Natural stone for every space and surface.",
     imageUrl: "/images/products/granites.png",
+    brandedImageUrl: "/images/products/branded/granites.svg",
   },
   {
     slug: "semi-precious",
     name: "Semi-Precious Stones",
     tagline: "Hand-selected gemstone surfaces.",
     imageUrl: "/images/products/semi-precious.png",
+    brandedImageUrl: "/images/products/branded/semi-precious.svg",
   },
 ];
 
@@ -120,64 +130,61 @@ const CORPORATE_CATEGORIES: MegaCategory[] = [
     name: "Sustainability",
     tagline: "Quarry-to-kitchen responsibility.",
     coloursHref: "/sustainability",
-    imageUrl: undefined,
+    imageUrl: "/images/corporate/sustainability.jpg",
   },
   {
     slug: "careers",
     name: "Work with Us",
     tagline: "Roles, locations, and what we look for.",
     coloursHref: "/careers",
-    imageUrl: undefined,
+    imageUrl: "/images/corporate/careers.jpg",
   },
   {
     slug: "blog",
     name: "News",
     tagline: "Editorial, projects, and updates.",
     coloursHref: "/blog",
-    imageUrl: undefined,
+    imageUrl: "/images/corporate/blog.jpg",
   },
 ];
 
 // PROFESSIONS_CATEGORIES — services + supporting docs for architects,
-// designers, fabricators, and trade partners. Most destinations are
-// pending build-out (Services / Collaboration / Applications /
-// Programs); they all currently route to /contact as a sensible
-// landing while those pages are scoped. Technical Documentation
-// points at the live /resources page.
+// designers, fabricators, and trade partners. Each card routes to its
+// dedicated /professionals/<slug> landing page.
 const PROFESSIONS_CATEGORIES: MegaCategory[] = [
   {
     slug: "services",
     name: "Services",
     tagline: "Specification, fabrication, and project support.",
-    coloursHref: "/contact",
-    imageUrl: undefined,
+    coloursHref: "/professionals/services",
+    imageUrl: "/images/professions/services.jpg",
   },
   {
     slug: "collaboration",
     name: "Collaboration",
     tagline: "Architect, designer, and developer partnerships.",
-    coloursHref: "/contact",
-    imageUrl: undefined,
+    coloursHref: "/professionals/collaboration",
+    imageUrl: "/images/professions/collaboration.jpg",
   },
   {
     slug: "applications",
     name: "Applications",
     tagline: "Where Pacific surfaces install best.",
-    coloursHref: "/contact",
-    imageUrl: undefined,
+    coloursHref: "/professionals/applications",
+    imageUrl: "/images/professions/applications.jpg",
   },
   {
     slug: "programs",
     name: "Programs",
     tagline: "Trade incentives and training.",
-    coloursHref: "/contact",
-    imageUrl: undefined,
+    coloursHref: "/professionals/programs",
+    imageUrl: "/images/professions/programs.jpg",
   },
 ];
 
 // INSPIRATIONS_CATEGORIES — editorial and design-tool destinations.
-// Inspiration + Inspiration Gallery are pending content pages
-// (placeholder route /contact); Visualizer is live at /visualize.
+// Inspiration Gallery is the live photography landing at
+// /inspirations/inspiration-gallery. Visualizer is live at /visualize.
 // 3D Showroom is marked comingSoon — its card renders as a button
 // that opens a "Coming Soon" modal instead of navigating.
 const INSPIRATIONS_CATEGORIES: MegaCategory[] = [
@@ -185,22 +192,22 @@ const INSPIRATIONS_CATEGORIES: MegaCategory[] = [
     slug: "inspiration-gallery",
     name: "Inspiration Gallery",
     tagline: "Project photography, room by room.",
-    coloursHref: "/contact",
-    imageUrl: undefined,
+    coloursHref: "/inspirations/inspiration-gallery",
+    imageUrl: "/images/inspirations/inspiration-gallery.png",
   },
   {
     slug: "visualize",
     name: "Visualizer",
     tagline: "Swap surfaces into real room photography.",
     coloursHref: "/visualize",
-    imageUrl: undefined,
+    imageUrl: "/images/inspirations/visualizer.png",
   },
   {
     slug: "showroom-3d",
     name: "3D Showroom",
     tagline: "Walk a virtual Pacific showroom — coming soon.",
     comingSoon: true,
-    imageUrl: undefined,
+    imageUrl: "/images/inspirations/3d-showroom.jpg",
   },
 ];
 
@@ -246,7 +253,7 @@ const navigation = [
     ],
   },
   {
-    name: "Professions",
+    name: "Professionals",
     href: "/contact",
     mega: true,
     children: [
@@ -329,6 +336,7 @@ function preloadMegaThumbs() {
   if (typeof window === "undefined") return;
   const urls = [
     ...PRODUCTS_CATEGORIES.map((c) => c.imageUrl),
+    ...PRODUCTS_CATEGORIES.map((c) => c.brandedImageUrl),
     ...SPACES_CATEGORIES.map((c) => c.imageUrl),
     ...CORPORATE_CATEGORIES.map((c) => c.imageUrl),
     ...PROFESSIONS_CATEGORIES.map((c) => c.imageUrl),
@@ -504,11 +512,12 @@ export default function Header() {
     pathname.startsWith("/blog/");
   const headerDark = scrolled || isLightHeroPath;
 
-  const monogramVariant: "dark" | "navy" | "light" = headerDark
-    ? "navy"
-    : isHomepage
-      ? "dark"
-      : "light";
+  // At the top of scroll on every page → use the "dark" (ss2 simple
+  // diamond) monogram. Scrolled / dark-navy header state still swaps
+  // to the navy variant for contrast. The "light" variant is wired
+  // up but currently unused since the dark monogram is the editorial
+  // choice for all top-of-page states.
+  const monogramVariant: "dark" | "navy" = headerDark ? "navy" : "dark";
 
   return (
     <>
@@ -651,18 +660,6 @@ export default function Header() {
                   className={cn(
                     "object-contain transition-opacity duration-300",
                     monogramVariant === "navy" ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                <Image
-                  src="/logos/monogram-light.png"
-                  alt=""
-                  fill
-                  sizes="36px"
-                  priority
-                  aria-hidden="true"
-                  className={cn(
-                    "object-contain transition-opacity duration-300",
-                    monogramVariant === "light" ? "opacity-100" : "opacity-0"
                   )}
                 />
               </span>
@@ -820,7 +817,7 @@ export default function Header() {
                                   item.name === "Inspirations"
                                     ? "grid-cols-3"
                                     : item.name === "Spaces" ||
-                                        item.name === "Professions"
+                                        item.name === "Professionals"
                                       ? "grid-cols-4"
                                       : "grid-cols-5"
                                 }`}
@@ -829,7 +826,7 @@ export default function Header() {
                                   ? SPACES_CATEGORIES
                                   : item.name === "Corporate"
                                     ? CORPORATE_CATEGORIES
-                                    : item.name === "Professions"
+                                    : item.name === "Professionals"
                                       ? PROFESSIONS_CATEGORIES
                                       : item.name === "Inspirations"
                                         ? INSPIRATIONS_CATEGORIES
@@ -844,7 +841,7 @@ export default function Header() {
                                   const isSpacesItem =
                                     item.name === "Spaces" ||
                                     item.name === "Corporate" ||
-                                    item.name === "Professions" ||
+                                    item.name === "Professionals" ||
                                     item.name === "Inspirations";
 
                                   // Spaces cards — direct Link, no
@@ -882,16 +879,16 @@ export default function Header() {
                                               />
                                             ) : null}
                                             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
-                                            <span className="absolute top-2 right-2 z-10 rounded-full bg-white/15 backdrop-blur px-2 py-0.5 text-[9px] uppercase tracking-[0.2em] text-white border border-white/20">
-                                              Coming soon
-                                            </span>
-                                            <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center px-3 text-center gap-2">
+                                              <span className="rounded-full bg-white/15 backdrop-blur px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-white border border-white/25">
+                                                Coming soon
+                                              </span>
                                               <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
                                                 {cat.name}
                                               </span>
                                             </div>
                                           </div>
-                                          <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug">
+                                          <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug min-h-[2.25rem] line-clamp-2">
                                             {cat.tagline}
                                           </p>
                                         </button>
@@ -938,7 +935,7 @@ export default function Header() {
                                         {/* Subscript tagline — sits
                                             below the card, kept from
                                             the pre-overlay layout. */}
-                                        <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug">
+                                        <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug min-h-[2.25rem] line-clamp-2">
                                           {cat.tagline}
                                         </p>
                                       </Link>
@@ -980,10 +977,33 @@ export default function Header() {
                                     >
                                       <div
                                         className={cn(
-                                          "relative aspect-[16/10] w-full overflow-hidden rounded-md bg-[#112732] transition-all",
+                                          "relative aspect-[16/10] w-full overflow-hidden rounded-md bg-[#0d1f29] transition-all",
                                           isActive && "ring-2 ring-white/40"
                                         )}
                                       >
+                                        {/* Branded mark layer - always
+                                            visible at rest, blends with
+                                            the navy panel via multiply.
+                                            Painted BEFORE the photo so
+                                            the photo fades in on top of
+                                            it on hover. */}
+                                        {cat.brandedImageUrl ? (
+                                          <Image
+                                            src={cat.brandedImageUrl}
+                                            alt=""
+                                            fill
+                                            className={cn(
+                                              "object-cover pointer-events-none transition-opacity duration-300 ease-out",
+                                              isActive
+                                                ? "opacity-0"
+                                                : "opacity-100 group-hover/card:opacity-0"
+                                            )}
+                                            sizes="(min-width: 1024px) 20vw, 50vw"
+                                            priority={false}
+                                            unoptimized
+                                            aria-hidden="true"
+                                          />
+                                        ) : null}
                                         {cat.imageUrl ? (
                                           // Image is hidden at rest
                                           // and fades in when the
@@ -1005,10 +1025,20 @@ export default function Header() {
                                             unoptimized
                                           />
                                         ) : null}
-                                        {/* Dark scrim so the centered
-                                            name stays legible over any
-                                            photo. */}
-                                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+                                        {/* Dark scrim - only shown
+                                            when the photo is visible
+                                            (hover / expanded). At rest
+                                            we want the branded SVG to
+                                            read as fully white, not
+                                            dimmed by 30-60% black. */}
+                                        <div
+                                          className={cn(
+                                            "absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60 transition-opacity duration-300",
+                                            isActive
+                                              ? "opacity-100"
+                                              : "opacity-0 group-hover/card:opacity-100"
+                                          )}
+                                        />
                                         {/* Chevron in top-right —
                                             rotates 180° when this card
                                             is expanded. */}
@@ -1018,18 +1048,11 @@ export default function Header() {
                                             isActive ? "rotate-180" : ""
                                           )}
                                         />
-                                        {/* Centered, full-width name
-                                            overlay. */}
-                                        <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
-                                          <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
-                                            {cat.name}
-                                          </span>
-                                        </div>
                                       </div>
                                       {/* Subscript tagline — sits
                                           below the card, restored from
                                           the pre-overlay layout. */}
-                                      <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug">
+                                      <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug min-h-[2.25rem] line-clamp-2">
                                         {cat.tagline}
                                       </p>
                                     </button>

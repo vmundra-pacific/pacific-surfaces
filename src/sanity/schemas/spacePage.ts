@@ -2,17 +2,16 @@ import { defineField, defineType } from "sanity";
 
 /**
  * spacePage — one document per per-space landing page (/spaces/kitchens,
- * /spaces/bathrooms, /spaces/architecture, /spaces/commercial). The
- * page's copy (eyebrows, headlines, body, CTA labels and hrefs) is
- * hardcoded in the page.tsx files because that copy is treated as
- * brand structure rather than editorial. THIS schema lets editors
- * upload the four section images per space without touching code.
+ * /spaces/bathrooms, /spaces/architecture, /spaces/commercial,
+ * /spaces/hospitality, /spaces/outdoor). The page's copy (eyebrows,
+ * headlines, body, CTA labels and hrefs) is hardcoded in the page.tsx
+ * files because that copy is treated as brand structure rather than
+ * editorial. THIS schema lets editors upload the four section images
+ * per space without touching code.
  *
  * Editor flow:
- *   1. /studio → Space Pages → +Add → pick the space (Kitchens /
- *      Bathrooms / Architecture / Commercial)
- *   2. Upload Section 1 Image, Section 2 Image, Section 3 Image,
- *      Section 4 Image in order.
+ *   1. /studio → Space Pages → +Add → pick the space.
+ *   2. Upload Section 1–4 images in order.
  *   3. Publish.
  *
  * The /spaces/<slug>/page.tsx route fetches `spacePage` by slug at
@@ -34,6 +33,8 @@ export default defineType({
           { title: "Bathrooms", value: "bathrooms" },
           { title: "Architecture", value: "architecture" },
           { title: "Commercial", value: "commercial" },
+          { title: "Hospitality", value: "hospitality" },
+          { title: "Outdoor & Wet Areas", value: "outdoor" },
         ],
         layout: "dropdown",
       },
@@ -47,7 +48,7 @@ export default defineType({
       type: "image",
       options: { hotspot: true },
       description:
-        "First feature section. Kitchens=Quartz Worktops · Bathrooms=Vanity Tops · Architecture=Façades · Commercial=Reception & Bar Tops.",
+        "First feature section. Kitchens=Quartz Worktops · Bathrooms=Vanity Tops · Architecture=Façades · Commercial=Reception & Bar Tops · Hospitality=Bar Tops & Service Counters · Outdoor=Pool Surrounds.",
     }),
     defineField({
       name: "section2Image",
@@ -55,7 +56,7 @@ export default defineType({
       type: "image",
       options: { hotspot: true },
       description:
-        "Second feature section. Kitchens=Granite Islands · Bathrooms=Wall Cladding · Architecture=Large-format Quartz · Commercial=Hospitality Surfaces.",
+        "Second feature section. Kitchens=Granite Islands · Bathrooms=Wall Cladding · Architecture=Large-format Quartz · Commercial=Hospitality Surfaces · Hospitality=Reception & Front-of-House · Outdoor=Outdoor Kitchens.",
     }),
     defineField({
       name: "section3Image",
@@ -63,7 +64,7 @@ export default defineType({
       type: "image",
       options: { hotspot: true },
       description:
-        "Third feature section. Kitchens=Integra Sinks · Bathrooms=Integra Basins · Architecture=Feature Walls · Commercial=Granite Counters.",
+        "Third feature section. Kitchens=Integra Sinks · Bathrooms=Integra Basins · Architecture=Feature Walls · Commercial=Granite Counters · Hospitality=Guestroom Bathrooms · Outdoor=Terraces & Cladding.",
     }),
     defineField({
       name: "section4Image",
@@ -71,7 +72,7 @@ export default defineType({
       type: "image",
       options: { hotspot: true },
       description:
-        "Fourth feature section. Kitchens=Splashbacks & Cladding · Bathrooms=Shower Trays · Architecture=Granite Cladding · Commercial=Statement Surfaces.",
+        "Fourth feature section. Kitchens=Splashbacks & Cladding · Bathrooms=Shower Trays · Architecture=Granite Cladding · Commercial=Statement Surfaces · Hospitality=Restaurant Feature Walls · Outdoor=Wet Rooms & Spa.",
     }),
   ],
   preview: {
@@ -82,6 +83,8 @@ export default defineType({
         bathrooms: "Bathrooms",
         architecture: "Architecture",
         commercial: "Commercial",
+        hospitality: "Hospitality",
+        outdoor: "Outdoor & Wet Areas",
       };
       return {
         title: `Space — ${titles[slug as string] ?? "Unconfigured"}`,
