@@ -7,7 +7,6 @@ import {
   StaggerItem,
 } from "@/components/ui/animated-section";
 import { MagneticButton } from "@/components/ui/magnetic-button";
-import { ProfessionalsVideoGrid } from "@/components/sections/ProfessionalsVideoGrid";
 import {
   ArrowRight,
   FileText,
@@ -332,14 +331,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* 3. Video grid — click to play. */}
-      <ProfessionalsVideoGrid
-        eyebrow="In motion"
-        title="See the cut in motion."
-        body="Quick reels from the fab floor — DWG to finished piece, by hand, under one roof."
-      />
-
-      {/* 4. What we cut */}
+      {/* 3. What we cut */}
       <section className="bg-[#0a1620]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
           <AnimatedSection animation="fadeUp">

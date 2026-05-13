@@ -95,9 +95,22 @@ export function ProfessionalsVideoGrid({
                     refs.current[i] = el;
                   }}
                   src={src}
-                  muted
                   playsInline
                   preload="metadata"
+                  onPlay={() => {
+                    // Ensure only one card plays at a time — pause
+                    // any sibling that's still running. Triggers on
+                    // native player UI too, not just our click toggle.
+                    refs.current.forEach((other, idx) => {
+                      if (other && idx !== i && !other.paused) {
+                        other.pause();
+                      }
+                    });
+                    setPlaying(i);
+                  }}
+                  onPause={() => {
+                    setPlaying((cur) => (cur === i ? null : cur));
+                  }}
                   onEnded={() => setPlaying(null)}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
