@@ -30,7 +30,7 @@ export async function renderSlabTile(
   // ----- Real product photo path (Sanity slabs) -----
   if (slab.photoUrl) {
     try {
-      const img = await loadImage(slab.photoUrl);
+      const img = await loadImage(rewriteToProxy(slab.photoUrl));
       const c = document.createElement("canvas");
       c.width = width;
       c.height = height;
@@ -79,6 +79,28 @@ export async function renderSlabTile(
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+/**
+ * Rewrite Sanity CDN image URLs to our same-origin /api/cdn proxy.
+ *
+ * Why: the canvas Export PNG path calls `toDataURL`, which throws a
+ * SecurityError if any image drawn onto the canvas came from a
+ * cross-origin source that didn't echo CORS headers. Sanity's image
+ * CDN intermittently fails to return `Access-Control-Allow-Origin` on
+ * first hit (cold cache), so a fraction of slab loads taint the canvas
+ * and silently disable export.
+ *
+ * Routing through `/api/cdn/...` makes the request same-origin, side-
+ * stepping CORS entirely. The proxy is implemented at
+ * `src/app/api/cdn/[...path]/route.ts` and already forwards image
+ * requests with the original query string intact.
+ *
+ * Non-Sanity URLs (data: URLs from SVG fallback, blob: URLs, demo-room
+ * paths) pass through unchanged.
+ */
+function rewriteToProxy(src: string): string {
+  return src.replace(/^https?:\/\/cdn\.sanity\.io\//, "/api/cdn/");
 }
 
 /**
