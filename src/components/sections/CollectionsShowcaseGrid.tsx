@@ -166,7 +166,7 @@ export function CollectionsShowcaseGrid({
     "Vision",
     "Granite",
     "Exotic",
-    "Semi-Precious Stones",
+    "Semi Precious",
     "Integra",
     // Stone Finishes renders as "Beyond Finish" via the
     // COLLECTION_LABELS rename map in labels.ts.
