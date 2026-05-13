@@ -41,6 +41,11 @@ type MegaCategory = {
    *  with the dark navy panel. Visible at rest; the regular photo
    *  fades in on hover on top of it. */
   brandedImageUrl?: string;
+  /** Optional list of curated design picks for this category. Renders
+   *  inside the Products mega's expanded sub-panel as a "Top Picks"
+   *  column. Each entry routes to the picked design; the column ends
+   *  with a "See more <name>" link back to the category page. */
+  topPicks?: { name: string; href: string }[];
 };
 
 const PRODUCTS_CATEGORIES: MegaCategory[] = [
@@ -50,6 +55,12 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     tagline: "Engineered stone for everyday surfaces.",
     imageUrl: "/images/products/quartz.jpg",
     brandedImageUrl: "/images/products/branded/quartz.svg",
+    topPicks: [
+      { name: "Ruskin", href: "/products/quartz" },
+      { name: "Travertine", href: "/products/quartz" },
+      { name: "Pure White", href: "/products/quartz" },
+      { name: "Carrara", href: "/products/quartz" },
+    ],
   },
   {
     slug: "facades-and-finishes",
@@ -57,6 +68,12 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     tagline: "Large-format facade and feature surfaces.",
     imageUrl: "/images/products/facades.png",
     brandedImageUrl: "/images/products/branded/facades-and-finishes.svg",
+    topPicks: [
+      { name: "Stoneface", href: "/products/facades-and-finishes" },
+      { name: "Travertine", href: "/products/facades-and-finishes" },
+      { name: "Carbon", href: "/products/facades-and-finishes" },
+      { name: "Aged Concrete", href: "/products/facades-and-finishes" },
+    ],
   },
   {
     slug: "vision",
@@ -65,6 +82,12 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     coloursHref: "/products/quartz/chromia",
     imageUrl: "/images/products/vision.png",
     brandedImageUrl: "/images/products/branded/vision.svg",
+    topPicks: [
+      { name: "Taj Vein", href: "/products/quartz/chromia" },
+      { name: "Pietra Grey", href: "/products/quartz/chromia" },
+      { name: "Statuario", href: "/products/quartz/chromia" },
+      { name: "Calacatta", href: "/products/quartz/chromia" },
+    ],
   },
   {
     slug: "granites",
@@ -72,6 +95,12 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     tagline: "Natural stone for every space and surface.",
     imageUrl: "/images/products/granites.png",
     brandedImageUrl: "/images/products/branded/granites.svg",
+    topPicks: [
+      { name: "Volcano", href: "/products/granites" },
+      { name: "Saffron", href: "/products/granites" },
+      { name: "Forest", href: "/products/granites" },
+      { name: "Patagonia", href: "/products/granites" },
+    ],
   },
   {
     slug: "semi-precious",
@@ -79,6 +108,12 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     tagline: "Hand-selected gemstone surfaces.",
     imageUrl: "/images/products/semi-precious.png",
     brandedImageUrl: "/images/products/branded/semi-precious.svg",
+    topPicks: [
+      { name: "Cristallo", href: "/products/semi-precious" },
+      { name: "Agate", href: "/products/semi-precious" },
+      { name: "Amethyst", href: "/products/semi-precious" },
+      { name: "Rose Quartz", href: "/products/semi-precious" },
+    ],
   },
 ];
 
@@ -106,14 +141,14 @@ const SPACES_CATEGORIES: MegaCategory[] = [
     slug: "architecture",
     name: "Outdoors",
     tagline: "Facades, cladding, and feature walls.",
-    coloursHref: "/spaces/architecture",
+    coloursHref: "/spaces/outdoor",
     imageUrl: "/images/spaces/architecture.png",
   },
   {
     slug: "commercial",
     name: "Interior",
     tagline: "Hospitality, retail, and workspaces.",
-    coloursHref: "/spaces/commercial",
+    coloursHref: "/spaces/hospitality",
     imageUrl: "/images/spaces/commercial.jpg",
   },
 ];
@@ -248,8 +283,8 @@ const navigation = [
     children: [
       { name: "Kitchens", href: "/spaces#kitchens" },
       { name: "Bathrooms", href: "/spaces#bathrooms" },
-      { name: "Outdoors", href: "/spaces#architecture" },
-      { name: "Interior", href: "/spaces#commercial" },
+      { name: "Outdoors", href: "/spaces/outdoor" },
+      { name: "Interior", href: "/spaces/hospitality" },
     ],
   },
   {
@@ -1087,8 +1122,10 @@ export default function Header() {
                                         style={{ overflow: "hidden" }}
                                       >
                                         <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-x-6 gap-y-5">
-                                          {/* About column */}
-                                          <div className="lg:col-span-9">
+                                          {/* About column — what the
+                                              product is, how to keep it,
+                                              warranty (Quartz only). */}
+                                          <div className="lg:col-span-3">
                                             <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
                                               About {active.name}
                                             </h4>
@@ -1109,12 +1146,6 @@ export default function Header() {
                                                   Maintenance
                                                 </Link>
                                               </li>
-                                              {/* Warranty link is
-                                                  only surfaced for
-                                                  Quartz — that's the
-                                                  only product line
-                                                  with a lifetime
-                                                  warranty. */}
                                               {active.slug === "quartz" && (
                                                 <li>
                                                   <Link
@@ -1127,26 +1158,114 @@ export default function Header() {
                                               )}
                                             </ul>
                                           </div>
-                                          {/* Colours CTA pill —
-                                              Beyond Finish
-                                              drops the "Colours"
-                                              suffix because it isn't
-                                              sold as a colour
-                                              catalogue. Vision routes
-                                              to its Chromia landing
-                                              via coloursHref. */}
-                                          <div className="lg:col-span-3 flex flex-col items-start lg:items-end justify-end">
+
+                                          {/* Top Picks column —
+                                              curated design picks per
+                                              category. Falls back
+                                              gracefully when topPicks
+                                              isn't defined on a
+                                              category. Final entry is
+                                              a "See more" that routes
+                                              to the category's main
+                                              collection page. */}
+                                          <div className="lg:col-span-4">
+                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
+                                              Top Picks · Collections
+                                            </h4>
+                                            <ul className="space-y-2">
+                                              {(active.topPicks ?? []).map(
+                                                (pick) => (
+                                                  <li key={pick.name}>
+                                                    <Link
+                                                      href={pick.href}
+                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                    >
+                                                      {pick.name}
+                                                    </Link>
+                                                  </li>
+                                                )
+                                              )}
+                                              <li className="pt-1">
+                                                <Link
+                                                  href={
+                                                    active.coloursHref ??
+                                                    `/products/${active.slug}`
+                                                  }
+                                                  className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-stone-200 transition-colors"
+                                                >
+                                                  See more {active.name}
+                                                  <ArrowRight className="w-3.5 h-3.5" />
+                                                </Link>
+                                              </li>
+                                            </ul>
+                                          </div>
+
+                                          {/* Applications column —
+                                              same set across every
+                                              product card: kitchens,
+                                              bathrooms, living, with
+                                              a "See more applications"
+                                              link to the dedicated
+                                              applications page. */}
+                                          <div className="lg:col-span-3">
+                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
+                                              Applications
+                                            </h4>
+                                            <ul className="space-y-2">
+                                              <li>
+                                                <Link
+                                                  href="/spaces/kitchens"
+                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                >
+                                                  Kitchens
+                                                </Link>
+                                              </li>
+                                              <li>
+                                                <Link
+                                                  href="/spaces/bathrooms"
+                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                >
+                                                  Bathrooms
+                                                </Link>
+                                              </li>
+                                              <li>
+                                                <Link
+                                                  href="/inspirations/inspiration-gallery"
+                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                >
+                                                  Living Rooms
+                                                </Link>
+                                              </li>
+                                              <li className="pt-1">
+                                                <Link
+                                                  href="/professionals/applications"
+                                                  className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-stone-200 transition-colors"
+                                                >
+                                                  See more applications
+                                                  <ArrowRight className="w-3.5 h-3.5" />
+                                                </Link>
+                                              </li>
+                                            </ul>
+                                          </div>
+
+                                          {/* Right-aligned primary CTA
+                                              pill — same target as the
+                                              "See more" inside Top
+                                              Picks, but visually
+                                              elevated as the main
+                                              action of the panel. */}
+                                          <div className="lg:col-span-2 flex flex-col items-start lg:items-end justify-end">
                                             <Link
                                               href={
                                                 active.coloursHref ??
                                                 `/products/${active.slug}`
                                               }
-                                              className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-white text-stone-900 text-[11px] font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
+                                              className="inline-flex items-center gap-2 rounded-full px-5 py-3 bg-white text-stone-900 text-[10px] font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
                                             >
                                               {active.slug ===
                                               "facades-and-finishes"
-                                                ? active.name
-                                                : `${active.name} Colours`}
+                                                ? "Explore"
+                                                : "Browse"}
                                               <ArrowRight className="w-4 h-4" />
                                             </Link>
                                           </div>

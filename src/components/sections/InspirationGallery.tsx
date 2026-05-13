@@ -41,120 +41,77 @@ type Category =
 interface Project {
   id: string;
   title: string;
-  location: string;
   category: Exclude<Category, "all">;
   surface: string;
   image: string;
-  span?: "tall" | "wide";
 }
 
 const PROJECTS: Project[] = [
-  // Cards using /images/spaces/* — actual installed-project photography.
-  // Title describes what the photograph shows so the caption stays
-  // anchored to the image rather than a poetic project codename.
+  // Every entry below was written after looking at the actual image
+  // file — title, surface and category match what the
+  // photograph shows, not the filename.
   {
     id: "k01",
-    title: "Open-plan kitchen with marble island",
-    location: "Mumbai, IN",
+    title: "Travertine waterfall island in a walnut kitchen",
     category: "kitchens",
-    surface: "Eclipse · Calacatta",
+    surface: "Quartz · Travertine",
     image: "/images/spaces/kitchens.png",
-    span: "wide",
   },
   {
     id: "b01",
-    title: "Twin-basin vanity in soft-grey quartz",
-    location: "Bengaluru, IN",
+    title: "Travertine bathroom with a freestanding stone tub",
     category: "bathrooms",
-    surface: "Beyond Finish · Mist",
+    surface: "Quartz · Travertine Honed",
     image: "/images/spaces/bathrooms.jpg",
   },
   {
     id: "c01",
-    title: "Polished marble reception counter",
-    location: "Hyderabad, IN",
+    title: "Textured stoneface wall above a polished counter",
     category: "commercial",
-    surface: "Granite · Volcano",
+    surface: "Beyond Finish · Stoneface",
     image: "/images/spaces/commercial.jpg",
-    span: "tall",
   },
   {
     id: "a01",
-    title: "Textured stoneface facade panels",
-    location: "Pune, IN",
-    category: "outdoor",
-    surface: "Beyond Finish · Stoneface",
-    image: "/images/spaces/architecture.png",
-  },
-  // Cards using /images/products/* — material studies / slab close-ups.
-  // Location reads "Sample" rather than a city so it doesn't pretend
-  // to be a project shot when it's a material reference.
-  {
-    id: "k02",
-    title: "Pure white quartz — material study",
-    location: "Sample · India",
-    category: "kitchens",
-    surface: "Quartz · Pure White, Polished",
-    image: "/images/products/quartz.jpg",
-  },
-  {
-    id: "l01",
-    title: "Hand-laid agate, backlit panel",
-    location: "Sample · India",
+    title: "A moody stone feature wall, framed in timber",
     category: "living",
-    surface: "Semi-Precious · Agate",
-    image: "/images/products/semi-precious.png",
-    span: "wide",
-  },
-  {
-    id: "c02",
-    title: "Eclipse marble — veined detail",
-    location: "Sample · India",
-    category: "commercial",
-    surface: "Eclipse · Pietra Grey",
-    image: "/images/products/vision.png",
+    surface: "Quartz · Ruskin",
+    image: "/images/spaces/architecture.png",
   },
   {
     id: "b02",
-    title: "Forest-green granite, polished finish",
-    location: "Sample · India",
+    title: "Beige-veined marble bath with a cocoon-shaped tub",
     category: "bathrooms",
-    surface: "Granite · Forest",
-    image: "/images/products/granites.png",
+    surface: "Eclipse · Pietra Light",
+    image: "/images/products/quartz.jpg",
   },
   {
-    id: "l02",
-    title: "Travertine surface, large-format",
-    location: "Sample · India",
+    id: "k02",
+    title: "Backlit Cristallo island, city skyline beyond",
+    category: "kitchens",
+    surface: "Exotic · Cristallo, Backlit",
+    image: "/images/products/semi-precious.png",
+  },
+  {
+    id: "l01",
+    title: "Pale marble fireplace wall in an open living room",
     category: "living",
-    surface: "Beyond Finish · Travertine",
-    image: "/images/products/facades.png",
-  },
-  // Back to /images/spaces/*
-  {
-    id: "a02",
-    title: "Architectural elevation, large-format cladding",
-    location: "Alibaug, IN",
-    category: "outdoor",
-    surface: "Quartz · Carrara",
-    image: "/images/spaces/architecture.png",
-    span: "tall",
+    surface: "Eclipse · Taj Vein",
+    image: "/images/products/vision.png",
   },
   {
     id: "k03",
-    title: "Kitchen with full-height bookmatched backsplash",
-    location: "Ahmedabad, IN",
+    title: "Warm-veined granite counter with a brass mixer",
     category: "kitchens",
-    surface: "Exotic · Calacatta Viola",
-    image: "/images/spaces/kitchens.png",
+    surface: "Granite · Saffron",
+    image: "/images/products/granites.png",
   },
   {
-    id: "c03",
-    title: "Marble counter in a co-working lounge",
-    location: "Bengaluru, IN",
-    category: "commercial",
-    surface: "Eclipse · Statuario",
-    image: "/images/spaces/commercial.jpg",
+    id: "o01",
+    title: "Dark slab cladding on a modern home at dusk",
+    category: "outdoor",
+    surface: "Beyond Finish · Carbon",
+    image: "/images/products/facades.png",
   },
 ];
 
@@ -240,39 +197,35 @@ export function InspirationGallery() {
       {/* ── 3. Grid ── */}
       <section className="bg-[#0a1620]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-24">
+          {/* Masonry layout — CSS columns let each card take its image's
+              natural aspect ratio. No forced 4:3 crop, no letterboxing,
+              no gaps. break-inside-avoid keeps a card on one column. */}
           <StaggerContainer
-            key={filter} /* re-runs stagger on filter change */
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6"
+            key={filter}
+            className="columns-1 sm:columns-2 lg:columns-3 gap-5 lg:gap-6"
           >
             {filtered.map((p) => (
               <StaggerItem
                 key={p.id}
-                className={`h-full ${
-                  p.span === "wide"
-                    ? "sm:col-span-2"
-                    : p.span === "tall"
-                      ? "row-span-2"
-                      : ""
-                }`}
+                className="mb-5 lg:mb-6 break-inside-avoid"
               >
                 <button
                   type="button"
                   onClick={() => setLightbox(p)}
-                  className="group block w-full h-full text-left rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:border-white/20 transition-all duration-500"
+                  className="group block w-full text-left rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:border-white/20 transition-all duration-500"
                 >
-                  <div
-                    className={`relative overflow-hidden ${
-                      p.span === "tall" ? "aspect-[3/5]" : "aspect-[4/3]"
-                    }`}
-                  >
-                    <Image
+                  <div className="relative overflow-hidden">
+                    {/* Plain <img> with w-full h-auto so the card's
+                        height is whatever the image's intrinsic
+                        aspect dictates — no cropping. */}
+                    <img
                       src={p.image}
                       alt={p.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      loading="lazy"
+                      decoding="async"
+                      className="block w-full h-auto transition-transform duration-700 group-hover:scale-[1.04]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
                     <div className="absolute left-5 right-5 bottom-4 flex items-end justify-between gap-3">
                       <div className="text-white">
                         <div className="text-[10px] tracking-[0.25em] uppercase text-white/70 font-medium">
@@ -281,9 +234,6 @@ export function InspirationGallery() {
                         <h3 className="mt-2 text-lg sm:text-xl font-light tracking-tight">
                           {p.title}
                         </h3>
-                        <div className="mt-1 text-[11px] font-light text-white/65">
-                          {p.location}
-                        </div>
                       </div>
                       <ArrowRight className="w-4 h-4 text-white/80 group-hover:translate-x-0.5 transition-transform" />
                     </div>
@@ -345,9 +295,6 @@ export function InspirationGallery() {
                   <h3 className="mt-2 text-2xl sm:text-3xl font-light tracking-tight">
                     {lightbox.title}
                   </h3>
-                  <div className="mt-1 text-sm font-light text-white/70">
-                    {lightbox.location}
-                  </div>
                 </div>
                 <Link
                   href="/contact"

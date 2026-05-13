@@ -7,6 +7,7 @@ import {
   StaggerItem,
 } from "@/components/ui/animated-section";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { ProfessionalsVideoGrid } from "@/components/sections/ProfessionalsVideoGrid";
 import {
   ArrowRight,
   Building2,
@@ -143,7 +144,14 @@ export default function CollaborationPage() {
         </div>
       </section>
 
-      {/* ── 3. How we co-create ── */}
+      {/* ── 3. Video grid — click to play. ── */}
+      <ProfessionalsVideoGrid
+        eyebrow="In motion"
+        title="See the work in motion."
+        body="A few minutes inside the design reviews, fabrication floor, and on-site installs that shape a Pacific partnership."
+      />
+
+      {/* ── 4. How we co-create ── */}
       <section className="bg-[#112732] border-y border-white/5">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
           <AnimatedSection animation="fadeUp">

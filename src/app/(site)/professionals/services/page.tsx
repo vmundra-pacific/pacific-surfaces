@@ -7,6 +7,7 @@ import {
   StaggerItem,
 } from "@/components/ui/animated-section";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { ProfessionalsVideoGrid } from "@/components/sections/ProfessionalsVideoGrid";
 import {
   ArrowRight,
   FileText,
@@ -331,7 +332,14 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* 3. What we cut */}
+      {/* 3. Video grid — click to play. */}
+      <ProfessionalsVideoGrid
+        eyebrow="In motion"
+        title="See the cut in motion."
+        body="Quick reels from the fab floor — DWG to finished piece, by hand, under one roof."
+      />
+
+      {/* 4. What we cut */}
       <section className="bg-[#0a1620]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
           <AnimatedSection animation="fadeUp">
@@ -546,12 +554,12 @@ export default function ServicesPage() {
               Ready to cut?
             </span>
             <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
-              Send a drawing. We&apos;ll send a quote.
+              Send a drawing. We&apos;ll send a quote .
             </h2>
             <p className="mt-5 max-w-2xl mx-auto text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-              DWG, PDF, or a hand-sketch — whatever you have, we can work from
-              it. A senior Pacific fabricator will respond within one working
-              day.
+              CAD, DWG, PDF, or a hand-sketch — whatever you have, we can work
+              from it. A senior Pacific fabricator will respond within one
+              working day.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <MagneticButton href="/contact" variant="primary" size="lg">
