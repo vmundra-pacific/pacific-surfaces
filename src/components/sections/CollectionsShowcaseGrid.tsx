@@ -2,22 +2,6 @@
 
 /**
  * CollectionsShowcaseGrid — pinned horizontal carousel.
- *
- * The section locks to the viewport while the user scrolls vertically;
- * that vertical scroll is translated into a horizontal slide of the
- * cards inside. Once the cards have travelled their full distance,
- * the pin releases and the rest of the page continues normally.
- *
- * Layout choices:
- *  - The section's height grows with the number of cards, so more
- *    collections = more scroll budget = same per-card pacing.
- *  - The header (eyebrow + title + paragraph) stays pinned at the
- *    top of the sticky child for the full duration of the scroll,
- *    keeping context while the cards pass through.
- *  - A scroll-progress bar sits at the bottom of the sticky child so
- *    the user knows how much of the carousel is left.
- *
- * Pace tuning: see `VH_PER_CARD` below.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -26,6 +10,7 @@ import { TextReveal } from "@/components/ui/text-reveal";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { formatCollection } from "@/components/catalogue/labels";
 
 interface SanityCollection {
   _id: string;
@@ -39,7 +24,6 @@ interface SanityCollection {
   productCount: number;
 }
 
-// Fallback data when Sanity has no collections yet.
 const fallbackCollections = [
   {
     name: "Calacatta Couture",
@@ -96,27 +80,13 @@ const gradientFallbacks = [
   "bg-gradient-to-br from-stone-400 via-stone-500 to-stone-600",
 ];
 
-/** How much vertical-scroll budget (in vh) each card consumes. Lower
- *  = faster carousel, higher = lazier. 60–80 reads as cinematic. */
 const VH_PER_CARD = 65;
 
-/**
- * Map a collection name to its URL category, so cards link into the
- * /products/[category]/[slug] hierarchy instead of the old flat
- * /collections/[slug] one.
- *
- * Reference (per spec):
- *   quartz       → Vision, Chromia, Kosmic, Celestia, Aurora,
- *                  Nebula, Luminara, plus the top-level "Quartz" card
- *   granite      → Granite, granite-family collections
- *   semiprecious → Semi Precious Stones, Exotic
- *   sinks        → Integra
- *   (default)    → anything else falls back to "products"
- *
- * Match is case-insensitive prefix on the collection's name. Edit
- * CATEGORY_RULES below to add or move collections.
- */
-const CATEGORY_RULES: Array<{ matches: string[]; category: string }> = [
+const CATEGORY_RULES: Array<{
+  matches: string[];
+  category: string;
+  forceRoot?: boolean;
+}> = [
   {
     category: "quartz",
     matches: [
@@ -131,27 +101,28 @@ const CATEGORY_RULES: Array<{ matches: string[]; category: string }> = [
     ],
   },
   { category: "granites", matches: ["granite"] },
-  // Exotic gets its own top-level category route, NOT lumped under
-  // semi-precious. Both have their own hero video + landing page;
-  // routing Exotic into semi-precious played the wrong clip and
-  // produced a misleading URL like /products/semi-precious/exotic-
-  // collection. Listing exotic before semi here so the prefix match
-  // resolves to "exotic" first when both could match.
   { category: "exotic", matches: ["exotic"] },
   { category: "semi-precious", matches: ["semi"] },
   { category: "integra", matches: ["integra"] },
-  // Vanity is its own top-level category at /products/vanity. Match
-  // is a prefix on the Sanity collection name so any "Vanity *"
-  // collection routes there. The standalone "centrepiece" rule below
-  // catches the parent Centrepiece Couture collection.
   { category: "vanity", matches: ["vanity"] },
   { category: "centrepiece-couture", matches: ["centrepiece"] },
+  // Stone Finishes (rebranded "Beyond Finish") routes to
+  // /products/facades-and-finishes. Matches both Sanity's current
+  // collection name and the new brand alias in case the underlying
+  // Sanity doc is renamed later.
+  {
+    category: "facades-and-finishes",
+    matches: ["stone finish", "beyond finish"],
+    // forceRoot: always link to /products/facades-and-finishes,
+    // never to a nested /products/facades-and-finishes/<slug>.
+    // The Sanity "Stone Finishes" collection has slug "stone-
+    // finishes" which doesn't equal the category slug, so the
+    // generic isCategoryRoot detection misses it and would build
+    // a nested URL that doesn't exist as a route.
+    forceRoot: true,
+  },
 ];
 
-// Category slugs that resolve to real top-level routes — used to
-// validate the rule output and the bare-slug fallback. If a fallback
-// produces a slug that ISN'T in this set, we redirect the link to the
-// /products catalogue index rather than 404.
 const VALID_CATEGORY_SLUGS = new Set([
   "quartz",
   "granites",
@@ -168,25 +139,14 @@ function urlForCollection(name: string, slug: string): string {
   const s = slug.toLowerCase();
   for (const rule of CATEGORY_RULES) {
     if (rule.matches.some((m) => n.startsWith(m))) {
-      // If this collection IS the category root (e.g. Sanity collection
-      // "Granite" with slug "granite" routing to the "granites"
-      // category), link straight to the category landing instead of
-      // /products/<category>/<root-slug>. Otherwise it'd render the
-      // exact same content under a deeper, redundant URL.
-      // Detection: slug equals the category, or one starts with the
-      // other (catches singular/plural pairs like granite/granites).
       const isCategoryRoot =
         s === rule.category ||
         rule.category.startsWith(s) ||
         s.startsWith(rule.category);
-      if (isCategoryRoot) return `/products/${rule.category}`;
+      if (rule.forceRoot || isCategoryRoot) return `/products/${rule.category}`;
       return `/products/${rule.category}/${slug}`;
     }
   }
-  // No category rule matched. If the slug itself is a known top-level
-  // category (rare but happens with seed data), use it directly.
-  // Otherwise route to the products catalogue index — clicking the
-  // card still lands users on a real page instead of a 404.
   if (VALID_CATEGORY_SLUGS.has(slug)) return `/products/${slug}`;
   return `/products`;
 }
@@ -199,45 +159,32 @@ export function CollectionsShowcaseGrid({
   const hasSanityData = collections && collections.length > 0;
   const allItems = hasSanityData ? collections! : fallbackCollections;
 
-  // Curate the carousel down to a hand-picked, ordered subset.
-  // Match is case-insensitive prefix on the collection name (i.e.
-  // the Sanity collection's name must START WITH the curated string).
-  // Prefix matching prevents accidental hits — e.g. "Vanity" will
-  // match "Vanity Couture" but NOT "Monolith Quartz Vanity". Edit
-  // this array to retune the carousel.
+  // Hand-picked carousel order. Each entry is a prefix matched
+  // case-insensitively against the Sanity collection's `name`.
   const CURATED_NAMES = [
     "Quartz",
     "Vision",
     "Granite",
     "Exotic",
-    "Semi Precious",
-    // "Fab Creations" — hidden from the homepage showcase until the
-    // collection has at least one published product. Re-enable by
-    // uncommenting the line above the matching entry in
-    // src/components/layout/Header.tsx as well.
+    "Semi-Precious Stones",
     "Integra",
     "Centrepiece Couture",
     "Vanity",
+    // Stone Finishes renders as "Beyond Finish" via the
+    // COLLECTION_LABELS rename map in labels.ts.
+    "Stone Finish",
   ];
   const items = CURATED_NAMES.map((target) =>
     allItems.find((c) => c.name.toLowerCase().startsWith(target.toLowerCase()))
   ).filter(Boolean) as typeof allItems;
 
   const numCards = items.length;
-
-  // Section height: a pin-entry buffer of 100vh + a per-card budget
-  // for the horizontal travel. With 6 cards at 65vh each = 490vh
-  // total — feels like a substantial set-piece without dragging.
   const sectionHeightVh = 100 + numCards * VH_PER_CARD;
 
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [travelPx, setTravelPx] = useState(0);
 
-  // Measure the actual horizontal distance the track needs to slide,
-  // re-measuring on resize. We use the track's real `scrollWidth` so
-  // it always lines up regardless of card width / count / responsive
-  // breakpoints.
   useEffect(() => {
     const measure = () => {
       const track = trackRef.current;
@@ -250,11 +197,6 @@ export function CollectionsShowcaseGrid({
     return () => window.removeEventListener("resize", measure);
   }, [numCards]);
 
-  // Map the section's vertical scroll progress (0 → 1) onto a
-  // horizontal pixel translation (0 → -travelPx). framer-motion's
-  // useScroll on the section ref + offset = ["start start", "end end"]
-  // means progress hits 1 exactly when the section's bottom touches
-  // the viewport's bottom.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
@@ -270,8 +212,6 @@ export function CollectionsShowcaseGrid({
       style={{ height: `${sectionHeightVh}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col">
-        {/* Header — stays fixed at the top of the sticky child while
-            the cards slide past underneath. */}
         <div className="shrink-0 px-6 lg:px-8 pt-16 lg:pt-20 pb-6">
           <div className="mx-auto max-w-7xl flex flex-col lg:flex-row items-start justify-between gap-8">
             <div className="lg:max-w-lg">
@@ -306,9 +246,6 @@ export function CollectionsShowcaseGrid({
           </div>
         </div>
 
-        {/* Horizontal track — the cards live in a flex row that gets
-            translated along X based on scroll progress. items-center
-            vertically centres them in the remaining space. */}
         <div className="flex-1 relative overflow-hidden flex items-center">
           <motion.div
             ref={trackRef}
@@ -316,8 +253,6 @@ export function CollectionsShowcaseGrid({
             className="flex gap-4 lg:gap-5 px-6 lg:px-8 will-change-transform"
           >
             {items.map((col, i) => {
-              // Normalise field access so Sanity and fallback data
-              // share the same render path.
               const isSanity = "slug" in col && typeof col.slug === "object";
               const slug = isSanity
                 ? (col as SanityCollection).slug.current
@@ -327,15 +262,28 @@ export function CollectionsShowcaseGrid({
                 : (col as (typeof fallbackCollections)[number]).wide;
               const image = isSanity ? (col as SanityCollection).image : null;
               const tag = col.tag;
-              const name = col.name;
+              // Display names go through formatCollection() so the
+              // homepage carousel respects the COLLECTION_LABELS rename
+              // map ("Stone Finishes" -> "Beyond Finish",
+              // "Vision Series" -> "Eclipse"). Sanity data stays
+              // untouched.
+              const rawName = col.name;
+              const name = formatCollection(rawName);
               const finishCount = isSanity
                 ? (col as SanityCollection).finishCount ||
                   `${(col as SanityCollection).productCount} Products`
                 : (col as (typeof fallbackCollections)[number]).finishCount;
-              const headline = isSanity
+              const rawHeadline = isSanity
                 ? (col as SanityCollection).headline ||
                   (col as SanityCollection).name
                 : (col as (typeof fallbackCollections)[number]).headline;
+              // Only rename the headline if it matches the raw
+              // collection name (i.e. an editor hasn't already set a
+              // custom headline). Custom headlines render verbatim.
+              const headline =
+                rawHeadline === rawName
+                  ? formatCollection(rawHeadline)
+                  : rawHeadline;
               const bg = isSanity
                 ? gradientFallbacks[i % gradientFallbacks.length]
                 : (col as (typeof fallbackCollections)[number]).bg;
@@ -343,10 +291,6 @@ export function CollectionsShowcaseGrid({
                 ? (col as SanityCollection)._id
                 : (col as (typeof fallbackCollections)[number]).slug;
 
-              // Card sizing: wider cards for "showcase: wide", narrower
-              // otherwise. Responsive — narrower viewports get bigger
-              // cards relative to viewport so each one reads big on
-              // mobile / tablet too.
               const widthClass = isWide
                 ? "w-[80vw] sm:w-[60vw] md:w-[44vw] lg:w-[40vw]"
                 : "w-[72vw] sm:w-[44vw] md:w-[32vw] lg:w-[26vw]";
@@ -354,7 +298,7 @@ export function CollectionsShowcaseGrid({
               return (
                 <Link
                   key={key}
-                  href={urlForCollection(name, slug)}
+                  href={urlForCollection(rawName, slug)}
                   className={`group relative shrink-0 rounded-2xl overflow-hidden block h-[60vh] max-h-[640px] ${widthClass}`}
                 >
                   {image ? (
@@ -395,9 +339,6 @@ export function CollectionsShowcaseGrid({
           </motion.div>
         </div>
 
-        {/* Progress bar — visualises how far the user is through the
-            horizontal carousel, plus a small hint label so it's
-            obvious the section is interactive. */}
         <div className="shrink-0 px-6 lg:px-8 pb-8">
           <div className="mx-auto max-w-7xl flex items-center gap-4">
             <span className="text-[10px] tracking-[0.2em] uppercase text-pacific-mid whitespace-nowrap">

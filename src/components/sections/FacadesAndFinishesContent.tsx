@@ -12,7 +12,7 @@
  *   3. Features — centred "Transform Stones Into Art" eyebrow +
  *      headline + 3 numbered cards.
  *   4. Finish grid — every product tagged to the
- *      "Façades and Finishes" Sanity Collection. Tap → lightbox
+ *      "Beyond Finish" Sanity Collection. Tap → lightbox
  *      with mouse-wheel zoom.
  *
  * Lightbox
@@ -578,14 +578,14 @@ function FinishTile({
         open={sampleOpen}
         onClose={() => setSampleOpen(false)}
         productName={finish.name}
-        productCategory="Façades and Finishes"
+        productCategory="Beyond Finish"
         mode="sample"
       />
       <OrderSampleModal
         open={enquireOpen}
         onClose={() => setEnquireOpen(false)}
         productName={finish.name}
-        productCategory="Façades and Finishes"
+        productCategory="Beyond Finish"
         mode="enquire"
       />
     </>
@@ -603,7 +603,7 @@ function EmptyState() {
         Studio has at least one published Product tagged to it, and that the
         collection slug matches the value set in{" "}
         <strong className="text-white">
-          Façades and Finishes Page → Grid → Source Collection Slug
+          Beyond Finish Page → Grid → Source Collection Slug
         </strong>
         .
       </p>

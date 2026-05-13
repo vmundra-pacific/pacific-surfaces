@@ -14,7 +14,7 @@ import { ArrowRight } from "lucide-react";
  * rhythm. Each section pairs an image placeholder with a heading +
  * body + product CTA, where the CTA routes to the most relevant
  * Pacific catalogue page (Quartz, Granites, Vanity, Integra,
- * Façades and Finishes, Centrepiece Couture, Semi-Precious).
+ * Beyond Finish, Centrepiece Couture, Semi-Precious Stones).
  *
  * Image placeholders are intentionally simple gradient blocks for
  * now — drop a real photo into /public/images/spaces/<slug>/<n>.jpg

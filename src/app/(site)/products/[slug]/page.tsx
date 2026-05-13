@@ -86,7 +86,7 @@ const LEARN_LINKS_BY_CATEGORY: Record<string, LearnLink[]> = {
   ],
   "semi-precious": [
     {
-      label: "What is Semi-Precious Stone?",
+      label: "What is Semi-Precious Stones?",
       href: "/learn/what-is-semi-precious",
       description:
         "Composition, hand-laid craft, and where Pacific semi-precious surfaces work best.",
@@ -100,7 +100,7 @@ const LEARN_LINKS_BY_CATEGORY: Record<string, LearnLink[]> = {
   ],
   "facades-and-finishes": [
     {
-      label: "What are Façades and Finishes?",
+      label: "What are Beyond Finish?",
       href: "/learn/what-is-facades-and-finishes",
       description:
         "The product range, architectural use, and specification of Pacific large-format facade surfaces.",
@@ -299,7 +299,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     quartz: "Engineered Quartz",
     granites: "Granite",
     granite: "Granite",
-    "semi-precious": "Semi-Precious Stone",
+    "semi-precious": "Semi-Precious Stones",
     exotic: "Exotic Stone",
     integra: "Engineered Quartz",
     "centrepiece-couture": "Engineered Quartz",

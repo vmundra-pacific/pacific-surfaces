@@ -46,9 +46,9 @@ const SECTIONS = [
   {
     eyebrow: "Splashbacks & Cladding",
     headline: "Stone from worktop to underside-of-cabinet.",
-    body: "Continuous Pacific surfaces carry the worktop pattern up the wall — bookmatched veining, no grout lines, no seams. Façades and Finishes specifies the same stone for the splashback at large-format scale.",
+    body: "Continuous Pacific surfaces carry the worktop pattern up the wall — bookmatched veining, no grout lines, no seams. Beyond Finish specifies the same stone for the splashback at large-format scale.",
     imageLabel: "Splashback panel",
-    ctaLabel: "Explore Façades & Finishes",
+    ctaLabel: "Explore Beyond Finish",
     ctaHref: "/products/facades-and-finishes",
   },
 ];

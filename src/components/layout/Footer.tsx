@@ -89,7 +89,7 @@ function YoutubeIcon({ className }: IconProps) {
 }
 
 // Footer columns rebalanced — was Products(8) / Company(5) / Support(4)
-// with Semi-Precious mis-categorised under Support and product
+// with Semi-Precious Stones mis-categorised under Support and product
 // collections (Kosmic / Nebula / Centrepiece) bloating the Products
 // list. Cleaner split now: Products by category (5), Company (5),
 // Resources & Legal (5). Each column has the same item count so the
@@ -104,7 +104,7 @@ const footerLinks = {
     // collection is named singular "Granite" but the page label is
     // overridden to "Granites" via CategoryConfig.displayName.
     { name: "Granites", href: "/products/granites" },
-    { name: "Semi-Precious", href: "/products/semi-precious" },
+    { name: "Semi-Precious Stones", href: "/products/semi-precious" },
     // Vanity is a top-level category; previously missing from the
     // footer even though the header dropdown surfaces it.
     { name: "Vanity", href: "/products/vanity" },

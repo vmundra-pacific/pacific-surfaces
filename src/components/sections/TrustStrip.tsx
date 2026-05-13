@@ -1,146 +1,41 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
-/* ─── Inline-SVG cert icons ────────────────────────────────────────
-   Simple white-stroked iconographic representations sized for the
-   36×36 badge container. Using `currentColor` so they inherit the
-   parent's text colour (white/80 on the dark navy strip). Replace
-   any of these with an <img> from public/certs/ if/when the brand
-   team supplies official artwork. */
-
-function NsfIcon() {
-  return (
-    <svg viewBox="0 0 36 36" className="w-7 h-7" aria-hidden="true">
-      <circle
-        cx="18"
-        cy="18"
-        r="14"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <text
-        x="18"
-        y="21"
-        textAnchor="middle"
-        fontSize="9"
-        fontWeight="800"
-        fill="currentColor"
-        fontFamily="Helvetica, Arial, sans-serif"
-        letterSpacing="-0.3"
-      >
-        NSF
-      </text>
-    </svg>
-  );
-}
-
-function GreenguardIcon() {
-  return (
-    <svg viewBox="0 0 36 36" className="w-7 h-7" aria-hidden="true">
-      {/* Leaf body */}
-      <path
-        d="M18 6 C 10.5 9, 7.5 16.5, 9 25 C 17 25, 25 19.5, 28 11.5 C 25 8.5, 22 7, 18 6 Z"
-        fill="currentColor"
-        opacity="0.85"
-      />
-      {/* Stem / vein */}
-      <path
-        d="M9 25 Q 13.5 20.5, 19 16.5"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        fill="none"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function CeIcon() {
-  return (
-    <svg viewBox="0 0 36 36" className="w-7 h-7" aria-hidden="true">
-      {/* C — left arc with horizontal opening */}
-      <path
-        d="M16 8 A 10 10 0 1 0 16 28"
-        stroke="currentColor"
-        strokeWidth="3"
-        fill="none"
-      />
-      {/* E — right arc with crossbar opening */}
-      <path
-        d="M30 8 A 10 10 0 1 0 30 28"
-        stroke="currentColor"
-        strokeWidth="3"
-        fill="none"
-      />
-      {/* E crossbar */}
-      <rect x="23" y="16.5" width="7" height="3" fill="currentColor" />
-    </svg>
-  );
-}
-
-function IsoIcon() {
-  return (
-    <svg viewBox="0 0 36 36" className="w-7 h-7" aria-hidden="true">
-      <rect
-        x="3"
-        y="3"
-        width="30"
-        height="30"
-        rx="3"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <text
-        x="18"
-        y="22"
-        textAnchor="middle"
-        fontSize="9"
-        fontWeight="800"
-        fill="currentColor"
-        fontFamily="Helvetica, Arial, sans-serif"
-        letterSpacing="-0.3"
-      >
-        ISO
-      </text>
-    </svg>
-  );
-}
-
-function WarrantyIcon() {
-  return (
-    <svg viewBox="0 0 36 36" className="w-7 h-7" aria-hidden="true">
-      {/* Shield outline */}
-      <path
-        d="M18 4 L 30 9 L 30 18 C 30 25 25 30 18 32 C 11 30 6 25 6 18 L 6 9 Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      {/* Number inside */}
-      <text
-        x="18"
-        y="22"
-        textAnchor="middle"
-        fontSize="11"
-        fontWeight="800"
-        fill="currentColor"
-        fontFamily="Helvetica, Arial, sans-serif"
-      >
-        25
-      </text>
-    </svg>
-  );
-}
-
+/* Certification badges. Each entry references an image file under
+ * /public/certifications/. Drop the relevant PNG/SVG at the listed
+ * path and it'll appear on the card. If the file is missing, the
+ * card still renders with the dark placeholder bg + name below.
+ *
+ * The 25-year-warranty card was retired; that promise moves to the
+ * tagline above the grid as "Lifetime warranty". */
 const badges = [
-  { Icon: NsfIcon, title: "NSF/ANSI 51", sub: "Food Contact Safe" },
-  { Icon: GreenguardIcon, title: "Greenguard Gold", sub: "Low Emissions" },
-  { Icon: CeIcon, title: "CE Marked", sub: "EU Conformity" },
-  { Icon: IsoIcon, title: "ISO 9001:2015", sub: "Quality System" },
-  { Icon: WarrantyIcon, title: "25 Year Warranty*", sub: "" },
+  {
+    title: "NSF/ANSI 51",
+    sub: "Food Contact Safe",
+    src: "/certifications/nsf.png",
+  },
+  {
+    title: "Greenguard Gold",
+    sub: "Low Emissions",
+    src: "/certifications/greenguard.png",
+  },
+  {
+    title: "CE Marked",
+    sub: "EU Conformity",
+    src: "/certifications/ce.png",
+  },
+  {
+    title: "ISO 9001:2015",
+    sub: "Quality System",
+    src: "/certifications/iso.png",
+  },
+  {
+    title: "Kosher",
+    sub: "Certified",
+    src: "/certifications/kosher.png",
+  },
 ];
 
 export function TrustStrip() {
@@ -153,35 +48,38 @@ export function TrustStrip() {
       className="relative bg-[#112732] border-y border-white/[0.06]"
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 sm:py-14">
-        {/* Label */}
-        <p className="text-[11px] tracking-[0.25em] uppercase text-[#9AA8B6] text-center mb-8 sm:mb-10">
-          Certified to global standards, delivering proven performance.
+        {/* Tagline — now includes the Lifetime warranty promise that
+            used to live as its own card. */}
+        <p className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#9AA8B6] text-center mb-8 sm:mb-10 whitespace-nowrap overflow-hidden text-ellipsis">
+          Certified to global standards, delivering proven performance with
+          lifetime warranty, so you don&apos;t have to worry about anything.
         </p>
-        {/* Square placeholder blocks per Sidharth UI/UX deck (ss6).
-            Real logo artwork is pending — until then, each cert
-            renders as a labeled square block (SVG mark + cert name +
-            sub-label) so the row reads like the Silestone-style
-            certification grid. Drop logo PNG/SVGs into
-            /public/certifications/ and swap each <b.Icon /> for an
-            <Image> when artwork lands. */}
+
+        {/* Badge grid. Each card is a square image tile with the cert
+            name + sub-label rendered BELOW the card (not overlaid).
+            4 columns on desktop now that the warranty card is gone. */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
           {badges.map((b) => (
-            <div
-              key={b.title}
-              className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 aspect-square text-white/85"
-            >
-              <div className="flex items-center justify-center text-white/85">
-                <b.Icon />
+            <div key={b.title} className="flex flex-col items-center">
+              {/* Image tile */}
+              <div className="relative w-full aspect-square overflow-hidden">
+                <Image
+                  src={b.src}
+                  alt={`${b.title} — ${b.sub}`}
+                  fill
+                  className="object-contain p-6 sm:p-8"
+                  sizes="(max-width: 640px) 50vw, 25vw"
+                  unoptimized
+                />
               </div>
-              <div className="text-center">
-                <div className="text-[11px] sm:text-[12px] font-medium tracking-[0.05em] text-white/90 leading-tight">
+              {/* Caption — sits BELOW the card, centred. */}
+              <div className="mt-3 text-center">
+                <div className="text-[12px] sm:text-[13px] font-medium tracking-[0.05em] text-white/90 leading-tight">
                   {b.title}
                 </div>
-                {b.sub && (
-                  <div className="text-[9px] sm:text-[10px] tracking-[0.1em] uppercase text-[#9AA8B6] leading-tight mt-1">
-                    {b.sub}
-                  </div>
-                )}
+                <div className="text-[10px] tracking-[0.15em] uppercase text-[#9AA8B6] leading-tight mt-1">
+                  {b.sub}
+                </div>
               </div>
             </div>
           ))}

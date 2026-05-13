@@ -69,7 +69,7 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
       "Natural stone collections with comprehensive catalogs, finishes, and specifications for every application.",
     fallback: [
       "Natural Stone Catalog",
-      "Façades and Finishes",
+      "Beyond Finish",
       "Cut-to-Size Catalog",
       "Window Sills & Thresholds Flyer",
       "Monument Catalog",
@@ -77,7 +77,7 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
     ],
   },
   semiprecious: {
-    title: "Semi-Precious & Exotic",
+    title: "Semi-Precious Stones & Exotic",
     blurb:
       "Rare semi-precious stones and exotic surfaces, hand-picked for statement installations.",
   },

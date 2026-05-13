@@ -6,14 +6,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowRight, Search } from "lucide-react";
+import { Menu, X, ArrowRight, Search, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchOverlay } from "@/components/ui/search-overlay";
 
 // PRODUCTS_CATEGORIES drives the Products mega-menu — five cards
 // matching the Sidharth UI/UX deck exactly:
-//   1) Quartz · 2) Façades and Finishes · 3) Vision ·
-//   4) Granites · 5) Semi-Precious
+//   1) Quartz · 2) Beyond Finish · 3) Vision ·
+//   4) Granites · 5) Semi-Precious Stones
 //
 // Vision is a sub-line of Quartz that lives at /products/quartz/chromia
 // (the Chromia collection landing) — it has no top-level /products/vision
@@ -32,24 +32,28 @@ type MegaCategory = {
    *  object-cover). When set, replaces the gradient placeholder.
    *  Currently used for the Spaces cards. */
   imageUrl?: string;
+  /** When true, the card renders as a button that opens a "Coming
+   *  Soon" modal instead of navigating. Used for routes that aren't
+   *  built yet (e.g. 3D Showroom). coloursHref is ignored. */
+  comingSoon?: boolean;
 };
 
 const PRODUCTS_CATEGORIES: MegaCategory[] = [
   {
     slug: "quartz",
-    name: "Quartz",
+    name: "Mineral infused low silica surface",
     tagline: "Engineered stone for everyday surfaces.",
     imageUrl: "/images/products/quartz.jpg",
   },
   {
     slug: "facades-and-finishes",
-    name: "Façades and Finishes",
+    name: "Beyond Finish",
     tagline: "Large-format facade and feature surfaces.",
     imageUrl: "/images/products/facades.png",
   },
   {
     slug: "vision",
-    name: "Vision",
+    name: "Eclipse",
     tagline: "Inlayered design quartz surfaces.",
     coloursHref: "/products/quartz/chromia",
     imageUrl: "/images/products/vision.png",
@@ -62,7 +66,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
   },
   {
     slug: "semi-precious",
-    name: "Semi-Precious",
+    name: "Semi-Precious Stones",
     tagline: "Hand-selected gemstone surfaces.",
     imageUrl: "/images/products/semi-precious.png",
   },
@@ -90,22 +94,117 @@ const SPACES_CATEGORIES: MegaCategory[] = [
   },
   {
     slug: "architecture",
-    name: "Architecture",
+    name: "Outdoors",
     tagline: "Facades, cladding, and feature walls.",
     coloursHref: "/spaces/architecture",
     imageUrl: "/images/spaces/architecture.png",
   },
   {
     slug: "commercial",
-    name: "Commercial",
+    name: "Interior",
     tagline: "Hospitality, retail, and workspaces.",
     coloursHref: "/spaces/commercial",
     imageUrl: "/images/spaces/commercial.jpg",
   },
 ];
 
+// CORPORATE_CATEGORIES — four company-level destinations rendered as
+// the Corporate mega-menu. Cards behave like the Spaces cards
+// (direct Link on click, no sub-panel). imageUrl is intentionally
+// undefined for now so each card renders with a gradient placeholder;
+// drop a real /images/corporate/<slug>.jpg in and set the field to
+// activate the photo.
+const CORPORATE_CATEGORIES: MegaCategory[] = [
+  {
+    slug: "sustainability",
+    name: "Sustainability",
+    tagline: "Quarry-to-kitchen responsibility.",
+    coloursHref: "/sustainability",
+    imageUrl: undefined,
+  },
+  {
+    slug: "careers",
+    name: "Work with Us",
+    tagline: "Roles, locations, and what we look for.",
+    coloursHref: "/careers",
+    imageUrl: undefined,
+  },
+  {
+    slug: "blog",
+    name: "News",
+    tagline: "Editorial, projects, and updates.",
+    coloursHref: "/blog",
+    imageUrl: undefined,
+  },
+];
+
+// PROFESSIONS_CATEGORIES — services + supporting docs for architects,
+// designers, fabricators, and trade partners. Most destinations are
+// pending build-out (Services / Collaboration / Applications /
+// Programs); they all currently route to /contact as a sensible
+// landing while those pages are scoped. Technical Documentation
+// points at the live /resources page.
+const PROFESSIONS_CATEGORIES: MegaCategory[] = [
+  {
+    slug: "services",
+    name: "Services",
+    tagline: "Specification, fabrication, and project support.",
+    coloursHref: "/contact",
+    imageUrl: undefined,
+  },
+  {
+    slug: "collaboration",
+    name: "Collaboration",
+    tagline: "Architect, designer, and developer partnerships.",
+    coloursHref: "/contact",
+    imageUrl: undefined,
+  },
+  {
+    slug: "applications",
+    name: "Applications",
+    tagline: "Where Pacific surfaces install best.",
+    coloursHref: "/contact",
+    imageUrl: undefined,
+  },
+  {
+    slug: "programs",
+    name: "Programs",
+    tagline: "Trade incentives and training.",
+    coloursHref: "/contact",
+    imageUrl: undefined,
+  },
+];
+
+// INSPIRATIONS_CATEGORIES — editorial and design-tool destinations.
+// Inspiration + Inspiration Gallery are pending content pages
+// (placeholder route /contact); Visualizer is live at /visualize.
+// 3D Showroom is marked comingSoon — its card renders as a button
+// that opens a "Coming Soon" modal instead of navigating.
+const INSPIRATIONS_CATEGORIES: MegaCategory[] = [
+  {
+    slug: "inspiration-gallery",
+    name: "Inspiration Gallery",
+    tagline: "Project photography, room by room.",
+    coloursHref: "/contact",
+    imageUrl: undefined,
+  },
+  {
+    slug: "visualize",
+    name: "Visualizer",
+    tagline: "Swap surfaces into real room photography.",
+    coloursHref: "/visualize",
+    imageUrl: undefined,
+  },
+  {
+    slug: "showroom-3d",
+    name: "3D Showroom",
+    tagline: "Walk a virtual Pacific showroom — coming soon.",
+    comingSoon: true,
+    imageUrl: undefined,
+  },
+];
+
 const navigation = [
-  { name: "About", href: "/about" },
   {
     name: "Products",
     href: "/products",
@@ -123,7 +222,7 @@ const navigation = [
       { name: "Centrepiece Couture", href: "/products/centrepiece-couture" },
       { name: "Integra (Sinks)", href: "/products/integra" },
       {
-        name: "Façades and Finishes",
+        name: "Beyond Finish",
         href: "/products/facades-and-finishes",
       },
       { name: "Vanity", href: "/products/vanity" },
@@ -142,14 +241,59 @@ const navigation = [
     children: [
       { name: "Kitchens", href: "/spaces#kitchens" },
       { name: "Bathrooms", href: "/spaces#bathrooms" },
-      { name: "Architecture", href: "/spaces#architecture" },
-      { name: "Commercial", href: "/spaces#commercial" },
+      { name: "Outdoors", href: "/spaces#architecture" },
+      { name: "Interior", href: "/spaces#commercial" },
     ],
   },
+  {
+    name: "Professions",
+    href: "/contact",
+    mega: true,
+    children: [
+      { name: "Services", href: "/contact" },
+      { name: "Collaboration", href: "/contact" },
+      { name: "Applications", href: "/contact" },
+      { name: "Programs", href: "/contact" },
+    ],
+  },
+  // Resources - plain top-level Link. Used to live as a card inside
+  // the Professions mega ("Technical Documentation"); promoted out
+  // per editorial direction so the docs library is one click from
+  // anywhere on the site.
   { name: "Resources", href: "/resources" },
-  { name: "Blog", href: "/blog" },
-  { name: "Sustainability", href: "/sustainability" },
-  { name: "Careers", href: "/careers" },
+  {
+    name: "Inspirations",
+    href: "/visualize",
+    mega: true,
+    children: [
+      { name: "Inspiration Gallery", href: "/contact" },
+      { name: "Visualizer", href: "/visualize" },
+      { name: "3D Showroom", href: "#coming-soon" },
+    ],
+  },
+  // Our Story - top-level shortcut to the About page. Plain Link
+  // (no mega, no children) so it just navigates on click. Sits
+  // next to Corporate; the About content used to live as a card
+  // inside Corporate and was promoted out per editorial direction.
+  { name: "Our Story", href: "/about" },
+  // Corporate - umbrella for everything company-level (About,
+  // sustainability story, hiring, editorial). Top-level link points
+  // at /about so clicking the label itself still goes somewhere
+  // sensible if the dropdown is missed (keyboard nav, etc.).
+  {
+    name: "Corporate",
+    // Corporate's top-level href points at /sustainability (the first
+    // remaining child) so keyboard / no-hover users still land
+    // somewhere if they click the label. About us has moved out of
+    // Corporate to its own top-level "Our Story" tab next door.
+    href: "/sustainability",
+    mega: true,
+    children: [
+      { name: "Sustainability", href: "/sustainability" },
+      { name: "Work with Us", href: "/careers" },
+      { name: "News", href: "/blog" },
+    ],
+  },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -186,6 +330,9 @@ function preloadMegaThumbs() {
   const urls = [
     ...PRODUCTS_CATEGORIES.map((c) => c.imageUrl),
     ...SPACES_CATEGORIES.map((c) => c.imageUrl),
+    ...CORPORATE_CATEGORIES.map((c) => c.imageUrl),
+    ...PROFESSIONS_CATEGORIES.map((c) => c.imageUrl),
+    ...INSPIRATIONS_CATEGORIES.map((c) => c.imageUrl),
   ].filter((u): u is string => Boolean(u));
   for (const url of urls) {
     reactPreload(url, { as: "image", fetchPriority: "high" });
@@ -196,15 +343,22 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  // Coming Soon modal — set to a card label (e.g. "3D Showroom")
+  // to display the modal; null when closed.
+  const [comingSoonLabel, setComingSoonLabel] = useState<string | null>(null);
   // Mega-menu state.
   //  - `openMegaItem` — which top-level nav item's mega-menu is open
   //    ("Products" or "Spaces" or null). Drives header bg colour
   //    (navy whenever any mega is open) and which content renders
   //    inside the shared dropdown panel.
+  //  - `activeMega` — which Products card the user has clicked to
+  //    expand its sub-panel (What is X / Maintenance / Warranty /
+  //    Colours CTA). Null when no card is expanded.
   //  - `lastMegaItemRef` — last truthy `openMegaItem` value, used so
   //    the panel content stays correct while AnimatePresence runs
   //    its exit animation (during which `openMegaItem` is null).
   const [openMegaItem, setOpenMegaItem] = useState<string | null>(null);
+  const [activeMega, setActiveMega] = useState<string | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastMegaItemRef = useRef<string | null>(null);
   if (openMegaItem) lastMegaItemRef.current = openMegaItem;
@@ -215,14 +369,37 @@ export default function Header() {
       clearTimeout(closeTimerRef.current);
       closeTimerRef.current = null;
     }
+    // When moving between Products and Spaces, drop any expanded
+    // sub-panel so the new mega opens cleanly.
+    if (openMegaItem !== itemName) setActiveMega(null);
     setOpenMegaItem(itemName);
   };
   const handleMegaLeave = () => {
     // 150 ms grace so moving the cursor across the small gap between
     // trigger Link and panel doesn't snap-close the menu. Anything
     // longer than that is a genuine exit and the menu collapses.
+    //
+    // CRITICAL: clear any existing timer BEFORE scheduling a new
+    // one. Leaving a panel often fires two near-simultaneous
+    // mouseleave events — one on the panel motion.div itself, and
+    // one on the wrapping nav-item div (because the panel is a DOM
+    // descendant of the nav-item, so leaving the panel also counts
+    // as leaving the nav-item once the cursor exits both bounding
+    // boxes). Without the clear, the second assignment overwrites
+    // closeTimerRef.current and orphans the first timer. The next
+    // handleMegaEnter (e.g. cursor lands on the Products trigger)
+    // clears only the latest timer, leaving the orphaned one to
+    // fire ~150 ms later and slam the newly-opened menu shut. That
+    // was reproducible as "moving from a Spaces card to the
+    // Products trigger never opens Products" — Products did open,
+    // then got force-closed by the zombie timer almost immediately.
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+    }
     closeTimerRef.current = setTimeout(() => {
       setOpenMegaItem(null);
+      setActiveMega(null);
+      closeTimerRef.current = null;
     }, 150);
   };
 
@@ -233,6 +410,16 @@ export default function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Close the Coming Soon modal on Escape.
+  useEffect(() => {
+    if (!comingSoonLabel) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setComingSoonLabel(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [comingSoonLabel]);
 
   // Preload the 9 mega-menu thumbnails on first mount so they're in
   // browser cache by the time the user hovers a dropdown trigger.
@@ -270,7 +457,9 @@ export default function Header() {
       closeTimerRef.current = null;
     }
     setOpenMegaItem(null);
+    setActiveMega(null);
     setMobileOpen(false);
+    setComingSoonLabel(null);
   }, [pathname]);
 
   // Hide the global site header on the visualizer route — that page has
@@ -324,6 +513,72 @@ export default function Header() {
   return (
     <>
       <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
+      {/* Coming Soon modal — centred overlay shown when a comingSoon
+          mega card is clicked (currently 3D Showroom). The label
+          stored in state appears in the heading so a single modal
+          serves every comingSoon card. Click backdrop / Escape / X
+          all close. */}
+      <AnimatePresence>
+        {comingSoonLabel && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setComingSoonLabel(null)}
+            className="fixed inset-0 z-[300] bg-black/70 backdrop-blur-md flex items-center justify-center px-6"
+            role="dialog"
+            aria-modal="true"
+          >
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.96, opacity: 0 }}
+              transition={{ duration: 0.22, ease: [0.25, 0.4, 0.25, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-md w-full rounded-2xl border border-white/10 bg-[#112732] p-8 sm:p-10 text-center shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
+            >
+              <button
+                type="button"
+                onClick={() => setComingSoonLabel(null)}
+                aria-label="Close"
+                className="absolute top-4 right-4 w-9 h-9 rounded-full border border-white/15 bg-white/[0.04] hover:bg-white/10 flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+              <div className="text-[11px] tracking-[0.3em] uppercase text-pacific-mid mb-3">
+                Coming soon
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-light tracking-tight text-white mb-3">
+                {comingSoonLabel}
+              </h3>
+              <p className="text-sm font-light text-stone-300 leading-relaxed">
+                We&apos;re still building this experience. Check back shortly —
+                or get in touch and we&apos;ll let you know the moment it
+                launches.
+              </p>
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <Link
+                  href="/contact"
+                  onClick={() => setComingSoonLabel(null)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-[11px] font-medium tracking-[0.15em] uppercase text-pacific-dark hover:bg-stone-100 transition-colors"
+                >
+                  Notify me
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setComingSoonLabel(null)}
+                  className="text-[11px] tracking-[0.2em] uppercase text-pacific-mid hover:text-white transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <motion.header
         initial={{ y: -100 }}
@@ -561,98 +816,339 @@ export default function Header() {
                               Products: 5-card grid; Spaces: 4-card. */}
                               <div
                                 className={`grid gap-3 ${
-                                  item.name === "Spaces"
-                                    ? "grid-cols-4"
-                                    : "grid-cols-5"
+                                  item.name === "Corporate" ||
+                                  item.name === "Inspirations"
+                                    ? "grid-cols-3"
+                                    : item.name === "Spaces" ||
+                                        item.name === "Professions"
+                                      ? "grid-cols-4"
+                                      : "grid-cols-5"
                                 }`}
                               >
                                 {(item.name === "Spaces"
                                   ? SPACES_CATEGORIES
-                                  : PRODUCTS_CATEGORIES
+                                  : item.name === "Corporate"
+                                    ? CORPORATE_CATEGORIES
+                                    : item.name === "Professions"
+                                      ? PROFESSIONS_CATEGORIES
+                                      : item.name === "Inspirations"
+                                        ? INSPIRATIONS_CATEGORIES
+                                        : PRODUCTS_CATEGORIES
                                 ).map((cat) => {
+                                  // Spaces / Corporate / Professions /
+                                  // Inspirations all use the same
+                                  // direct-Link card layout (each card
+                                  // is a destination, no sub-panel).
+                                  // Only Products uses the expanding
+                                  // button + sub-panel pattern.
+                                  const isSpacesItem =
+                                    item.name === "Spaces" ||
+                                    item.name === "Corporate" ||
+                                    item.name === "Professions" ||
+                                    item.name === "Inspirations";
+
+                                  // Spaces cards — direct Link, no
+                                  // toggle. Click navigates straight
+                                  // to /spaces/<slug>. Name overlays
+                                  // the image (centered) and the
+                                  // tagline subscript sits below the
+                                  // card as a small caption.
+                                  if (isSpacesItem) {
+                                    // comingSoon cards render as a
+                                    // button that triggers the modal
+                                    // instead of navigating. Same
+                                    // visual treatment as the Link
+                                    // variant otherwise.
+                                    if (cat.comingSoon) {
+                                      return (
+                                        <button
+                                          key={cat.slug}
+                                          type="button"
+                                          onClick={() =>
+                                            setComingSoonLabel(cat.name)
+                                          }
+                                          className="group block w-full text-left transition-transform hover:scale-[1.02]"
+                                        >
+                                          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
+                                            {cat.imageUrl ? (
+                                              <Image
+                                                src={cat.imageUrl}
+                                                alt={cat.name}
+                                                fill
+                                                className="object-cover"
+                                                sizes="(min-width: 1024px) 25vw, 50vw"
+                                                priority={false}
+                                                unoptimized
+                                              />
+                                            ) : null}
+                                            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+                                            <span className="absolute top-2 right-2 z-10 rounded-full bg-white/15 backdrop-blur px-2 py-0.5 text-[9px] uppercase tracking-[0.2em] text-white border border-white/20">
+                                              Coming soon
+                                            </span>
+                                            <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
+                                              <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
+                                                {cat.name}
+                                              </span>
+                                            </div>
+                                          </div>
+                                          <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug">
+                                            {cat.tagline}
+                                          </p>
+                                        </button>
+                                      );
+                                    }
+                                    return (
+                                      <Link
+                                        key={cat.slug}
+                                        href={
+                                          cat.coloursHref ??
+                                          `/products/${cat.slug}`
+                                        }
+                                        className="group block transition-transform hover:scale-[1.02]"
+                                      >
+                                        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
+                                          {cat.imageUrl ? (
+                                            // Spaces cards keep their
+                                            // thumbnail visible at
+                                            // rest — only Products
+                                            // cards use the hover-to-
+                                            // reveal treatment.
+                                            <Image
+                                              src={cat.imageUrl}
+                                              alt={cat.name}
+                                              fill
+                                              className="object-cover"
+                                              sizes="(min-width: 1024px) 25vw, 50vw"
+                                              priority={false}
+                                              unoptimized
+                                            />
+                                          ) : null}
+                                          {/* Dark scrim so the
+                                              centered name stays
+                                              legible over any photo. */}
+                                          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+                                          {/* Centered, full-width name
+                                              overlay. */}
+                                          <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
+                                            <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
+                                              {cat.name}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        {/* Subscript tagline — sits
+                                            below the card, kept from
+                                            the pre-overlay layout. */}
+                                        <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug">
+                                          {cat.tagline}
+                                        </p>
+                                      </Link>
+                                    );
+                                  }
+
+                                  // Products cards — button that
+                                  // toggles the About sub-panel below.
+                                  // Name overlays the image centered;
+                                  // chevron sits in the top-right
+                                  // corner to indicate expanded state;
+                                  // tagline subscript renders beneath
+                                  // the card.
+                                  const isActive = activeMega === cat.slug;
                                   return (
-                                    <Link
+                                    <button
                                       key={cat.slug}
-                                      href={
-                                        cat.coloursHref ??
-                                        `/products/${cat.slug}`
+                                      type="button"
+                                      onClick={() =>
+                                        setActiveMega(
+                                          isActive ? null : cat.slug
+                                        )
                                       }
-                                      className="flex flex-col text-left rounded-lg p-2 transition-colors hover:bg-white/[0.04]"
+                                      // Named group `card` scopes the
+                                      // hover to this specific card.
+                                      // Without the name, the outer
+                                      // nav-item wrapper's `group`
+                                      // (used for the trigger
+                                      // underline) would fire and
+                                      // reveal every card image the
+                                      // moment the Products trigger is
+                                      // hovered.
+                                      className={cn(
+                                        "group/card block text-left transition-transform",
+                                        isActive
+                                          ? "scale-[1.02]"
+                                          : "hover:scale-[1.02]"
+                                      )}
                                     >
-                                      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
+                                      <div
+                                        className={cn(
+                                          "relative aspect-[16/10] w-full overflow-hidden rounded-md bg-[#112732] transition-all",
+                                          isActive && "ring-2 ring-white/40"
+                                        )}
+                                      >
                                         {cat.imageUrl ? (
+                                          // Image is hidden at rest
+                                          // and fades in when the
+                                          // cursor enters THIS card
+                                          // (or when the card is
+                                          // expanded — `isActive`).
                                           <Image
                                             src={cat.imageUrl}
                                             alt={cat.name}
                                             fill
-                                            className="object-cover"
-                                            sizes={
-                                              item.name === "Spaces"
-                                                ? "(min-width: 1024px) 25vw, 50vw"
-                                                : "(min-width: 1024px) 20vw, 50vw"
-                                            }
+                                            className={cn(
+                                              "object-cover transition-opacity duration-300 ease-out",
+                                              isActive
+                                                ? "opacity-100"
+                                                : "opacity-0 group-hover/card:opacity-100"
+                                            )}
+                                            sizes="(min-width: 1024px) 20vw, 50vw"
                                             priority={false}
-                                            // Skip the /_next/image
-                                            // optimizer pipeline so the
-                                            // rendered URL matches the
-                                            // preloaded URL exactly —
-                                            // otherwise the preload is
-                                            // a cache miss and first
-                                            // hover still has to fetch.
-                                            // Sources are already pre-
-                                            // compressed to <500 KB
-                                            // each.
                                             unoptimized
                                           />
-                                        ) : (
-                                          <div className="absolute inset-0 flex items-center justify-center text-stone-500">
-                                            <span className="text-[9px] font-medium tracking-[0.3em] uppercase">
-                                              [ {cat.name.toLowerCase()} ]
-                                            </span>
-                                          </div>
-                                        )}
-                                      </div>
-                                      <div className="px-1 pt-2.5 pb-0.5">
-                                        <span className="text-sm lg:text-[15px] font-medium text-white tracking-tight block">
-                                          {cat.name}
-                                        </span>
-                                        <div className="text-[11px] font-light text-stone-400 leading-snug mt-0.5">
-                                          {cat.tagline}
+                                        ) : null}
+                                        {/* Dark scrim so the centered
+                                            name stays legible over any
+                                            photo. */}
+                                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+                                        {/* Chevron in top-right —
+                                            rotates 180° when this card
+                                            is expanded. */}
+                                        <ChevronDown
+                                          className={cn(
+                                            "absolute top-2 right-2 w-4 h-4 text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] transition-transform",
+                                            isActive ? "rotate-180" : ""
+                                          )}
+                                        />
+                                        {/* Centered, full-width name
+                                            overlay. */}
+                                        <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
+                                          <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
+                                            {cat.name}
+                                          </span>
                                         </div>
                                       </div>
-                                    </Link>
+                                      {/* Subscript tagline — sits
+                                          below the card, restored from
+                                          the pre-overlay layout. */}
+                                      <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug">
+                                        {cat.tagline}
+                                      </p>
+                                    </button>
                                   );
                                 })}
                               </div>
+
+                              {/* Expanded sub-panel — only for
+                                  Products. Slides down when a card
+                                  is clicked. Shows the About column
+                                  (What is X / Maintenance / Warranty
+                                  for Quartz only) and the right-
+                                  aligned "<Cat> Colours" CTA pill. */}
+                              <AnimatePresence initial={false}>
+                                {item.name === "Products" &&
+                                  activeMega &&
+                                  (() => {
+                                    const active = PRODUCTS_CATEGORIES.find(
+                                      (c) => c.slug === activeMega
+                                    );
+                                    if (!active) return null;
+                                    return (
+                                      <motion.div
+                                        key="mega-sub"
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{
+                                          duration: 0.32,
+                                          ease: [0.25, 0.4, 0.25, 1],
+                                        }}
+                                        style={{ overflow: "hidden" }}
+                                      >
+                                        <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-x-6 gap-y-5">
+                                          {/* About column */}
+                                          <div className="lg:col-span-9">
+                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
+                                              About {active.name}
+                                            </h4>
+                                            <ul className="space-y-2">
+                                              <li>
+                                                <Link
+                                                  href={`/learn/what-is-${active.whatIsSlug ?? active.slug}`}
+                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                >
+                                                  What is {active.name}?
+                                                </Link>
+                                              </li>
+                                              <li>
+                                                <Link
+                                                  href={`/learn/maintenance-${active.whatIsSlug ?? active.slug}`}
+                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                >
+                                                  Maintenance
+                                                </Link>
+                                              </li>
+                                              {/* Warranty link is
+                                                  only surfaced for
+                                                  Quartz — that's the
+                                                  only product line
+                                                  with a lifetime
+                                                  warranty. */}
+                                              {active.slug === "quartz" && (
+                                                <li>
+                                                  <Link
+                                                    href="/learn/warranty-quartz"
+                                                    className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                  >
+                                                    Warranty
+                                                  </Link>
+                                                </li>
+                                              )}
+                                            </ul>
+                                          </div>
+                                          {/* Colours CTA pill —
+                                              Beyond Finish
+                                              drops the "Colours"
+                                              suffix because it isn't
+                                              sold as a colour
+                                              catalogue. Vision routes
+                                              to its Chromia landing
+                                              via coloursHref. */}
+                                          <div className="lg:col-span-3 flex flex-col items-start lg:items-end justify-end">
+                                            <Link
+                                              href={
+                                                active.coloursHref ??
+                                                `/products/${active.slug}`
+                                              }
+                                              className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-white text-stone-900 text-[11px] font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
+                                            >
+                                              {active.slug ===
+                                              "facades-and-finishes"
+                                                ? active.name
+                                                : `${active.name} Colours`}
+                                              <ArrowRight className="w-4 h-4" />
+                                            </Link>
+                                          </div>
+                                        </div>
+                                      </motion.div>
+                                    );
+                                  })()}
+                              </AnimatePresence>
                             </div>
-                            {/* Footer strip — Products-only secondary
-                            nav for the categories not surfaced as hero
-                            cards (Exotic, Integra, Vanity) plus the
-                            "All Products" CTA. Spaces mega has no
-                            footer strip — just the four cards. */}
-                            {item.name !== "Spaces" && (
+                            {/* Footer strip — Products-only. Only
+                            surfaces the "All Products" CTA, right-
+                            aligned. Earlier versions also listed
+                            Exotic / Integra Sinks / Vanity on the
+                            left; those were removed per editorial
+                            direction — surfacing too many secondary
+                            categories competed with the five hero
+                            cards above. The "All Products" footer
+                            CTA is scoped to the Products mega only;
+                            Spaces / Corporate / Professions /
+                            Inspirations don't get it because the
+                            "All ..." link wouldn't make sense in
+                            those contexts. */}
+                            {item.name === "Products" && (
                               <div className="border-t border-white/10 bg-[#0d1f29]">
-                                <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-between py-3">
-                                  <div className="flex flex-wrap gap-x-7 gap-y-2">
-                                    <Link
-                                      href="/products/exotic"
-                                      className="text-[12px] font-medium tracking-[0.2em] uppercase text-stone-300 hover:text-white"
-                                    >
-                                      Exotic
-                                    </Link>
-                                    <Link
-                                      href="/products/integra"
-                                      className="text-[12px] font-medium tracking-[0.2em] uppercase text-stone-300 hover:text-white"
-                                    >
-                                      Integra Sinks
-                                    </Link>
-                                    <Link
-                                      href="/products/vanity"
-                                      className="text-[12px] font-medium tracking-[0.2em] uppercase text-stone-300 hover:text-white"
-                                    >
-                                      Vanity
-                                    </Link>
-                                  </div>
+                                <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-end py-3">
                                   <Link
                                     href="/products"
                                     className="text-[12px] font-medium tracking-[0.2em] uppercase text-white inline-flex items-center gap-1.5 hover:gap-2 transition-all"

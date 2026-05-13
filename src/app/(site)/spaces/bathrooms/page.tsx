@@ -30,9 +30,9 @@ const SECTIONS = [
   {
     eyebrow: "Wall Cladding",
     headline: "Floor-to-ceiling stone, no grout.",
-    body: "Façades and Finishes brings authentic stone character to bathroom walls and feature areas at large-format scale. Continuous panels reduce joints; bookmatched options on request.",
+    body: "Beyond Finish brings authentic stone character to bathroom walls and feature areas at large-format scale. Continuous panels reduce joints; bookmatched options on request.",
     imageLabel: "Wall cladding",
-    ctaLabel: "Explore Façades & Finishes",
+    ctaLabel: "Explore Beyond Finish",
     ctaHref: "/products/facades-and-finishes",
   },
   {

@@ -238,7 +238,7 @@ export default defineType({
           { title: "Granite Slab", value: "granite-slab" },
           { title: "Quartz Sink", value: "quartz-sink" },
           { title: "Granite Finish", value: "granite-finish" },
-          { title: "Semi-Precious Stone", value: "semi-precious" },
+          { title: "Semi-Precious Stones", value: "semi-precious" },
           { title: "Luxury", value: "luxury" },
         ],
       },

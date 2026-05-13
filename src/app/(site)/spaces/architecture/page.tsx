@@ -22,9 +22,9 @@ const SECTIONS = [
   {
     eyebrow: "Façades",
     headline: "Large-format surfaces for the building skin.",
-    body: "Pacific surfaces engineered for facade use — UV stable, thermally tolerant, rated for exterior weathering. Ventilated rainscreen and direct-fix systems supported across the full Façades and Finishes range.",
+    body: "Pacific surfaces engineered for facade use — UV stable, thermally tolerant, rated for exterior weathering. Ventilated rainscreen and direct-fix systems supported across the full Beyond Finish range.",
     imageLabel: "Facade panel",
-    ctaLabel: "Explore Façades & Finishes",
+    ctaLabel: "Explore Beyond Finish",
     ctaHref: "/products/facades-and-finishes",
   },
   {

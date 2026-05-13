@@ -21,7 +21,7 @@ import { getFaqs, type FaqPageKey } from "@/lib/faqs";
  * just products in the literal "Quartz" collection but EVERY product
  * with productType="quartz-slab" — including ones filed under sub-
  * collections like Kosmic, Vision, Aurora, etc. Same pattern for
- * Granite, Semi-Precious, etc.
+ * Granite, Semi-Precious Stones, etc.
  *
  * Sub-collection slugs that aren't keys here (e.g. "kosmic") fall
  * through to `null` and the page just shows that collection's own

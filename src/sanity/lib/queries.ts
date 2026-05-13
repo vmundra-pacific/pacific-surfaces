@@ -39,6 +39,7 @@ export const catalogueProductsQuery = groq`
     name,
     slug,
     "mainImage": mainImage.asset->url,
+    "gallery": gallery[].asset->url,
     "dominantColor": mainImage.asset->metadata.palette.dominant.background,
     "collectionName": collection->name,
     productType,
@@ -74,6 +75,7 @@ export const catalogueProductsByCollectionOrTypeQuery = groq`
     name,
     slug,
     "mainImage": mainImage.asset->url,
+    "gallery": gallery[].asset->url,
     "dominantColor": mainImage.asset->metadata.palette.dominant.background,
     "collectionName": collection->name,
     finishes,
@@ -201,7 +203,7 @@ export const blogPostBySlugQuery = groq`
 //
 // productCount is the number of products that should be considered
 // "in" this collection on the homepage carousel. For category-level
-// collections (Quartz, Granite, Semi-Precious, Sinks/Integra) we
+// collections (Quartz, Granite, Semi-Precious Stones, Sinks/Integra) we
 // AGGREGATE: count every product whose collection._ref points at
 // this collection PLUS every product of the matching productType
 // (e.g. a Kosmic-collection product with productType "quartz-slab"
@@ -400,7 +402,7 @@ export const sustainabilityPageQuery = groq`
   }
 `;
 
-// Façades and Finishes — page-level copy (singleton).
+// Beyond Finish — page-level copy (singleton).
 //
 // Returns null when the document hasn't been created yet, so the
 // component falls back to hardcoded defaults.
@@ -431,7 +433,7 @@ export const facadesAndFinishesPageQuery = groq`
   }
 `;
 
-// Façades and Finishes — products in a named Collection.
+// Beyond Finish — products in a named Collection.
 //
 // Pulls every product whose `collection` reference points at the
 // collection with slug $slug. Each card shows the product's name +

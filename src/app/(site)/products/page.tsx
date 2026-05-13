@@ -83,8 +83,12 @@ export default async function AllProductsPage() {
       />
 
       {/* 4. Catalogue. hideHero suppresses the built-in QuartzHeroVideo
-          so this page's own hero (above) is the only one. */}
-      <CatalogueClient slabs={slabs} hideHero />
+          so this page's own hero (above) is the only one.
+          groupByProductType renders the grid as sections (Mineral
+          infused low silica surface, Granite, Semi-Precious Stones, etc.)
+          with a heading above each — replaces the old Product Type
+          filter pill, which is suppressed in this mode. */}
+      <CatalogueClient slabs={slabs} hideHero groupByProductType />
     </>
   );
 }

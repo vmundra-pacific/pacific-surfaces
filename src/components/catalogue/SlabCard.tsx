@@ -3,47 +3,39 @@
 /**
  * SlabCard — a single slab tile in the catalogue grid.
  *
- * Hover overlay buttons:
- *   - "View Slab" / "View Product" link  → product detail page
- *   - "+ Sample" button                   → opens sample request modal
- *   - "Enquire" button                    → opens enquiry modal
+ * Click behaviour varies per productType:
+ *   - granite-finish products (Beyond Finish line) open a fullscreen
+ *     lightbox with scroll-to-zoom, same UX as the dedicated
+ *     /products/facades-and-finishes page. No PDP navigation - finishes
+ *     are texture swatches that benefit from a zoomable view rather
+ *     than a separate page.
+ *   - all other products: hover overlay exposes a "View Slab" /
+ *     "View Product" Link to the PDP plus Sample / Enquire CTAs.
  *
  * Two collections (Centrepiece Couture + Integra) get the "View
- * Product" label and skip the Sample button, since those items are
- * full pieces (gallery slabs / sinks) rather than swatches you'd
- * request a chip of. Everything else gets the standard three-button
- * treatment.
+ * Product" label and skip the Sample button - those items are full
+ * pieces rather than swatches you'd request a chip of.
  */
 
 import Image from "next/image";
 import { sanityImg } from "@/lib/sanity-img";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import type { Slab } from "@/data/slabs";
 import { zoomImageUrl } from "@/lib/zoom-image";
 import { OrderSampleModal } from "@/components/ui/order-sample-modal";
+import { FinishLightbox } from "@/components/ui/finish-lightbox";
 
 interface Props {
   slab: Slab;
   index: number;
 }
 
-// Collection names whose products are "full pieces" not slabs:
-// Centrepiece Couture (gallery-grade statement slabs that are sold
-// whole, not sampled) and Integra (quartz sinks). These two get the
-// "View Product" CTA + no Sample button. Match is loose-prefix
-// case-insensitive so editor renames don't break the check.
 const PRODUCT_COLLECTION_PREFIXES = ["centrepiece", "integra"];
 
-// URL prefixes that ALWAYS indicate a product-piece context, even if
-// the slab's `collection` field is a sub-collection name that
-// wouldn't match the prefixes above. e.g. on
-// /products/centrepiece-couture/vanity every product has
-// `collection === "Vanity"`, which fails the centrepiece prefix
-// check — so we ALSO check the URL category segment.
 const PRODUCT_PIECE_URL_PREFIXES = [
   "/products/centrepiece-couture",
   "/products/integra",
@@ -66,16 +58,14 @@ function isProductUrl(pathname: string | null): boolean {
 export function SlabCard({ slab, index }: Props) {
   const [sampleOpen, setSampleOpen] = useState(false);
   const [enquireOpen, setEnquireOpen] = useState(false);
-  // tappedOpen: touch-device tap-to-reveal state for the action
-  // overlay. On hover-capable devices this stays false and the
-  // overlay is driven by group-hover. On touch we toggle this on
-  // tap; an outside-tap listener clears it.
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [tappedOpen, setTappedOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
 
-  // Close the overlay when the user taps anywhere outside this card.
-  // Only attach the listener while the card is in the open state to
-  // keep the global pointerdown population at zero by default.
+  // True when this slab is a Beyond Finish texture - those open in
+  // a fullscreen lightbox rather than a PDP.
+  const isFinish = slab.productType === "granite-finish";
+
   useEffect(() => {
     if (!tappedOpen) return;
     const handler = (e: PointerEvent) => {
@@ -88,24 +78,10 @@ export function SlabCard({ slab, index }: Props) {
     return () => document.removeEventListener("pointerdown", handler);
   }, [tappedOpen]);
 
-  // Whether this card is in a "product" context — either because the
-  // slab's own collection name matches a product prefix (Centrepiece
-  // Couture / Integra) OR because the page URL is under a product-
-  // piece category. The URL check catches sub-collection pages like
-  // /products/centrepiece-couture/vanity where the slabs' own
-  // `collection` is "Vanity" (not "Centrepiece Couture") and the
-  // prefix check alone would miss. Either signal flips the card to
-  // the View-Product / no-Sample treatment.
   const pathname = usePathname();
   const productCollection =
     isProductCollection(slab.collection) || isProductUrl(pathname);
 
-  // Prefetch the SAME zoom-resolution URL the next page's magnifier
-  // will use, so by the time the user clicks "View slab" the image
-  // is already in browser cache. Using zoomImageUrl() means the
-  // catalogue, server-side preload, and magnifier all share one
-  // cache entry rather than fetching three different URLs.
-  // `preload()` from react-dom is idempotent + cheap to call again.
   const warmCache = () => {
     if (slab.photoUrl) {
       preload(zoomImageUrl(slab.photoUrl), {
@@ -114,6 +90,12 @@ export function SlabCard({ slab, index }: Props) {
       });
     }
   };
+
+  // The image rendered inside the lightbox - full-bleed Sanity URL
+  // for finishes (the catalogue's `photoUrl` is already a Sanity
+  // CDN image; we don't downsize it for the lightbox so the user
+  // can zoom in on the texture).
+  const lightboxImage = slab.photoUrl ?? "";
 
   return (
     <>
@@ -132,11 +114,15 @@ export function SlabCard({ slab, index }: Props) {
         onTouchStart={warmCache}
         onFocus={warmCache}
         onClick={() => {
-          // Tap-to-reveal only on devices WITHOUT a fine pointer.
-          // matchMedia is more reliable than PointerEvent.pointerType
-          // which some Android browsers report as "" or "mouse" even
-          // on touch. Buttons inside the overlay stopPropagation so
-          // they navigate without retoggling the card.
+          // Finish products: any click on the card opens the
+          // lightbox (matches the /products/facades-and-finishes UX).
+          if (isFinish) {
+            setLightboxOpen(true);
+            return;
+          }
+          // Non-finish, touch-only fallback: tap-to-reveal the
+          // action overlay. Hover-capable devices use group-hover
+          // directly so this code path is a no-op there.
           if (typeof window === "undefined") return;
           const canHover = window.matchMedia("(hover: hover)").matches;
           if (!canHover) {
@@ -149,7 +135,6 @@ export function SlabCard({ slab, index }: Props) {
           "cursor-pointer transition-colors duration-300 hover:border-pacific-mid/50",
         ].join(" ")}
       >
-        {/* Slab image or fallback swatch */}
         {slab.photoUrl ? (
           <div className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]">
             <Image
@@ -175,7 +160,6 @@ export function SlabCard({ slab, index }: Props) {
           </>
         )}
 
-        {/* Ribbon */}
         {slab.ribbon === "new" && (
           <span className="absolute left-3.5 top-3.5 z-20 rounded bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-pacific-dark">
             New
@@ -187,7 +171,6 @@ export function SlabCard({ slab, index }: Props) {
           </span>
         )}
 
-        {/* Metadata footer */}
         <div
           className="absolute inset-x-0 bottom-0 z-10 px-4 pb-4 pt-12"
           style={{
@@ -203,18 +186,37 @@ export function SlabCard({ slab, index }: Props) {
           </div>
         </div>
 
-        {/* Hover overlay — three CTAs (or two for product collections).
-            flex-wrap so the buttons don't crowd on narrow cards. */}
-        <div className={["absolute inset-0 z-30 flex flex-wrap items-center justify-center gap-2 p-3 bg-pacific-dark/60 backdrop-blur-[2px] transition-all duration-300 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:pointer-events-auto", tappedOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-2 pointer-events-none"].join(" ")}>
-          <Link
-            href={`/products/${slab.slug}`}
-            className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform [@media(hover:hover)]:hover:scale-[1.04]"
-          >
-            {productCollection ? "View Product" : "View Slab"}
-          </Link>
-          {/* Sample button hidden for "product" collections (Centre-
-              piece Couture, Integra) — those items are full pieces
-              that don't have sample chips. */}
+        {/* Hover overlay. For finish products, the primary CTA opens
+            the lightbox instead of navigating to a PDP. */}
+        <div
+          className={[
+            "absolute inset-0 z-30 flex flex-wrap items-center justify-center gap-2 p-3 bg-pacific-dark/60 backdrop-blur-[2px] transition-all duration-300 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:pointer-events-auto",
+            tappedOpen
+              ? "opacity-100 translate-y-0 pointer-events-auto"
+              : "opacity-0 translate-y-2 pointer-events-none",
+          ].join(" ")}
+        >
+          {isFinish ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setLightboxOpen(true);
+              }}
+              className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform [@media(hover:hover)]:hover:scale-[1.04]"
+            >
+              View Texture
+            </button>
+          ) : (
+            <Link
+              href={`/products/${slab.slug}`}
+              className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform [@media(hover:hover)]:hover:scale-[1.04]"
+            >
+              {productCollection ? "View Product" : "View Slab"}
+            </Link>
+          )}
+
           {!productCollection && (
             <button
               onClick={(e) => {
@@ -240,9 +242,6 @@ export function SlabCard({ slab, index }: Props) {
         </div>
       </motion.div>
 
-      {/* Modals — rendered outside the motion wrapper so the hover
-          state of the card doesn't fight the modal's own transitions
-          (modals need to ignore the card's translate / opacity). */}
       <OrderSampleModal
         open={sampleOpen}
         onClose={() => setSampleOpen(false)}
@@ -257,6 +256,17 @@ export function SlabCard({ slab, index }: Props) {
         productCategory={slab.collection ?? undefined}
         mode="enquire"
       />
+
+      <AnimatePresence>
+        {lightboxOpen && lightboxImage && (
+          <FinishLightbox
+            imageSrc={lightboxImage}
+            name={slab.name}
+            gallery={slab.gallery}
+            onClose={() => setLightboxOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -2,14 +2,6 @@
 
 /**
  * Centralized filter state for the catalogue.
- *
- * Why a custom hook:
- *  - Keeps <CatalogueClient>, <FilterBar>, <ActiveChips>, and <SlabGrid>
- *    all reading from the same source of truth without prop drilling or
- *    a global context (the page is isolated enough that context would
- *    be overkill).
- *  - Centralizes the Set-based toggle logic so components just call
- *    `toggle('hue', 'white')` instead of duplicating set-copy boilerplate.
  */
 
 import { useMemo, useState } from "react";
@@ -24,21 +16,8 @@ import type {
 export type SortKey = "new" | "name-asc" | "name-desc" | "collection";
 
 export interface FilterState {
-  /**
-   * Hue selection — `string` rather than the predefined `Hue` union
-   * so editors can add custom hue tags via Sanity (e.g. "lavender")
-   * and have them flow through the filter set unchanged. Predefined
-   * hues retain their hand-tuned gradients in HUE_OPTIONS; custom
-   * ones get a neutral fallback gradient in the FilterBar.
-   */
   hues: Set<string>;
   collections: Set<Collection>;
-  /**
-   * Product type (Pacific's broad material taxonomy) — separate from
-   * collections so the Collection filter is reserved for actual
-   * brand-line collections (Aurora, Kosmic, etc.) and product
-   * families like Quartz / Granite / Semi-Precious live here.
-   */
   productTypes: Set<string>;
   patterns: Set<Pattern>;
   finishes: Set<Finish>;
@@ -56,10 +35,9 @@ const emptyState = (): FilterState => ({
   thicknesses: new Set(),
 });
 
-// Collection names that are actually product-type categories — hidden
-// from the Collection filter because they're surfaced under the new
-// Product Type filter instead. Editors can still tag products with
-// these collection names; the catalogue just doesn't double-list them.
+// Collection names hidden from the Collection dropdown because they
+// are actually product-type categories surfaced under Product Type
+// instead, OR because they have been retired editorially.
 const COLLECTION_NAMES_TO_HIDE = new Set([
   "Granite",
   "Stone Finishes",
@@ -68,13 +46,11 @@ const COLLECTION_NAMES_TO_HIDE = new Set([
   "Vanity",
   "Integra",
   "Vision",
+  "Centrepiece Couture",
+  "Exotic Collection",
+  "Top Collection",
 ]);
 
-// Product-type values we don't surface in the catalogue filter.
-// `granite-finish` and `luxury` are existing Sanity enum tokens the
-// brand has retired from front-end browsing; `physical` is an
-// editor-typed alternate that crept in. Hiding client-side keeps the
-// filter clean without forcing a Sanity-side migration.
 const PRODUCT_TYPES_TO_HIDE = new Set(["granite-finish", "luxury", "physical"]);
 
 export function useFilterState(slabs: Slab[]) {
@@ -83,7 +59,6 @@ export function useFilterState(slabs: Slab[]) {
   const [dense, setDense] = useState(false);
   const [query, setQuery] = useState("");
 
-  /* --- Core toggle helper ------------------------------------------ */
   function toggle<K extends FilterKey>(
     key: K,
     value: FilterState[K] extends Set<infer V> ? V : never
@@ -112,42 +87,34 @@ export function useFilterState(slabs: Slab[]) {
     setFilters(emptyState());
   }
 
-  /* --- Apply filters + sort ---------------------------------------- */
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const out = slabs.filter((s) => {
-      // Text search: match against name and collection
       if (q) {
-        const haystack = `${s.name} ${s.collection}`.toLowerCase();
+        const haystack = (s.name + " " + s.collection).toLowerCase();
         if (!haystack.includes(q)) return false;
       }
-      // Hue: slab must have at least one selected hue (OR within category)
       if (filters.hues.size > 0) {
         if (!s.hues.some((h) => filters.hues.has(h))) return false;
       }
-      // Collection
       if (
         filters.collections.size > 0 &&
         !filters.collections.has(s.collection)
       ) {
         return false;
       }
-      // Product Type (Quartz / Granite / etc.)
       if (
         filters.productTypes.size > 0 &&
         (!s.productType || !filters.productTypes.has(s.productType))
       ) {
         return false;
       }
-      // Pattern
       if (filters.patterns.size > 0 && !filters.patterns.has(s.pattern)) {
         return false;
       }
-      // Finish: OR within category
       if (filters.finishes.size > 0) {
         if (!s.finishes.some((f) => filters.finishes.has(f))) return false;
       }
-      // Thickness: OR within category
       if (filters.thicknesses.size > 0) {
         if (!s.thicknesses.some((t) => filters.thicknesses.has(t)))
           return false;
@@ -155,7 +122,6 @@ export function useFilterState(slabs: Slab[]) {
       return true;
     });
 
-    // Sort
     switch (sort) {
       case "name-asc":
         out.sort((a, b) => a.name.localeCompare(b.name));
@@ -168,7 +134,6 @@ export function useFilterState(slabs: Slab[]) {
         break;
       case "new":
       default:
-        // "New" ribbons float to the top, then featured, then the rest
         out.sort((a, b) => {
           const rank = (r: typeof a.ribbon) =>
             r === "new" ? 0 : r === "featured" ? 1 : 2;
@@ -179,17 +144,11 @@ export function useFilterState(slabs: Slab[]) {
     return out;
   }, [slabs, filters, sort, query]);
 
-  /* --- Count how many slabs would match each candidate option ------ *
-   * Used to render "Vision Series (24)" style counts. Computing this
-   * against the current filter state (but excluding the category being
-   * counted) gives "combinable" counts that update live.
-   */
   function countFor<K extends FilterKey>(
     key: K,
     value: FilterState[K] extends Set<infer V> ? V : never
   ): number {
     return slabs.filter((s) => {
-      // Apply all filters EXCEPT the one we're counting against
       for (const fk of Object.keys(filters) as FilterKey[]) {
         if (fk === key) continue;
         const set = filters[fk];
@@ -212,7 +171,6 @@ export function useFilterState(slabs: Slab[]) {
             return false;
         }
       }
-      // Then check if this slab matches the candidate value for `key`
       if (key === "hues") return s.hues.includes(value as string);
       if (key === "collections") return s.collection === value;
       if (key === "productTypes") return s.productType === value;
@@ -232,7 +190,6 @@ export function useFilterState(slabs: Slab[]) {
     filters.finishes.size +
     filters.thicknesses.size;
 
-  /* --- Unique option values derived from current data set ----------- */
   const uniqueCollections = useMemo(
     () =>
       Array.from(new Set(slabs.map((s) => s.collection)))
@@ -240,6 +197,33 @@ export function useFilterState(slabs: Slab[]) {
         .sort(),
     [slabs]
   );
+
+  // Collection -> dominant productType. Used by the Collection
+  // dropdown / chip strip to render "Mineral infused low silica
+  // surface - Aurora" style labels.
+  const collectionToProductType = useMemo(() => {
+    const tally = new Map<string, Map<string, number>>();
+    for (const slab of slabs) {
+      if (!slab.productType) continue;
+      const counts = tally.get(slab.collection) ?? new Map<string, number>();
+      counts.set(slab.productType, (counts.get(slab.productType) ?? 0) + 1);
+      tally.set(slab.collection, counts);
+    }
+    const dominant = new Map<string, string>();
+    for (const [collection, counts] of tally) {
+      let bestType = "";
+      let bestCount = -1;
+      for (const [type, count] of counts) {
+        if (count > bestCount) {
+          bestCount = count;
+          bestType = type;
+        }
+      }
+      if (bestType) dominant.set(collection, bestType);
+    }
+    return dominant;
+  }, [slabs]);
+
   const uniqueProductTypes = useMemo(
     () =>
       Array.from(
@@ -292,5 +276,6 @@ export function useFilterState(slabs: Slab[]) {
     uniqueHues,
     uniqueFinishes,
     uniqueThicknesses,
+    collectionToProductType,
   };
 }

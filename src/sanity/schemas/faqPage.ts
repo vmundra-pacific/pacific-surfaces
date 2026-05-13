@@ -28,7 +28,7 @@ export default defineType({
           { title: "Integra Sinks", value: "integra" },
           { title: "Centrepiece Couture", value: "centrepiece-couture" },
           {
-            title: "Façades and Finishes",
+            title: "Beyond Finish",
             value: "facades-and-finishes",
           },
           { title: "Sustainability", value: "sustainability" },

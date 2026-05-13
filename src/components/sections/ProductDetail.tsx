@@ -194,8 +194,8 @@ export function ProductDetail({ product }: { product: Product }) {
   const categoryLabel =
     product.category?.name || product.collection?.name || "Quartz Surfaces";
 
-  // Specialty products (Semi-Precious / Exotic / Centrepiece Couture
-  // / Integra / Façades and Finishes) are NOT standard quartz slabs.
+  // Specialty products (Semi-Precious Stones / Exotic / Centrepiece Couture
+  // / Integra / Beyond Finish) are NOT standard quartz slabs.
   // Several quartz-only UI bits are hidden for them:
   //   - "Specs" tab in Product Info (water absorption, Mohs, etc.)
   //   - Thicknesses listing in Sizes & Finishes
@@ -546,7 +546,7 @@ export function ProductDetail({ product }: { product: Product }) {
                         />
                       </div>
                       {/* Label band under the image — hidden for
-                          specialty products (Semi-Precious, Exotic,
+                          specialty products (Semi-Precious Stones, Exotic,
                           Centrepiece Couture, Integra, Natural Stone
                           Finishes) where labels like "Slab" /
                           "Close Up" misrepresent the piece. */}

@@ -33,12 +33,22 @@ interface CatalogueClientProps {
    * doesn't want a second video underneath them).
    */
   hideHero?: boolean;
+  /**
+   * When true, render the catalogue as product-type sections
+   * (one heading + grid per type) instead of one flat grid, AND
+   * suppress the Product Type pill in the filter bar (otherwise
+   * users could hide a whole section by deselecting its type).
+   * Used on /products; every other surface keeps the flat grid +
+   * Product Type pill.
+   */
+  groupByProductType?: boolean;
 }
 
 export function CatalogueClient({
   slabs,
   hero,
   hideHero = false,
+  groupByProductType = false,
 }: CatalogueClientProps) {
   const api = useFilterState(slabs);
 
@@ -68,24 +78,33 @@ export function CatalogueClient({
               (Quartz / Granite / etc.) report their actual count
               instead of the catalogue-wide 273+. The eyebrow above
               uses the same value so the two figures stay in sync. */}
-          {slabs.length} premium{" "}
-          {slabs.length === 1 ? "surface" : "surfaces"} engineered for beauty,
-          crafted for durability. Find the perfect slab for your space.
+          {slabs.length} premium {slabs.length === 1 ? "surface" : "surfaces"}{" "}
+          engineered for beauty, crafted for durability. Find the perfect slab
+          for your space.
         </p>
       </section>
 
-      {/* Sticky filter bar */}
-      <FilterBar api={api} total={api.filtered.length} />
+      {/* Sticky filter bar. When the catalogue is grouped into
+          product-type sections, suppress the Product Type pill so
+          users can't toggle a whole section away with the same
+          filter the sections are built from. */}
+      <FilterBar
+        api={api}
+        total={api.filtered.length}
+        hideProductType={groupByProductType}
+      />
 
       {/* Active filter chips */}
       <ActiveChips api={api} />
 
-      {/* Grid */}
+      {/* Grid — flat by default, grouped per product type when the
+          host page opts in (see /products). */}
       <section className="relative z-10 mx-auto max-w-[1760px] px-6 lg:px-12 pt-10 lg:pt-14 pb-24">
         <SlabGrid
           slabs={api.filtered}
           dense={api.dense}
           onClearAll={api.clearAll}
+          groupByProductType={groupByProductType}
         />
       </section>
     </div>

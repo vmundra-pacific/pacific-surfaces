@@ -11,12 +11,12 @@ const PRODUCT_CTA: Record<string, { href: string; label: string }> = {
   granites: { href: "/products/granites", label: "Browse Granites" },
   "semi-precious": {
     href: "/products/semi-precious",
-    label: "Browse Semi-Precious",
+    label: "Browse Semi-Precious Stones",
   },
   vision: { href: "/products/quartz/chromia", label: "Browse Vision" },
   "facades-and-finishes": {
     href: "/products/facades-and-finishes",
-    label: "Browse Façades and Finishes",
+    label: "Browse Beyond Finish",
   },
   "centrepiece-couture": {
     href: "/products/centrepiece-couture",
@@ -100,10 +100,10 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   // Material 101 — "What is <Product>?" pages
   // ────────────────────────────────────────────────────────────────
   "what-is-quartz": {
-    title: "What is Quartz?",
-    eyebrow: "Material 101 · Quartz",
+    title: "What is Mineral infused low silica surface?",
+    eyebrow: "Material 101 · Mineral infused low silica surface",
     description:
-      "Engineered quartz combines roughly 90% natural quartz minerals with high-performance polymer resin and pigments. The result is a non-porous, low-maintenance, durable surface that ships in larger formats than natural stone allows.",
+      "Mineral infused low silica surface combines roughly 90% natural quartz minerals with high-performance polymer resin and pigments. The result is a non-porous, low-maintenance, durable surface that ships in larger formats than natural stone allows.",
     body: [
       {
         heading: "Material composition",
@@ -166,10 +166,10 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   },
 
   "what-is-semi-precious": {
-    title: "What is Semi-Precious Stone?",
-    eyebrow: "Material 101 · Semi-Precious",
+    title: "What is Semi-Precious Stones?",
+    eyebrow: "Material 101 · Semi-Precious Stones",
     description:
-      "Semi-precious surfaces are composed of carefully selected gemstone fragments — agate, amethyst, malachite, tiger's eye — bound into translucent slabs that backlight beautifully and behave like a featured gallery piece.",
+      "Semi-Precious Stones surfaces are composed of carefully selected gemstone fragments — agate, amethyst, malachite, tiger's eye — bound into translucent slabs that backlight beautifully and behave like a featured gallery piece.",
     body: [
       {
         heading: "Composition",
@@ -193,42 +193,42 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   },
 
   "what-is-vision": {
-    title: "What is Vision?",
-    eyebrow: "Material 101 · Vision",
+    title: "What is Eclipse?",
+    eyebrow: "Material 101 · Eclipse",
     description:
-      "Vision is Pacific's inlayered design quartz line — patterns and motifs engineered into the surface itself, so the design lives all the way through the slab rather than sitting only on top. Available within the Chromia collection.",
+      "Eclipse is Pacific's inlayered design quartz line — patterns and motifs engineered into the surface itself, so the design lives all the way through the slab rather than sitting only on top. Available within the Chromia collection.",
     body: [
       {
         heading: "Inlayered design",
         content:
-          "Vision slabs are built up in layers during the engineered quartz manufacturing process. Pigments and aggregates are placed in specific patterns through the slab's depth — so when the slab is cut, profiled, or mitred, the design continues across the cut face.",
+          "Eclipse slabs are built up in layers during the engineered quartz manufacturing process. Pigments and aggregates are placed in specific patterns through the slab's depth — so when the slab is cut, profiled, or mitred, the design continues across the cut face.",
         imageLabel: "Inlayered cross-section",
       },
       {
         heading: "Pattern engineering",
         content:
-          "Each Vision design is engineered as a repeating motif at a specific scale. Linear flow, geometric accents, painted-edge gradients — patterns inspired by textile, terrazzo, and brutalist architecture, executed in quartz. The design holds across the entire slab and bookmatches predictably for long runs.",
-        imageLabel: "Vision pattern detail",
+          "Each Eclipse design is engineered as a repeating motif at a specific scale. Linear flow, geometric accents, painted-edge gradients — patterns inspired by textile, terrazzo, and brutalist architecture, executed in quartz. The design holds across the entire slab and bookmatches predictably for long runs.",
+        imageLabel: "Eclipse pattern detail",
       },
       {
-        heading: "Where Vision lives",
+        heading: "Where Eclipse lives",
         content:
-          "Specified by designers when the surface should be the visual focus rather than a quiet background. Feature walls, statement islands, bookmatched panels, bar tops, and oversized vanities where the pattern can be seen at scale. Vision sits within the Chromia collection — Pacific's design-forward quartz line.",
-        imageLabel: "Vision install",
+          "Specified by designers when the surface should be the visual focus rather than a quiet background. Feature walls, statement islands, bookmatched panels, bar tops, and oversized vanities where the pattern can be seen at scale. Eclipse sits within the Chromia collection — Pacific's design-forward quartz line.",
+        imageLabel: "Eclipse install",
       },
     ],
   },
 
   "what-is-facades-and-finishes": {
-    title: "What are Façades and Finishes?",
-    eyebrow: "Material 101 · Façades and Finishes",
+    title: "What are Beyond Finish?",
+    eyebrow: "Material 101 · Beyond Finish",
     description:
-      "Façades and Finishes are large-format surface panels that bring authentic stone character to walls, facades, and feature areas without the weight or thickness penalty of full slabs.",
+      "Beyond Finish are large-format surface panels that bring authentic stone character to walls, facades, and feature areas without the weight or thickness penalty of full slabs.",
     body: [
       {
         heading: "The product range",
         content:
-          "Pacific Façades and Finishes covers a portfolio of surface treatments — polished, honed, leathered, brushed, flamed, sandblasted — across our quartz and granite collections. Each finish changes the way light reads on the surface, the way it feels under the hand, and how it weathers. The catalogue is designed to give specifiers a single library to draw from.",
+          "Pacific Beyond Finish covers a portfolio of surface treatments — polished, honed, leathered, brushed, flamed, sandblasted — across our quartz and granite collections. Each finish changes the way light reads on the surface, the way it feels under the hand, and how it weathers. The catalogue is designed to give specifiers a single library to draw from.",
         imageLabel: "Finish samples",
       },
       {
@@ -331,10 +331,10 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   // Maintenance — one per product line
   // ────────────────────────────────────────────────────────────────
   "maintenance-quartz": {
-    title: "Maintenance · Quartz",
-    eyebrow: "Care & Cleaning · Quartz",
+    title: "Maintenance · Mineral infused low silica surface",
+    eyebrow: "Care & Cleaning · Mineral infused low silica surface",
     description:
-      "Pacific quartz is engineered to be low-maintenance. Day-to-day cleaning is mild soap and water; the surface never needs sealing.",
+      "Pacific Mineral infused low silica surface is engineered to be low-maintenance. Day-to-day cleaning is mild soap and water; the surface never needs sealing.",
     body: [
       {
         heading: "Daily care",
@@ -397,10 +397,10 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   },
 
   "maintenance-semi-precious": {
-    title: "Maintenance · Semi-Precious",
-    eyebrow: "Care & Cleaning · Semi-Precious",
+    title: "Maintenance · Semi-Precious Stones",
+    eyebrow: "Care & Cleaning · Semi-Precious Stones",
     description:
-      "Semi-precious surfaces are best treated as gallery pieces — handle with care, clean gently, and they'll keep their gem-like character for decades.",
+      "Semi-Precious Stones surfaces are best treated as gallery pieces — handle with care, clean gently, and they'll keep their gem-like character for decades.",
     body: [
       {
         heading: "Gentle daily care",
@@ -417,44 +417,44 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
       {
         heading: "Where it works",
         content:
-          "Semi-precious surfaces are best as feature walls, bar tops, vanity counters, and reception desks rather than heavy-prep kitchen counters. They handle daily use well in those applications but are slightly more delicate than engineered quartz under heavy abuse. Specify them where the visual impact matters most.",
+          "Semi-Precious Stones surfaces are best as feature walls, bar tops, vanity counters, and reception desks rather than heavy-prep kitchen counters. They handle daily use well in those applications but are slightly more delicate than engineered quartz under heavy abuse. Specify them where the visual impact matters most.",
         imageLabel: "Feature install",
       },
     ],
   },
 
   "maintenance-vision": {
-    title: "Maintenance · Vision",
-    eyebrow: "Care & Cleaning · Vision",
+    title: "Maintenance · Eclipse",
+    eyebrow: "Care & Cleaning · Eclipse",
     description:
-      "Vision is engineered quartz with a structural pattern — care is identical to standard quartz, with a couple of pattern-specific notes.",
+      "Eclipse is engineered quartz with a structural pattern — care is identical to standard quartz, with a couple of pattern-specific notes.",
     body: [
       {
         heading: "Daily care",
         content:
-          "Same as standard Pacific quartz: wipe with warm water and mild soap, soft cloth, no sealing required. Vision's pattern doesn't change the surface chemistry — the same non-porous resin system protects against stains and bacteria, and the same scratch resistance applies. Daily upkeep is intentionally low-effort.",
+          "Same as standard Pacific quartz: wipe with warm water and mild soap, soft cloth, no sealing required. Eclipse's pattern doesn't change the surface chemistry — the same non-porous resin system protects against stains and bacteria, and the same scratch resistance applies. Daily upkeep is intentionally low-effort.",
         imageLabel: "Daily wipe",
       },
       {
         heading: "Pattern integrity",
         content:
-          "Vision's design lives through the slab's depth — surface scratches that would damage a printed pattern still show the design underneath. That said, abrasive scouring will dull the polish even where the pattern continues, so soft cloths and non-abrasive cleansers remain the rule. Hot pans on a trivet, no exceptions for any quartz.",
+          "Eclipse's design lives through the slab's depth — surface scratches that would damage a printed pattern still show the design underneath. That said, abrasive scouring will dull the polish even where the pattern continues, so soft cloths and non-abrasive cleansers remain the rule. Hot pans on a trivet, no exceptions for any quartz.",
         imageLabel: "Pattern detail",
       },
       {
         heading: "Long-term",
         content:
-          "Vision holds its visual character indefinitely. The pattern is engineered, not printed — there's no top-coat to wear off and no adhered film to peel. The surface looks the same in year ten as it did at install with normal use.",
-        imageLabel: "Aged Vision install",
+          "Eclipse holds its visual character indefinitely. The pattern is engineered, not printed — there's no top-coat to wear off and no adhered film to peel. The surface looks the same in year ten as it did at install with normal use.",
+        imageLabel: "Aged Eclipse install",
       },
     ],
   },
 
   "maintenance-facades-and-finishes": {
-    title: "Maintenance · Façades and Finishes",
-    eyebrow: "Care & Cleaning · Façades and Finishes",
+    title: "Maintenance · Beyond Finish",
+    eyebrow: "Care & Cleaning · Beyond Finish",
     description:
-      "Pacific Façades and Finishes covers polished, honed, leathered, brushed, and flamed surfaces — care varies slightly per finish, with shared fundamentals.",
+      "Pacific Beyond Finish covers polished, honed, leathered, brushed, and flamed surfaces — care varies slightly per finish, with shared fundamentals.",
     body: [
       {
         heading: "Polished and honed",
@@ -562,10 +562,10 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   // Warranty — only Pacific Quartz carries a lifetime warranty
   // ────────────────────────────────────────────────────────────────
   "warranty-quartz": {
-    title: "Warranty · Quartz",
-    eyebrow: "Coverage · Quartz",
+    title: "Warranty · Mineral infused low silica surface",
+    eyebrow: "Coverage · Mineral infused low silica surface",
     description:
-      "Every Pacific Quartz residential installation is covered by a lifetime limited warranty against manufacturing defects.",
+      "Every Pacific Mineral infused low silica surface residential installation is covered by a lifetime limited warranty against manufacturing defects.",
     body: [
       {
         heading: "What's covered",
@@ -631,7 +631,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
     title: "Architecture Project Gallery",
     eyebrow: "Projects · Architecture",
     description:
-      "Pacific Façades and Finishes and large-format Quartz on real architectural projects — facades, feature walls, lobbies, and exterior cladding installations.",
+      "Pacific Beyond Finish and large-format Quartz on real architectural projects — facades, feature walls, lobbies, and exterior cladding installations.",
   },
   "commercial-inspiration": {
     title: "Commercial Inspiration",

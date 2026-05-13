@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ActiveChips — horizontal row of removable chips showing every currently
+ * ActiveChips - horizontal row of removable chips showing every currently
  * applied filter. Renders nothing when no filters are active.
  */
 
@@ -9,13 +9,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import type { Collection, Pattern, Finish, Thickness } from "@/data/slabs";
 import type { useFilterState, FilterKey } from "./useFilterState";
+import { PRODUCT_TYPE_LABELS, formatCollection } from "./labels";
 
 type FilterApi = ReturnType<typeof useFilterState>;
 
 interface Chip {
   key: FilterKey;
-  // Hue widened to `string` to accept editor-defined custom hues
-  // alongside the predefined Hue union values.
   value: string | Collection | Pattern | Finish | Thickness;
   label: string;
 }
@@ -29,18 +28,6 @@ const CATEGORY_LABEL: Record<FilterKey, string> = {
   thicknesses: "Thickness",
 };
 
-// Label mapping for productType enum tokens (mirrors FilterBar's
-// PRODUCT_TYPE_LABELS — extracted here so the chip strip and the
-// dropdown stay in sync).
-const PRODUCT_TYPE_LABELS: Record<string, string> = {
-  "quartz-slab": "Quartz",
-  "granite-slab": "Granite",
-  "quartz-sink": "Quartz Sink",
-  "granite-finish": "Granite Finish",
-  "semi-precious": "Semi-Precious",
-  luxury: "Luxury",
-};
-
 function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
@@ -51,7 +38,7 @@ export function ActiveChips({ api }: { api: FilterApi }) {
     chips.push({ key: "hues", value: h, label: capitalize(h) })
   );
   api.filters.collections.forEach((c) =>
-    chips.push({ key: "collections", value: c, label: c })
+    chips.push({ key: "collections", value: c, label: formatCollection(c) })
   );
   api.filters.productTypes.forEach((t) =>
     chips.push({

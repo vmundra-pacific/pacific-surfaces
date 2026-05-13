@@ -46,9 +46,9 @@ const SECTIONS = [
   {
     eyebrow: "Statement Surfaces",
     headline: "Hand-laid gemstone tops for signature moments.",
-    body: "Semi-precious surfaces composed of selected gemstone fragments — for boutique reception desks, lit feature walls, and bespoke commissions where the surface is the project's design moment.",
-    imageLabel: "Semi-precious feature",
-    ctaLabel: "Explore Semi-Precious",
+    body: "Semi-Precious Stones surfaces composed of selected gemstone fragments — for boutique reception desks, lit feature walls, and bespoke commissions where the surface is the project's design moment.",
+    imageLabel: "Semi-Precious Stones feature",
+    ctaLabel: "Explore Semi-Precious Stones",
     ctaHref: "/products/semi-precious",
   },
 ];

@@ -33,7 +33,7 @@ export default defineType({
           { title: "Quartz Curations", value: "quartz" },
           { title: "Indian Edition", value: "indian" },
           { title: "Granite Curations", value: "granite" },
-          { title: "Semi-Precious & Exotic", value: "semiprecious" },
+          { title: "Semi-Precious Stones & Exotic", value: "semiprecious" },
           { title: "Sinks (Integra)", value: "sinks" },
           { title: "Ecosurfaces", value: "ecosurfaces" },
           { title: "Cut-to-Size & Architectural", value: "cuttosize" },

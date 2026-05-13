@@ -53,7 +53,7 @@ export interface CategoryConfig {
   /**
    * Optional product type to also pull in regardless of which
    * sub-collection a product sits under. Used by category-level
-   * landings like Quartz / Granite / Semi-Precious where we want
+   * landings like Quartz / Granite / Semi-Precious Stones where we want
    * the page to aggregate every product of that type.
    */
   productType?: string;
@@ -85,10 +85,11 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
     // collection winning the createdAt tiebreak made /products/quartz
     // render with the wrong page title.
     collectionSlug: "quartz",
+    displayName: "Mineral infused low silica surface",
     productType: "quartz-slab",
     hero: {
       videoSrc: "/videos/quartz-hero.mp4",
-      eyebrow: "Pacific Surfaces · Quartz",
+      eyebrow: "Pacific Surfaces · Mineral infused low silica",
       headline: "Engineered stone,",
       headlineItalic: "crafted for the everyday.",
       description:
@@ -108,19 +109,19 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   },
   "semi-precious": {
     match: "semi",
-    // productType removed — Semi-Precious is a single Sanity
+    // productType removed — Semi-Precious Stones is a single Sanity
     // collection, not a multi-collection aggregation like Quartz or
     // Granite. With productType set, the OR logic in the GROQ query
     // pulls in any product tagged with productType="semi-precious"
     // regardless of its collection ref, which let a mis-tagged
     // Vision Series product bleed onto this page. Keeping only the
-    // collection match restricts results to the Semi Precious Stones
+    // collection match restricts results to the Semi-Precious Stones
     // collection (the intended set). With one collection, the
     // FilterBar's `singleCollection` heuristic auto-hides the
     // Collection filter pill and the "By collection" sort option.
     hero: {
       videoSrc: "/videos/semi-precious.mp4",
-      eyebrow: "Pacific Surfaces · Semi-Precious",
+      eyebrow: "Pacific Surfaces · Semi-Precious Stones",
       headline: "Nature's rarest",
       headlineItalic: "treasures, refined.",
       description:

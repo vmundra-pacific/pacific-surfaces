@@ -15,6 +15,12 @@ interface SanityProduct {
   slug: { current: string } | string;
   mainImage?: string | null;
   /**
+   * Optional gallery image URLs (each `gallery[].asset->url` from
+   * Sanity). Used by the FinishLightbox on /products to render
+   * thumbnails alongside the main image for Beyond Finish products.
+   */
+  gallery?: (string | null)[] | null;
+  /**
    * Sanity-computed dominant background colour from the slab photo's
    * palette metadata. Hex string like "#a3835c". Used as the primary
    * source for hue classification — name keywords are only a fallback.
@@ -456,6 +462,12 @@ export function mapSanityToCatalogue(products: SanityProduct[]): Slab[] {
         ribbon: deriveRibbon(p.ribbons),
         swatch,
         photoUrl: p.mainImage ?? undefined,
+        gallery:
+          Array.isArray(p.gallery) && p.gallery.length > 0
+            ? p.gallery.filter(
+                (u: unknown): u is string => typeof u === "string"
+              )
+            : undefined,
       };
     });
 }

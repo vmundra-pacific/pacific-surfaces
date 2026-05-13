@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * FilterBar — the sticky top bar containing all filter pills, the result
+ * FilterBar - the sticky top bar containing all filter pills, the result
  * count, the grid-density toggle, and the sort control.
  */
 
@@ -16,63 +16,30 @@ import {
   type Thickness,
 } from "@/data/slabs";
 import type { useFilterState, SortKey } from "./useFilterState";
+import {
+  PRODUCT_TYPE_LABELS,
+  formatCollection,
+  titleCase as sharedTitleCase,
+} from "./labels";
 
-/**
- * Default gradient for hue values that aren't in the predefined
- * HUE_OPTIONS list — i.e. custom values an editor typed into the
- * Hue Override field in Sanity (e.g. "lavender", "sage"). Predefined
- * hues keep their hand-tuned gradients; custom ones get this neutral
- * fallback so they at least render consistently.
- */
 const CUSTOM_HUE_GRADIENT = "linear-gradient(135deg,#5a6772,#3a444d)";
 
-function titleCase(value: string): string {
-  if (!value) return value;
-  return value
-    .split(/[\s-_]+/)
-    .map((part) => (part ? part[0].toUpperCase() + part.slice(1) : ""))
-    .join(" ");
-}
-
-// Sanity stores `productType` as a short enum token; render it with
-// editorial labels. Anything not in the map falls through to
-// titleCase() so unknown future values still display sensibly.
-const PRODUCT_TYPE_LABELS: Record<string, string> = {
-  "quartz-slab": "Quartz",
-  "granite-slab": "Granite",
-  "quartz-sink": "Quartz Sink",
-  "granite-finish": "Granite Finish",
-  "semi-precious": "Semi-Precious",
-  luxury: "Luxury",
-};
+const titleCase = sharedTitleCase;
 
 type FilterApi = ReturnType<typeof useFilterState>;
 
 interface Props {
   api: FilterApi;
   total: number;
+  hideProductType?: boolean;
 }
 
-export function FilterBar({ api, total }: Props) {
+export function FilterBar({ api, total, hideProductType = false }: Props) {
   const [openKey, setOpenKey] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
-  // When the catalogue is already scoped to a single collection
-  // (e.g. /products/quartz/chromia for the Vision Series), the
-  // Collection filter and the "By collection" sort option are both
-  // meaningless — they'd offer one option each. Hide them in that
-  // case. The all-products page and category landings (which span
-  // multiple collections) keep both controls.
   const singleCollection = api.uniqueCollections.length <= 1;
 
-  /**
-   * Hue chips to render — predefined HUE_OPTIONS in their canonical
-   * order, PLUS any custom hue strings that show up in the data
-   * (sourced from `api.uniqueHues`) but aren't in the predefined
-   * set. Custom ones inherit the neutral fallback gradient and a
-   * Title Case label. This is the dynamic-discovery half of the
-   * "editors can add new hues in Sanity" feature.
-   */
   const hueChipOptions = useMemo(() => {
     const predefinedValues = new Set(HUE_OPTIONS.map((o) => o.value));
     const customHues = api.uniqueHues.filter(
@@ -110,23 +77,15 @@ export function FilterBar({ api, total }: Props) {
         "bg-[#112732]/95 backdrop-blur-xl",
       ].join(" ")}
     >
-      {/* Widened to max-w-[1600px] and the wrapping behaviour tightened so
-          the full bar (search + 6 pills + count + grid toggle + sort) fits
-          on one line at xl+ viewports. At lg and below it still wraps
-          gracefully — flex-wrap on the outer container keeps narrow
-          laptops working. Gaps reduced from 4 / 2.5 → 3 / 2 to claw
-          back the few pixels the Product Type pill adds. */}
       <div className="mx-auto max-w-[1600px] px-6 lg:px-8 py-3.5 flex flex-wrap xl:flex-nowrap items-center justify-between gap-3">
-        {/* Left — search + filter pills */}
         <div className="flex flex-wrap xl:flex-nowrap items-center gap-2">
-          {/* Search input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-pacific-mid pointer-events-none" />
             <input
               type="text"
               value={api.query}
               onChange={(e) => api.setQuery(e.target.value)}
-              placeholder="Search designs…"
+              placeholder="Search designs..."
               className={[
                 "w-44 rounded-full py-2 pl-9 pr-8 text-sm",
                 "bg-white/5 border border-white/15 text-white placeholder-pacific-mid/60",
@@ -144,7 +103,6 @@ export function FilterBar({ api, total }: Props) {
             )}
           </div>
 
-          {/* Hue */}
           <FilterPill
             label="Hue"
             count={api.filters.hues.size}
@@ -174,7 +132,7 @@ export function FilterBar({ api, total }: Props) {
                         : "",
                     ].join(" ")}
                     style={{ background: opt.color }}
-                    aria-label={`${opt.label} hue — ${count} designs`}
+                    aria-label={`${opt.label} hue - ${count} designs`}
                   >
                     <span className="absolute bottom-1 left-1.5 right-1.5 text-left text-[10px] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,.6)] tracking-wide">
                       {opt.label}
@@ -190,13 +148,6 @@ export function FilterBar({ api, total }: Props) {
             </div>
           </FilterPill>
 
-          {/* Collection — only when the catalogue spans more than one
-              collection. On collection-scoped pages (Vision, Centre-
-              piece Couture, etc.) the filter offers a single option,
-              which is noise; hide it. Product-type-like names
-              (Granite, Vision, Integra, etc.) are filtered out
-              upstream in useFilterState's uniqueCollections; they
-              now live under the Product Type pill below. */}
           {!singleCollection && (
             <FilterPill
               label="Collection"
@@ -205,10 +156,10 @@ export function FilterBar({ api, total }: Props) {
               onToggle={() => toggleOpen("collection")}
             >
               <PopoverCheckList
-                title={`Collection · ${api.uniqueCollections.length} series`}
+                title={`Collection - ${api.uniqueCollections.length} series`}
                 items={api.uniqueCollections.map((c) => ({
                   value: c,
-                  label: c,
+                  label: formatCollection(c),
                   count: api.countFor("collections", c),
                   selected: api.filters.collections.has(c),
                 }))}
@@ -217,14 +168,7 @@ export function FilterBar({ api, total }: Props) {
             </FilterPill>
           )}
 
-          {/* Product Type — Pacific's broad material taxonomy
-              (Quartz / Granite / Semi-Precious / Sinks / etc.).
-              Separated from Collection so the Collection pill above
-              stays focused on branded collections only. Sourced from
-              the productType field on each product in Sanity. Only
-              renders when at least one product has the field set
-              AND the catalogue is multi-type. */}
-          {api.uniqueProductTypes.length > 1 && (
+          {!hideProductType && api.uniqueProductTypes.length > 1 && (
             <FilterPill
               label="Product Type"
               count={api.filters.productTypes.size}
@@ -232,7 +176,7 @@ export function FilterBar({ api, total }: Props) {
               onToggle={() => toggleOpen("productType")}
             >
               <PopoverCheckList
-                title={`Product Type · ${api.uniqueProductTypes.length} options`}
+                title={`Product Type - ${api.uniqueProductTypes.length} options`}
                 items={api.uniqueProductTypes.map((t) => ({
                   value: t,
                   label: PRODUCT_TYPE_LABELS[t] ?? titleCase(t),
@@ -244,7 +188,6 @@ export function FilterBar({ api, total }: Props) {
             </FilterPill>
           )}
 
-          {/* Pattern */}
           <FilterPill
             label="Pattern"
             count={api.filters.patterns.size}
@@ -252,7 +195,7 @@ export function FilterBar({ api, total }: Props) {
             onToggle={() => toggleOpen("pattern")}
           >
             <PopoverCheckList
-              title="Pattern · visual character"
+              title="Pattern - visual character"
               items={api.uniquePatterns.map((p) => ({
                 value: p,
                 label: p,
@@ -263,7 +206,6 @@ export function FilterBar({ api, total }: Props) {
             />
           </FilterPill>
 
-          {/* Finish */}
           <FilterPill
             label="Finish"
             count={api.filters.finishes.size}
@@ -282,7 +224,6 @@ export function FilterBar({ api, total }: Props) {
             />
           </FilterPill>
 
-          {/* Thickness */}
           <FilterPill
             label="Thickness"
             count={api.filters.thicknesses.size}
@@ -302,14 +243,12 @@ export function FilterBar({ api, total }: Props) {
           </FilterPill>
         </div>
 
-        {/* Right — result count, view toggle, sort */}
         <div className="flex items-center gap-4">
           <div className="text-xs text-pacific-mid tracking-wider tabular-nums">
             <span className="font-semibold text-white">{total}</span>{" "}
             {total === 1 ? "design" : "designs"}
           </div>
 
-          {/* Grid density */}
           <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-1">
             <button
               onClick={() => api.setDense(false)}
@@ -337,9 +276,6 @@ export function FilterBar({ api, total }: Props) {
             </button>
           </div>
 
-          {/* Sort — "By collection" is hidden on single-collection
-              pages (sorting by collection has no effect when there's
-              only one). */}
           <SortControl
             value={api.sort}
             onChange={api.setSort}
@@ -352,8 +288,6 @@ export function FilterBar({ api, total }: Props) {
     </div>
   );
 }
-
-/* ------------------------------------------------------------------ */
 
 function PopoverCheckList({
   title,
@@ -417,12 +351,10 @@ function PopoverCheckList({
   );
 }
 
-/* ------------------------------------------------------------------ */
-
 const SORT_LABELS: Record<SortKey, string> = {
   new: "New arrivals",
-  "name-asc": "Name A–Z",
-  "name-desc": "Name Z–A",
+  "name-asc": "Name A-Z",
+  "name-desc": "Name Z-A",
   collection: "By collection",
 };
 
@@ -437,14 +369,8 @@ function SortControl({
   onChange: (v: SortKey) => void;
   isOpen: boolean;
   onToggle: () => void;
-  /** When the catalogue is scoped to a single collection, the
-   *  "By collection" sort option is meaningless; setting this hides
-   *  that option from the dropdown. */
   hideCollectionOption?: boolean;
 }) {
-  // Filter the sort options at render time so the rest of the
-  // dropdown stays unchanged. Keeps SORT_LABELS as the single
-  // source of truth for option labels.
   const visibleKeys = (Object.keys(SORT_LABELS) as SortKey[]).filter(
     (k) => !(hideCollectionOption && k === "collection")
   );

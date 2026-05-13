@@ -75,7 +75,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
   "semi-precious": [
     {
       q: "What are semi-precious surfaces?",
-      a: "Semi-precious surfaces are slabs cast from cut and polished pieces of stones like agate, amethyst, tiger's eye, and rose quartz, bound in clear resin and finished to a mirror polish. Each slab is one-of-a-kind — no two arrangements of stone fragments are the same.",
+      a: "Semi-Precious Stones surfaces are slabs cast from cut and polished pieces of stones like agate, amethyst, tiger's eye, and rose quartz, bound in clear resin and finished to a mirror polish. Each slab is one-of-a-kind — no two arrangements of stone fragments are the same.",
     },
     {
       q: "Are semi-precious surfaces durable?",

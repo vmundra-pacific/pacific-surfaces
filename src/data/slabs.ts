@@ -69,6 +69,13 @@ export interface Slab {
    * in `/public/slabs/{slug}.jpg` and add the path here.
    */
   photoUrl?: string;
+  /**
+   * Optional gallery — additional images for this product. Used by
+   * the FinishLightbox on the /products page when productType is
+   * "granite-finish": main image opens in the lightbox, gallery
+   * images render as clickable thumbnails to swap the main view.
+   */
+  gallery?: string[];
 }
 
 /* ------------------------------------------------------------------ *
