@@ -48,3 +48,6 @@ next-env.d.ts
 *.orig
 .aidesigner/*
 !.aidesigner/.gitkeep
+
+# Uncompressed source clips for the Professionals reel — kept locally for re-encoding only.
+public/videos/professionals/_originals/
