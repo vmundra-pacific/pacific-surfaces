@@ -166,6 +166,13 @@ const nextConfig: NextConfig = {
         destination: "/products/facades-and-finishes/:path*",
         permanent: true,
       },
+      {
+        // Legacy Wix URL. The old /category/all-products listing maps
+        // to the new unified All Products landing at /products.
+        source: "/category/all-products",
+        destination: "/products",
+        permanent: true,
+      },
     ];
   },
 };
