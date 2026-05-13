@@ -385,6 +385,11 @@ function preloadMegaThumbs() {
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Which mega-section is expanded inside the mobile menu drawer.
+  // null = none (top-level list view). Setting to a nav item name
+  // (e.g. "Products") swaps that row into a sub-panel showing the
+  // section's cards. Reset to null whenever the drawer closes.
+  const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   // Coming Soon modal — set to a card label (e.g. "3D Showroom")
   // to display the modal; null when closed.
@@ -1377,7 +1382,12 @@ export default function Header() {
                 <ArrowRight className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
               </Link>
               <button
-                onClick={() => setMobileOpen(!mobileOpen)}
+                onClick={() => {
+                  setMobileOpen((open) => {
+                    if (open) setMobileExpanded(null);
+                    return !open;
+                  });
+                }}
                 aria-label={mobileOpen ? "Close menu" : "Open menu"}
                 aria-expanded={mobileOpen}
                 className={cn(
@@ -1424,47 +1434,157 @@ export default function Header() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="flex flex-col items-center justify-center min-h-full gap-8 py-24 px-6"
+              className="flex flex-col w-full max-w-md mx-auto min-h-full gap-2 py-24 px-6"
               onClick={(e) => e.stopPropagation()}
             >
-              {navigation.map((item: NavItem, i) => (
-                <motion.div
-                  key={item.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 + i * 0.06 }}
-                  className="flex flex-col items-center text-center"
-                >
-                  <Link
-                    href={item.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="text-3xl font-light tracking-tight text-white hover:text-stone-300 transition-colors"
-                  >
-                    {item.name}
-                  </Link>
+              {/*
+                Mobile menu — two layered states:
+                  1. Top-level list. Each row that has a mega is a
+                     toggle button (chevron rotates on expand). Each
+                     row WITHOUT a mega (Resources / Our Story /
+                     Contact) is a plain Link that navigates straight
+                     away on tap.
+                  2. Expanded row inline-renders the matching cards
+                     (PRODUCTS_CATEGORIES / SPACES_CATEGORIES /
+                     PROFESSIONS_CATEGORIES / INSPIRATIONS_CATEGORIES
+                     / CORPORATE_CATEGORIES). Tapping a card routes to
+                     its coloursHref and closes the drawer.
+              */}
+              {navigation.map((item: NavItem, i) => {
+                // Pick the right category list for this top-level
+                // row. `cards === null` means it's a plain link row.
+                const cards =
+                  item.name === "Products"
+                    ? PRODUCTS_CATEGORIES
+                    : item.name === "Spaces"
+                      ? SPACES_CATEGORIES
+                      : item.name === "Professionals"
+                        ? PROFESSIONS_CATEGORIES
+                        : item.name === "Inspirations"
+                          ? INSPIRATIONS_CATEGORIES
+                          : item.name === "Corporate"
+                            ? CORPORATE_CATEGORIES
+                            : null;
+                const isExpanded = mobileExpanded === item.name;
 
-                  {/* Mobile submenu for Products */}
-                  {item.children && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      transition={{ delay: 0.22 + i * 0.06 }}
-                      className="flex flex-col items-center gap-3 mt-4"
-                    >
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.name}
-                          href={child.href}
-                          onClick={() => setMobileOpen(false)}
-                          className="text-sm font-light tracking-wide text-stone-300 hover:text-white transition-colors"
+                return (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 + i * 0.04 }}
+                    className="w-full"
+                  >
+                    {cards ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMobileExpanded((cur) =>
+                            cur === item.name ? null : item.name
+                          )
+                        }
+                        aria-expanded={isExpanded}
+                        className="w-full flex items-center justify-between py-4 border-b border-white/10 text-left text-2xl font-light tracking-tight text-white"
+                      >
+                        <span>{item.name}</span>
+                        <ChevronDown
+                          className={`w-5 h-5 text-white/60 transition-transform duration-300 ${
+                            isExpanded ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        onClick={() => {
+                          setMobileExpanded(null);
+                          setMobileOpen(false);
+                        }}
+                        className="block py-4 border-b border-white/10 text-2xl font-light tracking-tight text-white"
+                      >
+                        {item.name}
+                      </Link>
+                    )}
+
+                    <AnimatePresence initial={false}>
+                      {cards && isExpanded && (
+                        <motion.div
+                          key={`${item.name}-cards`}
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.28, ease: [0.25, 0.4, 0.25, 1] }}
+                          style={{ overflow: "hidden" }}
                         >
-                          {child.name}
-                        </Link>
-                      ))}
-                    </motion.div>
-                  )}
-                </motion.div>
-              ))}
+                          <ul className="py-3 grid grid-cols-1 gap-2.5">
+                            {cards.map((cat) => {
+                              const inner = (
+                                <div className="flex items-center gap-3 p-2.5 rounded-xl border border-white/10 bg-white/5">
+                                  <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-stone-900 flex-shrink-0">
+                                    {cat.imageUrl ? (
+                                      <Image
+                                        src={cat.imageUrl}
+                                        alt={cat.name}
+                                        fill
+                                        className="object-cover"
+                                        sizes="56px"
+                                      />
+                                    ) : (
+                                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5" />
+                                    )}
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="text-sm font-medium text-white truncate">
+                                      {cat.name}
+                                    </div>
+                                    <div className="text-[11px] font-light text-stone-300 truncate">
+                                      {cat.tagline}
+                                    </div>
+                                  </div>
+                                  <ArrowRight className="w-4 h-4 text-white/50 flex-shrink-0" />
+                                </div>
+                              );
+                              if (cat.comingSoon) {
+                                return (
+                                  <li key={cat.slug}>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setMobileOpen(false);
+                                        setMobileExpanded(null);
+                                        setComingSoonLabel(cat.name);
+                                      }}
+                                      className="w-full text-left"
+                                    >
+                                      {inner}
+                                    </button>
+                                  </li>
+                                );
+                              }
+                              return (
+                                <li key={cat.slug}>
+                                  <Link
+                                    href={
+                                      cat.coloursHref ?? `/products/${cat.slug}`
+                                    }
+                                    onClick={() => {
+                                      setMobileOpen(false);
+                                      setMobileExpanded(null);
+                                    }}
+                                    className="block"
+                                  >
+                                    {inner}
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
               {/* Mobile / non-2xl CTA pair. Get a Quote is the primary
                   pill (filled white). Visualizer sits next to it as a
                   ghost pill — Visualizer was removed from the header

@@ -562,9 +562,8 @@ export default function ServicesPage() {
               working day.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-              <MagneticButton href="/contact" variant="primary" size="lg">
-                Send a DWG file
-              </MagneticButton>
+              <MagneticButton href="/contact" variant=
+"primary" size="lg">Send a DWG file</MagneticButton>
               <Link
                 href="/professionals/applications"
                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-medium tracking-[0.1em] uppercase text-white/80 hover:text-white transition-colors"
@@ -574,12 +573,6 @@ export default function ServicesPage() {
               </Link>
             </div>
           </AnimatedSection>
-        </div>
-      </section>
-    </main>
-  );
-}
-Section>
         </div>
       </section>
     </main>
