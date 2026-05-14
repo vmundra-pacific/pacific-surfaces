@@ -304,6 +304,19 @@ export function CollectionsShowcaseGrid({
                       src={image}
                       alt={name}
                       fill
+                      // Opt-in to Vercel's image optimizer for the
+                      // homepage collections carousel — the global
+                      // default (next.config.ts → images.unoptimized:
+                      // true) routes all <Image> through Sanity's
+                      // CDN directly so quota exhaustion doesn't
+                      // break the rest of the site, but this carousel
+                      // is the primary above-the-fold imagery on the
+                      // homepage where the speed boost from Vercel's
+                      // edge cache is most visible. The carousel has
+                      // ~7 unique images at 2 sizes each (~14
+                      // transformations / month total), so quota
+                      // burn is bounded.
+                      unoptimized={false}
                       className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                       sizes={isWide ? "60vw" : "30vw"}
                     />

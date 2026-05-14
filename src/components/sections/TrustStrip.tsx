@@ -63,7 +63,7 @@ export function TrustStrip() {
             <div key={b.title} className="flex flex-col items-center">
               {/* Image tile */}
               <div className="relative w-full aspect-square overflow-hidden">
-                <Image
+                <Image unoptimized={false}
                   src={b.src}
                   alt={`${b.title} — ${b.sub}`}
                   fill

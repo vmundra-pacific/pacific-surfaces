@@ -425,7 +425,7 @@ export function HeroScrollCanvas() {
           ready ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
       >
-        <Image
+        <Image unoptimized={false}
           src="/logo-pacific-white.png"
           alt="Pacific Surfaces logo"
           width={160}
