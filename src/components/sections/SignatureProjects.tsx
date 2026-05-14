@@ -317,7 +317,7 @@ function ProjectCard({
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       ) : item.image ? (
-        <Image unoptimized={false}
+        <Image
           src={sanityImg(item.image, { w: 1200 }) ?? item.image}
           alt={`${item.name} — Pacific Surfaces project`}
           fill
@@ -499,7 +499,7 @@ function ProjectVideo({
   return (
     <>
       {posterSrc && (
-        <Image unoptimized={false}
+        <Image
           src={posterSrc}
           alt=""
           aria-hidden="true"

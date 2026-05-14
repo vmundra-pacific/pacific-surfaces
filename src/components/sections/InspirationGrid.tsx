@@ -174,7 +174,7 @@ export function InspirationGrid(_props: {
           eyebrow/heading sit on real imagery. As soon as the user
           scrolls in, swap to the live AnimatePresence stack. */}
       {!inView ? (
-        <Image unoptimized={false}
+        <Image
           src={
             slides[0].kind === "image"
               ? slides[0].src
@@ -198,7 +198,7 @@ export function InspirationGrid(_props: {
             className="absolute inset-0"
           >
             {slide.kind === "image" ? (
-              <Image unoptimized={false}
+              <Image
                 src={slide.src}
                 alt={slide.name}
                 fill
@@ -219,7 +219,7 @@ export function InspirationGrid(_props: {
                     Bonus: if the video stalls or never finishes
                     loading, the poster stays visible — far better
                     than black. */}
-                <Image unoptimized={false}
+                <Image
                   src={slide.poster}
                   alt={slide.name}
                   fill

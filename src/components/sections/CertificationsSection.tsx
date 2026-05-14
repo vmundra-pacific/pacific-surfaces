@@ -55,7 +55,7 @@ export function CertificationsSection() {
                   the plate a sense of "credential" rather than just
                   a chip. */}
             <div className="mt-4 mb-10 inline-flex items-center justify-center bg-white rounded-lg px-8 py-5 shadow-[0_8px_28px_rgba(0,0,0,0.25)] ring-1 ring-stone-200/60">
-              <Image unoptimized={false}
+              <Image
                 src="/logos/dnv.webp"
                 alt="DNV certification"
                 width={200}
@@ -87,7 +87,7 @@ export function CertificationsSection() {
           className="relative overflow-hidden bg-[#0f1f29] min-h-[420px] lg:min-h-[520px]"
         >
           {/* Real lab/microscope photo behind the cert content. */}
-          <Image unoptimized={false}
+          <Image
             src="/images/sgs-cert.png"
             alt=""
             aria-hidden="true"
@@ -113,7 +113,7 @@ export function CertificationsSection() {
               {/* SGS logo — same large credential treatment as
                     DNV so the two cards read as a matched pair. */}
               <div className="mt-4 mb-10 inline-flex items-center justify-center bg-white rounded-lg px-8 py-5 shadow-[0_8px_28px_rgba(0,0,0,0.25)] ring-1 ring-stone-200/60">
-                <Image unoptimized={false}
+                <Image
                   src="/logos/sgs.png"
                   alt="SGS certification"
                   width={200}

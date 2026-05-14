@@ -493,7 +493,7 @@ function MediaSlot({
     return (
       <>
         {media.imageUrl && (
-          <Image unoptimized={false}
+          <Image
             src={media.imageUrl}
             alt={alt}
             fill
@@ -510,7 +510,7 @@ function MediaSlot({
   }
   if (media.imageUrl) {
     return (
-      <Image unoptimized={false}
+      <Image
         src={media.imageUrl}
         alt={alt}
         fill
@@ -1146,7 +1146,7 @@ function CommercialFrameSlot({
         // falls into the standalone Image branch below.
         <>
           {frame.imageUrl && (
-            <Image unoptimized={false}
+            <Image
               src={frame.imageUrl}
               alt={frame.label ?? `${copy.title} ${copy.titleAccent}`}
               fill
@@ -1161,7 +1161,7 @@ function CommercialFrameSlot({
           />
         </>
       ) : frame.imageUrl ? (
-        <Image unoptimized={false}
+        <Image
           src={frame.imageUrl}
           alt={frame.label ?? `${copy.title} ${copy.titleAccent}`}
           fill
