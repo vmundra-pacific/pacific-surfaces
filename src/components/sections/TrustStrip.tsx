@@ -69,7 +69,7 @@ export function TrustStrip() {
                   fill
                   className="object-contain p-6 sm:p-8"
                   sizes="(max-width: 640px) 50vw, 25vw"
-                  unoptimized
+                  unoptimized={false}
                 />
               </div>
               {/* Caption — sits BELOW the card, centred. */}

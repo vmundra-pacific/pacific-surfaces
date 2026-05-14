@@ -29,7 +29,7 @@ export function VisualizerStrip() {
     >
       {/* Background — kitchen demo room. Sized + cropped to look
           editorial rather than literal. */}
-      <Image
+      <Image unoptimized={false}
         src="/demo-rooms/pacific-kitchen-01/room.jpg"
         alt=""
         aria-hidden="true"

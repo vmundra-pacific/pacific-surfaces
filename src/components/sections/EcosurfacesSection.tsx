@@ -29,7 +29,7 @@ export function EcosurfacesSection() {
           edge-to-edge without any side fade so the image is visible
           across the full width. Object-cover keeps it filling the
           section regardless of viewport aspect ratio. */}
-      <Image
+      <Image unoptimized={false}
         src="/images/ecosurfaces.png"
         alt=""
         aria-hidden="true"
