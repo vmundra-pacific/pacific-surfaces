@@ -52,6 +52,17 @@ const nextConfig: NextConfig = {
      net-positive. Re-enable only if production debugging needs it. */
 
   images: {
+    // Skip Vercel's /_next/image optimizer. Sanity's CDN already
+    // resizes + serves AVIF/WebP via the `?w=…&q=70&auto=format`
+    // params that `sanityImg()` appends to every src, so Vercel's
+    // optimizer is a redundant second hop. More importantly, the
+    // Hobby plan caps optimized images at 1000/month — once that's
+    // hit, /_next/image starts 5xx-ing and every <Image> renders
+    // as a broken icon on the live site even though localhost
+    // (which doesn't go through Vercel's pipeline) keeps working.
+    // unoptimized=true makes <Image> emit the raw src and lets
+    // Sanity handle sizing/format directly.
+    unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "cdn.sanity.io" },
