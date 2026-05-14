@@ -130,7 +130,7 @@ const values = [
   },
   {
     icon: Shield,
-    title: "10-Year Warranty",
+    title: "Lifetime Warranty",
     description:
       "We stand behind every surface we create with comprehensive coverage that gives you complete peace of mind.",
   },
