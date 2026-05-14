@@ -1,7 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import GlobalDustMount from "@/components/global/GlobalDustMount";
+
+/**
+ * Google Analytics 4 measurement ID. Points at the existing
+ * "Pacific Group - Website" property (which thepacific.group also
+ * sends to — that domain 301-redirects here, so the stream covers
+ * both surfaces). Hardcoded rather than env-var'd because it's a
+ * stable, public token; rotating it would require a redeploy
+ * either way.
+ */
+const GA_MEASUREMENT_ID = "G-7PXLT12ML9";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -195,6 +206,25 @@ export default function RootLayout({
           }}
         />
         {children}
+        {/*
+          Google Analytics 4. `afterInteractive` defers the script
+          until after hydration so it never blocks LCP. gtag.js
+          loads from googletagmanager.com (Google's preferred
+          delivery), then the inline init script wires the page
+          view + future custom events.
+        */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
       </body>
     </html>
   );
