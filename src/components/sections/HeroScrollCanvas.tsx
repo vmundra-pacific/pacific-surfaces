@@ -29,7 +29,7 @@ const headlines: {
 }[] = [
   {
     range: [0.08, 0.22],
-    kicker: "Pacific Surfaces — 2026",
+    kicker: "",
     lines: ["Where every space", "finds its surface."],
   },
   {
