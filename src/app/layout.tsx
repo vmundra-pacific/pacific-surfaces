@@ -46,6 +46,14 @@ export const metadata: Metadata = {
     locale: "en_IN",
     siteName: "Pacific Surfaces",
   },
+  // Google Search Console ownership verification. Emits
+  // <meta name="google-site-verification" content="..."> into the
+  // root layout's <head>. Required for GSC to confirm we own
+  // pacific-surfaces.com so we can submit sitemaps, request
+  // indexing, and view search performance / coverage data.
+  verification: {
+    google: "H28JjFgJyLzNlXvq40-cdWNqnbA5w512rxUsvekw2ok",
+  },
 };
 
 export default function RootLayout({
