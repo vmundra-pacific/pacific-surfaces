@@ -123,9 +123,9 @@ export function CertificationsSection() {
               </div>
               <p className="text-sm sm:text-base font-light text-stone-100 leading-relaxed max-w-md">
                 Pacific Surfaces&apos; engineered surface technology achieved
-                independent certification from SGS for almost the entire
-                portfolio to contain 0% crystalline silica — a benchmark
-                for safer fabrication and installation environments.
+                independent certification from SGS for the entire portfolio
+                of Ecosurfaces to contain 0% crystalline silica — a
+                benchmark for safer fabrication and installation environments.
               </p>
             </div>
           </div>
