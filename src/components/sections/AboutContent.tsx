@@ -113,6 +113,12 @@ const team: {
     photo: "/team/nagesh-pk.png",
     linkedin: "",
   },
+  {
+    name: "Anumuthan",
+    role: "General Manager",
+    photo: "/team/anumuthan.png",
+    linkedin: "https://www.linkedin.com/in/anumuthan-anu-429951313/",
+  },
 ];
 
 const values = [
