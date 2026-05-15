@@ -125,6 +125,7 @@ export const productBySlugQuery = groq`
     price,
     category->{_id, name, slug},
     collection->{_id, name, slug},
+    productType,
     finishes,
     thickness,
     size,

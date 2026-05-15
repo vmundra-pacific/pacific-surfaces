@@ -33,6 +33,7 @@ import { PortableText } from "@portabletext/react";
 import { cn } from "@/lib/utils";
 import { pickSimilar } from "@/lib/product-similarity";
 import { zoomImageUrl } from "@/lib/zoom-image";
+import { formatCollection } from "@/components/catalogue/labels";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PortableTextBlock = any;
@@ -55,6 +56,11 @@ interface Product {
   price?: number;
   category?: { name: string; slug: { current: string } };
   collection?: { name: string; slug: { current: string } };
+  /** Sanity productType discriminator — "quartz-slab", "granite-slab",
+   *  "semi-precious", "quartz-sink", etc. Used to gate slab-only UI
+   *  bits like the thickness picker strictly to quartz slabs, even
+   *  when the editor hasn't filled in the category field. */
+  productType?: string;
   size?: string;
   finishes?: string[];
   thickness?: string[];
@@ -191,8 +197,15 @@ export function ProductDetail({ product }: { product: Product }) {
     : ["2 cm", "3 cm"];
   const applications = product.application ?? [];
   const size = product.size || '126" x 63"';
+  // Wrap the collection name through formatCollection so the
+  // editorial rename map (e.g. "Vision" → "Eclipse",
+  // "Stone Finishes" → "Beyond Finish") applies to the eyebrow
+  // above the product title. Sanity data stays untouched; only
+  // the display string changes.
   const categoryLabel =
-    product.category?.name || product.collection?.name || "Quartz Surfaces";
+    product.category?.name ||
+    (product.collection?.name ? formatCollection(product.collection.name) : "") ||
+    "Quartz Surfaces";
 
   // Specialty products (Semi-Precious Stones / Exotic / Centrepiece Couture
   // / Integra / Beyond Finish) are NOT standard quartz slabs.
@@ -248,6 +261,24 @@ export function ProductDetail({ product }: { product: Product }) {
     return true;
   })();
 
+  // Stricter gate used ONLY for the thickness UI: thickness pickers
+  // are a quartz-slab thing — granite slabs ship in fixed slab
+  // dimensions in this catalogue and don't need a thickness selector.
+  // Recognize quartz via the explicit productType discriminator first
+  // (most reliable), then fall back to a substring match on the
+  // category / collection metadata so the gate still passes when
+  // productType isn't set in Sanity.
+  const isQuartzSlab = (() => {
+    if (product.productType === "quartz-slab") return true;
+    const catSlug = (product.category?.slug?.current || "").toLowerCase();
+    const catName = (product.category?.name || "").toLowerCase();
+    const colSlug = (product.collection?.slug?.current || "").toLowerCase();
+    const colName = (product.collection?.name || "").toLowerCase();
+    const haystacks = `${catSlug} ${catName} ${colSlug} ${colName}`;
+    if (haystacks.includes("granite")) return false;
+    return haystacks.includes("quartz");
+  })();
+
   // Separate gate for the Compare Slider section. Stone-on-stone
   // comparison is useful for any browseable-stone category — not
   // just the thickness-bearing slab ones. So semi-precious and
@@ -286,8 +317,12 @@ export function ProductDetail({ product }: { product: Product }) {
   //   - Available Finishes (only when finishes are set in Sanity)
   // If neither will render, the tab body is empty and the tab itself
   // should be suppressed.
+  // Use `isQuartzSlab` here (not `!isSpecialtyProduct`) to keep the
+  // Sizes & Finishes tab in sync with the thickness gate above —
+  // otherwise granite products would render an empty tab body
+  // (thicknesses suppressed, no finishes set).
   const hasSizesContent =
-    (!isSpecialtyProduct && thicknesses.length > 0) || finishes.length > 0;
+    (isQuartzSlab && thicknesses.length > 0) || finishes.length > 0;
 
   // Default active tab — pick the first tab that will actually render
   // content. Specs first (when not specialty), then Sizes (when it has
@@ -980,7 +1015,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 href={`/products/${product.collection.slug.current}`}
                 className="hover:text-white transition-colors"
               >
-                {product.collection.name}
+                {formatCollection(product.collection.name)}
               </Link>
             </>
           )}
@@ -1181,11 +1216,11 @@ export function ProductDetail({ product }: { product: Product }) {
               </div>
             )}
 
-            {/* Thicknesses — hidden for specialty products (vanity,
-                semi-precious, exotic, centrepiece, integra/sinks,
-                facades-and-finishes). Same gate as the Slabs and
-                Sizes-tab thickness blocks elsewhere on the PDP. */}
-            {!isSpecialtyProduct && (
+            {/* Thicknesses — strictly quartz-slab only. Granite slabs
+                in this catalogue ship at fixed dimensions and don't
+                expose a thickness picker. See `isQuartzSlab` for the
+                detection rule. */}
+            {isQuartzSlab && (
               <div className="py-6 lg:py-8 px-4 lg:px-6">
                 <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white">
                   Thicknesses
@@ -1391,11 +1426,11 @@ export function ProductDetail({ product }: { product: Product }) {
 
                 {activeInfoTab === "sizes" && (
                   <div className="max-w-3xl space-y-8">
-                    {/* Slabs / thicknesses — hidden for specialty
-                        products (sinks, semi-precious, centrepieces,
-                        façades-and-finishes don't carry the same
-                        slab thickness options as quartz). */}
-                    {!isSpecialtyProduct && (
+                    {/* Slabs / thicknesses — strictly quartz-slab
+                        only. Granite slabs ship at fixed dimensions
+                        in this catalogue and don't expose a thickness
+                        picker. See `isQuartzSlab` for the rule. */}
+                    {isQuartzSlab && (
                       <div>
                         <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
                           Slabs
