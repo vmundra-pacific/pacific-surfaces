@@ -195,7 +195,7 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
       headline: "Premium quality,",
       headlineItalic: "lower footprint.",
       description:
-        "Ecosurfaces — low-silica engineered stone with less than 40% crystalline silica, for safer fabrication and installation without compromising durability or beauty.",
+        "Ecosurfaces — engineered stone with 0% crystalline silica, for safer fabrication and installation without compromising durability or beauty.",
     },
   },
   granites: {
