@@ -221,7 +221,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "How long has Pacific been operating?",
-      a: "Pacific Surfaces was established in 2011. Over the past 13+ years we've grown from a regional Indian supplier into a global brand shipping to more than 45 countries with 273+ unique designs across 44 collections.",
+      a: "Pacific Surfaces was established in 2000. Over the past 13+ years we've grown from a regional Indian supplier into a global brand shipping to more than 45 countries with 273+ unique designs across 44 collections.",
     },
     {
       q: "What's your annual production capacity?",

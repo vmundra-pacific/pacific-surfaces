@@ -333,7 +333,7 @@ export function AboutContent() {
             <div className="mt-10 space-y-6 text-pacific-mid font-light leading-relaxed text-base sm:text-lg">
               <p>
                 With over 273 unique designs across 44 curated collections —
-                from the bold Chromia series to the celestial Kosmic range — we
+                from the bold Eclipse series to the celestial Kosmic range — we
                 offer the widest selection of premium surfaces in India.
               </p>
               <p>
