@@ -100,7 +100,7 @@ const ribbonStyles: Record<string, string> = {
 };
 
 const WHATSAPP_URL_BASE =
-  "https://api.whatsapp.com/send/?phone=917305477549&type=phone_number&app_absent=0&text=";
+  "https://api.whatsapp.com/send/?phone=919894033566&type=phone_number&app_absent=0&text=";
 
 const FAV_STORAGE_KEY = "ps_favorites_v1";
 

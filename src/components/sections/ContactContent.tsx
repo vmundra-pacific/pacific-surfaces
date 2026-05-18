@@ -66,7 +66,7 @@ const departmentContacts: {
   },
   {
     name: "Inquiries for India",
-    contacts: [{ phone: "+91 7305477549", email: "info@thepacific.group" }],
+    contacts: [{ phone: "+91 9894033566", email: "info@thepacific.group" }],
   },
   {
     name: "Inquiries for Middle East",
@@ -590,7 +590,7 @@ export function ContactContent() {
                     </a>
 
                     <a
-                      href="tel:+917305477549"
+                      href="tel:+919894033566"
                       className="flex items-start gap-4 group"
                     >
                       <div className="p-3 bg-white/5 rounded-xl group-hover:bg-white/10 transition-colors">

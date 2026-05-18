@@ -129,7 +129,7 @@ export default function RootLayout({
                   "@type": "ContactPoint",
                   contactType: "customer service",
                   email: "info@thepacific.group",
-                  telephone: "+91-7305477549",
+                  telephone: "+91-9894033566",
                   areaServed: "Worldwide",
                   availableLanguage: ["en"],
                 },
@@ -160,7 +160,7 @@ export default function RootLayout({
               logo: "https://www.pacific-surfaces.com/logos/monogram-light.png",
               image:
                 "https://www.pacific-surfaces.com/logos/monogram-light.png",
-              telephone: "+91-7305477549",
+              telephone: "+91-9894033566",
               email: "info@thepacific.group",
               priceRange: "$$$",
               description:

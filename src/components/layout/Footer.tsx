@@ -324,7 +324,7 @@ export default function Footer() {
                 info@thepacific.group
               </a>
               <a
-                href="tel:+917305477549"
+                href="tel:+919894033566"
                 className="flex items-center gap-3 text-[13px] text-stone-400 hover:text-white transition-colors duration-300 group"
               >
                 <Phone className="w-4 h-4 text-stone-500 group-hover:text-white transition-colors duration-300 shrink-0" />
