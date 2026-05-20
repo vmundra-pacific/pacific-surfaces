@@ -38,6 +38,17 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "pincode",
+      title: "Postal Code / Pincode",
+      type: "string",
+      description:
+        "Postal / ZIP / PIN code in whatever format the dealer's country uses. India: 6 digits (e.g. 600001). US: 12345 or 12345-6789. UK: SW1A 1AA. Australia: 4 digits. Whatever format you enter is what visitors will type to find this dealer.",
+      validation: (Rule) =>
+        Rule.max(12).warning(
+          "Postal codes are usually 4-10 characters. Double-check long entries."
+        ),
+    }),
+    defineField({
       name: "country",
       title: "Country",
       type: "string",

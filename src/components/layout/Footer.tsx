@@ -126,10 +126,10 @@ const footerLinks = {
     // hierarchy.
     { name: "Resources", href: "/resources" },
     { name: "Visualizer", href: "/visualize" },
-    // Terms & Conditions / Privacy Policy removed — they previously
-    // pointed at href="#" which is a dead link. Add them back when
-    // the legal pages exist (probably as /terms and /privacy under
-    // app/(site)/).
+    // Privacy Policy lives at /privacy — required by Meta Ads,
+    // Google Ads, and GDPR/CCPA disclosure obligations. Terms of
+    // Service still pending; add `/terms` here when it exists.
+    { name: "Privacy Policy", href: "/privacy" },
   ],
 };
 

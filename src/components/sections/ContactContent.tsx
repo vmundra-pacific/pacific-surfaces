@@ -11,12 +11,34 @@ import {
   ArrowUpRight,
   CheckCircle,
   Clock,
+  ExternalLink,
+  Search,
 } from "lucide-react";
 import {
   AnimatedSection,
   StaggerContainer,
   StaggerItem,
 } from "@/components/ui/animated-section";
+
+/**
+ * Dealer record shape, matching `allDealersQuery` in
+ * src/sanity/lib/queries.ts. Every field except `_id` and `name`
+ * is optional because the Sanity dealer schema only requires
+ * `name`, `type`, and `city`.
+ */
+export interface Dealer {
+  _id: string;
+  name: string;
+  type?: string;
+  address?: string;
+  city?: string;
+  pincode?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  description?: string;
+}
 
 const departmentContacts: {
   name: string;
@@ -156,7 +178,7 @@ const TYPE_PARAM_TO_ROLE: Record<string, string> = {
   builder: "builder",
 };
 
-export function ContactContent() {
+export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
   const searchParams = useSearchParams();
   const [formState, setFormState] = useState<"idle" | "sending" | "sent">(
     "idle"
@@ -170,6 +192,34 @@ export function ContactContent() {
     application: "",
     message: "",
   });
+
+  // Find-A-Dealer postal-code lookup. On submit we filter the
+  // dealer list (loaded server-side from Sanity via
+  // allDealersQuery) for dealers whose `pincode` field matches the
+  // entered value, normalised for whitespace + casing so a UK
+  // visitor typing "sw1a1aa" still finds a dealer stored as
+  // "SW1A 1AA". `dealerResults === null` means "no search has run
+  // yet"; an empty array means "search ran, nothing matched". The
+  // UI distinguishes the two so we don't flash a "no dealers found"
+  // empty state on first page load.
+  const normalisePostal = (s: string) =>
+    s.replace(/[\s-]/g, "").toLowerCase();
+  const [dealerPincode, setDealerPincode] = useState("");
+  const [dealerResults, setDealerResults] = useState<Dealer[] | null>(null);
+  const handleDealerSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const needle = normalisePostal(dealerPincode);
+    if (needle.length < 3) return;
+    const matches = dealers.filter(
+      (d) => d.pincode && normalisePostal(d.pincode) === needle
+    );
+    setDealerResults(matches);
+  };
+  // WhatsApp escape hatch we offer when no dealer matches — the
+  // sales team can recommend the nearest fit manually.
+  const dealerWhatsAppFallback = `https://api.whatsapp.com/send/?phone=919894033566&text=${encodeURIComponent(
+    `Hi, I'm looking for a Pacific Surfaces dealer near postal code ${dealerPincode}. Please share details.`
+  )}&type=phone_number&app_absent=0`;
 
   // Pre-fill the "I am" select from ?type=<x> if PartnerWithUs (or any
   // other inbound link) passed one. Runs once when the URL param
@@ -664,6 +714,183 @@ export function ContactContent() {
               </div>
             </AnimatedSection>
           </div>
+        </div>
+      </section>
+
+      {/* Find A Dealer Section — pincode-based lookup wired to
+          Sanity's `dealer` documents. Sits immediately above
+          Department Contacts so visitors with a city/region in mind
+          see this surface before scanning the department list. */}
+      <section className="bg-[#0e2030]">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24 border-t border-white/10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start"
+          >
+            <div>
+              <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-4 block">
+                Find A Dealer
+              </span>
+              <h2 className="text-3xl lg:text-4xl font-light tracking-tight text-white mb-4">
+                Find a Pacific dealer near you
+              </h2>
+              <p className="text-pacific-mid font-light max-w-md leading-relaxed">
+                Enter your postal code (PIN, ZIP, postcode — any format) and
+                we&apos;ll connect you with the nearest Pacific Surfaces dealer
+                in your area.
+              </p>
+            </div>
+            <form
+              onSubmit={handleDealerSearch}
+              className="flex flex-col sm:flex-row gap-3"
+            >
+              <input
+                type="text"
+                maxLength={12}
+                placeholder="Postal code / pincode / ZIP"
+                value={dealerPincode}
+                onChange={(e) => {
+                  setDealerPincode(e.target.value.slice(0, 12));
+                  // Reset stale result list whenever the input
+                  // changes so the user doesn't see results that
+                  // no longer match what's typed.
+                  if (dealerResults !== null) setDealerResults(null);
+                }}
+                aria-label="Postal code"
+                required
+                className="flex-1 bg-[#112732] border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-pacific-mid/60 font-light tracking-wide focus:border-white/30 focus:outline-none transition-colors"
+              />
+              <button
+                type="submit"
+                disabled={normalisePostal(dealerPincode).length < 3}
+                className="px-7 py-4 rounded-2xl bg-white text-[#0a1620] font-medium text-sm tracking-[0.05em] uppercase hover:bg-pacific-light disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors whitespace-nowrap inline-flex items-center justify-center gap-2"
+              >
+                <Search className="w-4 h-4" />
+                Find Dealers
+              </button>
+            </form>
+          </motion.div>
+
+          {/* Search results — only renders after the user submits
+              once. Shows match cards or, on empty match, a polite
+              empty state with a WhatsApp escape hatch. */}
+          {dealerResults !== null && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="mt-12 lg:mt-16"
+            >
+              {dealerResults.length > 0 ? (
+                <>
+                  <div className="flex items-baseline gap-3 mb-6">
+                    <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid">
+                      Results
+                    </span>
+                    <span className="text-sm font-light text-pacific-mid/80">
+                      {dealerResults.length} dealer
+                      {dealerResults.length === 1 ? "" : "s"} matching{" "}
+                      <span className="text-white">{dealerPincode}</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {dealerResults.map((d) => (
+                      <div
+                        key={d._id}
+                        className="bg-[#112732] border border-white/10 rounded-2xl p-6 lg:p-7 flex flex-col gap-4 hover:border-white/20 transition-colors"
+                      >
+                        <div>
+                          <h3 className="text-xl font-light text-white tracking-tight">
+                            {d.name}
+                          </h3>
+                          {d.type && (
+                            <span className="inline-block mt-2 text-[10px] font-medium tracking-[0.2em] uppercase text-pacific-light bg-white/5 border border-white/10 rounded-full px-3 py-1">
+                              {d.type}
+                            </span>
+                          )}
+                        </div>
+
+                        {d.description && (
+                          <p className="text-sm text-pacific-mid font-light leading-relaxed">
+                            {d.description}
+                          </p>
+                        )}
+
+                        <div className="space-y-2.5 text-sm font-light">
+                          {(d.address || d.city || d.pincode) && (
+                            <div className="flex items-start gap-3 text-pacific-light">
+                              <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-pacific-mid" />
+                              <div>
+                                {d.address && <div>{d.address}</div>}
+                                <div className="text-pacific-mid">
+                                  {[d.city, d.pincode, d.country]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {d.phone && (
+                            <a
+                              href={`tel:${d.phone.replace(/\s+/g, "")}`}
+                              className="flex items-center gap-3 text-pacific-light hover:text-white transition-colors"
+                            >
+                              <Phone className="w-4 h-4 text-pacific-mid" />
+                              {d.phone}
+                            </a>
+                          )}
+                          {d.email && (
+                            <a
+                              href={`mailto:${d.email}`}
+                              className="flex items-center gap-3 text-pacific-light hover:text-white transition-colors break-all"
+                            >
+                              <Mail className="w-4 h-4 text-pacific-mid shrink-0" />
+                              {d.email}
+                            </a>
+                          )}
+                          {d.website && (
+                            <a
+                              href={d.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-3 text-pacific-light hover:text-white transition-colors break-all"
+                            >
+                              <ExternalLink className="w-4 h-4 text-pacific-mid shrink-0" />
+                              {d.website.replace(/^https?:\/\//, "")}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="bg-[#112732] border border-white/10 rounded-2xl p-8 lg:p-10 text-center max-w-2xl mx-auto">
+                  <MapPin className="w-8 h-8 text-pacific-mid mx-auto mb-4" />
+                  <h3 className="text-xl font-light text-white tracking-tight mb-2">
+                    No dealers found for {dealerPincode}
+                  </h3>
+                  <p className="text-pacific-mid font-light mb-6 leading-relaxed">
+                    We don&apos;t have a registered Pacific Surfaces dealer at
+                    this postal code yet. Reach out on WhatsApp and our team
+                    will recommend the nearest dealer for you.
+                  </p>
+                  <a
+                    href={dealerWhatsAppFallback}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white text-[#0a1620] font-medium text-sm tracking-[0.05em] uppercase hover:bg-pacific-light transition-colors"
+                  >
+                    Chat with our team
+                    <ArrowUpRight className="w-4 h-4" />
+                  </a>
+                </div>
+              )}
+            </motion.div>
+          )}
         </div>
       </section>
 

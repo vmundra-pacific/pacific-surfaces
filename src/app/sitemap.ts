@@ -72,6 +72,7 @@ const STATIC_PATHS = [
   "/contact",
   "/catalogue",
   "/visualize",
+  "/privacy",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

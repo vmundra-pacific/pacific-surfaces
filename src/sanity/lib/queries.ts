@@ -308,6 +308,28 @@ export const featuredDealersQuery = groq`
   }
 `;
 
+/**
+ * Every dealer in Sanity, projected with the full detail set the
+ * /contact "Find A Dealer" pincode search renders into cards.
+ * Order is city → name so the result list reads naturally when
+ * multiple dealers share a pincode area.
+ */
+export const allDealersQuery = groq`
+  *[_type == "dealer"] | order(city asc, name asc) {
+    _id,
+    name,
+    type,
+    address,
+    city,
+    pincode,
+    country,
+    phone,
+    email,
+    website,
+    description
+  }
+`;
+
 // Resources — downloadable PDFs grouped by category for /resources page
 export const allResourcesQuery = groq`
   *[_type == "resource" && visible == true] | order(category asc, order asc, title asc) {
