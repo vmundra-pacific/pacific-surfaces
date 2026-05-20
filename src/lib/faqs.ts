@@ -35,7 +35,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "What sizes do Pacific quartz slabs come in?",
-      a: 'Standard slabs are 137" x 65" (≈3480 x 1650 mm), with thicknesses of 12 mm, 20 mm, and 30 mm. The 137" jumbo format reduces the number of joints needed on long countertops and feature walls. Custom dimensions are available on indent orders.',
+      a: 'Standard slabs are 137" x 79" (≈3480 x 2010 mm), with thicknesses of 12 mm, 20 mm, and 30 mm. The 137" jumbo format reduces the number of joints needed on long countertops and feature walls. Custom dimensions are available on indent orders.',
     },
     {
       q: "How do I clean and maintain quartz?",
