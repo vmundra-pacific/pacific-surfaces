@@ -28,6 +28,7 @@ import type { Slab } from "@/data/slabs";
 import { zoomImageUrl } from "@/lib/zoom-image";
 import { OrderSampleModal } from "@/components/ui/order-sample-modal";
 import { FinishLightbox } from "@/components/ui/finish-lightbox";
+import { formatCollection } from "@/components/catalogue/labels";
 
 interface Props {
   slab: Slab;
@@ -182,7 +183,7 @@ export function SlabCard({ slab, index }: Props) {
             {slab.name}
           </div>
           <div className="mt-1.5 text-[11px] uppercase tracking-[0.18em] text-pacific-mid">
-            {slab.collection} · {slab.finishes[0]}
+            {formatCollection(slab.collection)} · {slab.finishes[0]}
           </div>
         </div>
 

@@ -12,6 +12,7 @@ import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVide
 import { CATEGORY_PAGES } from "../../_lib/category";
 import { FAQ } from "@/components/sections/FAQ";
 import { getFaqs, type FaqPageKey } from "@/lib/faqs";
+import { formatCollection } from "@/components/catalogue/labels";
 
 /**
  * Maps a "category-level" collection slug to the product `productType`
@@ -89,7 +90,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!collection) return { title: "Collection Not Found" };
 
   return {
-    title: collection.seoTitle || `${collection.name} — Pacific Surfaces`,
+    title:
+      collection.seoTitle ||
+      `${formatCollection(collection.name)} — Pacific Surfaces`,
     description: collection.seoDescription || collection.description,
     alternates: { canonical: `/products/${slug}/${item}` },
   };
@@ -159,7 +162,10 @@ export default async function CollectionPage({ params }: Props) {
           { name: "Home", url: "/" },
           { name: "Products", url: "/products" },
           { name: parentLabel, url: `/products/${slug}` },
-          { name: collection.name, url: `/products/${slug}/${item}` },
+          {
+            name: formatCollection(collection.name),
+            url: `/products/${slug}/${item}`,
+          },
         ]}
       />
       <CatalogueClient slabs={slabs} hero={hero} />
