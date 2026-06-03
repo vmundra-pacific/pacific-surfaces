@@ -48,7 +48,7 @@ const departmentContacts: {
     name: "International Sales",
     contacts: [
       {
-        name: "Jal Shetty",
+        name: "Thejal Shetty",
         phone: "+91 96773 68666",
         email: "thejal.shetty@thepacific.group",
       },
