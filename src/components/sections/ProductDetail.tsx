@@ -1080,7 +1080,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 <a
                   href={
                     product.specSheetUrl ||
-                    `mailto:bindu@thepacific.group?subject=${encodeURIComponent(`Spec Sheet Request — ${product.name}`)}`
+                    `mailto:marketing@thepacific.group?subject=${encodeURIComponent(`Spec Sheet Request — ${product.name}`)}`
                   }
                   {...(product.specSheetUrl
                     ? { target: "_blank", rel: "noreferrer noopener" }
@@ -1255,7 +1255,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 <a
                   href={
                     product.hdFileUrl ||
-                    `mailto:bindu@thepacific.group?subject=${encodeURIComponent(`HD File Request — ${product.name}`)}`
+                    `mailto:marketing@thepacific.group?subject=${encodeURIComponent(`HD File Request — ${product.name}`)}`
                   }
                   {...(product.hdFileUrl
                     ? {
@@ -1274,7 +1274,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 <a
                   href={
                     product.specSheetUrl ||
-                    `mailto:bindu@thepacific.group?subject=${encodeURIComponent(`Spec Sheet Request — ${product.name}`)}`
+                    `mailto:marketing@thepacific.group?subject=${encodeURIComponent(`Spec Sheet Request — ${product.name}`)}`
                   }
                   {...(product.specSheetUrl
                     ? {

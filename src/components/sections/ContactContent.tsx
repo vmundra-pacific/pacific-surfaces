@@ -112,7 +112,7 @@ const departmentContacts: {
   },
   {
     name: "Marketing",
-    contacts: [{ email: "bindu@thepacific.group" }],
+    contacts: [{ email: "marketing@thepacific.group" }],
   },
   {
     name: "Human Resources",

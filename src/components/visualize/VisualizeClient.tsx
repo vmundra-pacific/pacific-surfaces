@@ -1017,7 +1017,7 @@ function InspectorContents({
                 <ArrowUpRight className="w-3 h-3" />
               </Link>
               <a
-                href={`mailto:bindu@thepacific.group?subject=${encodeURIComponent(
+                href={`mailto:marketing@thepacific.group?subject=${encodeURIComponent(
                   `Sample Request - ${slab.name}`
                 )}&body=${encodeURIComponent(
                   `Hi Pacific team,\n\nI'd like to request a sample of ${slab.name}.\n\nThanks!`
