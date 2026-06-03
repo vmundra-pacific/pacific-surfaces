@@ -199,21 +199,51 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
   // entered value, normalised for whitespace + casing so a UK
   // visitor typing "sw1a1aa" still finds a dealer stored as
   // "SW1A 1AA". `dealerResults === null` means "no search has run
-  // yet"; an empty array means "search ran, nothing matched". The
-  // UI distinguishes the two so we don't flash a "no dealers found"
-  // empty state on first page load.
+  // yet"; an empty array means "search ran, nothing matched"; an
+  // array with `isApproximate: true` means "no exact match — these
+  // are nearest dealers by prefix". The UI distinguishes all three
+  // so we don't flash a "no dealers found" empty state on first
+  // page load.
   const normalisePostal = (s: string) =>
     s.replace(/[\s-]/g, "").toLowerCase();
   const [dealerPincode, setDealerPincode] = useState("");
   const [dealerResults, setDealerResults] = useState<Dealer[] | null>(null);
+  const [dealerResultsApproximate, setDealerResultsApproximate] =
+    useState(false);
   const handleDealerSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const needle = normalisePostal(dealerPincode);
     if (needle.length < 3) return;
-    const matches = dealers.filter(
+
+    // 1) Exact match first.
+    const exact = dealers.filter(
       (d) => d.pincode && normalisePostal(d.pincode) === needle
     );
-    setDealerResults(matches);
+    if (exact.length > 0) {
+      setDealerResults(exact);
+      setDealerResultsApproximate(false);
+      return;
+    }
+
+    // 2) No exact match — fall back to "nearest" by progressively
+    // shorter prefix. For Indian PIN codes the first 3 digits
+    // identify a circle / region (e.g. 560xxx = Bengaluru area);
+    // the first 2 narrow to a state; the first 1 to a postal
+    // circle. We mirror the same idea generically for any postal
+    // code by walking the prefix down from length-1 to length-1
+    // until something matches. This works equally well for
+    // alphanumeric codes (UK / Canada): "SW1A1AA" prefix-matches
+    // "SW1A1AB", "SW1A1A...", etc.
+    let approxMatches: Dealer[] = [];
+    for (let prefixLen = needle.length - 1; prefixLen >= 1; prefixLen--) {
+      const prefix = needle.slice(0, prefixLen);
+      approxMatches = dealers.filter(
+        (d) => d.pincode && normalisePostal(d.pincode).startsWith(prefix)
+      );
+      if (approxMatches.length > 0) break;
+    }
+    setDealerResults(approxMatches);
+    setDealerResultsApproximate(approxMatches.length > 0);
   };
   // WhatsApp escape hatch we offer when no dealer matches — the
   // sales team can recommend the nearest fit manually.
@@ -788,12 +818,24 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                 <>
                   <div className="flex items-baseline gap-3 mb-6">
                     <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid">
-                      Results
+                      {dealerResultsApproximate ? "Nearest" : "Results"}
                     </span>
                     <span className="text-sm font-light text-pacific-mid/80">
-                      {dealerResults.length} dealer
-                      {dealerResults.length === 1 ? "" : "s"} matching{" "}
-                      <span className="text-white">{dealerPincode}</span>
+                      {dealerResultsApproximate ? (
+                        <>
+                          No exact match for{" "}
+                          <span className="text-white">{dealerPincode}</span> —
+                          showing {dealerResults.length} nearest dealer
+                          {dealerResults.length === 1 ? "" : "s"} in the same
+                          region.
+                        </>
+                      ) : (
+                        <>
+                          {dealerResults.length} dealer
+                          {dealerResults.length === 1 ? "" : "s"} matching{" "}
+                          <span className="text-white">{dealerPincode}</span>
+                        </>
+                      )}
                     </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
