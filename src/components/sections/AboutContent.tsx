@@ -119,6 +119,12 @@ const team: {
     photo: "/team/anumuthan.png",
     linkedin: "https://www.linkedin.com/in/anumuthan-anu-429951313/",
   },
+  {
+    name: "Marcin",
+    role: "",
+    photo: "/team/marcin.png",
+    linkedin: "https://www.linkedin.com/in/marcin-kołczynski-313b4114b",
+  },
 ];
 
 const values = [
@@ -597,7 +603,7 @@ function TeamSection() {
           </p>
         </AnimatedSection>
 
-        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
           {team.map((member) => {
             const initials = member.name
               .split(" ")
