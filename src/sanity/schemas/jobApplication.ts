@@ -58,6 +58,28 @@ export default defineType({
       readOnly: true,
     }),
     defineField({
+      name: "currentLocation",
+      title: "Current Location",
+      type: "string",
+      description:
+        "City / region the candidate is currently based in. Captured separately from Address so HR can quickly see relocation/commute fit.",
+      readOnly: true,
+    }),
+    defineField({
+      name: "age",
+      title: "Age",
+      type: "string",
+      readOnly: true,
+    }),
+    defineField({
+      name: "totalExperience",
+      title: "Total Experience",
+      type: "string",
+      description:
+        'Candidate-entered total work experience — e.g. "5 years", "Fresher", "8+ years in sales".',
+      readOnly: true,
+    }),
+    defineField({
       name: "department",
       title: "Department of Interest",
       type: "string",
@@ -76,6 +98,15 @@ export default defineType({
       title: "Resume",
       type: "file",
       description: "PDF / Doc / Docx of the candidate's resume.",
+      readOnly: true,
+    }),
+    defineField({
+      name: "comments",
+      title: "Candidate Comments / Remarks",
+      type: "text",
+      rows: 4,
+      description:
+        "Free-form text the candidate added to their application (notice period, portfolio links, preferred locations, etc.).",
       readOnly: true,
     }),
     defineField({

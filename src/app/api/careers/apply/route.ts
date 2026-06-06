@@ -2,7 +2,8 @@
  * POST /api/careers/apply
  *
  * Receives the careers form submission as multipart/form-data:
- *   firstName, lastName, email, phone, address, department,
+ *   firstName, lastName, email, phone, address, currentLocation,
+ *   age, totalExperience, comments, department,
  *   appliedFor (optional, role title), resume (file).
  *
  * Side effects, in order:
@@ -82,6 +83,14 @@ export async function POST(req: NextRequest) {
     const email = (formData.get("email") || "").toString().trim();
     const phone = (formData.get("phone") || "").toString().trim();
     const address = (formData.get("address") || "").toString().trim();
+    const currentLocation = (formData.get("currentLocation") || "")
+      .toString()
+      .trim();
+    const age = (formData.get("age") || "").toString().trim();
+    const totalExperience = (formData.get("totalExperience") || "")
+      .toString()
+      .trim();
+    const comments = (formData.get("comments") || "").toString().trim();
     const department = (formData.get("department") || "").toString().trim();
     const appliedFor = (formData.get("appliedFor") || "").toString().trim();
     const resume = formData.get("resume");
@@ -139,6 +148,10 @@ export async function POST(req: NextRequest) {
       email,
       phone,
       address,
+      currentLocation: currentLocation || undefined,
+      age: age || undefined,
+      totalExperience: totalExperience || undefined,
+      comments: comments || undefined,
       department,
       appliedFor: appliedFor || undefined,
       resume: {
@@ -162,6 +175,10 @@ export async function POST(req: NextRequest) {
       email,
       phone,
       address,
+      currentLocation,
+      age,
+      totalExperience,
+      comments,
       department,
       appliedFor,
     }).catch((err) => {
@@ -195,6 +212,10 @@ interface NotificationParams {
   email: string;
   phone: string;
   address: string;
+  currentLocation: string;
+  age: string;
+  totalExperience: string;
+  comments: string;
   department: string;
   appliedFor: string;
 }
@@ -207,6 +228,10 @@ async function sendNotificationEmail({
   email,
   phone,
   address,
+  currentLocation,
+  age,
+  totalExperience,
+  comments,
   department,
   appliedFor,
 }: NotificationParams) {
@@ -245,9 +270,20 @@ async function sendNotificationEmail({
         <tr><td style="padding: 6px 0; color: #6b7785;">Email</td><td style="padding: 6px 0;"><a href="mailto:${escapeAttr(email)}" style="color: #112732;">${escapeHtml(email)}</a></td></tr>
         <tr><td style="padding: 6px 0; color: #6b7785;">Phone</td><td style="padding: 6px 0;">${escapeHtml(phone)}</td></tr>
         <tr><td style="padding: 6px 0; color: #6b7785;">Address</td><td style="padding: 6px 0;">${escapeHtml(address)}</td></tr>
+        ${currentLocation ? `<tr><td style="padding: 6px 0; color: #6b7785;">Current Location</td><td style="padding: 6px 0;">${escapeHtml(currentLocation)}</td></tr>` : ""}
+        ${age ? `<tr><td style="padding: 6px 0; color: #6b7785;">Age</td><td style="padding: 6px 0;">${escapeHtml(age)}</td></tr>` : ""}
+        ${totalExperience ? `<tr><td style="padding: 6px 0; color: #6b7785;">Total Experience</td><td style="padding: 6px 0;">${escapeHtml(totalExperience)}</td></tr>` : ""}
         <tr><td style="padding: 6px 0; color: #6b7785;">Department</td><td style="padding: 6px 0;">${escapeHtml(department || "—")}</td></tr>
         ${appliedFor ? `<tr><td style="padding: 6px 0; color: #6b7785;">Applied for</td><td style="padding: 6px 0;"><strong>${escapeHtml(appliedFor)}</strong></td></tr>` : ""}
       </table>
+      ${
+        comments
+          ? `<div style="margin-top: 20px; padding: 12px 16px; background: #f6f8fa; border-radius: 8px;">
+              <p style="margin: 0 0 6px 0; font-size: 12px; color: #6b7785; text-transform: uppercase; letter-spacing: 0.08em;">Comments / Remarks</p>
+              <p style="margin: 0; font-size: 14px; white-space: pre-wrap;">${escapeHtml(comments)}</p>
+            </div>`
+          : ""
+      }
       <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e8ec;">
         <p style="margin: 0 0 8px 0; font-size: 14px;">
           <strong>Resume:</strong>
@@ -267,8 +303,12 @@ async function sendNotificationEmail({
     `Email: ${email}`,
     `Phone: ${phone}`,
     `Address: ${address}`,
+    currentLocation ? `Current Location: ${currentLocation}` : "",
+    age ? `Age: ${age}` : "",
+    totalExperience ? `Total Experience: ${totalExperience}` : "",
     `Department: ${department || "—"}`,
     appliedFor ? `Applied for: ${appliedFor}` : "",
+    comments ? `\nComments:\n${comments}` : "",
     ``,
     `Resume: ${asset.url}`,
     `Studio: ${studioUrl}`,

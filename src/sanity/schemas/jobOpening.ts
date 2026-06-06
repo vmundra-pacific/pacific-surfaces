@@ -66,6 +66,21 @@ export default defineType({
       validation: (Rule) => Rule.required().min(40),
     }),
     defineField({
+      name: "experience",
+      title: "Experience Required",
+      type: "string",
+      description:
+        'Short phrase shown as a tag on the role card. Examples: "10+ years", "7+ years", "2+ years", "Fresher with MBA".',
+    }),
+    defineField({
+      name: "responsibilities",
+      title: "Key Responsibilities",
+      type: "array",
+      of: [{ type: "string" }],
+      description:
+        "Bullet points shown on the role card under the description. Each entry is one bullet — keep them short and action-led (e.g. \"Drive city-level revenue across dealer + architect channels\").",
+    }),
+    defineField({
       name: "applyEmail",
       title: "Application Inbox (override)",
       type: "string",

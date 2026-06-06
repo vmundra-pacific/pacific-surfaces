@@ -379,7 +379,9 @@ export const jobOpeningsQuery = groq`
     title,
     location,
     department,
-    description
+    description,
+    experience,
+    responsibilities
   }
 `;
 

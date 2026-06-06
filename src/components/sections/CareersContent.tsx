@@ -19,7 +19,46 @@ interface JobOpening {
   location: string;
   department?: string | null;
   description: string;
+  experience?: string | null;
+  responsibilities?: string[] | null;
 }
+
+/**
+ * RoleGroup is the unit rendered as one result card on /careers.
+ * Many roles live as multiple Sanity documents — one per city they're
+ * open in — so we collapse same-title documents into a single group
+ * and surface every city it's available in as a location tag.
+ */
+interface RoleGroup {
+  _id: string;
+  title: string;
+  department?: string | null;
+  description: string;
+  experience?: string | null;
+  responsibilities?: string[] | null;
+  locations: string[];
+}
+
+/**
+ * Map a Sanity jobOpening.department value (free-form list from the
+ * Sanity schema) to the value of the corresponding <option> in the
+ * apply-form's Department <select>. Used by handleApply() so that
+ * clicking "Apply" on a role card pre-selects the right department.
+ */
+const SANITY_DEPT_TO_FORM_DEPT: Record<string, string> = {
+  Sales: "sales",
+  Marketing: "marketing",
+  "Digital Marketing": "marketing",
+  "Events/Marketing": "marketing",
+  Finance: "finance",
+  Operations: "operations",
+  Procurement: "operations",
+  "Architecture & Design": "design",
+  "Design/Creative": "design",
+  "Business Development": "sales",
+  "Human Resources": "hr",
+  Other: "other",
+};
 
 interface ValueCard {
   title: string;
@@ -108,41 +147,106 @@ export function CareersContent({ pageData, openings }: Props) {
 
   /* --- Dropdown search -------------------------------------------- */
 
-  // Title and Location dropdown options derived from the published
-  // openings — adding a new opening in Studio automatically extends
-  // both dropdowns. Sorted, deduped.
-  const titleOptions = useMemo(
-    () => Array.from(new Set(openings.map((o) => o.title))).sort(),
-    [openings]
-  );
+  // Location dropdown options derived from the published openings —
+  // adding a new opening in Studio automatically extends the
+  // dropdown. Sorted, deduped. (The Job Title dropdown has been
+  // replaced with a free-text search field — the openings array
+  // itself is the search index now, no precomputed option list
+  // needed.)
   const locationOptions = useMemo(
     () => Array.from(new Set(openings.map((o) => o.location))).sort(),
     [openings]
   );
 
-  const [titleFilter, setTitleFilter] = useState("");
+  // `titleQuery` is now a free-text search instead of an exact-
+  // match dropdown — candidates type any keyword (role, department,
+  // experience, words from the description) and we surface the
+  // best-matching open positions.
+  const [titleQuery, setTitleQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
-  // searchActive flips to true after the user clicks GO. Until
-  // then, the result list stays hidden — matches the Wix-style
-  // "search-on-demand" UX rather than auto-displaying the full
-  // catalogue.
-  const [searchActive, setSearchActive] = useState(false);
+  // The results list is ALWAYS rendered now — when no filters are
+  // applied the candidate sees every open position by default, and
+  // typing in the search box or picking a location narrows it
+  // live. Previously the list was gated behind a "GO!" click; that
+  // hid the available roles on first paint and a framer-motion
+  // whileInView animation was leaving cards stuck at opacity:0 for
+  // anyone who didn't scroll to the results before the viewport
+  // observer ran.
 
+  // Group openings by role title — many roles (City Sales Manager,
+  // Management Trainee – Business Development, the four Regional
+  // Sales Director variants) live as one Sanity document per city.
+  // Without grouping, City Sales Manager would render as 7 separate
+  // cards, which reads as "the same role duplicated everywhere"
+  // instead of "one role with multiple openings". The card UI shows
+  // every city in the group as its own location tag so the
+  // candidate can still see exactly where the role is open.
   const filteredOpenings = useMemo(() => {
-    return openings.filter((o) => {
-      if (titleFilter && o.title !== titleFilter) return false;
-      if (locationFilter && o.location !== locationFilter) return false;
+    const q = titleQuery.trim().toLowerCase();
+
+    // 1. Build groups keyed by title from the full openings list.
+    type Group = {
+      _id: string;
+      title: string;
+      department?: string | null;
+      description: string;
+      experience?: string | null;
+      responsibilities?: string[] | null;
+      locations: string[];
+    };
+    const groups = new Map<string, Group>();
+    for (const o of openings) {
+      const existing = groups.get(o.title);
+      if (existing) {
+        if (!existing.locations.includes(o.location))
+          existing.locations.push(o.location);
+      } else {
+        groups.set(o.title, {
+          _id: o._id,
+          title: o.title,
+          department: o.department,
+          description: o.description,
+          experience: o.experience,
+          responsibilities: o.responsibilities,
+          locations: [o.location],
+        });
+      }
+    }
+    for (const g of groups.values()) g.locations.sort();
+
+    // 2. Apply the search + location filters at the GROUP level.
+    //    Search index is intentionally narrow — title + department
+    //    only, with department-acronym aliases. Including
+    //    description / responsibilities text caused over-matching
+    //    (e.g. "hr" matched the substring inside "through" and
+    //    dragged in unrelated roles like Management Trainee – BD).
+    return Array.from(groups.values()).filter((g) => {
+      if (q) {
+        const titleL = g.title.toLowerCase();
+        const dept = (g.department ?? "").toLowerCase();
+        const aliases: string[] = [];
+        if (dept === "human resources") aliases.push("hr");
+        if (dept === "business development") aliases.push("bd");
+        if (dept === "digital marketing") aliases.push("marketing");
+        const hay = [titleL, dept, ...aliases].join(" | ");
+        if (!hay.includes(q)) return false;
+      }
+      // Location filter passes if ANY of the role's open cities
+      // matches the selection — multi-city roles surface for every
+      // city they're open in.
+      if (locationFilter && !g.locations.includes(locationFilter))
+        return false;
       return true;
     });
-  }, [openings, titleFilter, locationFilter]);
+  }, [openings, titleQuery, locationFilter]);
 
   const resultsRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
   function handleGo() {
-    setSearchActive(true);
-    // Defer the scroll until after the results render so the
-    // anchor is in the DOM at scroll time.
+    // GO! now just smooth-scrolls to the results — the list itself
+    // is always live, so clicking GO is purely a "take me there"
+    // gesture rather than a "run the search" trigger.
     setTimeout(() => {
       resultsRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -159,8 +263,15 @@ export function CareersContent({ pageData, openings }: Props) {
   // the closing CTA / form without picking a specific role.
   const [appliedRole, setAppliedRole] = useState<string>("");
 
-  function handleApply(roleTitle: string) {
-    setAppliedRole(roleTitle);
+  function handleApply(job: RoleGroup) {
+    setAppliedRole(job.title);
+    // Pre-fill the form's Department select from the job's department
+    // so the candidate doesn't have to pick it again. Falls back to
+    // empty (showing the placeholder) if the job has no department
+    // or the department doesn't map to a known form value.
+    const mappedDept =
+      (job.department && SANITY_DEPT_TO_FORM_DEPT[job.department]) || "";
+    setFormData((prev) => ({ ...prev, department: mappedDept }));
     setTimeout(() => {
       formRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -178,6 +289,11 @@ export function CareersContent({ pageData, openings }: Props) {
     phone: "",
     address: "",
     department: "",
+    // Newly captured per the careers brief:
+    currentLocation: "",
+    age: "",
+    totalExperience: "",
+    comments: "",
   });
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [submitStatus, setSubmitStatus] = useState<
@@ -186,7 +302,9 @@ export function CareersContent({ pageData, openings }: Props) {
   const [submitError, setSubmitError] = useState<string>("");
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -230,6 +348,10 @@ export function CareersContent({ pageData, openings }: Props) {
         phone: "",
         address: "",
         department: "",
+        currentLocation: "",
+        age: "",
+        totalExperience: "",
+        comments: "",
       });
       setResumeFile(null);
       setAppliedRole("");
@@ -363,14 +485,23 @@ export function CareersContent({ pageData, openings }: Props) {
             transition={{ duration: 0.5 }}
             className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mb-12 bg-white/5 rounded-2xl p-5 sm:p-6 lg:p-8 border border-white/10"
           >
-            <DropdownField
-              label="Job Title"
-              value={titleFilter}
-              onChange={setTitleFilter}
-              placeholder="Select Job Title"
-              options={titleOptions}
-              className="md:col-span-5"
-            />
+            {/* Job-title search is now a free-text input instead of
+                a Job-Title dropdown — candidates can type any
+                keyword (role, department, words from the
+                description, experience phrase) and we'll surface
+                the best matches. */}
+            <div className="md:col-span-5">
+              <label className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3">
+                Search Role
+              </label>
+              <input
+                type="search"
+                value={titleQuery}
+                onChange={(e) => setTitleQuery(e.target.value)}
+                placeholder="e.g. Sales, HR Manager, Marketing"
+                className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white placeholder:text-pacific-mid/60 focus:outline-none focus:border-white/30 transition-colors"
+              />
+            </div>
             <DropdownField
               label="Location"
               value={locationFilter}
@@ -390,89 +521,121 @@ export function CareersContent({ pageData, openings }: Props) {
             </div>
           </motion.div>
 
-          {/* Reset / clear when filters are set but search not yet
-              run. Subtle hint to the user. */}
-          {!searchActive && (titleFilter || locationFilter) && (
-            <p className="text-sm text-pacific-mid/70 font-light mb-8">
-              Click GO! to search.
-            </p>
-          )}
-
-          {/* Results — only visible after the user hits GO. */}
-          {searchActive && (
-            <>
-              <div className="mb-6 text-sm text-pacific-mid font-light tracking-wide">
-                <span className="text-white font-medium">
-                  {filteredOpenings.length}
-                </span>{" "}
-                {filteredOpenings.length === 1
-                  ? "position matches"
-                  : "positions match"}
-                {(titleFilter || locationFilter) && (
+          {/* Results — always rendered. With no filters the
+              candidate sees every open position by default; typing
+              in the search box or picking a location narrows the
+              list live without needing to click GO!. */}
+          <>
+            <div className="mb-6 text-sm text-pacific-mid font-light tracking-wide">
+              <span className="text-white font-medium">
+                {filteredOpenings.length}
+              </span>{" "}
+              {filteredOpenings.length === 1
+                ? "position"
+                : "positions"}
+              {(titleQuery || locationFilter) && (
+                <>
+                  {" "}
+                  matching your search
                   <button
                     type="button"
                     onClick={() => {
-                      setTitleFilter("");
+                      setTitleQuery("");
                       setLocationFilter("");
                     }}
                     className="ml-3 underline underline-offset-4 hover:text-white"
                   >
                     Clear filters
                   </button>
-                )}
-              </div>
+                </>
+              )}
+            </div>
 
-              {filteredOpenings.length === 0 ? (
-                <div className="bg-white/5 rounded-2xl p-12 text-center border border-white/10">
-                  <p className="text-pacific-mid font-light">
-                    No positions match these filters right now. Try widening the
-                    search, or send your resume via the application form below —
-                    we&apos;d love to consider you for future opportunities.
-                  </p>
-                </div>
-              ) : (
-                <StaggerContainer className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                  {filteredOpenings.map((job, index) => (
-                    <StaggerItem key={job._id} className="h-full">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: index * 0.05 }}
-                        className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-500 flex flex-col h-full"
-                      >
+            {filteredOpenings.length === 0 ? (
+              <div className="bg-white/5 rounded-2xl p-12 text-center border border-white/10">
+                <p className="text-pacific-mid font-light">
+                  No positions match these filters right now. Try widening the
+                  search, or send your resume via the application form below —
+                  we&apos;d love to consider you for future opportunities.
+                </p>
+              </div>
+            ) : (
+              // Plain grid + per-card motion.div. The shared
+              // StaggerContainer/StaggerItem wrappers use whileInView
+              // with viewport.once=true, which leaves newly-mounted
+              // children stuck on the "hidden" variant after a
+              // search → clear cycle. Each card now drives its own
+              // fade-in on mount instead.
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                {filteredOpenings.map((job) => (
+                  <div
+                    key={job._id}
+                    className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-colors duration-300 flex flex-col h-full"
+                  >
                         <div className="flex-1">
                           <h3 className="text-lg font-light tracking-tight text-white">
                             {job.title}
                           </h3>
                           <div className="mt-2 flex gap-2 flex-wrap">
-                            <span className="px-3 py-1 rounded-full bg-white/5 text-xs font-medium tracking-wide text-pacific-mid">
-                              {job.location}
-                            </span>
+                            {job.locations.map((loc) => (
+                              <span
+                                key={loc}
+                                className="px-3 py-1 rounded-full bg-white/5 text-xs font-medium tracking-wide text-pacific-mid"
+                              >
+                                {loc}
+                              </span>
+                            ))}
                             {job.department && (
                               <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-medium tracking-wide text-pacific-light">
                                 {job.department}
+                              </span>
+                            )}
+                            {job.experience && (
+                              <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-medium tracking-wide text-white/90 border border-white/20">
+                                {job.experience}
                               </span>
                             )}
                           </div>
                           <p className="mt-4 text-sm text-pacific-mid font-light leading-relaxed">
                             {job.description}
                           </p>
+                          {job.responsibilities &&
+                            job.responsibilities.length > 0 && (
+                              <div className="mt-4">
+                                <p className="text-xs font-medium tracking-[0.15em] uppercase text-pacific-light mb-2">
+                                  Key Responsibilities
+                                </p>
+                                <ul className="space-y-1.5">
+                                  {job.responsibilities.map((r, i) => (
+                                    <li
+                                      key={i}
+                                      className="text-sm text-pacific-mid font-light leading-relaxed flex gap-2"
+                                    >
+                                      <span
+                                        aria-hidden="true"
+                                        className="text-white/40 flex-shrink-0 mt-0.5"
+                                      >
+                                        •
+                                      </span>
+                                      <span>{r}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                         </div>
                         <button
                           type="button"
-                          onClick={() => handleApply(job.title)}
+                          onClick={() => handleApply(job)}
                           className="mt-6 self-start text-sm font-medium tracking-wide text-white border-b border-white/40 pb-1 hover:border-white transition-colors"
                         >
                           Apply for this role →
                         </button>
-                      </motion.div>
-                    </StaggerItem>
-                  ))}
-                </StaggerContainer>
-              )}
-            </>
-          )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         </div>
       </section>
 
@@ -557,6 +720,35 @@ export function CareersContent({ pageData, openings }: Props) {
               required
             />
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <FormInput
+                label="Current Location"
+                name="currentLocation"
+                value={formData.currentLocation}
+                onChange={handleInputChange}
+                placeholder="e.g. Bangalore, Karnataka"
+                required
+              />
+              <FormInput
+                label="Age"
+                name="age"
+                type="number"
+                value={formData.age}
+                onChange={handleInputChange}
+                placeholder="e.g. 28"
+                required
+              />
+            </div>
+
+            <FormInput
+              label="Total Experience"
+              name="totalExperience"
+              value={formData.totalExperience}
+              onChange={handleInputChange}
+              placeholder='e.g. "5 years", "Fresher", "8+ years in sales"'
+              required
+            />
+
             <div>
               <label className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3">
                 Department
@@ -611,6 +803,20 @@ export function CareersContent({ pageData, openings }: Props) {
                   Selected: {resumeFile.name}
                 </p>
               )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3">
+                Comments / Remarks
+              </label>
+              <textarea
+                name="comments"
+                value={formData.comments}
+                onChange={handleInputChange}
+                rows={4}
+                placeholder="Anything else you'd like us to know — notice period, preferred locations, links to portfolio, etc."
+                className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white placeholder-pacific-mid/70 focus:outline-none focus:border-white/30 transition-colors resize-y"
+              />
             </div>
 
             <div className="pt-4">
@@ -713,7 +919,6 @@ function FormInput({
     </div>
   );
 }
-
 function DropdownField({
   label,
   value,
