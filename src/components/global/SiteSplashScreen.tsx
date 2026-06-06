@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { VideoLoadingScreen } from "@/components/visualize/VideoLoadingScreen";
 
@@ -33,6 +34,16 @@ const MAX_DISPLAY_MS = 20000;
 const SESSION_KEY = "ps:splashShown";
 
 export default function SiteSplashScreen() {
+  // Splash plays ONLY on the homepage. Any other route — product
+  // pages, /about, /contact, /spaces, etc. — must skip the splash
+  // so deep-linked visitors don't sit through a brand intro that
+  // wasn't designed for the page they're actually trying to reach.
+  // SiteSplashScreen still mounts at the (site) layout level (so
+  // navigating from the homepage to another page mid-splash still
+  // unmounts it cleanly), it just returns null when off-route.
+  const pathname = usePathname();
+  const isHomepage = pathname === "/";
+
   // Three-state machine. `null` keeps SSR/CSR markup in sync until the
   // effect runs. `true` shows the splash. `false` triggers the exit
   // animation but the component stays mounted until AnimatePresence
@@ -42,6 +53,20 @@ export default function SiteSplashScreen() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!isHomepage) {
+      // Not on the homepage — never show the splash. We still set
+      // the sessionStorage flag so a subsequent navigation to the
+      // homepage in the same tab respects the "shown once per
+      // session" policy.
+      setVisible(false);
+      setMounted(false);
+      try {
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
     let alreadyShown = false;
     try {
       alreadyShown = sessionStorage.getItem(SESSION_KEY) === "1";
@@ -99,7 +124,7 @@ export default function SiteSplashScreen() {
       delete (window as unknown as { __pacificSplashOnVideoEnd?: () => void })
         .__pacificSplashOnVideoEnd;
     };
-  }, []);
+  }, [isHomepage]);
 
   // Scroll lock — runs only while the splash is actively VISIBLE.
   // The instant the video ends (or the safety ceiling fires) and we
