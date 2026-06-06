@@ -183,6 +183,20 @@ const nextConfig: NextConfig = {
         destination: "/products",
         permanent: true,
       },
+      {
+        // Legacy Wix product detail URLs. Wix used /product-page/<slug>
+        // for every product PDP; Google still has thousands of these
+        // indexed under www.pacific-surfaces.com/product-page/<slug>
+        // and clicking a search result would land on the not-found
+        // handler and bounce to the homepage. The new Next.js URL
+        // for the same product is /products/<slug>, so we map them
+        // 1:1 here. The dispatcher at /products/[slug]/page.tsx
+        // already resolves any slug to either a category catalogue
+        // or a product detail page, so the redirected URL just works.
+        source: "/product-page/:slug",
+        destination: "/products/:slug",
+        permanent: true,
+      },
     ];
   },
 };
