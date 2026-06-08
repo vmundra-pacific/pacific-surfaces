@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   title: "Pacific Surfaces — Premium Quartz & Granite Surfaces",
   description:
     "Premium quartz slabs, granite surfaces, and semi-precious stones for countertops, vanities, flooring, and wall cladding. Crafted for beauty, engineered for durability.",
-  metadataBase: new URL("https://www.pacific-surfaces.com"),
+  metadataBase: new URL("https://pacific-surfaces.com"),
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -113,11 +113,11 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "@id": "https://www.pacific-surfaces.com/#organization",
+              "@id": "https://pacific-surfaces.com/#organization",
               name: "Pacific Surfaces",
               alternateName: "Pacific Surfaces (Pacific Group)",
-              url: "https://www.pacific-surfaces.com",
-              logo: "https://www.pacific-surfaces.com/logos/monogram-light.png",
+              url: "https://pacific-surfaces.com",
+              logo: "https://pacific-surfaces.com/logos/monogram-light.png",
               description:
                 "Premium quartz, granite, and semi-precious stone surfaces for kitchens, bathrooms, and architectural applications. Engineered in India, shipped to 45+ countries.",
               sameAs: [
@@ -154,12 +154,12 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "HomeAndConstructionBusiness",
-              "@id": "https://www.pacific-surfaces.com/#localbusiness",
+              "@id": "https://pacific-surfaces.com/#localbusiness",
               name: "Pacific Surfaces",
-              url: "https://www.pacific-surfaces.com",
-              logo: "https://www.pacific-surfaces.com/logos/monogram-light.png",
+              url: "https://pacific-surfaces.com",
+              logo: "https://pacific-surfaces.com/logos/monogram-light.png",
               image:
-                "https://www.pacific-surfaces.com/logos/monogram-light.png",
+                "https://pacific-surfaces.com/logos/monogram-light.png",
               telephone: "+91-9894033566",
               email: "info@thepacific.group",
               priceRange: "$$$",
@@ -195,18 +195,18 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              "@id": "https://www.pacific-surfaces.com/#website",
-              url: "https://www.pacific-surfaces.com",
+              "@id": "https://pacific-surfaces.com/#website",
+              url: "https://pacific-surfaces.com",
               name: "Pacific Surfaces",
               publisher: {
-                "@id": "https://www.pacific-surfaces.com/#organization",
+                "@id": "https://pacific-surfaces.com/#organization",
               },
               potentialAction: {
                 "@type": "SearchAction",
                 target: {
                   "@type": "EntryPoint",
                   urlTemplate:
-                    "https://www.pacific-surfaces.com/search?q={search_term_string}",
+                    "https://pacific-surfaces.com/search?q={search_term_string}",
                 },
                 "query-input": "required name=search_term_string",
               },

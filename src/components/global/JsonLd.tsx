@@ -19,7 +19,7 @@
  *   />
  */
 
-const SITE_URL = "https://www.pacific-surfaces.com";
+const SITE_URL = "https://pacific-surfaces.com";
 
 interface BreadcrumbItem {
   name: string;
