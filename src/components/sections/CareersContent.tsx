@@ -310,10 +310,28 @@ export function CareersContent({ pageData, openings }: Props) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Mirror of the server-side cap in /api/careers/apply (8 MB).
+  // Keeping it in sync here lets us reject oversize files instantly
+  // instead of waiting for an HTTP round-trip + generic 400.
+  const MAX_RESUME_BYTES = 8 * 1024 * 1024;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setResumeFile(e.target.files[0]);
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_RESUME_BYTES) {
+      setResumeFile(null);
+      setSubmitError(
+        `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. Resume must be under 8 MB — try compressing the PDF or saving it without embedded images.`
+      );
+      setSubmitStatus("error");
+      // Clear the native input so the same oversized file can't sit
+      // there masquerading as a valid selection.
+      e.target.value = "";
+      return;
     }
+    setSubmitError("");
+    setSubmitStatus("idle");
+    setResumeFile(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -798,8 +816,16 @@ export function CareersContent({ pageData, openings }: Props) {
                 required
                 className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white focus:outline-none focus:border-white/30 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-white/10 file:font-light file:text-pacific-light hover:file:bg-white/15"
               />
+              {/* Explicit hint about accepted file formats + the 8 MB
+                  cap enforced server-side in /api/careers/apply.
+                  Surfaces the constraint to the candidate BEFORE
+                  they hit Submit so an oversize PDF doesn't fail
+                  silently with a generic error. */}
+              <p className="mt-2 text-xs text-pacific-mid">
+                PDF, DOC, or DOCX — up to 8 MB.
+              </p>
               {resumeFile && (
-                <p className="mt-2 text-xs text-pacific-mid">
+                <p className="mt-1 text-xs text-pacific-mid">
                   Selected: {resumeFile.name}
                 </p>
               )}
