@@ -121,7 +121,7 @@ const team: {
   },
   {
     name: "Marcin",
-    role: "",
+    role: "Business Development Consultant (Central & Eastern Europe)",
     photo: "/team/marcin.png",
     linkedin: "https://www.linkedin.com/in/marcin-kołczynski-313b4114b",
   },
