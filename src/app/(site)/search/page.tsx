@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 const searchQuery = groq`
   *[_type == "product" && (
     name match $term + "*" ||
-    description match $term + "*" ||
+    pt::text(description) match $term + "*" ||
     category->name match $term + "*"
   )] | order(name asc)[0...60] {
     _id,
@@ -58,9 +58,17 @@ export default async function SearchPage({
   const { q } = await searchParams;
   const term = (q ?? "").trim();
 
-  const results: SearchResult[] = term
-    ? await client.fetch(searchQuery, { term })
-    : [];
+  let results: SearchResult[] = [];
+  if (term) {
+    try {
+      results = await client.fetch(searchQuery, { term });
+    } catch (error) {
+      // A Sanity outage or malformed query shouldn't 500 the search
+      // page — render the empty state and let the user browse.
+      console.error("[search] Sanity fetch failed:", error);
+      results = [];
+    }
+  }
 
   return (
     <div className="pt-28 pb-24 bg-[#f4efe8] min-h-screen">
@@ -89,9 +97,10 @@ export default async function SearchPage({
         {results.length > 0 ? (
           <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
             {results.map((r) => {
-              const href = r.categorySlug
-                ? `/products/${r.categorySlug}/${r.slug}`
-                : `/products/${r.slug}`;
+              // The /products/[slug]/[item] route resolves collections,
+              // not products — category/product hrefs 404. The bare
+              // /products/[slug] dispatcher resolves product detail pages.
+              const href = `/products/${r.slug}`;
               return (
                 <li key={r._id}>
                   <Link href={href} className="group block">

@@ -104,14 +104,21 @@ export function HeroScrollCanvas() {
       new Promise((resolve) => {
         const img = new window.Image();
         img.src = `/hero-frames/frame-${pad(i + 1)}.${ext}`;
-        img.onload = img.onerror = () => {
-          imgs[i] = img;
+        const done = () => {
           if (!cancelled) {
             count++;
             setLoaded(count);
           }
           resolve();
         };
+        img.onload = () => {
+          imgs[i] = img;
+          done();
+        };
+        // On error, do NOT store the broken image — a 404'd frame has
+        // `complete === true`, and drawImage on it throws inside the
+        // rAF tick, permanently killing the hero loop.
+        img.onerror = done;
       });
 
     // Hard safety timeout — if any frame stalls (network blip, CDN
@@ -262,15 +269,15 @@ export function HeroScrollCanvas() {
 
       // Find the requested frame, or fall back to nearest loaded frame
       let img = imagesRef.current[idx];
-      if (!img || !img.complete) {
+      if (!img || !img.complete || img.naturalWidth === 0) {
         for (let j = idx - 1; j >= 0; j--) {
           const fallback = imagesRef.current[j];
-          if (fallback && fallback.complete) {
+          if (fallback && fallback.complete && fallback.naturalWidth > 0) {
             img = fallback;
             break;
           }
         }
-        if (!img || !img.complete) return;
+        if (!img || !img.complete || img.naturalWidth === 0) return;
       }
 
       const w = canvas.clientWidth;

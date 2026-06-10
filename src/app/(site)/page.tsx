@@ -70,6 +70,11 @@ const ClosingCTA = dynamic(() =>
 import { VideoPrefetch } from "@/components/global/VideoPrefetch";
 import { HomepageSectionNav } from "@/components/global/HomepageSectionNav";
 
+// Re-render at most every 60s so homepage content edited in Sanity
+// (collections, projects, applications, inspirations) appears
+// without a redeploy.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Pacific Surfaces — Premium Quartz & Granite Surfaces",
   description:

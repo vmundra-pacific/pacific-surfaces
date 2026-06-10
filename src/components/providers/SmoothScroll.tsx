@@ -6,6 +6,11 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
   useEffect(() => {
     let lenis: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any
     let gsapTickerFn: ((time: number) => void) | null = null;
+    // Set when the effect is cleaned up. If the component unmounts before
+    // the dynamic imports resolve (React StrictMode does this on every dev
+    // mount), we must not construct Lenis / register the ticker — they'd
+    // never be destroyed.
+    let cancelled = false;
 
     async function initLenis() {
       try {
@@ -14,6 +19,8 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
           import("gsap"),
           import("gsap/ScrollTrigger"),
         ]);
+
+        if (cancelled) return;
 
         gsap.registerPlugin(ScrollTrigger);
 
@@ -41,6 +48,7 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
     initLenis();
 
     return () => {
+      cancelled = true;
       if (gsapTickerFn) {
         import("gsap").then(({ default: gsap }) => {
           if (gsapTickerFn) gsap.ticker.remove(gsapTickerFn);

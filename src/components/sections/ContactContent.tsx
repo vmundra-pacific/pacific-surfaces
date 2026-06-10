@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -235,7 +235,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
     // alphanumeric codes (UK / Canada): "SW1A1AA" prefix-matches
     // "SW1A1AB", "SW1A1A...", etc.
     let approxMatches: Dealer[] = [];
-    for (let prefixLen = needle.length - 1; prefixLen >= 1; prefixLen--) {
+    for (let prefixLen = needle.length; prefixLen >= 1; prefixLen--) {
       const prefix = needle.slice(0, prefixLen);
       approxMatches = dealers.filter(
         (d) => d.pincode && normalisePostal(d.pincode).startsWith(prefix)
@@ -264,6 +264,16 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
     }
   }, [searchParams]);
 
+  // Success-panel auto-reset timer. Kept in a ref so the "Send another
+  // message" button can cancel it (otherwise it races the button and
+  // wipes input the user has started typing), and cleared on unmount.
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormState("sending");
@@ -281,7 +291,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
       });
       if (!res.ok) throw new Error("Submission failed");
       setFormState("sent");
-      setTimeout(() => {
+      resetTimerRef.current = setTimeout(() => {
         setFormState("idle");
         setFormData({
           name: "",
@@ -402,6 +412,12 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                   </p>
                   <button
                     onClick={() => {
+                      // Cancel the pending auto-reset so it can't fire
+                      // later and wipe input the user has started typing.
+                      if (resetTimerRef.current) {
+                        clearTimeout(resetTimerRef.current);
+                        resetTimerRef.current = null;
+                      }
                       setFormState("idle");
                       setFormData({
                         name: "",
@@ -498,7 +514,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                           setFormData({ ...formData, phone: e.target.value })
                         }
                         className="w-full px-0 py-3 bg-transparent border-0 border-b border-white/10 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder:text-white/20"
-                        placeholder="+91 73054 77549"
+                        placeholder="+91 98940 33566"
                       />
                     </div>
                     <div>
@@ -681,7 +697,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                           Phone
                         </p>
                         <p className="mt-1 text-sm text-white font-medium group-hover:text-pacific-mid transition-colors">
-                          +91 73054 77549
+                          +91 98940 33566
                         </p>
                       </div>
                     </a>

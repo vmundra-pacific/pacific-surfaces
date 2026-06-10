@@ -172,9 +172,13 @@ export function CollectionsShowcaseGrid({
     // COLLECTION_LABELS rename map in labels.ts.
     "Stone Finish",
   ];
-  const items = CURATED_NAMES.map((target) =>
+  const curated = CURATED_NAMES.map((target) =>
     allItems.find((c) => c.name.toLowerCase().startsWith(target.toLowerCase()))
   ).filter(Boolean) as typeof allItems;
+  // If the curated prefixes match nothing (e.g. Sanity returned no
+  // collections and the fallback names don't align), fall back to the
+  // full list so we never render an empty 100vh section.
+  const items = curated.length > 0 ? curated : allItems;
 
   const numCards = items.length;
   const sectionHeightVh = 100 + numCards * VH_PER_CARD;
@@ -236,7 +240,7 @@ export function CollectionsShowcaseGrid({
               className="lg:max-w-md lg:pt-8"
             >
               <p className="text-base font-light text-pacific-light leading-relaxed">
-                Eight signature collections. Over 200 designs. Each one
+                Seven signature collections. Over 200 designs. Each one
                 engineered to pass a fabricator&apos;s precision test and an
                 architect&apos;s critical eye.
               </p>
@@ -318,7 +322,11 @@ export function CollectionsShowcaseGrid({
                       // burn is bounded.
                       unoptimized={false}
                       className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                      sizes={isWide ? "60vw" : "30vw"}
+                      sizes={
+                        isWide
+                          ? "(max-width: 640px) 80vw, (max-width: 1024px) 60vw, 40vw"
+                          : "(max-width: 640px) 72vw, (max-width: 1024px) 44vw, 26vw"
+                      }
                     />
                   ) : (
                     <div className={`absolute inset-0 ${bg}`} />

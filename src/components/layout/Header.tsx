@@ -361,12 +361,13 @@ interface NavItem {
 // <link rel="preload"> hints so the browser pulls them down on first
 // paint; by the time the user hovers, they're already in cache.
 //
-// fetchPriority "high" because (a) the files are pre-compressed and
-// tiny — total ~3 MB across 9 thumbnails — and (b) the cost of a slow
-// first hover outweighs the marginal LCP impact. Pair this with the
-// `unoptimized` prop on the <Image> tags so the rendered URL EXACTLY
-// matches the preloaded URL (Next/Image would otherwise rewrite the
-// src into `/_next/image?url=...` and the preload would be cache-miss).
+// fetchPriority "low" so these warm-cache hints never compete with
+// above-the-fold content (the LCP hero in particular) for bandwidth —
+// the thumbnails only need to be in cache by the time the user hovers
+// a nav trigger. Pair this with the `unoptimized` prop on the <Image>
+// tags so the rendered URL EXACTLY matches the preloaded URL
+// (Next/Image would otherwise rewrite the src into
+// `/_next/image?url=...` and the preload would be cache-miss).
 function preloadMegaThumbs() {
   if (typeof window === "undefined") return;
   const urls = [
@@ -378,7 +379,7 @@ function preloadMegaThumbs() {
     ...INSPIRATIONS_CATEGORIES.map((c) => c.imageUrl),
   ].filter((u): u is string => Boolean(u));
   for (const url of urls) {
-    reactPreload(url, { as: "image", fetchPriority: "high" });
+    reactPreload(url, { as: "image", fetchPriority: "low" });
   }
 }
 
@@ -402,14 +403,9 @@ export default function Header() {
   //  - `activeMega` — which Products card the user has clicked to
   //    expand its sub-panel (What is X / Maintenance / Warranty /
   //    Colours CTA). Null when no card is expanded.
-  //  - `lastMegaItemRef` — last truthy `openMegaItem` value, used so
-  //    the panel content stays correct while AnimatePresence runs
-  //    its exit animation (during which `openMegaItem` is null).
   const [openMegaItem, setOpenMegaItem] = useState<string | null>(null);
   const [activeMega, setActiveMega] = useState<string | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastMegaItemRef = useRef<string | null>(null);
-  if (openMegaItem) lastMegaItemRef.current = openMegaItem;
   const megaOpen = openMegaItem !== null;
 
   const handleMegaEnter = (itemName: string) => {
@@ -478,6 +474,29 @@ export default function Header() {
   useEffect(() => {
     preloadMegaThumbs();
   }, []);
+
+  // Clear any pending mega-menu close timer on unmount so it can't
+  // fire setState against an unmounted Header.
+  useEffect(
+    () => () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    },
+    []
+  );
+
+  // Escape closes any open mega-menu — keyboard parity with moving
+  // the cursor away. Listener only attached while a mega is open.
+  useEffect(() => {
+    if (!megaOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpenMegaItem(null);
+        setActiveMega(null);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [megaOpen]);
 
   // Lock body scroll while the mobile menu is open so the page
   // beneath doesn't scroll under the user's finger when they swipe
@@ -753,6 +772,8 @@ export default function Header() {
                   and no default browser behaviour to suppress. */}
                   {item.name === "Spaces" ? (
                     <span
+                      aria-haspopup="true"
+                      aria-expanded={openMegaItem === item.name}
                       className={cn(
                         "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2 cursor-default select-none",
                         "text-stone-300 hover:text-white"
@@ -764,6 +785,10 @@ export default function Header() {
                   ) : (
                     <Link
                       href={item.href}
+                      aria-haspopup={item.mega ? "true" : undefined}
+                      aria-expanded={
+                        item.mega ? openMegaItem === item.name : undefined
+                      }
                       className={cn(
                         "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
                         // Same colour treatment in both states now —
@@ -1336,7 +1361,11 @@ export default function Header() {
                 onClick={() => setSearchOpen(true)}
                 aria-label="Open search"
                 className={cn(
-                  "hidden sm:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
+                  // Visible at every breakpoint — on mobile this is
+                  // the only entry point to search (the hamburger menu
+                  // doesn't carry one), and the row has room since the
+                  // Quote/Visualizer pills are hidden below sm/2xl.
+                  "flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
                   // Dark in both states — same hover treatment.
                   "text-stone-300 hover:text-white hover:bg-white/10"
                 )}

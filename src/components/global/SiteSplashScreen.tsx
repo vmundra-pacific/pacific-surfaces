@@ -174,6 +174,10 @@ export default function SiteSplashScreen() {
       if (blockedKeys.has(e.key)) {
         e.preventDefault();
         e.stopPropagation();
+        // Space is documented as a "skip the splash" key, but this
+        // capture-phase handler swallows it before the splash's own
+        // onKeyDown ever fires. Dismiss here so Space still skips.
+        if (e.key === " ") setVisible(false);
       }
     };
 

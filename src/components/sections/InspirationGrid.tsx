@@ -285,7 +285,7 @@ export function InspirationGrid(_props: {
             type="button"
             aria-label={`Show ${s.name}`}
             onClick={() => setActive(i)}
-            className="grid place-items-center h-6 w-6"
+            className="group grid place-items-center h-6 w-6"
           >
             <span
               aria-hidden="true"

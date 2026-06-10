@@ -125,11 +125,12 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
   // remove this mask and add the freshly-edited polygon in its place.
   const [editingMaskId, setEditingMaskId] = useState<string | null>(null);
 
-  // Phase 1 — depth-aware perspective. We fetch a depth map for the
-  // uploaded image in the background. RoomCanvas uses it (when ready)
-  // to estimate each surface's plane orientation and warp the slab in
-  // perspective so it follows the surface like a real installation.
-  const { run: runDepth, clear: clearDepth } = useDepth();
+  // Phase 1 — depth-aware perspective. Will fetch a depth map for the
+  // uploaded image so RoomCanvas can estimate each surface's plane
+  // orientation and warp the slab in perspective. The fetch itself is
+  // currently disabled (see handleUserUpload) because nothing consumes
+  // the result yet; we keep `clear` so reset paths stay tidy.
+  const { clear: clearDepth } = useDepth();
 
   // Tap-to-detect: when the user taps the canvas, run SAM-2. If
   // SAM-2 succeeds, the mask flows back through `aiMasks` and
@@ -296,15 +297,13 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
 
   // When user uploads their own photo, start with a clean canvas. We
   // skip the AMG auto-detect pass on purpose — tap-to-detect gives
-  // precise per-surface control. We DO kick off depth estimation in
-  // the background so it's ready by the time the user picks a slab,
-  // enabling perspective-correct slab placement.
+  // precise per-surface control.
   const handleUserUpload = (dataUrl: string) => {
     setActiveDemo(null);
     setImageSrc(dataUrl);
     clearSegment();
     clearDepth();
-    runDepth(dataUrl);
+    // depth disabled — result unused; re-enable when plane-split perspective warping ships
   };
 
   const handleReset = () => {
@@ -313,7 +312,14 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     setSurfaceSlabs({});
     setFocusedSurfaceId(null);
     setActiveRegion(null);
+    // Clear any in-progress manual-editor state too — otherwise a
+    // pending tap / polygon / edit target survives "New scene" and
+    // keeps the Manual surface button stuck disabled.
+    setPendingManualTap(null);
+    setPendingInitialPolygon(null);
+    setEditingMaskId(null);
     clearSegment();
+    clearDepth();
   };
 
   const handleExport = () => {

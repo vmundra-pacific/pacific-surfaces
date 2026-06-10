@@ -287,10 +287,18 @@ export default async function ProductOrCategoryPage({ params }: Props) {
 
   const categoryName =
     product.collection?.name ?? product.category?.name ?? "Products";
-  const categorySlugForCrumb =
+  // Some collection slugs don't match their category route — the
+  // "granite" collection's page lives at /products/granites. Map the
+  // known exceptions so the breadcrumb (and its JSON-LD) doesn't 404.
+  const COLLECTION_TO_CATEGORY: Record<string, string> = {
+    granite: "granites",
+  };
+  const rawCrumbSlug =
     product.collection?.slug?.current ??
     product.category?.slug?.current ??
     slug;
+  const categorySlugForCrumb =
+    COLLECTION_TO_CATEGORY[rawCrumbSlug] ?? rawCrumbSlug;
 
   // Material classification for Product schema. Maps the product's
   // category to a generic stone-industry term Google understands. Falls

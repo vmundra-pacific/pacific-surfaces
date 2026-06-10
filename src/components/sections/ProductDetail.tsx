@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { sanityImg } from "@/lib/sanity-img";
@@ -111,6 +111,14 @@ const SECTION_IDS = [
   { id: "sec-similar-colors", label: "Similar Styles" },
 ];
 
+// Sanity collection slugs don't always match the /products/<category>
+// routes — notably the "granite" collection's category page lives at
+// /products/granites, so linking the raw collection slug 404s. Map the
+// known exceptions; everything else falls through unchanged.
+const COLLECTION_TO_CATEGORY: Record<string, string> = {
+  granite: "granites",
+};
+
 export function ProductDetail({ product }: { product: Product }) {
   // ---- Similar-product ranking — single source of truth ----
   // Computed once here and reused by:
@@ -121,11 +129,18 @@ export function ProductDetail({ product }: { product: Product }) {
   // colours offered for comparison match the ones we're recommending.
   // Ranking lives in src/lib/product-similarity.ts:
   //   Tier 1 = same collection, Tier 2 = same hue, Tier 3 = anything else.
-  const picks = pickSimilar(
-    product,
-    product.relatedProducts ?? [],
-    product.allOtherProducts ?? [],
-    5
+  // Memoised: ranking walks the whole catalogue, and this component
+  // re-renders on every hero mousemove — recomputing per render was
+  // pure waste.
+  const picks = useMemo(
+    () =>
+      pickSimilar(
+        product,
+        product.relatedProducts ?? [],
+        product.allOtherProducts ?? [],
+        5
+      ),
+    [product]
   );
 
   // ---- Image sets ----
@@ -161,29 +176,35 @@ export function ProductDetail({ product }: { product: Product }) {
   }
 
   // Build thumbnail list (MSI-style: Slab → Close Up → Vignettes → Room Scenes)
-  const thumbnails: { src: string; label: string; type: ImageView }[] = [];
-  if (slabImage)
-    thumbnails.push({ src: slabImage, label: "Slab", type: "slab" });
-  if (galleryImages[0])
-    thumbnails.push({
-      src: galleryImages[0],
-      label: "Close Up",
-      type: "closeup",
+  // Memoised so the array identity is stable across the per-mousemove
+  // re-renders the hero zoom triggers — downstream effects depend on it.
+  const thumbnails = useMemo(() => {
+    const gallery = product.gallery?.length ? product.gallery : [];
+    const scenes = product.roomScenes?.length ? product.roomScenes : [];
+    const list: { src: string; label: string; type: ImageView }[] = [];
+    if (slabImage) list.push({ src: slabImage, label: "Slab", type: "slab" });
+    if (gallery[0])
+      list.push({
+        src: gallery[0],
+        label: "Close Up",
+        type: "closeup",
+      });
+    gallery.slice(1).forEach((img, i) => {
+      list.push({
+        src: img,
+        label: `Vignette${i > 0 ? ` ${i + 1}` : ""}`,
+        type: "vignette",
+      });
     });
-  galleryImages.slice(1).forEach((img, i) => {
-    thumbnails.push({
-      src: img,
-      label: `Vignette${i > 0 ? ` ${i + 1}` : ""}`,
-      type: "vignette",
+    scenes.forEach((img, i) => {
+      list.push({
+        src: img,
+        label: `Room Scene${i > 0 ? ` ${i + 1}` : ""}`,
+        type: "roomScene",
+      });
     });
-  });
-  sceneImages.forEach((img, i) => {
-    thumbnails.push({
-      src: img,
-      label: `Room Scene${i > 0 ? ` ${i + 1}` : ""}`,
-      type: "roomScene",
-    });
-  });
+    return list;
+  }, [slabImage, product.gallery, product.roomScenes]);
 
   // ---- Derived data ----
   // Finishes / applications now come ONLY from Sanity. No hardcoded
@@ -1010,9 +1031,14 @@ export function ProductDetail({ product }: { product: Product }) {
                   favor of /products/<category>. Pointing the breadcrumb
                   at the new canonical category page so the link both
                   works AND matches the BreadcrumbList JSON-LD on the
-                  page. */}
+                  page. Slug goes through COLLECTION_TO_CATEGORY so
+                  collections whose slug differs from their category
+                  route (granite → granites) don't 404. */}
               <Link
-                href={`/products/${product.collection.slug.current}`}
+                href={`/products/${
+                  COLLECTION_TO_CATEGORY[product.collection.slug.current] ??
+                  product.collection.slug.current
+                }`}
                 className="hover:text-white transition-colors"
               >
                 {formatCollection(product.collection.name)}
@@ -1787,6 +1813,33 @@ export function ProductDetail({ product }: { product: Product }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ===== MOBILE STICKY CTA BAR =====
+          Mobile-only fixed bottom bar with the two key product
+          actions. z-40 keeps it below modals/lightbox (z-50+).
+          Right padding (pr-20) leaves the bottom-right corner clear
+          for the WhatsApp FAB (fixed bottom-6 right-6, 56px wide). */}
+      {/* Spacer so the fixed bar doesn't permanently cover the
+          footer / end-of-page content on mobile. */}
+      <div aria-hidden="true" className="h-20 lg:hidden" />
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#112732] border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-center gap-3 px-4 py-3 pr-20">
+          <button
+            onClick={() => setSampleOpen(true)}
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide uppercase transition-colors duration-300 cursor-pointer bg-white text-[#112732] hover:bg-pacific-light border border-white px-4 py-3 text-xs"
+          >
+            <Package className="w-4 h-4" />
+            Order a Sample
+          </button>
+          <Link
+            href="/visualize"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide uppercase transition-colors duration-300 bg-transparent text-white border border-white/40 hover:bg-white hover:text-stone-900 px-4 py-3 text-xs"
+          >
+            <Home className="w-4 h-4" />
+            Visualize
+          </Link>
+        </div>
+      </div>
 
       {/* ===== ORDER SAMPLE MODAL ===== */}
       <OrderSampleModal

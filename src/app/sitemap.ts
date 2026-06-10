@@ -22,6 +22,7 @@ const STATIC_PATHS = [
   "/products/integra",
   "/products/facades-and-finishes",
   "/products/vanity",
+  "/products/ecosurfaces",
   // Quartz sub-collection landings. Each routes through
   // /products/[slug]/[item] and renders a filtered catalogue
   // for that collection's slabs. SEO value: each collection has
@@ -80,10 +81,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Pull dynamic slugs from Sanity. We grab everything in parallel
   // so the build doesn't bottleneck on the slowest query.
-  const [products, blogPosts, projects] = await Promise.all([
+  const [products, blogPosts] = await Promise.all([
     client
       .fetch<{ slug: string; updatedAt: string | null }[]>(
-        groq`*[_type == "product" && defined(slug.current)]{
+        groq`*[_type == "product" && defined(slug.current) && visible != false]{
           "slug": slug.current, "updatedAt": _updatedAt
         }`
       )
@@ -91,13 +92,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client
       .fetch<{ slug: string; updatedAt: string | null }[]>(
         groq`*[_type == "blogPost" && defined(slug.current)]{
-          "slug": slug.current, "updatedAt": _updatedAt
-        }`
-      )
-      .catch(() => []),
-    client
-      .fetch<{ slug: string; updatedAt: string | null }[]>(
-        groq`*[_type == "signatureProject" && defined(slug.current)]{
           "slug": slug.current, "updatedAt": _updatedAt
         }`
       )
@@ -136,10 +130,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  // Signature projects don't have their own public routes today,
-  // but the Sanity content has slugs. Skip emitting URLs for them
-  // until a /projects/[slug] route exists.
-  void projects;
+  // Signature projects don't have their own public routes today —
+  // when a /projects/[slug] route exists, add a signatureProject
+  // fetch here and emit entries for it.
 
   return [...staticEntries, ...productEntries, ...blogEntries];
 }

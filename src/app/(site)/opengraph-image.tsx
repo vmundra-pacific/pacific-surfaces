@@ -57,7 +57,7 @@ export default async function Image() {
               fontWeight: 400,
             }}
           >
-            Est. 2011 · India
+            Est. 2000 · India
           </div>
         </div>
 

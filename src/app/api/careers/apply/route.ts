@@ -30,7 +30,7 @@
  *   - CAREERS_INBOX_EMAIL     (where notifications go by default)
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { createClient } from "@sanity/client";
 import { Resend } from "resend";
 
@@ -167,34 +167,36 @@ export async function POST(req: NextRequest) {
     // 3. Email notification — best-effort, doesn't fail the
     //    request if it errors. Look up the role's applyEmail
     //    override before falling back to the global inbox.
-    void sendNotificationEmail({
-      doc,
-      asset,
-      firstName,
-      lastName,
-      email,
-      phone,
-      address,
-      currentLocation,
-      age,
-      totalExperience,
-      comments,
-      department,
-      appliedFor,
-    }).catch((err) => {
-      console.error("[careers/apply] email send failed:", err);
-    });
+    //    Wrapped in `after()` so the work survives the response
+    //    being sent — a bare fire-and-forget promise gets killed
+    //    when the serverless function freezes on Vercel.
+    after(() =>
+      sendNotificationEmail({
+        doc,
+        asset,
+        firstName,
+        lastName,
+        email,
+        phone,
+        address,
+        currentLocation,
+        age,
+        totalExperience,
+        comments,
+        department,
+        appliedFor,
+      }).catch((err) => {
+        console.error("[careers/apply] email send failed:", err);
+      })
+    );
 
     return NextResponse.json({ success: true, id: doc._id });
   } catch (error) {
+    // Log the real error server-side; never leak internals (stack
+    // details, env hints, Sanity errors) to the client.
     console.error("[careers/apply] submission failed:", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Submission failed. Please try again or email us directly.",
-      },
+      { error: "Something went wrong. Please try again later." },
       { status: 500 }
     );
   }

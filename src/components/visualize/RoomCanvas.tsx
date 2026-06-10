@@ -104,6 +104,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
     }: RoomCanvasProps,
     ref
   ) {
+    const wrapRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const overlayRef = useRef<HTMLCanvasElement>(null);
     const baseRef = useRef<HTMLCanvasElement | null>(null);
@@ -148,6 +149,30 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
       setZoomLevel(1);
       setPan({ x: 0, y: 0 });
     }, [src]);
+
+    // Wheel-zoom via a NATIVE non-passive listener. React's onWheel is
+    // registered passively, so e.preventDefault() there is a no-op and
+    // wheel-zoom also scrolled the page underneath. Same pattern as the
+    // PDP hero in ProductDetail.tsx. Gated on zoomEnabled (demo rooms).
+    useEffect(() => {
+      if (!zoomEnabled) return;
+      const el = wrapRef.current;
+      if (!el) return;
+      const onWheel = (e: WheelEvent) => {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+          setZoomLevel((z) => Math.min(4, +(z + 0.5).toFixed(1)));
+        } else {
+          setZoomLevel((z) => {
+            const next = Math.max(1, +(z - 0.5).toFixed(1));
+            if (next <= 1) setPan({ x: 0, y: 0 });
+            return next;
+          });
+        }
+      };
+      el.addEventListener("wheel", onWheel, { passive: false });
+      return () => el.removeEventListener("wheel", onWheel);
+    }, [zoomEnabled]);
 
     // Set while a slab-swap recomposite is running. Drives the
     // "Applying" overlay so the user has visible feedback during the
@@ -709,13 +734,8 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
     };
 
     // ── Zoom + pan handlers ──
-    const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-      if (!zoomEnabled) return;
-      e.preventDefault();
-      if (e.deltaY < 0) zoomIn();
-      else zoomOut();
-    };
-
+    // (Wheel-zoom lives in the native non-passive listener effect above —
+    // see the wrapRef useEffect near the zoom state declarations.)
     const handlePanStart = (e: React.MouseEvent<HTMLDivElement>) => {
       if (!zoomEnabled) return;
       panStartRef.current = {
@@ -1004,6 +1024,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
 
     return (
       <div
+        ref={wrapRef}
         className={
           fill
             ? "relative rounded-2xl overflow-hidden bg-[#0a1620] ring-1 ring-white/10 mx-auto"
@@ -1017,7 +1038,6 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         }}
         onMouseDown={handlePanStart}
         onMouseUp={handlePanEnd}
-        onWheel={handleWheel}
         onMouseLeave={() => {
           handlePanEnd();
           setHoveredId(null);

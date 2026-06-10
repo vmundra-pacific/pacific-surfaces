@@ -177,10 +177,12 @@ export function SignatureProjects({
   const deferred: SanityProject[] = [];
   for (const p of sanityProjects) {
     const slotIdx = typeof p.order === "number" ? p.order - 1 : -1;
-    if (slotIdx >= 0 && slotIdx < TARGET_SLOTS) {
+    if (slotIdx >= 0 && slotIdx < TARGET_SLOTS && !claimed.has(slotIdx)) {
       slots[slotIdx] = toItem(p);
       claimed.add(slotIdx);
     } else {
+      // Out-of-range order, or a duplicate Display Order whose slot
+      // is already claimed — defer to Pass 2 instead of overwriting.
       deferred.push(p);
     }
   }
@@ -354,6 +356,7 @@ function ProjectCard({
       <Link
         href={item.link}
         target={item.link.startsWith("http") ? "_blank" : undefined}
+        rel={item.link.startsWith("http") ? "noopener noreferrer" : undefined}
         className={className}
       >
         {content}

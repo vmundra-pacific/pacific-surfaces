@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { projectId, dataset } from "@/sanity/env";
 
 /**
  * Sanity media proxy.
@@ -89,6 +90,20 @@ async function proxy(req: NextRequest, ctx: RouteContext, method: "GET" | "HEAD"
     return new Response("Bad request: missing asset path.", { status: 400 });
   }
 
+  // Pin the proxy to our own Sanity project. Without this, the route
+  // is an open proxy for any public Sanity asset on cdn.sanity.io —
+  // anyone could serve arbitrary third-party content (and bandwidth)
+  // through our domain. Only /images/{ourProject}/{ourDataset}/... and
+  // /files/{ourProject}/{ourDataset}/... are allowed through.
+  if (
+    path.length < 3 ||
+    (path[0] !== "images" && path[0] !== "files") ||
+    path[1] !== projectId ||
+    path[2] !== dataset
+  ) {
+    return new Response("Not found.", { status: 404 });
+  }
+
   // Reconstruct the upstream URL. URI-encoded segments stay intact; we
   // join with "/" to preserve the original path shape.
   const search = req.nextUrl.search ?? "";
@@ -130,11 +145,18 @@ async function proxy(req: NextRequest, ctx: RouteContext, method: "GET" | "HEAD"
     }
   });
 
-  // Sanity asset URLs are content-hashed; immutable cache is safe.
-  responseHeaders.set(
-    "Cache-Control",
-    "public, max-age=31536000, s-maxage=31536000, immutable"
-  );
+  // Sanity asset URLs are content-hashed; immutable cache is safe —
+  // but only for successful responses (200/206/304). Caching an
+  // upstream error (404/5xx) immutably for a year would pin the
+  // failure into Vercel's edge cache long after upstream recovers.
+  if (upstream.ok || upstream.status === 304 || upstream.status === 206) {
+    responseHeaders.set(
+      "Cache-Control",
+      "public, max-age=31536000, s-maxage=31536000, immutable"
+    );
+  } else {
+    responseHeaders.set("Cache-Control", "no-store");
+  }
   // Help Lighthouse's `efficient-cache-policy` audit too.
   responseHeaders.set("X-Sanity-Proxy", "1");
 

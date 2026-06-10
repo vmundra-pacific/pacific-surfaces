@@ -696,11 +696,16 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { topic } = await params;
+  const known = topic in TOPIC_COPY;
   const copy = TOPIC_COPY[topic] ?? FALLBACK;
   return {
     title: `${copy.title} — Pacific Surfaces`,
     description: copy.description,
     alternates: { canonical: `/learn/${topic}` },
+    // Unknown topics render the "Coming soon" fallback — a soft-404.
+    // Without noindex, any arbitrary /learn/<garbage> URL gets a
+    // self-canonical and ends up in Google's index.
+    ...(known ? {} : { robots: { index: false, follow: false } }),
   };
 }
 

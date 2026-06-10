@@ -25,8 +25,10 @@ const quickLinks = [
   // "Collections" shortcut removed — the /collections URL space was
   // retired in favor of /products/[category]/[slug] (see redirects in
   // next.config.ts) and the shortcut was leading to the legacy bounce.
-  { name: "Ecosurfaces", href: "/ecosurfaces" },
-  { name: "Granites", href: "/granites" },
+  // Canonical category URLs — the bare /ecosurfaces and /granites
+  // paths are 301-redirected in next.config.ts; link direct instead.
+  { name: "Ecosurfaces", href: "/products/ecosurfaces" },
+  { name: "Granites", href: "/products/granites" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -51,6 +53,17 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     if (isOpen) window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
+
+  /* Lock body scroll while the overlay is open — same pattern as the
+     mobile menu — so the page underneath doesn't scroll behind it. */
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
 
   /* Debounced search against the API route */
   useEffect(() => {
@@ -99,6 +112,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[60] bg-[#112732]/98 backdrop-blur-xl"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Search"
           onClick={onClose}
         >
           <motion.div

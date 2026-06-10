@@ -3,6 +3,10 @@ import { client } from "@/sanity/lib/client";
 import { careersPageQuery, jobOpeningsQuery } from "@/sanity/lib/queries";
 import { CareersContent } from "@/components/sections/CareersContent";
 
+// Re-render at most every 60s so new job openings published in
+// Sanity appear without a redeploy.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Careers at Pacific Surfaces — Join Our Team",
   description:

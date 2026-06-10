@@ -83,6 +83,9 @@ export function SlabCard({ slab, index }: Props) {
   const productCollection =
     isProductCollection(slab.collection) || isProductUrl(pathname);
 
+  // Triggered on hover/focus only — deliberately NOT on touchstart,
+  // since scrolling a touch grid fires touchstart on every card it
+  // passes, queuing multi-MB full-res downloads the user never wanted.
   const warmCache = () => {
     if (slab.photoUrl) {
       preload(zoomImageUrl(slab.photoUrl), {
@@ -112,7 +115,6 @@ export function SlabCard({ slab, index }: Props) {
           delay: Math.min(index * 0.03, 0.3),
         }}
         onMouseEnter={warmCache}
-        onTouchStart={warmCache}
         onFocus={warmCache}
         onClick={() => {
           // Finish products: any click on the card opens the
@@ -138,6 +140,13 @@ export function SlabCard({ slab, index }: Props) {
       >
         {slab.photoUrl ? (
           <div className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]">
+            {/* Loading skeleton — sits behind the Image; once the
+                image paints (opaque, object-cover) it fully covers
+                this layer. No state needed. */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 animate-pulse bg-pacific-mid/10 pointer-events-none"
+            />
             <Image
               src={sanityImg(slab.photoUrl, { w: 720 }) ?? slab.photoUrl}
               alt={`${slab.name} — ${slab.collection ?? "Pacific Surfaces"} slab`}

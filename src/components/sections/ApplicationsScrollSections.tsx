@@ -266,11 +266,17 @@ function buildMediaResolver(
       );
     }
 
-    // 3. Order-based fallback — find the unclaimed card whose
-    //    position in the sorted array matches this section's index.
+    // 3. Order-based fallback — use the card at this section's index
+    //    in the ORIGINAL order-sorted pool. Indexing into the
+    //    filtered-unclaimed array instead causes index drift: once an
+    //    earlier section claims a card, every later section's index
+    //    points one slot off (bath/architecture media can swap).
     if (!card) {
-      const unclaimedSorted = pool.filter((a) => !claimed.has(a._id));
-      card = unclaimedSorted[sectionIndex] ?? unclaimedSorted[0];
+      const byPos = pool[sectionIndex];
+      card =
+        byPos && !claimed.has(byPos._id)
+          ? byPos
+          : pool.find((a) => !claimed.has(a._id));
     }
 
     if (!card) return {};

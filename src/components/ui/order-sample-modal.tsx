@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle, Send } from "lucide-react";
@@ -42,14 +42,24 @@ export function OrderSampleModal({
     notes: "",
   });
 
+  // Holds the close-reset timer so it can be cleared if the modal
+  // unmounts before the 300ms elapses (avoids setState on unmounted).
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (!open) {
       // reset when closed
-      setTimeout(() => {
+      resetTimerRef.current = setTimeout(() => {
         setSubmitted(false);
       }, 300);
     }
   }, [open]);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    };
+  }, []);
 
   // Close on Escape
   useEffect(() => {
@@ -142,10 +152,10 @@ export function OrderSampleModal({
                   {isSample ? "Request Sent" : "Enquiry Sent"}
                 </h3>
                 <p className="text-sm text-stone-500 font-light leading-relaxed max-w-sm mx-auto">
-                  Your email client should have opened with a pre-filled{" "}
-                  {isSample ? "request" : "enquiry"} for{" "}
+                  We&apos;ve received your{" "}
+                  {isSample ? "sample request" : "enquiry"} for{" "}
                   <strong className="font-medium">{productName}</strong>. Our
-                  team will respond within 1–2 business days.
+                  team will get back to you within 1–2 business days.
                 </p>
                 <button
                   onClick={onClose}

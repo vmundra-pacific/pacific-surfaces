@@ -296,6 +296,10 @@ export function CareersContent({ pageData, openings }: Props) {
     comments: "",
   });
   const [resumeFile, setResumeFile] = useState<File | null>(null);
+  // Ref to the native file input so we can clear its value after a
+  // successful submit — clearing the React state alone leaves the old
+  // file name visible in the input and breaks a second application.
+  const resumeInputRef = useRef<HTMLInputElement | null>(null);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
@@ -372,6 +376,7 @@ export function CareersContent({ pageData, openings }: Props) {
         comments: "",
       });
       setResumeFile(null);
+      if (resumeInputRef.current) resumeInputRef.current.value = "";
       setAppliedRole("");
       setTimeout(() => setSubmitStatus("idle"), 4000);
     } catch (err) {
@@ -806,10 +811,15 @@ export function CareersContent({ pageData, openings }: Props) {
             </div>
 
             <div>
-              <label className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3">
+              <label
+                htmlFor="resume"
+                className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3"
+              >
                 Upload Resume
               </label>
               <input
+                id="resume"
+                ref={resumeInputRef}
                 type="file"
                 accept=".pdf,.doc,.docx"
                 onChange={handleFileChange}
@@ -832,10 +842,14 @@ export function CareersContent({ pageData, openings }: Props) {
             </div>
 
             <div>
-              <label className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3">
+              <label
+                htmlFor="comments"
+                className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3"
+              >
                 Comments / Remarks
               </label>
               <textarea
+                id="comments"
                 name="comments"
                 value={formData.comments}
                 onChange={handleInputChange}
@@ -930,10 +944,14 @@ function FormInput({
 }) {
   return (
     <div>
-      <label className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3">
+      <label
+        htmlFor={name}
+        className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3"
+      >
         {label}
       </label>
       <input
+        id={name}
         type={type}
         name={name}
         value={value}

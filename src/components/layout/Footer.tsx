@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Mail, Phone, MapPin, Send } from "lucide-react";
@@ -113,6 +113,18 @@ const footerLinks = {
     // All Surfaces.
     { name: "All Surfaces", href: "/products" },
   ],
+  // Spaces pages were previously unreachable from the footer (and the
+  // header's top-level "Spaces" label is intentionally non-clickable),
+  // so these links give the per-space landing pages a crawlable,
+  // keyboard-accessible entry point. Outdoor/Hospitality routes exist
+  // but stay out of the nav per editorial direction.
+  spaces: [
+    { name: "Kitchens", href: "/spaces/kitchens" },
+    { name: "Bathrooms", href: "/spaces/bathrooms" },
+    { name: "Architecture", href: "/spaces/architecture" },
+    { name: "Commercial", href: "/spaces/commercial" },
+    { name: "All Spaces", href: "/spaces" },
+  ],
   company: [
     { name: "Our Story", href: "/about" },
     { name: "Sustainability", href: "/sustainability" },
@@ -174,6 +186,16 @@ export default function Footer() {
   const [newsletterState, setNewsletterState] = useState<
     "idle" | "sending" | "sent"
   >("idle");
+  // Holds the "sent" → "idle" reset timer so it can be cleared if the
+  // footer unmounts before the 3s elapses (avoids a setState-on-unmounted
+  // warning and a leaked timeout).
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    };
+  }, []);
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,7 +212,10 @@ export default function Footer() {
       if (!res.ok) throw new Error("Subscribe failed");
       setNewsletterState("sent");
       setNewsletter({ firstName: "", email: "" });
-      setTimeout(() => setNewsletterState("idle"), 3000);
+      resetTimerRef.current = setTimeout(
+        () => setNewsletterState("idle"),
+        3000
+      );
     } catch (err) {
       console.error("[newsletter] subscribe failed:", err);
       setNewsletterState("idle");
@@ -328,7 +353,7 @@ export default function Footer() {
                 className="flex items-center gap-3 text-[13px] text-stone-400 hover:text-white transition-colors duration-300 group"
               >
                 <Phone className="w-4 h-4 text-stone-500 group-hover:text-white transition-colors duration-300 shrink-0" />
-                +91 73054 77549
+                +91 98940 33566
               </a>
               <div className="flex items-center gap-3 text-[13px] text-stone-400">
                 <MapPin className="w-4 h-4 text-stone-500 shrink-0" />
@@ -337,18 +362,19 @@ export default function Footer() {
             </div>
           </motion.div>
 
-          {/* Link columns — three even columns (Products / Company /
-              Resources) with matching item counts for visual balance.
+          {/* Link columns — four even columns (Products / Spaces /
+              Company / Resources): 2×2 below lg, 4-across on desktop.
               Section labels share identical typography so one column
               never out-shouts the others. */}
-          <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8 lg:gap-10">
+          <div className="lg:col-span-8 grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
             {[
               { heading: "Products", links: footerLinks.products, delay: 0.1 },
-              { heading: "Company", links: footerLinks.company, delay: 0.2 },
+              { heading: "Spaces", links: footerLinks.spaces, delay: 0.175 },
+              { heading: "Company", links: footerLinks.company, delay: 0.25 },
               {
                 heading: "Resources",
                 links: footerLinks.resources,
-                delay: 0.3,
+                delay: 0.325,
               },
             ].map(({ heading, links, delay }) => (
               <motion.div

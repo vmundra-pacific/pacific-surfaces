@@ -21,6 +21,12 @@ export type RunPointResult =
   | { kind: "manual"; tap: { x: number; y: number } }
   | { kind: "error" };
 
+// Monotonic id source for masks. Date.now() alone can collide when two
+// masks are created within the same millisecond (rapid taps / quick
+// manual confirms), which would break per-surface slab assignment.
+let maskIdSeq = 0;
+const nextMaskId = () => `${Date.now()}-${++maskIdSeq}`;
+
 /**
  * Hook that calls /api/segment to detect surfaces in a room photo.
  *
@@ -111,6 +117,14 @@ export function useSegment() {
       x: number,
       y: number
     ): Promise<RunPointResult> => {
+      // Abort any in-flight request (a previous tap or a full run).
+      // Without this, rapid taps race each other and `clear()` can't
+      // cancel an in-flight tap — a stale mask from the PREVIOUS image
+      // would get appended to the new scene.
+      abortRef.current?.abort();
+      const ac = new AbortController();
+      abortRef.current = ac;
+
       setLoading(true);
       setError(null);
       try {
@@ -122,6 +136,7 @@ export function useSegment() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: imageDataUrl, x, y }),
+          signal: ac.signal,
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({ error: "Server error" }));
@@ -134,6 +149,10 @@ export function useSegment() {
           image_dims?: { w: number; h: number };
           source?: string;
         } = await res.json();
+
+        // Bail without touching state if this request was superseded
+        // (newer tap) or cancelled (`clear()` on scene change).
+        if (ac.signal.aborted) return { kind: "error" };
 
         // SAM-2 missed — signal the UI to open the manual draggable frame.
         if (data.manual_required) {
@@ -154,19 +173,23 @@ export function useSegment() {
         );
 
         const newMask: AIMask = {
-          id: `ai-point-${Date.now()}`,
+          id: `ai-point-${nextMaskId()}`,
           label: data.mask.label || "Tapped surface",
           url: data.mask.url,
         };
         setMasks((prev) => [...prev, newMask]);
         return { kind: "mask", mask: newMask };
       } catch (err: unknown) {
+        // Swallow aborts — a newer request (or clear()) owns the state.
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return { kind: "error" };
+        }
         const message =
           err instanceof Error ? err.message : "Point segmentation failed";
         setError(message);
         return { kind: "error" };
       } finally {
-        setLoading(false);
+        if (!ac.signal.aborted) setLoading(false);
       }
     },
     []
@@ -218,7 +241,7 @@ export function useSegment() {
       ctx.fill();
       const url = c.toDataURL("image/png");
       const newMask: AIMask = {
-        id: `manual-${Date.now()}`,
+        id: `manual-${nextMaskId()}`,
         label: "Manual surface",
         url,
       };

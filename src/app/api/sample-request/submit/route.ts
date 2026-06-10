@@ -108,14 +108,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, id: doc._id });
   } catch (error) {
+    // Log the real error server-side; never leak internals to clients.
     console.error("[sample-request/submit] failed:", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Submission failed. Please try again or email us directly.",
-      },
+      { error: "Something went wrong. Please try again later." },
       { status: 500 }
     );
   }

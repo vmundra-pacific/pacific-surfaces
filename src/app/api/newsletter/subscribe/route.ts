@@ -88,14 +88,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, id: doc._id });
   } catch (error) {
+    // Log the real error server-side; never leak internals to clients.
     console.error("[newsletter/subscribe] failed:", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Subscription failed. Please try again.",
-      },
+      { error: "Something went wrong. Please try again later." },
       { status: 500 }
     );
   }

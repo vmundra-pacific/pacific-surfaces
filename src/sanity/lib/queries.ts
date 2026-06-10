@@ -112,7 +112,7 @@ export const allProductsQuery = groq`
 `;
 
 export const productBySlugQuery = groq`
-  *[_type == "product" && slug.current == $slug][0] {
+  *[_type == "product" && slug.current == $slug && visible != false][0] {
     _id,
     name,
     slug,
@@ -146,7 +146,7 @@ export const productBySlugQuery = groq`
       },
       []
     ),
-    "allOtherProducts": *[_type == "product" && _id != ^._id] | order(name asc) {
+    "allOtherProducts": *[_type == "product" && _id != ^._id] | order(name asc) [0...60] {
       _id, name, slug, "mainImage": mainImage.asset->url, price,
       "categoryName": category->name,
       "collectionName": collection->name,

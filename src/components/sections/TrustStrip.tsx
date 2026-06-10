@@ -50,7 +50,7 @@ export function TrustStrip() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 sm:py-14">
         {/* Tagline — now includes the Lifetime warranty promise that
             used to live as its own card. */}
-        <p className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#9AA8B6] text-center mb-8 sm:mb-10 whitespace-nowrap overflow-hidden text-ellipsis">
+        <p className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#9AA8B6] text-center mb-8 sm:mb-10 lg:whitespace-nowrap lg:overflow-hidden lg:text-ellipsis">
           Certified to global standards, delivering proven performance with
           lifetime warranty, so you don&apos;t have to worry about anything.
         </p>

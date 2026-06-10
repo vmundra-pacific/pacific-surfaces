@@ -24,10 +24,12 @@
  */
 export function zoomImageUrl(rawUrl: string | undefined | null): string {
   if (!rawUrl) return "";
-  // Return the raw Sanity asset URL — no transformations of any kind,
-  // so the browser receives the original file at its full uploaded
-  // quality and resolution. Anything else (auto=format, q=95, w=...)
-  // would recompress and lose detail in the subtle veining that
-  // stone slabs are all about.
-  return rawUrl;
+  // Non-Sanity URLs (e.g. local /uploads files in dev) don't understand
+  // the Sanity image-pipeline params — return them unchanged.
+  if (!rawUrl.includes("cdn.sanity.io")) return rawUrl;
+  // Keep the full uploaded resolution (no w= downscale) but let the
+  // CDN serve WebP/AVIF at high quality — smaller transfer, same
+  // visual detail under the magnifier.
+  const sep = rawUrl.includes("?") ? "&" : "?";
+  return `${rawUrl}${sep}auto=format&q=80`;
 }
