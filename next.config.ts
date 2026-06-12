@@ -66,16 +66,34 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "cdn.sanity.io" },
     ],
+    // AVIF first, WebP fallback. Next defaults to WebP-only; AVIF is
+    // ~20-40% smaller at the same visual quality, and the optimizer
+    // negotiates per-browser via the Accept header.
+    formats: ["image/avif", "image/webp"],
   },
 
   /* Security headers — applied to every route. See `securityHeaders`
      above for the per-header rationale. */
   async headers() {
+    /* Long-cache for immutable static media under /public. These
+       folders hold versioned, content-stable assets (hero frame
+       sequences, project/team media, demo-room renders) that never
+       change in place. NOTE: because of `immutable`, replacing one of
+       these files now requires renaming it (cache-busting) — browsers
+       will not revalidate for a year. */
+    const immutableCache = [
+      { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+    ];
     return [
       {
         source: "/:path*",
         headers: securityHeaders,
       },
+      { source: "/hero-frames/:path*", headers: immutableCache },
+      { source: "/videos/:path*", headers: immutableCache },
+      { source: "/projects/:path*", headers: immutableCache },
+      { source: "/team/:path*", headers: immutableCache },
+      { source: "/demo-rooms/:path*", headers: immutableCache },
     ];
   },
   // Allow LAN origins to fetch /_next/* dev assets when accessing the

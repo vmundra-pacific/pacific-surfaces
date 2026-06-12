@@ -25,6 +25,12 @@ import { useEffect, useState } from "react";
  */
 export function VideoPrefetch({ urls }: { urls: string[] }) {
   const [shouldPrefetch, setShouldPrefetch] = useState(false);
+  // Don't mount the hidden preload="auto" videos immediately after
+  // hydration — on the homepage they'd contend with the hero-frame
+  // batch that gates splash dismissal. Wait for HeroScrollCanvas to
+  // fire `pacific:hero-ready`, or fall back to idle / an 8s timeout
+  // on pages without the hero — whichever comes first.
+  const [heroSettled, setHeroSettled] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -48,7 +54,30 @@ export function VideoPrefetch({ urls }: { urls: string[] }) {
     setShouldPrefetch(!isPhone && !slowNet);
   }, []);
 
-  if (urls.length === 0 || !shouldPrefetch) return null;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let done = false;
+    let idleId: number | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const settle = () => {
+      if (done) return;
+      done = true;
+      setHeroSettled(true);
+    };
+    window.addEventListener("pacific:hero-ready", settle);
+    if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(settle, { timeout: 8000 });
+    } else {
+      timeoutId = setTimeout(settle, 8000);
+    }
+    return () => {
+      window.removeEventListener("pacific:hero-ready", settle);
+      if (idleId !== null) window.cancelIdleCallback(idleId);
+      if (timeoutId !== null) clearTimeout(timeoutId);
+    };
+  }, []);
+
+  if (urls.length === 0 || !shouldPrefetch || !heroSettled) return null;
   return (
     <div
       aria-hidden="true"

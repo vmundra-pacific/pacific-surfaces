@@ -109,6 +109,10 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
     const overlayRef = useRef<HTMLCanvasElement>(null);
     const baseRef = useRef<HTMLCanvasElement | null>(null);
     const imgRef = useRef<HTMLImageElement | null>(null);
+    // Slab tiles keyed by slab id, persisted across recomposites so a
+    // surface toggle doesn't re-decode + re-render every slab's 1024²
+    // tile. Cleared when the room image src changes (see effect below).
+    const tileCacheRef = useRef(new Map<string, HTMLCanvasElement>());
     const [loading, setLoading] = useState(true);
     const [working, setWorking] = useState(false);
     // ── Zoom + pan (demo rooms only) ────────────────────────────────
@@ -148,6 +152,12 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
     useEffect(() => {
       setZoomLevel(1);
       setPan({ x: 0, y: 0 });
+    }, [src]);
+
+    // Drop cached slab tiles when the room image changes so a long
+    // session doesn't pin 1024² canvases for slabs from other rooms.
+    useEffect(() => {
+      tileCacheRef.current.clear();
     }, [src]);
 
     // Wheel-zoom via a NATIVE non-passive listener. React's onWheel is
@@ -489,15 +499,6 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
               for (const s of newSurfaces) {
                 if (!next.includes(s.id)) next.push(s.id);
               }
-              console.log(
-                "[RoomCanvas] activeIds update:",
-                "prev=",
-                prev,
-                "newSurfaceIds=",
-                newSurfaces.map((s) => s.id),
-                "next=",
-                next
-              );
               return next;
             });
             onRegionChange?.(target.candidate, target.id);
@@ -674,8 +675,10 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         if (jobs.length === 0) return;
 
         // Cache slab tiles by slab id so we don't re-render the same
-        // tile if multiple surfaces share a slab.
-        const tileCache = new Map<string, HTMLCanvasElement>();
+        // tile if multiple surfaces share a slab — or on subsequent
+        // recomposites at all (the ref persists across effect runs;
+        // it's cleared when the room image src changes).
+        const tileCache = tileCacheRef.current;
         for (const job of jobs) {
           if (!tileCache.has(job.slab.id)) {
             const tile = await renderSlabTile(job.slab, 1024, 1024);

@@ -35,7 +35,13 @@ const items = [
 const SECONDS_PER_SET = 8;
 
 export function HeritageSection() {
+  const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  // True while the marquee strip is (nearly) on screen. The frame
+  // callback bails early when false — an offscreen marquee is
+  // invisible, so freezing it is visually identical and saves the
+  // per-frame work. Ref (not state) so flipping it never re-renders.
+  const inViewRef = useRef(true);
   // Width of ONE copy of the items (track has 2× copies, so this is
   // half of trackRef's scrollWidth). Initialised at 0 — we'll measure
   // post-mount to handle any web-font load that shifts widths.
@@ -62,12 +68,32 @@ export function HeritageSection() {
     };
   }, []);
 
+  // Pause the marquee's per-frame work while the strip is offscreen.
+  // The hook below stays mounted; its callback just bails via
+  // `inViewRef`. rootMargin gives a small head start so the strip is
+  // already moving before any pixel scrolls into view.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          inViewRef.current = entry.isIntersecting;
+        }
+      },
+      { rootMargin: "100px" }
+    );
+    io.observe(section);
+    return () => io.disconnect();
+  }, []);
+
   // Drive x with rAF. Each frame we move x left by `pixelsPerFrame`,
   // then wrap by adding setWidth whenever x has moved past one full
   // set. Because the two sets are visually identical, the wrap is
   // pixel-invisible. No keyframe restart, no animation iteration —
   // just continuous monotonic motion in modulo arithmetic.
   useAnimationFrame((_t, delta) => {
+    if (!inViewRef.current) return;
     if (setWidth <= 0) return;
     const pixelsPerSecond = setWidth / SECONDS_PER_SET;
     const moveBy = -pixelsPerSecond * (delta / 1000);
@@ -83,6 +109,7 @@ export function HeritageSection() {
 
   return (
     <section
+      ref={sectionRef}
       className="relative bg-black border-y border-white/10 overflow-hidden"
       id="heritage"
       aria-label="Pacific Surfaces — capacity and catalogue stamps"

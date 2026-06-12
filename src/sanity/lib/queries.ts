@@ -39,7 +39,7 @@ export const catalogueProductsQuery = groq`
     name,
     slug,
     "mainImage": mainImage.asset->url,
-    "gallery": gallery[].asset->url,
+    "gallery": select(productType == "granite-finish" => gallery[].asset->url, null),
     "dominantColor": mainImage.asset->metadata.palette.dominant.background,
     "collectionName": collection->name,
     productType,

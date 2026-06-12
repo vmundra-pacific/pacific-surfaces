@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { client } from "@/sanity/lib/client";
 import { catalogueProductsQuery } from "@/sanity/lib/queries";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
@@ -13,8 +14,13 @@ import { StatementSection } from "@/components/sections/StatementSection";
  * "273+" that drifts as the catalogue grows or shrinks. The same
  * count is used by the hero block below.
  */
+// Per-request dedupe — generateMetadata only needs the product COUNT,
+// but previously paid for a second full catalogue fetch to get it.
+// React.cache shares one fetch between metadata and the page body.
+const getCatalogueProducts = cache(() => client.fetch(catalogueProductsQuery));
+
 export async function generateMetadata(): Promise<Metadata> {
-  const products = await client.fetch(catalogueProductsQuery);
+  const products = await getCatalogueProducts();
   const count = Array.isArray(products) ? products.length : 0;
   return {
     title: "All Products — Pacific Surfaces",
@@ -46,7 +52,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * than an alias for the Quartz landing.
  */
 export default async function AllProductsPage() {
-  const products = await client.fetch(catalogueProductsQuery);
+  const products = await getCatalogueProducts();
   const slabs = mapSanityToCatalogue(products);
 
   // (Previously computed `collectionCount` for use in the hero copy,

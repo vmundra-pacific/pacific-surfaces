@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { preload as reactPreload } from "react-dom";
 import { client } from "@/sanity/lib/client";
@@ -162,12 +163,21 @@ const LEARN_LINKS_BY_CATEGORY: Record<string, LearnLink[]> = {
 // a product's collection or visibility now propagates immediately.
 export const revalidate = 0;
 
+// Per-request dedupe — generateMetadata and the page body both need
+// the same category / product data, which previously meant two
+// identical Sanity round-trips per request. React.cache collapses
+// them into one fetch each within a single request.
+const getCategoryPage = cache((slug: string) => resolveCategoryPage(slug));
+const getProduct = cache((slug: string) =>
+  client.fetch(productBySlugQuery, { slug })
+);
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
   // Category branch — short-circuit before hitting product lookup.
   if (isCategorySlug(slug)) {
-    const data = await resolveCategoryPage(slug);
+    const data = await getCategoryPage(slug);
     if (!data) return { title: "Collection Not Found" };
     const { collection, config } = data;
     const label = config.displayName ?? collection.name;
@@ -182,7 +192,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   // Product detail branch.
-  const product = await client.fetch(productBySlugQuery, { slug });
+  const product = await getProduct(slug);
   if (!product) return { title: "Product Not Found" };
   return {
     title: product.seoTitle || `${product.name} — Pacific Surfaces`,
@@ -211,8 +221,19 @@ export default async function ProductOrCategoryPage({ params }: Props) {
 
   // Category branch.
   if (isCategorySlug(slug)) {
-    const data = await resolveCategoryPage(slug);
+    const data = await getCategoryPage(slug);
     if (!data) notFound();
+
+    // LCP: when the category hero ships an explicit poster still
+    // (posterOnly heroes like Ecosurfaces / Vanity), emit a
+    // high-priority <link rel="preload" as="image"> during SSR —
+    // same pattern as the PDP slab preload below.
+    if (data.config.hero?.posterSrc) {
+      reactPreload(data.config.hero.posterSrc, {
+        as: "image",
+        fetchPriority: "high",
+      });
+    }
     // Map known category slugs to FAQ page keys. If a category
     // doesn't have FAQs yet we just don't render the section. We
     // use a Set<string> for the lookup so the typecheck doesn't
@@ -268,7 +289,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
   }
 
   // Product detail branch — original logic unchanged.
-  const product = await client.fetch(productBySlugQuery, { slug });
+  const product = await getProduct(slug);
   if (!product) notFound();
 
   // INITIAL-LOAD ZOOM: emit a high-priority <link rel="preload"

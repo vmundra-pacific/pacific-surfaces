@@ -71,19 +71,12 @@ export default function RootLayout({
           first image fetch.
             - cdn.sanity.io — every product image, every blog photo,
               every project poster comes from here
-            - fonts.googleapis.com / fonts.gstatic.com — Inter is
-              loaded via next/font, which already injects the right
-              hints, but we add them explicitly as a belt-and-braces
-              safety net
+          (No Google Fonts preconnects: next/font self-hosts Inter,
+          so fonts.googleapis.com / fonts.gstatic.com are never
+          contacted at runtime.)
         */}
         <link rel="preconnect" href="https://cdn.sanity.io" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
       </head>
       {/*
         suppressHydrationWarning is on <html> and <body> because
@@ -215,17 +208,16 @@ export default function RootLayout({
         />
         {children}
         {/*
-          Google Analytics 4. `afterInteractive` defers the script
-          until after hydration so it never blocks LCP. gtag.js
-          loads from googletagmanager.com (Google's preferred
-          delivery), then the inline init script wires the page
-          view + future custom events.
+          Google Analytics 4. gtag.js loads from googletagmanager.com
+          (Google's preferred delivery), then the inline init script
+          wires the page view + future custom events.
         */}
+        {/* lazyOnload: GA waits for idle — keeps gtag off the critical path. Trade-off: sub-second bounces may go uncounted. */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="ga-init" strategy="afterInteractive">
+        <Script id="ga-init" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

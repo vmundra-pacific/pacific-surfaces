@@ -178,6 +178,13 @@ function DustField({
     u.uTime.value = elapsedRef.current;
     u.uScroll.value = scrollRef.current ?? 0;
     u.uScrollVel.value = scrollVelRef.current ?? 0;
+    // Exponential decay of scroll velocity toward 0 when no scroll.
+    // Same factor/period the old 32ms setInterval used (×0.85 per
+    // 32ms), applied continuously via the frame delta so motion is
+    // identical without a separate timer.
+    let vel = (scrollVelRef.current ?? 0) * Math.pow(0.85, delta / 0.032);
+    if (Math.abs(vel) < 0.01) vel = 0;
+    scrollVelRef.current = vel;
     const m = mouseRef.current;
     if (m) {
       u.uMouse.value.set(m.x, m.y);
@@ -208,7 +215,6 @@ export default function GlobalDust() {
   useEffect(() => {
     let lastScroll = window.scrollY;
     let lastTime = performance.now();
-    let velDecay = 0;
 
     const onScroll = () => {
       const now = performance.now();
@@ -217,19 +223,11 @@ export default function GlobalDust() {
       const raw = (y - lastScroll) / dt;
       // Clamp and ease scroll velocity into a -1..1 range-ish
       const clamped = Math.max(-3, Math.min(3, raw));
-      velDecay = clamped;
       scrollVelRef.current = clamped;
       scrollRef.current = y;
       lastScroll = y;
       lastTime = now;
     };
-
-    const decayTimer = setInterval(() => {
-      // Exponential decay toward 0 when no scroll
-      velDecay *= 0.85;
-      if (Math.abs(velDecay) < 0.01) velDecay = 0;
-      scrollVelRef.current = velDecay;
-    }, 32);
 
     const onMouse = (e: MouseEvent) => {
       mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -240,28 +238,9 @@ export default function GlobalDust() {
     window.addEventListener("mousemove", onMouse, { passive: true });
     scrollRef.current = window.scrollY;
 
-    // Observe the OriginSection (by data attribute) and dim the dust layer
-    // while it's on screen so the two canvases don't visually clash.
-    const originEl = document.querySelector("[data-origin-section]");
-    let io: IntersectionObserver | null = null;
-    if (originEl) {
-      io = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            // If even 20% of Origin is visible, fade dust out
-            opacityRef.current = entry.intersectionRatio > 0.2 ? 0 : 1;
-          }
-        },
-        { threshold: [0, 0.2, 0.5, 1] }
-      );
-      io.observe(originEl);
-    }
-
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("mousemove", onMouse);
-      clearInterval(decayTimer);
-      io?.disconnect();
     };
   }, []);
 

@@ -53,6 +53,90 @@ const COLLECTION_NAMES_TO_HIDE = new Set([
 
 const PRODUCT_TYPES_TO_HIDE = new Set(["granite-finish", "luxury", "physical"]);
 
+/**
+ * Build, in ONE pass over `slabs`, the per-option counts for every
+ * filter key under the "all OTHER keys applied" rule that countFor
+ * uses. For each slab we work out which active filter keys it fails:
+ * a slab counts toward key K's options when it passes every key
+ * except (possibly) K itself — i.e. it fails zero keys (counts for
+ * all keys) or fails exactly one key (counts only for that key).
+ * Matches the previous per-option full scan exactly, including the
+ * fact that the search query is deliberately ignored, without the
+ * O(options × slabs) blow-up on every render.
+ */
+function buildCountMap(
+  slabs: Slab[],
+  filters: FilterState
+): Record<FilterKey, Map<string, number>> {
+  const counts: Record<FilterKey, Map<string, number>> = {
+    hues: new Map(),
+    collections: new Map(),
+    productTypes: new Map(),
+    patterns: new Map(),
+    finishes: new Map(),
+    thicknesses: new Map(),
+  };
+  const keys = Object.keys(filters) as FilterKey[];
+
+  const passes = (s: Slab, fk: FilterKey): boolean => {
+    const set = filters[fk];
+    if (set.size === 0) return true;
+    if (fk === "hues") {
+      return s.hues.some((h) => (set as Set<string>).has(h));
+    }
+    if (fk === "collections") {
+      return (set as Set<Collection>).has(s.collection);
+    }
+    if (fk === "productTypes") {
+      return Boolean(s.productType && (set as Set<string>).has(s.productType));
+    }
+    if (fk === "patterns") {
+      return (set as Set<Pattern>).has(s.pattern);
+    }
+    if (fk === "finishes") {
+      return s.finishes.some((f) => (set as Set<Finish>).has(f));
+    }
+    return s.thicknesses.some((t) => (set as Set<Thickness>).has(t));
+  };
+
+  const increment = (s: Slab, key: FilterKey) => {
+    const map = counts[key];
+    const bump = (v: string) => map.set(v, (map.get(v) ?? 0) + 1);
+    if (key === "hues") {
+      for (const h of s.hues) bump(h);
+    } else if (key === "collections") {
+      bump(s.collection);
+    } else if (key === "productTypes") {
+      if (s.productType) bump(s.productType);
+    } else if (key === "patterns") {
+      bump(s.pattern);
+    } else if (key === "finishes") {
+      for (const f of s.finishes) bump(f);
+    } else {
+      for (const t of s.thicknesses) bump(t);
+    }
+  };
+
+  for (const s of slabs) {
+    let failedKey: FilterKey | null = null;
+    let failCount = 0;
+    for (const fk of keys) {
+      if (!passes(s, fk)) {
+        failCount++;
+        if (failCount > 1) break;
+        failedKey = fk;
+      }
+    }
+    if (failCount === 0) {
+      for (const key of keys) increment(s, key);
+    } else if (failCount === 1 && failedKey) {
+      increment(s, failedKey);
+    }
+  }
+
+  return counts;
+}
+
 export function useFilterState(slabs: Slab[]) {
   const [filters, setFilters] = useState<FilterState>(emptyState());
   const [sort, setSort] = useState<SortKey>("new");
@@ -144,42 +228,20 @@ export function useFilterState(slabs: Slab[]) {
     return out;
   }, [slabs, filters, sort, query]);
 
+  // One pass over slabs per (slabs, filters) change — countFor is
+  // then a map lookup instead of a full catalogue scan per option.
+  // NOTE: like the original implementation, this deliberately ignores
+  // the search query.
+  const countMap = useMemo(() => buildCountMap(slabs, filters), [
+    slabs,
+    filters,
+  ]);
+
   function countFor<K extends FilterKey>(
     key: K,
     value: FilterState[K] extends Set<infer V> ? V : never
   ): number {
-    return slabs.filter((s) => {
-      for (const fk of Object.keys(filters) as FilterKey[]) {
-        if (fk === key) continue;
-        const set = filters[fk];
-        if (set.size === 0) continue;
-
-        if (fk === "hues") {
-          if (!s.hues.some((h) => (set as Set<string>).has(h))) return false;
-        } else if (fk === "collections") {
-          if (!(set as Set<Collection>).has(s.collection)) return false;
-        } else if (fk === "productTypes") {
-          if (!s.productType || !(set as Set<string>).has(s.productType))
-            return false;
-        } else if (fk === "patterns") {
-          if (!(set as Set<Pattern>).has(s.pattern)) return false;
-        } else if (fk === "finishes") {
-          if (!s.finishes.some((f) => (set as Set<Finish>).has(f)))
-            return false;
-        } else if (fk === "thicknesses") {
-          if (!s.thicknesses.some((t) => (set as Set<Thickness>).has(t)))
-            return false;
-        }
-      }
-      if (key === "hues") return s.hues.includes(value as string);
-      if (key === "collections") return s.collection === value;
-      if (key === "productTypes") return s.productType === value;
-      if (key === "patterns") return s.pattern === value;
-      if (key === "finishes") return s.finishes.includes(value as Finish);
-      if (key === "thicknesses")
-        return s.thicknesses.includes(value as Thickness);
-      return false;
-    }).length;
+    return countMap[key].get(value as string) ?? 0;
   }
 
   const activeCount =

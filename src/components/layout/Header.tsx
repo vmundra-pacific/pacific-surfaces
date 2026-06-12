@@ -471,8 +471,28 @@ export default function Header() {
   // AnimatePresence parent mounts (i.e. on hover) and the first hover
   // shows a fetch delay. Low fetchPriority means these don't compete
   // with above-the-fold content for bandwidth.
+  //
+  // Gated to hover-capable desktop viewports: the mega-menu only
+  // opens on hover at lg+ widths, so phones/tablets (where the
+  // mobile drawer loads its own images on open) should never pay
+  // the ~5MB warm-up cost. Deferred to idle so the preload hints
+  // never compete with hydration / above-the-fold work.
   useEffect(() => {
-    preloadMegaThumbs();
+    let canHover = false;
+    try {
+      canHover = window.matchMedia("(hover: hover) and (pointer: fine)")
+        .matches;
+    } catch {
+      /* ignore — older browsers without matchMedia */
+    }
+    if (!canHover || window.innerWidth < 1024) return;
+
+    if (typeof window.requestIdleCallback === "function") {
+      const idleId = window.requestIdleCallback(() => preloadMegaThumbs());
+      return () => window.cancelIdleCallback(idleId);
+    }
+    const timeoutId = setTimeout(() => preloadMegaThumbs(), 2500);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   // Clear any pending mega-menu close timer on unmount so it can't

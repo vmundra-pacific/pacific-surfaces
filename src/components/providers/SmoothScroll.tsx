@@ -5,24 +5,18 @@ import { useEffect } from "react";
 export default function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let lenis: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any
-    let gsapTickerFn: ((time: number) => void) | null = null;
+    let rafId: number | null = null;
     // Set when the effect is cleaned up. If the component unmounts before
-    // the dynamic imports resolve (React StrictMode does this on every dev
-    // mount), we must not construct Lenis / register the ticker — they'd
+    // the dynamic import resolves (React StrictMode does this on every dev
+    // mount), we must not construct Lenis / start the rAF loop — they'd
     // never be destroyed.
     let cancelled = false;
 
     async function initLenis() {
       try {
-        const [{ default: Lenis }, { default: gsap }, { ScrollTrigger }] = await Promise.all([
-          import("lenis"),
-          import("gsap"),
-          import("gsap/ScrollTrigger"),
-        ]);
+        const { default: Lenis } = await import("lenis");
 
         if (cancelled) return;
-
-        gsap.registerPlugin(ScrollTrigger);
 
         lenis = new Lenis({
           lerp: 0.1,
@@ -30,18 +24,17 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
           smoothWheel: true,
         });
 
-        // ---- GSAP / ScrollTrigger integration ----
-        // Tell ScrollTrigger when Lenis scrolls so scrub animations stay in sync
-        lenis.on("scroll", ScrollTrigger.update);
-
-        // Drive Lenis from GSAP's ticker for a single consistent loop
-        gsapTickerFn = (time: number) => {
-          lenis?.raf(time * 1000);
+        // Drive Lenis with its documented self-driven rAF loop. GSAP's
+        // ticker was previously used here, but Lenis was its only
+        // consumer — no other gsap/ScrollTrigger code exists in src/ —
+        // so the plain loop drops both libraries from this chunk.
+        const raf = (time: number) => {
+          lenis?.raf(time);
+          rafId = requestAnimationFrame(raf);
         };
-        gsap.ticker.add(gsapTickerFn);
-        gsap.ticker.lagSmoothing(0);
+        rafId = requestAnimationFrame(raf);
       } catch (err) {
-        console.info("Lenis/GSAP integration failed, falling back to native scroll.", err);
+        console.info("Lenis failed to load, falling back to native scroll.", err);
       }
     }
 
@@ -49,11 +42,7 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
 
     return () => {
       cancelled = true;
-      if (gsapTickerFn) {
-        import("gsap").then(({ default: gsap }) => {
-          if (gsapTickerFn) gsap.ticker.remove(gsapTickerFn);
-        });
-      }
+      if (rafId !== null) cancelAnimationFrame(rafId);
       lenis?.destroy();
     };
   }, []);

@@ -25,11 +25,13 @@
  */
 
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const GlobalDust = dynamic(() => import("./GlobalDust"), { ssr: false });
 
 export default function GlobalDustMount() {
+  const pathname = usePathname();
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -95,6 +97,10 @@ export default function GlobalDustMount() {
     };
   }, []);
 
+  // Sanity Studio (/studio) paints an opaque, full-viewport UI over
+  // everything — the dust layer would mount behind it and render
+  // forever while being completely invisible. Skip it there.
+  if (pathname?.startsWith("/studio")) return null;
   if (!enabled) return null;
   return <GlobalDust />;
 }

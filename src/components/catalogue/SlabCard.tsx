@@ -20,9 +20,8 @@
 import Image from "next/image";
 import { sanityImg } from "@/lib/sanity-img";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import type { Slab } from "@/data/slabs";
 import { zoomImageUrl } from "@/lib/zoom-image";
@@ -33,6 +32,13 @@ import { formatCollection } from "@/components/catalogue/labels";
 interface Props {
   slab: Slab;
   index: number;
+  /**
+   * True when the CURRENT route is one of the product-piece category
+   * URLs (Centrepiece Couture / Integra / Vanity). Derived once in
+   * SlabGrid via isProductUrl(usePathname()) and passed down, so each
+   * card doesn't individually subscribe to the pathname.
+   */
+  isProductPieceRoute: boolean;
 }
 
 const PRODUCT_COLLECTION_PREFIXES = ["centrepiece", "integra"];
@@ -49,14 +55,14 @@ function isProductCollection(collection?: string | null): boolean {
   return PRODUCT_COLLECTION_PREFIXES.some((prefix) => lower.startsWith(prefix));
 }
 
-function isProductUrl(pathname: string | null): boolean {
+export function isProductUrl(pathname: string | null): boolean {
   if (!pathname) return false;
   return PRODUCT_PIECE_URL_PREFIXES.some((prefix) =>
     pathname.startsWith(prefix)
   );
 }
 
-export function SlabCard({ slab, index }: Props) {
+function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
   const [sampleOpen, setSampleOpen] = useState(false);
   const [enquireOpen, setEnquireOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -79,9 +85,8 @@ export function SlabCard({ slab, index }: Props) {
     return () => document.removeEventListener("pointerdown", handler);
   }, [tappedOpen]);
 
-  const pathname = usePathname();
   const productCollection =
-    isProductCollection(slab.collection) || isProductUrl(pathname);
+    isProductCollection(slab.collection) || isProductPieceRoute;
 
   // Triggered on hover/focus only — deliberately NOT on touchstart,
   // since scrolling a touch grid fires touchstart on every card it
@@ -280,3 +285,8 @@ export function SlabCard({ slab, index }: Props) {
     </>
   );
 }
+
+// Memoised — slab objects are referentially stable across filter
+// renders (the filtered array is new, its elements aren't), so cards
+// only re-render when their own props actually change.
+export const SlabCard = memo(SlabCardInner);

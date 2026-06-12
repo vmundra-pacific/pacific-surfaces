@@ -547,34 +547,43 @@ export function applySlabToRegion(
   dst.globalAlpha = 1;
 }
 
+// Brightness results keyed by tile canvas — tiles are cached and
+// reused across recomposites, so repeat calls for the same tile are
+// free. WeakMap so a discarded tile's entry is GC'd with it.
+const tileBrightnessCache = new WeakMap<HTMLCanvasElement, number>();
+
 /**
- * Sample average brightness (0-255) of a slab tile by checking a
- * small grid of pixels. Used to decide if a slab is light enough to
- * need the dark-inner-feather effect.
+ * Sample average brightness (0-255) of a slab tile by downscaling it
+ * into a 7×7 offscreen canvas (drawImage handles the averaging — same
+ * 7×7 sample-grid semantics as the previous 49 separate 1×1
+ * getImageData readbacks) and averaging the 49 pixels in ONE
+ * getImageData call. Used to decide if a slab is light enough to need
+ * the dark-inner-feather effect.
  */
 function sampleTileBrightness(tile: HTMLCanvasElement): number {
-  const ctx = tile.getContext("2d");
-  if (!ctx) return 128;
-  const grid = 8;
-  let sum = 0;
-  let count = 0;
+  const cached = tileBrightnessCache.get(tile);
+  if (cached !== undefined) return cached;
+  const small = document.createElement("canvas");
+  small.width = 7;
+  small.height = 7;
+  const sctx = small.getContext("2d");
+  if (!sctx) return 128;
   try {
-    for (let i = 1; i < grid; i++) {
-      for (let j = 1; j < grid; j++) {
-        const x = Math.floor((i / grid) * tile.width);
-        const y = Math.floor((j / grid) * tile.height);
-        const data = ctx.getImageData(x, y, 1, 1).data;
-        sum += 0.299 * data[0] + 0.587 * data[1] + 0.114 * data[2];
-        count++;
-      }
+    sctx.drawImage(tile, 0, 0, 7, 7);
+    const data = sctx.getImageData(0, 0, 7, 7).data;
+    let sum = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
     }
+    const result = sum / 49;
+    tileBrightnessCache.set(tile, result);
+    return result;
   } catch {
     // CORS-tainted canvas (Sanity slab loaded without proper headers)
     // — can't read pixels. Default to "light" so the dark feather
     // applies; better to over-apply than miss white slabs entirely.
     return 200;
   }
-  return count > 0 ? sum / count : 128;
 }
 
 /* ------------------------------------------------------------------ *

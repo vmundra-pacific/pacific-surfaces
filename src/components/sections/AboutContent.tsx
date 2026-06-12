@@ -74,43 +74,43 @@ const team: {
   {
     name: "Mohanlal Somani",
     role: "Chairman",
-    photo: "/team/mohanlal-somani.png",
+    photo: "/team/mohanlal-somani.jpg",
     linkedin: "",
   },
   {
     name: "Varun Somani",
     role: "Managing Director",
-    photo: "/team/varun-somani.png",
+    photo: "/team/varun-somani.jpg",
     linkedin: "https://www.linkedin.com/in/varunsomani-pacific/",
   },
   {
     name: "Varun Mundra",
     role: "Director",
-    photo: "/team/varun-mundra.png",
+    photo: "/team/varun-mundra.jpg",
     linkedin: "https://www.linkedin.com/in/varun-mundra-ba4b9589/",
   },
   {
     name: "Abhijeet Mankotia",
     role: "VP — Global Sales",
-    photo: "/team/abhijeet-mankotia.png",
+    photo: "/team/abhijeet-mankotia.jpg",
     linkedin: "https://www.linkedin.com/in/abhijeet-mankotia-a7b849172/",
   },
   {
     name: "Anish Datta",
     role: "VP — Business Development",
-    photo: "/team/anish-datta.png",
+    photo: "/team/anish-datta.jpg",
     linkedin: "https://www.linkedin.com/in/anish-datta-690161159/",
   },
   {
     name: "Paulina Popławska",
     role: "Director, Pacific Polska",
-    photo: "/team/paulina-poplawska.png",
+    photo: "/team/paulina-poplawska.jpg",
     linkedin: "",
   },
   {
     name: "Nagesh P K",
     role: "Commercial Manager, Pacific Granites India",
-    photo: "/team/nagesh-pk.png",
+    photo: "/team/nagesh-pk.jpg",
     linkedin: "",
   },
   {
@@ -633,6 +633,8 @@ function TeamSection() {
                   <img
                     src={member.photo}
                     alt={member.name}
+                    loading="lazy"
+                    decoding="async"
                     // object-top anchors the crop to the top of the
                     // photo so the head and hair stay in frame when
                     // the 3:4 card is taller than the source. The

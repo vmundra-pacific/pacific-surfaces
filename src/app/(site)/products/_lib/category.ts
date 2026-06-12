@@ -187,9 +187,9 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
     displayName: "Ecosurfaces",
     // posterOnly: hero now uses an editorial still rather than the
     // /videos/ecosurfaces.mp4 clip — the screenshot we approved is
-    // the Eco surfaces brand image, dropped at /public/eco-surfaces-hero.png.
+    // the Eco surfaces brand image, dropped at /public/eco-surfaces-hero.jpg.
     hero: {
-      posterSrc: "/eco-surfaces-hero.png",
+      posterSrc: "/eco-surfaces-hero.jpg",
       posterOnly: true,
       eyebrow: "Pacific Surfaces · Eco",
       headline: "Premium quality,",

@@ -17,7 +17,8 @@
  */
 
 import { AnimatePresence, motion } from "framer-motion";
-import { SlabCard } from "./SlabCard";
+import { usePathname } from "next/navigation";
+import { SlabCard, isProductUrl } from "./SlabCard";
 import type { Slab } from "@/data/slabs";
 import { groupByProductType } from "./labels";
 
@@ -39,6 +40,12 @@ export function SlabGrid({
   onClearAll,
   groupByProductType: shouldGroup = false,
 }: Props) {
+  // Subscribe to the pathname ONCE here (instead of inside every
+  // SlabCard) and pass down the derived boolean the cards actually
+  // use. Hook must run before the empty-state early return.
+  const pathname = usePathname();
+  const isProductPieceRoute = isProductUrl(pathname);
+
   if (slabs.length === 0) {
     return (
       <motion.div
@@ -84,7 +91,12 @@ export function SlabGrid({
         <div className={gridClass}>
           <AnimatePresence mode="popLayout">
             {slabs.map((slab, i) => (
-              <SlabCard key={slab.id} slab={slab} index={i} />
+              <SlabCard
+                key={slab.id}
+                slab={slab}
+                index={i}
+                isProductPieceRoute={isProductPieceRoute}
+              />
             ))}
           </AnimatePresence>
         </div>
@@ -119,6 +131,7 @@ export function SlabGrid({
                     // the stagger curve rather than inheriting the
                     // index from the previous section's tail.
                     index={i}
+                    isProductPieceRoute={isProductPieceRoute}
                   />
                 ))}
               </AnimatePresence>
@@ -133,7 +146,12 @@ export function SlabGrid({
     <div className={gridClass}>
       <AnimatePresence mode="popLayout">
         {slabs.map((slab, i) => (
-          <SlabCard key={slab.id} slab={slab} index={i} />
+          <SlabCard
+            key={slab.id}
+            slab={slab}
+            index={i}
+            isProductPieceRoute={isProductPieceRoute}
+          />
         ))}
       </AnimatePresence>
     </div>

@@ -53,6 +53,31 @@ const headlines: {
   },
 ];
 
+// Dark-overlay opacity for a given progress. Evaluated inside the rAF
+// and written imperatively to the overlay div — same formula the
+// render path used before, just no longer routed through React state.
+const overlayOpacityFor = (progress: number) => {
+  const baseOpacity =
+    progress < 0.06
+      ? 0.25
+      : progress < 0.18
+        ? 0.15
+        : progress < 0.72
+          ? 0.55
+          : 0.45;
+
+  // End-of-parallax fade-out. The last 8% of progress ramps the
+  // dark overlay to full opacity so the kitchen final frame
+  // dissolves into black BEFORE the sticky-unstick begins, giving
+  // the next section a clean dark seam to rise out of.
+  const FADE_START = 0.92;
+  if (progress > FADE_START) {
+    const fadeT = Math.min(1, (progress - FADE_START) / (1 - FADE_START));
+    return baseOpacity + (1 - baseOpacity) * fadeT;
+  }
+  return baseOpacity;
+};
+
 export function HeroScrollCanvas() {
   const trackRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -64,7 +89,18 @@ export function HeroScrollCanvas() {
   const targetProgressRef = useRef(0);
   const smoothedProgressRef = useRef(0);
 
-  const [progress, setProgress] = useState(0);
+  // Continuous visual consumers (overlay opacity, progress bar) are
+  // driven imperatively inside the rAF via these element refs — zero
+  // React re-renders per frame during steady scrubbing. Discrete
+  // consumers (active headline, CTA, scroll hint) live in state but
+  // only update when their value actually flips.
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const trackHeightRef = useRef(0);
+
+  const [activeHeadline, setActiveHeadline] = useState(-1);
+  const [showCta, setShowCta] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(true);
   const [loaded, setLoaded] = useState(0);
   const [ready, setReady] = useState(false);
 
@@ -103,7 +139,13 @@ export function HeroScrollCanvas() {
     const loadFrame = (i: number, ext: "avif" | "jpg"): Promise<void> =>
       new Promise((resolve) => {
         const img = new window.Image();
-        img.src = `/hero-frames/frame-${pad(i + 1)}.${ext}`;
+        // Frames beyond the eager batch are background fill — hint
+        // the browser to deprioritize their fetch and decode them
+        // off the main thread. Must be set before src.
+        if (i >= INITIAL_BATCH) {
+          img.fetchPriority = "low";
+          img.decoding = "async";
+        }
         const done = () => {
           if (!cancelled) {
             count++;
@@ -113,12 +155,17 @@ export function HeroScrollCanvas() {
         };
         img.onload = () => {
           imgs[i] = img;
+          // Kick off the (potentially expensive) AVIF decode now,
+          // off the rAF draw path, so the first drawImage of this
+          // frame doesn't pay a synchronous decode cost.
+          img.decode().catch(() => {});
           done();
         };
         // On error, do NOT store the broken image — a 404'd frame has
         // `complete === true`, and drawImage on it throws inside the
         // rAF tick, permanently killing the hero loop.
         img.onerror = done;
+        img.src = `/hero-frames/frame-${pad(i + 1)}.${ext}`;
       });
 
     // Hard safety timeout — if any frame stalls (network blip, CDN
@@ -303,29 +350,38 @@ export function HeroScrollCanvas() {
   );
 
   // Scroll controller with lerp smoothing.
-  // We track the last value we PUSHED to React state separately
-  // from `smoothedProgressRef` so we can throttle setProgress to only
-  // fire on meaningful changes — without the throttle, the lerp's
-  // tiny per-frame float deltas trigger 60 setState calls/sec even
-  // when the user has stopped scrolling, which React 18 can flag as
-  // "Maximum update depth exceeded".
-  const lastPushedProgressRef = useRef(-1);
+  // Discrete UI flags are pushed to React state ONLY when they flip;
+  // these refs mirror the last value pushed so steady scrubbing makes
+  // zero setState calls per frame. (Without that, per-frame setState
+  // churn can trip React 18's "Maximum update depth exceeded".)
+  const activeHeadlineRef = useRef(-1);
+  const showCtaRef = useRef(false);
+  const showScrollHintRef = useRef(true);
+  const lastOverlayRef = useRef(-1);
+  const lastBarRef = useRef(-1);
 
   useEffect(() => {
-    let raf: number;
+    let raf = 0;
+    let running = false;
     const LERP_SPEED = 0.12; // 0–1, higher = snappier, lower = smoother
-    const PUSH_THRESHOLD = 0.001; // min |Δp| before we re-render
+
+    // Track height only changes on viewport resize (it's 700vh), so
+    // cache it instead of reading offsetHeight (layout) every frame.
+    const measureTrack = () => {
+      trackHeightRef.current = trackRef.current?.offsetHeight ?? 0;
+    };
 
     const tick = () => {
       const track = trackRef.current;
       if (!track) {
-        raf = requestAnimationFrame(tick);
+        if (running) raf = requestAnimationFrame(tick);
         return;
       }
 
       // Raw scroll position → target
       const r = track.getBoundingClientRect();
-      const total = track.offsetHeight - window.innerHeight;
+      if (trackHeightRef.current === 0) measureTrack();
+      const total = trackHeightRef.current - window.innerHeight;
       const rawP = Math.max(0, Math.min(1, -r.top / total));
       targetProgressRef.current = rawP;
 
@@ -338,13 +394,38 @@ export function HeroScrollCanvas() {
           : prev + diff * LERP_SPEED;
       smoothedProgressRef.current = p;
 
-      // Only push to React state when the change is large enough to
-      // matter visually. Skipping sub-threshold updates eliminates
-      // the per-frame setState churn while the lerp is converging
-      // or the user is idle.
-      if (Math.abs(p - lastPushedProgressRef.current) > PUSH_THRESHOLD) {
-        lastPushedProgressRef.current = p;
-        setProgress(p);
+      // Continuous consumers — written straight to the DOM, no React.
+      if (barRef.current && p !== lastBarRef.current) {
+        lastBarRef.current = p;
+        barRef.current.style.transform = `scaleX(${p})`;
+      }
+      const overlayOpacity = overlayOpacityFor(p);
+      if (overlayRef.current && overlayOpacity !== lastOverlayRef.current) {
+        lastOverlayRef.current = overlayOpacity;
+        overlayRef.current.style.opacity = String(overlayOpacity);
+      }
+
+      // Discrete consumers — setState only on actual flips.
+      let active = -1;
+      for (let i = 0; i < headlines.length; i++) {
+        if (p >= headlines[i].range[0] && p <= headlines[i].range[1]) {
+          active = i;
+          break;
+        }
+      }
+      if (active !== activeHeadlineRef.current) {
+        activeHeadlineRef.current = active;
+        setActiveHeadline(active);
+      }
+      const hint = p < 0.02;
+      if (hint !== showScrollHintRef.current) {
+        showScrollHintRef.current = hint;
+        setShowScrollHint(hint);
+      }
+      const cta = p >= 0.78;
+      if (cta !== showCtaRef.current) {
+        showCtaRef.current = cta;
+        setShowCta(cta);
       }
 
       // Kitchen scrub spans the entire scroll length now (the lump
@@ -358,19 +439,51 @@ export function HeroScrollCanvas() {
         }
       }
 
-      raf = requestAnimationFrame(tick);
+      if (running) raf = requestAnimationFrame(tick);
     };
 
-    raf = requestAnimationFrame(tick);
+    const startLoop = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
+    const stopLoop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+
+    measureTrack();
+    // Start immediately (matches the old unconditional rAF); the
+    // observer below pauses the loop once the track is confirmed
+    // fully offscreen and restarts it (200px early, before any pixel
+    // is visible) on approach. On restart, everything recomputes from
+    // the live scroll position, so nothing visible ever stalls.
+    startLoop();
+
+    let io: IntersectionObserver | null = null;
+    if (trackRef.current && typeof IntersectionObserver !== "undefined") {
+      io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) startLoop();
+            else stopLoop();
+          }
+        },
+        { rootMargin: "200px" }
+      );
+      io.observe(trackRef.current);
+    }
 
     const handleResize = () => {
+      measureTrack();
       sizedRef.current = false;
       drawFrame(lastIdxRef.current);
     };
     window.addEventListener("resize", handleResize);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stopLoop();
+      io?.disconnect();
       window.removeEventListener("resize", handleResize);
     };
   }, [ready, drawFrame]);
@@ -381,37 +494,11 @@ export function HeroScrollCanvas() {
   }, [ready, drawFrame]);
 
   // Derived state.
-  // Chapter / headline / CTA / overlay ranges below are evaluated
-  // directly against `progress` now that the lump phase is gone and
-  // the kitchen scrub spans the whole scroll. (Previously progress
-  // was rescaled into a phase-1 local progress because only 0–0.8
-  // of the scroll was kitchen.)
-  const showScrollHint = progress < 0.02;
-  // CTA appears at 78% of scroll and stays visible through to the
-  // end so it's on screen when the section unsticks into the next
-  // page section.
-  const showCta = progress >= 0.78;
-  const overlayOpacity = (() => {
-    const baseOpacity =
-      progress < 0.06
-        ? 0.25
-        : progress < 0.18
-          ? 0.15
-          : progress < 0.72
-            ? 0.55
-            : 0.45;
-
-    // End-of-parallax fade-out. The last 8% of progress ramps the
-    // dark overlay to full opacity so the kitchen final frame
-    // dissolves into black BEFORE the sticky-unstick begins, giving
-    // the next section a clean dark seam to rise out of.
-    const FADE_START = 0.92;
-    if (progress > FADE_START) {
-      const fadeT = Math.min(1, (progress - FADE_START) / (1 - FADE_START));
-      return baseOpacity + (1 - baseOpacity) * fadeT;
-    }
-    return baseOpacity;
-  })();
+  // Headline window / CTA / scroll-hint flips and the continuous
+  // overlay + progress-bar values are all computed inside the rAF
+  // tick above (against the same smoothed progress) — discrete flags
+  // land in state only when they change; continuous values are
+  // written straight to the DOM via refs.
 
   // Loading screen shows progress of the initial batch (80 frames),
   // not all 520 — so it dismisses quickly while the rest loads in background
@@ -467,10 +554,12 @@ export function HeroScrollCanvas() {
           {/* Canvas */}
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
-          {/* Dark overlay */}
+          {/* Dark overlay — opacity driven imperatively from the rAF
+              (initial value matches overlayOpacityFor(0) = 0.25). */}
           <div
+            ref={overlayRef}
             className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-300"
-            style={{ opacity: overlayOpacity }}
+            style={{ opacity: 0.25 }}
           />
 
           {/* Brand footer — bottom-left. */}
@@ -483,8 +572,7 @@ export function HeroScrollCanvas() {
           {/* Headlines */}
           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
             {headlines.map((hl, i) => {
-              const visible =
-                progress >= hl.range[0] && progress <= hl.range[1];
+              const visible = activeHeadline === i;
               return (
                 <div
                   key={i}
@@ -608,11 +696,16 @@ export function HeroScrollCanvas() {
             <div className="w-px h-8 bg-white/30 animate-bounce-slow" />
           </div>
 
-          {/* Progress bar */}
+          {/* Progress bar — full-width inner bar scaled on X from the
+              rAF via ref (no rounded corners, so scaleX is visually
+              identical to the old width changes; the lerp already
+              supplies the smoothing the removed width transition
+              approximated). */}
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/10 z-20">
             <div
-              className="h-full bg-white/60 transition-[width] duration-100"
-              style={{ width: `${(progress * 100).toFixed(1)}%` }}
+              ref={barRef}
+              className="h-full w-full bg-white/60 origin-left"
+              style={{ transform: "scaleX(0)" }}
             />
           </div>
         </div>
