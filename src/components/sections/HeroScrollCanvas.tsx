@@ -84,7 +84,6 @@ export function HeroScrollCanvas() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastIdxRef = useRef(0);
   const sizedRef = useRef(false);
-  const firstPaintedRef = useRef(false);
 
   // Lerp refs — smoothedProgress chases targetProgress every frame
   const targetProgressRef = useRef(0);
@@ -489,39 +488,10 @@ export function HeroScrollCanvas() {
     };
   }, [ready, drawFrame]);
 
-  // Paint the first frame once BOTH the canvas has a real layout size
-  // AND frame 0 has actually loaded. On mobile cold load either can be
-  // false at the instant `ready` flips (0-height sticky canvas, or — on
-  // slow connections that hit the 8s safety timeout before phase 1 ends
-  // — frame 0 not yet decoded), so a single draw no-ops and the hero
-  // stays grey until a scroll triggers handleResize. This re-runs on
-  // every frame-load (`loaded`) and on canvas resize, draws EXACTLY once
-  // when both conditions hold, then latches off. Not in the scroll loop,
-  // no per-frame work — it cannot thrash the canvas or stress memory.
+  // Draw first frame once ready
   useEffect(() => {
-    if (!ready || firstPaintedRef.current) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const tryPaint = () => {
-      if (firstPaintedRef.current) return true;
-      const img0 = imagesRef.current[0];
-      const sized = canvas.clientWidth > 0 && canvas.clientHeight > 0;
-      const frame0Ready = !!img0 && img0.complete && img0.naturalWidth > 0;
-      if (sized && frame0Ready) {
-        firstPaintedRef.current = true;
-        sizedRef.current = false; // force a correct (re)measure
-        drawFrame(0);
-        return true;
-      }
-      return false;
-    };
-    if (tryPaint()) return;
-    const ro = new ResizeObserver(() => {
-      if (tryPaint()) ro.disconnect();
-    });
-    ro.observe(canvas);
-    return () => ro.disconnect();
-  }, [ready, loaded, drawFrame]);
+    if (ready) drawFrame(0);
+  }, [ready, drawFrame]);
 
   // Derived state.
   // Headline window / CTA / scroll-hint flips and the continuous
@@ -593,7 +563,7 @@ export function HeroScrollCanvas() {
             aria-hidden
             fill
             priority
-            sizes="100vw"
+            sizes="(max-width: 820px) 828px, 100vw"
             className="object-cover"
           />
           {/* Canvas */}
