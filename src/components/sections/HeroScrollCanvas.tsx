@@ -84,11 +84,6 @@ export function HeroScrollCanvas() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastIdxRef = useRef(0);
   const sizedRef = useRef(false);
-  // Whether a real frame has actually been painted to the canvas yet.
-  // Guards the first-paint from silently no-opping on mobile (canvas
-  // measured 0 before layout settled, or frame 0 not decoded when
-  // `ready` flipped). The rAF retries until this turns true.
-  const paintedRef = useRef(false);
 
   // Lerp refs — smoothedProgress chases targetProgress every frame
   const targetProgressRef = useRef(0);
@@ -296,37 +291,26 @@ export function HeroScrollCanvas() {
   // Canvas drawing
   const sizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return false;
-    const cw = canvas.clientWidth;
-    const ch = canvas.clientHeight;
-    // On a cold mobile load the sticky 100vh box can measure 0 before
-    // layout settles (dynamic URL bar). Don't size to 0 — report
-    // failure so the caller can retry on a later frame.
-    if (cw === 0 || ch === 0) return false;
+    if (!canvas) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = cw * dpr;
-    canvas.height = ch * dpr;
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = canvas.clientHeight * dpr;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (ctx) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
     }
-    return true;
   }, []);
 
   const drawFrame = useCallback(
-    (idx: number): boolean => {
+    (idx: number) => {
       const canvas = canvasRef.current;
-      if (!canvas) return false;
+      if (!canvas) return;
       const ctx = canvas.getContext("2d", { alpha: false });
-      if (!ctx) return false;
+      if (!ctx) return;
 
-      // Only latch `sized` once the canvas reports a real (non-zero)
-      // size. If it's still 0 (mobile layout not settled), bail so the
-      // rAF can retry on a later frame instead of locking in a 0-size
-      // canvas that never repaints.
       if (!sizedRef.current) {
-        if (!sizeCanvas()) return false;
+        sizeCanvas();
         sizedRef.current = true;
       }
 
@@ -340,7 +324,7 @@ export function HeroScrollCanvas() {
             break;
           }
         }
-        if (!img || !img.complete || img.naturalWidth === 0) return false;
+        if (!img || !img.complete || img.naturalWidth === 0) return;
       }
 
       const w = canvas.clientWidth;
@@ -361,8 +345,6 @@ export function HeroScrollCanvas() {
         dy = (h - dh) / 2;
       }
       ctx.drawImage(img, dx, dy, dw, dh);
-      paintedRef.current = true;
-      return true;
     },
     [sizeCanvas]
   );
@@ -451,12 +433,9 @@ export function HeroScrollCanvas() {
       // frame index and only redraw when the index actually advances.
       if (ready) {
         const idx = Math.min(TOTAL_FRAMES - 1, Math.floor(p * TOTAL_FRAMES));
-        // Redraw when the frame index advances, OR while the first real
-        // paint still hasn't landed — on mobile the initial draw can
-        // no-op (canvas measured 0, or frame 0 not yet decoded), so we
-        // keep retrying every rAF until a paint actually succeeds.
-        if (idx !== lastIdxRef.current || !paintedRef.current) {
-          if (drawFrame(idx)) lastIdxRef.current = idx;
+        if (idx !== lastIdxRef.current) {
+          drawFrame(idx);
+          lastIdxRef.current = idx;
         }
       }
 
@@ -498,9 +477,6 @@ export function HeroScrollCanvas() {
     const handleResize = () => {
       measureTrack();
       sizedRef.current = false;
-      // Force a fresh paint attempt after the resize; if it can't paint
-      // yet (size still 0 mid-reflow) the rAF retry will catch it.
-      paintedRef.current = false;
       drawFrame(lastIdxRef.current);
     };
     window.addEventListener("resize", handleResize);
@@ -543,7 +519,8 @@ export function HeroScrollCanvas() {
           ready ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
       >
-        <Image unoptimized={false}
+        <Image
+          unoptimized={false}
           src="/logo-pacific-white.png"
           alt="Pacific Surfaces logo"
           width={160}
