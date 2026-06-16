@@ -355,23 +355,23 @@ export default function Footer() {
                 <Phone className="w-4 h-4 text-stone-500 group-hover:text-white transition-colors duration-300 shrink-0" />
                 +91 98940 33566
               </a>
-              <div className="flex items-start gap-3 text-[13px] text-stone-400">
+              <div className="flex items-start gap-3 text-[12px] text-stone-400">
                 <MapPin className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                   <div>
-                    <div className="text-stone-300 font-medium">
+                    <div className="text-stone-300 font-medium mb-0.5">
                       Factory / Experience Centre
                     </div>
-                    <p className="leading-relaxed font-light">
+                    <p className="leading-snug font-light">
                       SY. No. 73/2B, National Highway 44,
                       Nallaganakothapalli, Hosur, Tamil Nadu 635117
                     </p>
                   </div>
                   <div>
-                    <div className="text-stone-300 font-medium">
+                    <div className="text-stone-300 font-medium mb-0.5">
                       Corporate Office
                     </div>
-                    <p className="leading-relaxed font-light">
+                    <p className="leading-snug font-light">
                       4th Floor, Beginest Harbor 9, Mantri Junction Mall,
                       C Cross Rd, KSRTC Layout, 2nd Phase, J. P. Nagar,
                       Bengaluru, Karnataka 560041
