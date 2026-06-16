@@ -117,8 +117,8 @@ export function HeroScrollCanvas() {
     const MOBILE =
       typeof window !== "undefined" &&
       window.matchMedia("(max-width: 820px)").matches;
-    const MOBILE_STRIDE = 8;
-    const MOBILE_W = 750;
+    const MOBILE_STRIDE = 5;
+    const MOBILE_W = 828;
     const frameSrc = (i: number, ext: "avif" | "jpg") =>
       MOBILE
         ? `/_next/image?url=${encodeURIComponent(
