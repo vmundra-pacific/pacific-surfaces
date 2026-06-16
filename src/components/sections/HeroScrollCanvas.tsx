@@ -109,6 +109,23 @@ export function HeroScrollCanvas() {
   // Phase 2: Wide-then-dense pyramid; tail passes drain via idle.
   useEffect(() => {
     const INITIAL_BATCH = 80; // enough for first ~15% scroll
+    // --- Mobile-only lighter pipeline -----------------------------
+    // Frames are 1920x1080; decoded that's ~8MB each, so holding all
+    // 520 (~4GB) crashes mobile Safari. On phones we load a downscaled,
+    // strided subset so peak memory stays bounded (~65 frames x ~1.3MB).
+    // The draw path's nearest-loaded fallback fills in-between indices.
+    const MOBILE =
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 820px)").matches;
+    const MOBILE_STRIDE = 8;
+    const MOBILE_W = 750;
+    const frameSrc = (i: number, ext: "avif" | "jpg") =>
+      MOBILE
+        ? `/_next/image?url=${encodeURIComponent(
+            `/hero-frames/frame-${pad(i + 1)}.jpg`
+          )}&w=${MOBILE_W}&q=75`
+        : `/hero-frames/frame-${pad(i + 1)}.${ext}`;
+    // --------------------------------------------------------------
     let count = 0;
     let cancelled = false;
     const imgs: HTMLImageElement[] = new Array(TOTAL_FRAMES);
@@ -165,7 +182,7 @@ export function HeroScrollCanvas() {
         // `complete === true`, and drawImage on it throws inside the
         // rAF tick, permanently killing the hero loop.
         img.onerror = done;
-        img.src = `/hero-frames/frame-${pad(i + 1)}.${ext}`;
+        img.src = frameSrc(i, ext);
       });
 
     // Hard safety timeout — if any frame stalls (network blip, CDN
@@ -180,6 +197,35 @@ export function HeroScrollCanvas() {
     let phase1: Promise<void>[];
     detectExt().then((ext) => {
       if (cancelled) return;
+      if (MOBILE) {
+        // Strided index list across the whole timeline + final frame.
+        const mIdx: number[] = [];
+        for (let i = 0; i < TOTAL_FRAMES; i += MOBILE_STRIDE) mIdx.push(i);
+        if (mIdx[mIdx.length - 1] !== TOTAL_FRAMES - 1)
+          mIdx.push(TOTAL_FRAMES - 1);
+        // Eager set dismisses the loader; the rest trickle in.
+        Promise.all(mIdx.slice(0, 12).map((i) => loadFrame(i, ext))).then(
+          () => {
+            if (cancelled) return;
+            clearTimeout(safety);
+            setTimeout(() => {
+              setReady(true);
+              if (typeof window !== "undefined")
+                window.dispatchEvent(new Event("pacific:hero-ready"));
+            }, 200);
+            const rest = mIdx.slice(12);
+            let k = 0;
+            const drain = () => {
+              if (cancelled || k >= rest.length) return;
+              const batch = rest.slice(k, k + 6).map((i) => loadFrame(i, ext));
+              k += 6;
+              Promise.all(batch).then(() => setTimeout(drain, 120));
+            };
+            setTimeout(drain, 120);
+          }
+        );
+        return;
+      }
       phase1 = Array.from({ length: INITIAL_BATCH }, (_, i) =>
         loadFrame(i, ext)
       );
