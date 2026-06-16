@@ -84,6 +84,7 @@ export function HeroScrollCanvas() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastIdxRef = useRef(0);
   const sizedRef = useRef(false);
+  const firstPaintedRef = useRef(false);
 
   // Lerp refs — smoothedProgress chases targetProgress every frame
   const targetProgressRef = useRef(0);
@@ -488,34 +489,39 @@ export function HeroScrollCanvas() {
     };
   }, [ready, drawFrame]);
 
-  // Draw the first frame once ready AND the canvas has a real layout
-  // size. On mobile the sticky 100vh canvas can measure 0 at the moment
-  // `ready` flips, so a single immediate draw would no-op and leave the
-  // hero blank until a scroll. We wait for the browser to actually lay
-  // the canvas out (ResizeObserver) and draw exactly ONCE, then
-  // disconnect. No polling, no retry loop, no per-frame work — purely
-  // event-driven, so it cannot thrash the canvas or stress mobile memory.
+  // Paint the first frame once BOTH the canvas has a real layout size
+  // AND frame 0 has actually loaded. On mobile cold load either can be
+  // false at the instant `ready` flips (0-height sticky canvas, or — on
+  // slow connections that hit the 8s safety timeout before phase 1 ends
+  // — frame 0 not yet decoded), so a single draw no-ops and the hero
+  // stays grey until a scroll triggers handleResize. This re-runs on
+  // every frame-load (`loaded`) and on canvas resize, draws EXACTLY once
+  // when both conditions hold, then latches off. Not in the scroll loop,
+  // no per-frame work — it cannot thrash the canvas or stress memory.
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || firstPaintedRef.current) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const paintIfSized = () => {
-      if (canvas.clientWidth > 0 && canvas.clientHeight > 0) {
+    const tryPaint = () => {
+      if (firstPaintedRef.current) return true;
+      const img0 = imagesRef.current[0];
+      const sized = canvas.clientWidth > 0 && canvas.clientHeight > 0;
+      const frame0Ready = !!img0 && img0.complete && img0.naturalWidth > 0;
+      if (sized && frame0Ready) {
+        firstPaintedRef.current = true;
         sizedRef.current = false; // force a correct (re)measure
         drawFrame(0);
         return true;
       }
       return false;
     };
-    // Already laid out → paint now and we're done.
-    if (paintIfSized()) return;
-    // Otherwise paint the moment the canvas gets a real size, once.
+    if (tryPaint()) return;
     const ro = new ResizeObserver(() => {
-      if (paintIfSized()) ro.disconnect();
+      if (tryPaint()) ro.disconnect();
     });
     ro.observe(canvas);
     return () => ro.disconnect();
-  }, [ready, drawFrame]);
+  }, [ready, loaded, drawFrame]);
 
   // Derived state.
   // Headline window / CTA / scroll-hint flips and the continuous
