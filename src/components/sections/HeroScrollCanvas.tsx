@@ -582,6 +582,20 @@ export function HeroScrollCanvas() {
         style={{ height: "700vh" }}
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden">
+          {/* Static poster of frame 0 — guarantees the first parallax
+              image is visible on cold load even before the canvas paints
+              (on some mobile cold loads the canvas isn't laid out until
+              the first scroll). The canvas draws over this the moment it
+              starts scrubbing, so there's no visible transition. */}
+          <Image
+            src="/hero-frames/frame-0001.jpg"
+            alt=""
+            aria-hidden
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
           {/* Canvas */}
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
