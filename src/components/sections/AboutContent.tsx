@@ -90,6 +90,12 @@ const team: {
     linkedin: "https://www.linkedin.com/in/varun-mundra-ba4b9589/",
   },
   {
+    name: "Anumuthan",
+    role: "General Manager",
+    photo: "/team/anumuthan.png",
+    linkedin: "https://www.linkedin.com/in/anumuthan-anu-429951313/",
+  },
+  {
     name: "Abhijeet Mankotia",
     role: "VP — Global Sales",
     photo: "/team/abhijeet-mankotia.jpg",
@@ -112,12 +118,6 @@ const team: {
     role: "Commercial Manager, Pacific Granites India",
     photo: "/team/nagesh-pk.jpg",
     linkedin: "",
-  },
-  {
-    name: "Anumuthan",
-    role: "General Manager",
-    photo: "/team/anumuthan.png",
-    linkedin: "https://www.linkedin.com/in/anumuthan-anu-429951313/",
   },
   {
     name: "Marcin",
