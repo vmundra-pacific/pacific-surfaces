@@ -20,6 +20,7 @@
 import Image from "next/image";
 import { sanityImg } from "@/lib/sanity-img";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { memo, useEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
@@ -68,6 +69,7 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [tappedOpen, setTappedOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const router = useRouter();
 
   // True when this slab is a Beyond Finish texture - those open in
   // a fullscreen lightbox rather than a PDP.
@@ -136,6 +138,16 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
           if (!canHover) {
             setTappedOpen((v) => !v);
           }
+        }}
+        onDoubleClick={() => {
+          // Double-click anywhere on the tile opens the detail view —
+          // parity with the "View Slab" button. Finishes have no PDP, so
+          // they open their lightbox; everything else goes to the PDP.
+          if (isFinish) {
+            setLightboxOpen(true);
+            return;
+          }
+          router.push(`/products/${slab.slug}`);
         }}
         className={[
           "group relative aspect-[4/5] overflow-hidden rounded-xl",

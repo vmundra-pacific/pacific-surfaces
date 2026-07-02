@@ -76,18 +76,11 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     ],
   },
   {
-    slug: "vision",
-    name: "Eclipse",
-    tagline: "Inlayered design quartz surfaces.",
-    coloursHref: "/products/quartz/chromia",
-    imageUrl: "/images/products/vision.png",
-    brandedImageUrl: "/images/products/branded/vision.svg",
-    topPicks: [
-      { name: "Taj Vein", href: "/products/taj-vein-p01" },
-      { name: "Himalayan Vein", href: "/products/himalayan-vein-p14" },
-      { name: "Stone Lily", href: "/products/stone-lily-p13" },
-      { name: "Frost Vein", href: "/products/frost-vein-p18" },
-    ],
+    // Eclipse removed as a separate category (it is part of Quartz).
+    // Cut to Size links to the existing Fab Creations collection page.
+    slug: "fab-creations",
+    name: "Cut to Size",
+    tagline: "Bespoke cut-to-size surfaces, made to spec.",
   },
   {
     slug: "granites",
@@ -480,8 +473,9 @@ export default function Header() {
   useEffect(() => {
     let canHover = false;
     try {
-      canHover = window.matchMedia("(hover: hover) and (pointer: fine)")
-        .matches;
+      canHover = window.matchMedia(
+        "(hover: hover) and (pointer: fine)"
+      ).matches;
     } catch {
       /* ignore — older browsers without matchMedia */
     }
@@ -590,12 +584,13 @@ export default function Header() {
     pathname.startsWith("/blog/");
   const headerDark = scrolled || isLightHeroPath;
 
-  // At the top of scroll on every page → use the "dark" (ss2 simple
-  // diamond) monogram. Scrolled / dark-navy header state still swaps
-  // to the navy variant for contrast. The "light" variant is wired
-  // up but currently unused since the dark monogram is the editorial
-  // choice for all top-of-page states.
-  const monogramVariant: "dark" | "navy" = headerDark ? "navy" : "dark";
+  // Dark (black-tile) mark ONLY on the homepage top, where it pops
+  // against the bright marble hero. Everywhere else — scrolled,
+  // light-hero pages, AND other pages' dark image heroes like
+  // Contact — use the navy (light-on-dark) mark so it stays visible
+  // on dark backgrounds where the black tile used to vanish.
+  const monogramVariant: "dark" | "navy" =
+    !headerDark && pathname === "/" ? "dark" : "navy";
 
   return (
     <>
@@ -700,7 +695,7 @@ export default function Header() {
               squeeze them together (PACIFIC SURFACES + ABOUT were
               previously touching at wide viewports because the row
               filled fully). */}
-          <div className="flex h-20 items-center justify-between gap-x-6 xl:gap-x-10 2xl:gap-x-14">
+          <div className="flex h-20 items-center justify-between gap-x-4 xl:gap-x-8 2xl:gap-x-14">
             {/* Logo — monogram + wordmark.
                 The monogram swaps based on header state so it always
                 reads against whatever's behind it:
@@ -768,7 +763,7 @@ export default function Header() {
             </Link>
 
             {/* Desktop nav */}
-            <div className="hidden lg:flex lg:items-center lg:gap-x-6 xl:gap-x-9">
+            <div className="hidden lg:flex lg:items-center lg:gap-x-4 xl:gap-x-7">
               {desktopNavigation.map((item: NavItem) => (
                 <div
                   key={item.name}
@@ -922,11 +917,16 @@ export default function Header() {
                                   // is a destination, no sub-panel).
                                   // Only Products uses the expanding
                                   // button + sub-panel pattern.
+                                  // Products now navigate on click too
+                                  // (each category links straight to its
+                                  // page) — the old click-to-expand Top
+                                  // Picks sub-panel is retired.
                                   const isSpacesItem =
                                     item.name === "Spaces" ||
                                     item.name === "Corporate" ||
                                     item.name === "Professionals" ||
-                                    item.name === "Inspirations";
+                                    item.name === "Inspirations" ||
+                                    item.name === "Products";
 
                                   // Spaces cards — direct Link, no
                                   // toggle. Click navigates straight
@@ -1376,7 +1376,7 @@ export default function Header() {
             </div>
 
             {/* CTA + Search + Mobile toggle */}
-            <div className="flex items-center gap-2 lg:gap-2.5 xl:gap-3">
+            <div className="flex items-center gap-2 lg:gap-2.5 xl:gap-3 shrink-0">
               <button
                 onClick={() => setSearchOpen(true)}
                 aria-label="Open search"
@@ -1404,7 +1404,7 @@ export default function Header() {
               <Link
                 href="/visualize"
                 className={cn(
-                  "hidden 2xl:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 xl:px-6 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
+                  "hidden 2xl:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-4 xl:px-5 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
                   headerDark
                     ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
                     : "bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20"
@@ -1417,7 +1417,7 @@ export default function Header() {
               <Link
                 href="/contact"
                 className={cn(
-                  "hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-5 xl:px-6 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
+                  "hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-4 xl:px-5 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
                   // Scrolled now uses a solid white pill for max
                   // contrast against the dark navy header. Top of
                   // page keeps the translucent glass-pill style.
@@ -1561,7 +1561,10 @@ export default function Header() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.28, ease: [0.25, 0.4, 0.25, 1] }}
+                          transition={{
+                            duration: 0.28,
+                            ease: [0.25, 0.4, 0.25, 1],
+                          }}
                           style={{ overflow: "hidden" }}
                         >
                           <ul className="py-3 grid grid-cols-1 gap-2.5">

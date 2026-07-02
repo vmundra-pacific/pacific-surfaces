@@ -53,6 +53,11 @@ const SECTIONS = [
   },
 ];
 
+// Render dynamically so published Sanity edits to this space's
+// images appear on the next request instead of only after a
+// redeploy (editor-managed content). Mirrors /ecosurfaces.
+export const revalidate = 0;
+
 export default async function KitchensSpacePage() {
   // Fetch editor-managed images from Sanity. Returns null when the
   // doc doesn't exist yet — sections render with gradient

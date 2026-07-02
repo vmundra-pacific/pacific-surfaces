@@ -4,8 +4,14 @@ import { groq } from "next-sanity";
 // /spaces/<slug> page (Kitchens, Bathrooms, Architecture, Commercial).
 // Returns null when the editor hasn't created a doc for that space
 // yet — the page falls back to gradient placeholders in that case.
+//
+// order(_updatedAt desc) BEFORE [0]: some slugs have more than one
+// published spacePage doc (legacy seed + a newer editor copy). Plain
+// [0] picks by document _id, which can return the stale empty doc and
+// hide the editor's images. Ordering by most-recently-updated makes
+// the doc the editor is actually working in win.
 export const spacePageBySlugQuery = groq`
-  *[_type == "spacePage" && slug == $slug][0] {
+  *[_type == "spacePage" && slug == $slug] | order(_updatedAt desc)[0] {
     "section1Image": section1Image.asset->url,
     "section2Image": section2Image.asset->url,
     "section3Image": section3Image.asset->url,
