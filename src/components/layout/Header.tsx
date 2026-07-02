@@ -76,7 +76,20 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     ],
   },
   {
-    // Eclipse removed as a separate category (it is part of Quartz).
+    slug: "vision",
+    name: "Eclipse",
+    tagline: "Inlayered design quartz surfaces.",
+    coloursHref: "/products/quartz/chromia",
+    imageUrl: "/images/products/vision.png",
+    brandedImageUrl: "/images/products/branded/vision.svg",
+    topPicks: [
+      { name: "Taj Vein", href: "/products/taj-vein-p01" },
+      { name: "Himalayan Vein", href: "/products/himalayan-vein-p14" },
+      { name: "Stone Lily", href: "/products/stone-lily-p13" },
+      { name: "Frost Vein", href: "/products/frost-vein-p18" },
+    ],
+  },
+  {
     // Cut to Size links to the existing Fab Creations collection page.
     slug: "fab-creations",
     name: "Cut to Size",
@@ -889,7 +902,7 @@ export default function Header() {
                               {/* Cards row. Both Products and Spaces
                               render as direct Links — click =
                               navigate, no sub-panel, no toggle.
-                              Products: 5-card grid; Spaces: 4-card. */}
+                              Products: 6-card grid; Spaces: 4-card. */}
                               <div
                                 className={`grid gap-3 ${
                                   item.name === "Corporate" ||
@@ -898,7 +911,7 @@ export default function Header() {
                                     : item.name === "Spaces" ||
                                         item.name === "Professionals"
                                       ? "grid-cols-4"
-                                      : "grid-cols-5"
+                                      : "grid-cols-6"
                                 }`}
                               >
                                 {(item.name === "Spaces"
@@ -917,16 +930,11 @@ export default function Header() {
                                   // is a destination, no sub-panel).
                                   // Only Products uses the expanding
                                   // button + sub-panel pattern.
-                                  // Products now navigate on click too
-                                  // (each category links straight to its
-                                  // page) — the old click-to-expand Top
-                                  // Picks sub-panel is retired.
                                   const isSpacesItem =
                                     item.name === "Spaces" ||
                                     item.name === "Corporate" ||
                                     item.name === "Professionals" ||
-                                    item.name === "Inspirations" ||
-                                    item.name === "Products";
+                                    item.name === "Inspirations";
 
                                   // Spaces cards — direct Link, no
                                   // toggle. Click navigates straight
