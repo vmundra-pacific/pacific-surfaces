@@ -1,0 +1,80 @@
+{
+  "name": "pacific-surfaces-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0",
+    "dev:local": "next dev",
+    "build": "next build",
+    "start": "next start -H 0.0.0.0",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky",
+    "backfill:palette": "node --env-file=.env.local scripts/backfill-image-palette.mjs",
+    "backfill:palette:dry": "node --env-file=.env.local scripts/backfill-image-palette.mjs --dry",
+    "backfill:palette:force": "node --env-file=.env.local scripts/backfill-image-palette.mjs --force",
+    "backfill:palette:force:dry": "node --env-file=.env.local scripts/backfill-image-palette.mjs --force --dry",
+    "cleanup:thickness-finish": "node --env-file=.env.local scripts/cleanup-thickness-finish.mjs",
+    "cleanup:thickness-finish:dry": "node --env-file=.env.local scripts/cleanup-thickness-finish.mjs --dry",
+    "fix:blog-slugs": "node --env-file=.env.local scripts/fix-blog-slugs.mjs",
+    "fix:blog-slugs:dry": "node --env-file=.env.local scripts/fix-blog-slugs.mjs --dry",
+    "test:careers-email": "node --env-file=.env.local scripts/test-careers-email.mjs",
+    "compress:sanity-videos": "node --env-file=.env.local scripts/compress-sanity-videos.mjs",
+    "compress:sanity-videos:dry": "node --env-file=.env.local scripts/compress-sanity-videos.mjs --dry",
+    "thumbnails:videos": "node --env-file=.env.local scripts/extract-video-thumbnails.mjs",
+    "thumbnails:videos:dry": "node --env-file=.env.local scripts/extract-video-thumbnails.mjs --dry"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "@portabletext/react": "^6.0.3",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@sanity/client": "^7.13.2",
+    "@sanity/image-url": "^2.1.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.38.0",
+    "gsap": "^3.14.2",
+    "lenis": "^1.3.21",
+    "lucide-react": "^1.7.0",
+    "next": "15.5.14",
+    "next-sanity": "^11.6.12",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "resend": "^4.0.1",
+    "sanity": "^4.22.0",
+    "styled-components": "^6.3.12",
+    "tailwind-merge": "^3.5.0",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.14",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3",
+    "puppeteer": "^24.41.0",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 89",
+      "edge >= 89",
+      "firefox >= 90",
+      "safari >= 14",
+      "ios_saf >= 14",
+      "samsung >= 14"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

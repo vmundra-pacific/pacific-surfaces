@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #1c1917;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Pacific brand palette — see /sessions/.auto-memory/brand_guidelines.md */
+  --color-pacific-dark: #112732;
+  --color-pacific-mid: #9aa8b6;
+  --color-pacific-light: #dae1e8;
+}
+
+/* Safe-area on iPhone landscape — without these the notch sides
+   stay black. We extend the body background under the notch, then
+   header / slab-dock components add their own
+   padding-left: env(safe-area-inset-left) so content clears it. */
+@supports (padding: max(0px)) {
+  body {
+    background-color: var(--background);
+  }
+}
+
+html,
+body {
+  /* Mobile: kill horizontal overflow + rubber-band entirely so the
+     page can't scroll left/right when there's no horizontal content,
+     and so phantom right-edge gutters don't show as white bars when
+     a section uses 100vw. `overflow-x: clip` avoids breaking
+     position:fixed elements (which `overflow-x: hidden` does on
+     ancestors). Desktop overrides this in the lg breakpoint below. */
+  overflow-x: clip;
+}
+
+@media (min-width: 1024px) {
+  html {
+    /* Always reserve space for the vertical scrollbar on desktop so
+       the page doesn't shift horizontally when scrollbars appear or
+       disappear (between routes, when overlays close, etc.). On
+       mobile this rule shows up as a white gutter band on the right
+       edge — particularly painful when filter modals open — so we
+       scope it to desktop only. */
+    scrollbar-gutter: stable;
+    overflow-x: visible;
+  }
+  body {
+    overflow-x: visible;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family:
+    var(--font-sans),
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scrolling — only for anchor link clicks, NOT wheel/keyboard.
+   Applied via JS on anchor clicks instead of globally, because global
+   smooth-scroll makes scroll-driven canvas animations feel stuck. */
+
+/* Selection color */
+::selection {
+  background-color: #1c1917;
+  color: #ffffff;
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* GPU-composited marquee — replaces Framer Motion infinite loop.
+   translateX(-50%) is exact (no repeating decimal) — pairs with a
+   2× content duplication so the second copy at 0% offset is visually
+   identical to the first copy at -50% offset. Keyframe wrap is
+   pixel-invisible. */
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+  /* will-change hints the compositor to promote this layer so the
+     transform animation runs on the GPU without repaint cost. */
+  will-change: transform;
+}
+
+/* Smooth bounce for scroll indicator */
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 1.8s ease-in-out infinite;
+}

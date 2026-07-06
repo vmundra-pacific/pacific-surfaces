@@ -1,0 +1,243 @@
+"use client";
+
+import { useRef } from "react";
+
+import { motion } from "framer-motion";
+import { Check } from "lucide-react";
+import type { Slab } from "@/data/slabs";
+
+interface SlabPickerProps {
+  slabs: Slab[];
+  /** The slab assigned to the currently focused surface (used to
+   *  highlight the active swatch). */
+  active: Slab | null;
+  /** Pick a slab — the parent assigns it to the focused surface only. */
+  onPick: (s: Slab) => void;
+  /** Optional label for the focused surface, shown so the user knows
+   *  which surface their slab pick will be applied to. */
+  focusedSurfaceLabel?: string | null;
+  /** Show the "Apply to all selected" button (only when at least one
+   *  surface already has a slab). */
+  canApplyToAll?: boolean;
+  /** Click handler for the "Apply to all" button — assigns the
+   *  currently focused slab to every selected surface. */
+  onApplyToAll?: () => void;
+  /** The visitor's favorited designs (localStorage, see
+   *  FavoriteDesignsPanel.tsx) — rendered as a compact row above the
+   *  main dock so favorites stay visible the whole time you're
+   *  working on a demo room or an uploaded photo, not just on the
+   *  intake screen. Omitted/empty hides the row entirely. */
+  favoriteSlabs?: Slab[];
+  /** Pick a favorite — separate from `onPick` because favorites can
+   *  be picked before any surface is focused (queues as the default
+   *  for the next surface you tap); the main dock's `onPick` is a
+   *  no-op with nothing focused. Falls back to `onPick` if omitted. */
+  onPickFavorite?: (s: Slab) => void;
+}
+
+export function SlabPicker({
+  slabs,
+  active,
+  onPick,
+  focusedSurfaceLabel,
+  canApplyToAll,
+  onApplyToAll,
+  favoriteSlabs,
+  onPickFavorite,
+}: SlabPickerProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  // Map vertical wheel motion to horizontal scrolling so the user can
+  // flick through the slab dock without having to hold Shift or use
+  // a trackpad swipe. e.preventDefault on the WheelEvent (cast to
+  // native) keeps the page from also scrolling.
+  const onDockWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // Some users WILL flick horizontally on a trackpad — respect
+    // whichever delta is larger so vertical-mostly + horizontal-mostly
+    // both feel right.
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    el.scrollLeft += delta;
+    e.stopPropagation();
+  };
+
+  const favorites = favoriteSlabs ?? [];
+  const handleFavoritePick = onPickFavorite ?? onPick;
+
+  return (
+    <div className="relative">
+      {favorites.length > 0 && (
+        <div className="mb-4 pb-4 border-b border-white/8">
+          <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid mb-2.5">
+            Your favorites
+          </div>
+          <div className="overflow-x-auto pb-1 -mx-1 scrollbar-thin">
+            <div className="flex gap-2 px-1">
+              {favorites.map((s) => {
+                const isActive = active?.id === s.id;
+                return (
+                  <motion.button
+                    key={s.id}
+                    onClick={() => handleFavoritePick(s)}
+                    whileTap={{ scale: 0.97 }}
+                    className={`relative shrink-0 w-[72px] h-[88px] rounded-lg overflow-hidden ring-1 transition-all ${
+                      isActive
+                        ? "ring-pacific-light/90 shadow-[0_6px_28px_rgba(218,225,232,.18)]"
+                        : "ring-white/10 hover:ring-white/30"
+                    }`}
+                    aria-label={s.name}
+                    title={s.name}
+                  >
+                    <div
+                      className="absolute inset-0"
+                      style={{ backgroundImage: s.swatch }}
+                    />
+                    {s.overlay && (
+                      <div
+                        className="absolute inset-0 opacity-80 mix-blend-overlay"
+                        style={{ backgroundImage: s.overlay }}
+                      />
+                    )}
+                    {s.photoUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={s.photoUrl}
+                        alt={`${s.name} slab swatch`}
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/75 to-transparent">
+                      <div className="text-[9px] tracking-[.06em] uppercase text-white/95 text-left leading-tight line-clamp-2">
+                        {s.name}
+                      </div>
+                    </div>
+                    {isActive && (
+                      <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-pacific-light flex items-center justify-center">
+                        <Check
+                          className="w-3 h-3 text-pacific-dark"
+                          strokeWidth={3}
+                        />
+                      </div>
+                    )}
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-baseline justify-between mb-4 gap-3">
+        <div className="min-w-0">
+          <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid">
+            {focusedSurfaceLabel
+              ? `Slab for ${focusedSurfaceLabel}`
+              : "Apply a slab"}
+          </div>
+          <div className="text-pacific-light/90 text-sm mt-1 truncate">
+            {active ? active.name : "Tap a surface, then pick a finish"}
+          </div>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          {active && (
+            <div className="hidden sm:block text-[10px] tracking-[.22em] uppercase text-pacific-mid">
+              {active.collection} · {active.pattern}
+            </div>
+          )}
+          {canApplyToAll && onApplyToAll && (
+            <button
+              onClick={onApplyToAll}
+              className="text-[10px] tracking-[.22em] uppercase text-pacific-mid hover:text-pacific-light px-3 py-1.5 border border-white/15 rounded-full hover:border-white/40 transition-colors"
+              title="Apply this slab to every selected surface"
+            >
+              Apply to all
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div
+        ref={scrollRef}
+        onWheel={onDockWheel}
+        className="overflow-x-auto pb-2 -mx-1 scrollbar-thin"
+      >
+        <div className="flex gap-3 px-1">
+          {slabs.map((s) => {
+            const isActive = active?.id === s.id;
+            return (
+              <motion.button
+                key={s.id}
+                onClick={() => onPick(s)}
+                whileTap={{ scale: 0.97 }}
+                className={`relative shrink-0 w-[88px] h-[108px] rounded-lg overflow-hidden ring-1 transition-all ${
+                  isActive
+                    ? "ring-pacific-light/90 shadow-[0_6px_28px_rgba(218,225,232,.18)]"
+                    : "ring-white/10 hover:ring-white/30"
+                }`}
+                aria-label={s.name}
+              >
+                {/* ALWAYS render the procedural swatch + overlay as
+                    the base layer. Two reasons:
+                      1. Lazy-loaded photos take a moment to arrive,
+                         and we never want users staring at empty
+                         thumbnails while the dock scrolls.
+                      2. If a Sanity photo fails to load (404, slow
+                         CDN), the swatch keeps the slab visually
+                         identifiable instead of dropping to a blank
+                         tile.
+                    The product photo, when present, is layered on top
+                    with native lazy loading. Browser only fetches it
+                    when the thumbnail enters the viewport. */}
+                <div
+                  className="absolute inset-0"
+                  style={{ backgroundImage: s.swatch }}
+                />
+                {s.overlay && (
+                  <div
+                    className="absolute inset-0 opacity-80 mix-blend-overlay"
+                    style={{ backgroundImage: s.overlay }}
+                  />
+                )}
+                {s.photoUrl && (
+                  // Real product photo from Sanity layered over the
+                  // swatch. Lazy + async decode keeps the dock
+                  // responsive when there are 13+ thumbnails. If the
+                  // request fails the swatch beneath remains visible.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={
+                      s.photoUrl.includes("cdn.sanity.io")
+                        ? s.photoUrl +
+                          (s.photoUrl.includes("?") ? "&" : "?") +
+                          "w=240&h=180&fit=crop&q=70&auto=format"
+                        : s.photoUrl
+                    }
+                    alt={`${s.name} slab swatch`}
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
+                <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/70 to-transparent">
+                  <div className="text-[9px] tracking-[.1em] uppercase text-white/90 text-left leading-tight line-clamp-2">
+                    {s.name}
+                  </div>
+                </div>
+                {isActive && (
+                  <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-pacific-light flex items-center justify-center">
+                    <Check
+                      className="w-3 h-3 text-pacific-dark"
+                      strokeWidth={3}
+                    />
+                  </div>
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
