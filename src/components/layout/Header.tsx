@@ -724,7 +724,7 @@ export default function Header() {
         )}
       >
         <nav
-          className="mx-auto max-w-[1400px] px-6 lg:px-8"
+          className="mx-auto max-w-[1500px] px-8"
           style={{
             paddingLeft: "max(1.5rem, env(safe-area-inset-left))",
             paddingRight: "max(1.5rem, env(safe-area-inset-right))",
@@ -735,7 +735,7 @@ export default function Header() {
               squeeze them together (PACIFIC SURFACES + ABOUT were
               previously touching at wide viewports because the row
               filled fully). */}
-          <div className="flex h-20 items-center justify-between gap-x-4 xl:gap-x-8 2xl:gap-x-14">
+          <div className="grid h-20 grid-cols-[auto_1fr_auto] items-center">
             {/* Logo — one PacificLogoMark graphic, always white. The
                 drop-shadow is a soft glow (not a hard box) so the mark
                 stays legible over the bright homepage marble hero
@@ -765,14 +765,14 @@ export default function Header() {
                 over after the logo and CTAs, IT scrolls internally —
                 the Get-a-Quote pill (a sibling, not inside this div)
                 can never be pushed off-screen and clipped by it. */}
-            <div className="hidden xl:flex xl:items-center xl:gap-x-5 2xl:gap-x-7 min-w-0 overflow-x-auto no-scrollbar">
+            <div className="hidden xl:flex items-center justify-center gap-x-6">
               {desktopNavigation.map((item: NavItem) => {
               console.log(item.name);
               return (
                 
                 <div
                   key={item.name}
-                  className="relative group"
+                  className="relative group shrink-0"
                   // Hover handlers fire for any mega item (Products
                   // or Spaces). The handler takes `item.name` so the
                   // shared mega-menu panel knows which content to
