@@ -766,7 +766,10 @@ export default function Header() {
                 the Get-a-Quote pill (a sibling, not inside this div)
                 can never be pushed off-screen and clipped by it. */}
             <div className="hidden xl:flex xl:items-center xl:gap-x-5 2xl:gap-x-7 min-w-0 overflow-x-auto no-scrollbar">
-              {desktopNavigation.map((item: NavItem) => (
+              {desktopNavigation.map((item: NavItem) => {
+              console.log(item.name);
+              return (
+                
                 <div
                   key={item.name}
                   className="relative group"
@@ -1371,7 +1374,8 @@ export default function Header() {
                     )
                   )}
                 </div>
-              ))}
+              );
+})}
             </div>
 
             {/* CTA + Search + Mobile toggle */}
