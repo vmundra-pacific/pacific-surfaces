@@ -158,8 +158,8 @@ export function HomepageSectionNav() {
                       ? "text-white"
                       : "text-white mix-blend-difference"
                     : useSolidInactive
-                      ? "text-white/70 hover:text-white"
-                      : "text-white/85 mix-blend-difference hover:text-white"
+                      ? "text-white hover:text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
+                      : "text-white mix-blend-difference hover:text-white"
                 }`}
               >
                 <span

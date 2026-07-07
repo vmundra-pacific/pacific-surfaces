@@ -331,7 +331,7 @@ function Eyebrow({
   return (
     <motion.div
       style={{ opacity }}
-      className="text-[10px] md:text-xs tracking-[0.3em] uppercase text-pacific-mid mb-5"
+      className="text-[10px] md:text-xs tracking-[0.3em] uppercase text-white/80 mb-5"
     >
       {children}
     </motion.div>
@@ -499,7 +499,8 @@ function MediaSlot({
     return (
       <>
         {media.imageUrl && (
-          <Image unoptimized={false}
+          <Image
+            unoptimized={false}
             src={media.imageUrl}
             alt={alt}
             fill
@@ -516,7 +517,8 @@ function MediaSlot({
   }
   if (media.imageUrl) {
     return (
-      <Image unoptimized={false}
+      <Image
+        unoptimized={false}
         src={media.imageUrl}
         alt={alt}
         fill
@@ -552,7 +554,7 @@ function Headline({
     >
       {primary}
       <br />
-      <em className="italic font-extralight text-pacific-light/90">{accent}</em>
+      <em className="italic font-extralight text-white/90">{accent}</em>
     </h2>
   );
 }
@@ -594,7 +596,7 @@ function KitchenSection({ media }: { media: SectionMedia }) {
           >
             <Eyebrow opacity={eyebrowOpacity}>{copy.label}</Eyebrow>
             <Headline primary={copy.title} accent={copy.titleAccent} />
-            <p className="mt-6 text-base md:text-lg text-pacific-mid font-light max-w-md leading-relaxed">
+            <p className="mt-6 text-base md:text-lg text-white/85 font-light max-w-md leading-relaxed">
               {copy.description}
             </p>
           </motion.div>
@@ -690,7 +692,7 @@ function BathSection({ media }: { media: SectionMedia }) {
           >
             <Eyebrow opacity={eyebrowOpacity}>{copy.label}</Eyebrow>
             <Headline primary={copy.title} accent={copy.titleAccent} />
-            <p className="mt-6 text-base md:text-lg text-pacific-mid font-light max-w-md leading-relaxed">
+            <p className="mt-6 text-base md:text-lg text-white/85 font-light max-w-md leading-relaxed">
               {copy.description}
             </p>
           </motion.div>
@@ -803,7 +805,7 @@ function ArchitectureSection({ media }: { media: SectionMedia }) {
           >
             <Eyebrow opacity={eyebrowOpacity}>{copy.label}</Eyebrow>
             <Headline primary={copy.title} accent={copy.titleAccent} />
-            <p className="mt-6 text-base md:text-lg text-pacific-mid font-light max-w-md leading-relaxed">
+            <p className="mt-6 text-base md:text-lg text-white/85 font-light max-w-md leading-relaxed">
               {copy.description}
             </p>
           </motion.div>
@@ -1013,7 +1015,7 @@ function CommercialSectionDesktop({ media }: { media: SectionMedia }) {
           >
             <Eyebrow opacity={eyebrowOpacity}>{copy.label}</Eyebrow>
             <Headline primary={copy.title} accent={copy.titleAccent} />
-            <p className="mt-6 text-base md:text-lg text-pacific-mid font-light max-w-md leading-relaxed">
+            <p className="mt-6 text-base md:text-lg text-white/85 font-light max-w-md leading-relaxed">
               {copy.description}
             </p>
 
@@ -1086,14 +1088,14 @@ function CommercialSectionMobile({ media }: { media: SectionMedia }) {
     <section className="relative bg-[#0a1620] py-16 px-6">
       <div className="max-w-7xl mx-auto flex flex-col gap-8">
         <div>
-          <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4">
+          <div className="text-xs font-medium tracking-[0.25em] uppercase text-white/80 mb-4">
             {copy.label}
           </div>
           <h3 className="text-3xl sm:text-4xl font-light tracking-tight text-white leading-[1.08]">
             {copy.title}{" "}
             <em className="text-[#9AA8B6] not-italic">{copy.titleAccent}</em>
           </h3>
-          <p className="mt-6 text-base text-pacific-mid font-light leading-relaxed">
+          <p className="mt-6 text-base text-white/85 font-light leading-relaxed">
             {copy.description}
           </p>
         </div>
@@ -1152,7 +1154,8 @@ function CommercialFrameSlot({
         // falls into the standalone Image branch below.
         <>
           {frame.imageUrl && (
-            <Image unoptimized={false}
+            <Image
+              unoptimized={false}
               src={frame.imageUrl}
               alt={frame.label ?? `${copy.title} ${copy.titleAccent}`}
               fill
@@ -1167,7 +1170,8 @@ function CommercialFrameSlot({
           />
         </>
       ) : frame.imageUrl ? (
-        <Image unoptimized={false}
+        <Image
+          unoptimized={false}
           src={frame.imageUrl}
           alt={frame.label ?? `${copy.title} ${copy.titleAccent}`}
           fill
@@ -1203,7 +1207,7 @@ function CommercialFrameLabel({
   return (
     <motion.span
       style={{ opacity }}
-      className="absolute inset-0 text-xs tracking-[0.3em] uppercase text-pacific-light/80"
+      className="absolute inset-0 text-xs tracking-[0.3em] uppercase text-white/85"
     >
       Now: {label}
     </motion.span>
@@ -1355,14 +1359,14 @@ export function ApplicationsScrollSections({
       >
         <div className="mx-auto max-w-7xl px-6 lg:px-12 flex flex-col lg:flex-row items-start justify-between gap-8">
           <div className="lg:max-w-lg">
-            <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-4">
+            <div className="text-xs font-medium tracking-[0.25em] uppercase text-white/80 mb-4">
               02 · Applications
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08]">
               Wherever stone belongs, Pacific belongs.
             </h2>
           </div>
-          <p className="lg:max-w-md lg:pt-12 text-base font-light text-stone-400 leading-relaxed">
+          <p className="lg:max-w-md lg:pt-12 text-base font-light text-white/85 leading-relaxed">
             Rated for residential and commercial use. Passes food-contact,
             low-emission, and fire safety standards across India, the EU, and
             North America. Lifetime warranty on every slab.

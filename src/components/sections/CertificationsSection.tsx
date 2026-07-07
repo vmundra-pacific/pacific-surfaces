@@ -46,7 +46,7 @@ export function CertificationsSection() {
             }}
           />
           <div className="relative flex flex-col items-center text-center">
-            <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-stone-400">
+            <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-white/80">
               Certified by
             </span>
             {/* DNV logo — sits on a generous white plate so the
@@ -55,7 +55,8 @@ export function CertificationsSection() {
                   the plate a sense of "credential" rather than just
                   a chip. */}
             <div className="mt-4 mb-10 inline-flex items-center justify-center bg-white rounded-lg px-8 py-5 shadow-[0_8px_28px_rgba(0,0,0,0.25)] ring-1 ring-stone-200/60">
-              <Image unoptimized={false}
+              <Image
+                unoptimized={false}
                 src="/logos/dnv.webp"
                 alt="DNV certification"
                 width={200}
@@ -63,7 +64,7 @@ export function CertificationsSection() {
                 className="h-16 w-auto object-contain"
               />
             </div>
-            <p className="text-sm sm:text-base font-light text-stone-300 leading-relaxed max-w-md">
+            <p className="text-sm sm:text-base font-light text-white/85 leading-relaxed max-w-md">
               This Verification Statement confirms that Pacific Surfaces&apos;
               engineered surface technology complies with the highest
               environmental standards, maintaining the same level of
@@ -87,7 +88,8 @@ export function CertificationsSection() {
           className="relative overflow-hidden bg-[#0f1f29] min-h-[420px] lg:min-h-[520px]"
         >
           {/* Real lab/microscope photo behind the cert content. */}
-          <Image unoptimized={false}
+          <Image
+            unoptimized={false}
             src="/images/sgs-cert.png"
             alt=""
             aria-hidden="true"
@@ -107,13 +109,14 @@ export function CertificationsSection() {
                 column layout). */}
           <div className="relative h-full p-8 sm:p-10 lg:p-12 flex flex-col justify-center">
             <div className="flex flex-col items-start">
-              <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-stone-300">
+              <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-white/80">
                 Certified by
               </span>
               {/* SGS logo — same large credential treatment as
                     DNV so the two cards read as a matched pair. */}
               <div className="mt-4 mb-10 inline-flex items-center justify-center bg-white rounded-lg px-8 py-5 shadow-[0_8px_28px_rgba(0,0,0,0.25)] ring-1 ring-stone-200/60">
-                <Image unoptimized={false}
+                <Image
+                  unoptimized={false}
                   src="/logos/sgs.png"
                   alt="SGS certification"
                   width={200}
@@ -121,11 +124,11 @@ export function CertificationsSection() {
                   className="h-16 w-auto object-contain"
                 />
               </div>
-              <p className="text-sm sm:text-base font-light text-stone-100 leading-relaxed max-w-md">
+              <p className="text-sm sm:text-base font-light text-white/90 leading-relaxed max-w-md">
                 Pacific Surfaces&apos; engineered surface technology achieved
-                independent certification from SGS for the entire portfolio
-                of Ecosurfaces to contain 0% crystalline silica — a
-                benchmark for safer fabrication and installation environments.
+                independent certification from SGS for the entire portfolio of
+                Ecosurfaces to contain 0% crystalline silica — a benchmark for
+                safer fabrication and installation environments.
               </p>
             </div>
           </div>

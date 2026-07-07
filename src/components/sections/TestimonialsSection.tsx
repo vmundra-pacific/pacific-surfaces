@@ -81,7 +81,7 @@ export function TestimonialsSection() {
           transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
           className="mb-12 sm:mb-16 lg:mb-20"
         >
-          <div className="text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase text-pacific-mid mb-4">
+          <div className="text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase text-white/80 mb-4">
             05 · Voices
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08] max-w-3xl">
@@ -145,7 +145,7 @@ export function TestimonialsSection() {
                 <figcaption className="flex items-center gap-2 text-[10px] sm:text-[11px] tracking-[0.22em] uppercase font-medium">
                   <span className="text-white">{t.name}</span>
                   <span className="text-pacific-mid/40">·</span>
-                  <span className="text-pacific-mid">{t.location}</span>
+                  <span className="text-white/85">{t.location}</span>
                 </figcaption>
               </motion.figure>
             );

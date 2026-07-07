@@ -13,7 +13,7 @@ const PRODUCT_CTA: Record<string, { href: string; label: string }> = {
     href: "/products/semi-precious",
     label: "Browse Semi-Precious Stones",
   },
-  vision: { href: "/products/quartz/chromia", label: "Browse Vision" },
+  vision: { href: "/products/quartz/chromia", label: "Browse Eclipse" },
   "facades-and-finishes": {
     href: "/products/facades-and-finishes",
     label: "Browse Beyond Finish",

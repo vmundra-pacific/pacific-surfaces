@@ -6,9 +6,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowRight, Search, ChevronDown } from "lucide-react";
+import { Menu, X, ArrowRight, Search, ChevronDown, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchOverlay } from "@/components/ui/search-overlay";
+import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
 
 // PRODUCTS_CATEGORIES drives the Products mega-menu — five cards
 // matching the Sidharth UI/UX deck exactly:
@@ -91,9 +92,39 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
   },
   {
     // Cut to Size links to the existing Fab Creations collection page.
+    // Per the Aug-2026 UX audit, the visible label is "Fab Creations"
+    // (not "Cut to Size") — slug stays fab-creations for routing.
     slug: "fab-creations",
-    name: "Cut to Size",
+    name: "Fab Creations",
     tagline: "Bespoke cut-to-size surfaces, made to spec.",
+    // Hover image (fades in on hover). "At rest" slot below is
+    // optional — drop a file at that path and it'll show dimly at
+    // rest, same as Quartz/Granites/etc.
+    imageUrl: "/images/products/fab-creations.jpeg",
+    brandedImageUrl: "/images/products/branded/fab-creations.png",
+  },
+  {
+    // Translucent is a standalone card now (was briefly a hover-
+    // reveal split inside the Fab Creations tile — reverted per
+    // request back to a normal card that behaves exactly like every
+    // other Products card: hover reveals its photo, click opens the
+    // usual About/Top Picks/Applications sub-panel).
+    //
+    // /products/translucent is a real CATEGORY_PAGES entry now
+    // (see ../../app/(site)/products/_lib/category.ts) — same
+    // coloursHref-less default as Fab Creations, Quartz, etc., so
+    // this falls through to `/products/${slug}`. That route 404s
+    // until an editor creates a "Translucent" collection in Sanity
+    // and tags a product into it; no further code change needed
+    // once that happens.
+    slug: "translucent",
+    name: "Translucent",
+    tagline: "Backlit stone that glows from within.",
+    // Hover image (fades in on hover). "At rest" slot below is
+    // optional — drop a file at that path and it'll show dimly at
+    // rest, same as Quartz/Granites/etc.
+    imageUrl: "/images/products/translucent.jpeg",
+    brandedImageUrl: "/images/products/branded/translucent.png",
   },
   {
     slug: "granites",
@@ -263,7 +294,7 @@ const navigation = [
     mega: true,
     children: [
       { name: "Quartz Surfaces", href: "/products/quartz" },
-      { name: "Vision", href: "/products/quartz/chromia" },
+      { name: "Eclipse", href: "/products/quartz/chromia" },
       { name: "Granites", href: "/products/granites" },
       { name: "Semi-Precious Stones", href: "/products/semi-precious" },
       { name: "Exotic Collection", href: "/products/exotic" },
@@ -492,7 +523,10 @@ export default function Header() {
     } catch {
       /* ignore — older browsers without matchMedia */
     }
-    if (!canHover || window.innerWidth < 1024) return;
+    // Matches the nav's xl: breakpoint (was 1024/lg) — no point
+    // warming the mega-menu thumbnail cache on viewports where
+    // the mega menus themselves are hidden behind the hamburger.
+    if (!canHover || window.innerWidth < 1280) return;
 
     if (typeof window.requestIdleCallback === "function") {
       const idleId = window.requestIdleCallback(() => preloadMegaThumbs());
@@ -561,25 +595,18 @@ export default function Header() {
   // overlapping it. Same treatment applied to the Footer.
   if (pathname?.startsWith("/visualize")) return null;
 
-  // LOGO swap rule — three layered variants picked by context.
+  // LOGO color rule — the mark (icon + wordmark) is one vector graphic
+  // (PacificLogoMark, the full icon + wordmark graphic) recolored via
+  // inherited text color, not separate image files. No background tile
+  // ever renders behind it; the only navy that appears near the logo is
+  // the header's own scroll-triggered navy background.
   //
-  //   1. monogram-dark.png  (Inverted — black tile + light mark)
-  //      Shown when the header is TRANSPARENT and sitting over the
-  //      homepage's light marble hero. Black tile pops on the bright
-  //      marble where a white-on-transparent mark would disappear.
-  //
-  //   2. monogram-navy.png  (Dark Navy bg variant)
-  //      Shown when the header has SCROLLED — i.e. its own dark navy
-  //      background is active. This file is tuned specifically for
-  //      that surface so the mark reads cleanly without feeling
-  //      stamped or floating.
-  //
-  //   3. monogram-light.png  (White Logo on transparent)
-  //      Shown on every other page at the top of scroll — pages whose
-  //      heroes have darker imagery where a white mark contrasts.
-  //
-  // The three <Image>s below are stacked at the same coordinates;
-  // only the matching opacity flips to 100. Crossfades are smooth.
+  //   - Homepage top, unscrolled, over the bright marble hero: dark
+  //     (pacific-dark) ink reads cleanly directly on the light marble,
+  //     no box needed.
+  //   - Everywhere else — scrolled (navy header bg), light-hero pages
+  //     forced into the scrolled treatment, and other pages' dark
+  //     image heroes (e.g. Contact): white.
 
   // Some pages render a LIGHT/cream PageHeader directly under the
   // navbar (Spaces sub-pages, Learn sub-pages, etc.). The default
@@ -597,13 +624,13 @@ export default function Header() {
     pathname.startsWith("/blog/");
   const headerDark = scrolled || isLightHeroPath;
 
-  // Dark (black-tile) mark ONLY on the homepage top, where it pops
-  // against the bright marble hero. Everywhere else — scrolled,
-  // light-hero pages, AND other pages' dark image heroes like
-  // Contact — use the navy (light-on-dark) mark so it stays visible
-  // on dark backgrounds where the black tile used to vanish.
-  const monogramVariant: "dark" | "navy" =
-    !headerDark && pathname === "/" ? "dark" : "navy";
+  // Logo is always white now, everywhere, no color switching — per
+  // explicit request. The one place this needs help is the homepage
+  // top (unscrolled, directly over the bright marble hero) where a
+  // plain white mark can wash out against light parts of the photo.
+  // A soft drop-shadow (not a hard-edged background box — that was
+  // the earlier "tile" behind the logo that was explicitly removed)
+  // keeps it legible there without reintroducing a visible patch.
 
   return (
     <>
@@ -697,7 +724,7 @@ export default function Header() {
         )}
       >
         <nav
-          className="mx-auto max-w-[1400px] px-6 lg:px-8"
+          className="mx-auto max-w-[1500px] px-8"
           style={{
             paddingLeft: "max(1.5rem, env(safe-area-inset-left))",
             paddingRight: "max(1.5rem, env(safe-area-inset-right))",
@@ -708,79 +735,44 @@ export default function Header() {
               squeeze them together (PACIFIC SURFACES + ABOUT were
               previously touching at wide viewports because the row
               filled fully). */}
-          <div className="flex h-20 items-center justify-between gap-x-4 xl:gap-x-8 2xl:gap-x-14">
-            {/* Logo — monogram + wordmark.
-                The monogram swaps based on header state so it always
-                reads against whatever's behind it:
-                  - scrolled (white bg)        → dark monogram
-                  - not scrolled (dark hero)   → light/inverted monogram
-                Cross-fade is handled by stacking both <Image>s in the
-                same slot and toggling opacity, so neither flickers
-                between renders. */}
-            <Link href="/" className="flex items-center gap-3 group">
-              {/* Monogram swaps on scroll:
-                    - scrolled (white bg)        → dark/Inverted monogram
-                    - not scrolled (dark hero)   → light/White Logo monogram
-                    - homepage hero override     → always Inverted
-                  Stacked <Image>s + opacity crossfade so neither flickers
-                  between renders. */}
-              <span className="relative w-9 h-9 shrink-0">
-                <Image
-                  src="/logos/monogram-dark.png"
-                  alt="Pacific Surfaces logo"
-                  fill
-                  sizes="36px"
-                  priority
-                  className={cn(
-                    "object-contain transition-opacity duration-300",
-                    monogramVariant === "dark" ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                <Image
-                  src="/logos/monogram-navy.png"
-                  alt=""
-                  fill
-                  sizes="36px"
-                  priority
-                  aria-hidden="true"
-                  className={cn(
-                    "object-contain transition-opacity duration-300",
-                    monogramVariant === "navy" ? "opacity-100" : "opacity-0"
-                  )}
-                />
-              </span>
-              <span
-                className={cn(
-                  "text-lg font-semibold tracking-[0.15em] transition-colors duration-300",
-                  // Both states are now dark backgrounds (transparent
-                  // over hero, dark navy when scrolled) — wordmark
-                  // stays white throughout.
-                  "text-white"
-                )}
-              >
-                PACIFIC
-              </span>
-              {/* SURFACES wordmark only shows at 2xl+ (≥1536px). On
-                  Mac viewports (1280–1535) it pushed the nav row into
-                  truncation — "About" was clipped into "ABO…". Keep
-                  the brand stamp on truly wide screens; the monogram
-                  + PACIFIC alone reads as the brand at smaller sizes. */}
-              <span
-                className={cn(
-                  "hidden 2xl:inline text-lg font-light tracking-[0.15em] transition-colors duration-300",
-                  "text-stone-300"
-                )}
-              >
-                SURFACES
-              </span>
+          <div className="grid h-20 grid-cols-[auto_1fr_auto] items-center">
+            {/* Logo — one PacificLogoMark graphic, always white. The
+                drop-shadow is a soft glow (not a hard box) so the mark
+                stays legible over the bright homepage marble hero
+                without reintroducing the flat background tile that
+                used to sit behind it. */}
+            <Link href="/" className="flex items-center group">
+              {/* Full icon + "PACIFIC" + "ITALIAN SURFACES" lockup as
+                  one graphic (matches the official logo exactly)
+                  instead of a separate icon + HTML text spans. Renders
+                  at the same size across every breakpoint — no more
+                  hiding the tagline until 2xl+, the mark is compact
+                  enough on its own that it never crowds the nav. */}
+              <PacificLogoMark className="h-12 w-auto text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)]" />
             </Link>
 
-            {/* Desktop nav */}
-            <div className="hidden lg:flex lg:items-center lg:gap-x-4 xl:gap-x-7">
-              {desktopNavigation.map((item: NavItem) => (
+            {/* Desktop nav.
+                Breakpoint: was `lg:` (1024px) — at that width, 7 nav
+                items + the full logo lockup + the Get-a-Quote pill
+                don't actually fit on real laptop viewports (1024-
+                1440 CSS px covers most 13-16" laptops), which is
+                exactly the reported "cuts in laptop" / clipped
+                Get-a-Quote button. Raised to `xl:` (1280px) so the
+                cramped range falls back to the mobile hamburger menu
+                instead of a squeezed row.
+                Safety net: `min-w-0` + `overflow-x-auto` means that
+                even if this row is still too wide for the space left
+                over after the logo and CTAs, IT scrolls internally —
+                the Get-a-Quote pill (a sibling, not inside this div)
+                can never be pushed off-screen and clipped by it. */}
+            <div className="hidden xl:flex items-center justify-center gap-x-6">
+              {desktopNavigation.map((item: NavItem) => {
+              console.log(item.name);
+              return (
+                
                 <div
                   key={item.name}
-                  className="relative group"
+                  className="relative group shrink-0"
                   // Hover handlers fire for any mega item (Products
                   // or Spaces). The handler takes `item.name` so the
                   // shared mega-menu panel knows which content to
@@ -804,7 +796,7 @@ export default function Header() {
                       aria-expanded={openMegaItem === item.name}
                       className={cn(
                         "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2 cursor-default select-none",
-                        "text-stone-300 hover:text-white"
+                        "text-white hover:text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
                       )}
                     >
                       {item.name}
@@ -821,7 +813,7 @@ export default function Header() {
                         "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
                         // Same colour treatment in both states now —
                         // header bg is dark in both cases.
-                        "text-stone-300 hover:text-white"
+                        "text-white hover:text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
                       )}
                     >
                       {item.name}
@@ -902,7 +894,9 @@ export default function Header() {
                               {/* Cards row. Both Products and Spaces
                               render as direct Links — click =
                               navigate, no sub-panel, no toggle.
-                              Products: 6-card grid; Spaces: 4-card. */}
+                              Products: 7-card grid (was 6 — added
+                              Translucent as its own standalone card,
+                              see PRODUCTS_CATEGORIES); Spaces: 4-card. */}
                               <div
                                 className={`grid gap-3 ${
                                   item.name === "Corporate" ||
@@ -911,7 +905,7 @@ export default function Header() {
                                     : item.name === "Spaces" ||
                                         item.name === "Professionals"
                                       ? "grid-cols-4"
-                                      : "grid-cols-6"
+                                      : "grid-cols-7"
                                 }`}
                               >
                                 {(item.name === "Spaces"
@@ -1380,7 +1374,8 @@ export default function Header() {
                     )
                   )}
                 </div>
-              ))}
+              );
+})}
             </div>
 
             {/* CTA + Search + Mobile toggle */}
@@ -1401,21 +1396,41 @@ export default function Header() {
                 <Search className="w-4 h-4" />
               </button>
 
-              {/* Visualizer pill only shows at 2xl+ (≥1536px). Below
-                  that — i.e. every Mac viewport up to 16" Pro at
-                  default scaling — the row gets crowded by the 6 nav
-                  items and the Get-a-Quote pill, so we drop the
-                  secondary CTA and surface it in the mobile menu and
-                  homepage hero instead. The Get-a-Quote pill stays
-                  visible at all desktop widths because it's the
-                  primary conversion path. */}
+              {/* Favorites — per the 2026 UX audit, "option to
+                  favorite is available but there is not place to view
+                  just the ones that have been favorited." Kept 2xl+
+                  only (same tier as the Visualizer pill) so it can't
+                  contribute to the header crowding already flagged at
+                  the lg/xl range (see Get-a-Quote clipping note) — the
+                  mobile menu carries its own Favorites link for every
+                  other breakpoint. */}
+              <Link
+                href="/favorites"
+                aria-label="View favorites"
+                className={cn(
+                  "hidden 2xl:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
+                  "text-stone-300 hover:text-white hover:bg-white/10"
+                )}
+              >
+                <Heart className="w-4 h-4" />
+              </Link>
+
+              {/* Visualizer pill — now shows from xl+ (≥1280px),
+                  matching the main nav's breakpoint (was 2xl/1536px,
+                  which meant it never appeared on most laptops). The
+                  nav row's internal scroll (see the wrapper above)
+                  is what makes this safe to surface sooner — if
+                  there isn't quite enough room, the nav items scroll
+                  instead of this pill or Get-a-Quote getting
+                  clipped. Below xl it's still reachable via the
+                  mobile menu and the homepage hero. */}
               <Link
                 href="/visualize"
                 className={cn(
-                  "hidden 2xl:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-4 xl:px-5 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
+                  "hidden xl:inline-flex items-center gap-1.5 rounded-full px-4 xl:px-5 py-2 text-[11px] xl:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
                   headerDark
                     ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
-                    : "bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20"
+                    : "bg-white/20 text-white backdrop-blur-sm border border-white/40 hover:bg-white/30"
                 )}
               >
                 Visualizer
@@ -1431,7 +1446,7 @@ export default function Header() {
                   // page keeps the translucent glass-pill style.
                   headerDark
                     ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
-                    : "bg-white/10 text-white backdrop-blur-sm border border-white/20 hover:bg-white/20"
+                    : "bg-white/20 text-white backdrop-blur-sm border border-white/40 hover:bg-white/30"
                 )}
               >
                 Get a Quote
@@ -1447,7 +1462,10 @@ export default function Header() {
                 aria-label={mobileOpen ? "Close menu" : "Open menu"}
                 aria-expanded={mobileOpen}
                 className={cn(
-                  "lg:hidden p-2 rounded-lg transition-colors",
+                  // Symmetric with the desktop nav's xl: breakpoint
+                  // above — hamburger shows exactly while the full
+                  // nav row is hidden, no gap where neither is visible.
+                  "xl:hidden p-2 rounded-lg transition-colors",
                   // Always white now since both states are dark.
                   "text-white"
                 )}
@@ -1471,7 +1489,7 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[60] bg-stone-950/95 backdrop-blur-xl lg:hidden overflow-y-auto overscroll-contain"
+            className="fixed inset-0 z-[60] bg-stone-950/95 backdrop-blur-xl xl:hidden overflow-y-auto overscroll-contain"
             onClick={() => setMobileOpen(false)}
           >
             <button
@@ -1671,6 +1689,26 @@ export default function Header() {
                 >
                   Try Visualizer
                   <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.div>
+
+              {/* Favorites — mobile's only entry point below 2xl (the
+                  header icon is 2xl+ only, see above). Plain text link,
+                  intentionally quieter than the two CTA pills since
+                  it's a secondary action. */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 }}
+                className="mt-4 flex justify-center"
+              >
+                <Link
+                  href="/favorites"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
+                >
+                  <Heart className="w-4 h-4" />
+                  View Favorites
                 </Link>
               </motion.div>
             </motion.nav>

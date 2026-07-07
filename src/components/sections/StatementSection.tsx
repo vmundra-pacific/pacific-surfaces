@@ -97,7 +97,7 @@ export function StatementSection({
               edge. Reads as the supporting follow-up sentence to the
               main brand statement above. */}
           {subStatement && (
-            <p className="mt-10 lg:mt-14 text-base sm:text-lg font-light text-stone-300 leading-relaxed">
+            <p className="mt-10 lg:mt-14 text-base sm:text-lg font-light text-white/85 leading-relaxed">
               {subStatement}
             </p>
           )}

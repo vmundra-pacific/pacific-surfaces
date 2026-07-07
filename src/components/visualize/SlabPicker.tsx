@@ -22,6 +22,17 @@ interface SlabPickerProps {
   /** Click handler for the "Apply to all" button — assigns the
    *  currently focused slab to every selected surface. */
   onApplyToAll?: () => void;
+  /** The visitor's favorited designs (localStorage, see
+   *  FavoriteDesignsPanel.tsx) — rendered as a compact row above the
+   *  main dock so favorites stay visible the whole time you're
+   *  working on a demo room or an uploaded photo, not just on the
+   *  intake screen. Omitted/empty hides the row entirely. */
+  favoriteSlabs?: Slab[];
+  /** Pick a favorite — separate from `onPick` because favorites can
+   *  be picked before any surface is focused (queues as the default
+   *  for the next surface you tap); the main dock's `onPick` is a
+   *  no-op with nothing focused. Falls back to `onPick` if omitted. */
+  onPickFavorite?: (s: Slab) => void;
 }
 
 export function SlabPicker({
@@ -31,6 +42,8 @@ export function SlabPicker({
   focusedSurfaceLabel,
   canApplyToAll,
   onApplyToAll,
+  favoriteSlabs,
+  onPickFavorite,
 }: SlabPickerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   // Map vertical wheel motion to horizontal scrolling so the user can
@@ -43,14 +56,79 @@ export function SlabPicker({
     // Some users WILL flick horizontally on a trackpad — respect
     // whichever delta is larger so vertical-mostly + horizontal-mostly
     // both feel right.
-    const delta =
-      Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
     el.scrollLeft += delta;
     e.stopPropagation();
   };
 
+  const favorites = favoriteSlabs ?? [];
+  const handleFavoritePick = onPickFavorite ?? onPick;
+
   return (
     <div className="relative">
+      {favorites.length > 0 && (
+        <div className="mb-4 pb-4 border-b border-white/8">
+          <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid mb-2.5">
+            Your favorites
+          </div>
+          <div className="overflow-x-auto pb-1 -mx-1 scrollbar-thin">
+            <div className="flex gap-2 px-1">
+              {favorites.map((s) => {
+                const isActive = active?.id === s.id;
+                return (
+                  <motion.button
+                    key={s.id}
+                    onClick={() => handleFavoritePick(s)}
+                    whileTap={{ scale: 0.97 }}
+                    className={`relative shrink-0 w-[72px] h-[88px] rounded-lg overflow-hidden ring-1 transition-all ${
+                      isActive
+                        ? "ring-pacific-light/90 shadow-[0_6px_28px_rgba(218,225,232,.18)]"
+                        : "ring-white/10 hover:ring-white/30"
+                    }`}
+                    aria-label={s.name}
+                    title={s.name}
+                  >
+                    <div
+                      className="absolute inset-0"
+                      style={{ backgroundImage: s.swatch }}
+                    />
+                    {s.overlay && (
+                      <div
+                        className="absolute inset-0 opacity-80 mix-blend-overlay"
+                        style={{ backgroundImage: s.overlay }}
+                      />
+                    )}
+                    {s.photoUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={s.photoUrl}
+                        alt={`${s.name} slab swatch`}
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/75 to-transparent">
+                      <div className="text-[9px] tracking-[.06em] uppercase text-white/95 text-left leading-tight line-clamp-2">
+                        {s.name}
+                      </div>
+                    </div>
+                    {isActive && (
+                      <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-pacific-light flex items-center justify-center">
+                        <Check
+                          className="w-3 h-3 text-pacific-dark"
+                          strokeWidth={3}
+                        />
+                      </div>
+                    )}
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-baseline justify-between mb-4 gap-3">
         <div className="min-w-0">
           <div className="text-[10px] tracking-[.28em] uppercase text-pacific-mid">
@@ -129,7 +207,13 @@ export function SlabPicker({
                   // request fails the swatch beneath remains visible.
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={s.photoUrl.includes("cdn.sanity.io") ? s.photoUrl + (s.photoUrl.includes("?") ? "&" : "?") + "w=240&h=180&fit=crop&q=70&auto=format" : s.photoUrl}
+                    src={
+                      s.photoUrl.includes("cdn.sanity.io")
+                        ? s.photoUrl +
+                          (s.photoUrl.includes("?") ? "&" : "?") +
+                          "w=240&h=180&fit=crop&q=70&auto=format"
+                        : s.photoUrl
+                    }
                     alt={`${s.name} slab swatch`}
                     loading="lazy"
                     decoding="async"

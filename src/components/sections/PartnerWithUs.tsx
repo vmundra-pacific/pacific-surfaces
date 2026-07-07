@@ -53,7 +53,7 @@ export function PartnerWithUs() {
           <TextReveal
             as="p"
             delay={0.2}
-            className="mt-6 text-lg text-stone-400 max-w-2xl mx-auto font-light leading-relaxed"
+            className="mt-6 text-lg text-white/85 max-w-2xl mx-auto font-light leading-relaxed"
           >
             Our network of distributors, fabricators and design partners spans
             across India and the world. So wherever your project is, Pacific
@@ -77,7 +77,7 @@ export function PartnerWithUs() {
                   </h3>
 
                   {/* Description */}
-                  <p className="text-sm text-stone-400 font-light leading-relaxed flex-grow">
+                  <p className="text-sm text-white/85 font-light leading-relaxed flex-grow">
                     {card.description}
                   </p>
                 </motion.div>

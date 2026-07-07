@@ -21,14 +21,15 @@ import { VideoLoadingScreen } from "@/components/visualize/VideoLoadingScreen";
  *     replay the splash.
  *
  * Scroll behaviour:
- *   - All page scrolling is locked while the splash is on screen,
- *     including throughout the exit animation. We block native scroll
- *     (overflow:hidden on html+body), Lenis smooth-scroll (its wheel
- *     handler is bypassed by capturing wheel events first), touch
- *     scroll on mobile, and keyboard scroll keys. The lock releases
- *     only after the exit animation has fully completed and the
- *     splash unmounts, so the page never moves under the user's eye
- *     while it's still being revealed.
+ *   - Scrolling is NEVER blocked, even while the splash video is still
+ *     playing. Earlier versions locked scroll (overflow:hidden + wheel/
+ *     touch/keyboard blocking) until the video ended or the user
+ *     clicked to skip — that meant the page felt frozen immediately
+ *     after load, which is exactly the "have to click something before
+ *     I can do anything" friction we want gone. The splash still plays
+ *     as a visual overlay on top (see the dismiss policy above), but
+ *     the page underneath is interactive and scrollable from the very
+ *     first frame, no click required.
  */
 const MAX_DISPLAY_MS = 20000;
 const SESSION_KEY = "ps:splashShown";
@@ -126,80 +127,18 @@ export default function SiteSplashScreen() {
     };
   }, [isHomepage]);
 
-  // Scroll lock — runs only while the splash is actively VISIBLE.
-  // The instant the video ends (or the safety ceiling fires) and we
-  // call `setVisible(false)`, the lock releases and the user can
-  // scroll right away. The splash's exit animation continues to play
-  // in the background on top of the now-interactive page; we
-  // intentionally don't gate scroll on the animation finishing,
-  // because the user doesn't want a "few seconds of nothing" between
-  // the video ending and being able to interact.
+  // Space bar is documented as a "skip the splash" key even though
+  // scrolling itself is never blocked (see file-level comment above).
+  // Handled globally here (rather than only on the splash's own
+  // onKeyDown) so it works even if focus is elsewhere on first paint.
   useEffect(() => {
     if (!visible) return;
     if (typeof window === "undefined") return;
-
-    // Native scroll lock via overflow:hidden on both html and body.
-    const html = document.documentElement;
-    const body = document.body;
-    const prevHtmlOverflow = html.style.overflow;
-    const prevBodyOverflow = body.style.overflow;
-    const prevHtmlOverscroll = html.style.overscrollBehavior;
-    const prevBodyOverscroll = body.style.overscrollBehavior;
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-    html.style.overscrollBehavior = "none";
-    body.style.overscrollBehavior = "none";
-
-    // Capture wheel/touchmove BEFORE Lenis sees them and prevent default.
-    // Capture-phase + non-passive lets us call preventDefault, which
-    // stops both the native scroll and Lenis's wheel-driven smoothing.
-    const blockEvent = (e: Event) => {
-      e.preventDefault();
-      e.stopPropagation();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === " ") setVisible(false);
     };
-
-    // Block keyboard scroll keys (space, arrows, page nav).
-    const blockedKeys = new Set([
-      " ",
-      "ArrowDown",
-      "ArrowUp",
-      "ArrowLeft",
-      "ArrowRight",
-      "PageDown",
-      "PageUp",
-      "Home",
-      "End",
-    ]);
-    const blockKey = (e: KeyboardEvent) => {
-      if (blockedKeys.has(e.key)) {
-        e.preventDefault();
-        e.stopPropagation();
-        // Space is documented as a "skip the splash" key, but this
-        // capture-phase handler swallows it before the splash's own
-        // onKeyDown ever fires. Dismiss here so Space still skips.
-        if (e.key === " ") setVisible(false);
-      }
-    };
-
-    window.addEventListener("wheel", blockEvent, {
-      passive: false,
-      capture: true,
-    });
-    window.addEventListener("touchmove", blockEvent, {
-      passive: false,
-      capture: true,
-    });
-    window.addEventListener("keydown", blockKey, { capture: true });
-
-    return () => {
-      html.style.overflow = prevHtmlOverflow;
-      body.style.overflow = prevBodyOverflow;
-      html.style.overscrollBehavior = prevHtmlOverscroll;
-      body.style.overscrollBehavior = prevBodyOverscroll;
-      window.removeEventListener("wheel", blockEvent, { capture: true });
-      window.removeEventListener("touchmove", blockEvent, { capture: true });
-      window.removeEventListener("keydown", blockKey, { capture: true });
-    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [visible]);
 
   if (!mounted) return null;

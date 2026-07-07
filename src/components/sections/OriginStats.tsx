@@ -23,8 +23,7 @@ export function OriginStats() {
       /* ignore */
     }
     type NavConn = { saveData?: boolean; effectiveType?: string };
-    const conn = (navigator as unknown as { connection?: NavConn })
-      .connection;
+    const conn = (navigator as unknown as { connection?: NavConn }).connection;
     const slowNet =
       conn?.saveData === true ||
       (conn?.effectiveType !== undefined &&
@@ -89,7 +88,7 @@ export function OriginStats() {
           transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
           className="mx-auto max-w-7xl"
         >
-          <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-5">
+          <div className="text-xs font-medium tracking-[0.25em] uppercase text-white/80 mb-5">
             03 · The Origin
           </div>
           <TextReveal
@@ -98,7 +97,7 @@ export function OriginStats() {
           >
             Everything under one roof: precision, performance, perfection.
           </TextReveal>
-          <p className="text-base font-light text-pacific-light leading-relaxed max-w-2xl">
+          <p className="text-base font-light text-white/85 leading-relaxed max-w-2xl">
             From raw material selection to the final polished surface, every
             stage is seamlessly integrated within our expansive facility. This
             unified approach ensures consistent quality, faster turnaround, and

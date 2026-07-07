@@ -31,8 +31,10 @@ const items = [
 ];
 
 // How fast the strip travels, expressed as time to cross one full
-// duplicated set. Lower = faster. 8s feels brisk but readable.
-const SECONDS_PER_SET = 8;
+// duplicated set. Lower = faster. Was 8s — a 2026 UX audit flagged
+// the stats ticker as illegible at that speed. 20s gives readers
+// enough time to actually parse each stat before it scrolls past.
+const SECONDS_PER_SET = 20;
 
 export function HeritageSection() {
   const sectionRef = useRef<HTMLElement>(null);

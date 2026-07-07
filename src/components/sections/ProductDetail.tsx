@@ -109,6 +109,11 @@ const SECTION_IDS = [
   { id: "sec-about", label: "About" },
   { id: "sec-product-info", label: "Product Info" },
   { id: "sec-similar-colors", label: "Similar Styles" },
+  // Compare Colors was previously unreachable from any nav — a 2026
+  // UX audit flagged it as a useful feature nobody knows exists.
+  // Gated by hideCompareSlider in the filter below, same as the
+  // section itself (vanity/centrepiece/sinks/facades don't render it).
+  { id: "sec-compare", label: "Compare Colors" },
 ];
 
 // Sanity collection slugs don't always match the /products/<category>
@@ -225,7 +230,9 @@ export function ProductDetail({ product }: { product: Product }) {
   // the display string changes.
   const categoryLabel =
     product.category?.name ||
-    (product.collection?.name ? formatCollection(product.collection.name) : "") ||
+    (product.collection?.name
+      ? formatCollection(product.collection.name)
+      : "") ||
     "Quartz Surfaces";
 
   // Specialty products (Semi-Precious Stones / Exotic / Centrepiece Couture
@@ -995,6 +1002,7 @@ export function ProductDetail({ product }: { product: Product }) {
                   (product.allOtherProducts &&
                     product.allOtherProducts.length > 0)
                 );
+              if (id === "sec-compare") return !hideCompareSlider;
               return true;
             }).map(({ id, label }) => (
               <button
@@ -1102,7 +1110,15 @@ export function ProductDetail({ product }: { product: Product }) {
                   <MessageCircle className="w-4 h-4" /> Enquire on WhatsApp
                 </a>
                 {/* Spec Sheet link: prefer the Sanity-uploaded PDF when
-                    present, fall back to a mailto request when blank. */}
+                    present, fall back to a mailto request when blank.
+                    Label reflects which one this actually is — a 2026
+                    UX audit flagged this exact link (before the label
+                    fix) as looking broken when it silently opened a
+                    mailto instead of downloading anything. There's a
+                    second Spec Sheet link in the "Professional
+                    Resources" panel further down this same page using
+                    the identical pattern — keep both in sync if this
+                    changes again. */}
                 <a
                   href={
                     product.specSheetUrl ||
@@ -1113,7 +1129,8 @@ export function ProductDetail({ product }: { product: Product }) {
                     : {})}
                   className="inline-flex items-center gap-2 hover:text-white transition-colors"
                 >
-                  <Download className="w-4 h-4" /> Spec Sheet
+                  <Download className="w-4 h-4" />{" "}
+                  {product.specSheetUrl ? "Spec Sheet" : "Request Spec Sheet"}
                 </a>
               </div>
             </AnimatedSection>
@@ -1199,20 +1216,28 @@ export function ProductDetail({ product }: { product: Product }) {
           {/* Column count adapts to which optional sections are
               present:
                 - Finishes Available — hidden when finishes is empty.
-                - Thicknesses — hidden for specialty product
-                  categories (vanity, semi-precious, exotic,
-                  centrepiece, integra/sinks, facades-and-finishes).
-                  Format + Professional Resources always render. The
-                  grid-cols class is derived from the count so the row
-                  stays balanced and there's never an empty column. */}
+                - Thicknesses — gated by `isQuartzSlab`, NOT
+                  `isSpecialtyProduct` (those are independent flags —
+                  a product can be quartz-slab AND match the
+                  specialty category list at the same time, e.g. some
+                  quartz collections also carry a specialty category
+                  tag). Using isSpecialtyProduct here as a proxy for
+                  "will Thicknesses render" undercounted the columns
+                  for exactly that overlap case: 4 items actually
+                  rendered (Finishes/Thicknesses/Format/Resources) but
+                  the grid only reserved 3 columns, so Professional
+                  Resources wrapped to its own row. Count the real
+                  rendered items instead so the row is never wrong. */}
           <div
-            className={`grid grid-cols-2 ${
-              finishes.length > 0 && !isSpecialtyProduct
-                ? "lg:grid-cols-4"
-                : finishes.length > 0 || !isSpecialtyProduct
-                  ? "lg:grid-cols-3"
-                  : "lg:grid-cols-2"
-            } divide-x divide-white/10`}
+            className={`grid grid-cols-2 ${(() => {
+              const specsColumnCount =
+                2 + (finishes.length > 0 ? 1 : 0) + (isQuartzSlab ? 1 : 0);
+              return specsColumnCount >= 4
+                ? "md:grid-cols-4"
+                : specsColumnCount === 3
+                  ? "md:grid-cols-3"
+                  : "md:grid-cols-2";
+            })()} divide-x divide-white/10`}
           >
             {/* Finishes Available — hidden entirely when no finishes
                 are set on the product in Sanity. */}
@@ -1292,7 +1317,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     : {})}
                   className="flex items-center gap-2 text-base text-pacific-light hover:text-white transition-colors group/link"
                 >
-                  HD file
+                  {product.hdFileUrl ? "HD file" : "Request HD File"}
                   <ChevronRight className="w-3.5 h-3.5 text-pacific-mid/70 group-hover/link:text-white transition-colors" />
                 </a>
                 {/* Spec Sheet: same pattern — Sanity PDF when uploaded,
@@ -1311,7 +1336,9 @@ export function ProductDetail({ product }: { product: Product }) {
                     : {})}
                   className="flex items-center gap-2 text-base text-pacific-light hover:text-white transition-colors group/link"
                 >
-                  Download Spec Sheet
+                  {product.specSheetUrl
+                    ? "Download Spec Sheet"
+                    : "Request Spec Sheet"}
                   <ChevronRight className="w-3.5 h-3.5 text-pacific-mid/70 group-hover/link:text-white transition-colors" />
                 </a>
               </div>
@@ -1461,7 +1488,17 @@ export function ProductDetail({ product }: { product: Product }) {
                         <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
                           Slabs
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div
+                          className={`grid grid-cols-1 gap-4 ${
+                            thicknesses.length >= 4
+                              ? "sm:grid-cols-4"
+                              : thicknesses.length === 3
+                                ? "sm:grid-cols-3"
+                                : thicknesses.length === 2
+                                  ? "sm:grid-cols-2"
+                                  : "sm:grid-cols-1"
+                          }`}
+                        >
                           {thicknesses.map((t) => (
                             <div
                               key={t}

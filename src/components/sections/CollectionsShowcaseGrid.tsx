@@ -221,7 +221,7 @@ export function CollectionsShowcaseGrid({
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-4"
+                className="text-xs font-medium tracking-[0.25em] uppercase text-white/80 mb-4"
               >
                 01 · Collections
               </motion.div>
@@ -239,7 +239,7 @@ export function CollectionsShowcaseGrid({
               transition={{ duration: 0.6, delay: 0.2 }}
               className="lg:max-w-md lg:pt-8"
             >
-              <p className="text-base font-light text-pacific-light leading-relaxed">
+              <p className="text-base font-light text-white/85 leading-relaxed">
                 Seven signature collections. Over 200 designs. Each one
                 engineered to pass a fabricator&apos;s precision test and an
                 architect&apos;s critical eye.
@@ -360,7 +360,7 @@ export function CollectionsShowcaseGrid({
 
         <div className="shrink-0 px-6 lg:px-8 pb-8">
           <div className="mx-auto max-w-7xl flex items-center gap-4">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-pacific-mid whitespace-nowrap">
+            <span className="text-[10px] tracking-[0.2em] uppercase text-white/80 whitespace-nowrap">
               Scroll
             </span>
             <div className="flex-1 h-[2px] bg-white/10 rounded-full overflow-hidden">

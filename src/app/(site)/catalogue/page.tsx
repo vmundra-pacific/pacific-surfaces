@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "/catalogue" },
 };
 
+// Re-check Sanity for new/updated products every 60s instead of only
+// at build time, so a product added or edited in Sanity Studio shows
+// up on the live site on its own — no manual redeploy needed. Matches
+// the same pattern already used on /visualize.
+export const revalidate = 60;
+
 export default async function CataloguePage() {
   const products = await client.fetch(catalogueProductsQuery);
   const slabs = mapSanityToCatalogue(products);

@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  rateLimit,
+  getClientIp,
+  VISUALIZE_RATE_LIMIT,
+} from "@/lib/rate-limit";
 
 /**
  * POST /api/segment
@@ -51,6 +56,28 @@ const AMG_INPUT = {
 const MAX_MASKS = 6;
 
 export async function POST(req: NextRequest) {
+
+  // Rate limit: 10 calls / 15 min per visitor, shared across all four
+  // visualizer routes (they're all Replicate calls that cost real money
+  // and none require a login). See src/lib/rate-limit.ts for details.
+  const ip = getClientIp(req);
+  const limitResult = rateLimit(
+    `visualize:${ip}`,
+    VISUALIZE_RATE_LIMIT.limit,
+    VISUALIZE_RATE_LIMIT.windowMs
+  );
+  if (!limitResult.allowed) {
+    return NextResponse.json(
+      {
+        error:
+          "Too many visualizer requests — please wait a few minutes and try again.",
+      },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limitResult.retryAfterSeconds) },
+      }
+    );
+  }
   const token = process.env.REPLICATE_API_TOKEN;
   if (!token) {
     return NextResponse.json(

@@ -75,6 +75,19 @@ export interface CategoryConfig {
    * "Eco Surface" / "EcoSurface" / "eco surface" all match).
    */
   ribbon?: string;
+  /**
+   * Optional extra collections to fold into this page alongside the
+   * primary `match`/`collectionSlug` collection — e.g. Fab Creations
+   * also pulls in Integra, Vanity, and Centrepiece Couture so the one
+   * page reads as the umbrella "bespoke / cut-to-size" landing rather
+   * than just the narrow Fab Creations collection. Each entry uses the
+   * SAME two lookup strategies as the primary collection (name-prefix
+   * `match`, or exact `collectionSlug` when a prefix would be
+   * ambiguous — see the Vanity collectionSlug note above for why that
+   * one needs pinning). Products are unioned (a product need only sit
+   * in ONE of the linked collections to show up), not intersected.
+   */
+  additionalCollections?: Array<{ match?: string; collectionSlug?: string }>;
 }
 
 export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
@@ -167,6 +180,19 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   },
   "fab-creations": {
     match: "fab",
+    // Fab Creations is the umbrella "bespoke / cut-to-size" landing —
+    // per product decision it also folds in Integra (sinks), Vanity
+    // (full vanity pieces), and Centrepiece Couture (statement slabs),
+    // since all four are fabrication-led rather than raw-slab
+    // categories. Integra/Centrepiece use the same name-prefix match
+    // their own standalone pages use; Vanity needs collectionSlug to
+    // avoid also matching the "Monolith Quartz Vanity" sub-collection
+    // (see the collectionSlug doc comment above).
+    additionalCollections: [
+      { match: "integra" },
+      { collectionSlug: "vanity" },
+      { match: "centrepiece" },
+    ],
     hero: {
       videoSrc: "/videos/fab-creations.mp4",
       eyebrow: "Pacific Surfaces · Fab Creations",
@@ -174,6 +200,26 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
       headlineItalic: "produced at scale.",
       description:
         "Fab Creations — bespoke surface treatments for projects that don't settle for catalogue.",
+    },
+  },
+  translucent: {
+    match: "translucent",
+    // Brand-new category — no Sanity collection named "Translucent"
+    // exists yet (confirmed via repo-wide search when this card was
+    // added to the Products mega-menu; it's backlog-only for now).
+    // resolveCategoryPage returns null when the collection lookup
+    // comes up empty, and the [slug]/page.tsx category branch calls
+    // notFound() in that case — so this route will 404 until an
+    // editor creates the "Translucent" collection in Sanity and tags
+    // at least one product into it. No code change needed once that
+    // happens; the page just starts resolving.
+    hero: {
+      videoSrc: "/videos/translucent.mp4",
+      eyebrow: "Pacific Surfaces · Translucent",
+      headline: "Stone that glows",
+      headlineItalic: "from within.",
+      description:
+        "Translucent surfaces backlit to turn a wall, counter, or panel into a lit feature — veining and depth revealed in a way daylight alone can't show.",
     },
   },
   ecosurfaces: {
@@ -267,9 +313,13 @@ const collectionBySlugQueryLocal = groq`
   }
 `;
 
-const productsByCollectionOrTypeQuery = groq`
+// $cids is always an array — the single-collection case just passes a
+// one-element array — so this one query serves both plain categories
+// and the multi-collection (additionalCollections) ones like Fab
+// Creations without needing two near-identical GROQ strings.
+const productsByCollectionsOrTypeQuery = groq`
   *[_type == "product" && (
-    collection._ref == $cid
+    collection._ref in $cids
     || ($pt != null && productType == $pt)
   )] | order(name asc) {
     _id,
@@ -385,8 +435,33 @@ export async function resolveCategoryPage(
       });
   if (!collection) return null;
 
-  const products = await client.fetch(productsByCollectionOrTypeQuery, {
-    cid: collection._id,
+  // Resolve any linked collections (e.g. Fab Creations pulling in
+  // Integra / Vanity / Centrepiece Couture) the same two ways as the
+  // primary collection, then union every resolved _id into one array.
+  // A collection that fails to resolve (renamed/deleted in Sanity) is
+  // just skipped rather than failing the whole page.
+  const cids = [collection._id as string];
+  if (config.additionalCollections?.length) {
+    const extras = await Promise.all(
+      config.additionalCollections.map((ref) =>
+        ref.collectionSlug
+          ? client.fetch(collectionBySlugQueryLocal, {
+              slug: ref.collectionSlug,
+            })
+          : ref.match
+            ? client.fetch(collectionByMatchQuery, {
+                pattern: `${ref.match.toLowerCase()}*`,
+              })
+            : Promise.resolve(null)
+      )
+    );
+    for (const extra of extras) {
+      if (extra?._id && !cids.includes(extra._id)) cids.push(extra._id);
+    }
+  }
+
+  const products = await client.fetch(productsByCollectionsOrTypeQuery, {
+    cids,
     pt: config.productType ?? null,
   });
 

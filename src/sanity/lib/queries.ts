@@ -59,6 +59,34 @@ export const catalogueProductsQuery = groq`
 `;
 
 /**
+ * Products scoped to a specific list of _ids — powers the /favorites
+ * page. Same projection shape as catalogueProductsQuery so the result
+ * plugs into mapSanityToCatalogue / SlabGrid unchanged. Favorites are
+ * stored client-side only (localStorage, see ProductDetail.tsx's
+ * ps_favorites_v1 key), so this has to be a runtime query keyed off
+ * whatever ids the client currently has favorited — there's no way to
+ * pre-render this list server-side without knowing the visitor.
+ */
+export const productsByIdsQuery = groq`
+  *[_type == "product" && _id in $ids] {
+    _id,
+    name,
+    slug,
+    "mainImage": mainImage.asset->url,
+    "gallery": select(productType == "granite-finish" => gallery[].asset->url, null),
+    "dominantColor": mainImage.asset->metadata.palette.dominant.background,
+    "collectionName": collection->name,
+    productType,
+    finishes,
+    thickness,
+    ribbons,
+    manualHues,
+    manualPattern,
+    visible
+  }
+`;
+
+/**
  * Catalogue projection scoped to a collection slug + optional
  * productType. Same shape as catalogueProductsQuery so the result
  * plugs into mapSanityToCatalogue / CatalogueClient unchanged, but

@@ -230,7 +230,7 @@ export function SignatureProjects({
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-4"
+              className="text-xs font-medium tracking-[0.25em] uppercase text-white/80 mb-4"
             >
               04 · Community
             </motion.div>
@@ -248,7 +248,7 @@ export function SignatureProjects({
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:max-w-md lg:pt-12"
           >
-            <p className="text-base font-light text-stone-400 leading-relaxed">
+            <p className="text-base font-light text-white/85 leading-relaxed">
               From luxury residences in Mumbai to commercial towers in Dubai and
               five-star hospitality projects across Southeast Asia. Pacific
               surfaces have been specified in 45+ countries by architects who
@@ -319,7 +319,8 @@ function ProjectCard({
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       ) : item.image ? (
-        <Image unoptimized={false}
+        <Image
+          unoptimized={false}
           src={sanityImg(item.image, { w: 1200 }) ?? item.image}
           alt={`${item.name} — Pacific Surfaces project`}
           fill
@@ -502,7 +503,8 @@ function ProjectVideo({
   return (
     <>
       {posterSrc && (
-        <Image unoptimized={false}
+        <Image
+          unoptimized={false}
           src={posterSrc}
           alt=""
           aria-hidden="true"

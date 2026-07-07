@@ -18,6 +18,7 @@ import { UploadZone } from "./UploadZone";
 import { DemoRoomStrip } from "./DemoRoomStrip";
 import { RoomCanvas, type RoomCanvasHandle } from "./RoomCanvas";
 import { SlabPicker } from "./SlabPicker";
+import { FavoriteDesignsPanel, useFavoriteSlabs } from "./FavoriteDesignsPanel";
 import type { SurfaceCandidate } from "./surface-detection";
 import type { DemoRoom, DemoSurface } from "./demo-rooms";
 import { useDepth, useSegment } from "./use-segment";
@@ -44,6 +45,11 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
   // from the dock assigns it to the focused surface only — other
   // selected surfaces keep their existing slabs.
   const [surfaceSlabs, setSurfaceSlabs] = useState<Record<string, Slab>>({});
+  // A favorited design picked on the intake screen, before any
+  // surface has been detected yet. Once the visitor taps their
+  // first surface, this becomes that surface's default slab —
+  // see the auto-apply effect below. Cleared on "New scene".
+  const [pendingDesign, setPendingDesign] = useState<Slab | null>(null);
   // The "focused" surface — the most recently tapped one. The slab
   // picker shows this surface's current slab as the active swatch
   // and assigns picks to this surface.
@@ -227,6 +233,12 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     return picked;
   }, [sanitySlabs]);
 
+  // Visitor's favorited designs (from ProductDetail's heart button,
+  // localStorage-only — see FavoriteDesignsPanel.tsx), resolved
+  // against the same catalogue list the dock uses. Empty array
+  // when the visitor has no favorites — the panel hides itself.
+  const favoriteSlabs = useFavoriteSlabs(curated);
+
   // ---- Surface-aware slab filtering ----
   // Some collections only make sense for specific surface types:
   //   - Integra (Sinks)        → only show when the focused surface
@@ -272,16 +284,25 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
       }
 
       // General surfaces (countertop, vanity, backsplash, etc., or
-      // unfocused state): show ONLY Pacific quartz slabs. Quartz is
-      // the visualizer's primary use case — granite / semi-precious /
-      // exotic / facades aren't part of this picker. We match on the
-      // Sanity `productType` field first; for the legacy local slabs
-      // that don't carry productType, we fall back to a collection
-      // allowlist of Pacific's known quartz brand lines.
+      // unfocused state): show Pacific's flat-slab-compositable
+      // families — quartz, granite, semi-precious, and Beyond Finish
+      // (granite-finish). Per the 2026 UX audit, granite/semi-precious/
+      // Beyond Finish were excluded here even though nothing about
+      // their asset pipeline requires it (same mainImage/gallery
+      // shape as quartz) — this was a scope decision, not a technical
+      // limit, so it's being lifted. Sinks/small-table pieces keep
+      // their own dedicated branches above. We match on the Sanity
+      // `productType` field first; for legacy local slabs that don't
+      // carry productType, we fall back to a collection allowlist.
       if (slab.productType) {
-        return slab.productType === "quartz-slab";
+        return [
+          "quartz-slab",
+          "granite-slab",
+          "semi-precious",
+          "granite-finish",
+        ].includes(slab.productType);
       }
-      const QUARTZ_COLLECTIONS = [
+      const VISUALIZABLE_COLLECTIONS = [
         "aurora",
         "celestia",
         "chromia",
@@ -290,8 +311,11 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
         "nebula",
         "vision",
         "top collection",
+        "granite",
+        "semi-precious",
+        "beyond finish",
       ];
-      return QUARTZ_COLLECTIONS.some((kw) => col.includes(kw));
+      return VISUALIZABLE_COLLECTIONS.some((kw) => col.includes(kw));
     });
   }, [curated, focusedSurfaceLabel]);
 
@@ -311,6 +335,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     setActiveDemo(null);
     setSurfaceSlabs({});
     setFocusedSurfaceId(null);
+    setPendingDesign(null);
     setActiveRegion(null);
     // Clear any in-progress manual-editor state too — otherwise a
     // pending tap / polygon / edit target survives "New scene" and
@@ -356,6 +381,41 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     },
     [focusedSlab]
   );
+
+  // Picking a favorite (from the intake screen's right rail OR the
+  // Stage 2 dock's "Your favorites" row) behaves like a normal slab
+  // pick when a surface is already focused — applies immediately,
+  // overriding whatever that surface had before. With nothing
+  // focused yet (intake screen, or workspace before the first tap),
+  // it just remembers the choice as `pendingDesign` for the effect
+  // below to apply once a surface exists.
+  const handlePickFavorite = useCallback(
+    (slab: Slab) => {
+      if (focusedSurfaceId) {
+        setSurfaceSlabs((prev) => ({ ...prev, [focusedSurfaceId]: slab }));
+        setPendingDesign(slab);
+      } else {
+        setPendingDesign((prev) => (prev?.id === slab.id ? null : slab));
+      }
+    },
+    [focusedSurfaceId]
+  );
+
+  // Auto-apply a favorited design picked on the intake screen: the
+  // first time (and every time) a surface becomes focused without
+  // an assigned slab yet, default it to `pendingDesign`. The
+  // visitor can still override it afterwards by picking a
+  // different slab from the dock — this only fills in a sensible
+  // default so they don't have to re-pick a design they already
+  // favorited.
+  useEffect(() => {
+    if (!focusedSurfaceId || !pendingDesign) return;
+    setSurfaceSlabs((prev) =>
+      prev[focusedSurfaceId]
+        ? prev
+        : { ...prev, [focusedSurfaceId]: pendingDesign }
+    );
+  }, [focusedSurfaceId, pendingDesign]);
 
   // -------------------- Intake screen --------------------
   if (!imageSrc) {
@@ -422,50 +482,81 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
             </p>
           </header>
 
-          {/* Layout swapped + reweighted: Demo room takes the larger
-              left column (1.4fr) since the curated rooms render
-              best, and Upload-your-own sits on the right (1fr) as a
-              secondary path. Was upload-left / demo-right with
-              upload taking the larger column. */}
+          {/* Layout: the entry-point choices (demo rooms — which
+              themselves fan out into Kitchens / Bathrooms / Living
+              Room — and upload-your-own) sit on the left as their
+              own 2-col grid. Favorites is a dedicated right-hand
+              rail, not just another equal grid cell, so it reads as
+              a persistent panel available no matter which of the
+              four entry points (upload, or any of the 3 demo
+              categories) the visitor is using. It only takes up
+              layout space when the visitor actually has favorites —
+              with none, the row falls back to the plain 2-col grid. */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="grid md:grid-cols-[1.4fr_1fr] gap-6"
+            className={
+              favoriteSlabs.length > 0
+                ? "grid md:grid-cols-[1fr_300px] gap-6 items-stretch"
+                : ""
+            }
           >
-            {/* PRIMARY: demo rooms — three category sections
-                (Kitchens / Bathrooms / Living Room) rendered inside
-                the card. The "Recommended" badge + "Start here"
-                eyebrow + footer note were removed; the categorical
-                sections now ARE the card. */}
-            <div className="rounded-2xl border border-white/20 bg-white/[.04] p-6 lg:p-8 relative overflow-hidden">
-              <DemoRoomStrip
-                activeId={activeDemo?.id}
-                onPick={(r) => {
-                  setActiveDemo(r);
-                  setImageSrc(r.src);
-                  clearSegment(); // demo rooms use hand-curated polygons, not AI
-                }}
-              />
-            </div>
-
-            {/* SECONDARY: upload — narrower, less emphasis. Same
-                UploadZone component; only the framing wrapper differs. */}
-            <div className="rounded-2xl border border-white/10 bg-white/[.02] p-6 lg:p-8">
-              <div className="text-[10px] md:text-xs tracking-[.28em] uppercase text-pacific-mid mb-4">
-                Or upload your own
+            {/* LEFT: the two entry points — demo rooms (1.4fr) and
+                upload-your-own (1fr). Same 2-col grid as before,
+                just nested so Favorites can sit beside both of them
+                as a single right-hand rail instead of a 3rd equal
+                column. */}
+            <div className="grid md:grid-cols-[1.4fr_1fr] gap-6">
+              {/* PRIMARY: demo rooms — three category sections
+                  (Kitchens / Bathrooms / Living Room) rendered inside
+                  the card. The "Recommended" badge + "Start here"
+                  eyebrow + footer note were removed; the categorical
+                  sections now ARE the card. */}
+              <div className="rounded-2xl border border-white/20 bg-white/[.04] p-6 lg:p-8 relative overflow-hidden">
+                <DemoRoomStrip
+                  activeId={activeDemo?.id}
+                  onPick={(r) => {
+                    setActiveDemo(r);
+                    setImageSrc(r.src);
+                    clearSegment(); // demo rooms use hand-curated polygons, not AI
+                  }}
+                />
               </div>
-              <UploadZone onImage={handleUserUpload} />
-              <div className="mt-6 pt-6 border-t border-white/10 text-xs text-pacific-mid leading-relaxed">
-                <div className="flex items-start gap-2">
-                  <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  <p>
-                    Tap-to-detect works best on well-lit, uncluttered surfaces.
-                    Results vary with photo quality.
-                  </p>
+
+              {/* SECONDARY: upload — narrower, less emphasis. Same
+                  UploadZone component; only the framing wrapper differs. */}
+              <div className="rounded-2xl border border-white/10 bg-white/[.02] p-6 lg:p-8">
+                <div className="text-[10px] md:text-xs tracking-[.28em] uppercase text-pacific-mid mb-4">
+                  Or upload your own
+                </div>
+                <UploadZone onImage={handleUserUpload} />
+                <div className="mt-6 pt-6 border-t border-white/10 text-xs text-pacific-mid leading-relaxed">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                    <p>
+                      Tap-to-detect works best on well-lit, uncluttered
+                      surfaces. Results vary with photo quality.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
+
+            {/* RIGHT RAIL: favorited designs. Renders `null` (the
+                grid collapses back to the single-column layout above)
+                when the visitor has no favorites yet. Works
+                identically whichever entry point they end up using —
+                upload or any of the 3 demo categories — since picking
+                a favorite here only sets `pendingDesign`, which the
+                auto-apply effect (above `-------------------- Intake
+                screen --------------------`) applies to the first
+                surface focused afterwards, regardless of source. */}
+            <FavoriteDesignsPanel
+              slabs={favoriteSlabs}
+              activeId={focusedSlab?.id ?? pendingDesign?.id ?? null}
+              onPick={handlePickFavorite}
+            />
           </motion.div>
         </div>
 
@@ -662,6 +753,8 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
           }
           canApplyToAll={!!focusedSlab && aiMasks.length >= 2}
           onApplyToAll={() => handleApplyToAll(aiMasks.map((m) => m.id))}
+          favoriteSlabs={favoriteSlabs}
+          onPickFavorite={handlePickFavorite}
         />
       </div>
 

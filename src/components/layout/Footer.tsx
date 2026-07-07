@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Mail, Phone, MapPin, Send } from "lucide-react";
+import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
 
 /* ------------------------------------------------------------------ *
  * Social-platform icons — inline SVGs.
@@ -97,9 +98,10 @@ function YoutubeIcon({ className }: IconProps) {
 const footerLinks = {
   products: [
     { name: "Quartz", href: "/products/quartz" },
-    // Vision = Vision Series collection — the same target the
-    // header's Products dropdown uses (/products/quartz/chromia).
-    { name: "Vision", href: "/products/quartz/chromia" },
+    // Eclipse = Vision Series collection (display name renamed from
+    // "Vision" per the 2026 UX audit) — same target the header's
+    // Products dropdown uses (/products/quartz/chromia).
+    { name: "Eclipse", href: "/products/quartz/chromia" },
     // "Granites" plural to match the URL + header nav. Sanity's
     // collection is named singular "Granite" but the page label is
     // overridden to "Granites" via CategoryConfig.displayName.
@@ -321,13 +323,12 @@ export default function Footer() {
             transition={{ duration: 0.6 }}
             className="lg:col-span-4"
           >
-            <Link href="/" className="inline-flex items-center gap-2 mb-6">
-              <span className="text-xl sm:text-[22px] font-semibold tracking-[0.18em] text-white">
-                PACIFIC
-              </span>
-              <span className="text-xl sm:text-[22px] font-light tracking-[0.18em] text-stone-500">
-                SURFACES
-              </span>
+            <Link href="/" className="inline-flex items-center mb-6">
+              {/* Real logo mark (icon + full wordmark), always white —
+                  the footer's background is always the dark navy
+                  pacific-dark, so unlike the header this never needs to
+                  switch color. */}
+              <PacificLogoMark className="h-12 w-auto text-white" />
             </Link>
             <p className="text-[13px] text-stone-400 leading-relaxed max-w-sm mb-8 font-light">
               India&apos;s leading manufacturer of sustainable, premium and

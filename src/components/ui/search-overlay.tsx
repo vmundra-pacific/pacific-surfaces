@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { X, Search, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,12 +13,62 @@ interface SearchOverlayProps {
 }
 
 interface SearchResult {
+  _type: "product" | "blogPost";
   _id: string;
   name: string;
   slug: { current: string } | string;
   mainImage?: string | null;
   collectionName?: string | null;
 }
+
+// Static index of key site pages/sections that don't have a Sanity
+// document (so they can't be reached by the /api/search GROQ query).
+// Filtered client-side against the query so the search bar behaves
+// like a real sitewide search per the 2026 UX audit, not just a
+// products-only search. Keep this list to genuinely useful
+// destinations — it's meant to supplement product/blog results, not
+// duplicate the header nav.
+const SITE_PAGES = [
+  { name: "About Us", href: "/about", keywords: "about company story" },
+  {
+    name: "Visualizer",
+    href: "/visualize",
+    keywords: "visualize room design ai",
+  },
+  { name: "Catalogue", href: "/catalogue", keywords: "catalogue browse slabs" },
+  {
+    name: "Sustainability",
+    href: "/sustainability",
+    keywords: "sustainability eco green certifications",
+  },
+  { name: "Careers", href: "/careers", keywords: "careers jobs work hiring" },
+  {
+    name: "Resources",
+    href: "/resources",
+    keywords: "resources downloads guides",
+  },
+  {
+    name: "Professionals",
+    href: "/professionals/services",
+    keywords: "professionals architects designers trade",
+  },
+  {
+    name: "Spaces",
+    href: "/spaces",
+    keywords: "spaces kitchens bathrooms outdoor commercial hospitality",
+  },
+  {
+    name: "Inspirations",
+    href: "/inspirations/inspiration-gallery",
+    keywords: "inspirations gallery projects",
+  },
+  { name: "Blog", href: "/blog", keywords: "blog articles news" },
+  {
+    name: "Contact",
+    href: "/contact",
+    keywords: "contact reach dealers offices",
+  },
+] as const;
 
 const quickLinks = [
   { name: "Products", href: "/products" },
@@ -103,6 +153,18 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     []
   );
 
+  // Client-side match against the static site-page index — cheap
+  // substring test, no network round-trip. Runs alongside the async
+  // product/blog fetch so a query like "sustainability" surfaces the
+  // page even though it has no Sanity document to search.
+  const matchedPages = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return SITE_PAGES.filter(
+      (p) => p.name.toLowerCase().includes(q) || p.keywords.includes(q)
+    ).slice(0, 4);
+  }, [query]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -173,62 +235,92 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   </div>
                 )}
 
-                {!loading && results.length > 0 && (
-                  <div className="flex flex-col gap-1">
-                    <div className="text-[11px] uppercase tracking-[0.2em] text-pacific-mid mb-3">
-                      {results.length} result{results.length !== 1 ? "s" : ""}
-                    </div>
-                    {results.slice(0, 8).map((r) => (
-                      <Link
-                        key={r._id}
-                        href={`/products/${slugStr(r.slug)}`}
-                        onClick={onClose}
-                        className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-white/5"
-                      >
-                        {r.mainImage ? (
-                          <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
-                            <Image
-                              src={
-                                sanityImg(r.mainImage, { w: 120 }) ??
-                                r.mainImage
-                              }
-                              alt={r.name}
-                              fill
-                              sizes="56px"
-                              className="object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-14 h-14 rounded-lg bg-white/5 flex-shrink-0" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="text-white font-medium text-base group-hover:text-white truncate">
-                            {r.name}
-                          </div>
-                          {r.collectionName && (
-                            <div className="text-xs text-pacific-mid mt-0.5">
-                              {r.collectionName}
+                {!loading &&
+                  (results.length > 0 || matchedPages.length > 0) && (
+                    <div className="flex flex-col gap-1">
+                      <div className="text-[11px] uppercase tracking-[0.2em] text-pacific-mid mb-3">
+                        {results.length + matchedPages.length} result
+                        {results.length + matchedPages.length !== 1 ? "s" : ""}
+                      </div>
+                      {results.slice(0, 8).map((r) => (
+                        <Link
+                          key={r._id}
+                          href={
+                            r._type === "blogPost"
+                              ? `/blog/${slugStr(r.slug)}`
+                              : `/products/${slugStr(r.slug)}`
+                          }
+                          onClick={onClose}
+                          className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-white/5"
+                        >
+                          {r.mainImage ? (
+                            <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
+                              <Image
+                                src={
+                                  sanityImg(r.mainImage, { w: 120 }) ??
+                                  r.mainImage
+                                }
+                                alt={r.name}
+                                fill
+                                sizes="56px"
+                                className="object-cover"
+                              />
                             </div>
+                          ) : (
+                            <div className="w-14 h-14 rounded-lg bg-white/5 flex-shrink-0" />
                           )}
-                        </div>
-                        <ArrowRight className="w-4 h-4 text-pacific-mid opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
-                      </Link>
-                    ))}
+                          <div className="flex-1 min-w-0">
+                            <div className="text-white font-medium text-base group-hover:text-white truncate">
+                              {r.name}
+                            </div>
+                            {(r.collectionName || r._type === "blogPost") && (
+                              <div className="text-xs text-pacific-mid mt-0.5">
+                                {r._type === "blogPost"
+                                  ? "Blog Post"
+                                  : r.collectionName}
+                              </div>
+                            )}
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-pacific-mid opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
+                        </Link>
+                      ))}
 
-                    {results.length > 8 && (
-                      <Link
-                        href={`/products?q=${encodeURIComponent(query.trim())}`}
-                        onClick={onClose}
-                        className="mt-2 text-sm text-pacific-mid hover:text-white transition-colors text-center"
-                      >
-                        View all {results.length} results →
-                      </Link>
-                    )}
-                  </div>
-                )}
+                      {matchedPages.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-white/10">
+                          <div className="text-[11px] uppercase tracking-[0.2em] text-pacific-mid mb-2">
+                            Pages
+                          </div>
+                          {matchedPages.map((p) => (
+                            <Link
+                              key={p.href}
+                              href={p.href}
+                              onClick={onClose}
+                              className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-white/5"
+                            >
+                              <div className="flex-1 min-w-0 text-white font-medium text-base group-hover:text-white truncate">
+                                {p.name}
+                              </div>
+                              <ArrowRight className="w-4 h-4 text-pacific-mid opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+
+                      {results.length > 8 && (
+                        <Link
+                          href={`/products?q=${encodeURIComponent(query.trim())}`}
+                          onClick={onClose}
+                          className="mt-2 text-sm text-pacific-mid hover:text-white transition-colors text-center"
+                        >
+                          View all {results.length} results →
+                        </Link>
+                      )}
+                    </div>
+                  )}
 
                 {!loading &&
                   results.length === 0 &&
+                  matchedPages.length === 0 &&
                   query.trim().length > 1 && (
                     <div className="text-center py-8">
                       <div className="text-pacific-mid text-sm">

@@ -535,7 +535,7 @@ export function HeroScrollCanvas() {
             style={{ width: `${loadPct}%` }}
           />
         </div>
-        <div className="mt-3 text-[10px] font-mono tracking-[0.2em] text-white/50">
+        <div className="mt-3 text-[10px] font-mono tracking-[0.2em] text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]">
           {loadPct}%
         </div>
       </div>
@@ -579,7 +579,7 @@ export function HeroScrollCanvas() {
 
           {/* Brand footer — bottom-left. */}
           <div className="absolute bottom-8 left-8 z-20 hidden md:flex flex-col gap-3">
-            <div className="text-[10px] tracking-[0.2em] text-white/30 font-mono">
+            <div className="text-[10px] tracking-[0.2em] text-white font-mono drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]">
               PACIFIC · EST 2000 · INDIA
             </div>
           </div>
@@ -606,7 +606,7 @@ export function HeroScrollCanvas() {
                   }`}
                 >
                   {hl.kicker && (
-                    <div className="mb-4 text-[10px] font-medium tracking-[0.25em] uppercase text-white/50">
+                    <div className="mb-4 text-[10px] font-medium tracking-[0.25em] uppercase text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]">
                       {hl.kicker}
                     </div>
                   )}
@@ -705,7 +705,7 @@ export function HeroScrollCanvas() {
               showScrollHint ? "opacity-100" : "opacity-0"
             }`}
           >
-            <span className="text-[10px] tracking-[0.2em] uppercase text-white/50">
+            <span className="text-[10px] tracking-[0.2em] uppercase text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]">
               Scroll to explore
             </span>
             <div className="w-px h-8 bg-white/30 animate-bounce-slow" />

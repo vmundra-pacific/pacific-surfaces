@@ -19,6 +19,12 @@ import { StatementSection } from "@/components/sections/StatementSection";
 // React.cache shares one fetch between metadata and the page body.
 const getCatalogueProducts = cache(() => client.fetch(catalogueProductsQuery));
 
+// Re-check Sanity for new/updated products every 60s instead of only
+// at build time, so a product added or edited in Sanity Studio shows
+// up on the live site on its own — no manual redeploy needed. Matches
+// the same pattern already used on /visualize.
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
   const products = await getCatalogueProducts();
   const count = Array.isArray(products) ? products.length : 0;
