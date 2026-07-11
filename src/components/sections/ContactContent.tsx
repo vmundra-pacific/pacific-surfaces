@@ -19,7 +19,6 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/components/ui/animated-section";
-import { IndiaDealerMap } from "@/components/sections/IndiaDealerMap";
 
 /**
  * Dealer record shape, matching `allDealersQuery` in
@@ -126,29 +125,6 @@ const departmentContacts: {
     ],
   },
 ];
-
-const officeLocations = [
-  {
-    name: "Navi Mumbai Office",
-    address:
-      "JB Homes, Plot no. 35 & 36, Marble Market, Sector 23, Turbhe, Navi Mumbai, Maharashtra 400703",
-  },
-  {
-    name: "Bengaluru Office",
-    address:
-      "Marble City, Bannerghatta Rd, Koppa Gate, Bengaluru, Karnataka 560105",
-  },
-];
-
-// Individual dealer names/exact addresses used to be listed here and
-// rendered unconditionally for every site visitor. Removed per request
-// — publishing a partner business's exact street address to anyone
-// browsing the site isn't something they necessarily want. The
-// interactive "Find A Dealer" search above still surfaces exact
-// addresses, but only for the specific pincode a visitor searches,
-// not as a standing public directory. The section below now shows
-// country-level presence only.
-const dealerCountries = ["India"];
 
 // Map ?type=<x> URL params to the contact form's "I am" select values.
 // PartnerWithUs section on the homepage links into this page with
@@ -1003,107 +979,6 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         </div>
       </section>
 
-      {/* Office Locations Section */}
-      <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24 border-t border-white/10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-12"
-          >
-            <h2 className="text-3xl lg:text-4xl font-light tracking-tight text-white mb-4">
-              Office Locations
-            </h2>
-            <p className="text-pacific-mid font-light max-w-2xl">
-              Visit us at any of our offices across India for a premium surface
-              experience.
-            </p>
-          </motion.div>
-
-          <StaggerContainer className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {officeLocations.map((location, idx) => (
-              <StaggerItem key={idx}>
-                <motion.div
-                  whileHover={{ y: -4 }}
-                  className="bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-white/15 transition-colors"
-                >
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="p-3 bg-white rounded-xl">
-                      <MapPin className="w-5 h-5 text-[#112732]" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-medium text-white">
-                        {location.name}
-                      </h3>
-                    </div>
-                  </div>
-                  <p className="text-sm text-pacific-mid font-light leading-relaxed ml-16">
-                    {location.address}
-                  </p>
-                  {/* Real embeddable map — plain maps.google.com iframe,
-                      no API key required (unlike the JS Maps SDK, which
-                      needs a billed Google Cloud key we don't have
-                      provisioned). Per the 2026 UX audit: "address
-                      available but geolocation and map unavailable." */}
-                  <div className="mt-6 ml-16 rounded-xl overflow-hidden border border-white/10">
-                    <iframe
-                      title={`Map — ${location.name}`}
-                      src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                        location.address
-                      )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                      className="w-full h-48 grayscale-[30%] contrast-125"
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                    />
-                  </div>
-                  <div className="mt-6 pt-6 border-t border-white/10 ml-16">
-                    <p className="text-xs text-pacific-mid font-light">
-                      Mon - Sat: 9:00 AM - 7:00 PM
-                    </p>
-                  </div>
-                </motion.div>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </div>
-      </section>
-
-      {/* Dealer Network Section — country-level presence only, no
-          individual dealer names or exact addresses. Use the "Find A
-          Dealer" search above if you need a specific nearby dealer;
-          this section is a public overview, not a full directory. */}
-      <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24 border-t border-white/10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-12"
-          >
-            <span className="text-xs font-medium tracking-[0.2em] uppercase text-pacific-mid/70 mb-4 block">
-              Our Network
-            </span>
-            <h2 className="text-3xl lg:text-4xl font-light tracking-tight text-white mb-4">
-              Our Dealer Network
-            </h2>
-            <p className="text-pacific-mid font-light max-w-2xl">
-              Pacific Surfaces dealers serve customers across{" "}
-              {dealerCountries.join(", ")}. Use{" "}
-              <span className="text-white">Find A Dealer</span> above for one
-              near you.
-            </p>
-          </motion.div>
-
-          {/* Stylized map with numbered pins + a plain-text legend —
-              shows WHERE (city) and WHO (dealer name) without a real
-              map API key or any street-level address. See
-              IndiaDealerMap.tsx for exactly what is/isn't disclosed. */}
-          <IndiaDealerMap />
-        </div>
-      </section>
     </>
   );
 }
