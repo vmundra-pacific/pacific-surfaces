@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { client } from "@/sanity/lib/client";
+import { freshClient } from "@/sanity/lib/client";
 import { allResourcesQuery } from "@/sanity/lib/queries";
 import {
   ResourcesContent,
@@ -13,10 +13,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "/resources" },
 };
 
+// Render dynamically so newly published/updated resources appear on the
+// next request instead of only after a redeploy (editor-managed content).
+export const revalidate = 0;
+
 export default async function ResourcesPage() {
   // Fetch all visible resources from Sanity. Returns [] when none have
   // been authored yet — ResourcesContent gracefully falls back to its
   // hardcoded card list in that case so the page is never empty.
-  const resources = await client.fetch<SanityResource[]>(allResourcesQuery);
+  const resources =
+    await freshClient.fetch<SanityResource[]>(allResourcesQuery);
   return <ResourcesContent resources={resources} />;
 }
