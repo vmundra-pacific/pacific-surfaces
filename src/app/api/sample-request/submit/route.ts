@@ -78,6 +78,12 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    if (!phone) {
+      return NextResponse.json(
+        { error: "Phone number is required." },
+        { status: 400 }
+      );
+    }
     if (mode === "sample" && !address) {
       return NextResponse.json(
         { error: "Shipping address is required for sample requests." },

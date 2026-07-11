@@ -101,7 +101,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     // optional — drop a file at that path and it'll show dimly at
     // rest, same as Quartz/Granites/etc.
     imageUrl: "/images/products/fab-creations.jpeg",
-    brandedImageUrl: "/images/products/branded/fab-creations.png",
+    brandedImageUrl: "/images/products/branded/fab-creations.jpeg",
   },
   {
     // Translucent is a standalone card now (was briefly a hover-
@@ -124,7 +124,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     // optional — drop a file at that path and it'll show dimly at
     // rest, same as Quartz/Granites/etc.
     imageUrl: "/images/products/translucent.jpeg",
-    brandedImageUrl: "/images/products/branded/translucent.png",
+    brandedImageUrl: "/images/products/branded/translucent.jpeg",
   },
   {
     slug: "granites",

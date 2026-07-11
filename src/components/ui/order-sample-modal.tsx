@@ -197,6 +197,7 @@ export function OrderSampleModal({
                     type="tel"
                     value={form.phone}
                     onChange={(v) => setForm({ ...form, phone: v })}
+                    required
                   />
                   <Field
                     label="Project Type"
