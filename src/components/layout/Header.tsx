@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowRight, Search, ChevronDown, Heart } from "lucide-react";
+import { Menu, X, ArrowRight, Search, ChevronDown, Heart, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchOverlay } from "@/components/ui/search-overlay";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
@@ -1415,6 +1415,31 @@ export default function Header() {
                 <Heart className="w-4 h-4" />
               </Link>
 
+              {/* Customer Login — the /customer/login page and its
+                  grievance/dashboard flow already existed and worked,
+                  but nothing in the site's actual nav linked to it, so
+                  visitors had no way to discover or reach it. Rendered
+                  as a visible outline pill (not just a dim icon) with
+                  a background/border at rest — same headerDark-aware
+                  treatment as the Visualizer pill below — so it reads
+                  clearly on first glance instead of relying on hover
+                  to become legible. Same 2xl+ tier as Favorites/
+                  Visualizer for now; the mobile menu carries its own
+                  link below for every other breakpoint. */}
+              <Link
+                href="/customer/login"
+                aria-label="Customer login"
+                className={cn(
+                  "hidden 2xl:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300 shrink-0",
+                  headerDark
+                    ? "bg-white/15 text-white border border-white/40 hover:bg-white/25"
+                    : "bg-white/20 text-white backdrop-blur-sm border border-white/50 hover:bg-white/30"
+                )}
+              >
+                <User className="w-3.5 h-3.5" />
+                Login
+              </Link>
+
               {/* Visualizer pill — now shows from xl+ (≥1280px),
                   matching the main nav's breakpoint (was 2xl/1536px,
                   which meant it never appeared on most laptops). The
@@ -1709,6 +1734,24 @@ export default function Header() {
                 >
                   <Heart className="w-4 h-4" />
                   View Favorites
+                </Link>
+              </motion.div>
+
+              {/* Customer Login — mobile's only entry point below 2xl
+                  (the header icon is 2xl+ only, see above). */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="mt-3 flex justify-center"
+              >
+                <Link
+                  href="/customer/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  Customer Login
                 </Link>
               </motion.div>
             </motion.nav>

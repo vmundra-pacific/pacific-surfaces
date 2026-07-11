@@ -96,9 +96,27 @@ export default defineConfig({
             S.divider(),
             S.documentTypeListItem("blogPost").title("Blog Posts"),
             S.documentTypeListItem("page").title("Pages"),
+
+            S.divider(),
+
+S.listItem()
+  .title("Customer Portal")
+  .child(
+    S.list()
+      .title("Customer Portal")
+      .items([
+        S.documentTypeListItem("customer").title("Customers"),
+
+        S.divider(),
+
+S.documentTypeListItem("grievance")
+  .title("Customer Grievances"),
+      ])
+  ),
           ]),
     }),
   ],
+  
   schema: {
     types: schemaTypes,
   },

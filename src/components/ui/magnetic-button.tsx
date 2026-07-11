@@ -20,6 +20,17 @@ interface MagneticButtonProps {
    */
   variant?: "primary" | "outline" | "outline-dark" | "ghost";
   size?: "sm" | "md" | "lg";
+  /**
+   * Action-button mode (form submit, logout, etc.) — mutually
+   * exclusive with `href`. When `href` is omitted this renders a real
+   * <button> (via motion.button) instead of a bare, non-interactive
+   * <motion.div>, so it's keyboard/form accessible and actually
+   * fires clicks/submits. Added for the customer portal's
+   * login/logout/submit actions, which have no URL to navigate to.
+   */
+  onClick?: () => void;
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
 }
 
 export function MagneticButton({
@@ -28,8 +39,11 @@ export function MagneticButton({
   className,
   variant = "primary",
   size = "md",
+  onClick,
+  type = "button",
+  disabled = false,
 }: MagneticButtonProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement & HTMLButtonElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const springX = useSpring(x, { stiffness: 300, damping: 20 });
@@ -68,25 +82,43 @@ export function MagneticButton({
     lg: "px-9 py-4 text-base",
   };
 
-  const inner = (
-    <motion.div
-      ref={ref}
-      style={{ x: springX, y: springY }}
-      onMouseMove={handleMouse}
-      onMouseLeave={handleLeave}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide uppercase transition-colors duration-300 cursor-pointer",
-        variants[variant],
-        sizes[size],
-        className
-      )}
-    >
-      {children}
-    </motion.div>
+  const sharedClassName = cn(
+    "inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide uppercase transition-colors duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
+    variants[variant],
+    sizes[size],
+    className
   );
 
   if (href) {
+    const inner = (
+      <motion.div
+        ref={ref}
+        style={{ x: springX, y: springY }}
+        onMouseMove={handleMouse}
+        onMouseLeave={handleLeave}
+        className={sharedClassName}
+      >
+        {children}
+      </motion.div>
+    );
     return <Link href={href}>{inner}</Link>;
   }
-  return inner;
+
+  // No href — action-button mode. Real <button> so it participates
+  // in form submission (type="submit") and is properly focusable/
+  // clickable without a Link wrapper.
+  return (
+    <motion.button
+      ref={ref}
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      style={{ x: springX, y: springY }}
+      onMouseMove={handleMouse}
+      onMouseLeave={handleLeave}
+      className={sharedClassName}
+    >
+      {children}
+    </motion.button>
+  );
 }

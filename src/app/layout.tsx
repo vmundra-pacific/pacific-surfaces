@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import GlobalDustMount from "@/components/global/GlobalDustMount";
+import AuthProvider from "@/components/providers/AuthProvider";
 
 /**
  * Google Analytics 4 measurement ID. Points at the existing
@@ -92,6 +93,9 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} font-sans antialiased`}
       >
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <GlobalDustMount />
         {/*
           Organization JSON-LD — gives Google enough metadata to
@@ -206,7 +210,6 @@ export default function RootLayout({
             }),
           }}
         />
-        {children}
         {/*
           Google Analytics 4. gtag.js loads from googletagmanager.com
           (Google's preferred delivery), then the inline init script

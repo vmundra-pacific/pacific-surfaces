@@ -19,6 +19,8 @@ import sustainabilityPage from "./sustainabilityPage";
 import facadesAndFinishesPage from "./facadesAndFinishesPage";
 import spacePage from "./spacePage";
 import learnTopic from "./learnTopic";
+import customer from "./customer";
+import grievance from "./grievance";
 
 import faqPage from "./faqPage";
 export const schemaTypes = [
@@ -44,4 +46,7 @@ export const schemaTypes = [
   spacePage,
   learnTopic,
   faqPage,
+  customer,
+  grievance,
+  
 ];

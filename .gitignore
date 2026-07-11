@@ -53,3 +53,5 @@ next-env.d.ts
 public/videos/professionals/_origina
 # stray leftover clone artifact, not real project content
 /pacific-surfaces-clean/
+
+/src/generated/prisma
