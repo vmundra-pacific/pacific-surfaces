@@ -32,6 +32,7 @@ export function OrderSampleModal({
   mode = "sample",
 }: OrderSampleModalProps) {
   const isSample = mode === "sample";
+  const [projectType, setProjectType] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -199,12 +200,34 @@ export function OrderSampleModal({
                     onChange={(v) => setForm({ ...form, phone: v })}
                     required
                   />
-                  <Field
-                    label="Project Type"
-                    value={form.project}
-                    onChange={(v) => setForm({ ...form, project: v })}
-                    placeholder="Residential / Commercial"
-                  />
+                  <select
+  value={projectType}
+  onChange={(e) => {
+    setProjectType(e.target.value);
+
+    if (e.target.value !== "Other") {
+      setForm({ ...form, project: e.target.value });
+    } else {
+      setForm({ ...form, project: "" });
+    }
+  }}
+>
+  <option value="">Select Project Type</option>
+  <option value="Residential">Residential</option>
+  <option value="Commercial">Commercial</option>
+  <option value="Other">Other</option>
+</select>
+
+{projectType === "Other" && (
+  <input
+    type="text"
+    value={form.project}
+    onChange={(e) =>
+      setForm({ ...form, project: e.target.value })
+    }
+    placeholder="Enter Project Type"
+  />
+)}
                 </div>
                 {/* Shipping Address only relevant in sample mode —
                     enquiries don't need to know where to ship to. */}

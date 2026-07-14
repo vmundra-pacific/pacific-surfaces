@@ -12,7 +12,7 @@
  * everywhere" — appropriate for testimonials sourced from clients
  * across continents.
  */
-
+import { ProfessionalsVideoGrid } from "@/components/sections/ProfessionalsVideoGrid";
 import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
 
@@ -84,9 +84,11 @@ export function TestimonialsSection() {
           <div className="text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase text-white/80 mb-4">
             05 · Voices
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.08] max-w-3xl">
-            Trusted across continents.
-          </h2>
+          <ProfessionalsVideoGrid
+        eyebrow="In motion"
+        title="See the work in motion."
+        body="A few minutes inside the design reviews, fabrication floor, and on-site installs that shape a Pacific partnership."
+      />
         </motion.div>
 
         {/* Card grid — 1 col on phone, 2 on tablet, 6 on desktop.
@@ -96,7 +98,7 @@ export function TestimonialsSection() {
             centres at cols 2+4. The bottom pair lands directly
             between the gaps of the top three — visually centred
             instead of dangling left or right. */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-5 sm:gap-6 lg:gap-8">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-5 sm:gap-6 lg:gap-8">
           {TESTIMONIALS.map((t, i) => {
             const offset = ENTRY_OFFSETS[i % ENTRY_OFFSETS.length];
             return (
@@ -150,7 +152,9 @@ export function TestimonialsSection() {
               </motion.figure>
             );
           })}
-        </div>
+        </div> */}
+        
+        
       </div>
     </section>
   );

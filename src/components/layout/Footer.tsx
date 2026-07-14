@@ -157,7 +157,7 @@ const socialLinks: {
 }[] = [
   {
     name: "Instagram",
-    href: "https://www.instagram.com/pacific_surfaces/",
+    href: "https://www.instagram.com/pacificitaliansurfaces",
     Icon: InstagramIcon,
   },
   {
@@ -169,11 +169,6 @@ const socialLinks: {
     name: "LinkedIn",
     href: "https://www.linkedin.com/company/pacific-granites-india-pvt-ltd/",
     Icon: LinkedInIcon,
-  },
-  {
-    name: "Pinterest",
-    href: "https://in.pinterest.com/thepacificstone",
-    Icon: PinterestIcon,
   },
   {
     name: "YouTube",

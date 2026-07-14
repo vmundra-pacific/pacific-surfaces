@@ -163,6 +163,7 @@ export function CollectionsShowcaseGrid({
   // case-insensitively against the Sanity collection's `name`.
   const CURATED_NAMES = [
     "Quartz",
+    "Eclipse",
     "Vision",
     "Granite",
     "Exotic",

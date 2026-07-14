@@ -1574,6 +1574,132 @@ export function ProductDetail({ product }: { product: Product }) {
 
       {/* Benefits section moved to the very bottom of the page —
           see the "BENEFITS SECTION" block after the compare slider. */}
+          {/* ===== BENEFITS SECTION — moved to the very bottom of the
+              product page so it acts as the closing pitch before the
+              modals. ===== */}
+      <section className="bg-[#112732] border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
+          <AnimatedSection animation="fadeUp">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white mb-4">
+              Why you should choose {product.name}
+            </h2>
+            <p className="text-lg text-pacific-mid font-light max-w-3xl mb-14">
+              Pacific Surfaces quartz is engineered with cutting-edge
+              technology, delivering lasting beauty and unmatched performance
+              for every space.
+            </p>
+          </AnimatedSection>
+
+          <div className="text-xs font-semibold tracking-[0.25em] uppercase text-white mb-8">
+            The Benefits of Pacific Surfaces
+          </div>
+
+          <StaggerContainer>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+              {[
+                {
+                  title: "High Scratch Resistance",
+                  desc: "Daily use and wear will not scratch your Pacific surface.",
+                  img: "/benefits/scratch-resistance.png",
+                },
+                {
+                  title: "Stain-Resistant",
+                  desc: "Its low porosity makes it highly resistant to stains.",
+                  img: "/benefits/stain-resistance.png",
+                },
+                {
+                  title: "High Impact Resistance",
+                  desc: "Highly resistant to daily impacts and heavy use.",
+                  img: "/benefits/impact.png",
+                },
+                {
+                  title: "Acid-Resistant",
+                  desc: "Low porosity prevents damage from harsh stains and acids.",
+                  img: "/benefits/acid.png",
+                },
+              ].map((benefit) => (
+                <StaggerItem key={benefit.title}>
+                  <div className="group">
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-xl mb-5 bg-white/5">
+                      <Image
+                        src={benefit.img}
+                        alt={benefit.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                      />
+                    </div>
+                    <h3 className="text-sm sm:text-base font-semibold tracking-[0.1em] uppercase text-white mb-2">
+                      {benefit.title}
+                    </h3>
+                    <p className="text-sm text-pacific-mid font-light leading-relaxed">
+                      {benefit.desc}
+                    </p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </div>
+          </StaggerContainer>
+        </div>
+      </section>
+
+      
+
+      {/* ===== CERTIFICATIONS STRIP — inline-SVG mark renditions on
+              white tiles so they read against the dark backdrop. We
+              avoid external CDN/Wikimedia URLs because they 404 / get
+              hot-link blocked, leaving broken images. Inline SVG is
+              bulletproof: no network, no CORS. ===== */}
+      <section className="bg-stone-950">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12">
+          <AnimatedSection animation="fadeIn">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              <CertBadge
+                name="NSF Certified"
+                desc="Food Equipment Materials"
+                mark={<NSFMark />}
+              />
+              <CertBadge
+                name="Greenguard Gold"
+                desc="Indoor Air Quality"
+                mark={<GreenguardMark />}
+              />
+              <CertBadge
+                name="ISO 9001:2015"
+                desc="Quality Management"
+                mark={<ISOMark />}
+              />
+              <CertBadge
+                name="CE Marking"
+                desc="European Conformity"
+                mark={<CEMark />}
+              />
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* ===== COMPARE SLIDER SECTION =====
+              `picks` is the same ranked similar-products array used by
+              the "You May Also Like" rail above — Compare Colors
+              shows the same five as the initial visible chips, so
+              comparison candidates match the recommendations.
+              Visible for any browseable-stone category (quartz,
+              granite, semi-precious, exotic). Hidden for full-piece
+              categories where slab-on-slab comparison doesn't apply:
+              vanity, centrepiece, integra/sinks, natural-stone-
+              finishes. Note this is a SEPARATE gate from
+              `isSpecialtyProduct` because semi-precious and exotic
+              should still surface the comparison even though their
+              thickness sections are suppressed. */}
+      {!hideCompareSlider && (
+        <CompareSliderSection
+          product={product}
+          picks={picks}
+          relatedProducts={product.relatedProducts || []}
+          allOtherProducts={product.allOtherProducts || []}
+        />
+      )}
 
       {/* ===== SIMILAR STYLES — single row of 5, ranked by collection
               first, then by matching hue. The `picks` array is computed
@@ -1657,131 +1783,6 @@ export function ProductDetail({ product }: { product: Product }) {
           </div>
         </section>
       )}
-
-      {/* ===== CERTIFICATIONS STRIP — inline-SVG mark renditions on
-              white tiles so they read against the dark backdrop. We
-              avoid external CDN/Wikimedia URLs because they 404 / get
-              hot-link blocked, leaving broken images. Inline SVG is
-              bulletproof: no network, no CORS. ===== */}
-      <section className="bg-stone-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12">
-          <AnimatedSection animation="fadeIn">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              <CertBadge
-                name="NSF Certified"
-                desc="Food Equipment Materials"
-                mark={<NSFMark />}
-              />
-              <CertBadge
-                name="Greenguard Gold"
-                desc="Indoor Air Quality"
-                mark={<GreenguardMark />}
-              />
-              <CertBadge
-                name="ISO 9001:2015"
-                desc="Quality Management"
-                mark={<ISOMark />}
-              />
-              <CertBadge
-                name="CE Marking"
-                desc="European Conformity"
-                mark={<CEMark />}
-              />
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* ===== COMPARE SLIDER SECTION =====
-              `picks` is the same ranked similar-products array used by
-              the "You May Also Like" rail above — Compare Colors
-              shows the same five as the initial visible chips, so
-              comparison candidates match the recommendations.
-              Visible for any browseable-stone category (quartz,
-              granite, semi-precious, exotic). Hidden for full-piece
-              categories where slab-on-slab comparison doesn't apply:
-              vanity, centrepiece, integra/sinks, natural-stone-
-              finishes. Note this is a SEPARATE gate from
-              `isSpecialtyProduct` because semi-precious and exotic
-              should still surface the comparison even though their
-              thickness sections are suppressed. */}
-      {!hideCompareSlider && (
-        <CompareSliderSection
-          product={product}
-          picks={picks}
-          relatedProducts={product.relatedProducts || []}
-          allOtherProducts={product.allOtherProducts || []}
-        />
-      )}
-
-      {/* ===== BENEFITS SECTION — moved to the very bottom of the
-              product page so it acts as the closing pitch before the
-              modals. ===== */}
-      <section className="bg-[#112732] border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
-          <AnimatedSection animation="fadeUp">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white mb-4">
-              Why you should choose {product.name}
-            </h2>
-            <p className="text-lg text-pacific-mid font-light max-w-3xl mb-14">
-              Pacific Surfaces quartz is engineered with cutting-edge
-              technology, delivering lasting beauty and unmatched performance
-              for every space.
-            </p>
-          </AnimatedSection>
-
-          <div className="text-xs font-semibold tracking-[0.25em] uppercase text-white mb-8">
-            The Benefits of Pacific Surfaces
-          </div>
-
-          <StaggerContainer>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
-              {[
-                {
-                  title: "High Scratch Resistance",
-                  desc: "Daily use and wear will not scratch your Pacific surface.",
-                  img: "/benefits/scratch-resistance.png",
-                },
-                {
-                  title: "Stain-Resistant",
-                  desc: "Its low porosity makes it highly resistant to stains.",
-                  img: "/benefits/stain-resistance.png",
-                },
-                {
-                  title: "High Impact Resistance",
-                  desc: "Highly resistant to daily impacts and heavy use.",
-                  img: "/benefits/impact.png",
-                },
-                {
-                  title: "Acid-Resistant",
-                  desc: "Low porosity prevents damage from harsh stains and acids.",
-                  img: "/benefits/acid.png",
-                },
-              ].map((benefit) => (
-                <StaggerItem key={benefit.title}>
-                  <div className="group">
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-xl mb-5 bg-white/5">
-                      <Image
-                        src={benefit.img}
-                        alt={benefit.title}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                        sizes="(max-width: 768px) 50vw, 25vw"
-                      />
-                    </div>
-                    <h3 className="text-sm sm:text-base font-semibold tracking-[0.1em] uppercase text-white mb-2">
-                      {benefit.title}
-                    </h3>
-                    <p className="text-sm text-pacific-mid font-light leading-relaxed">
-                      {benefit.desc}
-                    </p>
-                  </div>
-                </StaggerItem>
-              ))}
-            </div>
-          </StaggerContainer>
-        </div>
-      </section>
 
       {/* ===== LIGHTBOX ===== */}
       <AnimatePresence>

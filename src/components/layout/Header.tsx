@@ -55,7 +55,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     name: "Mineral infused low silica surface",
     tagline: "Engineered stone for everyday surfaces.",
     imageUrl: "/images/products/quartz.jpg",
-    brandedImageUrl: "/images/products/branded/quartz.svg",
+    brandedImageUrl: "/images/products/branded/quartz.png",
     topPicks: [
       { name: "Ruskin", href: "/products/ruskin-5028" },
       { name: "Adonis", href: "/products/adonis-5060" },
@@ -68,7 +68,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     name: "Beyond Finish",
     tagline: "Large-format facade and feature surfaces.",
     imageUrl: "/images/products/facades.png",
-    brandedImageUrl: "/images/products/branded/facades-and-finishes.svg",
+    brandedImageUrl: "/images/products/branded/facades-and-finishes.png",
     topPicks: [
       { name: "Lineal Design", href: "/products/lineal-design" },
       { name: "Cotton Design", href: "/products/cotton-design" },
@@ -82,7 +82,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     tagline: "Inlayered design quartz surfaces.",
     coloursHref: "/products/quartz/chromia",
     imageUrl: "/images/products/vision.png",
-    brandedImageUrl: "/images/products/branded/vision.svg",
+    brandedImageUrl: "/images/products/branded/vision.png",
     topPicks: [
       { name: "Taj Vein", href: "/products/taj-vein-p01" },
       { name: "Himalayan Vein", href: "/products/himalayan-vein-p14" },
@@ -101,7 +101,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     // optional — drop a file at that path and it'll show dimly at
     // rest, same as Quartz/Granites/etc.
     imageUrl: "/images/products/fab-creations.jpeg",
-    brandedImageUrl: "/images/products/branded/fab-creations.jpeg",
+    brandedImageUrl: "/images/products/branded/fab-creations.png",
   },
   {
     // Translucent is a standalone card now (was briefly a hover-
@@ -124,14 +124,14 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     // optional — drop a file at that path and it'll show dimly at
     // rest, same as Quartz/Granites/etc.
     imageUrl: "/images/products/translucent.jpeg",
-    brandedImageUrl: "/images/products/branded/translucent.jpeg",
+    brandedImageUrl: "/images/products/branded/translucent.png",
   },
   {
     slug: "granites",
     name: "Granites",
     tagline: "Natural stone for every space and surface.",
     imageUrl: "/images/products/granites.png",
-    brandedImageUrl: "/images/products/branded/granites.svg",
+    brandedImageUrl: "/images/products/branded/granites.png",
     topPicks: [
       { name: "Absolute Black", href: "/products/absolute-black" },
       { name: "Black Galaxy", href: "/products/black-galaxy" },
@@ -144,7 +144,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     name: "Semi-Precious Stones",
     tagline: "Hand-selected gemstone surfaces.",
     imageUrl: "/images/products/semi-precious.png",
-    brandedImageUrl: "/images/products/branded/semi-precious.svg",
+    brandedImageUrl: "/images/products/branded/semi-precious.png",
     topPicks: [
       { name: "Amethyst", href: "/products/amethyst" },
       { name: "Rose Quartz", href: "/products/rose-quartz" },
