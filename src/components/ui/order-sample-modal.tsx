@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle, Send } from "lucide-react";
+import { trackMetaEvent } from "@/lib/meta-pixel";
 
 interface OrderSampleModalProps {
   open: boolean;
@@ -95,6 +96,13 @@ export function OrderSampleModal({
       });
       if (!res.ok) throw new Error("Submission failed");
       setSubmitted(true);
+      // Meta conversion signal — only after the API confirms, so a
+      // failed POST never counts as a Lead.
+      trackMetaEvent("Lead", {
+        content_name: productName,
+        content_category: productCategory || "uncategorised",
+        content_type: isSample ? "sample_request" : "enquiry",
+      });
     } catch (err) {
       console.error("[order-sample-modal] submit failed:", err);
       alert(

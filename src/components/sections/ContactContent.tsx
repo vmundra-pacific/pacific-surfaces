@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import { trackMetaEvent } from "@/lib/meta-pixel";
 import {
   Mail,
   Phone,
@@ -251,6 +252,12 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
       });
       if (!res.ok) throw new Error("Submission failed");
       setFormState("sent");
+      // Meta conversion signal — fired only after the API confirms the
+      // enquiry landed, so a failed POST never counts as a Lead.
+      trackMetaEvent("Lead", {
+        content_name: "Contact Form",
+        content_category: searchParams.get("type") || "contact",
+      });
       resetTimerRef.current = setTimeout(() => {
         setFormState("idle");
         setFormData({
