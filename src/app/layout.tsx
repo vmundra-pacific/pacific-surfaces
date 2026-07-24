@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import GlobalDustMount from "@/components/global/GlobalDustMount";
+import MetaPixel from "@/components/global/MetaPixel";
 import AuthProvider from "@/components/providers/AuthProvider";
 
 /**
@@ -228,6 +229,11 @@ export default function RootLayout({
             gtag('config', '${GA_MEASUREMENT_ID}');
           `}
         </Script>
+        {/*
+          Meta Pixel. Self-contained client component so it can re-fire
+          PageView on App Router soft navigations — see MetaPixel.tsx.
+        */}
+        <MetaPixel />
       </body>
     </html>
   );
