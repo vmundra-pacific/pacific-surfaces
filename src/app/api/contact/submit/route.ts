@@ -10,7 +10,7 @@
  *   - NEXT_PUBLIC_SANITY_DATASET
  *   - SANITY_API_WRITE_TOKEN   (must have create permission)
  */
-
+import nodemailer from "nodemailer";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@sanity/client";
 
@@ -31,6 +31,16 @@ const sanityClient =
       })
     : null;
 
+    const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false, // true only for port 465
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
 interface ContactBody {
   name?: string;
   email?: string;
@@ -43,15 +53,17 @@ interface ContactBody {
 }
 
 export async function POST(req: NextRequest) {
-  if (!sanityClient) {
-    return NextResponse.json(
-      {
-        error:
-          "Contact service is not configured. Please email us at info@pacific-surfaces.com directly.",
-      },
-      { status: 503 }
-    );
-  }
+  if (
+  !process.env.SMTP_HOST ||
+  !process.env.SMTP_USER ||
+  !process.env.SMTP_PASS ||
+  !process.env.COMPANY_EMAIL
+) {
+  return NextResponse.json(
+    { error: "Email service is not configured." },
+    { status: 503 }
+  );
+}
 
   try {
     const body = (await req.json()) as ContactBody;
@@ -75,22 +87,84 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    await transporter.sendMail({
+  from: `"Pacific Website" <${process.env.SMTP_USER}>`,
+  to: process.env.COMPANY_EMAIL,
+  replyTo: email,
 
-    const doc = await sanityClient.create({
-      _type: "contactSubmission",
-      submittedAt: new Date().toISOString(),
-      name,
-      email,
-      phone: phone || undefined,
-      address: address || undefined,
-      role: role || undefined,
-      application: application || undefined,
-      message: message || undefined,
-      source: source || undefined,
-      status: "new",
-    });
+  subject: `🌐 New Website Enquiry - ${name}`,
 
-    return NextResponse.json({ success: true, id: doc._id });
+  html: `
+    <div style="font-family:Arial,sans-serif;max-width:700px;margin:auto">
+
+      <h2 style="color:#1f2937">
+        New Website Enquiry
+      </h2>
+
+      <table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;width:100%">
+        <tr>
+          <td><strong>Name</strong></td>
+          <td>${name}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Email</strong></td>
+          <td>${email}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Phone</strong></td>
+          <td>${phone || "-"}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Address</strong></td>
+          <td>${address || "-"}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Role</strong></td>
+          <td>${role || "-"}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Application</strong></td>
+          <td>${application || "-"}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Source</strong></td>
+          <td>${source || "-"}</td>
+        </tr>
+      </table>
+
+      <h3>Message</h3>
+
+      <p>${message || "No message provided."}</p>
+
+    </div>
+  `,
+});
+
+    let doc = null;
+
+  if (sanityClient) {
+  doc = await sanityClient.create({
+    _type: "contactSubmission",
+    submittedAt: new Date().toISOString(),
+    name,
+    email,
+    phone: phone || undefined,
+    address: address || undefined,
+    role: role || undefined,
+    application: application || undefined,
+    message: message || undefined,
+    source: source || undefined,
+    status: "new",
+  });
+}
+
+    return NextResponse.json({ success: true, id: doc?._id });
   } catch (error) {
     // Log the real error server-side; never leak internals to clients.
     console.error("[contact/submit] failed:", error);

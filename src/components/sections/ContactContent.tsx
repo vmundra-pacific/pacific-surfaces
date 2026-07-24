@@ -578,7 +578,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                       htmlFor="message"
                       className="block text-xs font-medium tracking-wider uppercase text-pacific-mid/70 mb-2"
                     >
-                      Message
+                      Requirements
                     </label>
                     <textarea
                       id="message"
