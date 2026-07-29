@@ -11,28 +11,31 @@
  *   2. Create a `jobApplication` document referencing the asset
  *      and storing the form fields. Becomes the editable record
  *      in Studio under "Job Applications".
- *   3. Send an email notification via Resend to:
+ *   3. Send an email notification via the same SMTP transport that
+ *      powers the Contact form (src/lib/mail.ts), to:
  *        - the role-specific `applyEmail` if the candidate applied
  *          to a specific role and that role has one set, OR
- *        - the global CAREERS_INBOX_EMAIL otherwise.
- *      Email is best-effort — if Resend isn't configured (no API
- *      key) or send fails, the document is still created so HR can
- *      catch the application in Studio. We log the failure but
- *      don't fail the whole request.
+ *        - CAREERS_INBOX_EMAIL if set, OR
+ *        - muthusamyg@pacific-surfaces.com as the default inbox.
+ *      Email is best-effort — if SMTP isn't configured or the send
+ *      fails, the document is still created so HR can catch the
+ *      application in Studio. We log the failure but don't fail
+ *      the whole request.
  *
  * Required environment variables:
  *   - NEXT_PUBLIC_SANITY_PROJECT_ID
  *   - NEXT_PUBLIC_SANITY_DATASET
  *   - SANITY_API_WRITE_TOKEN  (must have create + asset upload perms)
- *   - RESEND_API_KEY          (optional — skips email if missing)
- *   - CAREERS_FROM_EMAIL      (the verified sending address, e.g.
- *                              careers@pacific-surfaces.com)
- *   - CAREERS_INBOX_EMAIL     (where notifications go by default)
+ *   - SMTP_HOST / SMTP_PORT / SMTP_USER / SMTP_PASS  (already set in
+ *                              Vercel — same creds the Contact form uses)
+ *   - CAREERS_INBOX_EMAIL     (optional override — defaults to
+ *                              muthusamyg@pacific-surfaces.com if unset)
  */
 
 import { NextRequest, NextResponse, after } from "next/server";
 import { createClient } from "@sanity/client";
-import { Resend } from "resend";
+import { transporter } from "@/lib/mail";
+import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 
 // `nodejs` runtime (not edge) — Sanity asset upload uses Node
 // streams under the hood, and edge has tighter file/body limits
@@ -54,10 +57,6 @@ const sanityClient =
       })
     : null;
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
-
 const MAX_RESUME_BYTES = 8 * 1024 * 1024; // 8 MB
 const ALLOWED_RESUME_TYPES = new Set([
   "application/pdf",
@@ -73,6 +72,26 @@ export async function POST(req: NextRequest) {
           "Application service is not configured. Please email careers@pacific-surfaces.com directly.",
       },
       { status: 503 }
+    );
+  }
+
+  // Throttle FIRST — before `req.formData()` buffers the body. This is
+  // the most expensive public endpoint: each accepted request uploads
+  // up to 8 MB into Sanity's asset store, creates a document and sends
+  // a Resend email, and the upload previously happened before any
+  // throttle check existed at all.
+  const limit = rateLimit(
+    `form:${getClientIp(req)}`,
+    FORM_RATE_LIMIT.limit,
+    FORM_RATE_LIMIT.windowMs
+  );
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Too many applications submitted. Please try again shortly." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      }
     );
   }
 
@@ -237,10 +256,12 @@ async function sendNotificationEmail({
   department,
   appliedFor,
 }: NotificationParams) {
-  if (!resend || !sanityClient) return;
-  const fromEmail = process.env.CAREERS_FROM_EMAIL;
-  const globalInbox = process.env.CAREERS_INBOX_EMAIL;
-  if (!fromEmail || !globalInbox) return;
+  if (!sanityClient) return;
+  // Falls back to Muthusamy's inbox directly so this works with zero
+  // extra Vercel config. Set CAREERS_INBOX_EMAIL later to redirect
+  // notifications elsewhere without touching code.
+  const globalInbox =
+    process.env.CAREERS_INBOX_EMAIL || "muthusamyg@pacific-surfaces.com";
 
   // Per-role override — if the candidate selected a specific role
   // AND that role has its own applyEmail in Sanity, route there.
@@ -318,8 +339,8 @@ async function sendNotificationEmail({
     .filter(Boolean)
     .join("\n");
 
-  await resend.emails.send({
-    from: fromEmail,
+  await transporter.sendMail({
+    from: `"Pacific Surfaces Careers" <${process.env.SMTP_USER}>`,
     to: toEmail,
     replyTo: email, // hitting Reply emails the candidate directly
     subject,
