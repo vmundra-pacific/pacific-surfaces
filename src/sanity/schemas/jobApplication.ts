@@ -101,6 +101,21 @@ export default defineType({
       readOnly: true,
     }),
     defineField({
+      name: "portfolioUrl",
+      title: "Portfolio Link",
+      type: "string",
+      description:
+        "Link to the candidate's portfolio (Behance, Dribbble, Drive, personal site, etc.). Shown for roles that require a portfolio, but any candidate may include one.",
+      readOnly: true,
+    }),
+    defineField({
+      name: "portfolio",
+      title: "Portfolio Upload",
+      type: "file",
+      description: "PDF, PPT/PPTX, or image file of the candidate's portfolio, if uploaded instead of (or alongside) a link.",
+      readOnly: true,
+    }),
+    defineField({
       name: "comments",
       title: "Candidate Comments / Remarks",
       type: "text",

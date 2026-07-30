@@ -42,7 +42,7 @@ export function LearnAboutCategory({
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="mb-10 md:mb-12 max-w-2xl"
         >
-          <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-stone-400 mb-3">
+          <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-pacific-mid mb-3">
             About {categoryName}
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-[1.15] text-white">
@@ -70,9 +70,9 @@ export function LearnAboutCategory({
                   <h3 className="text-xl lg:text-2xl font-light text-white tracking-tight leading-snug">
                     {l.label}
                   </h3>
-                  <ArrowRight className="w-4 h-4 text-stone-400 mt-1.5 shrink-0 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
+                  <ArrowRight className="w-4 h-4 text-pacific-mid mt-1.5 shrink-0 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
                 </div>
-                <p className="text-sm font-light text-stone-400 leading-relaxed">
+                <p className="text-sm font-light text-pacific-mid leading-relaxed">
                   {l.description}
                 </p>
               </Link>

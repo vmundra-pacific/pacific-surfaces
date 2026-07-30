@@ -742,30 +742,30 @@ export default async function LearnTopicPage({
         // Short topics + fallback — original placeholder card
         <section className="py-16 md:py-24 px-6">
           <div className="mx-auto max-w-3xl">
-            <div className="rounded-2xl border border-stone-200 bg-stone-50 p-8 sm:p-10">
-              <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-stone-500 mb-4">
+            <div className="rounded-2xl border border-pacific-mid/20 bg-pacific-light p-8 sm:p-10">
+              <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-pacific-dark/60 mb-4">
                 [ placeholder content ]
               </p>
-              <p className="text-base font-light text-stone-700 leading-relaxed">
+              <p className="text-base font-light text-pacific-dark/70 leading-relaxed">
                 Long-form editorial copy for this section is being written. In
                 the meantime, this stub keeps the link target live so the
                 navigation and mega-menu paths all resolve.
               </p>
-              <p className="mt-4 text-base font-light text-stone-700 leading-relaxed">
+              <p className="mt-4 text-base font-light text-pacific-dark/70 leading-relaxed">
                 Need answers right now? The Pacific team can talk you through
                 specifics over a call or WhatsApp.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/contact"
-                  className="inline-flex items-center gap-2 rounded-full px-7 py-3 bg-stone-900 text-white text-xs font-medium tracking-[0.2em] uppercase hover:bg-stone-800 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full px-7 py-3 bg-pacific-dark text-white text-xs font-medium tracking-[0.2em] uppercase hover:bg-pacific-dark/90 transition-colors"
                 >
                   Talk to us
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
                 <Link
                   href={cta.href}
-                  className="inline-flex items-center gap-2 rounded-full px-7 py-3 border border-stone-300 text-stone-900 text-xs font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full px-7 py-3 border border-pacific-mid/40 text-pacific-dark text-xs font-medium tracking-[0.2em] uppercase hover:bg-pacific-mid/20 transition-colors"
                 >
                   {cta.label}
                 </Link>

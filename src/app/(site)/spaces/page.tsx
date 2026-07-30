@@ -60,20 +60,20 @@ export default function SpacesPage() {
             <Link
               key={s.title}
               href={s.href}
-              className="group relative block rounded-2xl border border-stone-200 bg-white p-8 sm:p-10 hover:border-stone-300 hover:shadow-[0_8px_28px_rgba(0,0,0,0.06)] transition-all duration-300"
+              className="group relative block rounded-2xl border border-pacific-mid/20 bg-white p-8 sm:p-10 hover:border-pacific-mid/30 hover:shadow-[0_8px_28px_rgba(0,0,0,0.06)] transition-all duration-300"
             >
-              <div className="aspect-[16/9] w-full mb-8 rounded-xl bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200 flex items-center justify-center text-stone-400">
+              <div className="aspect-[16/9] w-full mb-8 rounded-xl bg-gradient-to-br from-pacific-light via-white to-pacific-light flex items-center justify-center text-pacific-mid">
                 <span className="text-[10px] font-medium tracking-[0.3em] uppercase">
                   [ {s.title.toLowerCase()} placeholder ]
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-stone-900 mb-3">
+              <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-pacific-dark mb-3">
                 {s.title}
               </h2>
-              <p className="text-sm font-light text-stone-600 leading-relaxed mb-6">
+              <p className="text-sm font-light text-pacific-dark/70 leading-relaxed mb-6">
                 {s.blurb}
               </p>
-              <span className="inline-flex items-center gap-2 text-xs font-medium tracking-[0.2em] uppercase text-stone-900 group-hover:gap-3 transition-all">
+              <span className="inline-flex items-center gap-2 text-xs font-medium tracking-[0.2em] uppercase text-pacific-dark group-hover:gap-3 transition-all">
                 Explore
                 <ArrowRight className="w-3.5 h-3.5" />
               </span>

@@ -76,7 +76,7 @@ export default function FavoritesPage() {
             </p>
             <Link
               href="/catalogue"
-              className="mt-2 inline-flex items-center gap-1.5 rounded-full px-6 py-3 text-xs font-medium tracking-[0.1em] uppercase bg-white text-[#112732] hover:bg-stone-100 transition-colors"
+              className="mt-2 inline-flex items-center gap-1.5 rounded-full px-6 py-3 text-xs font-medium tracking-[0.1em] uppercase bg-white text-[#112732] hover:bg-pacific-light transition-colors"
             >
               Browse the Catalogue
             </Link>

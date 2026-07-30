@@ -15,6 +15,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@sanity/client";
+import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
+import { clampField, FIELD_LIMITS } from "@/lib/escape";
 
 export const runtime = "nodejs";
 
@@ -46,10 +48,27 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Throttle before touching Sanity — every accepted request is a
+  // billable document write on a dataset that is read on every render.
+  const limit = rateLimit(
+    `form:${getClientIp(req)}`,
+    FORM_RATE_LIMIT.limit,
+    FORM_RATE_LIMIT.windowMs
+  );
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Too many submissions. Please try again in a few minutes." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      }
+    );
+  }
+
   try {
     const body = (await req.json()) as NewsletterBody;
-    const firstName = (body.firstName ?? "").trim();
-    const email = (body.email ?? "").trim().toLowerCase();
+    const firstName = clampField(body.firstName, FIELD_LIMITS.name);
+    const email = clampField(body.email, FIELD_LIMITS.email).toLowerCase();
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(

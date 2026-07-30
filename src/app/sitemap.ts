@@ -23,6 +23,12 @@ const STATIC_PATHS = [
   "/products/facades-and-finishes",
   "/products/vanity",
   "/products/ecosurfaces",
+  // These two are real category landings — they resolve through the
+  // /products/[slug] dispatcher because they're keys in CATEGORY_PAGES
+  // (src/app/(site)/products/_lib/category.ts) — but were missing here,
+  // so Googlebot had no path to discover them.
+  "/products/fab-creations",
+  "/products/translucent",
   // Quartz sub-collection landings. Each routes through
   // /products/[slug]/[item] and renders a filtered catalogue
   // for that collection's slabs. SEO value: each collection has
@@ -71,7 +77,13 @@ const STATIC_PATHS = [
   "/sustainability",
   "/careers",
   "/contact",
-  "/catalogue",
+  // /catalogue intentionally NOT listed. It renders the same
+  // CatalogueClient over the same query as /products, so the two were
+  // near-duplicates competing for identical queries. /products is the
+  // canonical version (it adds the hero, OriginStats and
+  // StatementSection), and /catalogue now canonicals to it — see
+  // src/app/(site)/catalogue/page.tsx. The URL still works for anyone
+  // holding an old link; it just shouldn't be advertised for crawling.
   "/visualize",
   "/privacy",
 ];

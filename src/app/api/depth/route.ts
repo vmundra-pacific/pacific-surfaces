@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validateImageInput } from "@/lib/image-input";
 import {
   rateLimit,
   getClientIp,
@@ -67,10 +68,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { image } = body;
-  if (!image) {
-    return NextResponse.json({ error: "Missing image" }, { status: 400 });
+  // Only inline data-URLs are accepted — a remote URL would be fetched
+  // server-side by Replicate, turning this route into an anonymous URL
+  // fetcher. See src/lib/image-input.ts for the full rationale.
+  const validated = validateImageInput(body.image);
+  if (!validated.ok) {
+    return NextResponse.json({ error: validated.error }, { status: 400 });
   }
+  const image = validated.dataUrl;
 
   try {
     const processedImage = await resizeIfNeeded(image, MAX_DIM);

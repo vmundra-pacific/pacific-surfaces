@@ -277,7 +277,7 @@ export function ManualFrameEditor({
           hatch even if the bottom toolbar is off-screen / scrolled. */}
       <button
         onClick={onCancel}
-        className="pointer-events-auto absolute top-3 right-3 z-40 w-9 h-9 rounded-full bg-pacific-dark/90 border border-white/20 text-pacific-light hover:bg-red-500/30 hover:border-red-400/60 transition-colors flex items-center justify-center shadow-lg"
+        className="pointer-events-auto absolute top-3 right-3 z-40 w-9 h-9 rounded-full bg-pacific-dark/90 border border-white/20 text-pacific-light hover:bg-pacific-mid/30 hover:border-pacific-mid/60 transition-colors flex items-center justify-center shadow-lg"
         aria-label="Cancel manual frame"
         title="Cancel (Esc)"
       >
@@ -421,7 +421,7 @@ export function ManualFrameEditor({
         <div className="border-t border-white/10 pt-2 mt-1 flex gap-2">
           <button
             onClick={onCancel}
-            className="flex-1 px-3 py-2 rounded border border-red-400/40 text-red-200 hover:bg-red-500/15 hover:border-red-400/70 transition-colors font-medium"
+            className="flex-1 px-3 py-2 rounded border border-pacific-mid/40 text-pacific-mid hover:bg-pacific-mid/15 hover:border-pacific-mid/70 transition-colors font-medium"
           >
             ✕ Cancel
           </button>

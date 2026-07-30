@@ -90,13 +90,13 @@ interface Product {
 }
 
 const ribbonStyles: Record<string, string> = {
-  Patented: "bg-stone-900 text-white",
-  "New Arrival": "bg-stone-900 text-white",
-  "Eco Surface": "bg-emerald-700 text-white",
-  "Luxury Drop": "bg-stone-900 text-white",
-  "Top Color": "bg-stone-900 text-white",
-  New: "bg-stone-900 text-white",
-  Popular: "bg-stone-800 text-white",
+  Patented: "bg-pacific-dark text-white",
+  "New Arrival": "bg-pacific-dark text-white",
+  "Eco Surface": "bg-pacific-dark text-white ring-1 ring-pacific-mid/60",
+  "Luxury Drop": "bg-pacific-dark text-white",
+  "Top Color": "bg-pacific-dark text-white",
+  New: "bg-pacific-dark text-white",
+  Popular: "bg-pacific-dark/85 text-white",
 };
 
 const WHATSAPP_URL_BASE =
@@ -538,7 +538,7 @@ export function ProductDetail({ product }: { product: Product }) {
         ref={(el) => {
           sectionRefs.current["sec-gallery"] = el;
         }}
-        className="relative bg-stone-950 pt-20"
+        className="relative bg-pacific-dark pt-20"
       >
         <div className="relative h-[calc(100vh-80px)]">
           {/* LEFT vertical thumbnail rail — floats over the slab.
@@ -563,7 +563,7 @@ export function ProductDetail({ product }: { product: Product }) {
                       behavior: "smooth",
                     })
                   }
-                  className="mb-2 w-full py-2 flex items-center justify-center text-stone-400 hover:text-white transition-colors"
+                  className="mb-2 w-full py-2 flex items-center justify-center text-pacific-mid hover:text-white transition-colors"
                   aria-label="Scroll thumbnails up"
                 >
                   <ChevronUp className="w-4 h-4" />
@@ -599,7 +599,7 @@ export function ProductDetail({ product }: { product: Product }) {
                           size, Retina-safe) instead of the full-resolution
                           master — first-paint gets the strip in under
                           100ms even on a slow connection. */}
-                      <div className="relative w-full aspect-[4/3] bg-stone-900">
+                      <div className="relative w-full aspect-[4/3] bg-pacific-dark">
                         <Image
                           src={sanityImg(thumb.src, { w: 280 }) ?? thumb.src}
                           alt={thumb.label}
@@ -614,7 +614,7 @@ export function ProductDetail({ product }: { product: Product }) {
                           Finishes) where labels like "Slab" /
                           "Close Up" misrepresent the piece. */}
                       {!isSpecialtyProduct && (
-                        <div className="bg-stone-700/80 py-1.5 px-2">
+                        <div className="bg-pacific-dark/80 py-1.5 px-2">
                           <span className="text-[10px] font-medium tracking-[0.05em] text-white/95 block text-center truncate">
                             {thumb.label}
                           </span>
@@ -633,7 +633,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     href="/visualize"
                     className="relative shrink-0 w-full overflow-hidden rounded-[2px] hover:opacity-100 opacity-95 transition-all shadow-[0_6px_18px_-6px_rgba(0,0,0,.5)] hover:shadow-[0_8px_22px_-4px_rgba(0,0,0,.55)] group/room"
                   >
-                    <div className="relative w-full aspect-[4/3] bg-stone-800">
+                    <div className="relative w-full aspect-[4/3] bg-pacific-dark">
                       {sceneImages[0] ? (
                         <Image
                           src={
@@ -646,9 +646,9 @@ export function ProductDetail({ product }: { product: Product }) {
                           sizes="140px"
                         />
                       ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-pacific-mid/40 to-pacific-dark" />
                       )}
-                      <div className="absolute inset-0 bg-stone-950/55 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-pacific-dark/55 flex items-center justify-center">
                         <div className="text-center leading-tight">
                           <div className="text-[12px] font-bold tracking-[0.06em] text-white">
                             VIEW IN
@@ -657,7 +657,7 @@ export function ProductDetail({ product }: { product: Product }) {
                         </div>
                       </div>
                     </div>
-                    <div className="bg-stone-700/80 py-1.5 px-2">
+                    <div className="bg-pacific-dark/80 py-1.5 px-2">
                       <span className="text-[10px] font-medium tracking-[0.05em] text-white/95 block text-center truncate">
                         Visualizer
                       </span>
@@ -676,7 +676,7 @@ export function ProductDetail({ product }: { product: Product }) {
                       behavior: "smooth",
                     })
                   }
-                  className="mt-2 w-full py-2 flex items-center justify-center text-stone-400 hover:text-white transition-colors"
+                  className="mt-2 w-full py-2 flex items-center justify-center text-pacific-mid hover:text-white transition-colors"
                   aria-label="Scroll thumbnails down"
                 >
                   <ChevronDown className="w-4 h-4" />
@@ -743,7 +743,7 @@ export function ProductDetail({ product }: { product: Product }) {
                   priority
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-stone-200 via-stone-100 to-stone-200" />
+                <div className="w-full h-full bg-gradient-to-br from-pacific-light via-white to-pacific-light" />
               )}
 
               {/* MSI-style zoom: crosshair box on image + magnified panel */}
@@ -769,7 +769,7 @@ export function ProductDetail({ product }: { product: Product }) {
                       top: `calc(${zoomPos.y}% - 100px)`,
                     }}
                   >
-                    <span className="text-[9px] tracking-[0.2em] uppercase text-white/80 bg-stone-900/50 px-2 py-1 m-1">
+                    <span className="text-[9px] tracking-[0.2em] uppercase text-white/80 bg-pacific-dark/50 px-2 py-1 m-1">
                       Slab
                     </span>
                   </div>
@@ -789,7 +789,7 @@ export function ProductDetail({ product }: { product: Product }) {
                       key={r}
                       className={cn(
                         "text-[10px] tracking-[0.25em] uppercase px-3 py-1.5 rounded-full font-medium",
-                        ribbonStyles[r] || "bg-stone-900 text-white"
+                        ribbonStyles[r] || "bg-pacific-dark text-white"
                       )}
                     >
                       {r}
@@ -802,7 +802,7 @@ export function ProductDetail({ product }: { product: Product }) {
                   (slab uses hover-zoom instead). */}
               {!isSlabSelected && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
-                  <span className="flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-white/80 bg-stone-900/50 backdrop-blur-sm px-4 py-2.5 rounded-full">
+                  <span className="flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-white/80 bg-pacific-dark/50 backdrop-blur-sm px-4 py-2.5 rounded-full">
                     <ZoomIn className="w-3.5 h-3.5" /> Click to Expand
                   </span>
                 </div>
@@ -816,7 +816,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     single cluster
                   - Visualizer button: icon + "Visualizer" text label
                     so users know what the home glyph leads to */}
-              <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-stone-900/70 backdrop-blur-md rounded-full pl-2 pr-3 py-1.5">
+              <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-pacific-dark/70 backdrop-blur-md rounded-full pl-2 pr-3 py-1.5">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -899,7 +899,7 @@ export function ProductDetail({ product }: { product: Product }) {
                   }}
                 />
                 {/* Label */}
-                <div className="absolute top-0 left-0 right-0 bg-stone-900/50 backdrop-blur-sm px-3 py-1.5 z-10">
+                <div className="absolute top-0 left-0 right-0 bg-pacific-dark/50 backdrop-blur-sm px-3 py-1.5 z-10">
                   <span className="text-[10px] tracking-[0.2em] uppercase text-white font-medium">
                     Slab
                   </span>
@@ -914,7 +914,7 @@ export function ProductDetail({ product }: { product: Product }) {
             clipped by the next section. Hidden on desktop, where
             the vertical rail inside the slab area handles thumbs. */}
         {thumbnails.length > 1 && (
-          <div className="md:hidden flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar bg-stone-950">
+          <div className="md:hidden flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar bg-pacific-dark">
             {thumbnails.map((thumb, i) => (
               <button
                 key={i}
@@ -923,7 +923,7 @@ export function ProductDetail({ product }: { product: Product }) {
                   "relative shrink-0 w-16 h-16 overflow-hidden rounded-lg border-2 transition-all",
                   selectedImage === thumb.src
                     ? "border-white"
-                    : "border-stone-700"
+                    : "border-pacific-mid/30"
                 )}
               >
                 <Image
@@ -947,7 +947,7 @@ export function ProductDetail({ product }: { product: Product }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-50 bg-stone-950/95 backdrop-blur-md flex flex-col"
+            className="fixed inset-0 z-50 bg-pacific-dark/95 backdrop-blur-md flex flex-col"
           >
             <div className="flex items-center justify-between px-6 py-4">
               <h3 className="text-white text-sm font-medium tracking-[0.2em] uppercase">
@@ -1650,7 +1650,7 @@ export function ProductDetail({ product }: { product: Product }) {
               avoid external CDN/Wikimedia URLs because they 404 / get
               hot-link blocked, leaving broken images. Inline SVG is
               bulletproof: no network, no CORS. ===== */}
-      <section className="bg-stone-950">
+      <section className="bg-pacific-dark">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12">
           <AnimatedSection animation="fadeIn">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -1792,7 +1792,7 @@ export function ProductDetail({ product }: { product: Product }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-50 bg-stone-950/95 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-pacific-dark/95 backdrop-blur-md flex items-center justify-center p-4"
             onClick={() => setLightboxOpen(false)}
           >
             <button
@@ -1871,7 +1871,7 @@ export function ProductDetail({ product }: { product: Product }) {
           </button>
           <Link
             href="/visualize"
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide uppercase transition-colors duration-300 bg-transparent text-white border border-white/40 hover:bg-white hover:text-stone-900 px-4 py-3 text-xs"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide uppercase transition-colors duration-300 bg-transparent text-white border border-white/40 hover:bg-white hover:text-pacific-dark px-4 py-3 text-xs"
           >
             <Home className="w-4 h-4" />
             Visualize
@@ -1905,7 +1905,7 @@ function SpecRow({ label, value }: { label: string; value: string }) {
  * Certification badge tile.
  *
  * Renders an inline-SVG cert mark on a white pill so brand colours
- * read properly against the dark `bg-stone-950` strip. We use inline
+ * read properly against the dark `bg-pacific-dark` strip. We use inline
  * SVG (rather than external image URLs) because:
  *   - external CDNs 404 / hot-link block / change paths, leaving
  *     broken images;
@@ -2344,12 +2344,12 @@ function CompareSliderSection({
           </div>
 
           {/* Labels */}
-          <div className="absolute bottom-4 left-4 z-10 bg-stone-900/70 backdrop-blur-sm px-4 py-2 rounded-full">
+          <div className="absolute bottom-4 left-4 z-10 bg-pacific-dark/70 backdrop-blur-sm px-4 py-2 rounded-full">
             <span className="text-xs tracking-[0.15em] uppercase text-white font-medium">
               {product.name}
             </span>
           </div>
-          <div className="absolute bottom-4 right-4 z-10 bg-stone-900/70 backdrop-blur-sm px-4 py-2 rounded-full">
+          <div className="absolute bottom-4 right-4 z-10 bg-pacific-dark/70 backdrop-blur-sm px-4 py-2 rounded-full">
             <span className="text-xs tracking-[0.15em] uppercase text-white font-medium">
               {rightProduct?.name}
             </span>
@@ -2386,7 +2386,7 @@ function CompareSliderSection({
                   <div className="w-full h-full bg-white/10" />
                 )}
                 {/* Name tooltip on hover */}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-stone-900/80 to-transparent pt-4 pb-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-pacific-dark/80 to-transparent pt-4 pb-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <span className="text-[7px] tracking-wider uppercase text-white block text-center truncate">
                     {rp.name}
                   </span>
@@ -2438,7 +2438,7 @@ function CompareSliderSection({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             data-lenis-prevent
-            className="fixed inset-0 z-50 bg-stone-950/60 backdrop-blur-sm flex items-center justify-center p-4 overscroll-contain"
+            className="fixed inset-0 z-50 bg-pacific-dark/60 backdrop-blur-sm flex items-center justify-center p-4 overscroll-contain"
             onClick={() => setPickerOpen(false)}
           >
             <motion.div
@@ -2451,20 +2451,20 @@ function CompareSliderSection({
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-stone-100">
-                <h3 className="text-lg font-medium text-stone-900">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-pacific-mid/20">
+                <h3 className="text-lg font-medium text-pacific-dark">
                   Choose a Color to Compare
                 </h3>
                 <button
                   onClick={() => setPickerOpen(false)}
-                  className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center transition-colors"
+                  className="w-9 h-9 rounded-full hover:bg-pacific-light flex items-center justify-center transition-colors"
                 >
-                  <X className="w-4 h-4 text-stone-500" />
+                  <X className="w-4 h-4 text-pacific-mid" />
                 </button>
               </div>
 
               {/* Search + Filter */}
-              <div className="px-6 py-4 border-b border-stone-100 space-y-3">
+              <div className="px-6 py-4 border-b border-pacific-mid/20 space-y-3">
                 {/* Search */}
                 <div className="relative">
                   <input
@@ -2472,10 +2472,10 @@ function CompareSliderSection({
                     placeholder="Search colors..."
                     value={pickerSearch}
                     onChange={(e) => setPickerSearch(e.target.value)}
-                    className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-stone-200 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-200"
+                    className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-pacific-mid/30 text-sm text-pacific-dark placeholder:text-pacific-mid/60 focus:outline-none focus:border-pacific-dark focus:ring-1 focus:ring-pacific-mid/30"
                   />
                   <svg
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pacific-mid"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -2493,8 +2493,8 @@ function CompareSliderSection({
                       className={cn(
                         "px-3 py-1.5 rounded-full text-xs font-medium tracking-wide uppercase transition-colors",
                         pickerFilter === "all"
-                          ? "bg-stone-900 text-white"
-                          : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                          ? "bg-pacific-dark text-white"
+                          : "bg-pacific-light text-pacific-dark/70 hover:bg-pacific-mid/40"
                       )}
                     >
                       All
@@ -2506,8 +2506,8 @@ function CompareSliderSection({
                         className={cn(
                           "px-3 py-1.5 rounded-full text-xs font-medium tracking-wide uppercase transition-colors",
                           pickerFilter === f
-                            ? "bg-stone-900 text-white"
-                            : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                            ? "bg-pacific-dark text-white"
+                            : "bg-pacific-light text-pacific-dark/70 hover:bg-pacific-mid/40"
                         )}
                       >
                         {f}
@@ -2525,7 +2525,7 @@ function CompareSliderSection({
                 className="flex-1 overflow-y-auto overscroll-contain px-6 py-4"
               >
                 {filteredProducts.length === 0 ? (
-                  <p className="text-sm text-stone-400 text-center py-8">
+                  <p className="text-sm text-pacific-mid text-center py-8">
                     No colors found
                   </p>
                 ) : (
@@ -2537,11 +2537,11 @@ function CompareSliderSection({
                         className={cn(
                           "relative rounded-xl overflow-hidden border-2 transition-all group text-left",
                           visibleColors.find((c) => c._id === p._id)
-                            ? "border-stone-900"
-                            : "border-stone-100 hover:border-stone-400"
+                            ? "border-pacific-dark"
+                            : "border-pacific-mid/20 hover:border-pacific-mid"
                         )}
                       >
-                        <div className="relative aspect-square bg-stone-100">
+                        <div className="relative aspect-square bg-pacific-light">
                           {p.mainImage ? (
                             <Image
                               src={
@@ -2554,15 +2554,15 @@ function CompareSliderSection({
                               sizes="150px"
                             />
                           ) : (
-                            <div className="w-full h-full bg-stone-200" />
+                            <div className="w-full h-full bg-pacific-mid/30" />
                           )}
                         </div>
                         <div className="px-2 py-2">
-                          <span className="text-[10px] tracking-wide uppercase font-medium text-stone-800 block truncate">
+                          <span className="text-[10px] tracking-wide uppercase font-medium text-pacific-dark block truncate">
                             {p.name}
                           </span>
                           {(p.collectionName || p.categoryName) && (
-                            <span className="text-[9px] text-stone-400 block truncate">
+                            <span className="text-[9px] text-pacific-mid block truncate">
                               {p.collectionName || p.categoryName}
                             </span>
                           )}

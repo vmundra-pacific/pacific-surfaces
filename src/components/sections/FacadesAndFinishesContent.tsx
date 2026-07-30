@@ -359,7 +359,7 @@ export function FacadesAndFinishesContent({
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white leading-[1.1] mb-5">
                   {introSubheading}
                 </h2>
-                <p className="text-base font-light text-stone-300 leading-relaxed">
+                <p className="text-base font-light text-pacific-light leading-relaxed">
                   {introBody}
                 </p>
               </motion.div>
@@ -372,7 +372,7 @@ export function FacadesAndFinishesContent({
       <section className="bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 pb-20 md:pb-28">
           <AnimatedSection className="text-center max-w-3xl mx-auto mb-14 md:mb-20">
-            <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-5">
+            <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-5">
               {featuresEyebrow}
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white leading-[1.1]">
@@ -384,13 +384,13 @@ export function FacadesAndFinishesContent({
             {features.map((f, i) => (
               <StaggerItem key={`${f.title}-${i}`} className="h-full">
                 <div className="text-center h-full flex flex-col">
-                  <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-400 mb-5 tabular-nums">
+                  <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-5 tabular-nums">
                     0{i + 1}
                   </div>
                   <h3 className="text-xl lg:text-2xl font-medium text-white tracking-tight mb-5 leading-snug">
                     {f.title}
                   </h3>
-                  <p className="text-base font-light text-stone-300 leading-relaxed max-w-sm mx-auto">
+                  <p className="text-base font-light text-pacific-light leading-relaxed max-w-sm mx-auto">
                     {f.body}
                   </p>
                 </div>
@@ -404,13 +404,13 @@ export function FacadesAndFinishesContent({
       <section className="bg-[#112732]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 md:py-28">
           <AnimatedSection className="max-w-3xl mb-12 md:mb-16">
-            <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-5">
+            <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-5">
               {gridEyebrow}
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white mb-5 leading-[1.1]">
               {gridHeadline}
             </h2>
-            <p className="text-base font-light text-stone-300 leading-relaxed">
+            <p className="text-base font-light text-pacific-light leading-relaxed">
               {gridDescription}
             </p>
           </AnimatedSection>
@@ -461,9 +461,9 @@ function ImagePlaceholder({
     >
       <div className="text-center px-6">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/[0.06] border border-white/10 mb-4">
-          <ImageIcon className="w-6 h-6 text-stone-400" strokeWidth={1.5} />
+          <ImageIcon className="w-6 h-6 text-pacific-mid" strokeWidth={1.5} />
         </div>
-        <p className="text-xs tracking-[0.25em] uppercase text-stone-400 font-medium">
+        <p className="text-xs tracking-[0.25em] uppercase text-pacific-mid font-medium">
           {label}
         </p>
       </div>
@@ -517,7 +517,7 @@ function FinishTile({
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900" />
+            <div className="absolute inset-0 bg-gradient-to-br from-pacific-mid/25 to-pacific-dark" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-5 text-left">
@@ -597,7 +597,7 @@ function FinishTile({
 function EmptyState() {
   return (
     <div className="bg-white/[0.04] border border-white/10 p-10 md:p-14 text-center">
-      <p className="text-stone-300 font-light max-w-2xl mx-auto leading-relaxed">
+      <p className="text-pacific-light font-light max-w-2xl mx-auto leading-relaxed">
         No finishes are showing up. Make sure the existing{" "}
         <strong className="text-white">Stone Finishes</strong> collection in
         Studio has at least one published Product tagged to it, and that the

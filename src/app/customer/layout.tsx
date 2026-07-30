@@ -1,5 +1,23 @@
+import type { Metadata } from "next";
 import CustomerSidebar from "@/components/customer/CustomerSidebar";
 import { auth } from "@/auth";
+
+/**
+ * Keep the entire customer portal out of search results. This layout
+ * covers /customer/login, /dashboard, /grievance/* and /profile — none
+ * of which are public content, and an indexed login form attracts
+ * automated credential-stuffing traffic.
+ *
+ * This tag — not robots.txt — is what actually removes a page from the
+ * index, so it is deliberately the ONLY mechanism used here. See the
+ * note in src/app/robots.ts explaining why /customer/ is intentionally
+ * NOT disallowed there: blocking the crawler would stop it from ever
+ * fetching this directive, freezing any already-indexed portal pages in
+ * place instead of dropping them.
+ */
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 // Presentational only — protection lives entirely in
 // src/middleware.ts (matched routes + auth.config.ts's `authorized`

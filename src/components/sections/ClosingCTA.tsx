@@ -35,7 +35,7 @@ export function ClosingCTA() {
             href="/contact"
             variant="primary"
             size="lg"
-            className="bg-white text-[#112732] border-white hover:bg-stone-100"
+            className="bg-white text-[#112732] border-white hover:bg-pacific-light"
           >
             Request a Sample
             <ArrowRight className="w-4 h-4" />

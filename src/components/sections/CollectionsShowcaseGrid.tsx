@@ -32,7 +32,7 @@ const fallbackCollections = [
     headline: "The Centrepiece.",
     slug: "centrepiece-couture",
     wide: true,
-    bg: "bg-gradient-to-br from-stone-200 via-stone-100 to-stone-50",
+    bg: "bg-gradient-to-br from-pacific-mid/30 via-pacific-light to-white",
   },
   {
     name: "Nebula",
@@ -41,7 +41,7 @@ const fallbackCollections = [
     headline: "Nebula.",
     slug: "nebula-collection",
     wide: false,
-    bg: "bg-gradient-to-br from-stone-700 via-stone-600 to-stone-500",
+    bg: "bg-gradient-to-br from-pacific-dark via-pacific-mid/50 to-pacific-mid",
   },
   {
     name: "Kosmic",
@@ -50,7 +50,7 @@ const fallbackCollections = [
     headline: "Kosmic.",
     slug: "kosmic-collection",
     wide: false,
-    bg: "bg-gradient-to-br from-amber-900/60 via-stone-700 to-stone-600",
+    bg: "bg-gradient-to-br from-pacific-dark/60 via-pacific-dark to-pacific-mid/50",
   },
   {
     name: "Statuario",
@@ -59,7 +59,7 @@ const fallbackCollections = [
     headline: "Statuario.",
     slug: "statuario",
     wide: false,
-    bg: "bg-gradient-to-br from-stone-100 via-stone-200 to-stone-300",
+    bg: "bg-gradient-to-br from-pacific-light via-pacific-mid/30 to-pacific-mid/50",
   },
   {
     name: "Ecosurfaces",
@@ -68,16 +68,16 @@ const fallbackCollections = [
     headline: "Ecosurfaces.",
     slug: "ecosurfaces",
     wide: true,
-    bg: "bg-gradient-to-br from-stone-400 via-stone-500 to-stone-600",
+    bg: "bg-gradient-to-br from-pacific-mid via-pacific-mid/60 to-pacific-dark",
   },
 ];
 
 const gradientFallbacks = [
-  "bg-gradient-to-br from-stone-200 via-stone-100 to-stone-50",
-  "bg-gradient-to-br from-stone-700 via-stone-600 to-stone-500",
-  "bg-gradient-to-br from-amber-900/60 via-stone-700 to-stone-600",
-  "bg-gradient-to-br from-stone-100 via-stone-200 to-stone-300",
-  "bg-gradient-to-br from-stone-400 via-stone-500 to-stone-600",
+  "bg-gradient-to-br from-pacific-mid/30 via-pacific-light to-white",
+  "bg-gradient-to-br from-pacific-dark via-pacific-mid/50 to-pacific-mid",
+  "bg-gradient-to-br from-pacific-dark/60 via-pacific-dark to-pacific-mid/50",
+  "bg-gradient-to-br from-pacific-light via-pacific-mid/30 to-pacific-mid/50",
+  "bg-gradient-to-br from-pacific-mid via-pacific-mid/60 to-pacific-dark",
 ];
 
 const VH_PER_CARD = 65;

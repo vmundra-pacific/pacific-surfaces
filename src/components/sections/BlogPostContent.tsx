@@ -75,7 +75,7 @@ const portableTextComponents: PortableTextComponents = {
             className="w-full h-auto rounded-2xl shadow-sm"
           />
           {value.caption && (
-            <figcaption className="mt-4 text-sm text-stone-500 italic text-center font-light">
+            <figcaption className="mt-4 text-sm text-pacific-mid italic text-center font-light">
               {value.caption}
             </figcaption>
           )}
@@ -134,13 +134,13 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
             transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
             className="mb-10"
           >
-            <div className="flex items-center gap-3 text-xs text-stone-500 tracking-wide mb-5">
+            <div className="flex items-center gap-3 text-xs text-pacific-mid tracking-wide mb-5">
               {post.author && (
                 <>
                   <span className="text-[#112732] font-medium">
                     {post.author}
                   </span>
-                  <span className="w-1 h-1 bg-stone-400 rounded-full" />
+                  <span className="w-1 h-1 bg-pacific-mid rounded-full" />
                 </>
               )}
               <time dateTime={post.publishedAt}>
@@ -152,7 +152,7 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
               </time>
               {post.minutesToRead && (
                 <>
-                  <span className="w-1 h-1 bg-stone-400 rounded-full" />
+                  <span className="w-1 h-1 bg-pacific-mid rounded-full" />
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {post.minutesToRead} min read
@@ -164,7 +164,7 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
               {post.title}
             </h1>
             {post.excerpt && (
-              <p className="mt-6 text-lg font-light text-stone-600 leading-relaxed">
+              <p className="mt-6 text-lg font-light text-pacific-dark/70 leading-relaxed">
                 {post.excerpt}
               </p>
             )}
@@ -176,7 +176,7 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="mb-12 aspect-[16/9] rounded-2xl overflow-hidden bg-stone-200"
+              className="mb-12 aspect-[16/9] rounded-2xl overflow-hidden bg-pacific-light"
             >
               <Image
                 src={sanityImg(post.mainImage, { w: 1600 }) ?? post.mainImage}
@@ -200,10 +200,10 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
             transition={{ duration: 0.6, delay: 0.25 }}
             className="prose prose-lg max-w-none
             prose-headings:font-light prose-headings:tracking-tight prose-headings:text-[#112732]
-            prose-p:font-light prose-p:leading-relaxed prose-p:text-stone-700
+            prose-p:font-light prose-p:leading-relaxed prose-p:text-pacific-dark/80
             prose-a:text-[#112732] prose-a:underline prose-a:underline-offset-4 hover:prose-a:text-[#0a1620]
             prose-strong:text-[#112732] prose-strong:font-medium
-            prose-blockquote:border-l-4 prose-blockquote:border-[#112732]/40 prose-blockquote:text-stone-600 prose-blockquote:not-italic
+            prose-blockquote:border-l-4 prose-blockquote:border-[#112732]/40 prose-blockquote:text-pacific-dark/70 prose-blockquote:not-italic
             prose-img:rounded-2xl"
           >
             {post.body && (

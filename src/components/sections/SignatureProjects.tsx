@@ -48,36 +48,36 @@ const fallbackProjects = [
   {
     loc: "Villa · Mumbai",
     name: "Malabar Hill Residence",
-    bg: "from-stone-200 to-stone-100",
+    bg: "from-pacific-light to-white",
   },
   {
     loc: "Hotel · Warsaw",
     name: "Polska Lounge",
-    bg: "from-stone-600 to-stone-500",
+    bg: "from-pacific-dark to-pacific-mid",
   },
   {
     loc: "Retail · Dubai",
     name: "Alserkal Flagship",
-    bg: "from-stone-700 to-stone-600",
+    bg: "from-pacific-dark to-pacific-mid/50",
   },
   {
     loc: "Residence · Bengaluru",
     name: "Koramangala House",
-    bg: "from-stone-300 to-stone-200",
+    bg: "from-pacific-mid/40 to-pacific-light",
   },
   {
     loc: "Healthcare · London",
     name: "St. James Clinic",
-    bg: "from-stone-400 to-stone-500",
+    bg: "from-pacific-mid to-pacific-dark",
   },
 ];
 
 const gradientFallbacks = [
-  "from-stone-200 to-stone-100",
-  "from-stone-600 to-stone-500",
-  "from-stone-700 to-stone-600",
-  "from-stone-300 to-stone-200",
-  "from-stone-400 to-stone-500",
+  "from-pacific-light to-white",
+  "from-pacific-dark to-pacific-mid",
+  "from-pacific-dark to-pacific-mid/50",
+  "from-pacific-mid/40 to-pacific-light",
+  "from-pacific-mid to-pacific-dark",
 ];
 
 export function SignatureProjects({
@@ -220,7 +220,7 @@ export function SignatureProjects({
   return (
     <section
       id="sec-architects"
-      className="py-16 sm:py-20 md:py-28 px-6 bg-stone-950 scroll-mt-20"
+      className="py-16 sm:py-20 md:py-28 px-6 bg-pacific-dark scroll-mt-20"
     >
       <div className="mx-auto max-w-7xl">
         {/* Header */}

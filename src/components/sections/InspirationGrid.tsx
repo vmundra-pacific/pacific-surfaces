@@ -167,7 +167,7 @@ export function InspirationGrid(_props: {
     <section
       ref={sectionRef}
       id="sec-projects"
-      className="relative w-full h-screen overflow-hidden bg-stone-950 scroll-mt-20"
+      className="relative w-full h-screen overflow-hidden bg-pacific-dark scroll-mt-20"
     >
       {/* Until the section is in view, render slide 0's image as a
           static placeholder so the section reserves height and the

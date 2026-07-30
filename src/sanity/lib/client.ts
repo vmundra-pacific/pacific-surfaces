@@ -1,11 +1,23 @@
 import { createClient } from "next-sanity";
-import { apiVersion, dataset, projectId } from "../env";
+import { apiVersion, dataset, projectId, readToken } from "../env";
 
+/**
+ * Read-token wiring. `readToken` is server-only (see src/sanity/env.ts)
+ * and optional: while the dataset is public it is undefined and these
+ * clients behave exactly as before, and once the dataset is flipped to
+ * private the same clients start authenticating with no other change.
+ *
+ * `useCdn` must be false whenever a token is present — Sanity's CDN
+ * does not serve authenticated requests, and passing a token with
+ * useCdn:true silently returns stale/unauthorized responses. So the
+ * CDN-cached client only uses the CDN while it is running tokenless.
+ */
 const baseClient = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true, // Set to false for always-fresh data
+  useCdn: !readToken, // CDN is incompatible with authenticated reads
+  ...(readToken ? { token: readToken } : {}),
 });
 
 // Always-fresh client (useCdn: false). Use this for editor-managed
@@ -23,6 +35,7 @@ const freshBaseClient = createClient({
   dataset,
   apiVersion,
   useCdn: false,
+  ...(readToken ? { token: readToken } : {}),
 });
 
 /**

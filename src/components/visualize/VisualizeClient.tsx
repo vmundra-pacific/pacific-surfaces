@@ -827,7 +827,7 @@ function ComingSoonModal({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           // z-[100] to clear all sticky / fixed siblings on the page
-          className="fixed inset-0 z-[100] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-[100] bg-pacific-dark/80 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={onClose}
         >
           <motion.div
@@ -949,7 +949,7 @@ function StageCanvas({
       {/* AI error */}
       {segError && (
         <div className="absolute top-4 left-4 right-4 z-10">
-          <div className="bg-red-900/80 border border-red-500/40 text-red-200 text-xs px-4 py-2 rounded-lg backdrop-blur-xl">
+          <div className="bg-pacific-dark/80 border border-pacific-mid/40 text-white text-xs px-4 py-2 rounded-lg backdrop-blur-xl">
             AI detection failed: {segError}. You can still tap to select
             surfaces manually.
           </div>

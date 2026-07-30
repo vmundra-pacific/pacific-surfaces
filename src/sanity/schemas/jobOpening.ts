@@ -81,6 +81,14 @@ export default defineType({
         "Bullet points shown on the role card under the description. Each entry is one bullet — keep them short and action-led (e.g. \"Drive city-level revenue across dealer + architect channels\").",
     }),
     defineField({
+      name: "requiresPortfolio",
+      title: "Requires Portfolio",
+      type: "boolean",
+      description:
+        "Turn on for design/creative roles (e.g. Senior Graphic Designer). Adds a Portfolio Link and/or Portfolio Upload field to the application form for this role, and the candidate must fill in at least one of the two before they can submit.",
+      initialValue: false,
+    }),
+    defineField({
       name: "applyEmail",
       title: "Application Inbox (override)",
       type: "string",

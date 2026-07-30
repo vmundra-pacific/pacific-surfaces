@@ -5,6 +5,7 @@ import "./globals.css";
 import GlobalDustMount from "@/components/global/GlobalDustMount";
 import MetaPixel from "@/components/global/MetaPixel";
 import AuthProvider from "@/components/providers/AuthProvider";
+import { safeJsonLd } from "@/lib/escape";
 
 /**
  * Google Analytics 4 measurement ID. Points at the existing
@@ -108,7 +109,7 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: safeJsonLd({
               "@context": "https://schema.org",
               "@type": "Organization",
               "@id": "https://pacific-surfaces.com/#organization",
@@ -149,7 +150,7 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: safeJsonLd({
               "@context": "https://schema.org",
               "@type": "HomeAndConstructionBusiness",
               "@id": "https://pacific-surfaces.com/#localbusiness",
@@ -190,7 +191,7 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: safeJsonLd({
               "@context": "https://schema.org",
               "@type": "WebSite",
               "@id": "https://pacific-surfaces.com/#website",

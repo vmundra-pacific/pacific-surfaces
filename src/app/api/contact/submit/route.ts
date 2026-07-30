@@ -13,6 +13,12 @@
 import nodemailer from "nodemailer";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@sanity/client";
+import {
+  rateLimit,
+  getClientIp,
+  FORM_RATE_LIMIT,
+} from "@/lib/rate-limit";
+import { escapeHtml, clampField, FIELD_LIMITS } from "@/lib/escape";
 
 export const runtime = "nodejs";
 
@@ -65,17 +71,35 @@ export async function POST(req: NextRequest) {
   );
 }
 
+  // Throttle before doing any work: this endpoint sends mail through a
+  // shared mailbox with a finite daily quota and writes a Sanity
+  // document, so an unthrottled flood costs both deliverability and
+  // money. Shared quota with the other public form endpoints.
+  const limit = rateLimit(
+    `form:${getClientIp(req)}`,
+    FORM_RATE_LIMIT.limit,
+    FORM_RATE_LIMIT.windowMs
+  );
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Too many submissions. Please try again in a few minutes." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+    );
+  }
+
   try {
     const body = (await req.json()) as ContactBody;
 
-    const name = (body.name ?? "").trim();
-    const email = (body.email ?? "").trim();
-    const phone = (body.phone ?? "").trim();
-    const address = (body.address ?? "").trim();
-    const role = (body.role ?? "").trim();
-    const application = (body.application ?? "").trim();
-    const message = (body.message ?? "").trim();
-    const source = (body.source ?? "").trim();
+    // Clamp every field to a sane maximum. Previously unbounded, so a
+    // single request could push a multi-megabyte document into Sanity.
+    const name = clampField(body.name, FIELD_LIMITS.name);
+    const email = clampField(body.email, FIELD_LIMITS.email);
+    const phone = clampField(body.phone, FIELD_LIMITS.phone);
+    const address = clampField(body.address, FIELD_LIMITS.address);
+    const role = clampField(body.role, FIELD_LIMITS.shortText);
+    const application = clampField(body.application, FIELD_LIMITS.shortText);
+    const message = clampField(body.message, FIELD_LIMITS.message);
+    const source = clampField(body.source, FIELD_LIMITS.shortText);
 
     // Minimal validation — name + email are the core identity.
     if (!name) {
@@ -92,8 +116,16 @@ export async function POST(req: NextRequest) {
   to: process.env.COMPANY_EMAIL,
   replyTo: email,
 
+  // `name` is safe unescaped in the Subject header: nodemailer encodes
+  // header values, and the email regex below already rejects the CR/LF
+  // needed for header injection.
   subject: `🌐 New Website Enquiry - ${name}`,
 
+  // Every interpolated value below is attacker-controlled and MUST be
+  // escaped. Without this, a submitted field containing markup was
+  // injected verbatim into the email that lands in the staff inbox —
+  // allowing spoofed content, tracking pixels and phishing links inside
+  // a message that appears to come from our own website.
   html: `
     <div style="font-family:Arial,sans-serif;max-width:700px;margin:auto">
 
@@ -104,43 +136,43 @@ export async function POST(req: NextRequest) {
       <table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;width:100%">
         <tr>
           <td><strong>Name</strong></td>
-          <td>${name}</td>
+          <td>${escapeHtml(name)}</td>
         </tr>
 
         <tr>
           <td><strong>Email</strong></td>
-          <td>${email}</td>
+          <td>${escapeHtml(email)}</td>
         </tr>
 
         <tr>
           <td><strong>Phone</strong></td>
-          <td>${phone || "-"}</td>
+          <td>${escapeHtml(phone) || "-"}</td>
         </tr>
 
         <tr>
           <td><strong>Address</strong></td>
-          <td>${address || "-"}</td>
+          <td>${escapeHtml(address) || "-"}</td>
         </tr>
 
         <tr>
           <td><strong>Role</strong></td>
-          <td>${role || "-"}</td>
+          <td>${escapeHtml(role) || "-"}</td>
         </tr>
 
         <tr>
           <td><strong>Application</strong></td>
-          <td>${application || "-"}</td>
+          <td>${escapeHtml(application) || "-"}</td>
         </tr>
 
         <tr>
           <td><strong>Source</strong></td>
-          <td>${source || "-"}</td>
+          <td>${escapeHtml(source) || "-"}</td>
         </tr>
       </table>
 
       <h3>Message</h3>
 
-      <p>${message || "No message provided."}</p>
+      <p>${escapeHtml(message) || "No message provided."}</p>
 
     </div>
   `,

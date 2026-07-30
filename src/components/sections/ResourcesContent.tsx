@@ -344,19 +344,19 @@ export function ResourcesContent({
       })}
 
       {/* CTA Section */}
-      <section className="bg-stone-950">
+      <section className="bg-pacific-dark">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24 text-center">
           <AnimatedSection>
             <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-white mb-4">
               Can&apos;t find what you&apos;re looking for?
             </h2>
-            <p className="text-stone-400 font-light mb-8">
+            <p className="text-pacific-mid font-light mb-8">
               Reach out to our team for specialized catalogs, custom
               specifications, or technical consultations.
             </p>
             <a
               href="/contact"
-              className="inline-block px-8 py-3 bg-white text-stone-950 rounded-xl font-light tracking-wide hover:bg-stone-100 transition-colors duration-300"
+              className="inline-block px-8 py-3 bg-white text-pacific-dark rounded-xl font-light tracking-wide hover:bg-pacific-light transition-colors duration-300"
             >
               Contact Us
             </a>

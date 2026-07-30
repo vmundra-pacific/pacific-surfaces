@@ -220,7 +220,7 @@ export default function ServicesPage() {
   return (
     <main className="bg-[#0a1620] text-pacific-light">
       {/* 1. Hero */}
-      <section className="relative min-h-[80vh] flex items-end bg-stone-950 overflow-hidden">
+      <section className="relative min-h-[80vh] flex items-end bg-pacific-dark overflow-hidden">
         <Image
           src="/images/professions/services.jpg"
           alt="Pacific Surfaces Fab Creations cut-to-size service"
@@ -229,7 +229,7 @@ export default function ServicesPage() {
           className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/55 to-stone-950/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark via-pacific-dark/55 to-pacific-dark/15" />
         <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pb-16 sm:pb-20 lg:pb-28 w-full">
           <AnimatedSection animation="fadeUp">
             <span className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-pacific-mid/80 font-medium">
@@ -252,7 +252,7 @@ export default function ServicesPage() {
       </section>
 
       {/* 2. Fab Creations USP band */}
-      <section className="relative bg-stone-950 overflow-hidden border-y border-white/10">
+      <section className="relative bg-pacific-dark overflow-hidden border-y border-white/10">
         <div className="absolute inset-0">
           <Image
             src="/images/professions/services.jpg"
@@ -261,7 +261,7 @@ export default function ServicesPage() {
             className="object-cover opacity-25"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/85 via-stone-950/95 to-stone-950" />
+          <div className="absolute inset-0 bg-gradient-to-b from-pacific-dark/85 via-pacific-dark/95 to-pacific-dark" />
         </div>
         <div className="relative mx-auto max-w-6xl px-6 lg:px-8 py-24 sm:py-32 lg:py-40 text-center">
           <AnimatedSection animation="fadeUp">

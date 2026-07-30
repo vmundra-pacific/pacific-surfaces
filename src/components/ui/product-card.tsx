@@ -16,12 +16,17 @@ interface ProductCardProps {
   index?: number;
 }
 
+// The brand palette forbids accent hues, so the five ribbons are
+// differentiated by FILL TONE and an inset hairline rather than by
+// colour: solid dark / solid white / soft light / dark-with-white-
+// hairline / mid. `ring-inset` is used instead of `border` so no
+// ribbon changes size (a border would add 1px to the pill box).
 const ribbonColors: Record<string, string> = {
-  Patented: "bg-stone-900 text-white",
-  "New Arrival": "bg-amber-600 text-white",
-  "Eco Surface": "bg-emerald-700 text-white",
-  "Luxury Drop": "bg-violet-800 text-white",
-  "Top Color": "bg-rose-700 text-white",
+  Patented: "bg-pacific-dark text-white",
+  "New Arrival": "bg-white text-pacific-dark",
+  "Eco Surface": "bg-pacific-light text-pacific-dark",
+  "Luxury Drop": "bg-pacific-dark text-white ring-1 ring-inset ring-white/60",
+  "Top Color": "bg-pacific-mid text-pacific-dark",
 };
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
@@ -38,7 +43,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     >
       <Link href={`/products/${product.slug.current}`} className="group block">
         {/* Image container */}
-        <div className="relative aspect-square overflow-hidden rounded-lg bg-stone-100">
+        <div className="relative aspect-square overflow-hidden rounded-lg bg-pacific-light">
           {product.mainImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -51,7 +56,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               decoding="async"
             />
           ) : (
-            <div className="h-full w-full flex items-center justify-center text-stone-400">
+            <div className="h-full w-full flex items-center justify-center text-pacific-mid">
               <svg
                 className="w-12 h-12"
                 fill="none"
@@ -73,7 +78,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
           {/* View button on hover */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span className="bg-white/90 backdrop-blur-sm text-stone-900 text-xs font-medium tracking-wider uppercase px-5 py-2.5 rounded-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+            <span className="bg-white/90 backdrop-blur-sm text-pacific-dark text-xs font-medium tracking-wider uppercase px-5 py-2.5 rounded-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
               View Details
             </span>
           </div>
@@ -85,7 +90,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 <span
                   key={ribbon}
                   className={`inline-flex items-center px-2.5 py-1 text-[10px] font-medium tracking-wider uppercase rounded-full ${
-                    ribbonColors[ribbon] || "bg-stone-800 text-white"
+                    ribbonColors[ribbon] || "bg-pacific-dark text-white"
                   }`}
                 >
                   {ribbon}
@@ -97,11 +102,11 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Text */}
         <div className="mt-4 space-y-1">
-          <h3 className="text-sm font-medium text-stone-900 group-hover:text-stone-600 transition-colors duration-300">
+          <h3 className="text-sm font-medium text-pacific-dark group-hover:text-pacific-mid transition-colors duration-300">
             {product.name}
           </h3>
           {product.collection && (
-            <p className="text-xs text-stone-500 tracking-wide">
+            <p className="text-xs text-pacific-mid tracking-wide">
               {product.collection.name}
             </p>
           )}

@@ -14,6 +14,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@sanity/client";
+import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
+import { clampField, FIELD_LIMITS } from "@/lib/escape";
 
 export const runtime = "nodejs";
 
@@ -55,19 +57,39 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Throttle before touching Sanity — every accepted request is a
+  // billable document write on a dataset that is read on every render.
+  const limit = rateLimit(
+    `form:${getClientIp(req)}`,
+    FORM_RATE_LIMIT.limit,
+    FORM_RATE_LIMIT.windowMs
+  );
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Too many submissions. Please try again in a few minutes." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      }
+    );
+  }
+
   try {
     const body = (await req.json()) as SampleBody;
     const mode: "sample" | "enquire" =
       body.mode === "enquire" ? "enquire" : "sample";
 
-    const productName = (body.productName ?? "").trim();
-    const productCategory = (body.productCategory ?? "").trim();
-    const name = (body.name ?? "").trim();
-    const email = (body.email ?? "").trim();
-    const phone = (body.phone ?? "").trim();
-    const projectType = (body.projectType ?? "").trim();
-    const address = (body.address ?? "").trim();
-    const notes = (body.notes ?? "").trim();
+    const productName = clampField(body.productName, FIELD_LIMITS.shortText);
+    const productCategory = clampField(
+      body.productCategory,
+      FIELD_LIMITS.shortText
+    );
+    const name = clampField(body.name, FIELD_LIMITS.name);
+    const email = clampField(body.email, FIELD_LIMITS.email);
+    const phone = clampField(body.phone, FIELD_LIMITS.phone);
+    const projectType = clampField(body.projectType, FIELD_LIMITS.shortText);
+    const address = clampField(body.address, FIELD_LIMITS.address);
+    const notes = clampField(body.notes, FIELD_LIMITS.message);
 
     if (!name) {
       return NextResponse.json({ error: "Name is required." }, { status: 400 });

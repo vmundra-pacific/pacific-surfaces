@@ -282,7 +282,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
   return (
     <>
       {/* Hero */}
-      <section className="relative bg-stone-950 overflow-hidden">
+      <section className="relative bg-pacific-dark overflow-hidden">
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -335,7 +335,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                 delay: 0.3,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-stone-900"
+              className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-pacific-dark"
             >
               <video
                 src="/videos/contact-map.mp4"
@@ -367,8 +367,8 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                   animate={{ opacity: 1, scale: 1 }}
                   className="bg-white/5 rounded-2xl p-12 text-center border border-white/10"
                 >
-                  <div className="p-4 bg-emerald-900/30 rounded-full w-fit mx-auto mb-6">
-                    <CheckCircle className="w-8 h-8 text-emerald-400" />
+                  <div className="p-4 bg-white/10 rounded-full w-fit mx-auto mb-6">
+                    <CheckCircle className="w-8 h-8 text-pacific-mid" />
                   </div>
                   <h3 className="text-xl font-medium text-white">
                     Message Sent
@@ -694,7 +694,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                     {[
                       {
                         name: "Instagram",
-                        href: "https://www.instagram.com/pacific_surfaces/",
+                        href: "https://www.instagram.com/pacificitaliansurfaces/",
                       },
                       {
                         name: "Facebook",
@@ -706,7 +706,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                       },
                       {
                         name: "YouTube",
-                        href: "https://www.youtube.com/@pacificsurfaces",
+                        href: "https://www.youtube.com/@thepacificgroup9423",
                       },
                     ].map((social) => (
                       <a

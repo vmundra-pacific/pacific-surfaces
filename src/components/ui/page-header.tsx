@@ -17,7 +17,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <section
-      className={`relative overflow-hidden ${dark ? "bg-stone-950 text-white" : "bg-stone-50 text-stone-900"}`}
+      className={`relative overflow-hidden ${dark ? "bg-pacific-dark text-white" : "bg-pacific-light text-pacific-dark"}`}
     >
       {/* Grain overlay */}
       {dark && (
@@ -35,7 +35,7 @@ export function PageHeader({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className={`inline-block text-xs font-medium tracking-[0.25em] uppercase mb-4 ${
-              dark ? "text-stone-400" : "text-stone-500"
+              dark ? "text-pacific-mid" : "text-pacific-dark/60"
             }`}
           >
             {badge}
@@ -59,7 +59,7 @@ export function PageHeader({
               ease: [0.25, 0.4, 0.25, 1],
             }}
             className={`mt-4 text-lg max-w-2xl font-light leading-relaxed ${
-              dark ? "text-stone-400" : "text-stone-500"
+              dark ? "text-pacific-mid" : "text-pacific-dark/70"
             }`}
           >
             {description}
@@ -68,7 +68,7 @@ export function PageHeader({
       </div>
       {/* Bottom gradient line */}
       <div
-        className={`h-px ${dark ? "bg-gradient-to-r from-transparent via-stone-700/50 to-transparent" : "bg-gradient-to-r from-transparent via-stone-300/50 to-transparent"}`}
+        className={`h-px ${dark ? "bg-gradient-to-r from-transparent via-pacific-mid/30 to-transparent" : "bg-gradient-to-r from-transparent via-pacific-mid/50 to-transparent"}`}
       />
     </section>
   );

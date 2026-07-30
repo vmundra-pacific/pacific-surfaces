@@ -74,24 +74,24 @@ export default async function BlogPage() {
                   size, weight, and split-italic treatment so the
                   visual hierarchy stays identical. */}
               <div className="lg:col-span-7">
-                <p className="text-[11px] sm:text-xs font-medium tracking-[0.32em] uppercase text-stone-500 mb-4 lg:mb-6">
+                <p className="text-[11px] sm:text-xs font-medium tracking-[0.32em] uppercase text-pacific-dark/60 mb-4 lg:mb-6">
                   Issue {String(totalCount).padStart(2, "0")}
                 </p>
                 <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-tight text-[#112732] leading-[0.95]">
                   The Pacific
                   <br />
-                  <em className="not-italic text-stone-500">Journal</em>
+                  <em className="not-italic text-pacific-mid">Journal</em>
                 </h1>
               </div>
 
               {/* Colophon — right column on desktop */}
               <div className="lg:col-span-5 lg:pb-3">
-                <p className="text-base lg:text-lg font-light text-stone-600 leading-relaxed mb-8 max-w-md">
+                <p className="text-base lg:text-lg font-light text-pacific-dark/70 leading-relaxed mb-8 max-w-md">
                   The ultimate design ledger curated for you.
                 </p>
                 <dl className="grid grid-cols-2 gap-6 max-w-md text-sm">
                   <div>
-                    <dt className="text-[10px] tracking-[0.28em] uppercase text-stone-500 font-medium mb-1">
+                    <dt className="text-[10px] tracking-[0.28em] uppercase text-pacific-dark/60 font-medium mb-1">
                       Articles
                     </dt>
                     <dd className="text-2xl font-light text-[#112732] tracking-tight">
@@ -100,7 +100,7 @@ export default async function BlogPage() {
                   </div>
                   {lastUpdated && (
                     <div>
-                      <dt className="text-[10px] tracking-[0.28em] uppercase text-stone-500 font-medium mb-1">
+                      <dt className="text-[10px] tracking-[0.28em] uppercase text-pacific-dark/60 font-medium mb-1">
                         Last Update
                       </dt>
                       <dd className="text-sm font-light text-[#112732] tracking-tight pt-1.5">

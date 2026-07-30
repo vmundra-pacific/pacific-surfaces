@@ -228,12 +228,12 @@ export default function Footer() {
   if (pathname?.startsWith("/visualize")) return null;
 
   return (
-    <footer className="bg-stone-950 text-stone-400 overflow-hidden">
+    <footer className="bg-pacific-dark text-pacific-mid overflow-hidden">
       {/* Top separator */}
-      <div className="h-px bg-gradient-to-r from-transparent via-stone-700/50 to-transparent" />
+      <div className="h-px bg-gradient-to-r from-transparent via-pacific-mid/30 to-transparent" />
 
       {/* Newsletter Section */}
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 sm:py-16 lg:py-20 border-b border-stone-800/50">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 sm:py-16 lg:py-20 border-b border-pacific-mid/20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -241,13 +241,13 @@ export default function Footer() {
           transition={{ duration: 0.6 }}
           className="max-w-2xl"
         >
-          <p className="text-[10px] sm:text-xs font-medium tracking-[0.3em] uppercase text-stone-500 mb-3">
+          <p className="text-[10px] sm:text-xs font-medium tracking-[0.3em] uppercase text-pacific-mid mb-3">
             Stay ahead of every trend in stone
           </p>
           <h3 className="text-2xl lg:text-3xl font-light tracking-tight text-white mb-3">
             Good taste should land in your inbox too.
           </h3>
-          <p className="text-stone-500 font-light mb-8">
+          <p className="text-pacific-mid font-light mb-8">
             Discover new collections, design inspiration, industry trends and
             exclusive product launches — straight to your inbox.
           </p>
@@ -256,7 +256,7 @@ export default function Footer() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-sm text-emerald-400 font-light"
+              className="text-sm text-white font-light"
             >
               Thank you for subscribing!
             </motion.div>
@@ -273,7 +273,7 @@ export default function Footer() {
                   onChange={(e) =>
                     setNewsletter({ ...newsletter, firstName: e.target.value })
                   }
-                  className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-700 text-white text-sm focus:outline-none focus:border-stone-500 transition-colors placeholder:text-stone-600"
+                  className="w-full px-0 py-3 bg-transparent border-0 border-b border-pacific-mid/30 text-white text-sm focus:outline-none focus:border-pacific-mid transition-colors placeholder:text-pacific-mid/60"
                 />
               </div>
               <div className="flex-1">
@@ -285,7 +285,7 @@ export default function Footer() {
                     setNewsletter({ ...newsletter, email: e.target.value })
                   }
                   required
-                  className="w-full px-0 py-3 bg-transparent border-0 border-b border-stone-700 text-white text-sm focus:outline-none focus:border-stone-500 transition-colors placeholder:text-stone-600"
+                  className="w-full px-0 py-3 bg-transparent border-0 border-b border-pacific-mid/30 text-white text-sm focus:outline-none focus:border-pacific-mid transition-colors placeholder:text-pacific-mid/60"
                 />
               </div>
               <motion.button
@@ -293,7 +293,7 @@ export default function Footer() {
                 disabled={newsletterState === "sending"}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 bg-stone-700 hover:bg-stone-600 text-white px-6 py-3 rounded-full text-sm font-light tracking-wide transition-colors disabled:opacity-60"
+                className="inline-flex items-center gap-2 bg-pacific-mid/20 hover:bg-pacific-mid/30 text-white px-6 py-3 rounded-full text-sm font-light tracking-wide transition-colors disabled:opacity-60"
               >
                 {newsletterState === "sending" ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -325,7 +325,7 @@ export default function Footer() {
                   switch color. */}
               <PacificLogoMark className="h-12 w-auto text-white" />
             </Link>
-            <p className="text-[13px] text-stone-400 leading-relaxed max-w-sm mb-8 font-light">
+            <p className="text-[13px] text-pacific-mid leading-relaxed max-w-sm mb-8 font-light">
               India&apos;s leading manufacturer of sustainable, premium and
               luxurious mineral-infused low-silica engineered surfaces such as
               quartz, granite and natural stone. Crafted for architects,
@@ -333,26 +333,26 @@ export default function Footer() {
             </p>
 
             {/* Contact info — matched typography with the rest of the
-                footer body (text-[13px] / stone-400) so contact rows
+                footer body (text-[13px] / pacific-mid) so contact rows
                 read as siblings to the link columns rather than a
                 separate visual register. */}
             <div className="space-y-3">
               <a
                 href="mailto:info@thepacific.group"
-                className="flex items-center gap-3 text-[13px] text-stone-400 hover:text-white transition-colors duration-300 group"
+                className="flex items-center gap-3 text-[13px] text-pacific-mid hover:text-white transition-colors duration-300 group"
               >
-                <Mail className="w-4 h-4 text-stone-500 group-hover:text-white transition-colors duration-300 shrink-0" />
+                <Mail className="w-4 h-4 text-pacific-mid group-hover:text-white transition-colors duration-300 shrink-0" />
                 info@thepacific.group
               </a>
               <a
                 href="tel:+919894033566"
-                className="flex items-center gap-3 text-[13px] text-stone-400 hover:text-white transition-colors duration-300 group"
+                className="flex items-center gap-3 text-[13px] text-pacific-mid hover:text-white transition-colors duration-300 group"
               >
-                <Phone className="w-4 h-4 text-stone-500 group-hover:text-white transition-colors duration-300 shrink-0" />
+                <Phone className="w-4 h-4 text-pacific-mid group-hover:text-white transition-colors duration-300 shrink-0" />
                 +91 98940 33566
               </a>
-              <div className="flex items-center gap-3 text-[13px] text-stone-400">
-                <MapPin className="w-4 h-4 text-stone-500 shrink-0" />
+              <div className="flex items-center gap-3 text-[13px] text-pacific-mid">
+                <MapPin className="w-4 h-4 text-pacific-mid shrink-0" />
                 India
               </div>
             </div>
@@ -388,7 +388,7 @@ export default function Footer() {
                     <li key={link.name}>
                       <Link
                         href={link.href}
-                        className="text-[13px] text-stone-400 hover:text-white transition-colors duration-300 font-light tracking-[0.01em]"
+                        className="text-[13px] text-pacific-mid hover:text-white transition-colors duration-300 font-light tracking-[0.01em]"
                       >
                         {link.name}
                       </Link>
@@ -401,11 +401,11 @@ export default function Footer() {
         </div>
 
         {/* Addresses — full-width, one line each */}
-        <div className="mt-12 pt-8 border-t border-stone-800/50 space-y-2.5 text-[12px] text-stone-400">
+        <div className="mt-12 pt-8 border-t border-pacific-mid/20 space-y-2.5 text-[12px] text-pacific-mid">
           <div className="flex items-start gap-2.5">
-            <MapPin className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
+            <MapPin className="w-4 h-4 text-pacific-mid shrink-0 mt-0.5" />
             <p className="font-light">
-              <span className="text-stone-300 font-medium">
+              <span className="text-pacific-light font-medium">
                 Factory / Experience Centre:
               </span>{" "}
               SY. No. 73/2B, National Highway 44, Nallaganakothapalli, Hosur,
@@ -413,9 +413,9 @@ export default function Footer() {
             </p>
           </div>
           <div className="flex items-start gap-2.5">
-            <MapPin className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
+            <MapPin className="w-4 h-4 text-pacific-mid shrink-0 mt-0.5" />
             <p className="font-light">
-              <span className="text-stone-300 font-medium">
+              <span className="text-pacific-light font-medium">
                 Corporate Office:
               </span>{" "}
               4th Floor, Beginest Harbor 9, Mantri Junction Mall, C Cross Rd,
@@ -430,7 +430,7 @@ export default function Footer() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-16 pt-8 border-t border-stone-800/50"
+          className="mt-16 pt-8 border-t border-pacific-mid/20"
         >
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             {/* Social links — icon + tracked-out label per item.
@@ -445,7 +445,7 @@ export default function Footer() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center gap-2 text-xs font-medium tracking-wider uppercase text-stone-500 hover:text-white transition-colors duration-300"
+                    className="group flex items-center gap-2 text-xs font-medium tracking-wider uppercase text-pacific-mid hover:text-white transition-colors duration-300"
                   >
                     <Icon className="w-4 h-4" />
                     <span>{social.name}</span>
@@ -456,7 +456,7 @@ export default function Footer() {
             </div>
 
             {/* Copyright */}
-            <p className="text-xs text-stone-600 font-light">
+            <p className="text-xs text-pacific-mid/70 font-light">
               &copy; {new Date().getFullYear()} Pacific Surfaces. All rights
               reserved.
             </p>

@@ -94,7 +94,7 @@ function MediaPlaceholder({
 }) {
   return (
     <div
-      className={`relative bg-gradient-to-br from-emerald-900/20 via-white/[0.03] to-emerald-900/10 border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center overflow-hidden ${className}`}
+      className={`relative bg-gradient-to-br from-pacific-mid/10 via-white/[0.03] to-pacific-mid/[0.06] border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center overflow-hidden ${className}`}
     >
       <div
         className="absolute inset-0 opacity-[0.04] pointer-events-none"
@@ -105,7 +105,7 @@ function MediaPlaceholder({
       <div className="relative z-10 text-center px-6">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/5 border border-white/10 mb-4">
           <ImageIcon
-            className="w-6 h-6 text-emerald-300/60"
+            className="w-6 h-6 text-pacific-mid/70"
             strokeWidth={1.5}
           />
         </div>
@@ -381,7 +381,7 @@ export function SustainabilityContent({
       {/* Hero — full screen. Background video (or image) sits
           full-bleed behind the headline; gradient + scrim keep the
           copy readable against any frame. */}
-      <section className="relative min-h-screen flex items-end bg-stone-950 overflow-hidden">
+      <section className="relative min-h-screen flex items-end bg-pacific-dark overflow-hidden">
         {/* Fallback gradient — always rendered behind the media so
             if the video file is missing or fails, the section still
             looks intentional rather than blank. */}
@@ -390,7 +390,7 @@ export function SustainabilityContent({
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(160deg, #1e3a2a 0%, #112732 55%, #0a1620 100%)",
+                "linear-gradient(160deg, #213642 0%, #112732 55%, #0a1620 100%)",
             }}
           />
           <div
@@ -421,7 +421,7 @@ export function SustainabilityContent({
           transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
           className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pb-12 sm:pb-16 lg:pb-24 pt-24 sm:pt-32"
         >
-          <div className="text-xs font-medium tracking-[0.3em] uppercase text-emerald-300/80 mb-6">
+          <div className="text-xs font-medium tracking-[0.3em] uppercase text-pacific-mid mb-6">
             {heroEyebrow}
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-tight text-white max-w-4xl leading-[1.05]">
@@ -477,16 +477,16 @@ export function SustainabilityContent({
                       sizes="(max-width: 1024px) 100vw, 50vw"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/40 to-stone-900" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-pacific-mid/20 to-pacific-dark" />
                   )}
                   <div className="absolute top-5 left-5 w-12 h-12 rounded-full bg-white/95 flex items-center justify-center shadow-lg">
-                    <Icon className="w-5 h-5 text-emerald-700" />
+                    <Icon className="w-5 h-5 text-pacific-dark" />
                   </div>
                 </div>
                 {/* Text */}
                 <div>
                   <div className="flex items-center gap-3 mb-5">
-                    <span className="text-[10px] tracking-[0.3em] uppercase text-emerald-300/70 font-medium">
+                    <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/80 font-medium">
                       0{i + 1} · Initiative
                     </span>
                   </div>
@@ -516,13 +516,13 @@ export function SustainabilityContent({
             className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center"
           >
             {/* Left — text card */}
-            <div className="lg:col-span-7 relative bg-gradient-to-br from-emerald-900/30 via-emerald-800/15 to-transparent border border-emerald-300/20 rounded-3xl p-6 sm:p-10 lg:p-14 overflow-hidden">
+            <div className="lg:col-span-7 relative bg-gradient-to-br from-pacific-mid/15 via-pacific-mid/[0.07] to-transparent border border-pacific-mid/25 rounded-3xl p-6 sm:p-10 lg:p-14 overflow-hidden">
               <Leaf
-                className="absolute -top-8 -right-8 w-48 h-48 text-emerald-300/[0.04] rotate-45"
+                className="absolute -top-8 -right-8 w-48 h-48 text-pacific-mid/[0.05] rotate-45"
                 strokeWidth={1}
               />
               <div className="relative z-10">
-                <div className="text-xs font-medium tracking-[0.3em] uppercase text-emerald-300/80 mb-5">
+                <div className="text-xs font-medium tracking-[0.3em] uppercase text-pacific-mid mb-5">
                   {ecosurfacesEyebrow}
                 </div>
                 <h2 className="text-3xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white mb-6">
@@ -572,10 +572,10 @@ export function SustainabilityContent({
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: i * 0.05 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-6 lg:p-8 hover:border-emerald-300/30 hover:bg-white/[0.07] transition-all duration-500 h-full"
+                    className="bg-white/5 border border-white/10 rounded-2xl p-6 lg:p-8 hover:border-pacific-mid/40 hover:bg-white/[0.07] transition-all duration-500 h-full"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-emerald-300/10 border border-emerald-300/20 flex items-center justify-center mb-5">
-                      <Icon className="w-6 h-6 text-emerald-300" />
+                    <div className="w-12 h-12 rounded-xl bg-pacific-mid/10 border border-pacific-mid/25 flex items-center justify-center mb-5">
+                      <Icon className="w-6 h-6 text-pacific-light" />
                     </div>
                     <div className="text-sm lg:text-base font-medium text-white tracking-wide leading-snug">
                       {label}
@@ -614,7 +614,7 @@ export function SustainabilityContent({
             {/* Text — right */}
             <div className="lg:col-span-7">
               <AnimatedSection className="mb-8">
-                <div className="text-xs font-medium tracking-[0.3em] uppercase text-emerald-300/80 mb-5">
+                <div className="text-xs font-medium tracking-[0.3em] uppercase text-pacific-mid mb-5">
                   {greenEyebrow}
                 </div>
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white leading-tight">
@@ -660,13 +660,13 @@ export function SustainabilityContent({
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: (i % 3) * 0.08 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-7 lg:p-8 h-full hover:border-emerald-300/30 hover:bg-white/[0.07] transition-all duration-500 flex flex-col"
+                    className="bg-white/5 border border-white/10 rounded-2xl p-7 lg:p-8 h-full hover:border-pacific-mid/40 hover:bg-white/[0.07] transition-all duration-500 flex flex-col"
                   >
                     <div className="flex items-start justify-between gap-4 mb-5">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-300/10 border border-emerald-300/20 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-6 h-6 text-emerald-300" />
+                      <div className="w-12 h-12 rounded-xl bg-pacific-mid/10 border border-pacific-mid/25 flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-6 h-6 text-pacific-light" />
                       </div>
-                      <div className="text-3xl font-light text-emerald-300/40 tabular-nums leading-none mt-1">
+                      <div className="text-3xl font-light text-pacific-mid/40 tabular-nums leading-none mt-1">
                         {String(i + 1).padStart(2, "0")}
                       </div>
                     </div>
@@ -688,7 +688,7 @@ export function SustainabilityContent({
           uploaded, plain dark surface when not. No placeholder
           when empty: this section reads cleanly as a quiet closer
           on flat dark navy. */}
-      <section className="relative bg-stone-950 overflow-hidden">
+      <section className="relative bg-pacific-dark overflow-hidden">
         {ctaImage && (
           <div className="absolute inset-0 z-0">
             <Image
@@ -698,7 +698,7 @@ export function SustainabilityContent({
               className="object-cover opacity-30"
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/85 to-stone-950/70" />
+            <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark via-pacific-dark/85 to-pacific-dark/70" />
           </div>
         )}
         <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-24 text-center">
@@ -706,7 +706,7 @@ export function SustainabilityContent({
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white mb-5">
               {ctaHeadline}
             </h2>
-            <p className="text-base lg:text-lg font-light text-stone-400 max-w-xl mx-auto mb-10 leading-relaxed">
+            <p className="text-base lg:text-lg font-light text-pacific-mid max-w-xl mx-auto mb-10 leading-relaxed">
               {ctaDescription}
             </p>
             <MagneticButton href={ctaButtonHref} variant="primary" size="lg">

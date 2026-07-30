@@ -135,7 +135,7 @@ export function OrderSampleModal({
           // z-[100] beats z-50 used elsewhere; the portal renders this
           // at document.body so even sticky / fixed siblings sit
           // beneath it.
-          className="fixed inset-0 z-[100] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+          className="fixed inset-0 z-[100] bg-pacific-dark/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
           onClick={onClose}
         >
           <motion.div
@@ -149,18 +149,18 @@ export function OrderSampleModal({
             <button
               aria-label="Close"
               onClick={onClose}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 flex items-center justify-center transition-colors"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full text-pacific-mid hover:text-pacific-dark hover:bg-pacific-light flex items-center justify-center transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
 
             {submitted ? (
               <div className="px-10 py-12 text-center">
-                <CheckCircle className="w-12 h-12 mx-auto text-emerald-600 mb-4" />
-                <h3 className="text-2xl font-light tracking-tight text-stone-900 mb-2">
+                <CheckCircle className="w-12 h-12 mx-auto text-pacific-dark mb-4" />
+                <h3 className="text-2xl font-light tracking-tight text-pacific-dark mb-2">
                   {isSample ? "Request Sent" : "Enquiry Sent"}
                 </h3>
-                <p className="text-sm text-stone-500 font-light leading-relaxed max-w-sm mx-auto">
+                <p className="text-sm text-pacific-dark/70 font-light leading-relaxed max-w-sm mx-auto">
                   We&apos;ve received your{" "}
                   {isSample ? "sample request" : "enquiry"} for{" "}
                   <strong className="font-medium">{productName}</strong>. Our
@@ -168,21 +168,21 @@ export function OrderSampleModal({
                 </p>
                 <button
                   onClick={onClose}
-                  className="mt-6 text-xs tracking-[0.25em] uppercase text-stone-900 border-b border-stone-900 pb-0.5 hover:opacity-60 transition-opacity"
+                  className="mt-6 text-xs tracking-[0.25em] uppercase text-pacific-dark border-b border-pacific-dark pb-0.5 hover:opacity-60 transition-opacity"
                 >
                   Close
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="px-8 py-8">
-                <div className="text-xs font-medium tracking-[0.25em] uppercase text-stone-500 mb-2">
+                <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-2">
                   {isSample ? "Request a Sample" : "Enquire about this product"}
                 </div>
-                <h3 className="text-2xl font-light tracking-tight text-stone-900 mb-1">
+                <h3 className="text-2xl font-light tracking-tight text-pacific-dark mb-1">
                   {productName}
                 </h3>
                 {productCategory && (
-                  <p className="text-sm text-stone-500 font-light mb-6">
+                  <p className="text-sm text-pacific-dark/70 font-light mb-6">
                     {productCategory}
                   </p>
                 )}
@@ -249,10 +249,10 @@ export function OrderSampleModal({
                   />
                 )}
                 <div className="mt-4">
-                  <label className="block text-[10px] font-medium tracking-[0.25em] uppercase text-stone-500 mb-1.5">
+                  <label className="block text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-1.5">
                     {isSample ? "Notes" : "Your Question"}
                     {!isSample && (
-                      <span className="text-stone-900 ml-1">*</span>
+                      <span className="text-pacific-dark ml-1">*</span>
                     )}
                   </label>
                   <textarea
@@ -267,18 +267,18 @@ export function OrderSampleModal({
                         ? "Tell us about your project, timeline, or any questions."
                         : "What would you like to know about this product? Pricing, availability, technical specs, lead time…"
                     }
-                    className="w-full border border-stone-200 rounded-md px-3 py-2.5 text-sm font-light text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 transition-colors"
+                    className="w-full border border-pacific-mid/25 rounded-md px-3 py-2.5 text-sm font-light text-pacific-dark placeholder-pacific-mid/60 focus:outline-none focus:border-pacific-dark transition-colors"
                   />
                 </div>
 
                 <div className="mt-7 flex items-center justify-between gap-4 flex-wrap">
-                  <p className="text-[11px] text-stone-400 font-light leading-relaxed max-w-xs">
+                  <p className="text-[11px] text-pacific-dark/60 font-light leading-relaxed max-w-xs">
                     By submitting, you agree to be contacted by Pacific Surfaces
                     regarding this {isSample ? "request" : "enquiry"}.
                   </p>
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-2 bg-stone-900 text-white px-7 py-3 text-xs font-medium tracking-[0.25em] uppercase rounded-full hover:bg-stone-800 transition-colors"
+                    className="inline-flex items-center gap-2 bg-pacific-dark text-white px-7 py-3 text-xs font-medium tracking-[0.25em] uppercase rounded-full hover:bg-pacific-dark/90 transition-colors"
                   >
                     <Send className="w-4 h-4" />
                     {isSample ? "Send Request" : "Send Enquiry"}
@@ -319,9 +319,9 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <label className="block text-[10px] font-medium tracking-[0.25em] uppercase text-stone-500 mb-1.5">
+      <label className="block text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-1.5">
         {label}
-        {required && <span className="text-stone-900 ml-1">*</span>}
+        {required && <span className="text-pacific-dark ml-1">*</span>}
       </label>
       <input
         type={type}
@@ -329,7 +329,7 @@ function Field({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-stone-200 rounded-md px-3 py-2.5 text-sm font-light text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 transition-colors"
+        className="w-full border border-pacific-mid/25 rounded-md px-3 py-2.5 text-sm font-light text-pacific-dark placeholder-pacific-mid/60 focus:outline-none focus:border-pacific-dark transition-colors"
       />
     </div>
   );

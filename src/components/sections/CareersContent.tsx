@@ -21,6 +21,7 @@ interface JobOpening {
   description: string;
   experience?: string | null;
   responsibilities?: string[] | null;
+  requiresPortfolio?: boolean | null;
 }
 
 /**
@@ -37,6 +38,7 @@ interface RoleGroup {
   experience?: string | null;
   responsibilities?: string[] | null;
   locations: string[];
+  requiresPortfolio?: boolean | null;
 }
 
 /**
@@ -193,6 +195,7 @@ export function CareersContent({ pageData, openings }: Props) {
       experience?: string | null;
       responsibilities?: string[] | null;
       locations: string[];
+      requiresPortfolio?: boolean | null;
     };
     const groups = new Map<string, Group>();
     for (const o of openings) {
@@ -200,6 +203,11 @@ export function CareersContent({ pageData, openings }: Props) {
       if (existing) {
         if (!existing.locations.includes(o.location))
           existing.locations.push(o.location);
+        // OR across cities for the same role — if any one location's
+        // document has it turned on, treat the whole role as requiring
+        // a portfolio rather than depending on which city doc happened
+        // to be grouped first.
+        if (o.requiresPortfolio) existing.requiresPortfolio = true;
       } else {
         groups.set(o.title, {
           _id: o._id,
@@ -209,6 +217,7 @@ export function CareersContent({ pageData, openings }: Props) {
           experience: o.experience,
           responsibilities: o.responsibilities,
           locations: [o.location],
+          requiresPortfolio: o.requiresPortfolio,
         });
       }
     }
@@ -262,9 +271,16 @@ export function CareersContent({ pageData, openings }: Props) {
   // which role they're targeting. Empty when the candidate uses
   // the closing CTA / form without picking a specific role.
   const [appliedRole, setAppliedRole] = useState<string>("");
+  // Whether the role the candidate clicked Apply on has
+  // `requiresPortfolio: true` set in Sanity (e.g. Senior Graphic
+  // Designer) — drives whether the Portfolio field below is enforced
+  // as required before submit.
+  const [appliedRoleRequiresPortfolio, setAppliedRoleRequiresPortfolio] =
+    useState(false);
 
   function handleApply(job: RoleGroup) {
     setAppliedRole(job.title);
+    setAppliedRoleRequiresPortfolio(!!job.requiresPortfolio);
     // Pre-fill the form's Department select from the job's department
     // so the candidate doesn't have to pick it again. Falls back to
     // empty (showing the placeholder) if the job has no department
@@ -294,12 +310,17 @@ export function CareersContent({ pageData, openings }: Props) {
     age: "",
     totalExperience: "",
     comments: "",
+    // Optional portfolio link — required (alongside/instead of the
+    // file upload below) only when appliedRoleRequiresPortfolio is true.
+    portfolioUrl: "",
   });
   const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [portfolioFile, setPortfolioFile] = useState<File | null>(null);
   // Ref to the native file input so we can clear its value after a
   // successful submit — clearing the React state alone leaves the old
   // file name visible in the input and breaks a second application.
   const resumeInputRef = useRef<HTMLInputElement | null>(null);
+  const portfolioInputRef = useRef<HTMLInputElement | null>(null);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
@@ -314,10 +335,11 @@ export function CareersContent({ pageData, openings }: Props) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Mirror of the server-side cap in /api/careers/apply (8 MB).
-  // Keeping it in sync here lets us reject oversize files instantly
-  // instead of waiting for an HTTP round-trip + generic 400.
+  // Mirror of the server-side caps in /api/careers/apply. Keeping
+  // them in sync here lets us reject oversize files instantly instead
+  // of waiting for an HTTP round-trip + generic 400.
   const MAX_RESUME_BYTES = 8 * 1024 * 1024;
+  const MAX_PORTFOLIO_BYTES = 20 * 1024 * 1024;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -338,10 +360,40 @@ export function CareersContent({ pageData, openings }: Props) {
     setResumeFile(file);
   };
 
+  const handlePortfolioFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_PORTFOLIO_BYTES) {
+      setPortfolioFile(null);
+      setSubmitError(
+        `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. Portfolio must be under 20 MB.`
+      );
+      setSubmitStatus("error");
+      e.target.value = "";
+      return;
+    }
+    setSubmitError("");
+    setSubmitStatus("idle");
+    setPortfolioFile(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resumeFile) {
       setSubmitError("Please attach your resume.");
+      setSubmitStatus("error");
+      return;
+    }
+    if (
+      appliedRoleRequiresPortfolio &&
+      !formData.portfolioUrl.trim() &&
+      !portfolioFile
+    ) {
+      setSubmitError(
+        "This role requires a portfolio — add a link or upload a file below."
+      );
       setSubmitStatus("error");
       return;
     }
@@ -351,6 +403,7 @@ export function CareersContent({ pageData, openings }: Props) {
     const payload = new FormData();
     Object.entries(formData).forEach(([k, v]) => payload.append(k, v));
     payload.append("resume", resumeFile);
+    if (portfolioFile) payload.append("portfolio", portfolioFile);
     if (appliedRole) payload.append("appliedFor", appliedRole);
 
     try {
@@ -374,10 +427,14 @@ export function CareersContent({ pageData, openings }: Props) {
         age: "",
         totalExperience: "",
         comments: "",
+        portfolioUrl: "",
       });
       setResumeFile(null);
+      setPortfolioFile(null);
       if (resumeInputRef.current) resumeInputRef.current.value = "";
+      if (portfolioInputRef.current) portfolioInputRef.current.value = "";
       setAppliedRole("");
+      setAppliedRoleRequiresPortfolio(false);
       setTimeout(() => setSubmitStatus("idle"), 4000);
     } catch (err) {
       setSubmitError(
@@ -397,7 +454,7 @@ export function CareersContent({ pageData, openings }: Props) {
             1. <video> (or <img> fallback / dark fallback)
             2. dark gradient scrim so headline reads against any frame
             3. text content (eyebrow + headline + paragraph) */}
-      <section className="relative min-h-screen flex items-center bg-stone-950 overflow-hidden">
+      <section className="relative min-h-screen flex items-center bg-pacific-dark overflow-hidden">
         {/* Background media */}
         <div className="absolute inset-0 z-0">
           {heroVideoUrl ? (
@@ -429,7 +486,7 @@ export function CareersContent({ pageData, openings }: Props) {
               which frame the video is on, ramps to fully opaque
               dark at the bottom so the section transitions cleanly
               into the Values block below. */}
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/30 via-stone-950/55 to-stone-950" />
+          <div className="absolute inset-0 bg-gradient-to-b from-pacific-dark/30 via-pacific-dark/55 to-pacific-dark" />
         </div>
 
         <motion.div
@@ -677,7 +734,10 @@ export function CareersContent({ pageData, openings }: Props) {
                 Applying for: <strong>{appliedRole}</strong>
                 <button
                   type="button"
-                  onClick={() => setAppliedRole("")}
+                  onClick={() => {
+                    setAppliedRole("");
+                    setAppliedRoleRequiresPortfolio(false);
+                  }}
                   className="ml-2 text-pacific-mid hover:text-white transition-colors text-xs"
                 >
                   (clear)
@@ -841,6 +901,51 @@ export function CareersContent({ pageData, openings }: Props) {
               )}
             </div>
 
+            {/* Portfolio — only rendered at all when the applied-for
+                role has requiresPortfolio set in Sanity (e.g. Senior
+                Graphic Designer). Not shown for roles that don't need
+                one. A link field and a file upload are both offered;
+                either one satisfies the requirement. */}
+            {appliedRoleRequiresPortfolio && (
+              <div>
+                <label
+                  htmlFor="portfolioUrl"
+                  className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3"
+                >
+                  Portfolio Link{" "}
+                  <span className="text-white normal-case tracking-normal font-light">
+                    — required for this role
+                  </span>
+                </label>
+                <input
+                  id="portfolioUrl"
+                  type="url"
+                  name="portfolioUrl"
+                  value={formData.portfolioUrl}
+                  onChange={handleInputChange}
+                  placeholder="https://behance.net/yourname or Drive/Dropbox link"
+                  className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white placeholder-pacific-mid/70 focus:outline-none focus:border-white/30 transition-colors"
+                />
+                <p className="mt-2 text-xs text-pacific-mid">
+                  Or upload a file instead — PDF, PPT/PPTX, JPG, or PNG, up to
+                  20 MB.
+                </p>
+                <input
+                  id="portfolio"
+                  ref={portfolioInputRef}
+                  type="file"
+                  accept=".pdf,.ppt,.pptx,.jpg,.jpeg,.png"
+                  onChange={handlePortfolioFileChange}
+                  className="mt-2 w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white focus:outline-none focus:border-white/30 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-white/10 file:font-light file:text-pacific-light hover:file:bg-white/15"
+                />
+                {portfolioFile && (
+                  <p className="mt-1 text-xs text-pacific-mid">
+                    Selected: {portfolioFile.name}
+                  </p>
+                )}
+              </div>
+            )}
+
             <div>
               <label
                 htmlFor="comments"
@@ -879,8 +984,8 @@ export function CareersContent({ pageData, openings }: Props) {
             </div>
 
             {submitStatus === "success" && (
-              <div className="bg-emerald-900/30 border border-emerald-500/30 rounded-lg p-4">
-                <p className="text-sm text-emerald-400 font-light">
+              <div className="bg-white/5 border border-pacific-mid/30 rounded-lg p-4">
+                <p className="text-sm text-pacific-light font-light">
                   Thank you for your application! We&apos;ll review it and get
                   back to you soon.
                 </p>
@@ -888,8 +993,8 @@ export function CareersContent({ pageData, openings }: Props) {
             )}
 
             {submitStatus === "error" && (
-              <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-4">
-                <p className="text-sm text-red-400 font-light">
+              <div className="bg-white/10 border border-white/40 rounded-lg p-4">
+                <p className="text-sm text-white font-light">
                   {submitError ||
                     "There was an error submitting your application. Please try again."}
                 </p>
@@ -900,13 +1005,13 @@ export function CareersContent({ pageData, openings }: Props) {
       </section>
 
       {/* CTA */}
-      <section className="bg-stone-950">
+      <section className="bg-pacific-dark">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-20 text-center">
           <AnimatedSection>
             <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-white">
               {ctaHeading}
             </h2>
-            <p className="mt-3 text-stone-400 font-light max-w-md mx-auto">
+            <p className="mt-3 text-pacific-mid font-light max-w-md mx-auto">
               {ctaDescription}
             </p>
             <div className="mt-8">

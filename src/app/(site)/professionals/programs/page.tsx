@@ -69,7 +69,7 @@ export default function ProgramsPage() {
   return (
     <main className="bg-[#0a1620] text-pacific-light">
       {/* ── 1. Hero ── */}
-      <section className="relative min-h-[80vh] flex items-end bg-stone-950 overflow-hidden">
+      <section className="relative min-h-[80vh] flex items-end bg-pacific-dark overflow-hidden">
         <Image
           src="/images/professions/programs.jpg"
           alt="Pacific Surfaces trade programs"
@@ -78,7 +78,7 @@ export default function ProgramsPage() {
           className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/55 to-stone-950/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark via-pacific-dark/55 to-pacific-dark/15" />
         <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pb-16 sm:pb-20 lg:pb-28 w-full">
           <AnimatedSection animation="fadeUp">
             <span className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-pacific-mid/80 font-medium">
@@ -157,7 +157,7 @@ export default function ProgramsPage() {
               <ul className="mt-8 space-y-3">
                 {benefits.map((b) => (
                   <li key={b} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400/90 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-pacific-mid mt-0.5 flex-shrink-0" />
                     <span className="text-base font-light text-pacific-light/90">
                       {b}
                     </span>
@@ -175,7 +175,7 @@ export default function ProgramsPage() {
                   className="object-cover"
                   sizes="(min-width: 1024px) 50vw, 100vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark/30 to-transparent" />
               </div>
             </AnimatedSection>
           </div>

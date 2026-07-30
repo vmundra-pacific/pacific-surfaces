@@ -76,36 +76,36 @@ const roles = [
     ],
   },
   {
-    title: "Regional Sales Director - South", cities: ["Bangalore"], department: "Sales", experience: "7+ years", order: 10,
+    title: "Zonal Sales Director - South", cities: ["Bangalore"], department: "Sales", experience: "7+ years", order: 10,
     description: "Own Pacific Surfaces' commercial outcomes across South India. Build and lead a city-level sales team, develop dealer / fabricator partnerships, and grow share of voice with architects and specifiers in the region.",
     responsibilities: regionalResp("South", "Bangalore, Chennai, Hyderabad, and Kochi"),
   },
   {
-    title: "Regional Sales Director - West", cities: ["Mumbai"], department: "Sales", experience: "7+ years", order: 11,
+    title: "Zonal Sales Director - West", cities: ["Mumbai"], department: "Sales", experience: "7+ years", order: 11,
     description: "Own Pacific Surfaces' commercial outcomes across West India. Build and lead a city-level sales team, develop dealer / fabricator partnerships, and grow share of voice with architects and specifiers in the region.",
     responsibilities: regionalResp("West", "Mumbai, Pune, Ahmedabad, and Surat"),
   },
   {
-    title: "Regional Sales Director - North", cities: ["Delhi"], department: "Sales", experience: "7+ years", order: 12,
+    title: "Zonal Sales Director - North", cities: ["Delhi"], department: "Sales", experience: "7+ years", order: 12,
     description: "Own Pacific Surfaces' commercial outcomes across North India. Build and lead a city-level sales team, develop dealer / fabricator partnerships, and grow share of voice with architects and specifiers in the region.",
     responsibilities: regionalResp("North", "Delhi NCR, Chandigarh, Jaipur, and Lucknow"),
   },
   {
-    title: "Regional Sales Director - East", cities: ["Kolkata"], department: "Sales", experience: "7+ years", order: 13,
+    title: "Zonal Sales Director - East", cities: ["Kolkata"], department: "Sales", experience: "7+ years", order: 13,
     description: "Own Pacific Surfaces' commercial outcomes across East India. Build and lead a city-level sales team, develop dealer / fabricator partnerships, and grow share of voice with architects and specifiers in the region.",
     responsibilities: regionalResp("East", "Kolkata, Bhubaneswar, Guwahati, and Patna"),
   },
-  {
-    title: "City Sales Manager", cities: cities7, department: "Sales", experience: "2+ years", order: 20,
-    description: "Drive Pacific Surfaces' growth in your city. Build and nurture relationships with dealers, fabricators, architects, and interior designers; own the local pipeline; and represent the brand to the design and construction community in your market.",
-    responsibilities: [
-      "Own the city-level sales pipeline, quarterly targets, and dealer activation plan.",
-      "Build and maintain relationships with dealers, fabricators, and key project specifiers.",
-      "Conduct architect and designer outreach - sample drops, mood boards, and project briefings.",
-      "Coordinate sample dispatch, quotes, order tracking, and dealer training in your city.",
-      "Report weekly pipeline movement, conversion ratios, and competitive intelligence.",
-    ],
-  },
+  // {
+  //   title: "City Sales Manager", cities: cities7, department: "Sales", experience: "2+ years", order: 20,
+  //   description: "Drive Pacific Surfaces' growth in your city. Build and nurture relationships with dealers, fabricators, architects, and interior designers; own the local pipeline; and represent the brand to the design and construction community in your market.",
+  //   responsibilities: [
+  //     "Own the city-level sales pipeline, quarterly targets, and dealer activation plan.",
+  //     "Build and maintain relationships with dealers, fabricators, and key project specifiers.",
+  //     "Conduct architect and designer outreach - sample drops, mood boards, and project briefings.",
+  //     "Coordinate sample dispatch, quotes, order tracking, and dealer training in your city.",
+  //     "Report weekly pipeline movement, conversion ratios, and competitive intelligence.",
+  //   ],
+  // },
   {
     title: "Management Trainee - Human Resources", cities: ["Bangalore"], department: "Human Resources", experience: "Fresher with MBA", order: 30,
     description: "Join Pacific Surfaces' HR team as a Management Trainee. Rotate through talent acquisition, employee engagement, learning and development, and HR operations under the mentorship of senior HR leaders. Ideal for MBA graduates from HR / OB specializations.",

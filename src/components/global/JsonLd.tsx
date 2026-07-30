@@ -19,6 +19,8 @@
  *   />
  */
 
+import { safeJsonLd } from "@/lib/escape";
+
 const SITE_URL = "https://pacific-surfaces.com";
 
 interface BreadcrumbItem {
@@ -42,7 +44,7 @@ export function BreadcrumbList({ items }: { items: BreadcrumbItem[] }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(json) }}
     />
   );
 }
@@ -119,7 +121,7 @@ export function ProductSchema({
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(json) }}
     />
   );
 }
@@ -168,7 +170,7 @@ export function ArticleSchema({
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(json) }}
     />
   );
 }

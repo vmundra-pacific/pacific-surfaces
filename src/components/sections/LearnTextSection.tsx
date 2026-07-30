@@ -29,7 +29,7 @@ export function LearnTextSection({
     <section
       className={cn(
         "py-20 md:py-28 px-6",
-        isDark ? "bg-[#112732]" : "bg-stone-50"
+        isDark ? "bg-[#112732]" : "bg-pacific-light"
       )}
     >
       <motion.div
@@ -50,7 +50,7 @@ export function LearnTextSection({
           }}
           className={cn(
             "text-[10px] font-medium tracking-[0.3em] uppercase mb-5",
-            isDark ? "text-white/50" : "text-stone-500"
+            isDark ? "text-white/50" : "text-pacific-dark/50"
           )}
         >
           {`Section ${String(index + 1).padStart(2, "0")}`}
@@ -66,7 +66,7 @@ export function LearnTextSection({
           }}
           className={cn(
             "text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-[1.15] mb-6",
-            isDark ? "text-white" : "text-stone-900"
+            isDark ? "text-white" : "text-pacific-dark"
           )}
         >
           {heading}
@@ -82,7 +82,7 @@ export function LearnTextSection({
           }}
           className={cn(
             "text-base sm:text-lg font-light leading-relaxed",
-            isDark ? "text-stone-300" : "text-stone-600"
+            isDark ? "text-pacific-light" : "text-pacific-dark/70"
           )}
         >
           {content}

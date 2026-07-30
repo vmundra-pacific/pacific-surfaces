@@ -415,7 +415,8 @@ export const jobOpeningsQuery = groq`
     department,
     description,
     experience,
-    responsibilities
+    responsibilities,
+    requiresPortfolio
   }
 `;
 

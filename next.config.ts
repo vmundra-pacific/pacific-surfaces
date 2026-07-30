@@ -35,6 +35,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  /* Don't advertise the framework in an `X-Powered-By` response header.
+     Pure noise for clients and free fingerprinting for anyone scanning
+     for framework-specific CVEs. */
+  poweredByHeader: false,
+
   /* Strip dev-time console.log/info/debug calls during production builds.
      Keeps console.error and console.warn so real production issues still
      surface. Lighthouse's `errors-in-console` audit is friendlier without

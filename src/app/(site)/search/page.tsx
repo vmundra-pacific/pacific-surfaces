@@ -73,14 +73,14 @@ export default async function SearchPage({
   return (
     <div className="pt-28 pb-24 bg-[#f4efe8] min-h-screen">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <p className="text-[11px] tracking-[0.32em] uppercase text-stone-500 mb-4">
+        <p className="text-[11px] tracking-[0.32em] uppercase text-pacific-dark/60 mb-4">
           Search
         </p>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-[#112732] mb-3">
           {term ? (
             <>
               Results for{" "}
-              <em className="not-italic text-stone-500">
+              <em className="not-italic text-pacific-mid">
                 &ldquo;{term}&rdquo;
               </em>
             </>
@@ -88,7 +88,7 @@ export default async function SearchPage({
             "Search"
           )}
         </h1>
-        <p className="text-base text-stone-600 mb-12 max-w-2xl">
+        <p className="text-base text-pacific-dark/70 mb-12 max-w-2xl">
           {term
             ? `${results.length} surface${results.length === 1 ? "" : "s"} matching your search.`
             : "Use the search box in your browser, or browse the full catalogue below."}
@@ -104,7 +104,7 @@ export default async function SearchPage({
               return (
                 <li key={r._id}>
                   <Link href={href} className="group block">
-                    <div className="aspect-[4/5] overflow-hidden bg-stone-200 mb-3 rounded-sm">
+                    <div className="aspect-[4/5] overflow-hidden bg-pacific-light mb-3 rounded-sm">
                       {r.mainImage && (
                         <Image
                           // sanityImg returns string | undefined per its
@@ -120,7 +120,7 @@ export default async function SearchPage({
                         />
                       )}
                     </div>
-                    <p className="text-[10px] tracking-[0.28em] uppercase text-stone-500 mb-1">
+                    <p className="text-[10px] tracking-[0.28em] uppercase text-pacific-dark/60 mb-1">
                       {r.categoryName ?? "Surface"}
                     </p>
                     <p className="text-base font-light text-[#112732]">

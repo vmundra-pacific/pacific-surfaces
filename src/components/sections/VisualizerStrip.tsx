@@ -25,7 +25,7 @@ export function VisualizerStrip() {
   return (
     <section
       id="sec-visualize"
-      className="relative w-full h-screen overflow-hidden bg-stone-950 scroll-mt-20"
+      className="relative w-full h-screen overflow-hidden bg-pacific-dark scroll-mt-20"
     >
       {/* Background — kitchen demo room. Sized + cropped to look
           editorial rather than literal. */}
@@ -42,7 +42,7 @@ export function VisualizerStrip() {
       {/* Scrim — heavier than the projects slide because we have more
           text to keep legible. Top + bottom darken; middle stays
           softer so the kitchen still reads. */}
-      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-950/40 to-stone-950/85 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-pacific-dark/70 via-pacific-dark/40 to-pacific-dark/85 pointer-events-none" />
 
       {/* Centered editorial column */}
       <div className="relative h-full flex flex-col items-center justify-center px-6 text-center max-w-4xl mx-auto">

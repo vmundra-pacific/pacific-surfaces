@@ -81,7 +81,7 @@ export default function CollaborationPage() {
   return (
     <main className="bg-[#0a1620] text-pacific-light">
       {/* ── 1. Hero ── */}
-      <section className="relative min-h-[80vh] flex items-end bg-stone-950 overflow-hidden">
+      <section className="relative min-h-[80vh] flex items-end bg-pacific-dark overflow-hidden">
         <Image
           src="/images/professions/collaboration.jpg"
           alt="Pacific Surfaces collaboration"
@@ -90,7 +90,7 @@ export default function CollaborationPage() {
           className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/55 to-stone-950/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark via-pacific-dark/55 to-pacific-dark/15" />
         <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pb-16 sm:pb-20 lg:pb-28 w-full">
           <AnimatedSection animation="fadeUp">
             <span className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-pacific-mid/80 font-medium">

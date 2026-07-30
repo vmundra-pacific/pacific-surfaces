@@ -136,7 +136,7 @@ export function InspirationGallery() {
   return (
     <main className="bg-[#0a1620] text-pacific-light">
       {/* ── 1. Hero ── */}
-      <section className="relative min-h-[78vh] flex items-end bg-stone-950 overflow-hidden">
+      <section className="relative min-h-[78vh] flex items-end bg-pacific-dark overflow-hidden">
         <Image
           src="/images/inspirations/inspiration-gallery.png"
           alt="Pacific Surfaces inspiration gallery"
@@ -145,7 +145,7 @@ export function InspirationGallery() {
           className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/55 to-stone-950/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark via-pacific-dark/55 to-pacific-dark/10" />
         <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pb-16 sm:pb-20 lg:pb-28 w-full">
           <AnimatedSection animation="fadeUp">
             <span className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-pacific-mid/80 font-medium">
@@ -177,7 +177,7 @@ export function InspirationGallery() {
                   onClick={() => setFilter(f.id)}
                   className={`relative shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-medium tracking-[0.15em] uppercase transition-colors ${
                     active
-                      ? "bg-white text-stone-900"
+                      ? "bg-white text-pacific-dark"
                       : "border border-white/15 text-pacific-mid hover:text-white hover:border-white/30"
                   }`}
                 >
@@ -262,7 +262,7 @@ export function InspirationGallery() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-stone-950/90 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
+            className="fixed inset-0 z-50 bg-pacific-dark/90 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
             onClick={() => setLightbox(null)}
           >
             <button
@@ -281,7 +281,7 @@ export function InspirationGallery() {
               className="relative w-full max-w-5xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-stone-900">
+              <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-pacific-dark">
                 <Image
                   src={lightbox.image}
                   alt={lightbox.title}

@@ -76,10 +76,10 @@ export function WhatsAppFAB() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
-              className="absolute bottom-full right-0 mb-3 px-3 py-2 bg-stone-900 text-white text-xs font-light tracking-wide rounded-lg whitespace-nowrap shadow-lg"
+              className="absolute bottom-full right-0 mb-3 px-3 py-2 bg-pacific-dark text-white text-xs font-light tracking-wide rounded-lg whitespace-nowrap shadow-lg"
             >
               Chat with us
-              <div className="absolute -bottom-1 right-4 w-2 h-2 bg-stone-900 transform rotate-45" />
+              <div className="absolute -bottom-1 right-4 w-2 h-2 bg-pacific-dark transform rotate-45" />
             </motion.div>
           )}
         </motion.a>

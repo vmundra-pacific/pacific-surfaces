@@ -125,7 +125,7 @@ export default function NewGrievanceForm() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-400" role="alert">
+        <p className="text-sm text-white" role="alert">
           {error}
         </p>
       )}

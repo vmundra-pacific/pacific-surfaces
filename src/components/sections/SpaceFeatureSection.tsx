@@ -54,7 +54,7 @@ export function SpaceFeatureSection({
   const isDark = theme === "dark";
   return (
     <section
-      className={`py-20 md:py-28 px-6 ${isDark ? "bg-[#112732]" : "bg-stone-50"}`}
+      className={`py-20 md:py-28 px-6 ${isDark ? "bg-[#112732]" : "bg-pacific-light"}`}
     >
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
         {/* Image — real Sanity-uploaded photo when imageUrl is set,
@@ -67,7 +67,7 @@ export function SpaceFeatureSection({
           className={`relative aspect-[4/3] w-full overflow-hidden rounded-2xl border ${
             isDark
               ? "border-white/10 bg-gradient-to-br from-[#1d3947] via-[#2c4a5b] to-[#0f1f29]"
-              : "border-stone-200 bg-gradient-to-br from-stone-200 via-stone-100 to-stone-300"
+              : "border-pacific-mid/30 bg-gradient-to-br from-pacific-light via-white to-pacific-mid/40"
           } ${imageOnLeft ? "lg:order-1" : "lg:order-2"}`}
         >
           {imageUrl ? (
@@ -82,7 +82,7 @@ export function SpaceFeatureSection({
           ) : (
             <div
               className={`absolute inset-0 flex flex-col items-center justify-center gap-2 px-8 text-center ${
-                isDark ? "text-white/40" : "text-stone-500"
+                isDark ? "text-white/40" : "text-pacific-mid"
               }`}
             >
               <span className="text-[10px] font-medium tracking-[0.3em] uppercase">
@@ -90,7 +90,7 @@ export function SpaceFeatureSection({
               </span>
               <span
                 className={`text-[10px] tracking-[0.2em] uppercase ${
-                  isDark ? "text-white/25" : "text-stone-400"
+                  isDark ? "text-white/25" : "text-pacific-mid/60"
                 }`}
               >
                 [ image placeholder ]
@@ -103,21 +103,21 @@ export function SpaceFeatureSection({
         <div className={imageOnLeft ? "lg:order-2" : "lg:order-1"}>
           <span
             className={`text-[10px] font-medium tracking-[0.3em] uppercase mb-4 block ${
-              isDark ? "text-white/60" : "text-stone-500"
+              isDark ? "text-white/60" : "text-pacific-mid"
             }`}
           >
             {eyebrow}
           </span>
           <h2
             className={`text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-[1.15] mb-6 ${
-              isDark ? "text-white" : "text-stone-900"
+              isDark ? "text-white" : "text-pacific-dark"
             }`}
           >
             {headline}
           </h2>
           <p
             className={`text-base sm:text-lg font-light leading-relaxed mb-8 max-w-xl ${
-              isDark ? "text-stone-300" : "text-stone-600"
+              isDark ? "text-pacific-light" : "text-pacific-dark/70"
             }`}
           >
             {body}
@@ -126,8 +126,8 @@ export function SpaceFeatureSection({
             href={ctaHref}
             className={`inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-xs font-medium tracking-[0.2em] uppercase transition-colors ${
               isDark
-                ? "bg-white text-stone-900 hover:bg-stone-100"
-                : "bg-stone-900 text-white hover:bg-stone-800"
+                ? "bg-white text-pacific-dark hover:bg-pacific-light"
+                : "bg-pacific-dark text-white hover:bg-pacific-dark/90"
             }`}
           >
             {ctaLabel}

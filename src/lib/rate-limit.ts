@@ -96,10 +96,38 @@ export function rateLimit(
  * no forwarding header is present (e.g. local `next dev`), which means
  * local development shares one quota — fine, since this only matters
  * once deployed behind Vercel's proxy, which always sets this header.
+ *
+ * SECURITY — why we do NOT read the first `x-forwarded-for` value:
+ * `x-forwarded-for` is a client-suppliable header. A proxy *appends* to
+ * it, so when a caller sends `x-forwarded-for: 1.2.3.4` the value Vercel
+ * hands us is `1.2.3.4, <real client ip>` — the leftmost entry is fully
+ * attacker-controlled. Bucketing on it let anyone reset their own quota
+ * by rotating the header per request, which defeated the limiter on the
+ * four Replicate routes entirely (each call spends real credit).
+ *
+ * Correct precedence:
+ *   1. `x-vercel-forwarded-for` — set by Vercel's edge from the actual
+ *      TCP peer and overwritten on every request, so it can't be forged.
+ *   2. The RIGHTMOST `x-forwarded-for` entry — the hop appended by the
+ *      nearest trusted proxy, i.e. the real peer as our infrastructure
+ *      saw it. Spoofed values sit to the left and are ignored.
+ *   3. `x-real-ip`, then a constant fallback for local dev.
  */
 export function getClientIp(req: NextRequest): string {
+  const vercel = req.headers.get("x-vercel-forwarded-for");
+  if (vercel) {
+    const parts = vercel.split(",");
+    const ip = parts[parts.length - 1].trim();
+    if (ip) return ip;
+  }
+
   const forwarded = req.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
+  if (forwarded) {
+    const parts = forwarded.split(",");
+    const ip = parts[parts.length - 1].trim();
+    if (ip) return ip;
+  }
+
   const realIp = req.headers.get("x-real-ip");
   if (realIp) return realIp.trim();
   return "unknown";
@@ -118,4 +146,32 @@ export function getClientIp(req: NextRequest): string {
 export const VISUALIZE_RATE_LIMIT = {
   limit: 20,
   windowMs: 15 * 60 * 1000,
+};
+
+/**
+ * Shared quota for the public, unauthenticated form endpoints:
+ * /api/contact/submit, /api/newsletter/subscribe,
+ * /api/sample-request/submit and /api/careers/apply.
+ *
+ * These were previously wide open. Each one either sends mail through
+ * the shared Gmail App Password (burning a finite daily send quota and
+ * risking the sender being flagged for spam) or writes a Sanity
+ * document (billed per document and per API request), and
+ * /api/careers/apply additionally accepts an 8 MB asset upload *before*
+ * any dedup check. A trivial script could exhaust any of those.
+ *
+ * 5 submissions per 10 minutes per visitor is far above real human
+ * behaviour — nobody legitimately files five enquiries in ten minutes —
+ * while capping a scripted flood at a harmless trickle. Deliberately
+ * shared across all four routes so an abuser can't multiply their
+ * budget by rotating between endpoints.
+ *
+ * Note the in-memory caveat documented at the top of this file applies
+ * here too: this is per-warm-instance, not a hard global guarantee. It
+ * raises the cost of abuse substantially but is not a substitute for a
+ * shared store (Upstash) if this ever sees a determined attacker.
+ */
+export const FORM_RATE_LIMIT = {
+  limit: 5,
+  windowMs: 10 * 60 * 1000,
 };

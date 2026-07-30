@@ -4,11 +4,19 @@
  * Receives the careers form submission as multipart/form-data:
  *   firstName, lastName, email, phone, address, currentLocation,
  *   age, totalExperience, comments, department,
- *   appliedFor (optional, role title), resume (file).
+ *   appliedFor (optional, role title), resume (file),
+ *   portfolioUrl (optional, string), portfolio (optional, file).
+ *
+ * If the applied-for role has `requiresPortfolio: true` in Sanity
+ * (jobOpening schema — e.g. Senior Graphic Designer), the candidate
+ * must supply at least one of portfolioUrl / portfolio, checked here
+ * server-side (not just in the client form) since this is a public
+ * endpoint.
  *
  * Side effects, in order:
- *   1. Upload the resume binary to Sanity as an asset.
- *   2. Create a `jobApplication` document referencing the asset
+ *   1. Upload the resume binary to Sanity as an asset (and the
+ *      portfolio file too, if one was attached).
+ *   2. Create a `jobApplication` document referencing the asset(s)
  *      and storing the form fields. Becomes the editable record
  *      in Studio under "Job Applications".
  *   3. Send an email notification via the same SMTP transport that
@@ -64,6 +72,17 @@ const ALLOWED_RESUME_TYPES = new Set([
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]);
 
+// Portfolios run heavier than resumes (image-led PDFs, decks), so this
+// gets a larger cap and a broader set of accepted types.
+const MAX_PORTFOLIO_BYTES = 20 * 1024 * 1024; // 20 MB
+const ALLOWED_PORTFOLIO_TYPES = new Set([
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+  "application/vnd.ms-powerpoint", // .ppt
+  "image/jpeg",
+  "image/png",
+]);
+
 export async function POST(req: NextRequest) {
   if (!sanityClient) {
     return NextResponse.json(
@@ -113,6 +132,12 @@ export async function POST(req: NextRequest) {
     const department = (formData.get("department") || "").toString().trim();
     const appliedFor = (formData.get("appliedFor") || "").toString().trim();
     const resume = formData.get("resume");
+    const portfolioUrl = (formData.get("portfolioUrl") || "").toString().trim();
+    const portfolioFile = formData.get("portfolio");
+    const portfolio =
+      portfolioFile instanceof File && portfolioFile.size > 0
+        ? portfolioFile
+        : null;
 
     // Field-level validation. Surface a specific error for each
     // missing piece so the client can display it usefully.
@@ -149,13 +174,76 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    if (portfolio) {
+      if (portfolio.size > MAX_PORTFOLIO_BYTES) {
+        return NextResponse.json(
+          { error: "Portfolio file must be under 20 MB." },
+          { status: 400 }
+        );
+      }
+      if (portfolio.type && !ALLOWED_PORTFOLIO_TYPES.has(portfolio.type)) {
+        return NextResponse.json(
+          { error: "Portfolio must be a PDF, PPT/PPTX, JPG, or PNG file." },
+          { status: 400 }
+        );
+      }
+    }
+    if (portfolioUrl && !/^https?:\/\/.+/i.test(portfolioUrl)) {
+      return NextResponse.json(
+        { error: "Portfolio link must be a valid URL starting with http:// or https://." },
+        { status: 400 }
+      );
+    }
 
-    // 1. Upload the resume to Sanity assets.
+    // Look up the applied-for role once — used both to enforce a
+    // portfolio requirement server-side (the client already does this,
+    // but this is a public endpoint so it can't be trusted alone) and
+    // to route the notification email to a role-specific inbox.
+    let roleApplyEmail: string | undefined;
+    let roleRequiresPortfolio = false;
+    if (appliedFor) {
+      try {
+        const role = await sanityClient.fetch<{
+          applyEmail?: string | null;
+          requiresPortfolio?: boolean | null;
+        }>(
+          `*[_type == "jobOpening" && title == $title][0] { applyEmail, requiresPortfolio }`,
+          { title: appliedFor }
+        );
+        roleApplyEmail = role?.applyEmail || undefined;
+        roleRequiresPortfolio = !!role?.requiresPortfolio;
+      } catch {
+        // Fall through — treat as not requiring a portfolio rather than
+        // blocking a legitimate submission over a lookup failure.
+      }
+    }
+    if (roleRequiresPortfolio && !portfolioUrl && !portfolio) {
+      return NextResponse.json(
+        {
+          error:
+            "This role requires a portfolio — add a link or upload a file.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // 1. Upload the resume (and portfolio file, if attached) to Sanity assets.
     const resumeBuffer = Buffer.from(await resume.arrayBuffer());
     const asset = await sanityClient.assets.upload("file", resumeBuffer, {
       filename: resume.name,
       contentType: resume.type || "application/octet-stream",
     });
+
+    const portfolioAsset = portfolio
+      ? await sanityClient.assets.upload(
+          "file",
+          Buffer.from(await portfolio.arrayBuffer()),
+          {
+            filename: portfolio.name,
+            contentType: portfolio.type || "application/octet-stream",
+          }
+        )
+      : null;
 
     // 2. Create the jobApplication document.
     const submittedAt = new Date().toISOString();
@@ -180,19 +268,31 @@ export async function POST(req: NextRequest) {
           _ref: asset._id,
         },
       },
+      portfolioUrl: portfolioUrl || undefined,
+      portfolio: portfolioAsset
+        ? {
+            _type: "file",
+            asset: {
+              _type: "reference",
+              _ref: portfolioAsset._id,
+            },
+          }
+        : undefined,
       status: "new",
     });
 
     // 3. Email notification — best-effort, doesn't fail the
-    //    request if it errors. Look up the role's applyEmail
-    //    override before falling back to the global inbox.
-    //    Wrapped in `after()` so the work survives the response
-    //    being sent — a bare fire-and-forget promise gets killed
-    //    when the serverless function freezes on Vercel.
+    //    request if it errors. Wrapped in `after()` so the work
+    //    survives the response being sent — a bare fire-and-forget
+    //    promise gets killed when the serverless function freezes
+    //    on Vercel.
     after(() =>
       sendNotificationEmail({
         doc,
         asset,
+        portfolioAsset,
+        portfolioUrl,
+        roleApplyEmail,
         firstName,
         lastName,
         email,
@@ -228,6 +328,9 @@ export async function POST(req: NextRequest) {
 interface NotificationParams {
   doc: { _id: string };
   asset: { _id: string; url: string; originalFilename?: string };
+  portfolioAsset: { _id: string; url: string; originalFilename?: string } | null;
+  portfolioUrl: string;
+  roleApplyEmail: string | undefined;
   firstName: string;
   lastName: string;
   email: string;
@@ -244,6 +347,9 @@ interface NotificationParams {
 async function sendNotificationEmail({
   doc,
   asset,
+  portfolioAsset,
+  portfolioUrl,
+  roleApplyEmail,
   firstName,
   lastName,
   email,
@@ -259,24 +365,12 @@ async function sendNotificationEmail({
   if (!sanityClient) return;
   // Falls back to Muthusamy's inbox directly so this works with zero
   // extra Vercel config. Set CAREERS_INBOX_EMAIL later to redirect
-  // notifications elsewhere without touching code.
+  // notifications elsewhere without touching code. roleApplyEmail (the
+  // role's own override, looked up once in the POST handler) wins over
+  // both when set.
   const globalInbox =
     process.env.CAREERS_INBOX_EMAIL || "muthusamyg@pacific-surfaces.com";
-
-  // Per-role override — if the candidate selected a specific role
-  // AND that role has its own applyEmail in Sanity, route there.
-  let toEmail = globalInbox;
-  if (appliedFor) {
-    try {
-      const role = await sanityClient.fetch<{ applyEmail?: string | null }>(
-        `*[_type == "jobOpening" && title == $title][0] { applyEmail }`,
-        { title: appliedFor }
-      );
-      if (role?.applyEmail) toEmail = role.applyEmail;
-    } catch {
-      // Fall through to global inbox if the role lookup fails.
-    }
-  }
+  const toEmail = roleApplyEmail || globalInbox;
 
   const fullName = `${firstName} ${lastName}`.trim();
   const subject = appliedFor
@@ -312,6 +406,22 @@ async function sendNotificationEmail({
           <strong>Resume:</strong>
           <a href="${escapeAttr(asset.url)}" style="color: #112732;">${escapeHtml(asset.originalFilename || "Download")}</a>
         </p>
+        ${
+          portfolioUrl
+            ? `<p style="margin: 0 0 8px 0; font-size: 14px;">
+                <strong>Portfolio Link:</strong>
+                <a href="${escapeAttr(portfolioUrl)}" style="color: #112732;">${escapeHtml(portfolioUrl)}</a>
+              </p>`
+            : ""
+        }
+        ${
+          portfolioAsset
+            ? `<p style="margin: 0 0 8px 0; font-size: 14px;">
+                <strong>Portfolio File:</strong>
+                <a href="${escapeAttr(portfolioAsset.url)}" style="color: #112732;">${escapeHtml(portfolioAsset.originalFilename || "Download")}</a>
+              </p>`
+            : ""
+        }
         <p style="margin: 0; font-size: 14px;">
           <a href="${escapeAttr(studioUrl)}" style="color: #112732;">View &amp; manage in Studio →</a>
         </p>
@@ -334,6 +444,8 @@ async function sendNotificationEmail({
     comments ? `\nComments:\n${comments}` : "",
     ``,
     `Resume: ${asset.url}`,
+    portfolioUrl ? `Portfolio Link: ${portfolioUrl}` : "",
+    portfolioAsset ? `Portfolio File: ${portfolioAsset.url}` : "",
     `Studio: ${studioUrl}`,
   ]
     .filter(Boolean)

@@ -54,7 +54,7 @@ export function CertificationsSection() {
                   Bigger size + soft shadow + thin stone ring give
                   the plate a sense of "credential" rather than just
                   a chip. */}
-            <div className="mt-4 mb-10 inline-flex items-center justify-center bg-white rounded-lg px-8 py-5 shadow-[0_8px_28px_rgba(0,0,0,0.25)] ring-1 ring-stone-200/60">
+            <div className="mt-4 mb-10 inline-flex items-center justify-center bg-white rounded-lg px-8 py-5 shadow-[0_8px_28px_rgba(0,0,0,0.25)] ring-1 ring-pacific-mid/30">
               <Image
                 unoptimized={false}
                 src="/logos/dnv.webp"
@@ -114,7 +114,7 @@ export function CertificationsSection() {
               </span>
               {/* SGS logo — same large credential treatment as
                     DNV so the two cards read as a matched pair. */}
-              <div className="mt-4 mb-10 inline-flex items-center justify-center bg-white rounded-lg px-8 py-5 shadow-[0_8px_28px_rgba(0,0,0,0.25)] ring-1 ring-stone-200/60">
+              <div className="mt-4 mb-10 inline-flex items-center justify-center bg-white rounded-lg px-8 py-5 shadow-[0_8px_28px_rgba(0,0,0,0.25)] ring-1 ring-pacific-mid/30">
                 <Image
                   unoptimized={false}
                   src="/logos/sgs.png"

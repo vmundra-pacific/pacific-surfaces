@@ -88,7 +88,7 @@ export function ProfessionalsVideoGrid({
                 type="button"
                 onClick={() => toggle(i)}
                 aria-label={isPlaying ? "Pause video" : "Play video"}
-                className="group relative block rounded-xl overflow-hidden border border-white/10 bg-stone-950 aspect-[3/4] focus:outline-none focus:ring-2 focus:ring-white/40"
+                className="group relative block rounded-xl overflow-hidden border border-white/10 bg-pacific-dark aspect-[3/4] focus:outline-none focus:ring-2 focus:ring-white/40"
               >
                 <video
                   ref={(el) => {

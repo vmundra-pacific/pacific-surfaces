@@ -675,7 +675,7 @@ export default function Header() {
               <h3 className="text-2xl sm:text-3xl font-light tracking-tight text-white mb-3">
                 {comingSoonLabel}
               </h3>
-              <p className="text-sm font-light text-stone-300 leading-relaxed">
+              <p className="text-sm font-light text-pacific-light leading-relaxed">
                 We&apos;re still building this experience. Check back shortly —
                 or get in touch and we&apos;ll let you know the moment it
                 launches.
@@ -684,7 +684,7 @@ export default function Header() {
                 <Link
                   href="/contact"
                   onClick={() => setComingSoonLabel(null)}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-[11px] font-medium tracking-[0.15em] uppercase text-pacific-dark hover:bg-stone-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-[11px] font-medium tracking-[0.15em] uppercase text-pacific-dark hover:bg-pacific-light transition-colors"
                 >
                   Notify me
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -952,7 +952,7 @@ export default function Header() {
                                           }
                                           className="group block w-full text-left transition-transform hover:scale-[1.02]"
                                         >
-                                          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
+                                          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
                                             {cat.imageUrl ? (
                                               <Image
                                                 src={cat.imageUrl}
@@ -974,7 +974,7 @@ export default function Header() {
                                               </span>
                                             </div>
                                           </div>
-                                          <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug min-h-[2.25rem] line-clamp-2">
+                                          <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
                                             {cat.tagline}
                                           </p>
                                         </button>
@@ -989,7 +989,7 @@ export default function Header() {
                                         }
                                         className="group block transition-transform hover:scale-[1.02]"
                                       >
-                                        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-stone-300 via-stone-200 to-stone-400">
+                                        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
                                           {cat.imageUrl ? (
                                             // Spaces cards keep their
                                             // thumbnail visible at
@@ -1021,7 +1021,7 @@ export default function Header() {
                                         {/* Subscript tagline — sits
                                             below the card, kept from
                                             the pre-overlay layout. */}
-                                        <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug min-h-[2.25rem] line-clamp-2">
+                                        <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
                                           {cat.tagline}
                                         </p>
                                       </Link>
@@ -1138,7 +1138,7 @@ export default function Header() {
                                       {/* Subscript tagline — sits
                                           below the card, restored from
                                           the pre-overlay layout. */}
-                                      <p className="mt-2 px-1 text-xs font-light tracking-wide text-stone-400 leading-snug min-h-[2.25rem] line-clamp-2">
+                                      <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
                                         {cat.tagline}
                                       </p>
                                     </button>
@@ -1177,14 +1177,14 @@ export default function Header() {
                                               product is, how to keep it,
                                               warranty (Quartz only). */}
                                           <div className="lg:col-span-3">
-                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
+                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
                                               About {active.name}
                                             </h4>
                                             <ul className="space-y-2">
                                               <li>
                                                 <Link
                                                   href={`/learn/what-is-${active.whatIsSlug ?? active.slug}`}
-                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                  className="text-sm font-light text-pacific-light hover:text-white transition-colors"
                                                 >
                                                   What is {active.name}?
                                                 </Link>
@@ -1192,7 +1192,7 @@ export default function Header() {
                                               <li>
                                                 <Link
                                                   href={`/learn/maintenance-${active.whatIsSlug ?? active.slug}`}
-                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                  className="text-sm font-light text-pacific-light hover:text-white transition-colors"
                                                 >
                                                   Maintenance
                                                 </Link>
@@ -1201,7 +1201,7 @@ export default function Header() {
                                                 <li>
                                                   <Link
                                                     href="/learn/warranty-quartz"
-                                                    className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                    className="text-sm font-light text-pacific-light hover:text-white transition-colors"
                                                   >
                                                     Warranty
                                                   </Link>
@@ -1220,7 +1220,7 @@ export default function Header() {
                                               to the category's main
                                               collection page. */}
                                           <div className="lg:col-span-4">
-                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
+                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
                                               Top Picks · Products
                                             </h4>
                                             <ul className="space-y-2">
@@ -1229,7 +1229,7 @@ export default function Header() {
                                                   <li key={pick.name}>
                                                     <Link
                                                       href={pick.href}
-                                                      className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                      className="text-sm font-light text-pacific-light hover:text-white transition-colors"
                                                     >
                                                       {pick.name}
                                                     </Link>
@@ -1242,7 +1242,7 @@ export default function Header() {
                                                     active.coloursHref ??
                                                     `/products/${active.slug}`
                                                   }
-                                                  className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-stone-200 transition-colors"
+                                                  className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-pacific-light transition-colors"
                                                 >
                                                   See more {active.name}
                                                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1259,14 +1259,14 @@ export default function Header() {
                                               link to the dedicated
                                               applications page. */}
                                           <div className="lg:col-span-3">
-                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-stone-400 mb-3">
+                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
                                               Applications
                                             </h4>
                                             <ul className="space-y-2">
                                               <li>
                                                 <Link
                                                   href="/spaces/kitchens"
-                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                  className="text-sm font-light text-pacific-light hover:text-white transition-colors"
                                                 >
                                                   Kitchens
                                                 </Link>
@@ -1274,7 +1274,7 @@ export default function Header() {
                                               <li>
                                                 <Link
                                                   href="/spaces/bathrooms"
-                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                  className="text-sm font-light text-pacific-light hover:text-white transition-colors"
                                                 >
                                                   Bathrooms
                                                 </Link>
@@ -1282,7 +1282,7 @@ export default function Header() {
                                               <li>
                                                 <Link
                                                   href="/inspirations/inspiration-gallery"
-                                                  className="text-sm font-light text-stone-300 hover:text-white transition-colors"
+                                                  className="text-sm font-light text-pacific-light hover:text-white transition-colors"
                                                 >
                                                   Living Rooms
                                                 </Link>
@@ -1290,7 +1290,7 @@ export default function Header() {
                                               <li className="pt-1">
                                                 <Link
                                                   href="/professionals/applications"
-                                                  className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-stone-200 transition-colors"
+                                                  className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-pacific-light transition-colors"
                                                 >
                                                   See more applications
                                                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1311,7 +1311,7 @@ export default function Header() {
                                                 active.coloursHref ??
                                                 `/products/${active.slug}`
                                               }
-                                              className="inline-flex items-center gap-2 rounded-full px-5 py-3 bg-white text-stone-900 text-[10px] font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
+                                              className="inline-flex items-center gap-2 rounded-full px-5 py-3 bg-white text-pacific-dark text-[10px] font-medium tracking-[0.2em] uppercase hover:bg-pacific-light transition-colors"
                                             >
                                               {active.slug ===
                                               "facades-and-finishes"
@@ -1359,12 +1359,12 @@ export default function Header() {
                   ) : (
                     item.children && (
                       <div className="absolute left-0 top-full pt-2 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 ease-out z-50">
-                        <div className="bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] overflow-hidden min-w-max border border-stone-100">
+                        <div className="bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] overflow-hidden min-w-max border border-pacific-mid/20">
                           {item.children.map((child) => (
                             <Link
                               key={child.name}
                               href={child.href}
-                              className="block px-6 py-3.5 text-sm font-light tracking-wide text-stone-700 hover:text-stone-900 hover:bg-stone-50 transition-colors duration-200 border-b border-stone-100 last:border-b-0"
+                              className="block px-6 py-3.5 text-sm font-light tracking-wide text-pacific-dark/80 hover:text-pacific-dark hover:bg-pacific-light transition-colors duration-200 border-b border-pacific-mid/20 last:border-b-0"
                             >
                               {child.name}
                             </Link>
@@ -1390,7 +1390,7 @@ export default function Header() {
                   // Quote/Visualizer pills are hidden below sm/2xl.
                   "flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
                   // Dark in both states — same hover treatment.
-                  "text-stone-300 hover:text-white hover:bg-white/10"
+                  "text-pacific-light hover:text-white hover:bg-white/10"
                 )}
               >
                 <Search className="w-4 h-4" />
@@ -1409,7 +1409,7 @@ export default function Header() {
                 aria-label="View favorites"
                 className={cn(
                   "hidden 2xl:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
-                  "text-stone-300 hover:text-white hover:bg-white/10"
+                  "text-pacific-light hover:text-white hover:bg-white/10"
                 )}
               >
                 <Heart className="w-4 h-4" />
@@ -1454,7 +1454,7 @@ export default function Header() {
                 className={cn(
                   "hidden xl:inline-flex items-center gap-1.5 rounded-full px-4 xl:px-5 py-2 text-[11px] xl:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
                   headerDark
-                    ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
+                    ? "bg-white text-[#112732] border border-transparent hover:bg-pacific-light"
                     : "bg-white/20 text-white backdrop-blur-sm border border-white/40 hover:bg-white/30"
                 )}
               >
@@ -1470,7 +1470,7 @@ export default function Header() {
                   // contrast against the dark navy header. Top of
                   // page keeps the translucent glass-pill style.
                   headerDark
-                    ? "bg-white text-[#112732] border border-transparent hover:bg-stone-100"
+                    ? "bg-white text-[#112732] border border-transparent hover:bg-pacific-light"
                     : "bg-white/20 text-white backdrop-blur-sm border border-white/40 hover:bg-white/30"
                 )}
               >
@@ -1514,7 +1514,7 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[60] bg-stone-950/95 backdrop-blur-xl xl:hidden overflow-y-auto overscroll-contain"
+            className="fixed inset-0 z-[60] bg-pacific-dark/95 backdrop-blur-xl xl:hidden overflow-y-auto overscroll-contain"
             onClick={() => setMobileOpen(false)}
           >
             <button
@@ -1622,7 +1622,7 @@ export default function Header() {
                             {cards.map((cat) => {
                               const inner = (
                                 <div className="flex items-center gap-3 p-2.5 rounded-xl border border-white/10 bg-white/5">
-                                  <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-stone-900 flex-shrink-0">
+                                  <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-pacific-dark flex-shrink-0">
                                     {cat.imageUrl ? (
                                       <Image
                                         src={cat.imageUrl}
@@ -1639,7 +1639,7 @@ export default function Header() {
                                     <div className="text-sm font-medium text-white truncate">
                                       {cat.name}
                                     </div>
-                                    <div className="text-[11px] font-light text-stone-300 truncate">
+                                    <div className="text-[11px] font-light text-pacific-light truncate">
                                       {cat.tagline}
                                     </div>
                                   </div>
@@ -1702,7 +1702,7 @@ export default function Header() {
                 <Link
                   href="/contact"
                   onClick={() => setMobileOpen(false)}
-                  className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-medium tracking-wider uppercase bg-white text-stone-900"
+                  className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-medium tracking-wider uppercase bg-white text-pacific-dark"
                 >
                   Get a Quote
                   <ArrowRight className="w-4 h-4" />

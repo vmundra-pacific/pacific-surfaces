@@ -59,7 +59,7 @@ export function StatementSection({
       <section
         id={id}
         ref={ref}
-        className={`relative py-20 sm:py-28 md:py-36 px-6 overflow-hidden ${isDark ? "bg-stone-950" : "bg-[#112732]"}`}
+        className={`relative py-20 sm:py-28 md:py-36 px-6 overflow-hidden ${isDark ? "bg-pacific-dark" : "bg-[#112732]"}`}
       >
         <div
           className="absolute inset-0 opacity-[0.04] pointer-events-none"
@@ -112,7 +112,7 @@ export function StatementSection({
     <section
       id={id}
       ref={ref}
-      className={`relative py-20 sm:py-32 md:py-44 lg:py-56 px-6 overflow-hidden ${isDark ? "bg-stone-950" : "bg-[#112732]"}`}
+      className={`relative py-20 sm:py-32 md:py-44 lg:py-56 px-6 overflow-hidden ${isDark ? "bg-pacific-dark" : "bg-[#112732]"}`}
     >
       {isDark && (
         <div

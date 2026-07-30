@@ -18,7 +18,7 @@ interface MagneticButtonProps {
    *                  inside the dark CTA panel) so the label is always visible.
    *  - ghost:        text-only
    */
-  variant?: "primary" | "outline" | "outline-dark" | "ghost";
+  variant?: "primary" | "primary-dark" | "outline" | "outline-dark" | "ghost";
   size?: "sm" | "md" | "lg";
   /**
    * Action-button mode (form submit, logout, etc.) — mutually
@@ -63,17 +63,29 @@ export function MagneticButton({
     y.set(0);
   };
 
+  // Pacific brand tokens only. These were previously built on the
+  // `stone-*` palette, which is a WARM brown-black (#1c1917) — visibly
+  // off-brand against Pacific's cool teal-black (#112732). Because this
+  // component is the site's only CTA primitive, every call-to-action on
+  // every page inherited the wrong hue.
   const variants = {
     primary:
-      "bg-stone-900 text-white hover:bg-stone-800 border border-stone-900",
+      "bg-pacific-dark text-white hover:bg-pacific-dark/90 border border-pacific-dark",
+    // Solid WHITE fill with dark text — the documented primary CTA for
+    // use ON dark backgrounds. The design system specifies this pairing
+    // ("bg-white text-pacific-dark on dark") but no variant implemented
+    // it, so call sites were reaching for `!important` overrides on
+    // `primary` instead.
+    "primary-dark":
+      "bg-white text-pacific-dark hover:bg-pacific-light border border-white",
     outline:
-      "bg-transparent text-stone-900 border border-stone-300 hover:border-stone-900 hover:bg-stone-50",
+      "bg-transparent text-pacific-dark border border-pacific-mid hover:border-pacific-dark hover:bg-pacific-light/40",
     "outline-dark":
       // Transparent with WHITE text/border on dark backgrounds.
       // On hover, fills white and flips the text to dark for inverse-emphasis.
-      "bg-transparent text-white border border-white/40 hover:bg-white hover:text-stone-900 hover:border-white",
+      "bg-transparent text-white border border-pacific-mid/40 hover:bg-white hover:text-pacific-dark hover:border-white",
     ghost:
-      "bg-transparent text-stone-600 hover:text-stone-900 border border-transparent",
+      "bg-transparent text-pacific-mid hover:text-pacific-dark border border-transparent",
   };
 
   const sizes = {

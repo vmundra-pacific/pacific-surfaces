@@ -113,7 +113,7 @@ export default async function CategoryAboutPage({
       <section className="py-16 md:py-24 px-6">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 sm:mb-14">
-            <p className="text-[11px] font-medium tracking-[0.3em] uppercase text-stone-500">
+            <p className="text-[11px] font-medium tracking-[0.3em] uppercase text-pacific-dark/60">
               Explore {label}
             </p>
           </div>
@@ -122,17 +122,17 @@ export default async function CategoryAboutPage({
               <Link
                 key={s.title}
                 href={s.href}
-                className="group relative flex flex-col justify-between rounded-2xl border border-stone-200 bg-white p-7 sm:p-8 min-h-[220px] hover:border-stone-300 hover:shadow-[0_8px_28px_rgba(0,0,0,0.06)] transition-all duration-300"
+                className="group relative flex flex-col justify-between rounded-2xl border border-pacific-mid/20 bg-white p-7 sm:p-8 min-h-[220px] hover:border-pacific-mid/30 hover:shadow-[0_8px_28px_rgba(0,0,0,0.06)] transition-all duration-300"
               >
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-light tracking-tight text-stone-900 mb-3">
+                  <h3 className="text-xl sm:text-2xl font-light tracking-tight text-pacific-dark mb-3">
                     {s.title}
                   </h3>
-                  <p className="text-sm font-light text-stone-600 leading-relaxed">
+                  <p className="text-sm font-light text-pacific-dark/70 leading-relaxed">
                     {s.blurb}
                   </p>
                 </div>
-                <span className="mt-6 inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.2em] uppercase text-stone-900 group-hover:gap-3 transition-all">
+                <span className="mt-6 inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.2em] uppercase text-pacific-dark group-hover:gap-3 transition-all">
                   Read more
                   <ArrowRight className="w-3.5 h-3.5" />
                 </span>

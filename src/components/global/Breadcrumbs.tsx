@@ -40,9 +40,9 @@ export function Breadcrumbs({
           sep: "text-white/30",
         }
       : {
-          link: "text-stone-500 hover:text-[#112732]",
+          link: "text-pacific-mid hover:text-[#112732]",
           current: "text-[#112732]",
-          sep: "text-stone-400",
+          sep: "text-pacific-mid/60",
         };
 
   return (

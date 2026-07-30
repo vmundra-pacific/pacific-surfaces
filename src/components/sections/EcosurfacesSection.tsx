@@ -89,7 +89,7 @@ export function EcosurfacesSection() {
           >
             <Link
               href="/ecosurfaces"
-              className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 bg-white text-stone-900 text-xs font-medium tracking-[0.2em] uppercase hover:bg-stone-100 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 bg-white text-pacific-dark text-xs font-medium tracking-[0.2em] uppercase hover:bg-pacific-light transition-colors"
             >
               Explore Ecosurfaces
               <ArrowRight className="w-4 h-4" />

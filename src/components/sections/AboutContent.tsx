@@ -186,7 +186,7 @@ export function AboutContent() {
         // pinned to the bottom-left corner over the video,
         // leaving the upper area of the frame open to show the
         // playing footage.
-        className="relative min-h-screen flex items-end bg-stone-950 overflow-hidden"
+        className="relative min-h-screen flex items-end bg-pacific-dark overflow-hidden"
       >
         {/* Background layers — video, scrim, and noise texture, all
             inside the same parallax wrapper so they translate together
@@ -217,7 +217,7 @@ export function AboutContent() {
               section transitions seamlessly into the next block.
               Tuned so the headline copy in the lower-middle of the
               hero stays comfortably legible against any frame. */}
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/30 via-stone-950/60 to-stone-950" />
+          <div className="absolute inset-0 bg-gradient-to-b from-pacific-dark/30 via-pacific-dark/60 to-pacific-dark" />
           <div
             className="absolute inset-0 opacity-[0.03]"
             style={{
@@ -479,13 +479,13 @@ export function AboutContent() {
       </section>
 
       {/* CTA */}
-      <section className="bg-stone-950">
+      <section className="bg-pacific-dark">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Ready to find the perfect surface?
             </h2>
-            <p className="mt-4 text-stone-400 font-light max-w-md mx-auto">
+            <p className="mt-4 text-pacific-mid font-light max-w-md mx-auto">
               Let our specialists help you choose the ideal material for your
               project.
             </p>
@@ -642,7 +642,7 @@ function TeamSection() {
                     className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-gradient-to-br from-pacific-mid/25 to-pacific-dark flex items-center justify-center">
                     <span className="text-3xl font-light text-white/30 tracking-wider">
                       {initials}
                     </span>
@@ -688,7 +688,7 @@ function TeamSection() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${member.name} on LinkedIn`}
-                    className="block h-full focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/60 focus:ring-offset-2 focus:ring-offset-stone-950 rounded-2xl"
+                    className="block h-full focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/60 focus:ring-offset-2 focus:ring-offset-pacific-dark rounded-2xl"
                   >
                     {cardInner}
                   </a>

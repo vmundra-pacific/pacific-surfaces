@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
 import { TextReveal } from "@/components/ui/text-reveal";
+import { safeJsonLd } from "@/lib/escape";
 
 /**
  * Reusable FAQ section with collapsible accordion + FAQPage JSON-LD.
@@ -47,13 +48,13 @@ export function FAQ({
   if (!questions || questions.length === 0) return null;
 
   const isLight = theme === "light";
-  const sectionBg = isLight ? "bg-[#DAE1E8]" : "bg-stone-950";
-  const eyebrowColor = isLight ? "text-stone-500" : "text-stone-500";
-  const headingColor = isLight ? "text-stone-900" : "text-white";
-  const dividerColor = isLight ? "border-stone-300" : "border-white/10";
-  const questionColor = isLight ? "text-stone-900" : "text-white";
-  const answerColor = isLight ? "text-stone-700" : "text-stone-300";
-  const iconColor = isLight ? "text-stone-700" : "text-pacific-mid";
+  const sectionBg = isLight ? "bg-[#DAE1E8]" : "bg-pacific-dark";
+  const eyebrowColor = isLight ? "text-pacific-dark/60" : "text-pacific-mid";
+  const headingColor = isLight ? "text-pacific-dark" : "text-white";
+  const dividerColor = isLight ? "border-pacific-mid/40" : "border-white/10";
+  const questionColor = isLight ? "text-pacific-dark" : "text-white";
+  const answerColor = isLight ? "text-pacific-dark/70" : "text-pacific-light";
+  const iconColor = isLight ? "text-pacific-dark/70" : "text-pacific-mid";
 
   return (
     <section
@@ -137,7 +138,7 @@ export function FAQ({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             "@context": "https://schema.org",
             "@type": "FAQPage",
             mainEntity: questions.map((q) => ({
