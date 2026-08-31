@@ -35,6 +35,10 @@ import { pickSimilar } from "@/lib/product-similarity";
 import { zoomImageUrl } from "@/lib/zoom-image";
 import { finishDescription } from "@/lib/finish-copy";
 import WorktopDetailTabs from "@/components/sections/WorktopDetailTabs";
+import {
+  SlabThicknessCard,
+  FinishSwatch,
+} from "@/components/ui/slab-spec-visuals";
 import { formatCollection } from "@/components/catalogue/labels";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1496,22 +1500,11 @@ export function ProductDetail({ product }: { product: Product }) {
                           }`}
                         >
                           {thicknesses.map((t) => (
-                            <div
+                            <SlabThicknessCard
                               key={t}
-                              className="flex items-center justify-between px-6 py-5 bg-white/5 border border-white/10 rounded-2xl"
-                            >
-                              <div>
-                                <div className="text-base font-medium text-white">
-                                  {t}
-                                </div>
-                                <div className="text-sm text-pacific-mid font-light">
-                                  {size}
-                                </div>
-                              </div>
-                              <span className="text-xs tracking-[0.2em] uppercase text-pacific-mid/70 font-medium">
-                                Slab
-                              </span>
-                            </div>
+                              thickness={t}
+                              size={size}
+                            />
                           ))}
                         </div>
                       </div>
@@ -1523,14 +1516,9 @@ export function ProductDetail({ product }: { product: Product }) {
                         <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
                           Available Finishes
                         </h3>
-                        <div className="flex flex-wrap gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
                           {finishes.map((f) => (
-                            <span
-                              key={f}
-                              className="px-5 py-2.5 rounded-full text-sm font-medium tracking-[0.1em] uppercase border border-white/10 text-pacific-light"
-                            >
-                              {f}
-                            </span>
+                            <FinishSwatch key={f} finish={f} />
                           ))}
                         </div>
                       </div>
