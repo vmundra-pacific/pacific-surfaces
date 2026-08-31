@@ -6,7 +6,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowRight, Search, ChevronDown, Heart, User } from "lucide-react";
+import {
+  Menu,
+  X,
+  ArrowRight,
+  Search,
+  ChevronDown,
+  Heart,
+  User,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchOverlay } from "@/components/ui/search-overlay";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
@@ -108,7 +116,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     // reveal split inside the Fab Creations tile — reverted per
     // request back to a normal card that behaves exactly like every
     // other Products card: hover reveals its photo, click opens the
-    // usual About/Top Picks/Applications sub-panel).
+    // usual About/Pacific Applications sub-panel).
     //
     // /products/translucent is a real CATEGORY_PAGES entry now
     // (see ../../app/(site)/products/_lib/category.ts) — same
@@ -767,61 +775,60 @@ export default function Header() {
                 can never be pushed off-screen and clipped by it. */}
             <div className="hidden xl:flex items-center justify-center gap-x-6">
               {desktopNavigation.map((item: NavItem) => {
-              console.log(item.name);
-              return (
-                
-                <div
-                  key={item.name}
-                  className="relative group shrink-0"
-                  // Hover handlers fire for any mega item (Products
-                  // or Spaces). The handler takes `item.name` so the
-                  // shared mega-menu panel knows which content to
-                  // render. Header bg flips to navy the moment the
-                  // cursor enters either trigger.
-                  onMouseEnter={
-                    item.mega ? () => handleMegaEnter(item.name) : undefined
-                  }
-                  onMouseLeave={item.mega ? handleMegaLeave : undefined}
-                >
-                  {/* Spaces is intentionally non-clickable at the
+                console.log(item.name);
+                return (
+                  <div
+                    key={item.name}
+                    className="relative group shrink-0"
+                    // Hover handlers fire for any mega item (Products
+                    // or Spaces). The handler takes `item.name` so the
+                    // shared mega-menu panel knows which content to
+                    // render. Header bg flips to navy the moment the
+                    // cursor enters either trigger.
+                    onMouseEnter={
+                      item.mega ? () => handleMegaEnter(item.name) : undefined
+                    }
+                    onMouseLeave={item.mega ? handleMegaLeave : undefined}
+                  >
+                    {/* Spaces is intentionally non-clickable at the
                   top level — hover still opens the mega-menu, but
                   click should do nothing because navigation is
                   meant to flow through the four space cards in the
                   dropdown rather than a top-level /spaces overview
                   page. Render as a <span> so there's no link target
                   and no default browser behaviour to suppress. */}
-                  {item.name === "Spaces" ? (
-                    <span
-                      aria-haspopup="true"
-                      aria-expanded={openMegaItem === item.name}
-                      className={cn(
-                        "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2 cursor-default select-none",
-                        "text-white hover:text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
-                      )}
-                    >
-                      {item.name}
-                      <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full" />
-                    </span>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      aria-haspopup={item.mega ? "true" : undefined}
-                      aria-expanded={
-                        item.mega ? openMegaItem === item.name : undefined
-                      }
-                      className={cn(
-                        "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
-                        // Same colour treatment in both states now —
-                        // header bg is dark in both cases.
-                        "text-white hover:text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
-                      )}
-                    >
-                      {item.name}
-                      <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full" />
-                    </Link>
-                  )}
+                    {item.name === "Spaces" ? (
+                      <span
+                        aria-haspopup="true"
+                        aria-expanded={openMegaItem === item.name}
+                        className={cn(
+                          "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2 cursor-default select-none",
+                          "text-white hover:text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
+                        )}
+                      >
+                        {item.name}
+                        <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full" />
+                      </span>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        aria-haspopup={item.mega ? "true" : undefined}
+                        aria-expanded={
+                          item.mega ? openMegaItem === item.name : undefined
+                        }
+                        className={cn(
+                          "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
+                          // Same colour treatment in both states now —
+                          // header bg is dark in both cases.
+                          "text-white hover:text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
+                        )}
+                      >
+                        {item.name}
+                        <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full" />
+                      </Link>
+                    )}
 
-                  {/* Dropdown menu for Products — mega-menu variant
+                    {/* Dropdown menu for Products — mega-menu variant
                       (5 category cards with sub-section links inside
                       each card) when `mega: true`; falls back to the
                       legacy plain link list for any non-mega item with
@@ -836,124 +843,166 @@ export default function Header() {
                       below even though the panel is rendered out of
                       the per-item box. Content is then constrained
                       to a max-w container inside the white panel. */}
-                  {item.mega ? (
-                    // Silestone-style mega-menu:
-                    //  - Hover Products → 5 cards appear (image + name
-                    //    + tagline only, no sub-section list).
-                    //  - Click a card image → that card "expands" and
-                    //    a sub-panel slides in below the card row.
-                    //  - Click same card again → collapse.
-                    //  - Click another card → switch.
-                    //  - Move cursor away → 150 ms grace then close.
-                    //
-                    // Animation handled by Framer Motion AnimatePresence
-                    // so open + close are independently tuned: open
-                    // is a brisk drop, close is a slightly longer
-                    // ease-out so the retract feels deliberate rather
-                    // than snapped. before:* pseudo provides a hover
-                    // bridge between the trigger Link and the panel.
-                    <AnimatePresence>
-                      {openMegaItem === item.name && (
-                        <motion.div
-                          key={`mega-panel-${item.name}`}
-                          // Animation is opacity-only, NOT translate-y.
-                          // The earlier y: -10 → 0 slide caused the
-                          // panel's hover-bridge pseudo to slide down
-                          // past a stationary cursor on the trigger
-                          // Link, firing mouseleave mid-animation and
-                          // closing the menu. Pure opacity fade keeps
-                          // the bridge locked in position throughout
-                          // the open/close so hover never breaks.
-                          initial={{ opacity: 0 }}
-                          animate={{
-                            opacity: 1,
-                            transition: {
-                              duration: 0.32,
-                              ease: [0.25, 0.4, 0.25, 1],
-                            },
-                          }}
-                          exit={{
-                            opacity: 0,
-                            transition: {
-                              duration: 0.4,
-                              ease: [0.4, 0, 0.2, 1],
-                            },
-                          }}
-                          onMouseEnter={() => handleMegaEnter(item.name)}
-                          onMouseLeave={handleMegaLeave}
-                          className="fixed inset-x-0 top-20 z-50 bg-[#112732] before:content-[''] before:absolute before:inset-x-0 before:-top-4 before:h-4"
-                        >
-                          {/* Brand navy panel — same #112732 used in the
+                    {item.mega ? (
+                      // Silestone-style mega-menu:
+                      //  - Hover Products → 5 cards appear (image + name
+                      //    + tagline only, no sub-section list).
+                      //  - Click a card image → that card "expands" and
+                      //    a sub-panel slides in below the card row.
+                      //  - Click same card again → collapse.
+                      //  - Click another card → switch.
+                      //  - Move cursor away → 150 ms grace then close.
+                      //
+                      // Animation handled by Framer Motion AnimatePresence
+                      // so open + close are independently tuned: open
+                      // is a brisk drop, close is a slightly longer
+                      // ease-out so the retract feels deliberate rather
+                      // than snapped. before:* pseudo provides a hover
+                      // bridge between the trigger Link and the panel.
+                      <AnimatePresence>
+                        {openMegaItem === item.name && (
+                          <motion.div
+                            key={`mega-panel-${item.name}`}
+                            // Animation is opacity-only, NOT translate-y.
+                            // The earlier y: -10 → 0 slide caused the
+                            // panel's hover-bridge pseudo to slide down
+                            // past a stationary cursor on the trigger
+                            // Link, firing mouseleave mid-animation and
+                            // closing the menu. Pure opacity fade keeps
+                            // the bridge locked in position throughout
+                            // the open/close so hover never breaks.
+                            initial={{ opacity: 0 }}
+                            animate={{
+                              opacity: 1,
+                              transition: {
+                                duration: 0.32,
+                                ease: [0.25, 0.4, 0.25, 1],
+                              },
+                            }}
+                            exit={{
+                              opacity: 0,
+                              transition: {
+                                duration: 0.4,
+                                ease: [0.4, 0, 0.2, 1],
+                              },
+                            }}
+                            onMouseEnter={() => handleMegaEnter(item.name)}
+                            onMouseLeave={handleMegaLeave}
+                            className="fixed inset-x-0 top-20 z-50 bg-[#112732] before:content-[''] before:absolute before:inset-x-0 before:-top-4 before:h-4"
+                          >
+                            {/* Brand navy panel — same #112732 used in the
                           header (scrolled state) and the dark sections
                           of the homepage. Border removed so it reads
                           as one continuous navy block with the header
                           above; shadow stays for the panel's bottom
                           edge against page content beneath. */}
-                          <div className="bg-[#112732] shadow-[0_18px_60px_rgba(0,0,0,0.4)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain">
-                            <div className="mx-auto max-w-[1400px] px-6 lg:px-8 py-5 lg:py-6">
-                              {/* Cards row. Both Products and Spaces
+                            <div className="bg-[#112732] shadow-[0_18px_60px_rgba(0,0,0,0.4)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain">
+                              <div className="mx-auto max-w-[1400px] px-6 lg:px-8 py-5 lg:py-6">
+                                {/* Cards row. Both Products and Spaces
                               render as direct Links — click =
                               navigate, no sub-panel, no toggle.
                               Products: 7-card grid (was 6 — added
                               Translucent as its own standalone card,
                               see PRODUCTS_CATEGORIES); Spaces: 4-card. */}
-                              <div
-                                className={`grid gap-3 ${
-                                  item.name === "Corporate" ||
-                                  item.name === "Inspirations"
-                                    ? "grid-cols-3"
-                                    : item.name === "Spaces" ||
-                                        item.name === "Professionals"
-                                      ? "grid-cols-4"
-                                      : "grid-cols-7"
-                                }`}
-                              >
-                                {(item.name === "Spaces"
-                                  ? SPACES_CATEGORIES
-                                  : item.name === "Corporate"
-                                    ? CORPORATE_CATEGORIES
-                                    : item.name === "Professionals"
-                                      ? PROFESSIONS_CATEGORIES
-                                      : item.name === "Inspirations"
-                                        ? INSPIRATIONS_CATEGORIES
-                                        : PRODUCTS_CATEGORIES
-                                ).map((cat) => {
-                                  // Spaces / Corporate / Professions /
-                                  // Inspirations all use the same
-                                  // direct-Link card layout (each card
-                                  // is a destination, no sub-panel).
-                                  // Only Products uses the expanding
-                                  // button + sub-panel pattern.
-                                  const isSpacesItem =
-                                    item.name === "Spaces" ||
+                                <div
+                                  className={`grid gap-3 ${
                                     item.name === "Corporate" ||
-                                    item.name === "Professionals" ||
-                                    item.name === "Inspirations";
+                                    item.name === "Inspirations"
+                                      ? "grid-cols-3"
+                                      : item.name === "Spaces" ||
+                                          item.name === "Professionals"
+                                        ? "grid-cols-4"
+                                        : "grid-cols-7"
+                                  }`}
+                                >
+                                  {(item.name === "Spaces"
+                                    ? SPACES_CATEGORIES
+                                    : item.name === "Corporate"
+                                      ? CORPORATE_CATEGORIES
+                                      : item.name === "Professionals"
+                                        ? PROFESSIONS_CATEGORIES
+                                        : item.name === "Inspirations"
+                                          ? INSPIRATIONS_CATEGORIES
+                                          : PRODUCTS_CATEGORIES
+                                  ).map((cat) => {
+                                    // Spaces / Corporate / Professions /
+                                    // Inspirations all use the same
+                                    // direct-Link card layout (each card
+                                    // is a destination, no sub-panel).
+                                    // Only Products uses the expanding
+                                    // button + sub-panel pattern.
+                                    const isSpacesItem =
+                                      item.name === "Spaces" ||
+                                      item.name === "Corporate" ||
+                                      item.name === "Professionals" ||
+                                      item.name === "Inspirations";
 
-                                  // Spaces cards — direct Link, no
-                                  // toggle. Click navigates straight
-                                  // to /spaces/<slug>. Name overlays
-                                  // the image (centered) and the
-                                  // tagline subscript sits below the
-                                  // card as a small caption.
-                                  if (isSpacesItem) {
-                                    // comingSoon cards render as a
-                                    // button that triggers the modal
-                                    // instead of navigating. Same
-                                    // visual treatment as the Link
-                                    // variant otherwise.
-                                    if (cat.comingSoon) {
+                                    // Spaces cards — direct Link, no
+                                    // toggle. Click navigates straight
+                                    // to /spaces/<slug>. Name overlays
+                                    // the image (centered) and the
+                                    // tagline subscript sits below the
+                                    // card as a small caption.
+                                    if (isSpacesItem) {
+                                      // comingSoon cards render as a
+                                      // button that triggers the modal
+                                      // instead of navigating. Same
+                                      // visual treatment as the Link
+                                      // variant otherwise.
+                                      if (cat.comingSoon) {
+                                        return (
+                                          <button
+                                            key={cat.slug}
+                                            type="button"
+                                            onClick={() =>
+                                              setComingSoonLabel(cat.name)
+                                            }
+                                            className="group block w-full text-left transition-transform hover:scale-[1.02]"
+                                          >
+                                            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
+                                              {cat.imageUrl ? (
+                                                <Image
+                                                  src={cat.imageUrl}
+                                                  alt={cat.name}
+                                                  fill
+                                                  className="object-cover"
+                                                  sizes="(min-width: 1024px) 25vw, 50vw"
+                                                  priority={false}
+                                                  unoptimized
+                                                />
+                                              ) : null}
+                                              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+                                              <div className="absolute inset-0 flex flex-col items-center justify-center px-3 text-center gap-2">
+                                                <span className="rounded-full bg-white/15 backdrop-blur px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-white border border-white/25">
+                                                  Coming soon
+                                                </span>
+                                                <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
+                                                  {cat.name}
+                                                </span>
+                                              </div>
+                                            </div>
+                                            <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
+                                              {cat.tagline}
+                                            </p>
+                                          </button>
+                                        );
+                                      }
                                       return (
-                                        <button
+                                        <Link
                                           key={cat.slug}
-                                          type="button"
-                                          onClick={() =>
-                                            setComingSoonLabel(cat.name)
+                                          href={
+                                            cat.coloursHref ??
+                                            `/products/${cat.slug}`
                                           }
-                                          className="group block w-full text-left transition-transform hover:scale-[1.02]"
+                                          className="group block transition-transform hover:scale-[1.02]"
                                         >
                                           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
                                             {cat.imageUrl ? (
+                                              // Spaces cards keep their
+                                              // thumbnail visible at
+                                              // rest — only Products
+                                              // cards use the hover-to-
+                                              // reveal treatment.
                                               <Image
                                                 src={cat.imageUrl}
                                                 alt={cat.name}
@@ -964,369 +1013,290 @@ export default function Header() {
                                                 unoptimized
                                               />
                                             ) : null}
+                                            {/* Dark scrim so the
+                                              centered name stays
+                                              legible over any photo. */}
                                             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center px-3 text-center gap-2">
-                                              <span className="rounded-full bg-white/15 backdrop-blur px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-white border border-white/25">
-                                                Coming soon
-                                              </span>
+                                            {/* Centered, full-width name
+                                              overlay. */}
+                                            <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
                                               <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
                                                 {cat.name}
                                               </span>
                                             </div>
                                           </div>
+                                          {/* Subscript tagline — sits
+                                            below the card, kept from
+                                            the pre-overlay layout. */}
                                           <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
                                             {cat.tagline}
                                           </p>
-                                        </button>
+                                        </Link>
                                       );
                                     }
-                                    return (
-                                      <Link
-                                        key={cat.slug}
-                                        href={
-                                          cat.coloursHref ??
-                                          `/products/${cat.slug}`
-                                        }
-                                        className="group block transition-transform hover:scale-[1.02]"
-                                      >
-                                        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
-                                          {cat.imageUrl ? (
-                                            // Spaces cards keep their
-                                            // thumbnail visible at
-                                            // rest — only Products
-                                            // cards use the hover-to-
-                                            // reveal treatment.
-                                            <Image
-                                              src={cat.imageUrl}
-                                              alt={cat.name}
-                                              fill
-                                              className="object-cover"
-                                              sizes="(min-width: 1024px) 25vw, 50vw"
-                                              priority={false}
-                                              unoptimized
-                                            />
-                                          ) : null}
-                                          {/* Dark scrim so the
-                                              centered name stays
-                                              legible over any photo. */}
-                                          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
-                                          {/* Centered, full-width name
-                                              overlay. */}
-                                          <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
-                                            <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
-                                              {cat.name}
-                                            </span>
-                                          </div>
-                                        </div>
-                                        {/* Subscript tagline — sits
-                                            below the card, kept from
-                                            the pre-overlay layout. */}
-                                        <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
-                                          {cat.tagline}
-                                        </p>
-                                      </Link>
-                                    );
-                                  }
 
-                                  // Products cards — button that
-                                  // toggles the About sub-panel below.
-                                  // Name overlays the image centered;
-                                  // chevron sits in the top-right
-                                  // corner to indicate expanded state;
-                                  // tagline subscript renders beneath
-                                  // the card.
-                                  const isActive = activeMega === cat.slug;
-                                  return (
-                                    <button
-                                      key={cat.slug}
-                                      type="button"
-                                      onClick={() =>
-                                        setActiveMega(
-                                          isActive ? null : cat.slug
-                                        )
-                                      }
-                                      // Named group `card` scopes the
-                                      // hover to this specific card.
-                                      // Without the name, the outer
-                                      // nav-item wrapper's `group`
-                                      // (used for the trigger
-                                      // underline) would fire and
-                                      // reveal every card image the
-                                      // moment the Products trigger is
-                                      // hovered.
-                                      className={cn(
-                                        "group/card block text-left transition-transform",
-                                        isActive
-                                          ? "scale-[1.02]"
-                                          : "hover:scale-[1.02]"
-                                      )}
-                                    >
-                                      <div
+                                    // Products cards — button that
+                                    // toggles the About sub-panel below.
+                                    // Name overlays the image centered;
+                                    // chevron sits in the top-right
+                                    // corner to indicate expanded state;
+                                    // tagline subscript renders beneath
+                                    // the card.
+                                    const isActive = activeMega === cat.slug;
+                                    return (
+                                      <button
+                                        key={cat.slug}
+                                        type="button"
+                                        onClick={() =>
+                                          setActiveMega(
+                                            isActive ? null : cat.slug
+                                          )
+                                        }
+                                        // Named group `card` scopes the
+                                        // hover to this specific card.
+                                        // Without the name, the outer
+                                        // nav-item wrapper's `group`
+                                        // (used for the trigger
+                                        // underline) would fire and
+                                        // reveal every card image the
+                                        // moment the Products trigger is
+                                        // hovered.
                                         className={cn(
-                                          "relative aspect-[16/10] w-full overflow-hidden rounded-md bg-[#0d1f29] transition-all",
-                                          isActive && "ring-2 ring-white/40"
+                                          "group/card block text-left transition-transform",
+                                          isActive
+                                            ? "scale-[1.02]"
+                                            : "hover:scale-[1.02]"
                                         )}
                                       >
-                                        {/* Branded mark layer - always
+                                        <div
+                                          className={cn(
+                                            "relative aspect-[16/10] w-full overflow-hidden rounded-md bg-[#0d1f29] transition-all",
+                                            isActive && "ring-2 ring-white/40"
+                                          )}
+                                        >
+                                          {/* Branded mark layer - always
                                             visible at rest, blends with
                                             the navy panel via multiply.
                                             Painted BEFORE the photo so
                                             the photo fades in on top of
                                             it on hover. */}
-                                        {cat.brandedImageUrl ? (
-                                          <Image
-                                            src={cat.brandedImageUrl}
-                                            alt=""
-                                            fill
-                                            className={cn(
-                                              "object-cover pointer-events-none transition-opacity duration-300 ease-out",
-                                              isActive
-                                                ? "opacity-0"
-                                                : "opacity-100 group-hover/card:opacity-0"
-                                            )}
-                                            sizes="(min-width: 1024px) 20vw, 50vw"
-                                            priority={false}
-                                            unoptimized
-                                            aria-hidden="true"
-                                          />
-                                        ) : null}
-                                        {cat.imageUrl ? (
-                                          // Image is hidden at rest
-                                          // and fades in when the
-                                          // cursor enters THIS card
-                                          // (or when the card is
-                                          // expanded — `isActive`).
-                                          <Image
-                                            src={cat.imageUrl}
-                                            alt={cat.name}
-                                            fill
-                                            className={cn(
-                                              "object-cover transition-opacity duration-300 ease-out",
-                                              isActive
-                                                ? "opacity-100"
-                                                : "opacity-0 group-hover/card:opacity-100"
-                                            )}
-                                            sizes="(min-width: 1024px) 20vw, 50vw"
-                                            priority={false}
-                                            unoptimized
-                                          />
-                                        ) : null}
-                                        {/* Dark scrim - only shown
+                                          {cat.brandedImageUrl ? (
+                                            <Image
+                                              src={cat.brandedImageUrl}
+                                              alt=""
+                                              fill
+                                              className={cn(
+                                                "object-cover pointer-events-none transition-opacity duration-300 ease-out",
+                                                isActive
+                                                  ? "opacity-0"
+                                                  : "opacity-100 group-hover/card:opacity-0"
+                                              )}
+                                              sizes="(min-width: 1024px) 20vw, 50vw"
+                                              priority={false}
+                                              unoptimized
+                                              aria-hidden="true"
+                                            />
+                                          ) : null}
+                                          {cat.imageUrl ? (
+                                            // Image is hidden at rest
+                                            // and fades in when the
+                                            // cursor enters THIS card
+                                            // (or when the card is
+                                            // expanded — `isActive`).
+                                            <Image
+                                              src={cat.imageUrl}
+                                              alt={cat.name}
+                                              fill
+                                              className={cn(
+                                                "object-cover transition-opacity duration-300 ease-out",
+                                                isActive
+                                                  ? "opacity-100"
+                                                  : "opacity-0 group-hover/card:opacity-100"
+                                              )}
+                                              sizes="(min-width: 1024px) 20vw, 50vw"
+                                              priority={false}
+                                              unoptimized
+                                            />
+                                          ) : null}
+                                          {/* Dark scrim - only shown
                                             when the photo is visible
                                             (hover / expanded). At rest
                                             we want the branded SVG to
                                             read as fully white, not
                                             dimmed by 30-60% black. */}
-                                        <div
-                                          className={cn(
-                                            "absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60 transition-opacity duration-300",
-                                            isActive
-                                              ? "opacity-100"
-                                              : "opacity-0 group-hover/card:opacity-100"
-                                          )}
-                                        />
-                                        {/* Chevron in top-right —
+                                          <div
+                                            className={cn(
+                                              "absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60 transition-opacity duration-300",
+                                              isActive
+                                                ? "opacity-100"
+                                                : "opacity-0 group-hover/card:opacity-100"
+                                            )}
+                                          />
+                                          {/* Chevron in top-right —
                                             rotates 180° when this card
                                             is expanded. */}
-                                        <ChevronDown
-                                          className={cn(
-                                            "absolute top-2 right-2 w-4 h-4 text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] transition-transform",
-                                            isActive ? "rotate-180" : ""
-                                          )}
-                                        />
-                                      </div>
-                                      {/* Subscript tagline — sits
+                                          <ChevronDown
+                                            className={cn(
+                                              "absolute top-2 right-2 w-4 h-4 text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] transition-transform",
+                                              isActive ? "rotate-180" : ""
+                                            )}
+                                          />
+                                        </div>
+                                        {/* Subscript tagline — sits
                                           below the card, restored from
                                           the pre-overlay layout. */}
-                                      <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
-                                        {cat.tagline}
-                                      </p>
-                                    </button>
-                                  );
-                                })}
-                              </div>
+                                        <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
+                                          {cat.tagline}
+                                        </p>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
 
-                              {/* Expanded sub-panel — only for
+                                {/* Expanded sub-panel — only for
                                   Products. Slides down when a card
                                   is clicked. Shows the About column
                                   (What is X / Maintenance / Warranty
                                   for Quartz only) and the right-
                                   aligned "<Cat> Colours" CTA pill. */}
-                              <AnimatePresence initial={false}>
-                                {item.name === "Products" &&
-                                  activeMega &&
-                                  (() => {
-                                    const active = PRODUCTS_CATEGORIES.find(
-                                      (c) => c.slug === activeMega
-                                    );
-                                    if (!active) return null;
-                                    return (
-                                      <motion.div
-                                        key="mega-sub"
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: "auto", opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        transition={{
-                                          duration: 0.32,
-                                          ease: [0.25, 0.4, 0.25, 1],
-                                        }}
-                                        style={{ overflow: "hidden" }}
-                                      >
-                                        <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-x-6 gap-y-5">
-                                          {/* About column — what the
+                                <AnimatePresence initial={false}>
+                                  {item.name === "Products" &&
+                                    activeMega &&
+                                    (() => {
+                                      const active = PRODUCTS_CATEGORIES.find(
+                                        (c) => c.slug === activeMega
+                                      );
+                                      if (!active) return null;
+                                      return (
+                                        <motion.div
+                                          key="mega-sub"
+                                          initial={{ height: 0, opacity: 0 }}
+                                          animate={{
+                                            height: "auto",
+                                            opacity: 1,
+                                          }}
+                                          exit={{ height: 0, opacity: 0 }}
+                                          transition={{
+                                            duration: 0.32,
+                                            ease: [0.25, 0.4, 0.25, 1],
+                                          }}
+                                          style={{ overflow: "hidden" }}
+                                        >
+                                          <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-x-6 gap-y-5">
+                                            {/* About column — what the
                                               product is, how to keep it,
                                               warranty (Quartz only). */}
-                                          <div className="lg:col-span-3">
-                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
-                                              About {active.name}
-                                            </h4>
-                                            <ul className="space-y-2">
-                                              <li>
-                                                <Link
-                                                  href={`/learn/what-is-${active.whatIsSlug ?? active.slug}`}
-                                                  className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                >
-                                                  What is {active.name}?
-                                                </Link>
-                                              </li>
-                                              <li>
-                                                <Link
-                                                  href={`/learn/maintenance-${active.whatIsSlug ?? active.slug}`}
-                                                  className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                >
-                                                  Maintenance
-                                                </Link>
-                                              </li>
-                                              {active.slug === "quartz" && (
+                                            <div className="lg:col-span-3">
+                                              <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
+                                                About {active.name}
+                                              </h4>
+                                              <ul className="space-y-2">
                                                 <li>
                                                   <Link
-                                                    href="/learn/warranty-quartz"
+                                                    href={`/learn/what-is-${active.whatIsSlug ?? active.slug}`}
                                                     className="text-sm font-light text-pacific-light hover:text-white transition-colors"
                                                   >
-                                                    Warranty
+                                                    What is {active.name}?
                                                   </Link>
                                                 </li>
-                                              )}
-                                            </ul>
-                                          </div>
-
-                                          {/* Top Picks column —
-                                              curated design picks per
-                                              category. Falls back
-                                              gracefully when topPicks
-                                              isn't defined on a
-                                              category. Final entry is
-                                              a "See more" that routes
-                                              to the category's main
-                                              collection page. */}
-                                          <div className="lg:col-span-4">
-                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
-                                              Top Picks · Products
-                                            </h4>
-                                            <ul className="space-y-2">
-                                              {(active.topPicks ?? []).map(
-                                                (pick) => (
-                                                  <li key={pick.name}>
+                                                <li>
+                                                  <Link
+                                                    href={`/learn/maintenance-${active.whatIsSlug ?? active.slug}`}
+                                                    className="text-sm font-light text-pacific-light hover:text-white transition-colors"
+                                                  >
+                                                    Maintenance
+                                                  </Link>
+                                                </li>
+                                                {active.slug === "quartz" && (
+                                                  <li>
                                                     <Link
-                                                      href={pick.href}
+                                                      href="/learn/warranty-quartz"
                                                       className="text-sm font-light text-pacific-light hover:text-white transition-colors"
                                                     >
-                                                      {pick.name}
+                                                      Warranty
                                                     </Link>
                                                   </li>
-                                                )
-                                              )}
-                                              <li className="pt-1">
-                                                <Link
-                                                  href={
-                                                    active.coloursHref ??
-                                                    `/products/${active.slug}`
-                                                  }
-                                                  className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-pacific-light transition-colors"
-                                                >
-                                                  See more {active.name}
-                                                  <ArrowRight className="w-3.5 h-3.5" />
-                                                </Link>
-                                              </li>
-                                            </ul>
-                                          </div>
+                                                )}
+                                              </ul>
+                                            </div>
 
-                                          {/* Applications column —
-                                              same set across every
-                                              product card: kitchens,
-                                              bathrooms, living, with
-                                              a "See more applications"
-                                              link to the dedicated
-                                              applications page. */}
-                                          <div className="lg:col-span-3">
-                                            <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
-                                              Applications
-                                            </h4>
-                                            <ul className="space-y-2">
-                                              <li>
-                                                <Link
-                                                  href="/spaces/kitchens"
-                                                  className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                >
-                                                  Kitchens
-                                                </Link>
-                                              </li>
-                                              <li>
-                                                <Link
-                                                  href="/spaces/bathrooms"
-                                                  className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                >
-                                                  Bathrooms
-                                                </Link>
-                                              </li>
-                                              <li>
-                                                <Link
-                                                  href="/inspirations/inspiration-gallery"
-                                                  className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                >
-                                                  Living Rooms
-                                                </Link>
-                                              </li>
-                                              <li className="pt-1">
-                                                <Link
-                                                  href="/professionals/applications"
-                                                  className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-pacific-light transition-colors"
-                                                >
-                                                  See more applications
-                                                  <ArrowRight className="w-3.5 h-3.5" />
-                                                </Link>
-                                              </li>
-                                            </ul>
-                                          </div>
+                                            {/* Pacific Applications
+                                              column — same set across
+                                              every product card:
+                                              kitchens, bathrooms,
+                                              living, with a "See more
+                                              applications" link to the
+                                              dedicated applications
+                                              page. */}
+                                            <div className="lg:col-span-7">
+                                              <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
+                                                Pacific Applications
+                                              </h4>
+                                              <ul className="space-y-2">
+                                                <li>
+                                                  <Link
+                                                    href="/spaces/kitchens"
+                                                    className="text-sm font-light text-pacific-light hover:text-white transition-colors"
+                                                  >
+                                                    Kitchens
+                                                  </Link>
+                                                </li>
+                                                <li>
+                                                  <Link
+                                                    href="/spaces/bathrooms"
+                                                    className="text-sm font-light text-pacific-light hover:text-white transition-colors"
+                                                  >
+                                                    Bathrooms
+                                                  </Link>
+                                                </li>
+                                                <li>
+                                                  <Link
+                                                    href="/inspirations/inspiration-gallery"
+                                                    className="text-sm font-light text-pacific-light hover:text-white transition-colors"
+                                                  >
+                                                    Living Rooms
+                                                  </Link>
+                                                </li>
+                                                <li className="pt-1">
+                                                  <Link
+                                                    href="/professionals/applications"
+                                                    className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-pacific-light transition-colors"
+                                                  >
+                                                    See more applications
+                                                    <ArrowRight className="w-3.5 h-3.5" />
+                                                  </Link>
+                                                </li>
+                                              </ul>
+                                            </div>
 
-                                          {/* Right-aligned primary CTA
-                                              pill — same target as the
-                                              "See more" inside Top
-                                              Picks, but visually
-                                              elevated as the main
-                                              action of the panel. */}
-                                          <div className="lg:col-span-2 flex flex-col items-start lg:items-end justify-end">
-                                            <Link
-                                              href={
-                                                active.coloursHref ??
-                                                `/products/${active.slug}`
-                                              }
-                                              className="inline-flex items-center gap-2 rounded-full px-5 py-3 bg-white text-pacific-dark text-[10px] font-medium tracking-[0.2em] uppercase hover:bg-pacific-light transition-colors"
-                                            >
-                                              {active.slug ===
-                                              "facades-and-finishes"
-                                                ? "Explore"
-                                                : "Browse"}
-                                              <ArrowRight className="w-4 h-4" />
-                                            </Link>
+                                            {/* Right-aligned primary CTA
+                                              pill — routes to the
+                                              category's collection
+                                              page, visually elevated
+                                              as the main action of
+                                              the panel. */}
+                                            <div className="lg:col-span-2 flex flex-col items-start lg:items-end justify-end">
+                                              <Link
+                                                href={
+                                                  active.coloursHref ??
+                                                  `/products/${active.slug}`
+                                                }
+                                                className="inline-flex items-center gap-2 rounded-full px-5 py-3 bg-white text-pacific-dark text-[10px] font-medium tracking-[0.2em] uppercase hover:bg-pacific-light transition-colors"
+                                              >
+                                                {active.slug ===
+                                                "facades-and-finishes"
+                                                  ? "Explore"
+                                                  : "Browse"}
+                                                <ArrowRight className="w-4 h-4" />
+                                              </Link>
+                                            </div>
                                           </div>
-                                        </div>
-                                      </motion.div>
-                                    );
-                                  })()}
-                              </AnimatePresence>
-                            </div>
-                            {/* Footer strip — Products-only. Only
+                                        </motion.div>
+                                      );
+                                    })()}
+                                </AnimatePresence>
+                              </div>
+                              {/* Footer strip — Products-only. Only
                             surfaces the "All Products" CTA, right-
                             aligned. Earlier versions also listed
                             Exotic / Integra Sinks / Vanity on the
@@ -1339,43 +1309,43 @@ export default function Header() {
                             Inspirations don't get it because the
                             "All ..." link wouldn't make sense in
                             those contexts. */}
-                            {item.name === "Products" && (
-                              <div className="border-t border-white/10 bg-[#0d1f29]">
-                                <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-end py-3">
-                                  <Link
-                                    href="/products"
-                                    className="text-[12px] font-medium tracking-[0.2em] uppercase text-white inline-flex items-center gap-1.5 hover:gap-2 transition-all"
-                                  >
-                                    All Products
-                                    <ArrowRight className="w-3.5 h-3.5" />
-                                  </Link>
+                              {item.name === "Products" && (
+                                <div className="border-t border-white/10 bg-[#0d1f29]">
+                                  <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-end py-3">
+                                    <Link
+                                      href="/products"
+                                      className="text-[12px] font-medium tracking-[0.2em] uppercase text-white inline-flex items-center gap-1.5 hover:gap-2 transition-all"
+                                    >
+                                      All Products
+                                      <ArrowRight className="w-3.5 h-3.5" />
+                                    </Link>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    ) : (
+                      item.children && (
+                        <div className="absolute left-0 top-full pt-2 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 ease-out z-50">
+                          <div className="bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] overflow-hidden min-w-max border border-pacific-mid/20">
+                            {item.children.map((child) => (
+                              <Link
+                                key={child.name}
+                                href={child.href}
+                                className="block px-6 py-3.5 text-sm font-light tracking-wide text-pacific-dark/80 hover:text-pacific-dark hover:bg-pacific-light transition-colors duration-200 border-b border-pacific-mid/20 last:border-b-0"
+                              >
+                                {child.name}
+                              </Link>
+                            ))}
                           </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  ) : (
-                    item.children && (
-                      <div className="absolute left-0 top-full pt-2 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 ease-out z-50">
-                        <div className="bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] overflow-hidden min-w-max border border-pacific-mid/20">
-                          {item.children.map((child) => (
-                            <Link
-                              key={child.name}
-                              href={child.href}
-                              className="block px-6 py-3.5 text-sm font-light tracking-wide text-pacific-dark/80 hover:text-pacific-dark hover:bg-pacific-light transition-colors duration-200 border-b border-pacific-mid/20 last:border-b-0"
-                            >
-                              {child.name}
-                            </Link>
-                          ))}
                         </div>
-                      </div>
-                    )
-                  )}
-                </div>
-              );
-})}
+                      )
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* CTA + Search + Mobile toggle */}

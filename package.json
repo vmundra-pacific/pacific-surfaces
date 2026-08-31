@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0",
-    "dev:local": "next dev",
+    "dev": "next dev -H 0.0.0.0 -p 3005",
+    "dev:local": "next dev -p 3005",
     "build": "next build",
-    "start": "next start -H 0.0.0.0",
+    "start": "next start -H 0.0.0.0 -p 3005",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
