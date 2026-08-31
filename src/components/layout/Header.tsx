@@ -428,6 +428,98 @@ function preloadMegaThumbs() {
   }
 }
 
+/**
+ * Pacific Applications — every surface use we sell into, shown as a
+ * single scannable column inside the Products mega with a preview
+ * image that swaps on hover.
+ *
+ * `href` points at the closest existing destination rather than a
+ * page per application: the site has six real /spaces routes, so
+ * e.g. Backsplashes and Kitchen Islands both land on /spaces/kitchens.
+ * Give any of these its own page later and only the href changes.
+ */
+const PACIFIC_APPLICATIONS: {
+  name: string;
+  href: string;
+  image: string;
+}[] = [
+  {
+    name: "Kitchen Countertops",
+    href: "/spaces/kitchens",
+    image: "/images/spaces/kitchens.png",
+  },
+  {
+    name: "Kitchen Islands",
+    href: "/spaces/kitchens",
+    image: "/projects/ruskin-kitchen-counter.jpg",
+  },
+  {
+    name: "Backsplashes",
+    href: "/spaces/kitchens",
+    image: "/demo-rooms/kitchen-02/room.png",
+  },
+  {
+    name: "Outdoor Kitchens",
+    href: "/spaces/outdoor",
+    image: "/demo-rooms/kitchen-03/room.png",
+  },
+  {
+    name: "Bathroom Vanity Tops",
+    href: "/spaces/bathrooms",
+    image: "/images/spaces/bathrooms.jpg",
+  },
+  {
+    name: "Shower Walls & Trays",
+    href: "/spaces/bathrooms",
+    image: "/demo-rooms/bathroom-02/room.png",
+  },
+  {
+    name: "Washbasins",
+    href: "/products/integra",
+    image: "/demo-rooms/wc-02/room.png",
+  },
+  {
+    name: "Wall Cladding",
+    href: "/spaces/architecture",
+    image: "/demo-rooms/wall-cladding-01/room.png",
+  },
+  {
+    name: "Facades",
+    href: "/spaces/architecture",
+    image: "/images/products/facades.png",
+  },
+  {
+    name: "Flooring",
+    href: "/spaces/architecture",
+    image: "/images/spaces/architecture.png",
+  },
+  {
+    name: "Staircases",
+    href: "/spaces/architecture",
+    image: "/demo-rooms/bathroom-03/room.png",
+  },
+  {
+    name: "Tables & Furniture",
+    href: "/products/centrepiece-couture",
+    image: "/projects/latte-luxe.jpg",
+  },
+  {
+    name: "Bar & Reception Counters",
+    href: "/spaces/commercial",
+    image: "/images/spaces/commercial.jpg",
+  },
+  {
+    name: "Hospitality Interiors",
+    href: "/spaces/hospitality",
+    image: "/projects/cappuccino-1.jpg",
+  },
+  {
+    name: "Fireplace Surrounds",
+    href: "/inspirations/inspiration-gallery",
+    image: "/projects/cappuccino-3.jpg",
+  },
+];
+
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -437,6 +529,10 @@ export default function Header() {
   // section's cards. Reset to null whenever the drawer closes.
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  // Which Pacific Applications row the cursor is on, as an index into
+  // PACIFIC_APPLICATIONS. Drives the preview image beside the list;
+  // defaults to 0 so the panel is never empty on open.
+  const [hoveredApp, setHoveredApp] = useState(0);
   // Coming Soon modal — set to a card label (e.g. "3D Showroom")
   // to display the modal; null when closed.
   const [comingSoonLabel, setComingSoonLabel] = useState<string | null>(null);
@@ -1220,53 +1316,88 @@ export default function Header() {
                                               </ul>
                                             </div>
 
-                                            {/* Pacific Applications
-                                              column — same set across
-                                              every product card:
-                                              kitchens, bathrooms,
-                                              living, with a "See more
-                                              applications" link to the
-                                              dedicated applications
-                                              page. */}
-                                            <div className="lg:col-span-7">
+                                            {/* Pacific Applications —
+                                              the full list of surface
+                                              uses in two scannable
+                                              columns, with a preview
+                                              image on the right that
+                                              swaps as the cursor moves
+                                              down the list. */}
+                                            <div className="lg:col-span-4">
                                               <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
                                                 Pacific Applications
                                               </h4>
-                                              <ul className="space-y-2">
-                                                <li>
-                                                  <Link
-                                                    href="/spaces/kitchens"
-                                                    className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                  >
-                                                    Kitchens
-                                                  </Link>
-                                                </li>
-                                                <li>
-                                                  <Link
-                                                    href="/spaces/bathrooms"
-                                                    className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                  >
-                                                    Bathrooms
-                                                  </Link>
-                                                </li>
-                                                <li>
-                                                  <Link
-                                                    href="/inspirations/inspiration-gallery"
-                                                    className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                  >
-                                                    Living Rooms
-                                                  </Link>
-                                                </li>
-                                                <li className="pt-1">
-                                                  <Link
-                                                    href="/professionals/applications"
-                                                    className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-pacific-light transition-colors"
-                                                  >
-                                                    See more applications
-                                                    <ArrowRight className="w-3.5 h-3.5" />
-                                                  </Link>
-                                                </li>
+                                              <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                                                {PACIFIC_APPLICATIONS.map(
+                                                  (app, i) => (
+                                                    <li key={app.name}>
+                                                      <Link
+                                                        href={app.href}
+                                                        onMouseEnter={() =>
+                                                          setHoveredApp(i)
+                                                        }
+                                                        onFocus={() =>
+                                                          setHoveredApp(i)
+                                                        }
+                                                        className={cn(
+                                                          "block text-sm font-light transition-colors",
+                                                          hoveredApp === i
+                                                            ? "text-white"
+                                                            : "text-pacific-light hover:text-white"
+                                                        )}
+                                                      >
+                                                        {app.name}
+                                                      </Link>
+                                                    </li>
+                                                  )
+                                                )}
                                               </ul>
+                                              <div className="pt-3">
+                                                <Link
+                                                  href="/professionals/applications"
+                                                  className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-pacific-light transition-colors"
+                                                >
+                                                  See more applications
+                                                  <ArrowRight className="w-3.5 h-3.5" />
+                                                </Link>
+                                              </div>
+                                            </div>
+
+                                            {/* Preview pane — mirrors
+                                              whichever application row
+                                              is hovered. Hidden below
+                                              lg, where the mega itself
+                                              collapses to the mobile
+                                              drawer. */}
+                                            <div className="hidden lg:block lg:col-span-3">
+                                              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-white/5">
+                                                {PACIFIC_APPLICATIONS.map(
+                                                  (app, i) => (
+                                                    <Image
+                                                      key={app.name}
+                                                      src={app.image}
+                                                      alt={app.name}
+                                                      fill
+                                                      sizes="20vw"
+                                                      className={cn(
+                                                        "object-cover transition-opacity duration-300",
+                                                        hoveredApp === i
+                                                          ? "opacity-100"
+                                                          : "opacity-0"
+                                                      )}
+                                                    />
+                                                  )
+                                                )}
+                                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                                                  <div className="text-xs font-light tracking-wide text-white">
+                                                    {
+                                                      PACIFIC_APPLICATIONS[
+                                                        hoveredApp
+                                                      ].name
+                                                    }
+                                                  </div>
+                                                </div>
+                                              </div>
                                             </div>
 
                                             {/* Right-aligned primary CTA
