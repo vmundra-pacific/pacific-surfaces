@@ -34,6 +34,7 @@ import {
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { OrderSampleModal } from "@/components/ui/order-sample-modal";
 import { sanityImg } from "@/lib/sanity-img";
+import { finishDescription } from "@/lib/finish-copy";
 
 /* ---------- types ----------------------------------------------- */
 
@@ -45,6 +46,24 @@ interface FinishProduct {
   fullImage: string | null;
   finishes: string[] | null;
   description?: string | null;
+}
+
+/**
+ * Short description for a finish tile. Prefers the Sanity-authored
+ * `description`; falls back to the shared finish copy matched on the
+ * finish name, then on its finish tags. Returns null when nothing
+ * matches, so the tile renders without a description rather than
+ * with filler copy.
+ */
+function finishBlurb(finish: FinishProduct): string | null {
+  if (finish.description?.trim()) return finish.description.trim();
+  return (
+    finishDescription(finish.name) ??
+    (finish.finishes ?? [])
+      .map((f) => finishDescription(f))
+      .find((d): d is string => Boolean(d)) ??
+    null
+  );
 }
 
 interface FeatureCard {
@@ -488,6 +507,7 @@ function FinishTile({
   // exposes View / + Sample / Enquire CTAs.
   const [sampleOpen, setSampleOpen] = useState(false);
   const [enquireOpen, setEnquireOpen] = useState(false);
+  const blurb = finishBlurb(finish);
 
   return (
     <>
@@ -528,6 +548,14 @@ function FinishTile({
               <div className="text-[10px] tracking-[0.2em] uppercase text-white/60 mt-1">
                 {finish.finishes.join(" · ")}
               </div>
+            )}
+            {/* Short note on what the finish is for. Clamped to two
+                lines so a long Sanity description can never push the
+                tile's caption over the image. */}
+            {blurb && (
+              <p className="mt-2 text-xs font-light leading-snug text-white/70 line-clamp-2">
+                {blurb}
+              </p>
             )}
           </div>
           <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -703,6 +731,11 @@ function FinishLightbox({
         <div className="text-base lg:text-lg font-light text-white tracking-tight">
           {finish.name}
         </div>
+        {finishBlurb(finish) && (
+          <p className="mx-auto mt-2 max-w-md text-xs font-light leading-relaxed text-white/60">
+            {finishBlurb(finish)}
+          </p>
+        )}
         <div className="mt-1 text-[10px] tracking-[0.3em] uppercase text-white/50">
           {scale > 1.05
             ? `${(scale * 100).toFixed(0)}% — scroll to zoom`
