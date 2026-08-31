@@ -29,9 +29,13 @@ function thicknessInMm(raw: string): number | null {
 }
 
 /**
- * One isometric slab. The top face is fixed; only the edge grows, so
- * a 30 mm slab visibly reads thicker than a 12 mm one when the cards
- * sit side by side.
+ * One thickness, drawn as a stack of sheets on a pale disc — the
+ * staging Cosentino uses on its worktop pages, which reads far better
+ * against this tab's navy than a bare slab does.
+ *
+ * Both the stack height and the number of visible sheets scale with
+ * the real millimetre value, so 3 cm is unmistakably heavier than
+ * 12 mm sitting next to it.
  */
 export function SlabThicknessCard({
   thickness,
@@ -42,53 +46,71 @@ export function SlabThicknessCard({
   size: string;
   className?: string;
 }) {
-  const mm = thicknessInMm(thickness);
-  // 12 mm → 7px, 20 mm → 11px, 30 mm → 16px. Clamped so an unusual
-  // value can't draw a slab taller than the card.
-  const edge = Math.max(4, Math.min(28, ((mm ?? 20) / 30) * 16));
-
-  // Isometric top face, drawn as a rhombus around a 120x62 box.
-  const top = "60,6 116,32 60,58 4,32";
+  const mm = thicknessInMm(thickness) ?? 20;
+  // Total stack height in SVG units. Clamped so an unusual value
+  // can't draw a slab out of the disc.
+  const height = Math.max(5, Math.min(30, (mm / 30) * 18));
+  // Roughly one visible sheet per 8 mm, floored at two so there is
+  // always a seam to read as "layers" rather than a solid block.
+  const sheets = Math.max(2, Math.min(5, Math.round(mm / 8)));
+  const per = height / sheets;
 
   return (
     <div
       className={cn(
-        "group flex flex-col items-center text-center px-6 py-7 bg-white/5 border border-white/10 rounded-2xl transition-colors hover:border-white/25",
+        "group flex flex-col items-center text-center px-4 py-6 transition-transform duration-300 hover:-translate-y-0.5",
         className
       )}
     >
       <svg
-        viewBox="0 0 120 90"
-        className="w-32 h-24 shrink-0"
+        viewBox="0 0 200 150"
+        className="w-full max-w-[13rem]"
         role="img"
         aria-label={`${thickness} slab`}
       >
-        {/* Front-left edge — the face that carries the thickness. */}
-        <polygon
-          points={`4,32 60,58 60,${58 + edge} 4,${32 + edge}`}
-          className="fill-white/25"
+        {/* Pale disc behind, so the light stone reads against the
+            dark section without needing a card border. */}
+        <circle cx="100" cy="74" r="64" className="fill-[#eaeef0]" />
+        {/* Contact shadow, kept inside the disc. */}
+        <ellipse
+          cx="100"
+          cy={104 + height}
+          rx="46"
+          ry="6"
+          className="fill-[#7d8b93]"
+          opacity="0.28"
         />
-        {/* Front-right edge, a shade darker so the corner turns. */}
-        <polygon
-          points={`60,58 116,32 116,${32 + edge} 60,${58 + edge}`}
-          className="fill-white/15"
-        />
-        {/* Top face last so it sits above both edges. */}
-        <polygon points={top} className="fill-white/85" />
-        {/* Hairline along the top arris keeps the form legible at the
-            thinnest sizes, where the edge is only a few pixels. */}
-        <polyline
-          points="4,32 60,58 116,32"
-          className="stroke-white/40 fill-none"
-          strokeWidth="0.75"
-        />
+        {Array.from({ length: sheets }).map((_, i) => {
+          // Draw bottom sheet first so each new one overlaps the last.
+          const oy = i * per;
+          return (
+            <g key={i}>
+              <polygon
+                points={`50,${80 - oy} 100,${102 - oy} 100,${102 - oy + per} 50,${80 - oy + per}`}
+                className="fill-[#c6ced4]"
+              />
+              <polygon
+                points={`100,${102 - oy} 150,${80 - oy} 150,${80 - oy + per} 100,${102 - oy + per}`}
+                className="fill-[#a3aeb6]"
+              />
+              <polygon
+                points={`100,${58 - oy} 150,${80 - oy} 100,${102 - oy} 50,${80 - oy}`}
+                className="fill-[#fdfdfd]"
+              />
+              {/* Seam along the arris — what makes the stack read as
+                  separate sheets rather than one solid block. */}
+              <polyline
+                points={`50,${80 - oy} 100,${102 - oy} 150,${80 - oy}`}
+                className="stroke-[#7d8b93] fill-none"
+                strokeWidth="0.6"
+              />
+            </g>
+          );
+        })}
       </svg>
 
-      <div className="mt-3 text-lg font-medium text-white">{thickness}</div>
+      <div className="mt-1 text-lg font-medium text-white">{thickness}</div>
       <div className="mt-0.5 text-sm font-light text-pacific-mid">{size}</div>
-      <div className="mt-3 text-[10px] tracking-[0.25em] uppercase text-pacific-mid/70 font-medium">
-        Slab
-      </div>
     </div>
   );
 }
