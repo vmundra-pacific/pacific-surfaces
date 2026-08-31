@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CheckCircle, Send } from "lucide-react";
+import { X, CheckCircle, Send, Home, HardHat, ArrowLeft } from "lucide-react";
 import { trackMetaEvent } from "@/lib/meta-pixel";
 
 interface OrderSampleModalProps {
@@ -25,6 +26,34 @@ interface OrderSampleModalProps {
   mode?: "sample" | "enquire";
 }
 
+type UserType = "homeowner" | "professional";
+
+/** Chooser cards shown at the top of the sample-request flow. */
+const USER_TYPES: {
+  value: UserType;
+  title: string;
+  cta: string;
+  Icon: typeof Home;
+  /** Card background — one per path, so the two read apart at a
+      glance before any of the copy is read. */
+  image: string;
+}[] = [
+  {
+    value: "homeowner",
+    title: "Home owner",
+    cta: "Continue",
+    Icon: Home,
+    image: "/images/spaces/kitchens.png",
+  },
+  {
+    value: "professional",
+    title: "Professional",
+    cta: "Continue",
+    Icon: HardHat,
+    image: "/images/professions/collaboration.jpg",
+  },
+];
+
 export function OrderSampleModal({
   open,
   onClose,
@@ -35,6 +64,15 @@ export function OrderSampleModal({
   const isSample = mode === "sample";
   const [projectType, setProjectType] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  /**
+   * Sample requests open on a chooser — home owner or professional —
+   * before the form, so the sales team knows which pipeline a lead
+   * belongs to. Enquiries skip it: the question is the same either
+   * way, and an extra click on a "quick question" flow only costs
+   * completions.
+   */
+  const [userType, setUserType] = useState<UserType | null>(null);
+  const step: "choose" | "form" = isSample && !userType ? "choose" : "form";
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -53,6 +91,9 @@ export function OrderSampleModal({
       // reset when closed
       resetTimerRef.current = setTimeout(() => {
         setSubmitted(false);
+        // Back to the chooser, so a reopened modal always asks again
+        // rather than silently reusing the last visitor's answer.
+        setUserType(null);
       }, 300);
     }
   }, [open]);
@@ -84,6 +125,7 @@ export function OrderSampleModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: isSample ? "sample" : "enquire",
+          userType: userType ?? undefined,
           productName,
           productCategory,
           name: form.name,
@@ -173,8 +215,69 @@ export function OrderSampleModal({
                   Close
                 </button>
               </div>
+            ) : step === "choose" ? (
+              /* Step 1 (sample mode only) — who is asking. Both paths
+                 lead to the same form; the answer is carried through
+                 to the submission so the team can route the lead. */
+              <div className="px-8 py-8">
+                <div className="text-center">
+                  <h3 className="text-2xl font-light tracking-tight text-pacific-dark">
+                    Sample Request
+                  </h3>
+                  <p className="mt-1 text-sm font-light text-pacific-dark/60">
+                    What type of user are you?
+                  </p>
+                </div>
+
+                <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {USER_TYPES.map(({ value, title, cta, Icon, image }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setUserType(value)}
+                      className="group relative overflow-hidden text-left rounded-xl border border-pacific-mid/25 min-h-[13rem] p-5 flex flex-col justify-end hover:border-pacific-dark hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] focus:outline-none focus-visible:border-pacific-dark transition-all"
+                    >
+                      {/* Photo fills the card; the scrim below keeps
+                          the copy legible whatever the image does in
+                          its lower half. */}
+                      <Image
+                        src={image}
+                        alt=""
+                        fill
+                        sizes="(max-width: 640px) 100vw, 16rem"
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark via-pacific-dark/70 to-pacific-dark/10" />
+
+                      <div className="relative">
+                        <div className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center mb-3">
+                          <Icon className="w-4.5 h-4.5 text-white" />
+                        </div>
+                        <div className="text-base font-medium text-white">
+                          {title}
+                        </div>
+                        <span className="mt-4 inline-flex items-center text-[10px] font-medium tracking-[0.2em] uppercase text-white border-b border-white/70 pb-0.5">
+                          {cta}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             ) : (
               <form onSubmit={handleSubmit} className="px-8 py-8">
+                {/* Back to the chooser — sample mode only, since
+                    enquiries never pass through it. */}
+                {isSample && userType && (
+                  <button
+                    type="button"
+                    onClick={() => setUserType(null)}
+                    className="inline-flex items-center gap-1.5 text-[10px] font-medium tracking-[0.2em] uppercase text-pacific-mid hover:text-pacific-dark transition-colors mb-4"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    {USER_TYPES.find((u) => u.value === userType)?.title}
+                  </button>
+                )}
                 <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-2">
                   {isSample ? "Request a Sample" : "Enquire about this product"}
                 </div>
@@ -209,33 +312,33 @@ export function OrderSampleModal({
                     required
                   />
                   <select
-  value={projectType}
-  onChange={(e) => {
-    setProjectType(e.target.value);
+                    value={projectType}
+                    onChange={(e) => {
+                      setProjectType(e.target.value);
 
-    if (e.target.value !== "Other") {
-      setForm({ ...form, project: e.target.value });
-    } else {
-      setForm({ ...form, project: "" });
-    }
-  }}
->
-  <option value="">Select Project Type</option>
-  <option value="Residential">Residential</option>
-  <option value="Commercial">Commercial</option>
-  <option value="Other">Other</option>
-</select>
+                      if (e.target.value !== "Other") {
+                        setForm({ ...form, project: e.target.value });
+                      } else {
+                        setForm({ ...form, project: "" });
+                      }
+                    }}
+                  >
+                    <option value="">Select Project Type</option>
+                    <option value="Residential">Residential</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Other">Other</option>
+                  </select>
 
-{projectType === "Other" && (
-  <input
-    type="text"
-    value={form.project}
-    onChange={(e) =>
-      setForm({ ...form, project: e.target.value })
-    }
-    placeholder="Enter Project Type"
-  />
-)}
+                  {projectType === "Other" && (
+                    <input
+                      type="text"
+                      value={form.project}
+                      onChange={(e) =>
+                        setForm({ ...form, project: e.target.value })
+                      }
+                      placeholder="Enter Project Type"
+                    />
+                  )}
                 </div>
                 {/* Shipping Address only relevant in sample mode —
                     enquiries don't need to know where to ship to. */}

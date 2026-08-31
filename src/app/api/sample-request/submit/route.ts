@@ -36,6 +36,8 @@ const sanityClient =
 
 interface SampleBody {
   mode?: "sample" | "enquire";
+  /** Chooser answer from the sample flow. Absent on enquiries. */
+  userType?: "homeowner" | "professional";
   productName?: string;
   productCategory?: string;
   name?: string;
@@ -78,6 +80,14 @@ export async function POST(req: NextRequest) {
     const body = (await req.json()) as SampleBody;
     const mode: "sample" | "enquire" =
       body.mode === "enquire" ? "enquire" : "sample";
+
+    // Whitelist rather than clamp — anything other than the two
+    // known values is dropped, so a hand-rolled POST can't write
+    // arbitrary text into a field editors read as a category.
+    const userType =
+      body.userType === "homeowner" || body.userType === "professional"
+        ? body.userType
+        : undefined;
 
     const productName = clampField(body.productName, FIELD_LIMITS.shortText);
     const productCategory = clampField(
@@ -123,6 +133,7 @@ export async function POST(req: NextRequest) {
       _type: "sampleRequest",
       submittedAt: new Date().toISOString(),
       mode,
+      userType,
       productName: productName || undefined,
       productCategory: productCategory || undefined,
       name,

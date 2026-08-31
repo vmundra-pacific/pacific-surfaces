@@ -35,6 +35,20 @@ export default defineType({
       readOnly: true,
     }),
     defineField({
+      name: "userType",
+      title: "User Type",
+      type: "string",
+      description:
+        "Which path the visitor picked on the sample-request chooser. Only set for sample-mode submissions.",
+      options: {
+        list: [
+          { title: "Home owner", value: "homeowner" },
+          { title: "Professional", value: "professional" },
+        ],
+      },
+      readOnly: true,
+    }),
+    defineField({
       name: "productName",
       title: "Product Name",
       type: "string",
