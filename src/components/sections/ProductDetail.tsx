@@ -33,6 +33,8 @@ import { PortableText } from "@portabletext/react";
 import { cn } from "@/lib/utils";
 import { pickSimilar } from "@/lib/product-similarity";
 import { zoomImageUrl } from "@/lib/zoom-image";
+import { finishDescription } from "@/lib/finish-copy";
+import WorktopDetailTabs from "@/components/sections/WorktopDetailTabs";
 import { formatCollection } from "@/components/catalogue/labels";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1253,13 +1255,7 @@ export function ProductDetail({ product }: { product: Product }) {
                         {f}
                       </div>
                       <div className="text-xs text-pacific-mid font-light">
-                        {f === "Polished"
-                          ? "More vibrant and intense colors and reflections"
-                          : f === "Honed"
-                            ? "Smooth matte surface with soft texture"
-                            : f === "Leathered"
-                              ? "Textured finish with natural tactile feel"
-                              : "Premium surface finish"}
+                        {finishDescription(f) ?? "Premium surface finish"}
                       </div>
                     </div>
                   ))}
@@ -1570,11 +1566,21 @@ export function ProductDetail({ product }: { product: Product }) {
         </div>
       </section>
 
+      {/* Formats & thicknesses / Finishes / Edges — the fabrication
+          decisions that follow choosing a colour. Text-only until the
+          profile and thickness renders are ready. */}
+      <WorktopDetailTabs
+        productName={product.name}
+        thicknesses={thicknesses}
+        finishes={finishes}
+        size={size}
+      />
+
       {/* Care & Maintenance section removed — redundant with specs strip resources */}
 
       {/* Benefits section moved to the very bottom of the page —
           see the "BENEFITS SECTION" block after the compare slider. */}
-          {/* ===== BENEFITS SECTION — moved to the very bottom of the
+      {/* ===== BENEFITS SECTION — moved to the very bottom of the
               product page so it acts as the closing pitch before the
               modals. ===== */}
       <section className="bg-[#112732] border-b border-white/10">
@@ -1642,8 +1648,6 @@ export function ProductDetail({ product }: { product: Product }) {
           </StaggerContainer>
         </div>
       </section>
-
-      
 
       {/* ===== CERTIFICATIONS STRIP — inline-SVG mark renditions on
               white tiles so they read against the dark backdrop. We
