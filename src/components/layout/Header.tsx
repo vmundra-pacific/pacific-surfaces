@@ -16,6 +16,7 @@ import {
   User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { APPLICATIONS } from "@/data/applications";
 import { SearchOverlay } from "@/components/ui/search-overlay";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
 
@@ -433,92 +434,16 @@ function preloadMegaThumbs() {
  * single scannable column inside the Products mega with a preview
  * image that swaps on hover.
  *
- * `href` points at the closest existing destination rather than a
- * page per application: the site has six real /spaces routes, so
- * e.g. Backsplashes and Kitchen Islands both land on /spaces/kitchens.
- * Give any of these its own page later and only the href changes.
+ * Names, hrefs and preview images all come from src/data/applications.ts
+ * so the menu and the pages it points at can never drift apart. Each
+ * entry now has its own /applications/<slug> page rather than sharing
+ * one of six /spaces routes.
  */
-const PACIFIC_APPLICATIONS: {
-  name: string;
-  href: string;
-  image: string;
-}[] = [
-  {
-    name: "Kitchen Countertops",
-    href: "/spaces/kitchens",
-    image: "/images/spaces/kitchens.png",
-  },
-  {
-    name: "Kitchen Islands",
-    href: "/spaces/kitchens",
-    image: "/projects/ruskin-kitchen-counter.jpg",
-  },
-  {
-    name: "Backsplashes",
-    href: "/spaces/kitchens",
-    image: "/demo-rooms/kitchen-02/room.png",
-  },
-  {
-    name: "Outdoor Kitchens",
-    href: "/spaces/outdoor",
-    image: "/demo-rooms/kitchen-03/room.png",
-  },
-  {
-    name: "Bathroom Vanity Tops",
-    href: "/spaces/bathrooms",
-    image: "/images/spaces/bathrooms.jpg",
-  },
-  {
-    name: "Shower Walls & Trays",
-    href: "/spaces/bathrooms",
-    image: "/demo-rooms/bathroom-02/room.png",
-  },
-  {
-    name: "Washbasins",
-    href: "/products/integra",
-    image: "/demo-rooms/wc-02/room.png",
-  },
-  {
-    name: "Wall Cladding",
-    href: "/spaces/architecture",
-    image: "/demo-rooms/wall-cladding-01/room.png",
-  },
-  {
-    name: "Facades",
-    href: "/spaces/architecture",
-    image: "/images/products/facades.png",
-  },
-  {
-    name: "Flooring",
-    href: "/spaces/architecture",
-    image: "/images/spaces/architecture.png",
-  },
-  {
-    name: "Staircases",
-    href: "/spaces/architecture",
-    image: "/demo-rooms/bathroom-03/room.png",
-  },
-  {
-    name: "Tables & Furniture",
-    href: "/products/centrepiece-couture",
-    image: "/projects/latte-luxe.jpg",
-  },
-  {
-    name: "Bar & Reception Counters",
-    href: "/spaces/commercial",
-    image: "/images/spaces/commercial.jpg",
-  },
-  {
-    name: "Hospitality Interiors",
-    href: "/spaces/hospitality",
-    image: "/projects/cappuccino-1.jpg",
-  },
-  {
-    name: "Fireplace Surrounds",
-    href: "/inspirations/inspiration-gallery",
-    image: "/projects/cappuccino-3.jpg",
-  },
-];
+const PACIFIC_APPLICATIONS = APPLICATIONS.map((a) => ({
+  name: a.name,
+  href: `/applications/${a.slug}`,
+  image: a.sections[0].imageUrl,
+}));
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -1354,7 +1279,7 @@ export default function Header() {
                                               </ul>
                                               <div className="pt-3">
                                                 <Link
-                                                  href="/professionals/applications"
+                                                  href="/applications"
                                                   className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-pacific-light transition-colors"
                                                 >
                                                   See more applications
