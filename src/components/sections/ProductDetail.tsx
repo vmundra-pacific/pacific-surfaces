@@ -35,10 +35,6 @@ import { pickSimilar } from "@/lib/product-similarity";
 import { zoomImageUrl } from "@/lib/zoom-image";
 import { finishDescription } from "@/lib/finish-copy";
 import WorktopDetailTabs from "@/components/sections/WorktopDetailTabs";
-import {
-  SlabThicknessCard,
-  FinishSwatch,
-} from "@/components/ui/slab-spec-visuals";
 import { formatCollection } from "@/components/catalogue/labels";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1488,25 +1484,21 @@ export function ProductDetail({ product }: { product: Product }) {
                         <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
                           Slabs
                         </h3>
-                        <div
-                          className={`grid grid-cols-1 gap-4 ${
-                            thicknesses.length >= 4
-                              ? "sm:grid-cols-4"
-                              : thicknesses.length === 3
-                                ? "sm:grid-cols-3"
-                                : thicknesses.length === 2
-                                  ? "sm:grid-cols-2"
-                                  : "sm:grid-cols-1"
-                          }`}
-                        >
+                        <dl className="divide-y divide-white/10 border-t border-white/10">
                           {thicknesses.map((t) => (
-                            <SlabThicknessCard
+                            <div
                               key={t}
-                              thickness={t}
-                              size={size}
-                            />
+                              className="flex items-baseline justify-between gap-6 py-3"
+                            >
+                              <dt className="text-base font-medium text-white">
+                                {t}
+                              </dt>
+                              <dd className="text-sm font-light text-pacific-mid">
+                                {size}
+                              </dd>
+                            </div>
                           ))}
-                        </div>
+                        </dl>
                       </div>
                     )}
 
@@ -1516,9 +1508,14 @@ export function ProductDetail({ product }: { product: Product }) {
                         <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
                           Available Finishes
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+                        <div className="flex flex-wrap gap-3">
                           {finishes.map((f) => (
-                            <FinishSwatch key={f} finish={f} />
+                            <span
+                              key={f}
+                              className="px-5 py-2.5 rounded-full text-sm font-medium tracking-[0.1em] uppercase border border-white/10 text-pacific-light"
+                            >
+                              {f}
+                            </span>
                           ))}
                         </div>
                       </div>
