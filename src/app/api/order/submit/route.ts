@@ -51,6 +51,7 @@ interface IncomingLine {
   name?: string;
   slug?: string;
   collection?: string | null;
+  size?: string;
   thickness?: string;
   finish?: string;
   quantity?: number;
@@ -152,7 +153,7 @@ export async function POST(req: NextRequest) {
       );
       return [
         {
-          _key: `${clampField(line.id, 64) || "line"}-${clampField(line.thickness, 32)}-${clampField(line.finish, 32)}`.replace(
+          _key: `${clampField(line.id, 64) || "line"}-${clampField(line.size, 64)}-${clampField(line.thickness, 32)}-${clampField(line.finish, 32)}`.replace(
             /[^a-zA-Z0-9_-]/g,
             "-"
           ),
@@ -160,6 +161,9 @@ export async function POST(req: NextRequest) {
           slug: clampField(line.slug, FIELD_LIMITS.shortText) || undefined,
           collection:
             clampField(line.collection, FIELD_LIMITS.shortText) || undefined,
+          // Size may be a preset or dimensions the customer typed, so
+          // it gets the wider shortText clamp rather than 32 chars.
+          size: clampField(line.size, FIELD_LIMITS.shortText) || undefined,
           thickness: clampField(line.thickness, 32) || undefined,
           finish: clampField(line.finish, 32) || undefined,
           quantity,
@@ -203,6 +207,7 @@ export async function POST(req: NextRequest) {
         <tr>
           <td>${escapeHtml(i.name)}</td>
           <td>${escapeHtml(i.collection ?? "—")}</td>
+          <td>${escapeHtml(i.size ?? "—")}</td>
           <td>${escapeHtml(i.thickness ?? "—")}</td>
           <td>${escapeHtml(i.finish ?? "—")}</td>
           <td align="right">${i.quantity}</td>
@@ -228,6 +233,7 @@ export async function POST(req: NextRequest) {
         <tr style="background:#f1f4f5">
           <th align="left">Product</th>
           <th align="left">Collection</th>
+          <th align="left">Size</th>
           <th align="left">Thickness</th>
           <th align="left">Finish</th>
           <th align="right">Qty</th>

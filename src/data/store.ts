@@ -68,3 +68,85 @@ export function isInStore(input: {
 }): boolean {
   return storeSection(input) !== null;
 }
+
+/* ---- orderable options ------------------------------------------
+ * Vanities and basins carry almost nothing in Sanity: no thickness at
+ * all, and at most one finish. But size, thickness and finish are
+ * exactly what a customer is choosing when they order one, so the
+ * store supplies the choices per section and lets the product's own
+ * data win wherever it exists.
+ *
+ * Sizes are drawn from the range as built — the basin names already
+ * encode 36 x 22 and 48 x 22 — plus a custom option, since these are
+ * cut to order and a non-standard vanity is a normal request rather
+ * than an exception.
+ * ---------------------------------------------------------------- */
+
+/** Chosen from the size list to enter your own dimensions. */
+export const CUSTOM_SIZE = "Custom size";
+
+interface SectionOptions {
+  sizes: string[];
+  thicknesses: string[];
+  finishes: string[];
+}
+
+const OPTIONS_BY_SECTION: Record<StoreSection, SectionOptions> = {
+  Vanities: {
+    sizes: ['48" x 22"', '60" x 22"', '72" x 22"', CUSTOM_SIZE],
+    thicknesses: ["1.2 cm", "2 cm", "3 cm"],
+    finishes: ["Polished", "Suede", "Leathered", "Matte"],
+  },
+  "Vanity Tops": {
+    sizes: ['36" x 22"', '48" x 22"', '60" x 22"', '72" x 22"', CUSTOM_SIZE],
+    thicknesses: ["1.2 cm", "2 cm", "3 cm"],
+    finishes: ["Polished", "Suede", "Leathered", "Matte"],
+  },
+  "Vanity Sinks": {
+    sizes: ['24" x 18"', '36" x 22"', '48" x 22"', CUSTOM_SIZE],
+    thicknesses: ["2 cm", "3 cm"],
+    finishes: ["Polished", "Suede", "Leathered", "Matte"],
+  },
+};
+
+/**
+ * Merge a product's own values with the section defaults, its own
+ * first, ignoring case when deciding what is a duplicate ("polished"
+ * from Sanity and "Polished" from the defaults are one option).
+ */
+function merge(own: string[] | null | undefined, fallback: string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const v of [...(own ?? []), ...fallback]) {
+    const value = v.trim();
+    if (!value) continue;
+    const k = value.toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(value);
+  }
+  return out;
+}
+
+/**
+ * The options offered for one storefront product.
+ *
+ * The vanity range carries almost nothing in Sanity — no thickness at
+ * all, and a single finish on each vanity — so taking the product's
+ * values alone would leave a customer with nothing to choose. The
+ * section defaults are the range Pacific actually offers, so they are
+ * merged in behind whatever the product declares rather than only
+ * filling in when it declares nothing.
+ */
+export function storeOptions(input: {
+  section: StoreSection;
+  thicknesses?: string[] | null;
+  finishes?: string[] | null;
+}): SectionOptions {
+  const defaults = OPTIONS_BY_SECTION[input.section];
+  return {
+    sizes: defaults.sizes,
+    thicknesses: merge(input.thicknesses, defaults.thicknesses),
+    finishes: merge(input.finishes, defaults.finishes),
+  };
+}

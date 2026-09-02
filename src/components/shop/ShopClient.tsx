@@ -6,7 +6,12 @@ import Link from "next/link";
 import { Check, Plus, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
-import { STORE_SECTIONS, type StoreSection } from "@/data/store";
+import {
+  CUSTOM_SIZE,
+  STORE_SECTIONS,
+  storeOptions,
+  type StoreSection,
+} from "@/data/store";
 
 /**
  * The storefront grid.
@@ -63,7 +68,7 @@ export function ShopClient({ products }: { products: ShopProduct[] }) {
 
   const handleAdd = (
     p: ShopProduct,
-    options: { thickness: string; finish: string }
+    options: { size: string; thickness: string; finish: string }
   ) => {
     addItem({
       id: p.id,
@@ -71,6 +76,7 @@ export function ShopClient({ products }: { products: ShopProduct[] }) {
       slug: p.slug,
       image: p.image,
       collection: p.collection,
+      size: options.size,
       thickness: options.thickness,
       finish: options.finish,
     });
@@ -202,11 +208,25 @@ function ProductCard({
   added: boolean;
   onAdd: (
     p: ShopProduct,
-    options: { thickness: string; finish: string }
+    options: { size: string; thickness: string; finish: string }
   ) => void;
 }) {
-  const [thickness, setThickness] = useState(product.thicknesses[0] ?? "");
-  const [finish, setFinish] = useState(product.finishes[0] ?? "");
+  const options = storeOptions({
+    section: product.section,
+    thicknesses: product.thicknesses,
+    finishes: product.finishes,
+  });
+
+  const [size, setSize] = useState(options.sizes[0] ?? "");
+  const [customSize, setCustomSize] = useState("");
+  const [thickness, setThickness] = useState(options.thicknesses[0] ?? "");
+  const [finish, setFinish] = useState(options.finishes[0] ?? "");
+
+  const isCustom = size === CUSTOM_SIZE;
+  // A custom piece is only orderable once the dimensions are given —
+  // "Custom size" alone tells the team nothing they can quote.
+  const resolvedSize = isCustom ? customSize.trim() : size;
+  const canAdd = !isCustom || resolvedSize.length > 0;
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border border-pacific-dark/10 bg-white">
@@ -235,43 +255,60 @@ function ProductCard({
           {product.name}
         </Link>
 
-        {/* Options. A dropdown only earns its place when there is
-            something to choose — a single value is shown as a plain
-            spec line, and a product with neither says so rather than
-            rendering two empty controls. Vanities and basins mostly
-            fall in the last two cases. */}
+        {/* Size, thickness and finish — what a customer is actually
+            choosing when they order a vanity or basin. A dropdown only
+            appears when there is more than one value to pick. */}
         <div className="mt-3 space-y-2">
+          <CardOption
+            caption="Size"
+            label={`Size for ${product.name}`}
+            value={size}
+            options={options.sizes}
+            onChange={setSize}
+          />
+          {isCustom && (
+            <label className="block">
+              <span className="sr-only">
+                Custom dimensions for {product.name}
+              </span>
+              <input
+                type="text"
+                value={customSize}
+                onChange={(e) => setCustomSize(e.target.value)}
+                placeholder={'e.g. 54" x 20"'}
+                className="w-full rounded-md border border-pacific-dark/15 px-2.5 py-1.5 text-xs font-light text-pacific-dark placeholder-pacific-dark/35 focus:border-pacific-dark focus:outline-none"
+              />
+            </label>
+          )}
           <CardOption
             caption="Thickness"
             label={`Thickness for ${product.name}`}
             value={thickness}
-            options={product.thicknesses}
+            options={options.thicknesses}
             onChange={setThickness}
           />
           <CardOption
             caption="Finish"
             label={`Finish for ${product.name}`}
             value={finish}
-            options={product.finishes}
+            options={options.finishes}
             onChange={setFinish}
           />
-          {product.thicknesses.length === 0 &&
-            product.finishes.length === 0 && (
-              <p className="text-xs font-light text-pacific-dark/55">
-                Options confirmed on quotation
-              </p>
-            )}
         </div>
 
         <button
           type="button"
-          onClick={() => onAdd(product, { thickness, finish })}
+          disabled={!canAdd}
+          onClick={() =>
+            onAdd(product, { size: resolvedSize, thickness, finish })
+          }
           aria-label={`Add ${product.name} to cart`}
           className={cn(
             "mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.15em] transition-colors",
             added
               ? "bg-pacific-dark/80 text-white"
-              : "bg-pacific-dark text-white hover:bg-pacific-dark/90"
+              : "bg-pacific-dark text-white hover:bg-pacific-dark/90",
+            !canAdd && "cursor-not-allowed opacity-45"
           )}
         >
           {added ? (
@@ -282,7 +319,7 @@ function ProductCard({
           ) : (
             <>
               <Plus className="h-3.5 w-3.5" />
-              Add to cart
+              {isCustom && !canAdd ? "Enter dimensions" : "Add to cart"}
             </>
           )}
         </button>

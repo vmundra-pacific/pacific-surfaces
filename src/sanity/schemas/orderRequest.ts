@@ -109,6 +109,13 @@ export default defineType({
             { name: "name", title: "Product", type: "string" },
             { name: "slug", title: "Slug", type: "string" },
             { name: "collection", title: "Collection", type: "string" },
+            {
+              name: "size",
+              title: "Size",
+              type: "string",
+              description:
+                "A standard size, or the dimensions the customer typed for a custom piece.",
+            },
             { name: "thickness", title: "Thickness", type: "string" },
             { name: "finish", title: "Finish", type: "string" },
             { name: "quantity", title: "Quantity", type: "number" },
@@ -117,11 +124,14 @@ export default defineType({
             select: {
               title: "name",
               quantity: "quantity",
+              size: "size",
               thickness: "thickness",
               finish: "finish",
             },
-            prepare({ title, quantity, thickness, finish }) {
-              const options = [thickness, finish].filter(Boolean).join(" · ");
+            prepare({ title, quantity, size, thickness, finish }) {
+              const options = [size, thickness, finish]
+                .filter(Boolean)
+                .join(" · ");
               return {
                 title: `${quantity ?? 1} × ${title ?? "Product"}`,
                 subtitle: options || undefined,

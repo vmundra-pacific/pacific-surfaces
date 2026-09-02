@@ -19,9 +19,10 @@ import {
  * never needs to survive a device change or be reconciled with
  * inventory; it only needs to hold what someone picked while browsing.
  *
- * Slabs are sold by the piece here. Thickness and finish are picked
- * per line rather than per product, because the same colour in 2 cm
- * polished and 3 cm leathered is two different things to quote.
+ * Pieces are sold by the unit here. Size, thickness and finish are
+ * held per line rather than per product, because the same vanity in
+ * 48" polished and 60" leathered is two different things to quote —
+ * and size may be a custom dimension the customer typed.
  */
 
 const STORAGE_KEY = "ps_cart_v1";
@@ -33,17 +34,22 @@ export interface CartItem {
   slug: string;
   image: string | null;
   collection: string | null;
-  /** Options the customer picked. Empty when the product has none. */
+  /**
+   * Options the customer picked. `size` holds either a preset from the
+   * size list or the dimensions they typed for a custom piece, so the
+   * order carries one answer either way.
+   */
+  size: string;
   thickness: string;
   finish: string;
   quantity: number;
 }
 
-/** Two lines merge only when product, thickness and finish all match. */
+/** Two lines merge only when product and every option match. */
 export function lineKey(
-  item: Pick<CartItem, "id" | "thickness" | "finish">
+  item: Pick<CartItem, "id" | "size" | "thickness" | "finish">
 ): string {
-  return `${item.id}::${item.thickness}::${item.finish}`;
+  return `${item.id}::${item.size}::${item.thickness}::${item.finish}`;
 }
 
 interface CartContextValue {
@@ -56,7 +62,7 @@ interface CartContextValue {
   setQuantity: (key: string, quantity: number) => void;
   setOption: (
     key: string,
-    option: "thickness" | "finish",
+    option: "size" | "thickness" | "finish",
     value: string
   ) => void;
   removeItem: (key: string) => void;
@@ -146,7 +152,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setOption = useCallback(
-    (key: string, option: "thickness" | "finish", value: string) => {
+    (key: string, option: "size" | "thickness" | "finish", value: string) => {
       setItems((prev) => {
         const target = prev.find((i) => lineKey(i) === key);
         if (!target) return prev;

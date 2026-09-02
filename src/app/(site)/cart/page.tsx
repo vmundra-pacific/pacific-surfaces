@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { CartClient } from "@/components/shop/CartClient";
 import { client } from "@/sanity/lib/client";
 import { catalogueProductsQuery } from "@/sanity/lib/queries";
-import { isInStore } from "@/data/store";
+import { storeOptions, storeSection } from "@/data/store";
 
 /**
  * /cart — review and place the order.
@@ -37,16 +37,18 @@ export default async function CartPage() {
 
   const optionsByProduct: Record<
     string,
-    { thicknesses: string[]; finishes: string[] }
+    { sizes: string[]; thicknesses: string[]; finishes: string[] }
   > = {};
   for (const r of rows ?? []) {
     const slug =
       (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? r._id;
-    if (!isInStore({ slug, collection: r.collectionName })) continue;
-    optionsByProduct[r._id] = {
-      thicknesses: r.thickness ?? [],
-      finishes: r.finishes ?? [],
-    };
+    const section = storeSection({ slug, collection: r.collectionName });
+    if (!section) continue;
+    optionsByProduct[r._id] = storeOptions({
+      section,
+      thicknesses: r.thickness,
+      finishes: r.finishes,
+    });
   }
 
   return (

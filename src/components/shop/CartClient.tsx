@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useCart, lineKey, type CartItem } from "@/lib/cart";
 import { formatCollection } from "@/components/catalogue/labels";
+import { CUSTOM_SIZE } from "@/data/store";
 import { trackMetaEvent } from "@/lib/meta-pixel";
 
 /**
@@ -47,10 +48,10 @@ const EMPTY_FORM: OrderForm = {
 export function CartClient({
   optionsByProduct,
 }: {
-  /** Thickness/finish choices per product id, from Sanity. */
+  /** Size/thickness/finish choices per product id. */
   optionsByProduct: Record<
     string,
-    { thicknesses: string[]; finishes: string[] }
+    { sizes: string[]; thicknesses: string[]; finishes: string[] }
   >;
 }) {
   const { items, count, ready, setQuantity, setOption, removeItem, clear } =
@@ -77,6 +78,7 @@ export function CartClient({
             name: i.name,
             slug: i.slug,
             collection: i.collection,
+            size: i.size,
             thickness: i.thickness,
             finish: i.finish,
             quantity: i.quantity,
@@ -292,9 +294,9 @@ function CartLine({
   onRemove,
 }: {
   item: CartItem;
-  options?: { thicknesses: string[]; finishes: string[] };
+  options?: { sizes: string[]; thicknesses: string[]; finishes: string[] };
   onQuantity: (q: number) => void;
-  onOption: (option: "thickness" | "finish", value: string) => void;
+  onOption: (option: "size" | "thickness" | "finish", value: string) => void;
   onRemove: () => void;
 }) {
   return (
@@ -337,6 +339,24 @@ function CartLine({
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
+          {/* A custom size is free text the customer typed, so it is
+              shown as a chip rather than forced into a dropdown it
+              would not match. */}
+          {options?.sizes && options.sizes.length > 0 ? (
+            options.sizes.includes(item.size) ? (
+              <OptionSelect
+                label={`Size for ${item.name}`}
+                value={item.size}
+                options={options.sizes}
+                onChange={(v) => onOption("size", v)}
+              />
+            ) : (
+              <span className="rounded-full border border-pacific-dark/15 px-3 py-1.5 text-xs font-light text-pacific-dark">
+                {item.size || CUSTOM_SIZE}
+                <span className="ml-1.5 text-pacific-dark/45">custom</span>
+              </span>
+            )
+          ) : null}
           {options?.thicknesses && options.thicknesses.length > 0 && (
             <OptionSelect
               label={`Thickness for ${item.name}`}
