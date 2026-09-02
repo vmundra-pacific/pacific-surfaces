@@ -82,6 +82,30 @@ export default async function ApplicationPage({
         />
       ))}
 
+      {/* Specify from — the collections cleared for this application,
+          and only those. Engineered surfaces are absent from anything
+          outdoors or underfoot; see lib/application-rules. */}
+      <section className="bg-white px-6 py-14 md:py-16">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-[11px] font-medium uppercase tracking-[0.25em] text-pacific-dark/50">
+            Specify {app.name.toLowerCase()} from
+          </h2>
+          <ul className="mt-5 flex flex-wrap gap-3">
+            {app.collections.map((c) => (
+              <li key={c.href}>
+                <Link
+                  href={c.href}
+                  className="inline-flex items-center gap-2 rounded-full border border-pacific-dark/15 px-5 py-2.5 text-sm font-light text-pacific-dark transition-colors hover:border-pacific-dark hover:bg-pacific-dark hover:text-white"
+                >
+                  {c.name}
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* Where next — the room this belongs to, then the neighbouring
           applications, so the menu's fifteen entries stay connected
           rather than being fifteen dead ends. */}

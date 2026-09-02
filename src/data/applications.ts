@@ -41,9 +41,40 @@ export interface Application {
   /** The room page this belongs under. */
   space: { name: string; href: string };
   sections: ApplicationSection[];
+  /**
+   * The collections that may be specified for this application, and
+   * nothing else. Engineered quartz is resin-bound, so UV and thermal
+   * movement rule it out of anything outdoors or underfoot — the same
+   * reason Cosentino sells Silestone for countertops, bathrooms and
+   * furniture only and routes every facade and floor to Dekton.
+   * Rendered on the page so the restriction is visible rather than
+   * implied. See lib/application-rules for the product-page guard.
+   */
+  collections: { name: string; href: string }[];
   /** Slugs of two or three neighbouring applications. */
   related: string[];
 }
+
+/** Collection shorthands, so the lists below stay readable. */
+const C = {
+  quartz: { name: "Quartz", href: "/products/quartz" },
+  eclipse: { name: "Eclipse", href: "/products/quartz/chromia" },
+  eco: { name: "Ecosurfaces", href: "/products/ecosurfaces" },
+  granite: { name: "Granites", href: "/products/granites" },
+  exotic: { name: "Exotic", href: "/products/exotic" },
+  semiPrecious: { name: "Semi-Precious", href: "/products/semi-precious" },
+  integra: { name: "Integra", href: "/products/integra" },
+  vanity: { name: "Vanity", href: "/products/vanity" },
+  centrepiece: {
+    name: "Centrepiece Couture",
+    href: "/products/centrepiece-couture",
+  },
+  translucent: { name: "Translucent", href: "/products/translucent" },
+  beyondFinish: {
+    name: "Beyond Finish",
+    href: "/products/facades-and-finishes",
+  },
+} as const;
 
 export const APPLICATIONS: Application[] = [
   {
@@ -74,6 +105,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/projects/ruskin-kitchen-counter.jpg",
       },
     ],
+    collections: [C.quartz, C.eclipse, C.eco, C.granite, C.exotic],
     related: ["kitchen-islands", "backsplashes", "washbasins"],
   },
   {
@@ -104,6 +136,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/demo-rooms/kitchen-02/room.png",
       },
     ],
+    collections: [C.quartz, C.eclipse, C.eco, C.granite, C.exotic],
     related: [
       "kitchen-countertops",
       "bar-and-reception-counters",
@@ -138,6 +171,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/stone-finishes-slider-01.webp",
       },
     ],
+    collections: [C.quartz, C.eclipse, C.eco, C.granite, C.beyondFinish],
     related: ["kitchen-countertops", "wall-cladding", "kitchen-islands"],
   },
   {
@@ -168,6 +202,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/stone-finishes-slider-01.webp",
       },
     ],
+    collections: [C.granite, C.beyondFinish],
     related: ["kitchen-countertops", "flooring", "bar-and-reception-counters"],
   },
   {
@@ -198,6 +233,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/demo-rooms/bathroom-02/room.png",
       },
     ],
+    collections: [C.vanity, C.quartz, C.eclipse, C.eco, C.granite],
     related: ["washbasins", "shower-walls-and-trays", "wall-cladding"],
   },
   {
@@ -228,6 +264,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/demo-rooms/wc-03/room.png",
       },
     ],
+    collections: [C.quartz, C.eco, C.granite, C.beyondFinish],
     related: ["bathroom-vanity-tops", "washbasins", "flooring"],
   },
   {
@@ -258,6 +295,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/demo-rooms/pacific-kitchen-01/room.jpg",
       },
     ],
+    collections: [C.integra, C.vanity],
     related: [
       "bathroom-vanity-tops",
       "kitchen-countertops",
@@ -292,6 +330,14 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/images/spaces/architecture.png",
       },
     ],
+    collections: [
+      C.quartz,
+      C.eclipse,
+      C.granite,
+      C.beyondFinish,
+      C.semiPrecious,
+      C.translucent,
+    ],
     related: ["facades", "backsplashes", "fireplace-surrounds"],
   },
   {
@@ -322,6 +368,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/images/spaces/architecture.png",
       },
     ],
+    collections: [C.granite, C.beyondFinish],
     related: ["wall-cladding", "flooring", "hospitality-interiors"],
   },
   {
@@ -352,6 +399,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/stone-finishes-slider-01.webp",
       },
     ],
+    collections: [C.granite, C.beyondFinish],
     related: ["staircases", "wall-cladding", "hospitality-interiors"],
   },
   {
@@ -366,10 +414,10 @@ export const APPLICATIONS: Application[] = [
       {
         eyebrow: "Treads and risers",
         headline: "Cut as a set, matched across the flight.",
-        body: "Treads and risers cut from the same slab run the pattern up the flight instead of restarting at every step. Engineered consistency means step twelve matches step one.",
+        body: "Treads and risers cut from the same block run the pattern up the flight instead of restarting at every step. Granite is the specification here: a stair is trafficked, and engineered surfaces are not rated for it.",
         imageLabel: "Stone staircase",
-        ctaLabel: "Explore Quartz",
-        ctaHref: "/products/quartz",
+        ctaLabel: "Explore Granites",
+        ctaHref: "/products/granites",
         imageUrl: "/demo-rooms/bathroom-03/room.png",
       },
       {
@@ -382,6 +430,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/stone-finishes-slider-01.webp",
       },
     ],
+    collections: [C.granite, C.beyondFinish],
     related: ["flooring", "wall-cladding", "hospitality-interiors"],
   },
   {
@@ -412,6 +461,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/images/products/semi-precious.png",
       },
     ],
+    collections: [C.centrepiece, C.semiPrecious, C.quartz, C.granite],
     related: [
       "kitchen-islands",
       "bar-and-reception-counters",
@@ -446,6 +496,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/projects/cappuccino-1.jpg",
       },
     ],
+    collections: [C.quartz, C.eclipse, C.granite, C.exotic],
     related: [
       "hospitality-interiors",
       "kitchen-islands",
@@ -480,6 +531,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/images/spaces/commercial.jpg",
       },
     ],
+    collections: [C.quartz, C.eclipse, C.eco, C.granite],
     related: ["bar-and-reception-counters", "flooring", "facades"],
   },
   {
@@ -510,6 +562,7 @@ export const APPLICATIONS: Application[] = [
         imageUrl: "/demo-rooms/wall-cladding-01/room.png",
       },
     ],
+    collections: [C.granite, C.beyondFinish],
     related: ["wall-cladding", "tables-and-furniture", "flooring"],
   },
 ];
