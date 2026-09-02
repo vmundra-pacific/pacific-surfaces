@@ -66,6 +66,9 @@ export default defineConfig({
                     S.documentTypeListItem("sampleRequest").title(
                       "Sample Requests & Enquiries"
                     ),
+                    S.documentTypeListItem("orderRequest").title(
+                      "Store Orders"
+                    ),
                     S.documentTypeListItem("newsletterSubscriber").title(
                       "Newsletter Subscribers"
                     ),
@@ -99,24 +102,25 @@ export default defineConfig({
 
             S.divider(),
 
-S.listItem()
-  .title("Customer Portal")
-  .child(
-    S.list()
-      .title("Customer Portal")
-      .items([
-        S.documentTypeListItem("customer").title("Customers"),
+            S.listItem()
+              .title("Customer Portal")
+              .child(
+                S.list()
+                  .title("Customer Portal")
+                  .items([
+                    S.documentTypeListItem("customer").title("Customers"),
 
-        S.divider(),
+                    S.divider(),
 
-S.documentTypeListItem("grievance")
-  .title("Customer Grievances"),
-      ])
-  ),
+                    S.documentTypeListItem("grievance").title(
+                      "Customer Grievances"
+                    ),
+                  ])
+              ),
           ]),
     }),
   ],
-  
+
   schema: {
     types: schemaTypes,
   },

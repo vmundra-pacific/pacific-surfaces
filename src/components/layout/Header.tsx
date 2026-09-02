@@ -13,10 +13,12 @@ import {
   Search,
   ChevronDown,
   Heart,
+  ShoppingBag,
   User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APPLICATIONS } from "@/data/applications";
+import { useCart } from "@/lib/cart";
 import { SearchOverlay } from "@/components/ui/search-overlay";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
 
@@ -348,6 +350,10 @@ const navigation = [
   // the Professions mega ("Technical Documentation"); promoted out
   // per editorial direction so the docs library is one click from
   // anywhere on the site.
+  // Store — the ordering flow (/shop → /cart). Deliberately its own
+  // top-level entry rather than a child of Products: buying is a
+  // different intent from browsing the catalogue.
+  { name: "Store", href: "/shop" },
   { name: "Resources", href: "/resources" },
   {
     name: "Inspirations",
@@ -458,6 +464,9 @@ export default function Header() {
   // PACIFIC_APPLICATIONS. Drives the preview image beside the list;
   // defaults to 0 so the panel is never empty on open.
   const [hoveredApp, setHoveredApp] = useState(0);
+  // Store cart — badge only appears once localStorage has been read,
+  // so it can't flash a stale or empty count on first paint.
+  const { count: cartCount, ready: cartReady } = useCart();
   // Coming Soon modal — set to a card label (e.g. "3D Showroom")
   // to display the modal; null when closed.
   const [comingSoonLabel, setComingSoonLabel] = useState<string | null>(null);
@@ -1430,6 +1439,28 @@ export default function Header() {
                   the lg/xl range (see Get-a-Quote clipping note) — the
                   mobile menu carries its own Favorites link for every
                   other breakpoint. */}
+              {/* Store cart — kept beside Favorites at the same
+                  breakpoint; the mobile menu carries its own link. */}
+              <Link
+                href="/cart"
+                aria-label={
+                  cartReady && cartCount > 0
+                    ? `View cart, ${cartCount} item${cartCount === 1 ? "" : "s"}`
+                    : "View cart"
+                }
+                className={cn(
+                  "relative hidden 2xl:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
+                  "text-pacific-light hover:text-white hover:bg-white/10"
+                )}
+              >
+                <ShoppingBag className="w-4 h-4" />
+                {cartReady && cartCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[1.15rem] rounded-full bg-white px-1 text-[10px] font-medium leading-[1.15rem] text-pacific-dark">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </span>
+                )}
+              </Link>
+
               <Link
                 href="/favorites"
                 aria-label="View favorites"
@@ -1740,6 +1771,29 @@ export default function Header() {
                 >
                   Try Visualizer
                   <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.div>
+
+              {/* Cart — mobile's only entry point below 2xl, same as
+                  Favorites below it. */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-4 flex justify-center"
+              >
+                <Link
+                  href="/cart"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  View Cart
+                  {cartReady && cartCount > 0 && (
+                    <span className="rounded-full bg-white px-2 text-[10px] font-medium leading-5 text-pacific-dark">
+                      {cartCount > 99 ? "99+" : cartCount}
+                    </span>
+                  )}
                 </Link>
               </motion.div>
 

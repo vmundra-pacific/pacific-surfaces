@@ -14,6 +14,7 @@ import careersPage from "./careersPage";
 import jobApplication from "./jobApplication";
 import contactSubmission from "./contactSubmission";
 import sampleRequest from "./sampleRequest";
+import orderRequest from "./orderRequest";
 import newsletterSubscriber from "./newsletterSubscriber";
 import sustainabilityPage from "./sustainabilityPage";
 import facadesAndFinishesPage from "./facadesAndFinishesPage";
@@ -40,6 +41,7 @@ export const schemaTypes = [
   jobApplication,
   contactSubmission,
   sampleRequest,
+  orderRequest,
   newsletterSubscriber,
   sustainabilityPage,
   facadesAndFinishesPage,
@@ -48,5 +50,4 @@ export const schemaTypes = [
   faqPage,
   customer,
   grievance,
-  
 ];
