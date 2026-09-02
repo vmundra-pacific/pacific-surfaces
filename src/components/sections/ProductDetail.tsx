@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { pickSimilar } from "@/lib/product-similarity";
 import { zoomImageUrl } from "@/lib/zoom-image";
 import { finishDescription } from "@/lib/finish-copy";
+import { allowedApplications, materialFamily } from "@/lib/application-rules";
 import WorktopDetailTabs from "@/components/sections/WorktopDetailTabs";
 import { formatCollection } from "@/components/catalogue/labels";
 
@@ -223,7 +224,18 @@ export function ProductDetail({ product }: { product: Product }) {
   const thicknesses = product.thickness?.length
     ? product.thickness
     : ["2 cm", "3 cm"];
-  const applications = product.application ?? [];
+  // Applications are editor-set in Sanity, so a quartz slab can be
+  // tagged "Flooring" — which it cannot honestly claim (resin-bound
+  // surfaces are indoor-only). Filter to what this product's material
+  // family actually supports before rendering. See lib/application-rules.
+  const applications = allowedApplications(
+    product.application ?? [],
+    materialFamily({
+      productType: product.productType,
+      collectionName: product.collection?.name,
+      categoryName: product.category?.name,
+    })
+  );
   const size = product.size || '126" x 63"';
   // Wrap the collection name through formatCollection so the
   // editorial rename map (e.g. "Vision" → "Eclipse",
@@ -342,29 +354,16 @@ export function ProductDetail({ product }: { product: Product }) {
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
   const [roomScenesOpen, setRoomScenesOpen] = useState(false);
-  // The Sizes & Finishes tab has two possible blocks:
-  //   - Thicknesses (hidden for specialty products)
-  //   - Available Finishes (only when finishes are set in Sanity)
-  // If neither will render, the tab body is empty and the tab itself
-  // should be suppressed.
-  // Use `isQuartzSlab` here (not `!isSpecialtyProduct`) to keep the
-  // Sizes & Finishes tab in sync with the thickness gate above —
-  // otherwise granite products would render an empty tab body
-  // (thicknesses suppressed, no finishes set).
-  const hasSizesContent =
-    (isQuartzSlab && thicknesses.length > 0) || finishes.length > 0;
-
-  // Default active tab — pick the first tab that will actually render
-  // content. Specs first (when not specialty), then Sizes (when it has
-  // content), then Applications as the always-on fallback.
-  const defaultTab: "specs" | "sizes" | "applications" = isSpecialtyProduct
-    ? hasSizesContent
-      ? "sizes"
-      : "applications"
+  // Default active tab — Specs when the product has them, otherwise
+  // Applications, which always renders (it has an empty state).
+  // Specialty products hide the Specs tab (its rows are quartz-slab
+  // specific), leaving Applications as their only tab.
+  const defaultTab: "specs" | "applications" = isSpecialtyProduct
+    ? "applications"
     : "specs";
-  const [activeInfoTab, setActiveInfoTab] = useState<
-    "specs" | "sizes" | "applications"
-  >(defaultTab);
+  const [activeInfoTab, setActiveInfoTab] = useState<"specs" | "applications">(
+    defaultTab
+  );
 
   // Zoom-on-hover state (only for slab/main image)
   const [zoomActive, setZoomActive] = useState(false);
@@ -1359,11 +1358,10 @@ export function ProductDetail({ product }: { product: Product }) {
                   rows below are quartz-slab specific: edge profiles,
                   water absorption, Mohs hardness — none of which
                   apply to a sink or a semi-precious piece).
-                - Sizes & Finishes tab hidden whenever the body would
-                  be empty: specialty product without finishes set
-                  (thicknesses are also suppressed for specialty
-                  products), or any product with no thicknesses AND
-                  no finishes.
+                - Sizes & Finishes tab removed: thicknesses, format
+                  and finishes are already listed in the spec panel
+                  beside the slab image, so the tab only repeated
+                  them.
                 - Applications tab is always shown — it has a
                   fallback empty-state message ("No specific
                   applications listed…") so users always have a
@@ -1372,9 +1370,6 @@ export function ProductDetail({ product }: { product: Product }) {
             {(
               [
                 ...(isSpecialtyProduct ? [] : [["specs", "Specs"] as const]),
-                ...(hasSizesContent
-                  ? [["sizes", "Sizes & Finishes"] as const]
-                  : []),
                 ["applications", "Applications"],
               ] as const
             ).map(([key, label]) => (
@@ -1470,56 +1465,6 @@ export function ProductDetail({ product }: { product: Product }) {
                         value="Pacific Engineered Surfaces Pvt. Ltd."
                       />
                     </dl>
-                  </div>
-                )}
-
-                {activeInfoTab === "sizes" && (
-                  <div className="max-w-3xl space-y-8">
-                    {/* Slabs / thicknesses — strictly quartz-slab
-                        only. Granite slabs ship at fixed dimensions
-                        in this catalogue and don't expose a thickness
-                        picker. See `isQuartzSlab` for the rule. */}
-                    {isQuartzSlab && (
-                      <div>
-                        <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
-                          Slabs
-                        </h3>
-                        <dl className="divide-y divide-white/10 border-t border-white/10">
-                          {thicknesses.map((t) => (
-                            <div
-                              key={t}
-                              className="flex items-baseline justify-between gap-6 py-3"
-                            >
-                              <dt className="text-base font-medium text-white">
-                                {t}
-                              </dt>
-                              <dd className="text-sm font-light text-pacific-mid">
-                                {size}
-                              </dd>
-                            </div>
-                          ))}
-                        </dl>
-                      </div>
-                    )}
-
-                    {/* Finishes — hidden when no finishes set in Sanity. */}
-                    {finishes.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-medium tracking-[0.2em] uppercase text-pacific-mid mb-5">
-                          Available Finishes
-                        </h3>
-                        <div className="flex flex-wrap gap-3">
-                          {finishes.map((f) => (
-                            <span
-                              key={f}
-                              className="px-5 py-2.5 rounded-full text-sm font-medium tracking-[0.1em] uppercase border border-white/10 text-pacific-light"
-                            >
-                              {f}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )}
 
