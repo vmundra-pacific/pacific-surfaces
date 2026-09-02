@@ -4,6 +4,7 @@ import { BreadcrumbList } from "@/components/global/JsonLd";
 import { ShopClient, type ShopProduct } from "@/components/shop/ShopClient";
 import { client } from "@/sanity/lib/client";
 import { catalogueProductsQuery } from "@/sanity/lib/queries";
+import { isInStore } from "@/data/store";
 
 /**
  * /shop — the store.
@@ -41,6 +42,13 @@ export default async function ShopPage() {
 
   const products: ShopProduct[] = (rows ?? [])
     .filter((r) => r.visible !== false && r.name)
+    // The store opens with a short, deliberate range rather than the
+    // whole catalogue — see src/data/store.ts to add or remove one.
+    .filter((r) =>
+      isInStore(
+        (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? r._id
+      )
+    )
     .map((r) => ({
       id: r._id,
       name: r.name ?? "Untitled",

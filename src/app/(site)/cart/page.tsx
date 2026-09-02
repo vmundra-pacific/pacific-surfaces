@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { CartClient } from "@/components/shop/CartClient";
 import { client } from "@/sanity/lib/client";
 import { catalogueProductsQuery } from "@/sanity/lib/queries";
+import { isInStore } from "@/data/store";
 
 /**
  * /cart — review and place the order.
@@ -25,6 +26,7 @@ export const revalidate = 3600;
 
 interface CatalogueRow {
   _id: string;
+  slug?: { current?: string } | string;
   thickness?: string[] | null;
   finishes?: string[] | null;
 }
@@ -37,6 +39,9 @@ export default async function CartPage() {
     { thicknesses: string[]; finishes: string[] }
   > = {};
   for (const r of rows ?? []) {
+    const slug =
+      (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? r._id;
+    if (!isInStore(slug)) continue;
     optionsByProduct[r._id] = {
       thicknesses: r.thickness ?? [],
       finishes: r.finishes ?? [],

@@ -55,15 +55,18 @@ export function ShopClient({ products }: { products: ShopProduct[] }) {
     return [...grouped.entries()];
   }, [products, activeCollection]);
 
-  const handleAdd = (p: ShopProduct) => {
+  const handleAdd = (
+    p: ShopProduct,
+    options: { thickness: string; finish: string }
+  ) => {
     addItem({
       id: p.id,
       name: p.name,
       slug: p.slug,
       image: p.image,
       collection: p.collection,
-      thickness: p.thicknesses[0] ?? "",
-      finish: p.finishes[0] ?? "",
+      thickness: options.thickness,
+      finish: options.finish,
     });
     setJustAdded(p.id);
     window.setTimeout(
@@ -128,65 +131,12 @@ export function ShopClient({ products }: { products: ShopProduct[] }) {
 
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
               {list.map((p) => (
-                <article
+                <ProductCard
                   key={p.id}
-                  className="group flex flex-col overflow-hidden rounded-xl border border-pacific-dark/10 bg-white"
-                >
-                  <Link
-                    href={`/products/${p.slug}`}
-                    className="relative block aspect-square overflow-hidden bg-pacific-dark/5"
-                  >
-                    {p.image ? (
-                      <Image
-                        src={p.image}
-                        alt={p.name}
-                        fill
-                        sizes="(max-width: 640px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-pacific-light to-pacific-mid/40" />
-                    )}
-                  </Link>
-
-                  <div className="flex flex-1 flex-col p-4">
-                    <Link
-                      href={`/products/${p.slug}`}
-                      className="text-sm font-medium text-pacific-dark hover:opacity-70"
-                    >
-                      {p.name}
-                    </Link>
-                    <p className="mt-1 text-xs font-light text-pacific-dark/55">
-                      {[p.thicknesses[0], p.finishes[0]]
-                        .filter(Boolean)
-                        .join(" · ") || "Options confirmed on quotation"}
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={() => handleAdd(p)}
-                      aria-label={`Add ${p.name} to cart`}
-                      className={cn(
-                        "mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.15em] transition-colors",
-                        justAdded === p.id
-                          ? "bg-pacific-dark/80 text-white"
-                          : "bg-pacific-dark text-white hover:bg-pacific-dark/90"
-                      )}
-                    >
-                      {justAdded === p.id ? (
-                        <>
-                          <Check className="h-3.5 w-3.5" />
-                          Added
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="h-3.5 w-3.5" />
-                          Add to cart
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </article>
+                  product={p}
+                  added={justAdded === p.id}
+                  onAdd={handleAdd}
+                />
               ))}
             </div>
           </section>
@@ -224,5 +174,146 @@ function FilterPill({
         {count}
       </span>
     </button>
+  );
+}
+
+/**
+ * One storefront card. Thickness and finish are chosen here, before
+ * adding — the same colour in 2 cm polished and 3 cm leathered are two
+ * different things to quote, and picking after the fact meant the cart
+ * was the only place the choice existed. Both remain editable on /cart.
+ *
+ * Selection is local to the card so choosing an option on one product
+ * cannot disturb another, and the cart still holds the answer once
+ * added.
+ */
+function ProductCard({
+  product,
+  added,
+  onAdd,
+}: {
+  product: ShopProduct;
+  added: boolean;
+  onAdd: (
+    p: ShopProduct,
+    options: { thickness: string; finish: string }
+  ) => void;
+}) {
+  const [thickness, setThickness] = useState(product.thicknesses[0] ?? "");
+  const [finish, setFinish] = useState(product.finishes[0] ?? "");
+
+  return (
+    <article className="group flex flex-col overflow-hidden rounded-xl border border-pacific-dark/10 bg-white">
+      <Link
+        href={`/products/${product.slug}`}
+        className="relative block aspect-square overflow-hidden bg-pacific-dark/5"
+      >
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 50vw, 25vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-pacific-light to-pacific-mid/40" />
+        )}
+      </Link>
+
+      <div className="flex flex-1 flex-col p-4">
+        <Link
+          href={`/products/${product.slug}`}
+          className="text-sm font-medium text-pacific-dark hover:opacity-70"
+        >
+          {product.name}
+        </Link>
+
+        <div className="mt-3 space-y-2">
+          {product.thicknesses.length > 0 ? (
+            <CardSelect
+              label={`Thickness for ${product.name}`}
+              caption="Thickness"
+              value={thickness}
+              options={product.thicknesses}
+              onChange={setThickness}
+            />
+          ) : null}
+          {product.finishes.length > 0 ? (
+            <CardSelect
+              label={`Finish for ${product.name}`}
+              caption="Finish"
+              value={finish}
+              options={product.finishes}
+              onChange={setFinish}
+            />
+          ) : null}
+          {product.thicknesses.length === 0 &&
+            product.finishes.length === 0 && (
+              <p className="text-xs font-light text-pacific-dark/55">
+                Options confirmed on quotation
+              </p>
+            )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => onAdd(product, { thickness, finish })}
+          aria-label={`Add ${product.name} to cart`}
+          className={cn(
+            "mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.15em] transition-colors",
+            added
+              ? "bg-pacific-dark/80 text-white"
+              : "bg-pacific-dark text-white hover:bg-pacific-dark/90"
+          )}
+        >
+          {added ? (
+            <>
+              <Check className="h-3.5 w-3.5" />
+              Added
+            </>
+          ) : (
+            <>
+              <Plus className="h-3.5 w-3.5" />
+              Add to cart
+            </>
+          )}
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function CardSelect({
+  label,
+  caption,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  caption: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[9px] font-medium uppercase tracking-[0.2em] text-pacific-dark/45">
+        {caption}
+      </span>
+      <select
+        aria-label={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-md border border-pacific-dark/15 bg-white px-2.5 py-1.5 text-xs font-light text-pacific-dark focus:border-pacific-dark focus:outline-none"
+      >
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
