@@ -18,7 +18,7 @@ import { isInStore } from "@/data/store";
 export const metadata: Metadata = {
   title: "Store — Pacific Surfaces",
   description:
-    "Browse the full Pacific range and build an order. Add slabs to your cart, place the order, and our team will contact you to confirm quantities, freight and price.",
+    "Order Pacific vanity tops, vanities and vanity sinks. Add to your cart, place the order, and our team will contact you to confirm quantities, freight and price.",
   alternates: { canonical: "/shop" },
 };
 
@@ -45,9 +45,10 @@ export default async function ShopPage() {
     // The store opens with a short, deliberate range rather than the
     // whole catalogue — see src/data/store.ts to add or remove one.
     .filter((r) =>
-      isInStore(
-        (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? r._id
-      )
+      isInStore({
+        slug: (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? r._id,
+        collection: r.collectionName,
+      })
     )
     .map((r) => ({
       id: r._id,
@@ -69,8 +70,8 @@ export default async function ShopPage() {
       />
       <PageHeader
         badge="Pacific Store"
-        title="Build your order."
-        description="Add what you need to the cart and place the order — no payment online. Our team confirms quantities, freight and price before anything ships."
+        title="Vanities, tops and basins."
+        description="The store opens with our vanity range. Add what you need to the cart and place the order — no payment online. Our team confirms quantities, freight and price before anything ships."
       />
       <ShopClient products={products} />
     </>

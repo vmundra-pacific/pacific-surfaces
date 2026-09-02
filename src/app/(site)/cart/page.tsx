@@ -27,6 +27,7 @@ export const revalidate = 3600;
 interface CatalogueRow {
   _id: string;
   slug?: { current?: string } | string;
+  collectionName?: string | null;
   thickness?: string[] | null;
   finishes?: string[] | null;
 }
@@ -41,7 +42,7 @@ export default async function CartPage() {
   for (const r of rows ?? []) {
     const slug =
       (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? r._id;
-    if (!isInStore(slug)) continue;
+    if (!isInStore({ slug, collection: r.collectionName })) continue;
     optionsByProduct[r._id] = {
       thicknesses: r.thickness ?? [],
       finishes: r.finishes ?? [],

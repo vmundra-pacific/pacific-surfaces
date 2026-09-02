@@ -12,9 +12,9 @@ import { formatCollection } from "@/components/catalogue/labels";
  * The storefront grid.
  *
  * Products arrive grouped by collection so the shop reads as sections
- * rather than one undifferentiated wall of slabs. Each card adds
- * straight to the cart with its default thickness and finish; both are
- * changeable per line on /cart, which keeps the card down to one tap.
+ * rather than one undifferentiated wall of slabs. Thickness and finish
+ * are chosen on the card before adding, and stay editable per line on
+ * /cart.
  */
 
 export interface ShopProduct {
@@ -229,25 +229,26 @@ function ProductCard({
           {product.name}
         </Link>
 
+        {/* Options. A dropdown only earns its place when there is
+            something to choose — a single value is shown as a plain
+            spec line, and a product with neither says so rather than
+            rendering two empty controls. Vanities and basins mostly
+            fall in the last two cases. */}
         <div className="mt-3 space-y-2">
-          {product.thicknesses.length > 0 ? (
-            <CardSelect
-              label={`Thickness for ${product.name}`}
-              caption="Thickness"
-              value={thickness}
-              options={product.thicknesses}
-              onChange={setThickness}
-            />
-          ) : null}
-          {product.finishes.length > 0 ? (
-            <CardSelect
-              label={`Finish for ${product.name}`}
-              caption="Finish"
-              value={finish}
-              options={product.finishes}
-              onChange={setFinish}
-            />
-          ) : null}
+          <CardOption
+            caption="Thickness"
+            label={`Thickness for ${product.name}`}
+            value={thickness}
+            options={product.thicknesses}
+            onChange={setThickness}
+          />
+          <CardOption
+            caption="Finish"
+            label={`Finish for ${product.name}`}
+            value={finish}
+            options={product.finishes}
+            onChange={setFinish}
+          />
           {product.thicknesses.length === 0 &&
             product.finishes.length === 0 && (
               <p className="text-xs font-light text-pacific-dark/55">
@@ -284,7 +285,7 @@ function ProductCard({
   );
 }
 
-function CardSelect({
+function CardOption({
   label,
   caption,
   value,
@@ -297,6 +298,20 @@ function CardSelect({
   options: string[];
   onChange: (v: string) => void;
 }) {
+  if (options.length === 0) return null;
+
+  // One value is a fact about the product, not a choice to make.
+  if (options.length === 1) {
+    return (
+      <p className="text-xs font-light text-pacific-dark/55">
+        <span className="text-[9px] font-medium uppercase tracking-[0.2em] text-pacific-dark/45">
+          {caption}
+        </span>{" "}
+        {options[0]}
+      </p>
+    );
+  }
+
   return (
     <label className="block">
       <span className="mb-1 block text-[9px] font-medium uppercase tracking-[0.2em] text-pacific-dark/45">
