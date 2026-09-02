@@ -56,7 +56,7 @@ export default async function CartPage() {
       <PageHeader
         badge="Pacific Store"
         title="Your cart."
-        description="Set thickness, finish and quantity for each piece, then place the order. Nothing is charged online."
+        description="Set size, thickness, finish and quantity for each piece, then place the order. Nothing is charged online."
       />
       <CartClient optionsByProduct={optionsByProduct} />
     </>
