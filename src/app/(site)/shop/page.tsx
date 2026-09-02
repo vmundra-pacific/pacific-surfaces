@@ -4,7 +4,7 @@ import { BreadcrumbList } from "@/components/global/JsonLd";
 import { ShopClient, type ShopProduct } from "@/components/shop/ShopClient";
 import { client } from "@/sanity/lib/client";
 import { catalogueProductsQuery } from "@/sanity/lib/queries";
-import { isInStore } from "@/data/store";
+import { storeSection } from "@/data/store";
 
 /**
  * /shop — the store.
@@ -44,21 +44,24 @@ export default async function ShopPage() {
     .filter((r) => r.visible !== false && r.name)
     // The store opens with a short, deliberate range rather than the
     // whole catalogue — see src/data/store.ts to add or remove one.
-    .filter((r) =>
-      isInStore({
-        slug: (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? r._id,
-        collection: r.collectionName,
-      })
-    )
-    .map((r) => ({
-      id: r._id,
-      name: r.name ?? "Untitled",
-      slug: (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? r._id,
-      image: r.mainImage ?? null,
-      collection: r.collectionName ?? "Other",
-      thicknesses: r.thickness ?? [],
-      finishes: r.finishes ?? [],
-    }));
+    .flatMap((r) => {
+      const slug =
+        (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? r._id;
+      const section = storeSection({ slug, collection: r.collectionName });
+      if (!section) return [];
+      return [
+        {
+          id: r._id,
+          name: r.name ?? "Untitled",
+          slug,
+          image: r.mainImage ?? null,
+          section,
+          collection: r.collectionName ?? "Other",
+          thicknesses: r.thickness ?? [],
+          finishes: r.finishes ?? [],
+        },
+      ];
+    });
 
   return (
     <>
@@ -70,7 +73,7 @@ export default async function ShopPage() {
       />
       <PageHeader
         badge="Pacific Store"
-        title="Vanities, tops and basins."
+        title="Vanities, tops and sinks."
         description="The store opens with our vanity range. Add what you need to the cart and place the order — no payment online. Our team confirms quantities, freight and price before anything ships."
       />
       <ShopClient products={products} />

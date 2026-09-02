@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Check, Plus, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
-import { formatCollection } from "@/components/catalogue/labels";
+import { STORE_SECTIONS, type StoreSection } from "@/data/store";
 
 /**
  * The storefront grid.
@@ -22,6 +22,9 @@ export interface ShopProduct {
   name: string;
   slug: string;
   image: string | null;
+  /** Customer-facing shelf: Vanities / Vanity Tops / Vanity Sinks. */
+  section: StoreSection;
+  /** Sanity collection, carried into the cart line for the order. */
   collection: string;
   thicknesses: string[];
   finishes: string[];
@@ -33,26 +36,29 @@ export function ShopClient({ products }: { products: ShopProduct[] }) {
   // Which card was just added, so the button can confirm itself.
   const [justAdded, setJustAdded] = useState<string | null>(null);
 
-  const collections = useMemo(() => {
-    const seen = new Map<string, number>();
-    for (const p of products) {
-      seen.set(p.collection, (seen.get(p.collection) ?? 0) + 1);
-    }
-    return [...seen.entries()].sort((a, b) => b[1] - a[1]);
-  }, [products]);
+  // Counts per shelf, in the fixed STORE_SECTIONS order rather than
+  // by size — the order is a merchandising decision, not a statistic.
+  const collections = useMemo(
+    () =>
+      STORE_SECTIONS.map(
+        (section) =>
+          [
+            section,
+            products.filter((p) => p.section === section).length,
+          ] as const
+      ).filter(([, n]) => n > 0),
+    [products]
+  );
 
   const sections = useMemo(() => {
     const visible =
       activeCollection === "All"
         ? products
-        : products.filter((p) => p.collection === activeCollection);
-    const grouped = new Map<string, ShopProduct[]>();
-    for (const p of visible) {
-      const list = grouped.get(p.collection) ?? [];
-      list.push(p);
-      grouped.set(p.collection, list);
-    }
-    return [...grouped.entries()];
+        : products.filter((p) => p.section === activeCollection);
+    return STORE_SECTIONS.map(
+      (section) =>
+        [section, visible.filter((p) => p.section === section)] as const
+    ).filter(([, list]) => list.length > 0);
   }, [products, activeCollection]);
 
   const handleAdd = (
@@ -90,7 +96,7 @@ export function ShopClient({ products }: { products: ShopProduct[] }) {
           {collections.map(([name, n]) => (
             <FilterPill
               key={name}
-              label={formatCollection(name)}
+              label={name}
               count={n}
               active={activeCollection === name}
               onClick={() => setActiveCollection(name)}
@@ -114,15 +120,15 @@ export function ShopClient({ products }: { products: ShopProduct[] }) {
       <div className="mx-auto max-w-7xl px-6 py-14 lg:px-8">
         {sections.length === 0 && (
           <p className="py-16 text-center font-light text-pacific-dark/60">
-            No products in this collection yet.
+            Nothing in this section yet.
           </p>
         )}
 
-        {sections.map(([collection, list]) => (
-          <section key={collection} className="mb-16 last:mb-0">
+        {sections.map(([section, list]) => (
+          <section key={section} className="mb-16 last:mb-0">
             <div className="mb-6 flex items-baseline justify-between gap-4 border-b border-pacific-dark/10 pb-3">
               <h2 className="text-lg font-light tracking-tight text-pacific-dark">
-                {formatCollection(collection)}
+                {section}
               </h2>
               <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-pacific-dark/45">
                 {list.length} design{list.length === 1 ? "" : "s"}
