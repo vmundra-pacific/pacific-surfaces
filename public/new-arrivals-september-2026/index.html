@@ -11,7 +11,7 @@
     <title>Pacific 2026 Collection — Pacific</title>
     <meta
       name="description"
-      content="The 2026 Pacific release — twelve new surfaces across the Eclipse, Nebula and Celestia series, with full slab, close-up and application imagery."
+      content="The 2026 Pacific release — thirteen new surfaces across the Eclipse, Nebula, Celestia and Kosmic series, with full slab, close-up and application imagery."
     />
 
     <!-- Unlisted page: keep it out of search results and out of any sitemap.
@@ -29,7 +29,7 @@
     <meta property="og:title" content="Pacific 2026 Collection — Pacific" />
     <meta
       property="og:description"
-      content="The 2026 Pacific release — twelve new surfaces across the Eclipse, Nebula and Celestia series, with full slab, close-up and application imagery."
+      content="The 2026 Pacific release — thirteen new surfaces across the Eclipse, Nebula, Celestia and Kosmic series, with full slab, close-up and application imagery."
     />
     <meta
       property="og:image"
@@ -295,6 +295,7 @@
         <a href="#eclipse">Eclipse</a>
         <a href="#nebula">Nebula</a>
         <a href="#celestia">Celestia</a>
+        <a href="#kosmic">Kosmic</a>
         <a href="#enquire">Samples</a>
       </nav>
       <a class="btn btn--solid" href="#enquire"><span>Request samples</span></a>
@@ -305,7 +306,7 @@
         <div class="hero__media" id="heroMedia" aria-hidden="true"></div>
         <div class="hero__inner">
           <h1 class="display display--mega hero__title">
-            Twelve new <em>surfaces.</em>
+            Thirteen new <em>surfaces.</em>
           </h1>
           <div class="hero__meta">
             <p class="lede">
@@ -317,6 +318,7 @@
               <div><span class="label">Eclipse</span><b>08</b></div>
               <div><span class="label">Nebula</span><b>03</b></div>
               <div><span class="label">Celestia</span><b>01</b></div>
+              <div><span class="label">Kosmic</span><b>01</b></div>
               <div><span class="label">Released</span><b>Sep 2026</b></div>
             </div>
           </div>
@@ -393,6 +395,24 @@
           </p>
         </div>
         <div class="tiles" id="tiles-celestia"></div>
+      </section>
+
+      <section class="series" id="kosmic">
+        <div class="series__head">
+          <div>
+            <div class="series__eyebrow">
+              <span class="series__dot"></span
+              ><span class="label">The Kosmic series</span>
+            </div>
+            <h2 class="h2">Layered ground,<br />read in straight lines.</h2>
+          </div>
+          <p class="body-s">
+            Stone that formed in bands rather than veins. The pattern has a
+            direction, so it can be set along a room's longest line or turned
+            across it — the same slab reads as two different materials.
+          </p>
+        </div>
+        <div class="tiles" id="tiles-kosmic"></div>
       </section>
 
       <section class="cta" id="enquire">
@@ -714,6 +734,9 @@
 
     <script>
       const IMG = {
+        "dark-cappuccino-close": "img/dark-cappuccino-close.webp",
+        "dark-cappuccino-slab": "img/dark-cappuccino-slab.webp",
+        "dark-cappuccino-thumb": "img/dark-cappuccino-thumb.webp",
         "crescendo-close": "img/crescendo-close.webp",
         "crescendo-r1": "img/crescendo-r1.webp",
         "crescendo-slab": "img/crescendo-slab.webp",
@@ -1011,6 +1034,23 @@
             r1: "Kitchen island, waterfall edge",
           },
         },
+        {
+          slug: "dark-cappuccino",
+          name: "Dark Cappuccino",
+          code: "",
+          series: "Kosmic",
+          hue: "Beige / Sand",
+          tag: "Laid down in layers.",
+          desc: "A warm beige ground built from fine horizontal bands rather than veins — the layered structure of travertine, held flat and even across the full slab. The movement runs one way, so the orientation is a decision: set with the length of a counter it reads calm and continuous, turned across it the banding becomes the feature.",
+          finishes: ["Matt", "Polished", "Suede", "Leathered"],
+          size: "137 × 79 inches",
+          thick: ["12 mm", "20 mm", "30 mm"],
+          apps: APPS_STD,
+          captions: {
+            slab: "Full slab",
+            close: "Close-up",
+          },
+        },
       ];
 
       /* ---------- hero carousel ---------- */
@@ -1094,6 +1134,13 @@
       document.getElementById("tiles-celestia").innerHTML = SURFACES.filter(
         function (s) {
           return s.series === "Celestia";
+        }
+      )
+        .map(tileHTML)
+        .join("");
+      document.getElementById("tiles-kosmic").innerHTML = SURFACES.filter(
+        function (s) {
+          return s.series === "Kosmic";
         }
       )
         .map(tileHTML)
