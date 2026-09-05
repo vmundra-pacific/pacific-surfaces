@@ -84,29 +84,39 @@ export function CatalogueClient({
         </p>
       </section>
 
-      {/* Sticky filter bar. When the catalogue is grouped into
-          product-type sections, suppress the Product Type pill so
-          users can't toggle a whole section away with the same
-          filter the sections are built from. */}
-      <FilterBar
-        api={api}
-        total={api.filtered.length}
-        hideProductType={groupByProductType}
-      />
+      {/* Filters as a fixed rail down the left, with the grid scrolling
+          beside them. The rail sticks under the header and scrolls
+          internally when the filter list is taller than the viewport.
 
-      {/* Active filter chips */}
-      <ActiveChips api={api} />
+          Below lg the rail collapses back to the original bar across the
+          top — a 288px column would leave nothing for the grid on a
+          phone. */}
+      <div className="relative z-10 lg:flex lg:items-start">
+        <aside className="lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)] lg:w-72 lg:shrink-0 lg:overflow-y-auto lg:border-r lg:border-white/10">
+          <FilterBar
+            api={api}
+            total={api.filtered.length}
+            hideProductType={groupByProductType}
+            layout="rail"
+          />
+        </aside>
 
-      {/* Grid — flat by default, grouped per product type when the
-          host page opts in (see /products). */}
-      <section className="relative z-10 mx-auto max-w-[1760px] px-6 lg:px-12 pt-10 lg:pt-14 pb-24">
-        <SlabGrid
-          slabs={api.filtered}
-          dense={api.dense}
-          onClearAll={api.clearAll}
-          groupByProductType={groupByProductType}
-        />
-      </section>
+        <div className="min-w-0 flex-1">
+          {/* Active filter chips */}
+          <ActiveChips api={api} />
+
+          {/* Grid — flat by default, grouped per product type when the
+              host page opts in (see /products). */}
+          <section className="mx-auto max-w-[1760px] px-6 lg:px-10 pt-8 lg:pt-10 pb-24">
+            <SlabGrid
+              slabs={api.filtered}
+              dense={api.dense}
+              onClearAll={api.clearAll}
+              groupByProductType={groupByProductType}
+            />
+          </section>
+        </div>
+      </div>
     </div>
   );
 }

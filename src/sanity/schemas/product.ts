@@ -131,7 +131,8 @@ export default defineType({
       title: "Thickness Options",
       type: "array",
       of: [{ type: "string" }],
-      description: "e.g. 1.5 cm, 2 cm, 3 cm",
+      description:
+        'In millimetres, e.g. 12 mm, 20 mm, 30 mm. Centimetre entries are converted automatically, so "2 cm" also works.',
     }),
     defineField({
       name: "application",

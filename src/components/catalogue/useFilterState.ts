@@ -171,6 +171,11 @@ export function useFilterState(slabs: Slab[]) {
     setFilters(emptyState());
   }
 
+  /** Empty a single facet, leaving every other filter in place. */
+  function clearKey(key: FilterKey) {
+    setFilters((prev) => ({ ...prev, [key]: new Set() }) as FilterState);
+  }
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const out = slabs.filter((s) => {
@@ -232,10 +237,10 @@ export function useFilterState(slabs: Slab[]) {
   // then a map lookup instead of a full catalogue scan per option.
   // NOTE: like the original implementation, this deliberately ignores
   // the search query.
-  const countMap = useMemo(() => buildCountMap(slabs, filters), [
-    slabs,
-    filters,
-  ]);
+  const countMap = useMemo(
+    () => buildCountMap(slabs, filters),
+    [slabs, filters]
+  );
 
   function countFor<K extends FilterKey>(
     key: K,
@@ -310,13 +315,17 @@ export function useFilterState(slabs: Slab[]) {
       Array.from(new Set(slabs.flatMap((s) => s.finishes))).sort() as Finish[],
     [slabs]
   );
-  const uniqueThicknesses = useMemo(
-    () =>
-      Array.from(
-        new Set(slabs.flatMap((s) => s.thicknesses))
-      ).sort() as Thickness[],
-    [slabs]
-  );
+  // Sorted by the number, not the string: a plain .sort() puts "8 mm"
+  // after "30 mm". Non-numeric values ("As Per Requirement") sort last.
+  const uniqueThicknesses = useMemo(() => {
+    const mm = (t: string) => {
+      const m = t.match(/^(\d+(?:\.\d+)?)/);
+      return m ? parseFloat(m[1]) : Number.POSITIVE_INFINITY;
+    };
+    return Array.from(new Set(slabs.flatMap((s) => s.thicknesses))).sort(
+      (a, b) => mm(a) - mm(b) || a.localeCompare(b)
+    ) as Thickness[];
+  }, [slabs]);
 
   return {
     filters,
@@ -330,6 +339,7 @@ export function useFilterState(slabs: Slab[]) {
     toggle,
     remove,
     clearAll,
+    clearKey,
     countFor,
     activeCount,
     uniqueCollections,

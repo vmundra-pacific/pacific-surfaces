@@ -61,6 +61,13 @@ export interface Slab {
   ribbon: Ribbon;
   /** CSS gradient string — placeholder until real photography lands */
   swatch: string;
+  /**
+   * The slab image's dominant colour, straight from Sanity's image
+   * metadata. Used to decide whether a caption laid over the photo should
+   * be black or white — a pale marble and a black granite cannot share one
+   * answer.
+   */
+  dominantColor?: string;
   /** Optional overlay applied atop the swatch to suggest veining */
   overlay?: string;
   /**

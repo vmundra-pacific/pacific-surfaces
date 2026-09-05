@@ -394,24 +394,66 @@ export const HUE_SWATCH: Record<Hue, string> = {
 
 /* ------------------------------------------------------------------ *
  * Thickness normalisation                                             *
- * "2 CM", "2cm", "2 cm", "20mm", "20 mm" → "2 cm"                   *
- * "3 CM", "3cm", "3 cm", "30mm", "30 mm" → "3 cm"                   *
+ *                                                                     *
+ * Everything is expressed in MILLIMETRES. Editors enter thickness as  *
+ * free text and it arrives in every shape: "2 CM", "2cm", "2 cm",     *
+ * "20mm", "1.2 cm", "1.2CM". The previous version normalised to cm    *
+ * and matched integers only (`\d+`), so every decimal value fell      *
+ * through to the raw string — which is why the Thickness filter       *
+ * listed "1.2 CM", "1.2 cm" and "1.2cm" as three separate options.    *
+ *                                                                     *
+ *   "1.2 cm" | "1.2CM" | "12mm" | "12 MM"  → "12 mm"                  *
+ *   "1.5 cm" | "15mm"                      → "15 mm"                  *
+ *   "2 cm"   | "20mm"                      → "20 mm"                  *
+ *   "3 cm"   | "30mm"                      → "30 mm"                  *
+ *                                                                     *
+ * Anything that is not a measurement ("As Per Requirement") is kept   *
+ * verbatim, so custom-order wording survives.                         *
+ *                                                                     *
+ * Only 12, 20 and 30 mm are actually produced. Editors have entered   *
+ * other values by mistake (a "1.5 cm" on nine products); those are    *
+ * dropped rather than shown, so the filter never offers a thickness   *
+ * that cannot be ordered. Fix the source data in Sanity and nothing   *
+ * here needs changing — the value will simply start appearing.        *
  * ------------------------------------------------------------------ */
-function normalizeThickness(raw: string): string {
+
+/** The thicknesses Pacific actually manufactures, in millimetres. */
+const PRODUCED_MM = new Set([12, 20, 30]);
+
+/**
+ * True when a normalised value is either a produced thickness or a
+ * non-numeric note like "As Per Requirement".
+ */
+export function isOfferedThickness(value: string): boolean {
+  const m = value.match(/^(\d+(?:\.\d+)?)\s*mm$/i);
+  if (!m) return true; // custom-order wording, keep
+  return PRODUCED_MM.has(parseFloat(m[1]));
+}
+export function normalizeThickness(raw: string): string {
   const s = raw.trim().toLowerCase().replace(/\s+/g, "");
-  // mm values → cm
-  const mmMatch = s.match(/^(\d+)\s*mm$/);
-  if (mmMatch) {
-    const cm = parseInt(mmMatch[1], 10) / 10;
-    return `${cm} cm`;
+
+  // Millimetres, already the target unit.
+  const mm = s.match(/^(\d+(?:\.\d+)?)mm$/);
+  if (mm) return `${formatMm(parseFloat(mm[1]))} mm`;
+
+  // Centimetres → millimetres.
+  const cm = s.match(/^(\d+(?:\.\d+)?)cm$/);
+  if (cm) return `${formatMm(parseFloat(cm[1]) * 10)} mm`;
+
+  // A bare number is ambiguous. Values under 5 read as centimetres
+  // (nobody ships a 2 mm slab); anything larger is already millimetres.
+  const bare = s.match(/^(\d+(?:\.\d+)?)$/);
+  if (bare) {
+    const n = parseFloat(bare[1]);
+    return `${formatMm(n < 5 ? n * 10 : n)} mm`;
   }
-  // cm values (with or without spaces)
-  const cmMatch = s.match(/^(\d+)\s*cm$/);
-  if (cmMatch) {
-    return `${cmMatch[1]} cm`;
-  }
-  // fallback: return title-cased original
+
   return raw.trim();
+}
+
+/** Trim the trailing ".0" that 1.2 cm → 12.0 mm would otherwise leave. */
+function formatMm(n: number): string {
+  return Number.isInteger(n) ? String(n) : String(Number(n.toFixed(1)));
 }
 
 /* ------------------------------------------------------------------ *
@@ -435,10 +477,17 @@ export function mapSanityToCatalogue(products: SanityProduct[]): Slab[] {
         p.finishes && p.finishes.length > 0
           ? (p.finishes as Finish[])
           : ["Polished"];
+      // Normalise, drop anything not actually produced, then dedupe.
+      // The length check comes AFTER filtering: a product whose only
+      // entry is a mistaken "1.5 cm" would otherwise end up with an
+      // empty list and match no thickness filter at all.
+      const offered = [
+        ...new Set(
+          (p.thickness ?? []).map(normalizeThickness).filter(isOfferedThickness)
+        ),
+      ];
       const thicknesses: Thickness[] =
-        p.thickness && p.thickness.length > 0
-          ? ([...new Set(p.thickness.map(normalizeThickness))] as Thickness[])
-          : ["2 cm", "3 cm"];
+        offered.length > 0 ? (offered as Thickness[]) : ["20 mm", "30 mm"];
 
       // Look up the swatch gradient for the slab's primary hue.
       // `hues[0]` may be a custom editor-defined string outside the
@@ -461,6 +510,7 @@ export function mapSanityToCatalogue(products: SanityProduct[]): Slab[] {
         thicknesses,
         ribbon: deriveRibbon(p.ribbons),
         swatch,
+        dominantColor: p.dominantColor ?? undefined,
         photoUrl: p.mainImage ?? undefined,
         gallery:
           Array.isArray(p.gallery) && p.gallery.length > 0

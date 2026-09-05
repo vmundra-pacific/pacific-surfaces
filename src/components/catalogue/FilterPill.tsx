@@ -14,6 +14,8 @@ interface Props {
   isOpen: boolean;
   onToggle: () => void;
   children: ReactNode;
+  /** Size the dropdown to its column instead of a fixed 320px. */
+  fitParent?: boolean;
 }
 
 export function FilterPill({
@@ -22,6 +24,7 @@ export function FilterPill({
   isOpen,
   onToggle,
   children,
+  fitParent = false,
 }: Props) {
   return (
     <div className="relative">
@@ -62,7 +65,14 @@ export function FilterPill({
             transition={{ duration: 0.18, ease: [0.2, 0.9, 0.3, 1] }}
             className={[
               "absolute left-0 top-full mt-2 z-50",
-              "min-w-[320px] rounded-[14px] p-5",
+              // In the rail the panel must fit the column. The rail is
+              // `overflow-y-auto`, and a box that scrolls on one axis
+              // clips the other — so a 320px panel inside a 288px rail
+              // was cut off down its right edge, taking the counts with
+              // it. Sized to the parent, nothing overflows.
+              fitParent
+                ? "w-full min-w-0 rounded-[14px] p-4"
+                : "min-w-[320px] rounded-[14px] p-5",
               "bg-[#112732] backdrop-blur-xl",
               "border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.4)]",
             ].join(" ")}

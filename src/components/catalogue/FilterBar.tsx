@@ -32,9 +32,22 @@ interface Props {
   api: FilterApi;
   total: number;
   hideProductType?: boolean;
+  /**
+   * "bar" is the original sticky strip across the top. "rail" stacks the
+   * same controls into a column for the fixed left-hand filter rail on the
+   * catalogue, where the grid scrolls beside it. The controls themselves
+   * are identical either way — only the container flexes differently.
+   */
+  layout?: "bar" | "rail";
 }
 
-export function FilterBar({ api, total, hideProductType = false }: Props) {
+export function FilterBar({
+  api,
+  total,
+  hideProductType = false,
+  layout = "bar",
+}: Props) {
+  const isRail = layout === "rail";
   const [openKey, setOpenKey] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
@@ -71,14 +84,30 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
   return (
     <div
       ref={barRef}
-      className={[
-        "sticky top-[72px] z-40",
-        "border-y border-white/10",
-        "bg-[#112732]/95 backdrop-blur-xl",
-      ].join(" ")}
+      className={
+        isRail
+          ? "bg-[#112732]"
+          : [
+              "sticky top-[72px] z-40",
+              "border-y border-white/10",
+              "bg-[#112732]/95 backdrop-blur-xl",
+            ].join(" ")
+      }
     >
-      <div className="mx-auto max-w-[1600px] px-6 lg:px-8 py-3.5 flex flex-wrap xl:flex-nowrap items-center justify-between gap-3">
-        <div className="flex flex-wrap xl:flex-nowrap items-center gap-2">
+      <div
+        className={
+          isRail
+            ? "flex flex-col items-stretch gap-3 px-5 py-6"
+            : "mx-auto max-w-[1600px] px-6 lg:px-8 py-3.5 flex flex-wrap xl:flex-nowrap items-center justify-between gap-3"
+        }
+      >
+        <div
+          className={
+            isRail
+              ? "flex flex-col items-stretch gap-2"
+              : "flex flex-wrap xl:flex-nowrap items-center gap-2"
+          }
+        >
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-pacific-mid pointer-events-none" />
             <input
@@ -108,9 +137,23 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
             count={api.filters.hues.size}
             isOpen={openKey === "hue"}
             onToggle={() => toggleOpen("hue")}
+            fitParent={isRail}
           >
-            <div className="text-[11px] uppercase tracking-[0.2em] text-pacific-mid mb-3.5">
-              Filter by hue
+            <div className="mb-3.5 flex items-center justify-between gap-3">
+              <span className="text-[11px] uppercase tracking-[0.2em] text-pacific-mid">
+                Filter by hue
+              </span>
+              {/* Hue renders swatches rather than a PopoverCheckList, so
+                  it carries its own copy of the Clear control. */}
+              {api.filters.hues.size > 0 && (
+                <button
+                  type="button"
+                  onClick={() => api.clearKey("hues")}
+                  className="shrink-0 text-[11px] uppercase tracking-[0.14em] text-pacific-mid underline underline-offset-4 transition-colors hover:text-white"
+                >
+                  Clear
+                </button>
+              )}
             </div>
             <div className="grid grid-cols-4 gap-2.5">
               {hueChipOptions.map((opt) => {
@@ -154,6 +197,7 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
               count={api.filters.collections.size}
               isOpen={openKey === "collection"}
               onToggle={() => toggleOpen("collection")}
+              fitParent={isRail}
             >
               <PopoverCheckList
                 title={`Collection - ${api.uniqueCollections.length} series`}
@@ -164,6 +208,7 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
                   selected: api.filters.collections.has(c),
                 }))}
                 onToggle={(v) => api.toggle("collections", v as Collection)}
+                onClear={() => api.clearKey("collections")}
               />
             </FilterPill>
           )}
@@ -174,6 +219,7 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
               count={api.filters.productTypes.size}
               isOpen={openKey === "productType"}
               onToggle={() => toggleOpen("productType")}
+              fitParent={isRail}
             >
               <PopoverCheckList
                 title={`Product Type - ${api.uniqueProductTypes.length} options`}
@@ -193,6 +239,7 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
             count={api.filters.patterns.size}
             isOpen={openKey === "pattern"}
             onToggle={() => toggleOpen("pattern")}
+            fitParent={isRail}
           >
             <PopoverCheckList
               title="Pattern - visual character"
@@ -203,6 +250,7 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
                 selected: api.filters.patterns.has(p),
               }))}
               onToggle={(v) => api.toggle("patterns", v as Pattern)}
+              onClear={() => api.clearKey("patterns")}
             />
           </FilterPill>
 
@@ -211,6 +259,7 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
             count={api.filters.finishes.size}
             isOpen={openKey === "finish"}
             onToggle={() => toggleOpen("finish")}
+            fitParent={isRail}
           >
             <PopoverCheckList
               title="Surface finish"
@@ -221,6 +270,7 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
                 selected: api.filters.finishes.has(f),
               }))}
               onToggle={(v) => api.toggle("finishes", v as Finish)}
+              onClear={() => api.clearKey("finishes")}
             />
           </FilterPill>
 
@@ -229,6 +279,7 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
             count={api.filters.thicknesses.size}
             isOpen={openKey === "thickness"}
             onToggle={() => toggleOpen("thickness")}
+            fitParent={isRail}
           >
             <PopoverCheckList
               title="Slab thickness"
@@ -239,41 +290,89 @@ export function FilterBar({ api, total, hideProductType = false }: Props) {
                 selected: api.filters.thicknesses.has(t),
               }))}
               onToggle={(v) => api.toggle("thicknesses", v as Thickness)}
+              onClear={() => api.clearKey("thicknesses")}
             />
           </FilterPill>
+
+          {/* Clear all, at the foot of the stack. Below rather than above
+              because a reader reaching for it has just been working the
+              pills, and because the top of the rail already carries the
+              count, the view toggle and Sort. Only rendered when there is
+              something to clear — the row would otherwise be dead weight
+              in a 288px column. There is a second Clear all above the
+              grid, on the active-filter chips (see ActiveChips); this one
+              serves people whose attention is in the rail. */}
+          {api.activeCount > 0 && (
+            <button
+              type="button"
+              onClick={api.clearAll}
+              className={[
+                "mt-1 inline-flex items-center justify-center gap-2 rounded-full",
+                "border border-white/15 px-4 py-2.5",
+                "text-[11px] font-medium uppercase tracking-[0.16em]",
+                "text-pacific-light transition-colors",
+                "hover:border-white/40 hover:bg-white/5",
+                isRail ? "w-full" : "",
+              ].join(" ")}
+            >
+              <X className="h-3 w-3" />
+              Clear all filters
+              <span className="tabular-nums opacity-60">
+                ({api.activeCount})
+              </span>
+            </button>
+          )}
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="text-xs text-pacific-mid tracking-wider tabular-nums">
-            <span className="font-semibold text-white">{total}</span>{" "}
-            {total === 1 ? "design" : "designs"}
-          </div>
+        <div
+          className={
+            isRail
+              ? "order-first flex flex-col items-stretch gap-3 border-b border-white/10 pb-4 mb-1"
+              : "flex items-center gap-4"
+          }
+        >
+          {/* In the rail the count and the toggle share a row — the
+              toggle alone on its own line read as a stray blob. In the
+              bar they stay siblings, so `contents` keeps the existing
+              horizontal run. */}
+          <div
+            className={
+              isRail
+                ? "flex w-full items-center justify-between gap-3"
+                : "contents"
+            }
+          >
+            <div className="text-xs text-pacific-mid tracking-wider tabular-nums">
+              <span className="font-semibold text-white">{total}</span>{" "}
+              {total === 1 ? "design" : "designs"}
+            </div>
 
-          <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-1">
-            <button
-              onClick={() => api.setDense(false)}
-              aria-label="Comfortable grid"
-              className={[
-                "flex h-7 w-7 items-center justify-center rounded-full transition-colors",
-                !api.dense
-                  ? "bg-white text-pacific-dark"
-                  : "text-pacific-mid hover:text-white",
-              ].join(" ")}
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => api.setDense(true)}
-              aria-label="Dense grid"
-              className={[
-                "flex h-7 w-7 items-center justify-center rounded-full transition-colors",
-                api.dense
-                  ? "bg-white text-pacific-dark"
-                  : "text-pacific-mid hover:text-white",
-              ].join(" ")}
-            >
-              <Grid3x3 className="h-3.5 w-3.5" />
-            </button>
+            <div className="flex shrink-0 gap-1 rounded-full border border-white/15 bg-white/5 p-1">
+              <button
+                onClick={() => api.setDense(false)}
+                aria-label="Comfortable grid"
+                className={[
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors",
+                  !api.dense
+                    ? "bg-white text-pacific-dark"
+                    : "text-pacific-mid hover:text-white",
+                ].join(" ")}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => api.setDense(true)}
+                aria-label="Dense grid"
+                className={[
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors",
+                  api.dense
+                    ? "bg-white text-pacific-dark"
+                    : "text-pacific-mid hover:text-white",
+                ].join(" ")}
+              >
+                <Grid3x3 className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
           <SortControl
@@ -293,15 +392,32 @@ function PopoverCheckList({
   title,
   items,
   onToggle,
+  onClear,
 }: {
   title: string;
   items: { value: string; label: string; count: number; selected: boolean }[];
   onToggle: (value: string) => void;
+  /** Empties this facet only. Omit and no Clear control is shown. */
+  onClear?: () => void;
 }) {
+  const hasSelection = items.some((it) => it.selected);
   return (
     <>
-      <div className="text-[11px] uppercase tracking-[0.2em] text-pacific-mid mb-3">
-        {title}
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <span className="text-[11px] uppercase tracking-[0.2em] text-pacific-mid">
+          {title}
+        </span>
+        {/* Only rendered once something is on — an always-present Clear
+            that does nothing is just noise in the header. */}
+        {onClear && hasSelection && (
+          <button
+            type="button"
+            onClick={onClear}
+            className="shrink-0 text-[11px] uppercase tracking-[0.14em] text-pacific-mid underline underline-offset-4 transition-colors hover:text-white"
+          >
+            Clear
+          </button>
+        )}
       </div>
       <div className="flex flex-col gap-0.5 min-w-[220px]">
         {items.map((it) => (
