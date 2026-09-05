@@ -71,7 +71,7 @@ export function sanityImageProxyUrl(url: string): string {
 
 export function sanityImg(
   url: string | null | undefined,
-  opts: SanityImgOpts = {},
+  opts: SanityImgOpts = {}
 ): string | undefined {
   if (!url) return undefined;
   // For non-Sanity URLs (e.g. images.unsplash.com, local /public/...),
@@ -81,7 +81,12 @@ export function sanityImg(
   // Append CDN transform params. Sanity's transform engine reads them
   // from the query string; for /images/ URLs these are honored
   // upstream when Next/Image proxies the request.
-  const { w, h, q = 70, fit = "max" } = opts;
+  // q defaults to 90, not 70. Anything passed through <Image> is
+  // re-encoded by the Next optimizer, so a low first pass is generation
+  // loss: the CDN throws away detail, then Next compresses the damaged
+  // result again. Stone veining is exactly the fine, low-contrast
+  // texture that suffers most. One lossy pass, at the end, is the goal.
+  const { w, h, q = 90, fit = "max" } = opts;
   const params: string[] = [];
   if (w) params.push(`w=${w}`);
   if (h) params.push(`h=${h}`);

@@ -75,6 +75,15 @@ const nextConfig: NextConfig = {
     // ~20-40% smaller at the same visual quality, and the optimizer
     // negotiates per-browser via the Accept header.
     formats: ["image/avif", "image/webp"],
+    // Next 15 requires every `quality` value used by an <Image> to be
+    // declared here. 75 is the default; 90 is for slab photography,
+    // where the veining is fine low-contrast detail and the first thing
+    // aggressive compression smears.
+    qualities: [75, 90],
+    // Real breakpoints rather than Next's generic ladder. 390/430 are
+    // the common phone widths at 1x, and their 2x/3x multiples are what
+    // the optimizer actually needs to serve a sharp card.
+    deviceSizes: [390, 640, 750, 828, 1080, 1170, 1290, 1920, 2048, 3840],
   },
 
   /* Security headers — applied to every route. See `securityHeaders`
@@ -121,6 +130,19 @@ const nextConfig: NextConfig = {
   */
   async redirects() {
     return [
+      {
+        // "Vanity tops" is what people type and what gets printed on a
+        // quotation, so the short URL resolves rather than 404s. The page
+        // itself stays canonical at /applications/bathroom-vanity-tops.
+        source: "/vanity-tops",
+        destination: "/applications/bathroom-vanity-tops",
+        permanent: true,
+      },
+      {
+        source: "/vanity",
+        destination: "/applications/bathroom-vanity-tops",
+        permanent: true,
+      },
       {
         // Old /collections/<slug> links bounce to /products/quartz/<slug>.
         // The first segment is just URL aesthetic — the page only
@@ -221,6 +243,32 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
     ];
+  },
+
+  /* Unlisted pages.
+
+     `public/new-arrivals-september-2026/` is a self-contained static page
+     sent to selected customers. Next serves a public folder's index.html
+     only at its literal path, and an unmatched route falls through to the
+     not-found handler, which bounces to the homepage — so the clean URL
+     needs an explicit rewrite. `beforeFiles` runs ahead of route matching,
+     so nothing else can claim it first.
+
+     Deliberately NOT in sitemap.ts, NOT in robots.txt (that file is
+     public — listing the path would advertise it), and not linked from
+     anywhere on the site. The page carries its own
+     `noindex, nofollow, noarchive, noimageindex`. */
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/new-arrivals-september-2026",
+          destination: "/new-arrivals-september-2026/index.html",
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
   },
 };
 

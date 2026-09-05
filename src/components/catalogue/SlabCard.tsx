@@ -110,164 +110,180 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
 
   return (
     <>
-      <motion.div
-        ref={cardRef}
-        layout
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96 }}
-        transition={{
-          duration: 0.45,
-          ease: [0.2, 0.9, 0.3, 1],
-          delay: Math.min(index * 0.03, 0.3),
-        }}
-        onMouseEnter={warmCache}
-        onFocus={warmCache}
-        onClick={() => {
-          // Finish products: any click on the card opens the
-          // lightbox (matches the /products/facades-and-finishes UX).
-          if (isFinish) {
-            setLightboxOpen(true);
-            return;
-          }
-          // Non-finish, touch-only fallback: tap-to-reveal the
-          // action overlay. Hover-capable devices use group-hover
-          // directly so this code path is a no-op there.
-          if (typeof window === "undefined") return;
-          const canHover = window.matchMedia("(hover: hover)").matches;
-          if (!canHover) {
-            setTappedOpen((v) => !v);
-          }
-        }}
-        onDoubleClick={() => {
-          // Double-click anywhere on the tile opens the detail view —
-          // parity with the "View Slab" button. Finishes have no PDP, so
-          // they open their lightbox; everything else goes to the PDP.
-          if (isFinish) {
-            setLightboxOpen(true);
-            return;
-          }
-          router.push(`/products/${slab.slug}`);
-        }}
-        className={[
-          "group relative aspect-[4/5] overflow-hidden rounded-xl",
-          "border border-white/10 bg-pacific-dark",
-          "cursor-pointer transition-colors duration-300 hover:border-pacific-mid/50",
-        ].join(" ")}
-      >
-        {slab.photoUrl ? (
-          <div className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]">
-            {/* Loading skeleton — sits behind the Image; once the
-                image paints (opaque, object-cover) it fully covers
-                this layer. No state needed. */}
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 animate-pulse bg-pacific-mid/10 pointer-events-none"
-            />
-            <Image
-              src={sanityImg(slab.photoUrl, { w: 720 }) ?? slab.photoUrl}
-              alt={`${slab.name} — ${slab.collection ?? "Pacific Surfaces"} slab`}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover"
-            />
-          </div>
-        ) : (
-          <>
-            <div
-              className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]"
-              style={{ background: slab.swatch }}
-            />
-            {slab.overlay && (
-              <div
-                className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]"
-                style={{ background: slab.overlay, mixBlendMode: "normal" }}
-              />
-            )}
-          </>
-        )}
-
-        {slab.ribbon === "new" && (
-          <span className="absolute left-3.5 top-3.5 z-20 rounded bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-pacific-dark">
-            New
-          </span>
-        )}
-        {slab.ribbon === "featured" && (
-          <span className="absolute left-3.5 top-3.5 z-20 rounded border border-white/40 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur">
-            Featured
-          </span>
-        )}
-
-        <div
-          className="absolute inset-x-0 bottom-0 z-10 px-4 pb-4 pt-12"
-          style={{
-            background:
-              "linear-gradient(180deg, transparent 0%, rgba(10,22,32,0.9) 60%, rgba(10,22,32,1) 100%)",
+      {/* Tile and caption wrapped together: the parent is a CSS grid, so
+          two siblings here would be laid out as two separate cells. */}
+      <div className="flex flex-col">
+        <motion.div
+          ref={cardRef}
+          layout
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{
+            duration: 0.45,
+            ease: [0.2, 0.9, 0.3, 1],
+            delay: Math.min(index * 0.03, 0.3),
           }}
-        >
-          <div className="text-lg font-medium leading-tight tracking-tight text-white">
-            {slab.name}
-          </div>
-          <div className="mt-1.5 text-[11px] uppercase tracking-[0.18em] text-pacific-mid">
-            {formatCollection(slab.collection)} · {slab.finishes[0]}
-          </div>
-        </div>
-
-        {/* Hover overlay. For finish products, the primary CTA opens
-            the lightbox instead of navigating to a PDP. */}
-        <div
+          onMouseEnter={warmCache}
+          onFocus={warmCache}
+          onClick={() => {
+            // Finish products: any click on the card opens the
+            // lightbox (matches the /products/facades-and-finishes UX).
+            if (isFinish) {
+              setLightboxOpen(true);
+              return;
+            }
+            // Non-finish, touch-only fallback: tap-to-reveal the
+            // action overlay. Hover-capable devices use group-hover
+            // directly so this code path is a no-op there.
+            if (typeof window === "undefined") return;
+            const canHover = window.matchMedia("(hover: hover)").matches;
+            if (!canHover) {
+              setTappedOpen((v) => !v);
+            }
+          }}
+          onDoubleClick={() => {
+            // Double-click anywhere on the tile opens the detail view —
+            // parity with the "View Slab" button. Finishes have no PDP, so
+            // they open their lightbox; everything else goes to the PDP.
+            if (isFinish) {
+              setLightboxOpen(true);
+              return;
+            }
+            router.push(`/products/${slab.slug}`);
+          }}
           className={[
-            "absolute inset-0 z-30 flex flex-wrap items-center justify-center gap-2 p-3 bg-pacific-dark/60 backdrop-blur-[2px] transition-all duration-300 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:pointer-events-auto",
-            tappedOpen
-              ? "opacity-100 translate-y-0 pointer-events-auto"
-              : "opacity-0 translate-y-2 pointer-events-none",
+            // Square corners, no border: the slab photograph is the product,
+            // and a rounded frame around it reads as a UI chrome the stone
+            // does not need.
+            "group relative aspect-[4/5] overflow-hidden",
+            "bg-pacific-dark",
+            "cursor-pointer transition-colors duration-300 hover:border-pacific-mid/50",
           ].join(" ")}
         >
-          {isFinish ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setLightboxOpen(true);
-              }}
-              className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform [@media(hover:hover)]:hover:scale-[1.04]"
-            >
-              View Texture
-            </button>
+          {slab.photoUrl ? (
+            <div className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]">
+              {/* Loading skeleton — sits behind the Image; once the
+                image paints (opaque, object-cover) it fully covers
+                this layer. No state needed. */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 animate-pulse bg-pacific-mid/10 pointer-events-none"
+              />
+              <Image
+                // 1600, not 720. The Next optimizer requests up to w=1080
+                // for this card (390px CSS at 2x = 780, 3x mobile = 1026)
+                // and it cannot upscale — a 720px source was being
+                // stretched on every retina screen. The optimizer still
+                // emits the small responsive sizes from this master.
+                src={sanityImg(slab.photoUrl, { w: 1600 }) ?? slab.photoUrl}
+                alt={`${slab.name} — ${slab.collection ?? "Pacific Surfaces"} slab`}
+                fill
+                // Matches the real grid: full width on phones, two up on
+                // tablets, and ~390px in the desktop grid beside the 288px
+                // filter rail. The old "33vw" described a layout that no
+                // longer exists and made the browser pick the wrong
+                // candidate.
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+                quality={90}
+                className="object-cover"
+              />
+            </div>
           ) : (
-            <Link
-              href={`/products/${slab.slug}`}
-              className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform [@media(hover:hover)]:hover:scale-[1.04]"
-            >
-              {productCollection ? "View Product" : "View Slab"}
-            </Link>
+            <>
+              <div
+                className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]"
+                style={{ background: slab.swatch }}
+              />
+              {slab.overlay && (
+                <div
+                  className="absolute inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(.2,.9,.3,1)] [@media(hover:hover)]:group-hover:scale-[1.04]"
+                  style={{ background: slab.overlay, mixBlendMode: "normal" }}
+                />
+              )}
+            </>
           )}
 
-          {!productCollection && (
+          {slab.ribbon === "new" && (
+            <span className="absolute left-3.5 top-3.5 z-20 rounded bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-pacific-dark">
+              New
+            </span>
+          )}
+          {slab.ribbon === "featured" && (
+            <span className="absolute left-3.5 top-3.5 z-20 rounded border border-white/40 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur">
+              Featured
+            </span>
+          )}
+
+          {/* Hover overlay. For finish products, the primary CTA opens
+            the lightbox instead of navigating to a PDP. */}
+          <div
+            className={[
+              "absolute inset-0 z-30 flex flex-wrap items-center justify-center gap-2 p-3 bg-pacific-dark/60 backdrop-blur-[2px] transition-all duration-300 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:pointer-events-auto",
+              tappedOpen
+                ? "opacity-100 translate-y-0 pointer-events-auto"
+                : "opacity-0 translate-y-2 pointer-events-none",
+            ].join(" ")}
+          >
+            {isFinish ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setLightboxOpen(true);
+                }}
+                className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform [@media(hover:hover)]:hover:scale-[1.04]"
+              >
+                View Texture
+              </button>
+            ) : (
+              <Link
+                href={`/products/${slab.slug}`}
+                className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform [@media(hover:hover)]:hover:scale-[1.04]"
+              >
+                {productCollection ? "View Product" : "View Slab"}
+              </Link>
+            )}
+
+            {!productCollection && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSampleOpen(true);
+                }}
+                className="rounded-full border border-white/40 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-white transition-colors hover:bg-white/10"
+              >
+                + Sample
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setSampleOpen(true);
+                setEnquireOpen(true);
               }}
               className="rounded-full border border-white/40 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-white transition-colors hover:bg-white/10"
             >
-              + Sample
+              Enquire
             </button>
-          )}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setEnquireOpen(true);
-            }}
-            className="rounded-full border border-white/40 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-white transition-colors hover:bg-white/10"
-          >
-            Enquire
-          </button>
+          </div>
+        </motion.div>
+
+        {/* Name and meta sit under the photograph rather than on it. Laid
+          over the slab they needed either a scrim, which darkened the
+          bottom third of every image, or a per-image colour; below it they
+          are simply black on the page and the photograph is left alone. */}
+        <div className="pt-3">
+          <div className="text-base font-medium leading-tight tracking-tight text-pacific-dark">
+            {slab.name}
+          </div>
+          <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-pacific-dark/55">
+            {formatCollection(slab.collection)} · {slab.finishes[0]}
+          </div>
         </div>
-      </motion.div>
+      </div>
 
       <OrderSampleModal
         open={sampleOpen}
