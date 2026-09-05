@@ -783,7 +783,6 @@
         "taj-pearl-thumb": "img/taj-pearl-thumb.webp",
         "taj-vein-close": "img/taj-vein-close.webp",
         "taj-vein-r1": "img/taj-vein-r1.webp",
-        "taj-vein-r2": "img/taj-vein-r2.webp",
         "taj-vein-slab": "img/taj-vein-slab.webp",
         "taj-vein-thumb": "img/taj-vein-thumb.webp",
         "tiffany-close": "img/tiffany-close.webp",
@@ -925,11 +924,16 @@
           size: "137 × 79 inches",
           thick: ["12 mm", "20 mm", "30 mm"],
           apps: APPS_STD,
+          video: {
+            src: "video/taj-vein.mp4",
+            poster: "video/taj-vein-poster.webp",
+            caption: "Taj Vein in motion",
+            captionEnd: "Taj Vein in motion",
+          },
           captions: {
             slab: "Full slab",
             close: "Close-up",
             r1: "Kitchen — island and splashback",
-            r2: "Kitchen",
           },
         },
         {
@@ -1192,6 +1196,27 @@
       const nextBtn = document.getElementById("nextBtn");
       let current = -1;
 
+      /* A looping video plate. Muted and playsinline so it can autoplay on
+         every browser, and preload="none" with a poster so a sheet that is
+         never opened costs nothing — the file is 3 MB against a page that
+         is otherwise about 5. Not zoomable: there is nothing to enlarge. */
+      function videoPlate(src, poster, caption) {
+        return (
+          '<figure class="plate plate--video">' +
+          '<div class="plate__img plate__img--video">' +
+          '<video src="' +
+          src +
+          '" poster="' +
+          poster +
+          '" autoplay loop muted playsinline preload="none"></video>' +
+          "</div>" +
+          "<figcaption><span>" +
+          caption +
+          "</span><em>Plays on loop</em></figcaption>" +
+          "</figure>"
+        );
+      }
+
       function plate(kind, src, alt, caption, note) {
         return (
           '<figure class="plate plate--' +
@@ -1240,6 +1265,10 @@
           s.desc +
           "</p>" +
           "</div>";
+
+        if (s.video) {
+          html += videoPlate(s.video.src, s.video.poster, s.video.caption);
+        }
 
         html += plate(
           "slab",
@@ -1303,6 +1332,10 @@
             '<div class="renders renders--empty"><p class="body-s">Application imagery for ' +
             s.name +
             " is in production and will be added to this page when it is released.</p></div>";
+        }
+
+        if (s.video) {
+          html += videoPlate(s.video.src, s.video.poster, s.video.captionEnd);
         }
 
         const nextS = SURFACES[(i + 1) % SURFACES.length];
