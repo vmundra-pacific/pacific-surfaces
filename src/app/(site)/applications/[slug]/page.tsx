@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { SpaceFeatureSection } from "@/components/sections/SpaceFeatureSection";
-import { BreadcrumbList } from "@/components/global/JsonLd";
+import { BreadcrumbList, FaqSchema } from "@/components/global/JsonLd";
 import { APPLICATIONS, applicationBySlug } from "@/data/applications";
 
 /**
@@ -32,8 +32,8 @@ export async function generateMetadata({
   const app = applicationBySlug(slug);
   if (!app) return {};
   return {
-    title: `${app.name} — Pacific Surfaces`,
-    description: app.description,
+    title: app.seo?.metaTitle ?? `${app.name} — Pacific Surfaces`,
+    description: app.seo?.metaDescription ?? app.description,
     alternates: { canonical: `/applications/${app.slug}` },
   };
 }
@@ -67,6 +67,40 @@ export default async function ApplicationPage({
         description={app.description}
       />
 
+      {/* Long-form intro. Only pages carrying an seo block get one: it is
+          the substance a search result needs behind it, and writing it for
+          every application would be filler. */}
+      {app.seo && (
+        <section className="bg-white px-6 pb-4 pt-12 md:pt-14">
+          <div className="mx-auto max-w-3xl space-y-5">
+            {app.seo.intro.map((para) => (
+              <p
+                key={para.slice(0, 32)}
+                className="text-base font-light leading-relaxed text-pacific-dark/75"
+              >
+                {para}
+              </p>
+            ))}
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Link
+                href="/shop"
+                className="inline-flex items-center gap-2 rounded-full bg-pacific-dark px-6 py-3 text-sm font-light text-white transition-opacity hover:opacity-80"
+              >
+                Shop {app.name.toLowerCase()}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+              <Link
+                href="/samples"
+                className="inline-flex items-center gap-2 rounded-full border border-pacific-dark/20 px-6 py-3 text-sm font-light text-pacific-dark transition-colors hover:border-pacific-dark"
+              >
+                Order a sample
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {app.sections.map((s, i) => (
         <SpaceFeatureSection
           key={s.eyebrow}
@@ -81,6 +115,65 @@ export default async function ApplicationPage({
           theme={i % 2 === 0 ? "light" : "dark"}
         />
       ))}
+
+      {/* Specifications. The single most common reason someone lands on a
+          page like this is to find a size, so the table sits above the
+          collection links rather than below them. */}
+      {app.seo && (
+        <section className="bg-white px-6 py-14 md:py-16">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="text-[11px] font-medium uppercase tracking-[0.25em] text-pacific-dark/50">
+              {app.name} specifications
+            </h2>
+            <dl className="mt-6 divide-y divide-pacific-dark/10 border-y border-pacific-dark/10">
+              {app.seo.specs.map((row) => (
+                <div
+                  key={row.label}
+                  className="flex flex-col gap-1 py-4 sm:flex-row sm:gap-8"
+                >
+                  <dt className="w-full text-sm font-light text-pacific-dark/55 sm:w-56 sm:shrink-0">
+                    {row.label}
+                  </dt>
+                  <dd className="text-sm font-light text-pacific-dark">
+                    {row.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+      )}
+
+      {/* FAQ. The questions are on the page as well as in the structured
+          data — markup without visible answers is treated as a mismatch and
+          earns nothing. */}
+      {app.seo && (
+        <>
+          <FaqSchema faqs={app.seo.faqs} />
+          <section className="bg-pacific-light px-6 py-16 md:py-20">
+            <div className="mx-auto max-w-3xl">
+              <h2 className="text-3xl font-light text-pacific-dark md:text-4xl">
+                Frequently asked
+              </h2>
+              <div className="mt-8 divide-y divide-pacific-dark/10 border-t border-pacific-dark/10">
+                {app.seo.faqs.map((f) => (
+                  <details key={f.question} className="group py-5">
+                    <summary className="flex cursor-pointer list-none items-start justify-between gap-6 text-lg font-light text-pacific-dark">
+                      <h3 className="text-lg font-light">{f.question}</h3>
+                      <span className="mt-1 shrink-0 text-pacific-dark/40 transition-transform group-open:rotate-45">
+                        +
+                      </span>
+                    </summary>
+                    <p className="mt-3 max-w-2xl text-sm font-light leading-relaxed text-pacific-dark/70">
+                      {f.answer}
+                    </p>
+                  </details>
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
 
       {/* Specify from — the collections cleared for this application,
           and only those. Engineered surfaces are absent from anything

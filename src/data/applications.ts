@@ -53,6 +53,27 @@ export interface Application {
   collections: { name: string; href: string }[];
   /** Slugs of two or three neighbouring applications. */
   related: string[];
+  /**
+   * Optional SEO block. Where present the page gets a longer, keyword-led
+   * headline and intro, a spec table, and a visible FAQ backed by FAQPage
+   * structured data.
+   *
+   * Written after reading how the category is served today: Cosentino's
+   * bathroom page carries numbered sections, dense internal links and an
+   * FAQ; Quantra's vanity category is a bare product grid with no copy at
+   * all. The gap is substance — a page that answers what someone typing
+   * "vanity top" actually wants to know (sizes, price basis, material,
+   * where to buy) will outrank a grid.
+   */
+  seo?: {
+    /** Overrides the <title>. Keep the head term first. */
+    metaTitle: string;
+    metaDescription: string;
+    /** Terms the copy should genuinely cover, not stuff. */
+    intro: string[];
+    specs: { label: string; value: string }[];
+    faqs: { question: string; answer: string }[];
+  };
 }
 
 /** Collection shorthands, so the lists below stay readable. */
@@ -137,11 +158,7 @@ export const APPLICATIONS: Application[] = [
       },
     ],
     collections: [C.quartz, C.eclipse, C.eco, C.granite, C.exotic],
-    related: [
-      "kitchen-countertops",
-      "bar-and-reception-counters",
-      "tables-and-furniture",
-    ],
+    related: ["kitchen-countertops", "bar-counters", "dining-and-furniture"],
   },
   {
     slug: "backsplashes",
@@ -203,15 +220,15 @@ export const APPLICATIONS: Application[] = [
       },
     ],
     collections: [C.granite, C.beyondFinish],
-    related: ["kitchen-countertops", "flooring", "bar-and-reception-counters"],
+    related: ["kitchen-countertops", "flooring", "bar-counters"],
   },
   {
     slug: "bathroom-vanity-tops",
-    name: "Bathroom Vanity Tops",
+    name: "Vanity Tops",
     badge: "Applications · Bath",
-    title: "Marble looks, without what marble asks of you.",
+    title: "Quartz vanity tops, cut to your basin.",
     description:
-      "The vanity meets water, soap, toothpaste and cosmetics every morning. Natural marble stains on all four.",
+      "Engineered quartz vanity tops and integrated basins, made to size in 36, 48, 60 and 72 inch lengths. Non-porous, stain-resistant, and finished to the wall.",
     space: { name: "Bathrooms", href: "/spaces/bathrooms" },
     sections: [
       {
@@ -235,10 +252,73 @@ export const APPLICATIONS: Application[] = [
     ],
     collections: [C.vanity, C.quartz, C.eclipse, C.eco, C.granite],
     related: ["washbasins", "shower-walls-and-trays", "wall-cladding"],
+    seo: {
+      metaTitle:
+        "Vanity Tops — Quartz Bathroom Vanity Tops & Integrated Basins | Pacific Surfaces",
+      metaDescription:
+        'Quartz vanity tops made to size in 36", 48", 60" and 72" lengths, with integrated basins. Non-porous, stain-resistant, 125+ designs. Order online, no payment taken.',
+      intro: [
+        "A vanity top is the hardest-working surface in an Indian bathroom. It meets water every morning, then soap, toothpaste, hair oil, cosmetics and hard-water salts — and unlike a kitchen counter, it rarely gets wiped down after each use.",
+        "Pacific vanity tops are cut from engineered quartz: non-porous, so nothing soaks in, and stain-resistant to everything a bathroom throws at them. Natural marble stains on all four of those; quartz does not. Each top is fabricated to your basin and tap layout, with the splash upstand cut from the same slab so the joint disappears.",
+        "Choose from 125+ designs, in standard lengths of 36, 48, 60 and 72 inches or cut to a size of your own. Basins can be integrated — carved from the same piece — so there is no rim, no silicone seal and nothing to fail in year three.",
+      ],
+      specs: [
+        { label: "Standard lengths", value: '36", 48", 60", 72" — or custom' },
+        { label: "Standard widths", value: '18", 20", 22", 24" — or custom' },
+        {
+          label: "Basin options",
+          value: "Integrated single or double, or cut for a counter-top basin",
+        },
+        { label: "Finishes", value: "Polished, Suede, Leathered, Matte" },
+        {
+          label: "Material",
+          value:
+            "Engineered quartz, non-porous, 0% crystalline silica on Ecosurfaces",
+        },
+        {
+          label: "Certification",
+          value: "NSF/ANSI 51, Greenguard Gold, CE, ISO 9001:2015",
+        },
+        { label: "Warranty", value: "Lifetime warranty on every slab" },
+      ],
+      faqs: [
+        {
+          question:
+            "What is the best material for a bathroom vanity top in India?",
+          answer:
+            "Engineered quartz, for most bathrooms. It is non-porous, so water, cosmetics and hard-water salts sit on the surface rather than soaking in, and it needs no sealing — unlike marble, which stains from soap and toothpaste, or granite, which needs periodic sealing. Quartz also comes in consistent colours, so a long double vanity matches end to end.",
+        },
+        {
+          question: "What size vanity top do I need?",
+          answer:
+            'Pacific vanity tops come in standard lengths of 36", 48", 60" and 72", and widths of 18" to 24". A single-basin vanity usually sits at 36" to 48"; a double-basin vanity needs at least 60". Any non-standard size is cut to your template at no design premium.',
+        },
+        {
+          question: "Can the basin be part of the vanity top?",
+          answer:
+            "Yes. Our Integra basins are fabricated from the same slab as the top, so the surface runs from the counter down into the bowl as one continuous piece. There is no metal rim, no silicone bead and no lip where dirt collects — and nothing to fail and start leaking later.",
+        },
+        {
+          question: "How much does a quartz vanity top cost?",
+          answer:
+            "Price depends on the design, the size and the fabrication — cut-outs, edge profile and upstand all count. We do not take payment online: add what you need to the cart, place the order, and our team confirms quantities, freight and price before anything ships.",
+        },
+        {
+          question: "Does a quartz vanity top stain?",
+          answer:
+            "Its low porosity makes it highly resistant to the things a bathroom produces — cosmetics, hair dye, toothpaste and hard-water marks all wipe off. It is certified food-contact safe to NSF/ANSI 51, a higher bar than a bathroom will ever ask of it.",
+        },
+        {
+          question: "Which finish should I choose for a vanity top?",
+          answer:
+            "Polished for depth and easy cleaning; honed or matte for a calm, glare-free surface; suede or leathered where you want texture and fewer visible water marks. All four carry the same stain and scratch resistance — the finish changes how the colour reads and how the top feels, not how it performs.",
+        },
+      ],
+    },
   },
   {
     slug: "shower-walls-and-trays",
-    name: "Shower Walls & Trays",
+    name: "Shower Walls",
     badge: "Applications · Bath",
     title: "The wet room, without the tile grid.",
     description:
@@ -434,8 +514,8 @@ export const APPLICATIONS: Application[] = [
     related: ["flooring", "wall-cladding", "hospitality-interiors"],
   },
   {
-    slug: "tables-and-furniture",
-    name: "Tables & Furniture",
+    slug: "dining-and-furniture",
+    name: "Dining & Furniture",
     badge: "Applications · Furniture",
     title: "Stone as a piece of furniture, not a building material.",
     description:
@@ -462,46 +542,200 @@ export const APPLICATIONS: Application[] = [
       },
     ],
     collections: [C.centrepiece, C.semiPrecious, C.quartz, C.granite],
-    related: [
-      "kitchen-islands",
-      "bar-and-reception-counters",
-      "fireplace-surrounds",
-    ],
+    related: ["kitchen-islands", "bar-counters", "fireplace-surrounds"],
   },
   {
-    slug: "bar-and-reception-counters",
-    name: "Bar & Reception Counters",
+    slug: "bar-counters",
+    name: "Bar Counters",
     badge: "Applications · Commercial",
-    title: "The first surface a visitor touches.",
+    title: "The counter that takes everything that stains.",
     description:
-      "A reception desk or bar front is brand collateral that also has to survive being leaned on all day.",
+      "Wine, citrus, spirits and coffee, nightly, on the surface people lean on all evening.",
     space: { name: "Commercial", href: "/spaces/commercial" },
     sections: [
       {
-        eyebrow: "Counter fronts",
-        headline: "A single face, floor to worktop.",
-        body: "Large-format slabs let a reception front run as one uninterrupted plane. Mitred returns at both ends give the counter visual mass without the weight of a solid block.",
-        imageLabel: "Reception counter",
+        eyebrow: "Behind the bar",
+        headline: "Acid, alcohol and citrus, every night.",
+        body: "Low porosity and acid resistance mean a wipe-down at close is the whole maintenance routine. No sealing, no annual refinishing, and no ring left where a glass stood.",
+        imageLabel: "Bar top",
+        ctaLabel: "Explore Quartz",
+        ctaHref: "/products/quartz",
+        imageUrl: "/projects/cappuccino-1.jpg",
+      },
+      {
+        eyebrow: "The front",
+        headline: "A single face, floor to counter.",
+        body: "Large-format slabs run a bar front as one uninterrupted plane, with mitred returns at each end giving it visual mass without the weight of solid stone.",
+        imageLabel: "Bar front",
+        ctaLabel: "Explore Granites",
+        ctaHref: "/products/granites",
+        imageUrl: "/projects/cappuccino-3.jpg",
+      },
+    ],
+    collections: [C.quartz, C.eclipse, C.granite, C.exotic, C.semiPrecious],
+    related: ["reception-desks", "hospitality-interiors", "backlit-features"],
+  },
+  {
+    slug: "reception-desks",
+    name: "Reception Desks",
+    badge: "Applications · Commercial",
+    title: "The first surface a visitor touches.",
+    description:
+      "A reception desk is brand collateral that also has to survive being leaned on all day.",
+    space: { name: "Commercial", href: "/spaces/commercial" },
+    sections: [
+      {
+        eyebrow: "The desk",
+        headline: "One plane, wall to wall.",
+        body: "A reception front cut from jumbo slabs runs unbroken across the lobby. Book-matching a long desk turns the one unavoidable joint into the centreline of the composition.",
+        imageLabel: "Reception desk",
         ctaLabel: "Explore Quartz",
         ctaHref: "/products/quartz",
         imageUrl: "/images/spaces/commercial.jpg",
       },
       {
-        eyebrow: "Behind the bar",
-        headline: "Acid, alcohol and citrus, nightly.",
-        body: "Bar tops meet everything that stains: wine, citrus, spirits, coffee. Low porosity and acid resistance mean a wipe-down at close is the entire maintenance routine.",
-        imageLabel: "Bar top",
-        ctaLabel: "See all colours",
-        ctaHref: "/products",
-        imageUrl: "/projects/cappuccino-1.jpg",
+        eyebrow: "Wear",
+        headline: "Ten thousand hands a year.",
+        body: "The desk edge takes rings, bags, badges and elbows all day. Scratch and impact resistance are properties of the material, so it looks the same in year five as on handover.",
+        imageLabel: "Desk edge",
+        ctaLabel: "Explore Beyond Finish",
+        ctaHref: "/products/facades-and-finishes",
+        imageUrl: "/images/professions/collaboration.jpg",
+      },
+    ],
+    collections: [C.quartz, C.eclipse, C.granite, C.beyondFinish],
+    related: ["bar-counters", "retail-interiors", "feature-walls"],
+  },
+  {
+    slug: "waterfall-islands",
+    name: "Waterfall Islands",
+    badge: "Applications · Kitchen",
+    title: "Carry the stone over the edge and down to the floor.",
+    description:
+      "A mitred waterfall turns an island into one continuous piece rather than a top sitting on a base.",
+    space: { name: "Kitchens", href: "/spaces/kitchens" },
+    sections: [
+      {
+        eyebrow: "The mitre",
+        headline: "The vein turns the corner.",
+        body: "Because the pattern runs through the full thickness of the slab, a 45-degree mitre carries the veining around the corner instead of stopping it dead at the edge. Cut from one slab, the grain reads continuously from worktop to floor.",
+        imageLabel: "Waterfall island",
+        ctaLabel: "Explore Quartz",
+        ctaHref: "/products/quartz",
+        imageUrl: "/demo-rooms/kitchen-02/room.png",
+      },
+      {
+        eyebrow: "Specification",
+        headline: "2 cm mitred reads as 4, 6 or 10.",
+        body: "The visible edge is a function of the mitre, not the slab: a 2 cm top can present a 100 mm face without the weight or cost of solid stone. Fabrication is exacting, so template early.",
+        imageLabel: "Mitred edge",
+        ctaLabel: "Explore Fab Creations",
+        ctaHref: "/products/fab-creations",
+        imageUrl: "/projects/ruskin-kitchen-counter.jpg",
       },
     ],
     collections: [C.quartz, C.eclipse, C.granite, C.exotic],
-    related: [
-      "hospitality-interiors",
-      "kitchen-islands",
-      "tables-and-furniture",
+    related: ["kitchen-islands", "kitchen-countertops", "dining-and-furniture"],
+  },
+  {
+    slug: "feature-walls",
+    name: "Feature Walls",
+    badge: "Applications · Interiors",
+    title: "One wall doing all the talking.",
+    description:
+      "The wall a room is built around — a lobby, a headboard, a chimney breast, the face behind a bar.",
+    space: { name: "Architecture", href: "/spaces/architecture" },
+    sections: [
+      {
+        eyebrow: "Book-matching",
+        headline: "Two slabs opened like a book.",
+        body: "Consecutive slabs cut from the same block and mirrored make a symmetrical pattern the width of the wall. It is the one detail that reads instantly as stone rather than surface, and it has to be planned at slab selection.",
+        imageLabel: "Book-matched wall",
+        ctaLabel: "Explore Beyond Finish",
+        ctaHref: "/products/facades-and-finishes",
+        imageUrl: "/demo-rooms/wall-cladding-01/room.png",
+      },
+      {
+        eyebrow: "Material",
+        headline: "Where the rarest stone earns its place.",
+        body: "A feature wall takes no wear and carries no load, which makes it the right home for semi-precious and exotic material too valuable to put on a worktop.",
+        imageLabel: "Semi-precious panel",
+        ctaLabel: "Explore Semi-Precious",
+        ctaHref: "/products/semi-precious",
+        imageUrl: "/images/products/semi-precious.png",
+      },
     ],
+    collections: [
+      C.beyondFinish,
+      C.semiPrecious,
+      C.translucent,
+      C.quartz,
+      C.eclipse,
+      C.granite,
+    ],
+    related: ["wall-cladding", "backlit-features", "reception-desks"],
+  },
+  {
+    slug: "backlit-features",
+    name: "Backlit Features",
+    badge: "Applications · Interiors",
+    title: "Stone lit from behind, not in front.",
+    description:
+      "Translucent and semi-precious surfaces stop being a surface and become the light source.",
+    space: { name: "Inspiration", href: "/inspirations/inspiration-gallery" },
+    sections: [
+      {
+        eyebrow: "Translucent",
+        headline: "Depth daylight cannot show.",
+        body: "Lit from behind, veining and crystal structure that read as pattern in daylight read as depth instead. Works on a bar front, a reception desk, an island end or a wall panel.",
+        imageLabel: "Backlit panel",
+        ctaLabel: "Explore Translucent",
+        ctaHref: "/products/translucent",
+        imageUrl: "/images/products/translucent.jpeg",
+      },
+      {
+        eyebrow: "Building it",
+        headline: "The light box is the detail.",
+        body: "Even illumination needs an LED plane set back from the stone, not fixed to it, and a thinner slab than you would use elsewhere. Bring us in at detail design — this is one to resolve before the joinery is made.",
+        imageLabel: "Backlit detail",
+        ctaLabel: "Explore Semi-Precious",
+        ctaHref: "/products/semi-precious",
+        imageUrl: "/images/products/semi-precious.png",
+      },
+    ],
+    collections: [C.translucent, C.semiPrecious],
+    related: ["feature-walls", "bar-counters", "reception-desks"],
+  },
+  {
+    slug: "retail-interiors",
+    name: "Retail Interiors",
+    badge: "Applications · Commercial",
+    title: "Surfaces that sell the thing standing on them.",
+    description:
+      "Display plinths, cash desks, wall linings and fitting rooms, in spaces refitted more often than they are rebuilt.",
+    space: { name: "Commercial", href: "/spaces/commercial" },
+    sections: [
+      {
+        eyebrow: "Display",
+        headline: "A quiet ground for loud product.",
+        body: "Retail surfaces work hardest when they recede. Honed and matte finishes kill the glare that fights a product under spotlights, and a consistent colour across a rollout keeps every store on brand.",
+        imageLabel: "Retail interior",
+        ctaLabel: "Explore Quartz",
+        ctaHref: "/products/quartz",
+        imageUrl: "/images/spaces/commercial.jpg",
+      },
+      {
+        eyebrow: "Rollout",
+        headline: "Store forty matches store one.",
+        body: "Engineered production means batch consistency across a rollout and across phases years apart — something no quarried stone can promise when a fit-out runs for three years.",
+        imageLabel: "Rollout detail",
+        ctaLabel: "Talk to us",
+        ctaHref: "/contact",
+        imageUrl: "/images/professions/services.jpg",
+      },
+    ],
+    collections: [C.quartz, C.eclipse, C.granite, C.beyondFinish],
+    related: ["hospitality-interiors", "reception-desks", "feature-walls"],
   },
   {
     slug: "hospitality-interiors",
@@ -532,7 +766,7 @@ export const APPLICATIONS: Application[] = [
       },
     ],
     collections: [C.quartz, C.eclipse, C.eco, C.granite],
-    related: ["bar-and-reception-counters", "flooring", "facades"],
+    related: ["bar-counters", "flooring", "facades"],
   },
   {
     slug: "fireplace-surrounds",
@@ -563,7 +797,7 @@ export const APPLICATIONS: Application[] = [
       },
     ],
     collections: [C.granite, C.beyondFinish],
-    related: ["wall-cladding", "tables-and-furniture", "flooring"],
+    related: ["wall-cladding", "dining-and-furniture", "flooring"],
   },
 ];
 

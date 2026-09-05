@@ -49,6 +49,38 @@ export function BreadcrumbList({ items }: { items: BreadcrumbItem[] }) {
   );
 }
 
+/**
+ * FAQPage structured data.
+ *
+ * Both competitors in this category publish an FAQ block on their landing
+ * pages — Cosentino's bathroom page carries one, Quantra's does not — and
+ * it is what earns the expandable answers under a search result. Emitting
+ * the schema is only half of it: the same questions must be visible on the
+ * page, or Google treats the markup as mismatched.
+ */
+export function FaqSchema({
+  faqs,
+}: {
+  faqs: { question: string; answer: string }[];
+}) {
+  if (!faqs || faqs.length === 0) return null;
+  const json = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(json) }}
+    />
+  );
+}
+
 interface ArticleSchemaProps {
   headline: string;
   /** Absolute or relative image URL. */

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { client } from "@/sanity/lib/client";
 import { groq } from "next-sanity";
+import { APPLICATIONS } from "@/data/applications";
 
 // Apex (no www) is the canonical hostname per the Vercel domains
 // config — www 307-redirects here, so emitting apex URLs in the
@@ -135,6 +136,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Application pages. These were missing entirely — twenty pages whose
+  // only route in was the Products mega, which Googlebot renders but does
+  // not weight like a listed URL. Vanity Tops carries the long-form copy
+  // and FAQ, so it is ranked above its siblings here.
+  const applicationEntries: MetadataRoute.Sitemap = APPLICATIONS.map((a) => ({
+    url: `${SITE_URL}/applications/${a.slug}`,
+    changeFrequency: "monthly",
+    priority: a.seo ? 0.9 : 0.7,
+  }));
+
   const blogEntries: MetadataRoute.Sitemap = blogPosts.map((b) => ({
     url: `${SITE_URL}/blog/${b.slug}`,
     lastModified: b.updatedAt ? new Date(b.updatedAt) : now,
@@ -146,5 +157,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // when a /projects/[slug] route exists, add a signatureProject
   // fetch here and emit entries for it.
 
-  return [...staticEntries, ...productEntries, ...blogEntries];
+  return [
+    ...staticEntries,
+    ...applicationEntries,
+    ...productEntries,
+    ...blogEntries,
+  ];
 }
