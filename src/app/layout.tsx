@@ -2,6 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+// TEMPORARY brand test — black & white + Hubot Sans. Delete this line and
+// src/app/bw-temp.css to restore the navy and Inter.
+import "./bw-temp.css";
+import BwTempSections from "./bw-temp-sections";
 import GlobalDustMount from "@/components/global/GlobalDustMount";
 import MetaPixel from "@/components/global/MetaPixel";
 import AuthProvider from "@/components/providers/AuthProvider";
@@ -95,9 +99,8 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} font-sans antialiased`}
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
+        <BwTempSections />
         <GlobalDustMount />
         {/*
           Organization JSON-LD — gives Google enough metadata to
@@ -157,8 +160,7 @@ export default function RootLayout({
               name: "Pacific Surfaces",
               url: "https://pacific-surfaces.com",
               logo: "https://pacific-surfaces.com/logos/monogram-light.png",
-              image:
-                "https://pacific-surfaces.com/logos/monogram-light.png",
+              image: "https://pacific-surfaces.com/logos/monogram-light.png",
               telephone: "+91-9894033566",
               email: "info@thepacific.group",
               priceRange: "$$$",

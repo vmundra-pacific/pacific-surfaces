@@ -16,13 +16,23 @@ import { useEffect, useRef, useState } from "react";
  *    on the target element triggers a programmatic scroll that Lenis
  *    respects, so the jump always works.
  *
- * 2. CONTRAST handled via CSS `mix-blend-mode: difference`. The
- *    homepage alternates dark and light backgrounds (e.g. cream
- *    InspirationGrid) — fixed white text would disappear on the
- *    cream section. With difference blending, the pills auto-invert
- *    relative to whatever's behind them: white-on-dark stays light,
- *    white-on-light becomes dark. Single property, no scroll-tied
- *    color tracking needed.
+ * 2. CONTRAST is measured, not blended. This used to ride on
+ *    `mix-blend-mode: difference`, which stopped working the moment
+ *    the nav gained `z-30`: a positioned element with a z-index makes
+ *    its own stacking context, and a blend group only sees the
+ *    backdrop inside its own context — here, nothing. The labels
+ *    blended against emptiness and just rendered their own colour.
+ *
+ *    Instead the rail samples what is actually behind it on scroll
+ *    (`document.elementsFromPoint` at three points down its height),
+ *    and picks a tone from that:
+ *      - a photo, canvas or video behind it  → white + a drop shadow
+ *      - a light background                  → black
+ *      - a dark background                   → white
+ *    Photography reads as "dark" for contrast purposes even when the
+ *    image is pale — a marble kitchen is bright but busy, and black
+ *    text disappears into the veining. White with a shadow survives
+ *    both.
  *
  * 3. Sustainability points at the EcosurfacesSection (low-silica
  *    feature block under TrustStrip). Community = SignatureProjects
@@ -45,16 +55,62 @@ const SECTIONS: { id: string; label: string }[] = [
   { id: "sec-visualize", label: "Visualize" },
 ];
 
-// Sections whose backgrounds are light AND visually busy (cream
-// papers + photo grids etc.) where mix-blend-difference produces
-// muddy, hard-to-read pill text. While the user is in one of these
-// sections, inactive pills swap to a solid dark backdrop so the
-// labels stay legible. Anywhere else, the chips keep the original
-// mix-blend-difference auto-inversion the user prefers.
-const SECTIONS_NEED_SOLID_BG = new Set<string>(["sec-projects"]);
+/** How the rail should paint itself against whatever is behind it. */
+type Tone = "light" | "dark";
+
+/** Relative luminance, 0 (black) to 1 (white). */
+function luminance(r: number, g: number, b: number) {
+  const f = (v: number) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+/**
+ * Read the backdrop at one point. Returns "light" only for a solid,
+ * genuinely pale background — everything else (photography, video,
+ * canvas, a background-image, a dark fill) counts as "dark" so the
+ * label stays white.
+ */
+function toneAt(x: number, y: number, skip: Element | null): Tone {
+  const stack = document.elementsFromPoint(x, y);
+  const el = stack.find((e) => !skip || !skip.contains(e));
+  if (!el) return "light"; // off the page: the document ground is white
+
+  const MEDIA = new Set(["IMG", "CANVAS", "VIDEO", "PICTURE", "SVG"]);
+  let node: Element | null = el;
+  while (node && node !== document.documentElement) {
+    if (MEDIA.has(node.tagName)) return "dark";
+    const cs = getComputedStyle(node);
+    if (cs.backgroundImage && cs.backgroundImage !== "none") return "dark";
+    const m = cs.backgroundColor.match(
+      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/
+    );
+    if (m) {
+      const alpha = m[4] === undefined ? 1 : parseFloat(m[4]);
+      // Anything close to transparent isn't the real ground — keep
+      // walking up to whatever is actually painting behind it.
+      if (alpha > 0.5) {
+        const l = luminance(+m[1], +m[2], +m[3]);
+        return l > 0.6 ? "light" : "dark";
+      }
+    }
+    node = node.parentElement;
+  }
+  return "light";
+}
 
 export function HomepageSectionNav() {
   const [active, setActive] = useState<string | null>(null);
+  // One tone per item, not one for the rail. The rail is ~230px tall
+  // and regularly straddles a section boundary — measuring it as a
+  // single unit put black labels on the dark half and lost them.
+  const [tones, setTones] = useState<Tone[]>(() =>
+    SECTIONS.map(() => "dark" as Tone)
+  );
+  const navRef = useRef<HTMLElement>(null);
+  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   // Set of section ids currently inside the active band. Active pill
   // is recomputed on every observer fire as the topmost intersecting
   // section in SECTIONS order. When the set is empty (parallax hero,
@@ -91,6 +147,54 @@ export function HomepageSectionNav() {
     return () => observers.forEach((o) => o.disconnect());
   }, []);
 
+  // Sample the backdrop as the page moves. Lenis animates scroll in a
+  // rAF loop, so polling scrollY in our own rAF stays in step with it
+  // without needing a Lenis instance; we only re-measure when the
+  // position actually changed, so an idle page costs one comparison
+  // per frame.
+  useEffect(() => {
+    let raf = 0;
+    let lastY = -1;
+
+    const measure = () => {
+      const nav = navRef.current;
+      if (!nav || nav.getBoundingClientRect().width === 0) return;
+      const next = SECTIONS.map((_, i) => {
+        const a = itemRefs.current[i];
+        if (!a) return "dark" as Tone;
+        const r = a.getBoundingClientRect();
+        const y = r.top + r.height / 2;
+        if (y < 0 || y > window.innerHeight) return "dark" as Tone;
+        const x = Math.min(window.innerWidth - 1, r.left + r.width / 2);
+        return toneAt(x, y, nav);
+      });
+      // Only re-render when something actually flipped; this runs off a
+      // rAF loop and setState every frame would be wasteful.
+      setTones((prev) =>
+        prev.length === next.length && prev.every((t, i) => t === next[i])
+          ? prev
+          : next
+      );
+    };
+
+    const tick = () => {
+      const y = window.scrollY;
+      if (y !== lastY) {
+        lastY = y;
+        measure();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+
+    measure();
+    raf = requestAnimationFrame(tick);
+    window.addEventListener("resize", measure);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
   // Click handler — programmatic scroll via scrollIntoView so Lenis
   // routes through its own animation pipeline rather than the native
   // anchor jump (which can drop or fight Lenis under load). We also
@@ -113,6 +217,7 @@ export function HomepageSectionNav() {
 
   return (
     <nav
+      ref={navRef}
       // Pinned to the left edge, vertically centred. z-30 sits above
       // page content but below the fixed header (z-50). Hidden on
       // mobile / tablet — only shows lg+ where there's room.
@@ -133,34 +238,38 @@ export function HomepageSectionNav() {
       aria-label="Homepage section navigation"
     >
       <ul className="flex flex-col gap-2.5 2xl:gap-3">
-        {SECTIONS.map((s) => {
+        {SECTIONS.map((s, i) => {
           const isActive = active === s.id;
-          // On light/busy sections (cream Inspiration grid) we lose
-          // mix-blend-difference and use solid-white text + dot. On
-          // every other section the bullet + label use
-          // mix-blend-difference for auto-contrast against whatever's
-          // behind (dark navy, marble, photo).
-          const useSolidInactive =
-            active !== null && SECTIONS_NEED_SOLID_BG.has(active);
+          const tone = tones[i] ?? "dark";
+          // Colour is set inline rather than through a `text-white`
+          // utility on purpose: bw-temp.css forces every .text-white to
+          // black with !important, which is what made this rail black
+          // over the hero in the first place. An inline colour also
+          // beats any later utility collision.
+          const colour = tone === "light" ? "#000000" : "#ffffff";
           return (
             <li key={s.id}>
               <a
+                ref={(el) => {
+                  itemRefs.current[i] = el;
+                }}
                 href={`#${s.id}`}
                 onClick={(e) => handleClick(e, s.id)}
+                style={{ color: colour }}
                 // Bulleted nav: a small dot + label. No outline, no
                 // pill background. Active item = filled dot + brighter
                 // label; inactive = hollow ring + dimmer label. Group
                 // hover swells the dot slightly so the click target
                 // feels alive without bringing back a rectangle.
+                //
+                // The shadow only rides along on the white treatment —
+                // white sits over photography as often as over navy,
+                // and marble veining eats an unshadowed label.
                 className={`group inline-flex items-center gap-2.5 2xl:gap-3 px-1 py-0.5 text-[9px] tracking-[0.18em] 2xl:text-[10.5px] 2xl:tracking-[0.22em] uppercase font-semibold transition-colors duration-300 whitespace-nowrap ${
-                  isActive
-                    ? useSolidInactive
-                      ? "text-white"
-                      : "text-white mix-blend-difference"
-                    : useSolidInactive
-                      ? "text-white hover:text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
-                      : "text-white mix-blend-difference hover:text-white"
-                }`}
+                  tone === "dark"
+                    ? "drop-shadow-[0_1px_4px_rgba(0,0,0,0.55)]"
+                    : ""
+                } ${isActive ? "opacity-100" : "opacity-70 hover:opacity-100"}`}
               >
                 <span
                   className={`inline-block rounded-full transition-all duration-300 ${

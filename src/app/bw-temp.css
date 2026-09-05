@@ -1,0 +1,1358 @@
+/* ==========================================================================
+   TEMPORARY - black on white, set in Hubot Sans
+   --------------------------------------------------------------------------
+   A reversible skin over the real site so the brand direction can be judged
+   on the actual pages rather than a mock. Delete this file and its import in
+   app/layout.tsx to put the navy and Inter back; nothing else was changed.
+
+   The header bar keeps the brand navy, as asked. Everything it contains -
+   the mega panels and the mobile drawer are rendered inside the same
+   <header> - comes with it.
+
+   Two things make this more than a token swap:
+
+     1. Tailwind v4 inlines theme colours. bg-pacific-dark compiles to
+        background-color:#112732, not to var(--color-pacific-dark), so
+        redefining the token achieves nothing and every utility has to be
+        answered by name. Around 140 hardcoded hexes bypass the theme
+        entirely on top of that.
+
+     2. The site is built dark-on-navy, so text inside a navy panel is
+        white or pale blue-grey. Turning that panel white without touching
+        the text renders it white-on-white. The flip that fixes it is
+        scoped to those panels only - `text-white` is also used over
+        full-bleed photography in the heroes, where it must stay white or
+        the caption disappears into the image.
+
+   The generated block below is produced by gen-bw2.mjs, which reads the
+   compiled stylesheet and sweeps the source, preserving each /alpha variant.
+   Photography stays in colour, and the WhatsApp mark keeps its green.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Hubot Sans";
+  src: url("/fonts/HubotSans.ttf") format("truetype-variations");
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Hubot Sans";
+  src: url("/fonts/HubotSans-Italic.ttf") format("truetype-variations");
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---- ground ------------------------------------------------------------ */
+:root,
+html body {
+  --background: #ffffff !important;
+  --color-background: #ffffff !important;
+  --foreground: #000000 !important;
+}
+html,
+html body {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+/* Sections paint their own ground over this; the body value is only the
+   page's default for anything that sets none. */
+
+/* ---- type -------------------------------------------------------------- */
+/* Inter is applied by next/font as a class on <body>, so the token alone is
+   not enough - the family has to be forced. Blunt on purpose: this file is
+   temporary, and a narrower selector would miss something. */
+html body,
+html body * {
+  font-family:
+    "Hubot Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+/* Hubot is a variable face; without this the headings render at default
+   width and lose the tight, narrow set the direction depends on. */
+html body h1,
+html body h2,
+html body h3 {
+  font-variation-settings:
+    "wght" 400,
+    "wdth" 90;
+  letter-spacing: -0.025em;
+}
+
+/* ---- generated remap --------------------------------------------------- */
+/* 148 utilities remapped to black on white */
+.border-pacific-dark {
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+.border-pacific-dark\/10 {
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+.border-pacific-dark\/15 {
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+.border-pacific-light\/50 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.border-pacific-light\/60 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.border-pacific-light\/80 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.border-pacific-mid {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.border-pacific-mid\/15 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.border-pacific-mid\/20 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.border-pacific-mid\/25 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.border-pacific-mid\/30 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.border-pacific-mid\/40 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.bg-pacific-dark {
+  background-color: #000000 !important;
+}
+.bg-pacific-dark\/5 {
+  background-color: color-mix(in oklab, #000000 5%, transparent) !important;
+}
+.bg-pacific-dark\/30 {
+  background-color: color-mix(in oklab, #000000 30%, transparent) !important;
+}
+.bg-pacific-dark\/40 {
+  background-color: color-mix(in oklab, #000000 40%, transparent) !important;
+}
+.bg-pacific-dark\/50 {
+  background-color: color-mix(in oklab, #000000 50%, transparent) !important;
+}
+.bg-pacific-dark\/55 {
+  background-color: color-mix(in oklab, #000000 55%, transparent) !important;
+}
+.bg-pacific-dark\/60 {
+  background-color: color-mix(in oklab, #000000 60%, transparent) !important;
+}
+.bg-pacific-dark\/70 {
+  background-color: color-mix(in oklab, #000000 70%, transparent) !important;
+}
+.bg-pacific-dark\/80 {
+  background-color: color-mix(in oklab, #000000 80%, transparent) !important;
+}
+.bg-pacific-dark\/85 {
+  background-color: color-mix(in oklab, #000000 85%, transparent) !important;
+}
+.bg-pacific-dark\/90 {
+  background-color: color-mix(in oklab, #000000 90%, transparent) !important;
+}
+.bg-pacific-dark\/95 {
+  background-color: color-mix(in oklab, #000000 95%, transparent) !important;
+}
+.bg-pacific-light {
+  background-color: #ffffff !important;
+}
+.bg-pacific-light\/5 {
+  background-color: color-mix(in oklab, #ffffff 5%, transparent) !important;
+}
+.bg-pacific-light\/10 {
+  background-color: color-mix(in oklab, #ffffff 10%, transparent) !important;
+}
+.bg-pacific-light\/15 {
+  background-color: color-mix(in oklab, #ffffff 15%, transparent) !important;
+}
+.bg-pacific-light\/20 {
+  background-color: color-mix(in oklab, #ffffff 20%, transparent) !important;
+}
+.bg-pacific-light\/60 {
+  background-color: color-mix(in oklab, #ffffff 60%, transparent) !important;
+}
+.bg-pacific-light\/95 {
+  background-color: color-mix(in oklab, #ffffff 95%, transparent) !important;
+}
+.bg-pacific-mid {
+  background-color: #f4f4f4 !important;
+}
+.bg-pacific-mid\/10 {
+  background-color: color-mix(in oklab, #f4f4f4 10%, transparent) !important;
+}
+.bg-pacific-mid\/20 {
+  background-color: color-mix(in oklab, #f4f4f4 20%, transparent) !important;
+}
+.bg-pacific-mid\/30 {
+  background-color: color-mix(in oklab, #f4f4f4 30%, transparent) !important;
+}
+.bg-pacific-mid\/40 {
+  background-color: color-mix(in oklab, #f4f4f4 40%, transparent) !important;
+}
+.from-pacific-dark {
+  --tw-gradient-from: #000000 !important;
+}
+.from-pacific-dark\/30 {
+  --tw-gradient-from: color-mix(in oklab, #000000 30%, transparent) !important;
+}
+.from-pacific-dark\/60 {
+  --tw-gradient-from: color-mix(in oklab, #000000 60%, transparent) !important;
+}
+.from-pacific-dark\/70 {
+  --tw-gradient-from: color-mix(in oklab, #000000 70%, transparent) !important;
+}
+.from-pacific-dark\/80 {
+  --tw-gradient-from: color-mix(in oklab, #000000 80%, transparent) !important;
+}
+.from-pacific-dark\/85 {
+  --tw-gradient-from: color-mix(in oklab, #000000 85%, transparent) !important;
+}
+.from-pacific-light {
+  --tw-gradient-from: #ffffff !important;
+}
+.from-pacific-mid {
+  --tw-gradient-from: #f4f4f4 !important;
+}
+.from-pacific-mid\/10 {
+  --tw-gradient-from: color-mix(in oklab, #f4f4f4 10%, transparent) !important;
+}
+.from-pacific-mid\/15 {
+  --tw-gradient-from: color-mix(in oklab, #f4f4f4 15%, transparent) !important;
+}
+.from-pacific-mid\/20 {
+  --tw-gradient-from: color-mix(in oklab, #f4f4f4 20%, transparent) !important;
+}
+.from-pacific-mid\/25 {
+  --tw-gradient-from: color-mix(in oklab, #f4f4f4 25%, transparent) !important;
+}
+.from-pacific-mid\/30 {
+  --tw-gradient-from: color-mix(in oklab, #f4f4f4 30%, transparent) !important;
+}
+.from-pacific-mid\/40 {
+  --tw-gradient-from: color-mix(in oklab, #f4f4f4 40%, transparent) !important;
+}
+.via-pacific-dark {
+  --tw-gradient-via: #000000 !important;
+}
+.via-pacific-dark\/40 {
+  --tw-gradient-via: color-mix(in oklab, #000000 40%, transparent) !important;
+}
+.via-pacific-dark\/55 {
+  --tw-gradient-via: color-mix(in oklab, #000000 55%, transparent) !important;
+}
+.via-pacific-dark\/60 {
+  --tw-gradient-via: color-mix(in oklab, #000000 60%, transparent) !important;
+}
+.via-pacific-dark\/70 {
+  --tw-gradient-via: color-mix(in oklab, #000000 70%, transparent) !important;
+}
+.via-pacific-dark\/75 {
+  --tw-gradient-via: color-mix(in oklab, #000000 75%, transparent) !important;
+}
+.via-pacific-dark\/85 {
+  --tw-gradient-via: color-mix(in oklab, #000000 85%, transparent) !important;
+}
+.via-pacific-dark\/95 {
+  --tw-gradient-via: color-mix(in oklab, #000000 95%, transparent) !important;
+}
+.via-pacific-light {
+  --tw-gradient-via: #ffffff !important;
+}
+.via-pacific-mid\/30 {
+  --tw-gradient-via: color-mix(in oklab, #f4f4f4 30%, transparent) !important;
+}
+.via-pacific-mid\/50 {
+  --tw-gradient-via: color-mix(in oklab, #f4f4f4 50%, transparent) !important;
+}
+.via-pacific-mid\/60 {
+  --tw-gradient-via: color-mix(in oklab, #f4f4f4 60%, transparent) !important;
+}
+.to-pacific-dark {
+  --tw-gradient-to: #000000 !important;
+}
+.to-pacific-dark\/10 {
+  --tw-gradient-to: color-mix(in oklab, #000000 10%, transparent) !important;
+}
+.to-pacific-dark\/15 {
+  --tw-gradient-to: color-mix(in oklab, #000000 15%, transparent) !important;
+}
+.to-pacific-dark\/70 {
+  --tw-gradient-to: color-mix(in oklab, #000000 70%, transparent) !important;
+}
+.to-pacific-dark\/85 {
+  --tw-gradient-to: color-mix(in oklab, #000000 85%, transparent) !important;
+}
+.to-pacific-dark\/90 {
+  --tw-gradient-to: color-mix(in oklab, #000000 90%, transparent) !important;
+}
+.to-pacific-light {
+  --tw-gradient-to: #ffffff !important;
+}
+.to-pacific-mid {
+  --tw-gradient-to: #f4f4f4 !important;
+}
+.to-pacific-mid\/40 {
+  --tw-gradient-to: color-mix(in oklab, #f4f4f4 40%, transparent) !important;
+}
+.to-pacific-mid\/50 {
+  --tw-gradient-to: color-mix(in oklab, #f4f4f4 50%, transparent) !important;
+}
+.text-pacific-dark {
+  color: #000000 !important;
+}
+.text-pacific-dark\/45 {
+  color: color-mix(in oklab, #000000 45%, transparent) !important;
+}
+.text-pacific-dark\/50 {
+  color: color-mix(in oklab, #000000 50%, transparent) !important;
+}
+.text-pacific-dark\/55 {
+  color: color-mix(in oklab, #000000 55%, transparent) !important;
+}
+.text-pacific-dark\/60 {
+  color: color-mix(in oklab, #000000 60%, transparent) !important;
+}
+.text-pacific-dark\/65 {
+  color: color-mix(in oklab, #000000 65%, transparent) !important;
+}
+.text-pacific-dark\/70 {
+  color: color-mix(in oklab, #000000 70%, transparent) !important;
+}
+.text-pacific-dark\/80 {
+  color: color-mix(in oklab, #000000 80%, transparent) !important;
+}
+.text-pacific-light {
+  color: #f2f2f2 !important;
+}
+.text-pacific-light\/70 {
+  color: color-mix(in oklab, #f2f2f2 70%, transparent) !important;
+}
+.text-pacific-light\/75 {
+  color: color-mix(in oklab, #f2f2f2 75%, transparent) !important;
+}
+.text-pacific-light\/80 {
+  color: color-mix(in oklab, #f2f2f2 80%, transparent) !important;
+}
+.text-pacific-light\/85 {
+  color: color-mix(in oklab, #f2f2f2 85%, transparent) !important;
+}
+.text-pacific-light\/90 {
+  color: color-mix(in oklab, #f2f2f2 90%, transparent) !important;
+}
+.text-pacific-light\/95 {
+  color: color-mix(in oklab, #f2f2f2 95%, transparent) !important;
+}
+.text-pacific-mid {
+  color: #5f5f5f !important;
+}
+.text-pacific-mid\/40 {
+  color: color-mix(in oklab, #5f5f5f 40%, transparent) !important;
+}
+.text-pacific-mid\/50 {
+  color: color-mix(in oklab, #5f5f5f 50%, transparent) !important;
+}
+.text-pacific-mid\/60 {
+  color: color-mix(in oklab, #5f5f5f 60%, transparent) !important;
+}
+.text-pacific-mid\/70 {
+  color: color-mix(in oklab, #5f5f5f 70%, transparent) !important;
+}
+.text-pacific-mid\/80 {
+  color: color-mix(in oklab, #5f5f5f 80%, transparent) !important;
+}
+.text-pacific-mid\/90 {
+  color: color-mix(in oklab, #5f5f5f 90%, transparent) !important;
+}
+.ring-pacific-light\/60 {
+  --tw-ring-color: rgba(0, 0, 0, 0.14) !important;
+}
+.ring-pacific-light\/90 {
+  --tw-ring-color: rgba(0, 0, 0, 0.14) !important;
+}
+.ring-pacific-mid\/30 {
+  --tw-ring-color: rgba(0, 0, 0, 0.14) !important;
+}
+.ring-pacific-mid\/60 {
+  --tw-ring-color: rgba(0, 0, 0, 0.14) !important;
+}
+.group-hover\:text-pacific-light {
+  color: #f2f2f2 !important;
+}
+.group-hover\:text-pacific-mid {
+  color: #5f5f5f !important;
+}
+.file\:text-pacific-light {
+  color: #f2f2f2 !important;
+}
+.placeholder\:text-pacific-mid\/50 {
+  color: color-mix(in oklab, #5f5f5f 50%, transparent) !important;
+}
+.placeholder\:text-pacific-mid\/60 {
+  color: color-mix(in oklab, #5f5f5f 60%, transparent) !important;
+}
+.hover\:border-pacific-dark {
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+.hover\:border-pacific-dark\/40 {
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+.hover\:border-pacific-mid {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.hover\:border-pacific-mid\/30 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.hover\:border-pacific-mid\/40 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.hover\:border-pacific-mid\/50 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.hover\:border-pacific-mid\/60 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.hover\:border-pacific-mid\/70 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.hover\:bg-pacific-dark {
+  background-color: #000000 !important;
+}
+.hover\:bg-pacific-dark\/90 {
+  background-color: color-mix(in oklab, #000000 90%, transparent) !important;
+}
+.hover\:bg-pacific-light {
+  background-color: #ffffff !important;
+}
+.hover\:bg-pacific-light\/40 {
+  background-color: color-mix(in oklab, #ffffff 40%, transparent) !important;
+}
+.hover\:bg-pacific-mid\/15 {
+  background-color: color-mix(in oklab, #f4f4f4 15%, transparent) !important;
+}
+.hover\:bg-pacific-mid\/20 {
+  background-color: color-mix(in oklab, #f4f4f4 20%, transparent) !important;
+}
+.hover\:bg-pacific-mid\/30 {
+  background-color: color-mix(in oklab, #f4f4f4 30%, transparent) !important;
+}
+.hover\:bg-pacific-mid\/40 {
+  background-color: color-mix(in oklab, #f4f4f4 40%, transparent) !important;
+}
+.hover\:text-pacific-dark {
+  color: #000000 !important;
+}
+.hover\:text-pacific-light {
+  color: #f2f2f2 !important;
+}
+.focus\:border-pacific-dark {
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+.focus\:border-pacific-mid {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.focus\:ring-pacific-mid\/30 {
+  --tw-ring-color: rgba(0, 0, 0, 0.14) !important;
+}
+.focus-visible\:border-pacific-dark {
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+.disabled\:hover\:bg-pacific-light {
+  background-color: #ffffff !important;
+}
+.bg-\[\#112732\] {
+  background-color: #000000 !important;
+}
+.text-\[\#112732\] {
+  color: #000000 !important;
+}
+.bg-\[\#0d1f29\] {
+  background-color: #000000 !important;
+}
+.bg-\[\#0a1620\] {
+  background-color: #000000 !important;
+}
+.border-\[\#112732\] {
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+.bg-\[\#1a3548\] {
+  background-color: #000000 !important;
+}
+.bg-\[\#0e2030\] {
+  background-color: #000000 !important;
+}
+.bg-\[\#0d1d28\] {
+  background-color: #000000 !important;
+}
+.bg-\[\#080f15\] {
+  background-color: #000000 !important;
+}
+.text-\[\#9AA8B6\] {
+  color: #f2f2f2 !important;
+}
+.text-\[\#0a1620\] {
+  color: #000000 !important;
+}
+.bg-\[\#0f1f29\] {
+  background-color: #000000 !important;
+}
+.bg-\[\#DAE1E8\] {
+  background-color: #ffffff !important;
+}
+.ring-\[\#5b9b9b\] {
+  --tw-ring-color: rgba(0, 0, 0, 0.14) !important;
+}
+.from-\[\#1a2c3a\] {
+  --tw-gradient-from: #000000 !important;
+}
+.via-\[\#0e2030\] {
+  --tw-gradient-via: #000000 !important;
+}
+.to-\[\#0a1620\] {
+  --tw-gradient-to: #000000 !important;
+}
+.from-\[\#1d3947\] {
+  --tw-gradient-from: #000000 !important;
+}
+.via-\[\#2c4a5b\] {
+  --tw-gradient-via: #ffffff !important;
+}
+.to-\[\#0f1f29\] {
+  --tw-gradient-to: #000000 !important;
+}
+.text-\[\#DAE1E8\] {
+  color: #f2f2f2 !important;
+}
+.from-\[\#080f15\] {
+  --tw-gradient-from: #000000 !important;
+}
+
+/* No flip rule. Each tone keeps the job it had: a dark surface stays dark
+   and holds its pale text, a light surface stays light and holds its black
+   text. Contrast therefore follows whatever is actually behind the words,
+   which is the rule, and nothing needs a second pass to stay readable. */
+
+/* The header keeps the brand navy, and its own text colours with it. */
+html body header[class*="fixed"] .border-pacific-dark {
+  border-color: #112732 !important;
+}
+html body header[class*="fixed"] .border-pacific-dark\/10 {
+  border-color: color-mix(in oklab, #112732 10%, transparent) !important;
+}
+html body header[class*="fixed"] .border-pacific-dark\/15 {
+  border-color: color-mix(in oklab, #112732 15%, transparent) !important;
+}
+html body header[class*="fixed"] .border-pacific-light\/50 {
+  border-color: color-mix(in oklab, #dae1e8 50%, transparent) !important;
+}
+html body header[class*="fixed"] .border-pacific-light\/60 {
+  border-color: color-mix(in oklab, #dae1e8 60%, transparent) !important;
+}
+html body header[class*="fixed"] .border-pacific-light\/80 {
+  border-color: color-mix(in oklab, #dae1e8 80%, transparent) !important;
+}
+html body header[class*="fixed"] .border-pacific-mid {
+  border-color: #9aa8b6 !important;
+}
+html body header[class*="fixed"] .border-pacific-mid\/15 {
+  border-color: color-mix(in oklab, #9aa8b6 15%, transparent) !important;
+}
+html body header[class*="fixed"] .border-pacific-mid\/20 {
+  border-color: color-mix(in oklab, #9aa8b6 20%, transparent) !important;
+}
+html body header[class*="fixed"] .border-pacific-mid\/25 {
+  border-color: color-mix(in oklab, #9aa8b6 25%, transparent) !important;
+}
+html body header[class*="fixed"] .border-pacific-mid\/30 {
+  border-color: color-mix(in oklab, #9aa8b6 30%, transparent) !important;
+}
+html body header[class*="fixed"] .border-pacific-mid\/40 {
+  border-color: color-mix(in oklab, #9aa8b6 40%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark {
+  background-color: #112732 !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/5 {
+  background-color: color-mix(in oklab, #112732 5%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/30 {
+  background-color: color-mix(in oklab, #112732 30%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/40 {
+  background-color: color-mix(in oklab, #112732 40%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/50 {
+  background-color: color-mix(in oklab, #112732 50%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/55 {
+  background-color: color-mix(in oklab, #112732 55%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/60 {
+  background-color: color-mix(in oklab, #112732 60%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/70 {
+  background-color: color-mix(in oklab, #112732 70%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/80 {
+  background-color: color-mix(in oklab, #112732 80%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/85 {
+  background-color: color-mix(in oklab, #112732 85%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/90 {
+  background-color: color-mix(in oklab, #112732 90%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-dark\/95 {
+  background-color: color-mix(in oklab, #112732 95%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-light {
+  background-color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .bg-pacific-light\/5 {
+  background-color: color-mix(in oklab, #dae1e8 5%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-light\/10 {
+  background-color: color-mix(in oklab, #dae1e8 10%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-light\/15 {
+  background-color: color-mix(in oklab, #dae1e8 15%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-light\/20 {
+  background-color: color-mix(in oklab, #dae1e8 20%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-light\/60 {
+  background-color: color-mix(in oklab, #dae1e8 60%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-light\/95 {
+  background-color: color-mix(in oklab, #dae1e8 95%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-mid {
+  background-color: #9aa8b6 !important;
+}
+html body header[class*="fixed"] .bg-pacific-mid\/10 {
+  background-color: color-mix(in oklab, #9aa8b6 10%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-mid\/20 {
+  background-color: color-mix(in oklab, #9aa8b6 20%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-mid\/30 {
+  background-color: color-mix(in oklab, #9aa8b6 30%, transparent) !important;
+}
+html body header[class*="fixed"] .bg-pacific-mid\/40 {
+  background-color: color-mix(in oklab, #9aa8b6 40%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-dark {
+  --tw-gradient-from: #112732 !important;
+}
+html body header[class*="fixed"] .from-pacific-dark\/30 {
+  --tw-gradient-from: color-mix(in oklab, #112732 30%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-dark\/60 {
+  --tw-gradient-from: color-mix(in oklab, #112732 60%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-dark\/70 {
+  --tw-gradient-from: color-mix(in oklab, #112732 70%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-dark\/80 {
+  --tw-gradient-from: color-mix(in oklab, #112732 80%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-dark\/85 {
+  --tw-gradient-from: color-mix(in oklab, #112732 85%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-light {
+  --tw-gradient-from: #dae1e8 !important;
+}
+html body header[class*="fixed"] .from-pacific-mid {
+  --tw-gradient-from: #9aa8b6 !important;
+}
+html body header[class*="fixed"] .from-pacific-mid\/10 {
+  --tw-gradient-from: color-mix(in oklab, #9aa8b6 10%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-mid\/15 {
+  --tw-gradient-from: color-mix(in oklab, #9aa8b6 15%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-mid\/20 {
+  --tw-gradient-from: color-mix(in oklab, #9aa8b6 20%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-mid\/25 {
+  --tw-gradient-from: color-mix(in oklab, #9aa8b6 25%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-mid\/30 {
+  --tw-gradient-from: color-mix(in oklab, #9aa8b6 30%, transparent) !important;
+}
+html body header[class*="fixed"] .from-pacific-mid\/40 {
+  --tw-gradient-from: color-mix(in oklab, #9aa8b6 40%, transparent) !important;
+}
+html body header[class*="fixed"] .via-pacific-dark {
+  --tw-gradient-via: #112732 !important;
+}
+html body header[class*="fixed"] .via-pacific-dark\/40 {
+  --tw-gradient-via: color-mix(in oklab, #112732 40%, transparent) !important;
+}
+html body header[class*="fixed"] .via-pacific-dark\/55 {
+  --tw-gradient-via: color-mix(in oklab, #112732 55%, transparent) !important;
+}
+html body header[class*="fixed"] .via-pacific-dark\/60 {
+  --tw-gradient-via: color-mix(in oklab, #112732 60%, transparent) !important;
+}
+html body header[class*="fixed"] .via-pacific-dark\/70 {
+  --tw-gradient-via: color-mix(in oklab, #112732 70%, transparent) !important;
+}
+html body header[class*="fixed"] .via-pacific-dark\/75 {
+  --tw-gradient-via: color-mix(in oklab, #112732 75%, transparent) !important;
+}
+html body header[class*="fixed"] .via-pacific-dark\/85 {
+  --tw-gradient-via: color-mix(in oklab, #112732 85%, transparent) !important;
+}
+html body header[class*="fixed"] .via-pacific-dark\/95 {
+  --tw-gradient-via: color-mix(in oklab, #112732 95%, transparent) !important;
+}
+html body header[class*="fixed"] .via-pacific-light {
+  --tw-gradient-via: #dae1e8 !important;
+}
+html body header[class*="fixed"] .via-pacific-mid\/30 {
+  --tw-gradient-via: color-mix(in oklab, #9aa8b6 30%, transparent) !important;
+}
+html body header[class*="fixed"] .via-pacific-mid\/50 {
+  --tw-gradient-via: color-mix(in oklab, #9aa8b6 50%, transparent) !important;
+}
+html body header[class*="fixed"] .via-pacific-mid\/60 {
+  --tw-gradient-via: color-mix(in oklab, #9aa8b6 60%, transparent) !important;
+}
+html body header[class*="fixed"] .to-pacific-dark {
+  --tw-gradient-to: #112732 !important;
+}
+html body header[class*="fixed"] .to-pacific-dark\/10 {
+  --tw-gradient-to: color-mix(in oklab, #112732 10%, transparent) !important;
+}
+html body header[class*="fixed"] .to-pacific-dark\/15 {
+  --tw-gradient-to: color-mix(in oklab, #112732 15%, transparent) !important;
+}
+html body header[class*="fixed"] .to-pacific-dark\/70 {
+  --tw-gradient-to: color-mix(in oklab, #112732 70%, transparent) !important;
+}
+html body header[class*="fixed"] .to-pacific-dark\/85 {
+  --tw-gradient-to: color-mix(in oklab, #112732 85%, transparent) !important;
+}
+html body header[class*="fixed"] .to-pacific-dark\/90 {
+  --tw-gradient-to: color-mix(in oklab, #112732 90%, transparent) !important;
+}
+html body header[class*="fixed"] .to-pacific-light {
+  --tw-gradient-to: #dae1e8 !important;
+}
+html body header[class*="fixed"] .to-pacific-mid {
+  --tw-gradient-to: #9aa8b6 !important;
+}
+html body header[class*="fixed"] .to-pacific-mid\/40 {
+  --tw-gradient-to: color-mix(in oklab, #9aa8b6 40%, transparent) !important;
+}
+html body header[class*="fixed"] .to-pacific-mid\/50 {
+  --tw-gradient-to: color-mix(in oklab, #9aa8b6 50%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-dark {
+  color: #112732 !important;
+}
+html body header[class*="fixed"] .text-pacific-dark\/45 {
+  color: color-mix(in oklab, #112732 45%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-dark\/50 {
+  color: color-mix(in oklab, #112732 50%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-dark\/55 {
+  color: color-mix(in oklab, #112732 55%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-dark\/60 {
+  color: color-mix(in oklab, #112732 60%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-dark\/65 {
+  color: color-mix(in oklab, #112732 65%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-dark\/70 {
+  color: color-mix(in oklab, #112732 70%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-dark\/80 {
+  color: color-mix(in oklab, #112732 80%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-light {
+  color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .text-pacific-light\/70 {
+  color: color-mix(in oklab, #dae1e8 70%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-light\/75 {
+  color: color-mix(in oklab, #dae1e8 75%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-light\/80 {
+  color: color-mix(in oklab, #dae1e8 80%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-light\/85 {
+  color: color-mix(in oklab, #dae1e8 85%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-light\/90 {
+  color: color-mix(in oklab, #dae1e8 90%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-light\/95 {
+  color: color-mix(in oklab, #dae1e8 95%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-mid {
+  color: #9aa8b6 !important;
+}
+html body header[class*="fixed"] .text-pacific-mid\/40 {
+  color: color-mix(in oklab, #9aa8b6 40%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-mid\/50 {
+  color: color-mix(in oklab, #9aa8b6 50%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-mid\/60 {
+  color: color-mix(in oklab, #9aa8b6 60%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-mid\/70 {
+  color: color-mix(in oklab, #9aa8b6 70%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-mid\/80 {
+  color: color-mix(in oklab, #9aa8b6 80%, transparent) !important;
+}
+html body header[class*="fixed"] .text-pacific-mid\/90 {
+  color: color-mix(in oklab, #9aa8b6 90%, transparent) !important;
+}
+html body header[class*="fixed"] .ring-pacific-light\/60 {
+  --tw-ring-color: color-mix(in oklab, #dae1e8 60%, transparent) !important;
+}
+html body header[class*="fixed"] .ring-pacific-light\/90 {
+  --tw-ring-color: color-mix(in oklab, #dae1e8 90%, transparent) !important;
+}
+html body header[class*="fixed"] .ring-pacific-mid\/30 {
+  --tw-ring-color: color-mix(in oklab, #9aa8b6 30%, transparent) !important;
+}
+html body header[class*="fixed"] .ring-pacific-mid\/60 {
+  --tw-ring-color: color-mix(in oklab, #9aa8b6 60%, transparent) !important;
+}
+html body header[class*="fixed"] .group-hover\:text-pacific-light {
+  color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .group-hover\:text-pacific-mid {
+  color: #9aa8b6 !important;
+}
+html body header[class*="fixed"] .file\:text-pacific-light {
+  color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .placeholder\:text-pacific-mid\/50 {
+  color: color-mix(in oklab, #9aa8b6 50%, transparent) !important;
+}
+html body header[class*="fixed"] .placeholder\:text-pacific-mid\/60 {
+  color: color-mix(in oklab, #9aa8b6 60%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:border-pacific-dark {
+  border-color: #112732 !important;
+}
+html body header[class*="fixed"] .hover\:border-pacific-dark\/40 {
+  border-color: color-mix(in oklab, #112732 40%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:border-pacific-mid {
+  border-color: #9aa8b6 !important;
+}
+html body header[class*="fixed"] .hover\:border-pacific-mid\/30 {
+  border-color: color-mix(in oklab, #9aa8b6 30%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:border-pacific-mid\/40 {
+  border-color: color-mix(in oklab, #9aa8b6 40%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:border-pacific-mid\/50 {
+  border-color: color-mix(in oklab, #9aa8b6 50%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:border-pacific-mid\/60 {
+  border-color: color-mix(in oklab, #9aa8b6 60%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:border-pacific-mid\/70 {
+  border-color: color-mix(in oklab, #9aa8b6 70%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:bg-pacific-dark {
+  background-color: #112732 !important;
+}
+html body header[class*="fixed"] .hover\:bg-pacific-dark\/90 {
+  background-color: color-mix(in oklab, #112732 90%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:bg-pacific-light {
+  background-color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .hover\:bg-pacific-light\/40 {
+  background-color: color-mix(in oklab, #dae1e8 40%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:bg-pacific-mid\/15 {
+  background-color: color-mix(in oklab, #9aa8b6 15%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:bg-pacific-mid\/20 {
+  background-color: color-mix(in oklab, #9aa8b6 20%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:bg-pacific-mid\/30 {
+  background-color: color-mix(in oklab, #9aa8b6 30%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:bg-pacific-mid\/40 {
+  background-color: color-mix(in oklab, #9aa8b6 40%, transparent) !important;
+}
+html body header[class*="fixed"] .hover\:text-pacific-dark {
+  color: #112732 !important;
+}
+html body header[class*="fixed"] .hover\:text-pacific-light {
+  color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .focus\:border-pacific-dark {
+  border-color: #112732 !important;
+}
+html body header[class*="fixed"] .focus\:border-pacific-mid {
+  border-color: #9aa8b6 !important;
+}
+html body header[class*="fixed"] .focus\:ring-pacific-mid\/30 {
+  --tw-ring-color: color-mix(in oklab, #9aa8b6 30%, transparent) !important;
+}
+html body header[class*="fixed"] .focus-visible\:border-pacific-dark {
+  border-color: #112732 !important;
+}
+html body header[class*="fixed"] .disabled\:hover\:bg-pacific-light {
+  background-color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .bg-\[\#112732\] {
+  background-color: #112732 !important;
+}
+html body header[class*="fixed"] .text-\[\#112732\] {
+  color: #112732 !important;
+}
+html body header[class*="fixed"] .bg-\[\#0d1f29\] {
+  background-color: #0d1f29 !important;
+}
+html body header[class*="fixed"] .bg-\[\#0a1620\] {
+  background-color: #0a1620 !important;
+}
+html body header[class*="fixed"] .border-\[\#112732\] {
+  border-color: #112732 !important;
+}
+html body header[class*="fixed"] .bg-\[\#1a3548\] {
+  background-color: #1a3548 !important;
+}
+html body header[class*="fixed"] .bg-\[\#0e2030\] {
+  background-color: #0e2030 !important;
+}
+html body header[class*="fixed"] .bg-\[\#0d1d28\] {
+  background-color: #0d1d28 !important;
+}
+html body header[class*="fixed"] .bg-\[\#080f15\] {
+  background-color: #080f15 !important;
+}
+html body header[class*="fixed"] .text-\[\#9AA8B6\] {
+  color: #9aa8b6 !important;
+}
+html body header[class*="fixed"] .text-\[\#0a1620\] {
+  color: #0a1620 !important;
+}
+html body header[class*="fixed"] .bg-\[\#0f1f29\] {
+  background-color: #0f1f29 !important;
+}
+html body header[class*="fixed"] .bg-\[\#DAE1E8\] {
+  background-color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .ring-\[\#5b9b9b\] {
+  --tw-ring-color: #5b9b9b !important;
+}
+html body header[class*="fixed"] .from-\[\#1a2c3a\] {
+  --tw-gradient-from: #1a2c3a !important;
+}
+html body header[class*="fixed"] .via-\[\#0e2030\] {
+  --tw-gradient-via: #0e2030 !important;
+}
+html body header[class*="fixed"] .to-\[\#0a1620\] {
+  --tw-gradient-to: #0a1620 !important;
+}
+html body header[class*="fixed"] .from-\[\#1d3947\] {
+  --tw-gradient-from: #1d3947 !important;
+}
+html body header[class*="fixed"] .via-\[\#2c4a5b\] {
+  --tw-gradient-via: #2c4a5b !important;
+}
+html body header[class*="fixed"] .to-\[\#0f1f29\] {
+  --tw-gradient-to: #0f1f29 !important;
+}
+html body header[class*="fixed"] .text-\[\#DAE1E8\] {
+  color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .from-\[\#080f15\] {
+  --tw-gradient-from: #080f15 !important;
+}
+html body header[class*="fixed"] .text-white,
+html body header[class*="fixed"] .text-pacific-light {
+  color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .text-pacific-mid {
+  color: #9aa8b6 !important;
+}
+
+/* ---- the header, at a weight that actually wins ------------------------
+   The mega panel carries bg-[#112732], so the flip rule above matched its
+   contents as `html body .bg-[#112732] .text-pacific-mid` - two classes to
+   the header restore's one, which loses on specificity however many element
+   names it lists. `header[class]` adds the missing weight so the navy panel
+   keeps its light text. */
+html body header[class*="fixed"] .text-white,
+html body header[class*="fixed"] [class*="text-white\/"],
+html body header[class*="fixed"] .text-pacific-light {
+  color: #dae1e8 !important;
+}
+html body header[class*="fixed"] .text-pacific-mid,
+html body header[class*="fixed"] .text-\[\#9AA8B6\],
+html body header[class*="fixed"] .text-\[\#9aa8b6\] {
+  color: #9aa8b6 !important;
+}
+html body header[class*="fixed"] .text-pacific-dark {
+  color: #112732 !important;
+}
+
+/* ---- the header element itself ----------------------------------------
+   The restores above are all descendant selectors, but <header> carries its
+   own background class - solid navy once a mega panel is open. A descendant
+   rule cannot match the element that holds the class, so the bar itself was
+   still being repainted white while the panel beneath it stayed navy. */
+html body header[class*="fixed"].bg-pacific-dark,
+html body header[class*="fixed"].bg-\[\#112732\],
+html body header[class*="fixed"].bg-\[\#0d1f29\] {
+  background-color: #112732 !important;
+}
+html body header[class*="fixed"].bg-pacific-dark\/95 {
+  background-color: color-mix(in oklab, #112732 95%, transparent) !important;
+}
+html body header[class*="fixed"].from-pacific-dark,
+html body header[class*="fixed"].from-\[\#112732\] {
+  --tw-gradient-from: #112732 !important;
+}
+html body header[class*="fixed"].via-pacific-dark {
+  --tw-gradient-via: #112732 !important;
+}
+html body header[class*="fixed"].to-pacific-dark {
+  --tw-gradient-to: #112732 !important;
+}
+
+/* ==========================================================================
+   SECTIONS WHITE, COMPONENTS DARK
+   --------------------------------------------------------------------------
+   The page reads white with black text. Only the pieces meant to be objects
+   on that page — cards, grids, the footer, the header — keep a non-white
+   ground, and those carry white text.
+
+   The site uses the same class for both, so the split is made on the
+   element: a <section> is the page, anything else carrying the same class is
+   a component sitting on it.
+
+   Listing sections one by one was tried first and kept missing them
+   (Open Positions, the sustainability cards). The default is inverted
+   instead: pale text goes black everywhere, and white is handed back only
+   inside something that is still actually dark.
+   ========================================================================== */
+
+/* 1. Every section goes white, whichever dark class it carries. */
+html body section[class*="bg-pacific-dark"],
+html body section[class*="bg-[#1"],
+html body section[class*="bg-[#0"] {
+  background-color: #ffffff !important;
+}
+
+/* 2. Pale text goes black by default — the page is white. */
+html body .text-white,
+html body [class*="text-white\/"],
+html body .text-pacific-light,
+html body .text-pacific-mid,
+html body [class*="text-[#9"],
+html body [class*="text-[#D"],
+html body [class*="text-[#d"] {
+  color: #000000 !important;
+}
+
+/* 3. White is handed back inside anything still dark. `:not(section)` is
+      what separates a card from the page it sits on — both carry the same
+      class, only one kept its dark ground. */
+html body :not(section)[class*="bg-pacific-dark"] .text-white,
+html body :not(section)[class*="bg-pacific-dark"] [class*="text-white\/"],
+html body :not(section)[class*="bg-pacific-dark"] .text-pacific-light,
+html body :not(section)[class*="bg-pacific-dark"] .text-pacific-mid,
+html body :not(section)[class*="bg-[#1"] .text-white,
+html body :not(section)[class*="bg-[#1"] .text-pacific-light,
+html body :not(section)[class*="bg-[#1"] .text-pacific-mid,
+html body :not(section)[class*="bg-[#0"] .text-white,
+html body :not(section)[class*="bg-[#0"] .text-pacific-light,
+html body :not(section)[class*="bg-[#0"] .text-pacific-mid,
+html body footer .text-white,
+html body footer [class*="text-white\/"],
+html body footer .text-pacific-light,
+html body footer .text-pacific-mid {
+  color: #f2f2f2 !important;
+}
+
+/* 4. Sections that keep a dark ground, marked by bw-temp-sections.tsx.
+      Structure cannot tell them apart — every scroll section on the
+      homepage is a navy <section> around a sticky stage, so both
+      `:has(img.object-cover)` and `:has(> div.sticky)` matched all of
+      them and left pale text on the white ground. The marker keys off the
+      section's eyebrow instead. */
+html body section[data-bw-dark] {
+  background-color: #000000 !important;
+}
+html body section[data-bw-dark] .text-white,
+html body section[data-bw-dark] [class*="text-white\/"],
+html body section[data-bw-dark] .text-pacific-light,
+html body section[data-bw-dark] .text-pacific-mid,
+html body section[data-bw-dark] [class*="text-[#9"],
+html body section[data-bw-dark] [class*="text-[#D"],
+html body section[data-bw-dark] [class*="text-[#d"] {
+  color: #f2f2f2 !important;
+}
+
+/* ---- elements that are themselves dark --------------------------------
+   The restores above are descendant selectors, so an element carrying both
+   a dark background and its own light text class — a selected filter pill,
+   the cart button — fell through and rendered black on black. */
+html body :not(section)[class*="bg-pacific-dark"].text-white,
+html body :not(section)[class*="bg-pacific-dark"][class*="text-white\/"],
+html body :not(section)[class*="bg-pacific-dark"].text-pacific-light,
+html body :not(section)[class*="bg-[#1"].text-white,
+html body :not(section)[class*="bg-[#0"].text-white,
+html body button[class*="bg-pacific-dark"],
+html body a[class*="bg-pacific-dark"],
+html body button[class*="bg-[#1"],
+html body a[class*="bg-[#1"] {
+  color: #ffffff !important;
+}
+
+/* ---- header stays solid ------------------------------------------------
+   At the top of a page the header is transparent by design, sitting over a
+   dark hero. With the page now white, that left pale nav text on white.
+   Keep it solid navy throughout the test. */
+html body header[class*="fixed"] {
+  background-color: #112732 !important;
+  background-image: none !important;
+}
+
+/* ---- catalogue grid on pure white --------------------------------------
+   The slab grid sat on a black ground, which fought the pale marbles it is
+   showing. The cards now carry their own contrast (SlabCard picks black or
+   white type from each image's dominant colour), so the page behind them
+   can be plain white with a soft shadow lifting each card off it. */
+html body main [class*="bg-pacific-dark"]:has(article),
+html body main [class*="bg-[#0"]:has(article),
+html body main [class*="bg-[#1"]:has(article) {
+  background-color: #ffffff !important;
+}
+html body main article:has(img) {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* ---- full-page grounds are pages, not components -----------------------
+   The catalogue wraps everything in `div.min-h-screen.bg-[#112732]`. That is
+   the page, but it is a <div>, so the component rule above kept it dark and
+   its text white. A ground that fills the viewport is never a card. */
+html body main div[class*="min-h-screen"][class*="bg-pacific-dark"],
+html body main div[class*="min-h-screen"][class*="bg-[#1"],
+html body main div[class*="min-h-screen"][class*="bg-[#0"] {
+  background-color: #ffffff !important;
+}
+html body main div[class*="min-h-screen"] .text-white,
+html body main div[class*="min-h-screen"] [class*="text-white\/"],
+html body main div[class*="min-h-screen"] .text-pacific-light,
+html body main div[class*="min-h-screen"] .text-pacific-mid,
+html body main div[class*="min-h-screen"] [class*="text-[#9"],
+html body main div[class*="min-h-screen"] [class*="text-[#D"],
+html body main div[class*="min-h-screen"] [class*="text-[#d"] {
+  color: #000000 !important;
+}
+
+/* The sticky filter bar rides on that ground, so it goes white with it. */
+html body main [class*="sticky"][class*="bg-pacific-dark"],
+html body main [class*="sticky"][class*="bg-[#1"],
+html body main [class*="sticky"][class*="bg-[#0"] {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ---- the filter rail ---------------------------------------------------
+   The rail keeps the catalogue's navy in the real design, so under this
+   test it inherited the component treatment and came out black on black.
+   It is page furniture, not a card: white ground, black type, hairline
+   pills. */
+html body aside [class*="bg-[#112732]"],
+html body aside [class*="bg-pacific-dark"] {
+  background-color: #ffffff !important;
+}
+html body aside,
+html body aside * {
+  color: #000000 !important;
+}
+/* The pills are translucent white over navy; on white they vanish. */
+html body aside [class*="bg-white\/"] {
+  background-color: #f4f4f4 !important;
+}
+html body aside [class*="border-white\/"] {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+html body aside input::placeholder {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+/* The active view-mode toggle is white-on-navy; invert it back. */
+html body aside button[class*="bg-white"]:not([class*="bg-white\/"]) {
+  background-color: #000000 !important;
+}
+html body aside button[class*="bg-white"]:not([class*="bg-white\/"]) * {
+  color: #ffffff !important;
+}
+
+/* ---- section headings inside the grid ---------------------------------
+   These are <header> elements too, and the site-header rules above were
+   painting them navy. They belong to the page: white ground, black type,
+   hairline rule under. */
+html body main header {
+  background-color: transparent !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+html body main header .text-white,
+html body main header [class*="text-white\/"],
+html body main header .text-pacific-light,
+html body main header .text-pacific-mid {
+  color: #000000 !important;
+}
+
+/* ---- rail alignment ----------------------------------------------------
+   The rail reuses the bar's controls, which are sized to sit in a row. In a
+   288px column they need to fill the width, or the pills stagger and the
+   sort control overflows the rail. */
+html body aside > div > div {
+  width: 100%;
+}
+/* Excluded rather than overridden: the view-mode toggle's two buttons are
+   square (`w-8`), and stretching them to 100% then undoing it with
+   `width: auto` collapsed them to the width of their icon — the toggle
+   rendered 42px wide where it needed 76px, which is what made it look
+   crushed. Skipping them here leaves their own sizing intact. */
+html body aside button[class*="rounded-full"]:not([class*="w-8"]) {
+  width: 100%;
+  justify-content: space-between;
+}
+html body aside [class*="rounded-full"][class*="p-1"] {
+  width: auto;
+}
+html body aside input {
+  width: 100%;
+}
+
+/* ---- the in-page section nav ------------------------------------------
+   Gallery / About / Product info / Similar styles / Compare colors. The bar
+   is a sticky strip that turned white with the page, but its labels are
+   written for navy — `text-white` for the active tab, `text-pacific-mid/70`
+   for the rest — so they came out pale on white. */
+html body main div[class*="sticky"][class*="top-[72px]"] button,
+html body main div[class*="sticky"][class*="top-[72px]"] a {
+  color: rgba(0, 0, 0, 0.55) !important;
+}
+/* The active tab, which carries text-white and a white underline. */
+html
+  body
+  main
+  div[class*="sticky"][class*="top-[72px]"]
+  button[class*="text-white"],
+html
+  body
+  main
+  div[class*="sticky"][class*="top-[72px]"]
+  a[class*="text-white"] {
+  color: #000000 !important;
+  border-bottom-color: #000000 !important;
+}
+html body main div[class*="sticky"][class*="top-[72px]"] button:hover,
+html body main div[class*="sticky"][class*="top-[72px]"] a:hover {
+  color: #000000 !important;
+}
+
+/* ==========================================================================
+   The certification strip (NSF / Greenguard / CE / ISO / Kosher).
+
+   Rule 1 above whitens dark grounds, but only on `section` elements —
+   this strip is a `motion.div` (components/sections/TrustStrip), so it
+   slipped through and kept the black `bg-[#112732]` from line 217. Two
+   things went wrong with that: the labels read white-on-black in the
+   middle of a white page, and the CE badge — which is pure black ink on
+   transparency — was invisible against it.
+
+   Whiten the container, then take back the white text that rule 3 hands
+   to anything still carrying a dark background class.
+   ========================================================================== */
+html body div[class*="bg-[#112732]"][class*="border-y"] {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+html body div[class*="bg-[#112732]"][class*="border-y"] .text-white,
+html body div[class*="bg-[#112732]"][class*="border-y"] [class*="text-white\/"],
+html body div[class*="bg-[#112732]"][class*="border-y"] [class*="text-[#9"],
+html body div[class*="bg-[#112732]"][class*="border-y"] .text-pacific-light,
+html body div[class*="bg-[#112732]"][class*="border-y"] .text-pacific-mid {
+  color: #000000 !important;
+}
+
+/* ==========================================================================
+   The DNV / SGS certification spread (components/sections/CertificationsSection).
+
+   These two cards KEEP a dark ground — the layout is modelled on the
+   Silestone certification spread, where a solid dark card sits beside the
+   same block over a photograph. They are `motion.div`s, so rule 1 never
+   whitened them; what they do need is their pale text handed back, since
+   rule 2 blackens `.text-white` and rule 3 only restores the plain class,
+   not the `text-white/90` variants these use.
+   ========================================================================== */
+html body div[class*="min-h-[460px]"] .text-white,
+html body div[class*="min-h-[460px]"] [class*="text-white\/"] {
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   Collection carousel cards (components/sections/CollectionsShowcaseGrid).
+
+   These can't ride on the section marker: the Collections section's own
+   eyebrow and heading were explicitly asked to stay black, and only the
+   cards inside it carry copy over photography. Each card is a full-height
+   tile with a black bottom-up scrim, so its caption needs white back.
+   `h-[60vh]` is unique to these cards.
+   ========================================================================== */
+html body a[class*="h-[60vh]"] .text-white,
+html body a[class*="h-[60vh]"] [class*="text-white\/"] {
+  color: #f2f2f2 !important;
+}
+
+/* ==========================================================================
+   Full-viewport media heroes (components/catalogue/QuartzHeroVideo).
+
+   Not on the KEEP_DARK list, because that matches section text and this
+   component is reused with a different headline on /products and on every
+   category and item page — listing them one by one would go stale the
+   moment a headline changes. It is targeted structurally instead:
+   `section.h-screen.bg-pacific-dark` resolves to exactly four elements
+   across the site (the two hero videos plus Projects and Visualize, both
+   already marked), and every one of them is filled edge to edge with
+   video or a poster image. There is no case where that combination wants
+   black text.
+   ========================================================================== */
+html body section[class*="h-screen"][class*="bg-pacific-dark"] .text-white,
+html
+  body
+  section[class*="h-screen"][class*="bg-pacific-dark"]
+  [class*="text-white\/"],
+html
+  body
+  section[class*="h-screen"][class*="bg-pacific-dark"]
+  .text-pacific-light,
+html
+  body
+  section[class*="h-screen"][class*="bg-pacific-dark"]
+  [class*="text-pacific-light\/"],
+html
+  body
+  section[class*="h-screen"][class*="bg-pacific-dark"]
+  .text-pacific-mid {
+  color: #f2f2f2 !important;
+}

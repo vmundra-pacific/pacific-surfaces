@@ -11,10 +11,12 @@ import { TextReveal } from "@/components/ui/text-reveal";
  *
  * Sits right after TrustStrip on the homepage. The Ecosurfaces photo
  * (a low-silica slab with the eco material visible underneath) is the
- * full-section background. A right-side dark gradient scrim ramps from
- * transparent on the left (so the photo's subject reads cleanly) into
- * the brand navy on the right (so the typographic stack overlaying it
- * stays legible).
+ * full-section background, with a diagonal scrim that is heaviest at the
+ * top left — where the copy sits — and clears toward the slab itself.
+ *
+ * The type stack runs from the top left across the width. It used to be
+ * penned into a right-hand grid column against an empty left one, which
+ * read as one-sided and left the copy stranded beside the subject.
  *
  * Copy:
  *   - Eyebrow:  "PACIFIC SURFACES"
@@ -29,7 +31,8 @@ export function EcosurfacesSection() {
           edge-to-edge without any side fade so the image is visible
           across the full width. Object-cover keeps it filling the
           section regardless of viewport aspect ratio. */}
-      <Image unoptimized={false}
+      <Image
+        unoptimized={false}
         src="/images/ecosurfaces.png"
         alt=""
         aria-hidden="true"
@@ -39,23 +42,17 @@ export function EcosurfacesSection() {
         priority={false}
       />
 
-      {/* Soft uniform darken — applied across the entire image so the
-          white type stack reads cleanly regardless of which part of
-          the photo it overlays. Light enough that the image still
-          shows through, dark enough to anchor the text. */}
-      <div className="absolute inset-0 bg-black/35 pointer-events-none" />
+      {/* Diagonal darken — heaviest under the copy at the top left,
+          clearing toward the bottom right so the slab keeps its light.
+          A uniform wash flattened the whole photograph to hold text
+          that only occupies one corner of it. */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/65 via-black/40 to-black/15 pointer-events-none" />
 
-      {/* Content — stays in the right half on lg+, full-width on
-          smaller screens. min-h ensures the section has presence
-          without needing a fixed image height. */}
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-20 sm:py-28 md:py-36 grid grid-cols-1 lg:grid-cols-2 gap-10 min-h-[600px] lg:min-h-[700px]">
-        {/* Empty left column on lg+ so the photo's subject is visible
-            unobstructed. Hidden on smaller screens where the layout
-            stacks. */}
-        <div className="hidden lg:block" />
-
-        {/* Type stack — right column */}
-        <div className="flex flex-col justify-center">
+      {/* Content — anchored top left and running across the width.
+          min-h gives the section presence without a fixed image
+          height. */}
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-20 sm:py-24 md:py-28 min-h-[600px] lg:min-h-[700px]">
+        <div className="flex max-w-4xl flex-col items-start">
           <div className="flex items-center gap-2 mb-6">
             <span className="block w-8 h-px bg-white/40" />
             <span className="text-[10px] font-medium tracking-[0.3em] uppercase text-white/60">
@@ -65,7 +62,7 @@ export function EcosurfacesSection() {
 
           <TextReveal
             as="h2"
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.5rem] font-light tracking-tight text-white leading-[1.25]"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-white leading-[1.2]"
           >
             Pacific Surfaces is a low-silica mineral-infused engineered surfaces
             brand composed of premium and recycled minerals and materials.
