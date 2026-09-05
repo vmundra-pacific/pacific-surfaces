@@ -11,9 +11,9 @@ import {
   Send,
   ArrowRight,
 } from "lucide-react";
-import { useCart, lineKey, type CartItem } from "@/lib/cart";
+import { useCart, lineKey, type CartItem, type CartOption } from "@/lib/cart";
 import { formatCollection } from "@/components/catalogue/labels";
-import { CUSTOM_SIZE } from "@/data/store";
+import { CUSTOM_SIZE, type StoreOptions } from "@/data/store";
 import { trackMetaEvent } from "@/lib/meta-pixel";
 
 /**
@@ -47,12 +47,12 @@ const EMPTY_FORM: OrderForm = {
 
 export function CartClient({
   optionsByProduct,
+  colours,
 }: {
-  /** Size/thickness/finish choices per product id. */
-  optionsByProduct: Record<
-    string,
-    { sizes: string[]; thicknesses: string[]; finishes: string[] }
-  >;
+  /** Dimension, basin and finish choices per product id. */
+  optionsByProduct: Record<string, StoreOptions>;
+  /** The quartz range, offered as the colour of every piece. */
+  colours: string[];
 }) {
   const { items, count, ready, setQuantity, setOption, removeItem, clear } =
     useCart();
@@ -78,8 +78,11 @@ export function CartClient({
             name: i.name,
             slug: i.slug,
             collection: i.collection,
-            size: i.size,
-            thickness: i.thickness,
+            colour: i.colour,
+            length: i.length,
+            width: i.width,
+            height: i.height,
+            basins: i.basins,
             finish: i.finish,
             quantity: i.quantity,
           })),
@@ -169,6 +172,7 @@ export function CartClient({
                 key={lineKey(item)}
                 item={item}
                 options={optionsByProduct[item.id]}
+                colours={colours}
                 onQuantity={(q) => setQuantity(lineKey(item), q)}
                 onOption={(o, v) => setOption(lineKey(item), o, v)}
                 onRemove={() => removeItem(lineKey(item))}
@@ -289,14 +293,16 @@ export function CartClient({
 function CartLine({
   item,
   options,
+  colours,
   onQuantity,
   onOption,
   onRemove,
 }: {
   item: CartItem;
-  options?: { sizes: string[]; thicknesses: string[]; finishes: string[] };
+  options?: StoreOptions;
+  colours: string[];
   onQuantity: (q: number) => void;
-  onOption: (option: "size" | "thickness" | "finish", value: string) => void;
+  onOption: (option: CartOption, value: string) => void;
   onRemove: () => void;
 }) {
   return (
@@ -317,7 +323,7 @@ function CartLine({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <Link
-              href={`/products/${item.slug}`}
+              href={`/shop/${item.slug}`}
               className="text-sm font-medium text-pacific-dark hover:opacity-70"
             >
               {item.name}
@@ -339,40 +345,54 @@ function CartLine({
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          {/* A custom size is free text the customer typed, so it is
-              shown as a chip rather than forced into a dropdown it
-              would not match. */}
-          {options?.sizes && options.sizes.length > 0 ? (
-            options.sizes.includes(item.size) ? (
-              <OptionSelect
-                label={`Size for ${item.name}`}
-                value={item.size}
-                options={options.sizes}
-                onChange={(v) => onOption("size", v)}
-              />
-            ) : (
-              <span className="rounded-full border border-pacific-dark/15 px-3 py-1.5 text-xs font-light text-pacific-dark">
-                {item.size || CUSTOM_SIZE}
-                <span className="ml-1.5 text-pacific-dark/45">custom</span>
-              </span>
-            )
+          {/* One control per dimension, plus basins and finish. A value
+              typed for a custom piece will not be in the list, so it shows
+              as a chip rather than being forced into a dropdown that would
+              silently reset it. */}
+          <LineOption
+            name="Colour"
+            field="colour"
+            item={item}
+            list={colours}
+            onOption={onOption}
+          />
+          <LineOption
+            name="Length"
+            field="length"
+            item={item}
+            list={options?.lengths}
+            onOption={onOption}
+          />
+          <LineOption
+            name="Width"
+            field="width"
+            item={item}
+            list={options?.widths}
+            onOption={onOption}
+          />
+          <LineOption
+            name="Height"
+            field="height"
+            item={item}
+            list={options?.heights}
+            onOption={onOption}
+          />
+          {item.basins ? (
+            <LineOption
+              name="Basins"
+              field="basins"
+              item={item}
+              list={options?.basins}
+              onOption={onOption}
+            />
           ) : null}
-          {options?.thicknesses && options.thicknesses.length > 0 && (
-            <OptionSelect
-              label={`Thickness for ${item.name}`}
-              value={item.thickness}
-              options={options.thicknesses}
-              onChange={(v) => onOption("thickness", v)}
-            />
-          )}
-          {options?.finishes && options.finishes.length > 0 && (
-            <OptionSelect
-              label={`Finish for ${item.name}`}
-              value={item.finish}
-              options={options.finishes}
-              onChange={(v) => onOption("finish", v)}
-            />
-          )}
+          <LineOption
+            name="Finish"
+            field="finish"
+            item={item}
+            list={options?.finishes}
+            onOption={onOption}
+          />
 
           <div className="ml-auto flex items-center gap-1 rounded-full border border-pacific-dark/15">
             <button
@@ -398,33 +418,6 @@ function CartLine({
         </div>
       </div>
     </li>
-  );
-}
-
-function OptionSelect({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (v: string) => void;
-}) {
-  return (
-    <select
-      aria-label={label}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="rounded-full border border-pacific-dark/15 bg-white px-3 py-1.5 text-xs font-light text-pacific-dark focus:border-pacific-dark focus:outline-none"
-    >
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
-    </select>
   );
 }
 
@@ -487,6 +480,57 @@ function TextArea({
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-md border border-pacific-mid/25 px-3 py-2.5 text-sm font-light text-pacific-dark placeholder-pacific-mid/60 focus:border-pacific-dark focus:outline-none"
       />
+    </label>
+  );
+}
+
+/**
+ * One editable option on a cart line. A value the customer typed for a
+ * custom piece will not appear in the list, so it renders as a chip
+ * instead of a dropdown that would silently snap it back to a preset.
+ */
+function LineOption({
+  name,
+  field,
+  item,
+  list,
+  onOption,
+}: {
+  name: string;
+  field: CartOption;
+  item: CartItem;
+  list?: string[];
+  onOption: (option: CartOption, value: string) => void;
+}) {
+  const value = item[field];
+  if (!list || list.length === 0) return null;
+
+  if (!list.includes(value)) {
+    return (
+      <span className="rounded-full border border-pacific-dark/15 px-3 py-1.5 text-xs font-light text-pacific-dark">
+        {name} {value || CUSTOM_SIZE}
+        <span className="ml-1.5 text-pacific-dark/45">custom</span>
+      </span>
+    );
+  }
+
+  return (
+    <label className="inline-flex items-center gap-1.5">
+      <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-pacific-dark/45">
+        {name}
+      </span>
+      <select
+        aria-label={`${name} for ${item.name}`}
+        value={value}
+        onChange={(e) => onOption(field, e.target.value)}
+        className="rounded-full border border-pacific-dark/15 bg-white px-3 py-1.5 text-xs font-light text-pacific-dark focus:border-pacific-dark focus:outline-none"
+      >
+        {list.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }

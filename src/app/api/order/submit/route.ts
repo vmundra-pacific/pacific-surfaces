@@ -51,8 +51,11 @@ interface IncomingLine {
   name?: string;
   slug?: string;
   collection?: string | null;
-  size?: string;
-  thickness?: string;
+  colour?: string;
+  length?: string;
+  width?: string;
+  height?: string;
+  basins?: string;
   finish?: string;
   quantity?: number;
 }
@@ -153,7 +156,7 @@ export async function POST(req: NextRequest) {
       );
       return [
         {
-          _key: `${clampField(line.id, 64) || "line"}-${clampField(line.size, 64)}-${clampField(line.thickness, 32)}-${clampField(line.finish, 32)}`.replace(
+          _key: `${clampField(line.id, 64) || "line"}-${clampField(line.length, 16)}x${clampField(line.width, 16)}x${clampField(line.height, 16)}-${clampField(line.basins, 8)}-${clampField(line.finish, 32)}`.replace(
             /[^a-zA-Z0-9_-]/g,
             "-"
           ),
@@ -161,10 +164,13 @@ export async function POST(req: NextRequest) {
           slug: clampField(line.slug, FIELD_LIMITS.shortText) || undefined,
           collection:
             clampField(line.collection, FIELD_LIMITS.shortText) || undefined,
-          // Size may be a preset or dimensions the customer typed, so
-          // it gets the wider shortText clamp rather than 32 chars.
-          size: clampField(line.size, FIELD_LIMITS.shortText) || undefined,
-          thickness: clampField(line.thickness, 32) || undefined,
+          // Dimensions are inches, either a preset or a value the
+          // customer typed for a piece cut to order.
+          colour: clampField(line.colour, FIELD_LIMITS.shortText) || undefined,
+          length: clampField(line.length, 24) || undefined,
+          width: clampField(line.width, 24) || undefined,
+          height: clampField(line.height, 24) || undefined,
+          basins: clampField(line.basins, 8) || undefined,
           finish: clampField(line.finish, 32) || undefined,
           quantity,
         },
@@ -206,9 +212,11 @@ export async function POST(req: NextRequest) {
           (i) => `
         <tr>
           <td>${escapeHtml(i.name)}</td>
-          <td>${escapeHtml(i.collection ?? "—")}</td>
-          <td>${escapeHtml(i.size ?? "—")}</td>
-          <td>${escapeHtml(i.thickness ?? "—")}</td>
+          <td>${escapeHtml(i.colour ?? "—")}</td>
+          <td>${escapeHtml(
+            [i.length, i.width, i.height].filter(Boolean).join(" × ") || "—"
+          )}</td>
+          <td>${escapeHtml(i.basins ?? "—")}</td>
           <td>${escapeHtml(i.finish ?? "—")}</td>
           <td align="right">${i.quantity}</td>
         </tr>`
@@ -232,9 +240,9 @@ export async function POST(req: NextRequest) {
       <table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;width:100%">
         <tr style="background:#f1f4f5">
           <th align="left">Product</th>
-          <th align="left">Collection</th>
-          <th align="left">Size</th>
-          <th align="left">Thickness</th>
+          <th align="left">Colour</th>
+          <th align="left">L × W × H (in)</th>
+          <th align="left">Basins</th>
           <th align="left">Finish</th>
           <th align="right">Qty</th>
         </tr>

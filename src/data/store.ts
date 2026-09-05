@@ -70,49 +70,59 @@ export function isInStore(input: {
 }
 
 /* ---- orderable options ------------------------------------------
- * Vanities and basins carry almost nothing in Sanity: no thickness at
- * all, and at most one finish. But size, thickness and finish are
- * exactly what a customer is choosing when they order one, so the
- * store supplies the choices per section and lets the product's own
- * data win wherever it exists.
+ * Modelled on how this range is actually configured elsewhere in the
+ * category (quantra.in prices an integrated vanity sink by colour,
+ * length, width, height and number of basins). Thickness is not one of
+ * the choices: these are finished pieces cut to a size, not slabs sold
+ * by the millimetre, and offering it only invited a question the
+ * customer cannot answer.
  *
- * Sizes are drawn from the range as built — the basin names already
- * encode 36 x 22 and 48 x 22 — plus a custom option, since these are
- * cut to order and a non-standard vanity is a normal request rather
- * than an exception.
+ * Dimensions are in inches, matching the product names already in the
+ * catalogue (Aura Flow 36 x 22, Grand Edge 48 x 22).
  * ---------------------------------------------------------------- */
 
-/** Chosen from the size list to enter your own dimensions. */
-export const CUSTOM_SIZE = "Custom size";
+/** Offered in every dimension list, for a piece cut to order. */
+export const CUSTOM_SIZE = "Custom";
 
-interface SectionOptions {
-  sizes: string[];
-  thicknesses: string[];
+export interface StoreOptions {
+  lengths: string[];
+  widths: string[];
+  heights: string[];
+  /** Empty where the question does not apply. */
+  basins: string[];
   finishes: string[];
 }
 
-const OPTIONS_BY_SECTION: Record<StoreSection, SectionOptions> = {
+const FINISHES = ["Polished", "Suede", "Leathered", "Matte"];
+
+const OPTIONS_BY_SECTION: Record<StoreSection, StoreOptions> = {
   Vanities: {
-    sizes: ['48" x 22"', '60" x 22"', '72" x 22"', CUSTOM_SIZE],
-    thicknesses: ["1.2 cm", "2 cm", "3 cm"],
-    finishes: ["Polished", "Suede", "Leathered", "Matte"],
+    lengths: ["48", "60", "72", CUSTOM_SIZE],
+    widths: ["20", "22", "24", CUSTOM_SIZE],
+    heights: ["4", "5", "6", CUSTOM_SIZE],
+    basins: ["1", "2"],
+    finishes: FINISHES,
   },
   "Vanity Tops": {
-    sizes: ['36" x 22"', '48" x 22"', '60" x 22"', '72" x 22"', CUSTOM_SIZE],
-    thicknesses: ["1.2 cm", "2 cm", "3 cm"],
-    finishes: ["Polished", "Suede", "Leathered", "Matte"],
+    lengths: ["36", "48", "60", "72", CUSTOM_SIZE],
+    widths: ["18", "20", "22", "24", CUSTOM_SIZE],
+    heights: ["4", "5", "6", CUSTOM_SIZE],
+    basins: [],
+    finishes: FINISHES,
   },
   "Vanity Sinks": {
-    sizes: ['24" x 18"', '36" x 22"', '48" x 22"', CUSTOM_SIZE],
-    thicknesses: ["2 cm", "3 cm"],
-    finishes: ["Polished", "Suede", "Leathered", "Matte"],
+    lengths: ["24", "36", "48", "60", CUSTOM_SIZE],
+    widths: ["18", "20", "22", CUSTOM_SIZE],
+    heights: ["4", "5", "6", CUSTOM_SIZE],
+    basins: ["1", "2", "3", "4", "5"],
+    finishes: FINISHES,
   },
 };
 
 /**
- * Merge a product's own values with the section defaults, its own
- * first, ignoring case when deciding what is a duplicate ("polished"
- * from Sanity and "Polished" from the defaults are one option).
+ * Merge a product's own values with the section defaults, its own first,
+ * ignoring case when deciding what is a duplicate ("polished" from Sanity
+ * and "Polished" from the defaults are one option).
  */
 function merge(own: string[] | null | undefined, fallback: string[]): string[] {
   const out: string[] = [];
@@ -131,22 +141,65 @@ function merge(own: string[] | null | undefined, fallback: string[]): string[] {
 /**
  * The options offered for one storefront product.
  *
- * The vanity range carries almost nothing in Sanity — no thickness at
- * all, and a single finish on each vanity — so taking the product's
- * values alone would leave a customer with nothing to choose. The
- * section defaults are the range Pacific actually offers, so they are
- * merged in behind whatever the product declares rather than only
- * filling in when it declares nothing.
+ * The vanity range carries almost nothing in Sanity — no dimensions, and a
+ * single finish on each vanity — so taking the product's values alone would
+ * leave a customer with nothing to choose. The section defaults are the
+ * range Pacific actually offers, merged in behind whatever the product
+ * declares.
  */
 export function storeOptions(input: {
   section: StoreSection;
-  thicknesses?: string[] | null;
   finishes?: string[] | null;
-}): SectionOptions {
+}): StoreOptions {
   const defaults = OPTIONS_BY_SECTION[input.section];
   return {
-    sizes: defaults.sizes,
-    thicknesses: merge(input.thicknesses, defaults.thicknesses),
+    ...defaults,
     finishes: merge(input.finishes, defaults.finishes),
   };
+}
+
+/* ---- live colour preview ----------------------------------------------
+ * Products with a hand-authored layer set get the visualizer treatment on
+ * their store page: choosing a colour recomposites the stone into the bowl
+ * rather than just naming it.
+ *
+ * The layers mirror the demo rooms — base photo, mask, shadows, highlights
+ * — and are produced in Photoshop per product. Anything absent from this
+ * map simply shows its photograph, so adding a product is a matter of
+ * dropping four PNGs into public/store-basins/<name>/ and adding a line.
+ */
+export interface BasinLayers {
+  base: string;
+  mask: string;
+  shadows?: string;
+  highlights?: string;
+}
+
+const BASIN_LAYERS: Record<string, BasinLayers> = {
+  // The double-basin layer set. Belongs to the vanity tops, not to a
+  // single basin: the photograph is a vanity top with two bowls cut into
+  // it, which is what these products are.
+  "quartz-vanity": {
+    base: "/store-basins/double-basin/base.png",
+    mask: "/store-basins/double-basin/mask.png",
+    shadows: "/store-basins/double-basin/shadows.png",
+    highlights: "/store-basins/double-basin/highlights.png",
+  },
+  "luna-elite-quartz-vanity": {
+    base: "/store-basins/double-basin/base.png",
+    mask: "/store-basins/double-basin/mask.png",
+    shadows: "/store-basins/double-basin/shadows.png",
+    highlights: "/store-basins/double-basin/highlights.png",
+  },
+  "opal-basin": {
+    base: "/store-basins/double-basin/base.png",
+    mask: "/store-basins/double-basin/mask.png",
+    shadows: "/store-basins/double-basin/shadows.png",
+    highlights: "/store-basins/double-basin/highlights.png",
+  },
+};
+
+/** The composite layers for a product, when it has them. */
+export function basinLayers(slug: string): BasinLayers | null {
+  return BASIN_LAYERS[slug] ?? null;
 }

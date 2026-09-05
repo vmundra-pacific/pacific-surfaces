@@ -110,13 +110,21 @@ export default defineType({
             { name: "slug", title: "Slug", type: "string" },
             { name: "collection", title: "Collection", type: "string" },
             {
-              name: "size",
-              title: "Size",
+              name: "colour",
+              title: "Colour",
+              type: "string",
+              description: "The Pacific design the piece is made from.",
+            },
+            {
+              name: "length",
+              title: "Length (in)",
               type: "string",
               description:
-                "A standard size, or the dimensions the customer typed for a custom piece.",
+                "A standard size, or a value the customer typed for a piece cut to order.",
             },
-            { name: "thickness", title: "Thickness", type: "string" },
+            { name: "width", title: "Width (in)", type: "string" },
+            { name: "height", title: "Height (in)", type: "string" },
+            { name: "basins", title: "Number of basins", type: "string" },
             { name: "finish", title: "Finish", type: "string" },
             { name: "quantity", title: "Quantity", type: "number" },
           ],
@@ -124,12 +132,30 @@ export default defineType({
             select: {
               title: "name",
               quantity: "quantity",
-              size: "size",
-              thickness: "thickness",
+              colour: "colour",
+              length: "length",
+              width: "width",
+              height: "height",
+              basins: "basins",
               finish: "finish",
             },
-            prepare({ title, quantity, size, thickness, finish }) {
-              const options = [size, thickness, finish]
+            prepare({
+              title,
+              quantity,
+              colour,
+              length,
+              width,
+              height,
+              basins,
+              finish,
+            }) {
+              const size = [length, width, height].filter(Boolean).join(" x ");
+              const options = [
+                colour,
+                size ? `${size} in` : null,
+                basins ? `${basins} basin${basins === "1" ? "" : "s"}` : null,
+                finish,
+              ]
                 .filter(Boolean)
                 .join(" · ");
               return {

@@ -17,7 +17,7 @@ import {
   User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { APPLICATIONS } from "@/data/applications";
+import { applicationsForCollection } from "@/data/collection-applications";
 import { useCart } from "@/lib/cart";
 import { SearchOverlay } from "@/components/ui/search-overlay";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
@@ -436,20 +436,24 @@ function preloadMegaThumbs() {
 }
 
 /**
- * Pacific Applications — every surface use we sell into, shown as a
- * single scannable column inside the Products mega with a preview
- * image that swaps on hover.
+ * Pacific Applications inside the Products mega.
  *
- * Names, hrefs and preview images all come from src/data/applications.ts
- * so the menu and the pages it points at can never drift apart. Each
- * entry now has its own /applications/<slug> page rather than sharing
- * one of six /spaces routes.
+ * The list is per collection, not one set repeated against every
+ * card: Granites offers facades and staircases, Translucent offers
+ * backlit features, Eclipse offers neither. See
+ * src/data/collection-applications.ts for the lists and why the
+ * wording was harmonised.
+ *
+ * Names, hrefs and preview images all come from applications.ts, so
+ * every label in the menu is the title of the page it opens.
  */
-const PACIFIC_APPLICATIONS = APPLICATIONS.map((a) => ({
-  name: a.name,
-  href: `/applications/${a.slug}`,
-  image: a.sections[0].imageUrl,
-}));
+function megaApplications(categorySlug: string) {
+  return applicationsForCollection(categorySlug).map((a) => ({
+    name: a.name,
+    href: `/applications/${a.slug}`,
+    image: a.sections[0].imageUrl,
+  }));
+}
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -460,9 +464,10 @@ export default function Header() {
   // section's cards. Reset to null whenever the drawer closes.
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
-  // Which Pacific Applications row the cursor is on, as an index into
-  // PACIFIC_APPLICATIONS. Drives the preview image beside the list;
-  // defaults to 0 so the panel is never empty on open.
+  // Which Pacific Applications row the cursor is on. Drives the
+  // preview image beside the list; defaults to 0 so the panel is never
+  // empty on open, and is reset whenever a different category card is
+  // opened since each carries its own, shorter list.
   const [hoveredApp, setHoveredApp] = useState(0);
   // Store cart — badge only appears once localStorage has been read,
   // so it can't flash a stale or empty count on first paint.
@@ -491,6 +496,7 @@ export default function Header() {
     // When moving between Products and Spaces, drop any expanded
     // sub-panel so the new mega opens cleanly.
     if (openMegaItem !== itemName) setActiveMega(null);
+    setHoveredApp(0);
     setOpenMegaItem(itemName);
   };
   const handleMegaLeave = () => {
@@ -1197,6 +1203,17 @@ export default function Header() {
                                         (c) => c.slug === activeMega
                                       );
                                       if (!active) return null;
+                                      // This category's own
+                                      // applications - Granites lists
+                                      // facades and staircases,
+                                      // Translucent lists backlit
+                                      // features, and neither sees the
+                                      // other's.
+                                      const megaApps = megaApplications(
+                                        active.slug
+                                      );
+                                      const previewApp =
+                                        megaApps[hoveredApp] ?? megaApps[0];
                                       return (
                                         <motion.div
                                           key="mega-sub"
@@ -1262,29 +1279,27 @@ export default function Header() {
                                                 Pacific Applications
                                               </h4>
                                               <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                                                {PACIFIC_APPLICATIONS.map(
-                                                  (app, i) => (
-                                                    <li key={app.name}>
-                                                      <Link
-                                                        href={app.href}
-                                                        onMouseEnter={() =>
-                                                          setHoveredApp(i)
-                                                        }
-                                                        onFocus={() =>
-                                                          setHoveredApp(i)
-                                                        }
-                                                        className={cn(
-                                                          "block text-sm font-light transition-colors",
-                                                          hoveredApp === i
-                                                            ? "text-white"
-                                                            : "text-pacific-light hover:text-white"
-                                                        )}
-                                                      >
-                                                        {app.name}
-                                                      </Link>
-                                                    </li>
-                                                  )
-                                                )}
+                                                {megaApps.map((app, i) => (
+                                                  <li key={app.name}>
+                                                    <Link
+                                                      href={app.href}
+                                                      onMouseEnter={() =>
+                                                        setHoveredApp(i)
+                                                      }
+                                                      onFocus={() =>
+                                                        setHoveredApp(i)
+                                                      }
+                                                      className={cn(
+                                                        "block text-sm font-light transition-colors",
+                                                        hoveredApp === i
+                                                          ? "text-white"
+                                                          : "text-pacific-light hover:text-white"
+                                                      )}
+                                                    >
+                                                      {app.name}
+                                                    </Link>
+                                                  </li>
+                                                ))}
                                               </ul>
                                               <div className="pt-3">
                                                 <Link
@@ -1305,30 +1320,24 @@ export default function Header() {
                                               drawer. */}
                                             <div className="hidden lg:block lg:col-span-3">
                                               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-white/5">
-                                                {PACIFIC_APPLICATIONS.map(
-                                                  (app, i) => (
-                                                    <Image
-                                                      key={app.name}
-                                                      src={app.image}
-                                                      alt={app.name}
-                                                      fill
-                                                      sizes="20vw"
-                                                      className={cn(
-                                                        "object-cover transition-opacity duration-300",
-                                                        hoveredApp === i
-                                                          ? "opacity-100"
-                                                          : "opacity-0"
-                                                      )}
-                                                    />
-                                                  )
-                                                )}
+                                                {megaApps.map((app, i) => (
+                                                  <Image
+                                                    key={app.name}
+                                                    src={app.image}
+                                                    alt={app.name}
+                                                    fill
+                                                    sizes="20vw"
+                                                    className={cn(
+                                                      "object-cover transition-opacity duration-300",
+                                                      hoveredApp === i
+                                                        ? "opacity-100"
+                                                        : "opacity-0"
+                                                    )}
+                                                  />
+                                                ))}
                                                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3">
                                                   <div className="text-xs font-light tracking-wide text-white">
-                                                    {
-                                                      PACIFIC_APPLICATIONS[
-                                                        hoveredApp
-                                                      ].name
-                                                    }
+                                                    {previewApp?.name}
                                                   </div>
                                                 </div>
                                               </div>

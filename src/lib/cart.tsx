@@ -19,13 +19,22 @@ import {
  * never needs to survive a device change or be reconciled with
  * inventory; it only needs to hold what someone picked while browsing.
  *
- * Pieces are sold by the unit here. Size, thickness and finish are
- * held per line rather than per product, because the same vanity in
- * 48" polished and 60" leathered is two different things to quote —
- * and size may be a custom dimension the customer typed.
+ * Pieces are sold by the unit here. Dimensions, basin count and finish
+ * are held per line rather than per product, because the same vanity at
+ * 48" polished and 60" leathered is two different things to quote — and
+ * any dimension may be a value the customer typed.
  */
 
 const STORAGE_KEY = "ps_cart_v1";
+
+/** The fields a customer can change on a line after adding it. */
+export type CartOption =
+  | "colour"
+  | "length"
+  | "width"
+  | "height"
+  | "basins"
+  | "finish";
 
 export interface CartItem {
   /** Sanity _id — with thickness and finish, forms the line key. */
@@ -35,21 +44,36 @@ export interface CartItem {
   image: string | null;
   collection: string | null;
   /**
-   * Options the customer picked. `size` holds either a preset from the
-   * size list or the dimensions they typed for a custom piece, so the
-   * order carries one answer either way.
+   * Options the customer picked. Dimensions are inches, and each may be a
+   * preset or a value typed for a custom piece, so the order carries one
+   * answer either way. `basins` is blank where the question does not apply.
    */
-  size: string;
-  thickness: string;
+  /** The Pacific design the piece is made from. */
+  colour: string;
+  length: string;
+  width: string;
+  height: string;
+  basins: string;
   finish: string;
   quantity: number;
 }
 
 /** Two lines merge only when product and every option match. */
 export function lineKey(
-  item: Pick<CartItem, "id" | "size" | "thickness" | "finish">
+  item: Pick<
+    CartItem,
+    "id" | "colour" | "length" | "width" | "height" | "basins" | "finish"
+  >
 ): string {
-  return `${item.id}::${item.size}::${item.thickness}::${item.finish}`;
+  return [
+    item.id,
+    item.colour,
+    item.length,
+    item.width,
+    item.height,
+    item.basins,
+    item.finish,
+  ].join("::");
 }
 
 interface CartContextValue {
@@ -60,11 +84,7 @@ interface CartContextValue {
   ready: boolean;
   addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
   setQuantity: (key: string, quantity: number) => void;
-  setOption: (
-    key: string,
-    option: "size" | "thickness" | "finish",
-    value: string
-  ) => void;
+  setOption: (key: string, option: CartOption, value: string) => void;
   removeItem: (key: string) => void;
   clear: () => void;
 }
@@ -152,7 +172,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setOption = useCallback(
-    (key: string, option: "size" | "thickness" | "finish", value: string) => {
+    (key: string, option: CartOption, value: string) => {
       setItems((prev) => {
         const target = prev.find((i) => lineKey(i) === key);
         if (!target) return prev;

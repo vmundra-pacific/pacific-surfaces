@@ -28,6 +28,7 @@ export const revalidate = 3600;
 
 interface CatalogueRow {
   _id: string;
+  productType?: string | null;
   name?: string;
   slug?: { current?: string } | string;
   mainImage?: string | null;
@@ -57,11 +58,24 @@ export default async function ShopPage() {
           image: r.mainImage ?? null,
           section,
           collection: r.collectionName ?? "Other",
-          thicknesses: r.thickness ?? [],
           finishes: r.finishes ?? [],
         },
       ];
     });
+
+  // A vanity is made from one of our quartz designs, so the colour list is
+  // the range itself rather than a hand-kept list that would drift as
+  // editors publish new colours.
+  const seenColours = new Set<string>();
+  const colours = (rows ?? [])
+    .filter((r) => r.visible !== false && r.productType === "quartz-slab")
+    .flatMap((r) => {
+      const name = r.name?.trim();
+      if (!name || seenColours.has(name)) return [];
+      seenColours.add(name);
+      return [{ name, image: r.mainImage ?? null }];
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <>
@@ -76,7 +90,7 @@ export default async function ShopPage() {
         title="Vanities, tops and sinks."
         description="The store opens with our vanity range. Add what you need to the cart and place the order — no payment online. Our team confirms quantities, freight and price before anything ships."
       />
-      <ShopClient products={products} />
+      <ShopClient products={products} colours={colours} />
     </>
   );
 }
