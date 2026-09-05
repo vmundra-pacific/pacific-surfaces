@@ -492,6 +492,39 @@ ul {
 .series {
   padding: 0 var(--pad) var(--sec);
 }
+
+/* ---------- full-width video sections ----------
+   A reel runs edge to edge and keeps the file's own 16:9 shape, so the
+   frame is never cropped. Muted and playsinline so it can autoplay
+   everywhere; the poster covers the gap before the first frame decodes.
+   `preload="metadata"` rather than auto: two reels on one page should not
+   pull 5 MB before the reader has scrolled to them. */
+.reel {
+  padding: 0 0 var(--sec);
+}
+.reel__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: clip;
+  background: var(--bg-2);
+}
+.reel__frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.reel__cap {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem var(--pad) 0;
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
 .series__head {
   display: grid;
   grid-template-columns: 1.35fr 1fr;
