@@ -11,7 +11,7 @@
     <title>Pacific 2026 Collection — Pacific</title>
     <meta
       name="description"
-      content="The 2026 Pacific release — nine new surfaces across the Eclipse and Nebula series, with full slab, close-up and application imagery."
+      content="The 2026 Pacific release — twelve new surfaces across the Eclipse, Nebula and Celestia series, with full slab, close-up and application imagery."
     />
 
     <!-- Unlisted page: keep it out of search results and out of any sitemap.
@@ -29,7 +29,7 @@
     <meta property="og:title" content="Pacific 2026 Collection — Pacific" />
     <meta
       property="og:description"
-      content="The 2026 Pacific release — nine new surfaces across the Eclipse and Nebula series, with full slab, close-up and application imagery."
+      content="The 2026 Pacific release — twelve new surfaces across the Eclipse, Nebula and Celestia series, with full slab, close-up and application imagery."
     />
     <meta
       property="og:image"
@@ -294,6 +294,7 @@
       <nav class="nav">
         <a href="#eclipse">Eclipse</a>
         <a href="#nebula">Nebula</a>
+        <a href="#celestia">Celestia</a>
         <a href="#enquire">Samples</a>
       </nav>
       <a class="btn btn--solid" href="#enquire"><span>Request samples</span></a>
@@ -304,17 +305,18 @@
         <div class="hero__media" id="heroMedia" aria-hidden="true"></div>
         <div class="hero__inner">
           <h1 class="display display--mega hero__title">
-            Nine new <em>surfaces.</em>
+            Twelve new <em>surfaces.</em>
           </h1>
           <div class="hero__meta">
             <p class="lede">
-              The 2026 release across two series — eight additions to Eclipse,
-              one to Nebula. Full slab, close-up and application imagery for
-              each.
+              The 2026 release across three series — eight additions to Eclipse,
+              three to Nebula, one to Celestia. Full slab, close-up and
+              application imagery for each.
             </p>
             <div class="hero__count">
               <div><span class="label">Eclipse</span><b>08</b></div>
-              <div><span class="label">Nebula</span><b>01</b></div>
+              <div><span class="label">Nebula</span><b>03</b></div>
+              <div><span class="label">Celestia</span><b>01</b></div>
               <div><span class="label">Released</span><b>Sep 2026</b></div>
             </div>
           </div>
@@ -373,6 +375,24 @@
           </p>
         </div>
         <div class="tiles" id="tiles-nebula"></div>
+      </section>
+
+      <section class="series" id="celestia">
+        <div class="series__head">
+          <div>
+            <div class="series__eyebrow">
+              <span class="series__dot"></span
+              ><span class="label">The Celestia series</span>
+            </div>
+            <h2 class="h2">Even in body,<br />free in the cut.</h2>
+          </div>
+          <p class="body-s">
+            Pattern worked evenly through the slab rather than drawn across it.
+            Nothing to align and no book-match to plan around, so long runs and
+            waterfall edges can be cut in whichever orientation the room needs.
+          </p>
+        </div>
+        <div class="tiles" id="tiles-celestia"></div>
       </section>
 
       <section class="cta" id="enquire">
@@ -694,6 +714,18 @@
 
     <script>
       const IMG = {
+        "crescendo-close": "img/crescendo-close.webp",
+        "crescendo-r1": "img/crescendo-r1.webp",
+        "crescendo-slab": "img/crescendo-slab.webp",
+        "crescendo-thumb": "img/crescendo-thumb.webp",
+        "hermes-close": "img/hermes-close.webp",
+        "hermes-r1": "img/hermes-r1.webp",
+        "hermes-slab": "img/hermes-slab.webp",
+        "hermes-thumb": "img/hermes-thumb.webp",
+        "toffee-lite-close": "img/toffee-lite-close.webp",
+        "toffee-lite-r1": "img/toffee-lite-r1.webp",
+        "toffee-lite-slab": "img/toffee-lite-slab.webp",
+        "toffee-lite-thumb": "img/toffee-lite-thumb.webp",
         "artemis-close": "img/artemis-close.webp",
         "artemis-r1": "img/artemis-r1.webp",
         "artemis-r2": "img/artemis-r2.webp",
@@ -925,6 +957,60 @@
             r2: "Kitchen island",
           },
         },
+        {
+          slug: "hermes",
+          name: "Hermes",
+          code: "",
+          series: "Nebula",
+          hue: "Cream / Gold",
+          tag: "Warm white, veined in gold.",
+          desc: "A cream ground carrying a dense, fine network of golden-tan veining — warmer than anything else in the Nebula series, and the one that reads as stone rather than as pattern. Suited to rooms lit with brass and warm timber, where a cool white would sit apart from everything around it.",
+          finishes: PENDING,
+          size: PENDING,
+          thick: PENDING,
+          apps: APPS_STD,
+          captions: {
+            slab: "Full slab",
+            close: "Close-up",
+            r1: "Bath — fluted cladding and vanity",
+          },
+        },
+        {
+          slug: "crescendo",
+          name: "Crescendo",
+          code: "",
+          series: "Nebula",
+          hue: "White",
+          tag: "Veining that arrives quietly.",
+          desc: "Sparse grey veining drawn in fine, broken lines across a bright white ground — the most restrained surface in this release. At a distance the slab reads as plain white; up close the structure resolves. Built for rooms where the stone should hold the light rather than take attention.",
+          finishes: PENDING,
+          size: PENDING,
+          thick: PENDING,
+          apps: APPS_FLR,
+          captions: {
+            slab: "Full slab",
+            close: "Close-up",
+            r1: "Pantry — counter, splashback and shelving",
+          },
+        },
+        {
+          slug: "toffee-lite",
+          name: "Toffee Lite",
+          code: "",
+          series: "Celestia",
+          hue: "Warm white",
+          tag: "A white that keeps its warmth.",
+          desc: "A soft off-white with faint grey-brown mottling worked evenly through the body — no directional veining, no book-match to plan around. The pattern is uniform enough that slabs can be cut and joined in any orientation, which is what makes it work across long runs and waterfall edges.",
+          finishes: PENDING,
+          size: PENDING,
+          thick: PENDING,
+          apps: APPS_STD,
+          captions: {
+            slab: "Full slab",
+            close: "Close-up",
+            r1: "Kitchen island, waterfall edge",
+          },
+        },
       ];
 
       /* ---------- hero carousel ---------- */
@@ -1001,6 +1087,13 @@
       document.getElementById("tiles-nebula").innerHTML = SURFACES.filter(
         function (s) {
           return s.series === "Nebula";
+        }
+      )
+        .map(tileHTML)
+        .join("");
+      document.getElementById("tiles-celestia").innerHTML = SURFACES.filter(
+        function (s) {
+          return s.series === "Celestia";
         }
       )
         .map(tileHTML)
