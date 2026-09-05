@@ -531,6 +531,11 @@ ul {
   width: 100%;
 }
 .tile__mask {
+  /* The tile is a <button> of <span>s, so this is inline by default and
+     neither aspect-ratio nor overflow:clip applied — the button's height
+     stopped short of its contents and the caption spilled outside the
+     grid cell, where the next row's image painted over it. */
+  display: block;
   aspect-ratio: 4/5;
   overflow: clip;
   background: var(--bg-2);
@@ -567,6 +572,7 @@ ul {
   font-variant-numeric: tabular-nums;
 }
 .tile__sub {
+  display: block;
   font-size: var(--fs-xs);
   color: color-mix(in srgb, var(--fg) 50%, transparent);
   text-transform: uppercase;
