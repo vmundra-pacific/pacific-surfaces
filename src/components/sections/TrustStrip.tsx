@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -36,7 +37,58 @@ const badges = [
     sub: "Certified",
     src: "/certifications/kosher.png",
   },
+  {
+    title: "EPD",
+    sub: "Environmental Declaration",
+    src: "/certifications/epd.png",
+  },
 ];
+
+/**
+ * One badge tile. Falls back to the certification's initials in a ruled
+ * box if the image 404s, rather than showing a broken-image icon — the
+ * EPD mark is listed here before its artwork has been supplied. Drop the
+ * file at the path in `badges` above and the fallback disappears on its
+ * own; nothing else needs changing.
+ */
+function BadgeTile({
+  title,
+  sub,
+  src,
+}: {
+  title: string;
+  sub: string;
+  src: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    // Stone grey rather than white or black: this tile has to stay
+    // visible whether the strip is on its navy ground or the white one
+    // the temporary skin gives it.
+    return (
+      <div className="relative flex w-full aspect-square items-center justify-center border border-[#9AA8B6]/50 p-4">
+        <span className="text-center text-lg font-light tracking-[0.08em] text-[#9AA8B6]">
+          {title}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full aspect-square overflow-hidden">
+      <Image
+        src={src}
+        alt={`${title} — ${sub}`}
+        fill
+        className="object-contain p-6 sm:p-8"
+        sizes="(max-width: 640px) 50vw, 25vw"
+        unoptimized={false}
+        onError={() => setFailed(true)}
+      />
+    </div>
+  );
+}
 
 export function TrustStrip() {
   return (
@@ -57,21 +109,13 @@ export function TrustStrip() {
 
         {/* Badge grid. Each card is a square image tile with the cert
             name + sub-label rendered BELOW the card (not overlaid).
-            4 columns on desktop now that the warranty card is gone. */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
+            Six across on desktop; two rows of three at sm so EPD does
+            not orphan onto a row of its own. */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
           {badges.map((b) => (
             <div key={b.title} className="flex flex-col items-center">
               {/* Image tile */}
-              <div className="relative w-full aspect-square overflow-hidden">
-                <Image
-                  src={b.src}
-                  alt={`${b.title} — ${b.sub}`}
-                  fill
-                  className="object-contain p-6 sm:p-8"
-                  sizes="(max-width: 640px) 50vw, 25vw"
-                  unoptimized={false}
-                />
-              </div>
+              <BadgeTile title={b.title} src={b.src} sub={b.sub} />
               {/* Caption — sits BELOW the card, centred. */}
               <div className="mt-3 text-center">
                 <div className="text-[12px] sm:text-[13px] font-medium tracking-[0.05em] text-white/90 leading-tight">

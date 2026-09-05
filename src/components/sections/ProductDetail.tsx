@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { sanityImg } from "@/lib/sanity-img";
+import { isOfferedThickness, normalizeThickness } from "@/data/sanityToSlab";
 import { preload } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -221,9 +222,19 @@ export function ProductDetail({ product }: { product: Product }) {
   // code below) instead of misleadingly showing "Polished / Honed"
   // or a generic 5-item Applications grid.
   const finishes = product.finishes ?? [];
-  const thicknesses = product.thickness?.length
-    ? product.thickness
-    : ["2 cm", "3 cm"];
+  // Sanity holds thickness as free text, in whatever unit the editor
+  // typed. Normalise to millimetres here too, so the product page and
+  // the catalogue filter never disagree about the same slab. Dedupe
+  // afterwards: "1.2 cm" and "12mm" collapse to one value.
+  const offeredThicknesses = [
+    ...new Set(
+      (product.thickness ?? [])
+        .map(normalizeThickness)
+        .filter(isOfferedThickness)
+    ),
+  ];
+  const thicknesses =
+    offeredThicknesses.length > 0 ? offeredThicknesses : ["20 mm", "30 mm"];
   // Applications are editor-set in Sanity, so a quartz slab can be
   // tagged "Flooring" — which it cannot honestly claim (resin-bound
   // surfaces are indoor-only). Filter to what this product's material
@@ -1587,7 +1598,7 @@ export function ProductDetail({ product }: { product: Product }) {
       <section className="bg-pacific-dark">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12">
           <AnimatedSection animation="fadeIn">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-3 lg:grid-cols-5">
               <CertBadge
                 name="NSF Certified"
                 desc="Food Equipment Materials"
@@ -1607,6 +1618,11 @@ export function ProductDetail({ product }: { product: Product }) {
                 name="CE Marking"
                 desc="European Conformity"
                 mark={<CEMark />}
+              />
+              <CertBadge
+                name="EPD"
+                desc="Environmental Declaration"
+                mark={<EPDMark />}
               />
             </div>
           </AnimatedSection>
@@ -1877,6 +1893,33 @@ function CertBadge({
  * the file into /public/certs/ and switching to an <img> if/when the
  * brand team supplies the trademarked artwork.
  */
+
+/**
+ * EPD — the International EPD System mark.
+ *
+ * The four marks around it are hand-drawn inline SVG, because their
+ * originals were being hot-linked from CDNs that 404. This one is the
+ * genuine artwork, served from /public, so it is a local <Image>: a
+ * same-origin file has none of the CORS or hot-link problems that
+ * motivated the inline approach, and a certification mark should not be
+ * approximated by hand.
+ *
+ * `object-contain` because the lockup is wide (130x36) where the other
+ * marks are roughly square — it letterboxes inside the tile rather than
+ * distorting.
+ */
+function EPDMark() {
+  return (
+    <Image
+      src="/certifications/epd.png"
+      alt=""
+      aria-hidden="true"
+      width={130}
+      height={36}
+      className="h-auto w-full object-contain"
+    />
+  );
+}
 
 function NSFMark() {
   // NSF mark: dark "NSF" wordmark stacked over "CERTIFIED" caption,
