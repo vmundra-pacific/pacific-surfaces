@@ -1,7 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { FileText } from "lucide-react";
+import dynamic from "next/dynamic";
+
+// The reader pulls in pdf.js, so it is loaded only when someone opens a
+// catalogue rather than on every visit to /resources.
+const Flipbook = dynamic(
+  () => import("@/components/catalogue/Flipbook").then((m) => m.Flipbook),
+  { ssr: false }
+);
+import { BookOpen, Download, FileText } from "lucide-react";
 import {
   AnimatedSection,
   StaggerContainer,
@@ -161,6 +170,7 @@ const CATEGORY_ORDER: string[] = [
 function ResourceCard({ resource }: { resource: SanityResource }) {
   const isReal = Boolean(resource.pdfUrl);
   const hasThumbnail = Boolean(resource.thumbnail);
+  const [reading, setReading] = useState(false);
 
   return (
     <StaggerItem>
@@ -227,15 +237,28 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
           </div>
 
           {isReal ? (
-            <a
-              href={resource.pdfUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              download={resource.pdfName ?? `${resource.title}.pdf`}
-              className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium tracking-[0.08em] uppercase text-white bg-white/15 backdrop-blur-md border border-white/35 rounded-full hover:bg-white/25 hover:border-white/55 transition-all duration-300"
-            >
-              Download
-            </a>
+            <div className="flex shrink-0 items-center gap-2">
+              {/* Read opens the catalogue in the flipbook; Download keeps
+                  the original behaviour for anyone who wants the file. */}
+              <button
+                type="button"
+                onClick={() => setReading(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/45 bg-white/25 px-4 py-2 text-xs font-medium uppercase tracking-[0.08em] text-white backdrop-blur-md transition-all duration-300 hover:bg-white/35 hover:border-white/70"
+              >
+                <BookOpen className="h-3.5 w-3.5" />
+                Read
+              </button>
+              <a
+                href={resource.pdfUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                download={resource.pdfName ?? `${resource.title}.pdf`}
+                aria-label={`Download ${resource.title}`}
+                className="inline-flex items-center rounded-full border border-white/35 bg-white/15 p-2 text-white backdrop-blur-md transition-all duration-300 hover:bg-white/25 hover:border-white/55"
+              >
+                <Download className="h-4 w-4" />
+              </a>
+            </div>
           ) : (
             <span
               aria-disabled="true"
@@ -246,6 +269,14 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
           )}
         </div>
       </div>
+
+      {reading && resource.pdfUrl && (
+        <Flipbook
+          url={resource.pdfUrl}
+          title={resource.title}
+          onClose={() => setReading(false)}
+        />
+      )}
     </StaggerItem>
   );
 }
@@ -304,11 +335,31 @@ function ResourceSection({
    CATEGORY_META are silently ignored — add them to CATEGORY_META to
    surface them. */
 
+/* ─── Catalogues held in the repo ──────────────────────────────────
+   Everything else on this page comes from Sanity. This one is served
+   from /public because there is no write token to upload it with; move
+   it into Sanity and delete the entry here and nothing else changes,
+   since both shapes are the same SanityResource. */
+const LOCAL_RESOURCES: SanityResource[] = [
+  {
+    _id: "local-hospitality-collection",
+    title: "PACIFIC HOSPITALITY COLLECTION",
+    category: "brand",
+    description:
+      "Surfaces specified for hotels, restaurants and resorts — 34 pages of applications, finishes and project references.",
+    thumbnail: "/catalogues/pacific-hospitality-collection-cover.webp",
+    pdfUrl: "/catalogues/pacific-hospitality-collection.pdf",
+    pdfName: "Pacific Hospitality Collection.pdf",
+    order: -1,
+  },
+];
+
 export function ResourcesContent({
-  resources = [],
+  resources: sanityResources = [],
 }: {
   resources?: SanityResource[];
 }) {
+  const resources = [...LOCAL_RESOURCES, ...sanityResources];
   // Collect any unique categories from Sanity that aren't in our
   // canonical order (just in case we missed registering one) — they
   // render at the end.
