@@ -127,6 +127,12 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
     blurb: "Environmental policies, recycled-content data, and certifications.",
     fallback: ["Sustainability Blueprint"],
   },
+  hospitality: {
+    title: "Hospitality",
+    blurb:
+      "Surfaces specified for hotels, restaurants and resorts — applications, finishes and project references for the contract market.",
+    fallback: ["Pacific Hospitality Collection"],
+  },
   brand: {
     title: "Brand & Marketing",
     blurb:
@@ -153,6 +159,7 @@ const CATEGORY_ORDER: string[] = [
   "sinks",
   "ecosurfaces",
   "cuttosize",
+  "hospitality",
   "technical",
   "care",
   "sustainability",
@@ -344,7 +351,7 @@ const LOCAL_RESOURCES: SanityResource[] = [
   {
     _id: "local-hospitality-collection",
     title: "PACIFIC HOSPITALITY COLLECTION",
-    category: "brand",
+    category: "hospitality",
     description:
       "Surfaces specified for hotels, restaurants and resorts — 34 pages of applications, finishes and project references.",
     thumbnail: "/catalogues/pacific-hospitality-collection-cover.webp",

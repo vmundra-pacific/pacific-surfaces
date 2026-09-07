@@ -37,6 +37,7 @@ export default defineType({
           { title: "Sinks (Integra)", value: "sinks" },
           { title: "Ecosurfaces", value: "ecosurfaces" },
           { title: "Cut-to-Size & Architectural", value: "cuttosize" },
+          { title: "Hospitality", value: "hospitality" },
           { title: "Technical Details", value: "technical" },
           { title: "Care & Maintenance", value: "care" },
           { title: "Sustainability", value: "sustainability" },

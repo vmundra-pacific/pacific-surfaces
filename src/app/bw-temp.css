@@ -71,14 +71,16 @@ html body * {
     "Hubot Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
-/* Hubot is a variable face; without this the headings render at default
-   width and lose the tight, narrow set the direction depends on. */
+/* Hubot is a variable face, so the width axis has to be stated or it
+   falls back to the default. Set at 100 — regular width. It was 90, a
+   condensed set, which read as cramped once it was on every heading
+   across the site. */
 html body h1,
 html body h2,
 html body h3 {
   font-variation-settings:
     "wght" 400,
-    "wdth" 90;
+    "wdth" 100;
   letter-spacing: -0.025em;
 }
 
