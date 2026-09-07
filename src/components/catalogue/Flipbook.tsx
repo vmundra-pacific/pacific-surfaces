@@ -47,10 +47,14 @@ interface PdfDoc {
 export function Flipbook({
   url,
   title,
+  poster,
   onClose,
 }: {
   url: string;
   title: string;
+  /** The card's cover art. Shown instantly so the reader has something on
+   *  screen while pdf.js loads and page one rasterises. */
+  poster?: string;
   onClose: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -72,6 +76,9 @@ export function Flipbook({
   const [loading, setLoading] = useState(true);
   const [turning, setTurning] = useState<"next" | "prev" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Flips once the first spread has actually been drawn, which is when the
+  // cover placeholder can be faded out.
+  const [painted, setPainted] = useState(false);
 
   /* ---------- open the document ---------- */
   useEffect(() => {
@@ -220,6 +227,7 @@ export function Flipbook({
       ctx.drawImage(off, x, 0);
       x += off.width;
     }
+    setPainted(true);
 
     // Gutter, so a paired spread reads as two leaves rather than one image.
     if (leaves.length === 2) {
@@ -287,7 +295,7 @@ export function Flipbook({
   };
 
   const iconBtn =
-    "rounded-full p-2 text-white/70 transition-colors hover:bg-white/10 hover:text-white";
+    "rounded-full p-2 text-black/55 transition-colors hover:bg-black/[.06] hover:text-black";
 
   // Rendered into <body>, not in place. The cards animate in through a
   // framer-motion wrapper, and a transformed ancestor makes `position:
@@ -298,13 +306,13 @@ export function Flipbook({
   return createPortal(
     <div
       id="flipbook-root"
-      className="fixed inset-0 z-[200] flex flex-col bg-[#0d0d0f]"
+      className="fixed inset-0 z-[200] flex flex-col bg-white"
       role="dialog"
       aria-modal="true"
       aria-label={`${title} — catalogue reader`}
     >
-      <div className="flex shrink-0 items-center justify-between gap-4 border-b border-white/10 px-4 py-3 sm:px-6">
-        <span className="truncate text-[11px] font-medium uppercase tracking-[0.2em] text-white/80">
+      <div className="flex shrink-0 items-center justify-between gap-4 border-b border-black/10 px-4 py-3 sm:px-6">
+        <span className="truncate text-[11px] font-medium uppercase tracking-[0.2em] text-black/70">
           {title}
         </span>
         <div className="flex items-center gap-1">
@@ -316,7 +324,7 @@ export function Flipbook({
           >
             <Minus className="h-4 w-4" />
           </button>
-          <span className="w-11 text-center text-[11px] tabular-nums text-white/55">
+          <span className="w-11 text-center text-[11px] tabular-nums text-black/45">
             {Math.round(zoom * 100)}%
           </span>
           <button
@@ -353,25 +361,44 @@ export function Flipbook({
         ref={stageRef}
         className="relative flex min-h-0 flex-1 items-center justify-center overflow-auto p-3 sm:p-6"
       >
+        {/* The cover, up instantly. pdf.js has to download, start a worker
+            and rasterise page one before anything can be shown otherwise —
+            about 800ms on a fast connection — and a blank screen for that
+            long reads as a broken link. */}
+        {!painted && !error && poster && (
+          // Plain <img>, not next/image: the poster is already the exact
+          // file the card just rendered, so it comes straight from cache.
+          // Routing it through the optimizer would request a second,
+          // differently-sized variant and defeat the point.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={poster}
+            alt=""
+            aria-hidden="true"
+            className="absolute max-h-full max-w-full object-contain shadow-[0_10px_44px_rgba(0,0,0,.18)] ring-1 ring-black/[.08]"
+          />
+        )}
+
         {loading && (
-          <div className="flex flex-col items-center gap-3 text-white/60">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="text-[11px] uppercase tracking-[0.2em]">
+          <div className="absolute bottom-6 flex items-center gap-2.5 rounded-full bg-white/85 px-4 py-2 text-black/55 shadow-sm backdrop-blur">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <span className="text-[10px] uppercase tracking-[0.2em]">
               Opening {title}
             </span>
           </div>
         )}
 
         {error && (
-          <p className="max-w-sm text-center text-sm text-white/70">{error}</p>
+          <p className="max-w-sm text-center text-sm text-black/60">{error}</p>
         )}
 
         {!loading && !error && (
           <canvas
             ref={canvasRef}
             className={[
-              "max-h-full origin-center bg-white shadow-[0_24px_80px_rgba(0,0,0,.6)]",
-              "transition-transform duration-[420ms] ease-[cubic-bezier(.2,.9,.3,1)]",
+              "relative max-h-full origin-center bg-white shadow-[0_10px_44px_rgba(0,0,0,.18)] ring-1 ring-black/[.08]",
+              "transition-[transform,opacity] duration-[420ms] ease-[cubic-bezier(.2,.9,.3,1)]",
+              painted ? "opacity-100" : "opacity-0",
               turning === "next"
                 ? "[transform:perspective(2200px)_rotateY(-12deg)]"
                 : "",
@@ -387,7 +414,7 @@ export function Flipbook({
             type="button"
             onClick={() => go("prev")}
             aria-label="Previous page"
-            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-white/15 bg-black/40 p-3 text-white/80 backdrop-blur transition-colors hover:bg-black/70 hover:text-white sm:left-6"
+            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-black/10 bg-white/85 p-3 text-black/65 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-black sm:left-6"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -398,7 +425,7 @@ export function Flipbook({
             type="button"
             onClick={() => go("next")}
             aria-label="Next page"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-white/15 bg-black/40 p-3 text-white/80 backdrop-blur transition-colors hover:bg-black/70 hover:text-white sm:right-6"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-black/10 bg-white/85 p-3 text-black/65 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-black sm:right-6"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -406,7 +433,7 @@ export function Flipbook({
       </div>
 
       {!loading && !error && pages > 0 && (
-        <div className="flex shrink-0 items-center justify-center gap-4 border-t border-white/10 px-4 py-3 sm:px-6">
+        <div className="flex shrink-0 items-center justify-center gap-4 border-t border-black/10 px-4 py-3 sm:px-6">
           <input
             type="range"
             min={1}
@@ -419,9 +446,9 @@ export function Flipbook({
               setPage(paired && n > 1 && n % 2 === 1 ? n - 1 : n);
             }}
             aria-label="Jump to page"
-            className="h-1 w-full max-w-md cursor-pointer appearance-none rounded-full bg-white/20 accent-white"
+            className="h-1 w-full max-w-md cursor-pointer appearance-none rounded-full bg-black/15 accent-black"
           />
-          <span className="shrink-0 whitespace-nowrap text-[11px] tabular-nums text-white/55">
+          <span className="shrink-0 whitespace-nowrap text-[11px] tabular-nums text-black/45">
             {view.length === 2 ? `${view[0]}–${view[1]}` : view[0]} / {pages}
           </span>
         </div>

@@ -179,6 +179,13 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
   const hasThumbnail = Boolean(resource.thumbnail);
   const [reading, setReading] = useState(false);
 
+  // Pull the reader's chunk — pdf.js and its worker, ~440ms of the open —
+  // while the pointer is still on the card, so the click only has to fetch
+  // the document itself.
+  const warm = () => {
+    void import("@/components/catalogue/Flipbook");
+  };
+
   return (
     <StaggerItem>
       {/* The whole card opens the reader, not just the Read button. Kept
@@ -189,6 +196,8 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
         tabIndex={isReal ? 0 : undefined}
         aria-label={isReal ? `Read ${resource.title}` : undefined}
         onClick={isReal ? () => setReading(true) : undefined}
+        onMouseEnter={isReal ? warm : undefined}
+        onFocus={isReal ? warm : undefined}
         onKeyDown={
           isReal
             ? (e) => {
@@ -305,6 +314,7 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
         <Flipbook
           url={resource.pdfUrl}
           title={resource.title}
+          poster={resource.thumbnail}
           onClose={() => setReading(false)}
         />
       )}
