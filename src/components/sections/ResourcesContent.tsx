@@ -181,7 +181,30 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
 
   return (
     <StaggerItem>
-      <div className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#0a1620] border border-white/10 hover:border-white/25 transition-all duration-500">
+      {/* The whole card opens the reader, not just the Read button. Kept
+          as a div with an explicit role rather than a <button>, because a
+          button cannot legally contain the Download anchor. */}
+      <div
+        role={isReal ? "button" : undefined}
+        tabIndex={isReal ? 0 : undefined}
+        aria-label={isReal ? `Read ${resource.title}` : undefined}
+        onClick={isReal ? () => setReading(true) : undefined}
+        onKeyDown={
+          isReal
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setReading(true);
+                }
+              }
+            : undefined
+        }
+        className={`group relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#0a1620] border border-white/10 hover:border-white/25 transition-all duration-500 ${
+          isReal
+            ? "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60"
+            : ""
+        }`}
+      >
         {/* Thumbnail layer — fills the card. Real Sanity image when
             available; soft gradient + file watermark for fallback
             stubs so the card never looks broken. */}
@@ -261,6 +284,7 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
                 rel="noreferrer noopener"
                 download={resource.pdfName ?? `${resource.title}.pdf`}
                 aria-label={`Download ${resource.title}`}
+                onClick={(e) => e.stopPropagation()}
                 className="inline-flex items-center rounded-full border border-white/35 bg-white/15 p-2 text-white backdrop-blur-md transition-all duration-300 hover:bg-white/25 hover:border-white/55"
               >
                 <Download className="h-4 w-4" />
