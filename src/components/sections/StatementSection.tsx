@@ -55,58 +55,52 @@ export function StatementSection({
 
   const isDark = theme === "dark";
 
-  // Image variant — statement above, then the photograph filling the
-  // full width of the section beneath it. The image scales down as the
-  // section passes through the viewport, so it reads as pulling back from
-  // the stone rather than sitting still.
+  // Image variant — the photograph is the section's background and the
+  // statement sits on it. The picture enters 20% over its frame and
+  // settles to fit as the section crosses the viewport; nothing else
+  // moves.
   if (withImagePlaceholder) {
     return (
       <section
         id={id}
         ref={ref}
-        className={`relative overflow-hidden py-20 sm:py-28 md:py-32 ${isDark ? "bg-pacific-dark" : "bg-[#112732]"}`}
+        className={`relative flex min-h-[78vh] items-center overflow-hidden py-24 sm:py-32 ${isDark ? "bg-pacific-dark" : "bg-[#112732]"}`}
       >
-        <div
-          className="absolute inset-0 opacity-[0.04] pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          }}
-        />
+        {/* Background. Scaled rather than sized, so the zoom never changes
+            layout — the section keeps its height and the overflow clip
+            stops the oversized start widening the page. */}
+        <motion.div
+          style={{ scale: imageScale, willChange: "transform" }}
+          className="absolute inset-0 origin-center"
+        >
+          <Image
+            src="/images/low-silica-statement.webp"
+            alt=""
+            aria-hidden="true"
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority={false}
+          />
+        </motion.div>
 
-        {/* Type sits above the picture and keeps the page's side padding;
-            the image below deliberately does not, so it runs edge to
-            edge. */}
-        <div className="relative z-10 mx-auto max-w-7xl px-6">
+        {/* Scrim. The stone is a pale beige, so white type needs real
+            cover: heaviest on the left where the copy sits, clearing to
+            the right so the veining still reads. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/25 pointer-events-none" />
+
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-6">
           <h2
-            className={`max-w-4xl text-2xl font-light leading-[1.2] tracking-tight sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] ${isDark ? "text-white" : "text-white"}`}
+            className={`max-w-4xl text-2xl font-light leading-[1.2] tracking-tight drop-shadow-[0_2px_16px_rgba(0,0,0,.5)] sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] ${isDark ? "text-white" : "text-white"}`}
           >
             {statement}
           </h2>
           {subStatement && (
-            <p className="mt-8 max-w-3xl text-base font-light leading-relaxed text-white/85 sm:text-lg">
+            <p className="mt-8 max-w-3xl text-base font-light leading-relaxed text-white/90 drop-shadow-[0_1px_10px_rgba(0,0,0,.5)] sm:text-lg">
               {subStatement}
             </p>
           )}
-        </div>
-
-        {/* Full-bleed photograph, and the only thing that moves. It starts
-            20% over its frame and settles to fit as the section crosses
-            the viewport. The wrapper clips, so the oversized start never
-            widens the page or introduces a horizontal scrollbar. */}
-        <div className="relative z-10 mt-12 w-full overflow-hidden sm:mt-16">
-          <motion.div
-            style={{ scale: imageScale, willChange: "transform" }}
-            className="relative aspect-[16/9] w-full origin-center sm:aspect-[21/9]"
-          >
-            <Image
-              src="/images/low-silica-statement.webp"
-              alt="Low-silica engineered surface — close detail"
-              fill
-              className="object-cover"
-              sizes="100vw"
-              priority={false}
-            />
-          </motion.div>
         </div>
       </section>
     );
