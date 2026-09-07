@@ -48,18 +48,23 @@ export function StatementSection({
 
   const y = useTransform(scrollYProgress, [0, 1], [80, -80]);
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
+  // Zoom out: the picture enters 20% over its frame and settles to fit
+  // as the section crosses the viewport, then holds. Only the image
+  // moves — the type above it stays put.
+  const imageScale = useTransform(scrollYProgress, [0, 0.6, 1], [1.2, 1, 1]);
 
   const isDark = theme === "dark";
 
-  // Image-placeholder variant — text on the left, brand-toned
-  // placeholder on the right. Same headline copy, just laid out as
-  // a two-column editorial block per the deck mock.
+  // Image variant — statement above, then the photograph filling the
+  // full width of the section beneath it. The image scales down as the
+  // section passes through the viewport, so it reads as pulling back from
+  // the stone rather than sitting still.
   if (withImagePlaceholder) {
     return (
       <section
         id={id}
         ref={ref}
-        className={`relative py-20 sm:py-28 md:py-36 px-6 overflow-hidden ${isDark ? "bg-pacific-dark" : "bg-[#112732]"}`}
+        className={`relative overflow-hidden py-20 sm:py-28 md:py-32 ${isDark ? "bg-pacific-dark" : "bg-[#112732]"}`}
       >
         <div
           className="absolute inset-0 opacity-[0.04] pointer-events-none"
@@ -67,41 +72,42 @@ export function StatementSection({
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
           }}
         />
-        <motion.div
-          style={{ y, opacity, willChange: "transform, opacity" }}
-          className="relative z-10 max-w-7xl mx-auto"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            <h2
-              className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] font-light tracking-tight leading-[1.2] ${isDark ? "text-white" : "text-white"}`}
-            >
-              {statement}
-            </h2>
-            {/* Brand visual — real photo at
-              /public/images/sustainability-statement.png. Aspect kept
-              at 4:3 so the layout matches the placeholder version
-              that shipped earlier. */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0f1f29]">
-              <Image
-                src="/images/sustainability-statement.png"
-                alt="Pacific Surfaces brand visual — Taj vein bathroom"
-                fill
-                className="object-cover"
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                priority={false}
-              />
-            </div>
-          </div>
-          {/* Sub-statement — smaller second line below the headline +
-              image row, spanning the full container width edge-to-
-              edge. Reads as the supporting follow-up sentence to the
-              main brand statement above. */}
+
+        {/* Type sits above the picture and keeps the page's side padding;
+            the image below deliberately does not, so it runs edge to
+            edge. */}
+        <div className="relative z-10 mx-auto max-w-7xl px-6">
+          <h2
+            className={`max-w-4xl text-2xl font-light leading-[1.2] tracking-tight sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] ${isDark ? "text-white" : "text-white"}`}
+          >
+            {statement}
+          </h2>
           {subStatement && (
-            <p className="mt-10 lg:mt-14 text-base sm:text-lg font-light text-white/85 leading-relaxed">
+            <p className="mt-8 max-w-3xl text-base font-light leading-relaxed text-white/85 sm:text-lg">
               {subStatement}
             </p>
           )}
-        </motion.div>
+        </div>
+
+        {/* Full-bleed photograph, and the only thing that moves. It starts
+            20% over its frame and settles to fit as the section crosses
+            the viewport. The wrapper clips, so the oversized start never
+            widens the page or introduces a horizontal scrollbar. */}
+        <div className="relative z-10 mt-12 w-full overflow-hidden sm:mt-16">
+          <motion.div
+            style={{ scale: imageScale, willChange: "transform" }}
+            className="relative aspect-[16/9] w-full origin-center sm:aspect-[21/9]"
+          >
+            <Image
+              src="/images/low-silica-statement.webp"
+              alt="Low-silica engineered surface — close detail"
+              fill
+              className="object-cover"
+              sizes="100vw"
+              priority={false}
+            />
+          </motion.div>
+        </div>
       </section>
     );
   }
