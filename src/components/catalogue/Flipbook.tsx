@@ -57,7 +57,16 @@ export function Flipbook({
   const stageRef = useRef<HTMLDivElement>(null);
   const docRef = useRef<PdfDoc | null>(null);
   const taskRef = useRef<{ cancel: () => void } | null>(null);
+  // Guards the async draw: every await below can resolve after the reader
+  // has closed, and touching a destroyed document throws inside a promise
+  // that React surfaces to the nearest error boundary — closing the reader
+  // was blanking the whole page.
+  const aliveRef = useRef(true);
   const [pages, setPages] = useState(0);
+  // True when the PDF holds one page per leaf and we must set two side by
+  // side to read as a book. False when the file is already imposed as
+  // spreads, where pairing would put four leaves on screen at once.
+  const [paired, setPaired] = useState(false);
   const [page, setPage] = useState(1);
   const [zoom, setZoom] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -82,12 +91,23 @@ export function Flipbook({
           disableStream: false,
         });
         const doc = (await task.promise) as unknown as PdfDoc;
-        if (cancelled) {
-          doc.destroy();
+        if (cancelled || !aliveRef.current) {
+          try {
+            doc.destroy();
+          } catch {
+            /* nothing to tear down */
+          }
           return;
         }
         docRef.current = doc;
         setPages(doc.numPages);
+
+        // Judge from the first inside page, not the cover: covers are
+        // portrait even in files whose interior is already imposed as
+        // landscape spreads.
+        const probe = await doc.getPage(Math.min(2, doc.numPages));
+        const pv = probe.getViewport({ scale: 1 });
+        setPaired(pv.height > pv.width);
         setLoading(false);
       } catch {
         if (!cancelled) {
@@ -98,10 +118,36 @@ export function Flipbook({
     })();
     return () => {
       cancelled = true;
-      docRef.current?.destroy();
+      // Cancel the render before destroying what it is rendering from.
+      try {
+        taskRef.current?.cancel();
+      } catch {
+        /* already finished */
+      }
+      taskRef.current = null;
+      try {
+        docRef.current?.destroy();
+      } catch {
+        /* already torn down */
+      }
       docRef.current = null;
     };
   }, [url]);
+
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => {
+      aliveRef.current = false;
+    };
+  }, []);
+
+  /* Pages in the current view. The cover always stands alone, as it does
+     in print; after that, leaves are set in twos. */
+  const view = (() => {
+    if (!paired || page === 1) return [page];
+    const right = page + 1;
+    return right <= pages ? [page, right] : [page];
+  })();
 
   /* ---------- draw the current spread ---------- */
   const draw = useCallback(async () => {
@@ -110,39 +156,78 @@ export function Flipbook({
     if (!doc || !canvas) return;
     taskRef.current?.cancel();
 
-    const pg = await doc.getPage(page);
-    const base = pg.getViewport({ scale: 1 });
     // Measured from the stage element, not canvas.parentElement: on the
-    // first draw the canvas has no size yet, the flex row collapses around
-    // it, and the spread was rendering at a fifth of the stage.
+    // first draw the canvas has no size, the flex row collapses around it,
+    // and the spread rendered at a fifth of the stage.
     const stage = stageRef.current?.getBoundingClientRect();
     if (!stage || stage.width < 2 || stage.height < 2) return;
 
-    // Fit the spread to the stage, then apply the reader's zoom. DPR is
-    // capped at 2: a 3x phone rendering a full spread at native density
-    // produces a canvas large enough for the browser to refuse it.
-    const fit = Math.min(stage.width / base.width, stage.height / base.height);
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const vp = pg.getViewport({ scale: fit * zoom * dpr });
+    const nums =
+      !paired || page === 1
+        ? [page]
+        : [page, page + 1].filter((n) => n <= doc.numPages);
+    const leaves = await Promise.all(nums.map((n) => doc.getPage(n)));
+    if (!aliveRef.current) return;
+    const bases = leaves.map((l) => l.getViewport({ scale: 1 }));
 
-    canvas.width = Math.floor(vp.width);
-    canvas.height = Math.floor(vp.height);
-    canvas.style.width = `${Math.floor(vp.width / dpr)}px`;
-    canvas.style.height = `${Math.floor(vp.height / dpr)}px`;
+    // Fit the whole spread — both leaves together — into the stage.
+    const totalW = bases.reduce((sum, v) => sum + v.width, 0);
+    const maxH = Math.max(...bases.map((v) => v.height));
+    const fit = Math.min(stage.width / totalW, stage.height / maxH);
+    // DPR capped at 2: a 3x phone rendering two leaves at native density
+    // makes a canvas large enough for the browser to refuse it.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const scale = fit * zoom * dpr;
+
+    const vps = leaves.map((l) => l.getViewport({ scale }));
+    const w = Math.floor(vps.reduce((sum, v) => sum + v.width, 0));
+    const h = Math.floor(Math.max(...vps.map((v) => v.height)));
+
+    canvas.width = w;
+    canvas.height = h;
+    canvas.style.width = `${Math.floor(w / dpr)}px`;
+    canvas.style.height = `${Math.floor(h / dpr)}px`;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, w, h);
 
-    const task = pg.render({ canvasContext: ctx, viewport: vp, canvas });
-    taskRef.current = task;
-    try {
-      await task.promise;
-    } catch {
-      /* superseded by a newer page — expected */
+    // Render each leaf into its own offscreen canvas, then place them side
+    // by side. pdf.js renders to the origin of whatever canvas it is given,
+    // so it cannot draw the right-hand leaf at an offset directly.
+    let x = 0;
+    for (let i = 0; i < leaves.length; i++) {
+      const off = document.createElement("canvas");
+      off.width = Math.floor(vps[i].width);
+      off.height = Math.floor(vps[i].height);
+      const octx = off.getContext("2d");
+      if (!octx) continue;
+      octx.fillStyle = "#ffffff";
+      octx.fillRect(0, 0, off.width, off.height);
+      const task = leaves[i].render({
+        canvasContext: octx,
+        viewport: vps[i],
+        canvas: off,
+      });
+      taskRef.current = task;
+      try {
+        await task.promise;
+      } catch {
+        return; /* superseded by a newer page, or the reader closed */
+      }
+      if (!aliveRef.current) return;
+      ctx.drawImage(off, x, 0);
+      x += off.width;
     }
-  }, [page, zoom]);
+
+    // Gutter, so a paired spread reads as two leaves rather than one image.
+    if (leaves.length === 2) {
+      const seam = Math.floor(vps[0].width);
+      ctx.fillStyle = "rgba(0,0,0,.16)";
+      ctx.fillRect(seam - 1, 0, 2, h);
+    }
+  }, [page, zoom, paired]);
 
   useEffect(() => {
     if (!loading && !error) void draw();
@@ -163,14 +248,17 @@ export function Flipbook({
   const go = useCallback(
     (dir: "next" | "prev") => {
       setPage((p) => {
-        const next = dir === "next" ? p + 1 : p - 1;
+        let next: number;
+        if (!paired) next = dir === "next" ? p + 1 : p - 1;
+        else if (dir === "next") next = p === 1 ? 2 : p + 2;
+        else next = p === 2 ? 1 : p - 2;
         if (next < 1 || next > pages) return p;
         setTurning(dir);
         window.setTimeout(() => setTurning(null), 420);
         return next;
       });
     },
-    [pages]
+    [pages, paired]
   );
 
   useEffect(() => {
@@ -180,10 +268,15 @@ export function Flipbook({
       else if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
+    // Only `overflow: hidden`. The usual position:fixed lock loses the
+    // offset and has to restore it by hand, and this site runs Lenis —
+    // the two fight, and the reader closed 800px up the page. Hiding
+    // overflow alone stops the scroll without moving it.
+    const { overflow } = document.body.style;
     document.body.style.overflow = "hidden";
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      document.body.style.overflow = overflow;
     };
   }, [go, onClose]);
 
@@ -319,12 +412,17 @@ export function Flipbook({
             min={1}
             max={pages}
             value={page}
-            onChange={(e) => setPage(Number(e.target.value))}
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              // Snap to a left-hand leaf so the slider cannot land
+              // mid-spread and show the same page on both sides.
+              setPage(paired && n > 1 && n % 2 === 1 ? n - 1 : n);
+            }}
             aria-label="Jump to page"
             className="h-1 w-full max-w-md cursor-pointer appearance-none rounded-full bg-white/20 accent-white"
           />
-          <span className="shrink-0 text-[11px] tabular-nums text-white/55">
-            {page} / {pages}
+          <span className="shrink-0 whitespace-nowrap text-[11px] tabular-nums text-white/55">
+            {view.length === 2 ? `${view[0]}–${view[1]}` : view[0]} / {pages}
           </span>
         </div>
       )}
