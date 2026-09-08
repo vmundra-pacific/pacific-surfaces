@@ -12,7 +12,7 @@
  *   3. Features — centred "Transform Stones Into Art" eyebrow +
  *      headline + 3 numbered cards.
  *   4. Finish grid — every product tagged to the
- *      "Beyond Finish" Sanity Collection. Tap → lightbox
+ *      "Beyond Stone" Sanity Collection. Tap → lightbox
  *      with mouse-wheel zoom.
  *
  * Lightbox
@@ -516,7 +516,7 @@ function FinishTile({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: (index % 4) * 0.05 }}
-        className="group relative aspect-[4/5] rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:border-white/30 transition-all duration-500"
+        className="group relative aspect-[4/5] rounded-none overflow-hidden bg-white/5 border border-white/10 hover:border-white/30 transition-all duration-500"
       >
         {/* Click target for the lightbox — covers the whole tile.
             Sits BENEATH the hover overlay in z-stacking so the
@@ -606,14 +606,14 @@ function FinishTile({
         open={sampleOpen}
         onClose={() => setSampleOpen(false)}
         productName={finish.name}
-        productCategory="Beyond Finish"
+        productCategory="Beyond Stone"
         mode="sample"
       />
       <OrderSampleModal
         open={enquireOpen}
         onClose={() => setEnquireOpen(false)}
         productName={finish.name}
-        productCategory="Beyond Finish"
+        productCategory="Beyond Stone"
         mode="enquire"
       />
     </>
@@ -631,7 +631,7 @@ function EmptyState() {
         Studio has at least one published Product tagged to it, and that the
         collection slug matches the value set in{" "}
         <strong className="text-white">
-          Beyond Finish Page → Grid → Source Collection Slug
+          Beyond Stone Page → Grid → Source Collection Slug
         </strong>
         .
       </p>

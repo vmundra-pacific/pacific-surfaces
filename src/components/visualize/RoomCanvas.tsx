@@ -1031,7 +1031,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(
         className={
           fill
             ? "relative rounded-2xl overflow-hidden bg-[#0a1620] ring-1 ring-white/10 mx-auto"
-            : "relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-[#0a1620] ring-1 ring-white/10"
+            : "relative w-full aspect-[16/10] rounded-none overflow-hidden bg-[#0a1620] ring-1 ring-white/10"
         }
         style={wrapStyle}
         onClick={handleTap}

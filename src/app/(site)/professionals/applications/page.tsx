@@ -50,7 +50,7 @@ const applications = [
     slug: "facades",
     name: "Facades & Cladding",
     image: "/images/spaces/architecture.png",
-    body: "Large-format external and internal cladding, ventilated facades, and feature walls in Beyond Finish and natural-stone formats.",
+    body: "Large-format external and internal cladding, ventilated facades, and feature walls in Beyond Stone and natural-stone formats.",
     href: "/spaces/architecture",
   },
   {

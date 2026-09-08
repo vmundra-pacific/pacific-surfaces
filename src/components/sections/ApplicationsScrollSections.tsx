@@ -608,7 +608,7 @@ function KitchenSection({ media }: { media: SectionMedia }) {
               scale: imageScale,
               opacity: imageOpacity,
             }}
-            className="lg:col-span-7 relative w-full aspect-[4/5] lg:aspect-[5/6] rounded-2xl overflow-hidden shadow-2xl"
+            className="lg:col-span-7 relative w-full aspect-[4/5] lg:aspect-[5/6] rounded-none overflow-hidden shadow-2xl"
           >
             <MediaSlot
               media={media}
@@ -667,7 +667,7 @@ function BathSection({ media }: { media: SectionMedia }) {
           {/* Image (left this time, for visual rhythm with kitchen) */}
           <motion.div
             style={{ opacity: imageOpacity }}
-            className="lg:col-span-7 lg:order-1 order-2 relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl"
+            className="lg:col-span-7 lg:order-1 order-2 relative w-full aspect-[4/5] rounded-none overflow-hidden shadow-2xl"
           >
             <motion.div
               // Clip from the bottom upward as we scroll. inset(top
@@ -760,7 +760,7 @@ function ArchitectureSection({ media }: { media: SectionMedia }) {
               for the browser. The section still pins and the text
               still scroll-animates; you just get a single playing
               clip instead of the assembling grid. */}
-          <div className="lg:col-span-7 relative w-full aspect-[5/6] rounded-2xl overflow-hidden">
+          <div className="lg:col-span-7 relative w-full aspect-[5/6] rounded-none overflow-hidden">
             {media.videoUrl ? (
               <MediaSlot
                 media={media}
@@ -1038,7 +1038,7 @@ function CommercialSectionDesktop({ media }: { media: SectionMedia }) {
           </motion.div>
 
           {/* Media area */}
-          <div className="lg:col-span-7 relative w-full aspect-[4/5] lg:aspect-[5/6] rounded-2xl overflow-hidden shadow-2xl">
+          <div className="lg:col-span-7 relative w-full aspect-[4/5] lg:aspect-[5/6] rounded-none overflow-hidden shadow-2xl">
             {isSingleVideo ? (
               <MediaSlot
                 media={media}
@@ -1099,7 +1099,7 @@ function CommercialSectionMobile({ media }: { media: SectionMedia }) {
             {copy.description}
           </p>
         </div>
-        <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
+        <div className="relative w-full aspect-[4/5] rounded-none overflow-hidden shadow-2xl">
           <MediaSlot
             media={media}
             alt={`${copy.title} ${copy.titleAccent}`}

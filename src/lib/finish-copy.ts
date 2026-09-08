@@ -1,13 +1,13 @@
 /**
  * Short, plain-language notes on what each finish actually is —
  * shown under the finish name wherever finishes are listed (the
- * product page's "Finishes Available" column and the Beyond Finish
+ * product page's "Finishes Available" column and the Beyond Stone
  * grid), so a name like "Suede" isn't left to explain itself.
  *
  * The canonical finish values live on the product schema
  * (src/sanity/schemas/product.ts → `finishes`): polished, matte,
  * suede, velvet, honed, leathered. Everything past those six is a
- * natural-stone / facade finish that shows up on Beyond Finish
+ * natural-stone / facade finish that shows up on Beyond Stone
  * products.
  *
  * Matching is loose — lowercased substring — so "Polished",

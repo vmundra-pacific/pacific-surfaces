@@ -467,7 +467,7 @@ export function SustainabilityContent({
                 }`}
               >
                 {/* Image with corner icon badge */}
-                <div className="relative aspect-[5/4] rounded-2xl overflow-hidden bg-white/5 border border-white/10">
+                <div className="relative aspect-[5/4] rounded-none overflow-hidden bg-white/5 border border-white/10">
                   {init.image ? (
                     <Image
                       src={sanityImg(init.image, { w: 1200 }) ?? init.image}

@@ -68,7 +68,7 @@ const PROJECTS: Project[] = [
     id: "c01",
     title: "Textured stoneface wall above a polished counter",
     category: "commercial",
-    surface: "Beyond Finish · Stoneface",
+    surface: "Beyond Stone · Stoneface",
     image: "/images/spaces/commercial.jpg",
   },
   {
@@ -110,7 +110,7 @@ const PROJECTS: Project[] = [
     id: "o01",
     title: "Dark slab cladding on a modern home at dusk",
     category: "outdoor",
-    surface: "Beyond Finish · Carbon",
+    surface: "Beyond Stone · Carbon",
     image: "/images/products/facades.png",
   },
 ];
@@ -212,7 +212,7 @@ export function InspirationGallery() {
                 <button
                   type="button"
                   onClick={() => setLightbox(p)}
-                  className="group block w-full text-left rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:border-white/20 transition-all duration-500"
+                  className="group block w-full text-left rounded-none overflow-hidden border border-white/10 bg-white/5 hover:border-white/20 transition-all duration-500"
                 >
                   <div className="relative overflow-hidden">
                     {/* Plain <img> with w-full h-auto so the card's

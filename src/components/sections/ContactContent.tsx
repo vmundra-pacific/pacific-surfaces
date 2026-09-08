@@ -335,7 +335,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                 delay: 0.3,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-pacific-dark"
+              className="relative w-full aspect-[4/3] rounded-none overflow-hidden bg-pacific-dark"
             >
               <video
                 src="/videos/contact-map.mp4"
@@ -985,7 +985,6 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
           </StaggerContainer>
         </div>
       </section>
-
     </>
   );
 }

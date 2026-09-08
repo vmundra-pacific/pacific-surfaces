@@ -250,7 +250,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const size = product.size || '126" x 63"';
   // Wrap the collection name through formatCollection so the
   // editorial rename map (e.g. "Vision" → "Eclipse",
-  // "Stone Finishes" → "Beyond Finish") applies to the eyebrow
+  // "Stone Finishes" → "Beyond Stone") applies to the eyebrow
   // above the product title. Sanity data stays untouched; only
   // the display string changes.
   const categoryLabel =
@@ -261,7 +261,7 @@ export function ProductDetail({ product }: { product: Product }) {
     "Quartz Surfaces";
 
   // Specialty products (Semi-Precious Stones / Exotic / Centrepiece Couture
-  // / Integra / Beyond Finish) are NOT standard quartz slabs.
+  // / Integra / Beyond Stone) are NOT standard quartz slabs.
   // Several quartz-only UI bits are hidden for them:
   //   - "Specs" tab in Product Info (water absorption, Mohs, etc.)
   //   - Thicknesses listing in Sizes & Finishes
@@ -980,7 +980,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1, duration: 0.4 }}
-                    className="relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer group"
+                    className="relative aspect-[4/3] rounded-none overflow-hidden cursor-pointer group"
                     onClick={() => {
                       setSelectedImage(img);
                       setRoomScenesOpen(false);
@@ -1701,7 +1701,7 @@ export function ProductDetail({ product }: { product: Product }) {
                           });
                       }}
                     >
-                      <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-white/5 mb-3">
+                      <div className="relative aspect-square overflow-hidden rounded-none border border-white/10 bg-white/5 mb-3">
                         {rp.mainImage ? (
                           <Image
                             src={
@@ -2252,7 +2252,7 @@ function CompareSliderSection({
         {/* Slider container */}
         <div
           ref={containerRef}
-          className="relative w-full aspect-[16/7] max-h-[520px] overflow-hidden rounded-2xl cursor-col-resize select-none border border-white/10"
+          className="relative w-full aspect-[16/7] max-h-[520px] overflow-hidden rounded-none cursor-col-resize select-none border border-white/10"
           onMouseDown={(e) => {
             setIsDragging(true);
             updateSlider(e.clientX);

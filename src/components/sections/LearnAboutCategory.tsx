@@ -64,7 +64,7 @@ export function LearnAboutCategory({
             >
               <Link
                 href={l.href}
-                className="group flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.02] p-6 lg:p-7 hover:bg-white/[0.05] hover:border-white/20 transition-colors"
+                className="group flex h-full flex-col rounded-none border border-white/10 bg-white/[0.02] p-6 lg:p-7 hover:bg-white/[0.05] hover:border-white/20 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <h3 className="text-xl lg:text-2xl font-light text-white tracking-tight leading-snug">

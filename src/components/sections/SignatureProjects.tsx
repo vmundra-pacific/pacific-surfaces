@@ -350,7 +350,7 @@ function ProjectCard({
     </>
   );
 
-  const className = `group relative rounded-2xl overflow-hidden ${aspect} cursor-pointer block`;
+  const className = `group relative rounded-none overflow-hidden ${aspect} cursor-pointer block`;
 
   if (item.link) {
     return (

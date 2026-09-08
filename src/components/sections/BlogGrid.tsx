@@ -98,7 +98,7 @@ function FeaturedCard({ post }: { post: BlogPost }) {
         // Featured aspect ratio: cinematic 16/8 on desktop, square-ish
         // 4/3 on mobile so the headline doesn't get cramped on narrow
         // screens. shadow lifts on hover; image zooms via inner span.
-        className="group relative block aspect-[4/3] sm:aspect-[16/9] lg:aspect-[16/8] rounded-2xl overflow-hidden bg-pacific-dark shadow-[0_1px_3px_rgba(17,39,50,0.08)] hover:shadow-[0_16px_50px_rgba(17,39,50,0.18)] transition-shadow duration-500"
+        className="group relative block aspect-[4/3] sm:aspect-[16/9] lg:aspect-[16/8] rounded-none overflow-hidden bg-pacific-dark shadow-[0_1px_3px_rgba(17,39,50,0.08)] hover:shadow-[0_16px_50px_rgba(17,39,50,0.18)] transition-shadow duration-500"
       >
         {/* Image fills the entire card */}
         {post.mainImage ? (
@@ -183,7 +183,7 @@ function StandardCard({ post }: { post: BlogPost }) {
         // now occupies the full card instead of a top thumbnail.
         // bg-pacific-dark fallback so the gradient scrim has something
         // to mix into when the image is still loading.
-        className="relative block aspect-[4/5] rounded-2xl overflow-hidden bg-pacific-dark shadow-[0_1px_3px_rgba(17,39,50,0.06)] hover:shadow-[0_12px_40px_rgba(17,39,50,0.14)] transition-shadow duration-500 h-full"
+        className="relative block aspect-[4/5] rounded-none overflow-hidden bg-pacific-dark shadow-[0_1px_3px_rgba(17,39,50,0.06)] hover:shadow-[0_12px_40px_rgba(17,39,50,0.14)] transition-shadow duration-500 h-full"
       >
         {post.mainImage ? (
           // eslint-disable-next-line @next/next/no-img-element

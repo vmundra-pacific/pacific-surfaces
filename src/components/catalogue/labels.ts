@@ -13,7 +13,7 @@ export const PRODUCT_TYPE_LABELS: Record<string, string> = {
   "quartz-slab": "Mineral infused low silica surface",
   "granite-slab": "Granite",
   "quartz-sink": "Integra",
-  "granite-finish": "Beyond Finish",
+  "granite-finish": "Beyond Stone",
   "semi-precious": "Semi-Precious Stones",
   luxury: "Luxury",
 };
@@ -21,7 +21,7 @@ export const PRODUCT_TYPE_LABELS: Record<string, string> = {
 export const COLLECTION_LABELS: Record<string, string> = {
   "Vision Series": "Eclipse",
   Vision: "Eclipse",
-  "Stone Finishes": "Beyond Finish",
+  "Stone Finishes": "Beyond Stone",
 };
 
 export const PRODUCT_TYPE_SECTION_ORDER: string[] = [

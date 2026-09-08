@@ -104,7 +104,7 @@ const INDIA_MAINLAND_POINTS =
 export function IndiaDealerMap() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-6 items-start">
-      <div className="relative aspect-[860/885] w-full max-w-sm mx-auto sm:mx-0 rounded-2xl overflow-hidden border border-white/10 bg-[#0e2030]">
+      <div className="relative aspect-[860/885] w-full max-w-sm mx-auto sm:mx-0 rounded-none overflow-hidden border border-white/10 bg-[#0e2030]">
         <svg
           viewBox={MAP_VIEWBOX}
           preserveAspectRatio="xMidYMid meet"

@@ -17,7 +17,7 @@ interface SanityProduct {
   /**
    * Optional gallery image URLs (each `gallery[].asset->url` from
    * Sanity). Used by the FinishLightbox on /products to render
-   * thumbnails alongside the main image for Beyond Finish products.
+   * thumbnails alongside the main image for Beyond Stone products.
    */
   gallery?: (string | null)[] | null;
   /**

@@ -69,7 +69,7 @@ export function PartnerWithUs() {
                 <motion.div
                   whileHover={{ y: -8 }}
                   transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-                  className="group p-6 sm:p-8 bg-white/5 rounded-2xl border border-pacific-mid/20 hover:border-pacific-mid/40 transition-colors h-full flex flex-col"
+                  className="group p-6 sm:p-8 bg-white/5 rounded-none border border-pacific-mid/20 hover:border-pacific-mid/40 transition-colors h-full flex flex-col"
                 >
                   {/* Title */}
                   <h3 className="text-2xl font-light text-white tracking-tight mb-4">

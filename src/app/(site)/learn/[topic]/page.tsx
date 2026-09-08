@@ -16,7 +16,7 @@ const PRODUCT_CTA: Record<string, { href: string; label: string }> = {
   vision: { href: "/products/quartz/chromia", label: "Browse Eclipse" },
   "facades-and-finishes": {
     href: "/products/facades-and-finishes",
-    label: "Browse Beyond Finish",
+    label: "Browse Beyond Stone",
   },
   "centrepiece-couture": {
     href: "/products/centrepiece-couture",
@@ -220,15 +220,15 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   },
 
   "what-is-facades-and-finishes": {
-    title: "What are Beyond Finish?",
-    eyebrow: "Material 101 · Beyond Finish",
+    title: "What are Beyond Stone?",
+    eyebrow: "Material 101 · Beyond Stone",
     description:
-      "Beyond Finish are large-format surface panels that bring authentic stone character to walls, facades, and feature areas without the weight or thickness penalty of full slabs.",
+      "Beyond Stone are large-format surface panels that bring authentic stone character to walls, facades, and feature areas without the weight or thickness penalty of full slabs.",
     body: [
       {
         heading: "The product range",
         content:
-          "Pacific Beyond Finish covers a portfolio of surface treatments — polished, honed, leathered, brushed, flamed, sandblasted — across our quartz and granite collections. Each finish changes the way light reads on the surface, the way it feels under the hand, and how it weathers. The catalogue is designed to give specifiers a single library to draw from.",
+          "Pacific Beyond Stone covers a portfolio of surface treatments — polished, honed, leathered, brushed, flamed, sandblasted — across our quartz and granite collections. Each finish changes the way light reads on the surface, the way it feels under the hand, and how it weathers. The catalogue is designed to give specifiers a single library to draw from.",
         imageLabel: "Finish samples",
       },
       {
@@ -451,10 +451,10 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   },
 
   "maintenance-facades-and-finishes": {
-    title: "Maintenance · Beyond Finish",
-    eyebrow: "Care & Cleaning · Beyond Finish",
+    title: "Maintenance · Beyond Stone",
+    eyebrow: "Care & Cleaning · Beyond Stone",
     description:
-      "Pacific Beyond Finish covers polished, honed, leathered, brushed, and flamed surfaces — care varies slightly per finish, with shared fundamentals.",
+      "Pacific Beyond Stone covers polished, honed, leathered, brushed, and flamed surfaces — care varies slightly per finish, with shared fundamentals.",
     body: [
       {
         heading: "Polished and honed",
@@ -631,7 +631,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
     title: "Architecture Project Gallery",
     eyebrow: "Projects · Architecture",
     description:
-      "Pacific Beyond Finish and large-format Quartz on real architectural projects — facades, feature walls, lobbies, and exterior cladding installations.",
+      "Pacific Beyond Stone and large-format Quartz on real architectural projects — facades, feature walls, lobbies, and exterior cladding installations.",
   },
   "commercial-inspiration": {
     title: "Commercial Inspiration",

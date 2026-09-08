@@ -166,7 +166,7 @@ export function DealerLocator({ dealers }: { dealers?: SanityDealer[] }) {
             className="lg:col-span-3 relative"
           >
             {/* Map */}
-            <div className="relative rounded-2xl overflow-hidden bg-[#0e2030] aspect-[16/10]">
+            <div className="relative rounded-none overflow-hidden bg-[#0e2030] aspect-[16/10]">
               <svg
                 viewBox="0 0 800 520"
                 preserveAspectRatio="xMidYMid slice"

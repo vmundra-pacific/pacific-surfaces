@@ -24,7 +24,7 @@ import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
 
 // PRODUCTS_CATEGORIES drives the Products mega-menu — five cards
 // matching the Sidharth UI/UX deck exactly:
-//   1) Quartz · 2) Beyond Finish · 3) Vision ·
+//   1) Quartz · 2) Beyond Stone · 3) Vision ·
 //   4) Granites · 5) Semi-Precious Stones
 //
 // Vision is a sub-line of Quartz that lives at /products/quartz/chromia
@@ -76,7 +76,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
   },
   {
     slug: "facades-and-finishes",
-    name: "Beyond Finish",
+    name: "Beyond Stone",
     tagline: "Large-format facade and feature surfaces.",
     imageUrl: "/images/products/facades.png",
     brandedImageUrl: "/images/products/branded/facades-and-finishes.png",
@@ -312,7 +312,7 @@ const navigation = [
       { name: "Centrepiece Couture", href: "/products/centrepiece-couture" },
       { name: "Integra (Sinks)", href: "/products/integra" },
       {
-        name: "Beyond Finish",
+        name: "Beyond Stone",
         href: "/products/facades-and-finishes",
       },
       { name: "Vanity", href: "/products/vanity" },
@@ -779,7 +779,7 @@ export default function Header() {
               squeeze them together (PACIFIC SURFACES + ABOUT were
               previously touching at wide viewports because the row
               filled fully). */}
-          <div className="grid h-20 grid-cols-[auto_1fr_auto] items-center">
+          <div className="grid h-20 grid-cols-[auto_1fr_auto] items-center gap-x-10">
             {/* Logo — one PacificLogoMark graphic, always white. The
                 drop-shadow is a soft glow (not a hard box) so the mark
                 stays legible over the bright homepage marble hero

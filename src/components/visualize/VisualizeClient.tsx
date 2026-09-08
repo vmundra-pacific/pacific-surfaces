@@ -285,9 +285,9 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
 
       // General surfaces (countertop, vanity, backsplash, etc., or
       // unfocused state): show Pacific's flat-slab-compositable
-      // families — quartz, granite, semi-precious, and Beyond Finish
+      // families — quartz, granite, semi-precious, and Beyond Stone
       // (granite-finish). Per the 2026 UX audit, granite/semi-precious/
-      // Beyond Finish were excluded here even though nothing about
+      // Beyond Stone were excluded here even though nothing about
       // their asset pipeline requires it (same mainImage/gallery
       // shape as quartz) — this was a scope decision, not a technical
       // limit, so it's being lifted. Sinks/small-table pieces keep

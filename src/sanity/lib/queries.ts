@@ -462,7 +462,7 @@ export const sustainabilityPageQuery = groq`
   }
 `;
 
-// Beyond Finish — page-level copy (singleton).
+// Beyond Stone — page-level copy (singleton).
 //
 // Returns null when the document hasn't been created yet, so the
 // component falls back to hardcoded defaults.
@@ -493,7 +493,7 @@ export const facadesAndFinishesPageQuery = groq`
   }
 `;
 
-// Beyond Finish — products in a named Collection.
+// Beyond Stone — products in a named Collection.
 //
 // Pulls every product whose `collection` reference points at the
 // collection with slug $slug. Each card shows the product's name +

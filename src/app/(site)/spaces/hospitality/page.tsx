@@ -38,9 +38,9 @@ const SECTIONS = [
   {
     eyebrow: "Guestroom Bathrooms",
     headline: "Vanities and showers, hotel-spec.",
-    body: "Drop-in or undermount basins on engineered quartz vanities, full-height shower walls in Beyond Finish large-format slabs, and Integra integrated sinks where waterproof joints matter most. Non-porous, hygienic, easy to clean between turnovers.",
+    body: "Drop-in or undermount basins on engineered quartz vanities, full-height shower walls in Beyond Stone large-format slabs, and Integra integrated sinks where waterproof joints matter most. Non-porous, hygienic, easy to clean between turnovers.",
     imageLabel: "Hotel bathroom vanity",
-    ctaLabel: "Explore Beyond Finish",
+    ctaLabel: "Explore Beyond Stone",
     ctaHref: "/products/facades-and-finishes",
   },
   {

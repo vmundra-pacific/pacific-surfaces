@@ -18,7 +18,7 @@ import { defineField, defineType } from "sanity";
  */
 export default defineType({
   name: "facadesAndFinishesPage",
-  title: "Beyond Finish Page",
+  title: "Beyond Stone Page",
   type: "document",
   groups: [
     { name: "hero", title: "1 · Hero" },
@@ -232,7 +232,7 @@ export default defineType({
   ],
   preview: {
     prepare() {
-      return { title: "Beyond Finish Page" };
+      return { title: "Beyond Stone Page" };
     },
   },
 });

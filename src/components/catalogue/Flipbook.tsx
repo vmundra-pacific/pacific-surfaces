@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
+  Check,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -10,6 +11,7 @@ import {
   Maximize2,
   Minus,
   Plus,
+  Share2,
   X,
 } from "lucide-react";
 
@@ -48,6 +50,7 @@ export function Flipbook({
   url,
   title,
   poster,
+  shareUrl,
   onClose,
 }: {
   url: string;
@@ -55,6 +58,9 @@ export function Flipbook({
   /** The card's cover art. Shown instantly so the reader has something on
    *  screen while pdf.js loads and page one rasterises. */
   poster?: string;
+  /** Deep link back into this catalogue — /resources?read=<key>, which
+   *  reopens the booklet rather than landing on the page. */
+  shareUrl?: string;
   onClose: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -79,6 +85,7 @@ export function Flipbook({
   // Flips once the first spread has actually been drawn, which is when the
   // cover placeholder can be faded out.
   const [painted, setPainted] = useState(false);
+  const [shared, setShared] = useState(false);
 
   /* ---------- open the document ---------- */
   useEffect(() => {
@@ -288,6 +295,22 @@ export function Flipbook({
     };
   }, [go, onClose]);
 
+  const share = async () => {
+    if (!shareUrl) return;
+    const data = { title, text: `${title} — Pacific Surfaces`, url: shareUrl };
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share(data);
+        return;
+      }
+      await navigator.clipboard.writeText(shareUrl);
+      setShared(true);
+      window.setTimeout(() => setShared(false), 2000);
+    } catch {
+      /* dismissed, or the clipboard was refused */
+    }
+  };
+
   const toggleFullscreen = () => {
     const el = document.getElementById("flipbook-root");
     if (!document.fullscreenElement) void el?.requestFullscreen?.();
@@ -343,6 +366,20 @@ export function Flipbook({
           >
             <Maximize2 className="h-4 w-4" />
           </button>
+          {shareUrl && (
+            <button
+              type="button"
+              onClick={share}
+              aria-label={shared ? "Link copied" : "Share this catalogue"}
+              className={iconBtn}
+            >
+              {shared ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Share2 className="h-4 w-4" />
+              )}
+            </button>
+          )}
           <a href={url} download aria-label="Download PDF" className={iconBtn}>
             <Download className="h-4 w-4" />
           </a>

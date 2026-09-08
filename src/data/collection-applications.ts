@@ -38,7 +38,7 @@ export const COLLECTION_APPLICATIONS: Record<string, string[]> = {
     "bar-counters",
     "dining-and-furniture",
   ],
-  // Beyond Finish — the architectural, large-format end of the range.
+  // Beyond Stone — the architectural, large-format end of the range.
   "facades-and-finishes": [
     "feature-walls",
     "facades",

@@ -618,7 +618,7 @@ function TeamSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
-                className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 transition-all duration-500 h-full ${
+                className={`group relative aspect-[3/4] rounded-none overflow-hidden border border-white/10 transition-all duration-500 h-full ${
                   hasLinkedIn
                     ? "hover:border-[#0a66c2]/60 cursor-pointer"
                     : "hover:border-white/20"

@@ -8,7 +8,7 @@ import { FacadesAndFinishesContent } from "@/components/sections/FacadesAndFinis
 import { BreadcrumbList } from "@/components/global/JsonLd";
 
 export const metadata: Metadata = {
-  title: "Beyond Finish — Pacific Surfaces",
+  title: "Beyond Stone — Pacific Surfaces",
   description:
     "Polished, honed, leathered, brushed — explore the full palette of finishes available across Pacific's quartz and granite collections.",
   alternates: { canonical: "/products/facades-and-finishes" },
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
  * Layout:
  *   1. Full-screen hero with looped video background.
  *   2. Editorial intro split.
- *   3. Grid of finish products from the "Beyond Finish"
+ *   3. Grid of finish products from the "Beyond Stone"
  *      Sanity Collection. Tap → high-res lightbox with scroll-zoom.
  *
  * Editor setup checklist (one-time):
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
  *      Finishes", slug "facades-and-finishes". Publish.
  *   2. /studio → Products → +Add per finish (Polished, Honed,
  *      Leathered, …). Upload the texture as Main Image. Tag the
- *      "Beyond Finish" collection. Publish.
- *   3. (Optional) /studio → Beyond Finish Page → tweak
+ *      "Beyond Stone" collection. Publish.
+ *   3. (Optional) /studio → Beyond Stone Page → tweak
  *      hero / intro / grid copy. The page works with sensible
  *      defaults if this is left untouched.
  *
@@ -63,7 +63,7 @@ export default async function FacadesAndFinishesPage() {
           { name: "Home", url: "/" },
           { name: "Products", url: "/products" },
           {
-            name: "Beyond Finish",
+            name: "Beyond Stone",
             url: "/products/facades-and-finishes",
           },
         ]}

@@ -4,7 +4,7 @@
  * SlabCard — a single slab tile in the catalogue grid.
  *
  * Click behaviour varies per productType:
- *   - granite-finish products (Beyond Finish line) open a fullscreen
+ *   - granite-finish products (Beyond Stone line) open a fullscreen
  *     lightbox with scroll-to-zoom, same UX as the dedicated
  *     /products/facades-and-finishes page. No PDP navigation - finishes
  *     are texture swatches that benefit from a zoomable view rather
@@ -71,7 +71,7 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
-  // True when this slab is a Beyond Finish texture - those open in
+  // True when this slab is a Beyond Stone texture - those open in
   // a fullscreen lightbox rather than a PDP.
   const isFinish = slab.productType === "granite-finish";
 

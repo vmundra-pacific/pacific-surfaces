@@ -6,7 +6,7 @@
  * why Cosentino sells Silestone for countertops, bathrooms and
  * furniture only, and routes every facade and floor to Dekton, their
  * resin-free porcelain. We have no porcelain line, so granite (and
- * the Beyond Finish natural-stone range) is the only family we can
+ * the Beyond Stone natural-stone range) is the only family we can
  * put outside or on a floor.
  *
  * The `application` field is editor-set per product in Sanity, so
@@ -22,7 +22,7 @@
 /** Material families, derived from a product's type and collection. */
 export type MaterialFamily =
   | "engineered" // Quartz, Eclipse, Ecosurfaces, Vanity, Exotic
-  | "natural" // Granite, Beyond Finish
+  | "natural" // Granite, Beyond Stone
   | "decorative" // Semi-Precious, Translucent
   | "fabricated"; // Integra sinks, Centrepiece furniture
 

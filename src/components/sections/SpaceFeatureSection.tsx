@@ -14,7 +14,7 @@ import { ArrowRight } from "lucide-react";
  * rhythm. Each section pairs an image placeholder with a heading +
  * body + product CTA, where the CTA routes to the most relevant
  * Pacific catalogue page (Quartz, Granites, Vanity, Integra,
- * Beyond Finish, Centrepiece Couture, Semi-Precious Stones).
+ * Beyond Stone, Centrepiece Couture, Semi-Precious Stones).
  *
  * Image placeholders are intentionally simple gradient blocks for
  * now — drop a real photo into /public/images/spaces/<slug>/<n>.jpg
@@ -64,7 +64,7 @@ export function SpaceFeatureSection({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
-          className={`relative aspect-[4/3] w-full overflow-hidden rounded-2xl border ${
+          className={`relative aspect-[4/3] w-full overflow-hidden rounded-none border ${
             isDark
               ? "border-white/10 bg-gradient-to-br from-[#1d3947] via-[#2c4a5b] to-[#0f1f29]"
               : "border-pacific-mid/30 bg-gradient-to-br from-pacific-light via-white to-pacific-mid/40"

@@ -22,9 +22,9 @@ const SECTIONS = [
   {
     eyebrow: "Pool Surrounds & Coping",
     headline: "Surfaces that hold up around water, year after year.",
-    body: "Beyond Finish stoneface and granite coping cut to your pool's perimeter — UV-stable so the colour doesn't shift, freeze-thaw rated for cold-snap regions, and slip-resistant where it matters. Bonded with marine-grade adhesives that don't soften under chlorine or salt.",
+    body: "Beyond Stone stoneface and granite coping cut to your pool's perimeter — UV-stable so the colour doesn't shift, freeze-thaw rated for cold-snap regions, and slip-resistant where it matters. Bonded with marine-grade adhesives that don't soften under chlorine or salt.",
     imageLabel: "Pool surround surface",
-    ctaLabel: "Explore Beyond Finish",
+    ctaLabel: "Explore Beyond Stone",
     ctaHref: "/products/facades-and-finishes",
   },
   {
@@ -38,7 +38,7 @@ const SECTIONS = [
   {
     eyebrow: "Terraces & Outdoor Cladding",
     headline: "Cladding that takes the weather seriously.",
-    body: "Large-format Beyond Finish panels and natural stone facade slabs for terraces, garden walls, and rear elevations — drilled for anchor systems, cut to architect's setting-out drawings, and graded to keep their finish through decades of sun, rain, and wind.",
+    body: "Large-format Beyond Stone panels and natural stone facade slabs for terraces, garden walls, and rear elevations — drilled for anchor systems, cut to architect's setting-out drawings, and graded to keep their finish through decades of sun, rain, and wind.",
     imageLabel: "Outdoor facade cladding",
     ctaLabel: "Explore Granite & Natural Stone",
     ctaHref: "/products/granites",
@@ -46,7 +46,7 @@ const SECTIONS = [
   {
     eyebrow: "Wet Rooms & Spa Surfaces",
     headline: "Non-porous surfaces, top to bottom.",
-    body: "Full-height shower walls, spa bench tops, and steam-room cladding in engineered quartz and Beyond Finish — non-porous so water can't penetrate, hygienic by design, and finished with seamless joints that won't trap moisture or grime.",
+    body: "Full-height shower walls, spa bench tops, and steam-room cladding in engineered quartz and Beyond Stone — non-porous so water can't penetrate, hygienic by design, and finished with seamless joints that won't trap moisture or grime.",
     imageLabel: "Spa wet room surface",
     ctaLabel: "Explore Quartz",
     ctaHref: "/products/quartz",

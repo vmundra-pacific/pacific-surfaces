@@ -106,7 +106,7 @@ const CATEGORY_RULES: Array<{
   { category: "integra", matches: ["integra"] },
   { category: "vanity", matches: ["vanity"] },
   { category: "centrepiece-couture", matches: ["centrepiece"] },
-  // Stone Finishes (rebranded "Beyond Finish") routes to
+  // Stone Finishes (rebranded "Beyond Stone") routes to
   // /products/facades-and-finishes. Matches both Sanity's current
   // collection name and the new brand alias in case the underlying
   // Sanity doc is renamed later.
@@ -169,7 +169,7 @@ export function CollectionsShowcaseGrid({
     "Exotic",
     "Semi Precious",
     "Integra",
-    // Stone Finishes renders as "Beyond Finish" via the
+    // Stone Finishes renders as "Beyond Stone" via the
     // COLLECTION_LABELS rename map in labels.ts.
     "Stone Finish",
   ];
@@ -267,7 +267,7 @@ export function CollectionsShowcaseGrid({
               const tag = col.tag;
               // Display names go through formatCollection() so the
               // homepage carousel respects the COLLECTION_LABELS rename
-              // map ("Stone Finishes" -> "Beyond Finish",
+              // map ("Stone Finishes" -> "Beyond Stone",
               // "Vision Series" -> "Eclipse"). Sanity data stays
               // untouched.
               const rawName = col.name;
@@ -302,7 +302,7 @@ export function CollectionsShowcaseGrid({
                 <Link
                   key={key}
                   href={urlForCollection(rawName, slug)}
-                  className={`group relative shrink-0 rounded-2xl overflow-hidden block h-[60vh] max-h-[640px] ${widthClass}`}
+                  className={`group relative shrink-0 rounded-none overflow-hidden block h-[60vh] max-h-[640px] ${widthClass}`}
                 >
                   {image ? (
                     <Image

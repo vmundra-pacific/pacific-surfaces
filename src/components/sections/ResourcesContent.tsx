@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 
@@ -10,7 +10,7 @@ const Flipbook = dynamic(
   () => import("@/components/catalogue/Flipbook").then((m) => m.Flipbook),
   { ssr: false }
 );
-import { BookOpen, Download, FileText } from "lucide-react";
+import { BookOpen, Check, Download, FileText, Share2 } from "lucide-react";
 import {
   AnimatedSection,
   StaggerContainer,
@@ -78,7 +78,7 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
       "Natural stone collections with comprehensive catalogs, finishes, and specifications for every application.",
     fallback: [
       "Natural Stone Catalog",
-      "Beyond Finish",
+      "Beyond Stone",
       "Cut-to-Size Catalog",
       "Window Sills & Thresholds Flyer",
       "Monument Catalog",
@@ -174,10 +174,58 @@ const CATEGORY_ORDER: string[] = [
    gradient backdrop with a faint file-icon watermark, so the card
    shape is consistent whether or not artwork has been provided. */
 
+/**
+ * The key a shared link carries. Derived from the title rather than the
+ * Sanity _id so the URL reads as something, and so a catalogue that is
+ * later re-uploaded as a new document keeps its old links working.
+ */
+export function resourceKey(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function ResourceCard({ resource }: { resource: SanityResource }) {
   const isReal = Boolean(resource.pdfUrl);
   const hasThumbnail = Boolean(resource.thumbnail);
   const [reading, setReading] = useState(false);
+  const [shared, setShared] = useState(false);
+  const key = resourceKey(resource.title);
+  const shareUrl =
+    typeof window === "undefined"
+      ? ""
+      : `${window.location.origin}/resources?read=${key}`;
+
+  // A shared link opens straight into the booklet rather than dropping the
+  // reader on the page and making them hunt for the card. Read from
+  // window rather than useSearchParams: this sits inside a dynamic page,
+  // and useSearchParams would force a Suspense boundary for no gain.
+  useEffect(() => {
+    if (!resource.pdfUrl) return;
+    const wanted = new URLSearchParams(window.location.search).get("read");
+    if (wanted === key) setReading(true);
+  }, [key, resource.pdfUrl]);
+
+  const share = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const data = {
+      title: resource.title,
+      text: `${resource.title} — Pacific Surfaces`,
+      url: shareUrl,
+    };
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share(data);
+        return;
+      }
+      await navigator.clipboard.writeText(shareUrl);
+      setShared(true);
+      window.setTimeout(() => setShared(false), 2000);
+    } catch {
+      /* dismissed the sheet, or the clipboard was refused */
+    }
+  };
 
   // Pull the reader's chunk — pdf.js and its worker, ~440ms of the open —
   // while the pointer is still on the card, so the click only has to fetch
@@ -208,7 +256,7 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
               }
             : undefined
         }
-        className={`group relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#0a1620] border border-white/10 hover:border-white/25 transition-all duration-500 ${
+        className={`group relative aspect-[3/4] overflow-hidden rounded-none bg-[#0a1620] border border-white/10 hover:border-white/25 transition-all duration-500 ${
           isReal
             ? "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60"
             : ""
@@ -287,6 +335,18 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
                 <BookOpen className="h-3.5 w-3.5" />
                 Read
               </button>
+              <button
+                type="button"
+                onClick={share}
+                aria-label={`Share ${resource.title}`}
+                className="inline-flex items-center rounded-full border border-white/35 bg-white/15 p-2 text-white backdrop-blur-md transition-all duration-300 hover:bg-white/25 hover:border-white/55"
+              >
+                {shared ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Share2 className="h-4 w-4" />
+                )}
+              </button>
               <a
                 href={resource.pdfUrl}
                 target="_blank"
@@ -315,6 +375,7 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
           url={resource.pdfUrl}
           title={resource.title}
           poster={resource.thumbnail}
+          shareUrl={shareUrl}
           onClose={() => setReading(false)}
         />
       )}
@@ -401,6 +462,7 @@ export function ResourcesContent({
   resources?: SanityResource[];
 }) {
   const resources = [...LOCAL_RESOURCES, ...sanityResources];
+
   // Collect any unique categories from Sanity that aren't in our
   // canonical order (just in case we missed registering one) — they
   // render at the end.

@@ -101,7 +101,7 @@ const LEARN_LINKS_BY_CATEGORY: Record<string, LearnLink[]> = {
   ],
   "facades-and-finishes": [
     {
-      label: "What are Beyond Finish?",
+      label: "What are Beyond Stone?",
       href: "/learn/what-is-facades-and-finishes",
       description:
         "The product range, architectural use, and specification of Pacific large-format facade surfaces.",
