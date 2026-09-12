@@ -1358,3 +1358,91 @@ html
   .text-pacific-mid {
   color: #f2f2f2 !important;
 }
+
+/* ---- customer portal stays black --------------------------------------
+   The portal (/customer/login, /dashboard, /grievance/*, /profile) is a
+   signed-in tool, not site content, and it is designed as white type on a
+   dark ground. The skin's remaps - `html body { background:#fff }`, the
+   `.bg-pacific-dark -> #fff` utility rewrite, and the
+   `html[data-bw-light-page] body .text-white -> black` ink flip - turned
+   its ground white and its type black-on-black, which is what made the
+   sign-in card read as a blank rectangle.
+
+   Everything under [data-portal-dark] opts out wholesale. Scoped by
+   attribute rather than by route so it travels with the markup: the
+   attribute sits on the portal layout's wrapper and on the login page's
+   <main>, so a new portal route needs no change here.
+
+   SPECIFICITY: the attribute is written twice on purpose. The rules being
+   overridden are `html[data-bw-light-page] body .text-pacific-mid` and
+   friends, which score (0,2,2); a single `html body [data-portal-dark] p`
+   is only (0,1,3) and loses on class-column count no matter how late it
+   appears in the file. Doubling the attribute makes these (0,2,3+), which
+   wins on merit rather than on source order. */
+html body [data-portal-dark][data-portal-dark] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Grounds: every ground utility inside the portal collapses to black. */
+html body [data-portal-dark][data-portal-dark],
+html body [data-portal-dark][data-portal-dark] main,
+html body [data-portal-dark][data-portal-dark] section,
+html body [data-portal-dark][data-portal-dark] [class*="bg-pacific-dark"],
+html body [data-portal-dark][data-portal-dark] [class*="bg-black"] {
+  background-color: #000000 !important;
+}
+
+/* Ink: full-strength white for real content. */
+html body [data-portal-dark][data-portal-dark] h1,
+html body [data-portal-dark][data-portal-dark] h2,
+html body [data-portal-dark][data-portal-dark] h3,
+html body [data-portal-dark][data-portal-dark] h4,
+html body [data-portal-dark][data-portal-dark] .text-white,
+html body [data-portal-dark][data-portal-dark] a,
+html body [data-portal-dark][data-portal-dark] label,
+html body [data-portal-dark][data-portal-dark] p,
+html body [data-portal-dark][data-portal-dark] span,
+html body [data-portal-dark][data-portal-dark] li {
+  color: #ffffff !important;
+}
+
+/* Ink: the muted register stays muted rather than snapping to full
+   white - pacific-mid/light and the text-white/NN opacities are all
+   deliberate secondary text. */
+html body [data-portal-dark][data-portal-dark] .text-pacific-mid,
+html body [data-portal-dark][data-portal-dark] .text-pacific-light,
+html body [data-portal-dark][data-portal-dark] [class*="text-white\/"] {
+  color: rgba(255, 255, 255, 0.68) !important;
+}
+
+/* Rules and edges. */
+html body [data-portal-dark][data-portal-dark] [class*="border-white"],
+html body [data-portal-dark][data-portal-dark] [class*="border-pacific"] {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+/* Fields read as black wells with a visible edge. */
+html body [data-portal-dark][data-portal-dark] input,
+html body [data-portal-dark][data-portal-dark] textarea,
+html body [data-portal-dark][data-portal-dark] select {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* The inversions: a white plate wants black type, so these have to beat
+   the blanket white-ink rules above. */
+/* `[class*="bg-white"]` also matches `hover:bg-white`, which filled the
+   outlined Salesforce button white at rest instead of only on hover -
+   hence the second :not(). */
+html body [data-portal-dark][data-portal-dark] [class*="bg-white"]:not([class*="bg-white\/"]):not([class*="hover\:bg-white"]),
+html body [data-portal-dark][data-portal-dark] [class*="bg-white"]:not([class*="bg-white\/"]):not([class*="hover\:bg-white"]) * {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+html body [data-portal-dark][data-portal-dark] a[class*="hover\:bg-white"]:hover,
+html body [data-portal-dark][data-portal-dark] a[class*="hover\:bg-white"]:hover * {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}

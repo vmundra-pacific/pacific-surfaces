@@ -38,11 +38,15 @@ export default async function CustomerLayout({
   const session = await auth();
 
   if (!session?.user) {
-    return <div className="min-h-screen bg-pacific-dark text-white">{children}</div>;
+    return (
+      <div data-portal-dark className="min-h-screen bg-black text-white">
+        {children}
+      </div>
+    );
   }
 
   return (
-    <div className="flex min-h-screen bg-pacific-dark text-white">
+    <div data-portal-dark className="flex min-h-screen bg-black text-white">
       <CustomerSidebar />
 
       <main className="flex-1 p-8 lg:p-12">

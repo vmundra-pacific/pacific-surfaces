@@ -10,7 +10,14 @@ export default async function CustomerLoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-pacific-dark text-white">
+    /* data-portal-dark opts this page out of the temporary black-on-white
+       skin (see the block at the end of bw-temp.css). Without it the skin's
+       unconditional `.bg-pacific-dark { background: #fff }` remap turned the
+       ground white and left the portal's white type invisible on it. */
+    <main
+      data-portal-dark
+      className="min-h-screen bg-black text-white"
+    >
       <div className="mx-auto flex min-h-screen max-w-7xl items-center px-6 lg:px-12">
         <div className="grid w-full grid-cols-1 gap-20 lg:grid-cols-2">
 
