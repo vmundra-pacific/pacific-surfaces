@@ -1446,3 +1446,23 @@ html body [data-portal-dark][data-portal-dark] a[class*="hover\:bg-white"]:hover
   background-color: #ffffff !important;
   color: #000000 !important;
 }
+
+/* Chrome paints autofilled fields with its own pale-blue plate and dark
+   ink, using an internal style that ordinary background/color rules
+   cannot reach — on the black portal form that produced a light box with
+   an invisible label above it. The box-shadow trick is the only way to
+   repaint the plate (the UA background is not overridable), and
+   -webkit-text-fill-color is the only way to repaint the text. The long
+   transition keeps the UA's own fade from flashing blue first. */
+html body [data-portal-dark][data-portal-dark] input:-webkit-autofill,
+html body [data-portal-dark][data-portal-dark] input:-webkit-autofill:hover,
+html body [data-portal-dark][data-portal-dark] input:-webkit-autofill:focus,
+html body [data-portal-dark][data-portal-dark] input:-webkit-autofill:active,
+html body [data-portal-dark][data-portal-dark] textarea:-webkit-autofill {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 1000px #000000 inset !important;
+  box-shadow: 0 0 0 1000px #000000 inset !important;
+  caret-color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  transition: background-color 100000s ease-in-out 0s;
+}
