@@ -220,7 +220,10 @@ export function SlabPicker({
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 )}
-                <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/70 to-transparent">
+                <div
+                  data-over-media
+                  className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/70 to-transparent"
+                >
                   <div className="text-[9px] tracking-[.1em] uppercase text-white/90 text-left leading-tight line-clamp-2">
                     {s.name}
                   </div>

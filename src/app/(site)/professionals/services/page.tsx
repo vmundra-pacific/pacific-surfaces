@@ -218,7 +218,7 @@ const capabilities = [
 
 export default function ServicesPage() {
   return (
-    <main className="bg-[#0a1620] text-pacific-light">
+    <main data-light-page className="bg-[#0a1620] text-pacific-light">
       {/* 1. Hero */}
       <section className="relative min-h-[80vh] flex items-end bg-pacific-dark overflow-hidden">
         <Image
@@ -263,7 +263,10 @@ export default function ServicesPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-pacific-dark/85 via-pacific-dark/95 to-pacific-dark" />
         </div>
-        <div className="relative mx-auto max-w-6xl px-6 lg:px-8 py-24 sm:py-32 lg:py-40 text-center">
+        <div
+          data-over-media
+          className="relative mx-auto max-w-6xl px-6 lg:px-8 py-24 sm:py-32 lg:py-40 text-center"
+        >
           <AnimatedSection animation="fadeUp">
             <span className="inline-block text-[10px] sm:text-xs tracking-[0.4em] uppercase text-pacific-light/70 font-medium border border-white/15 rounded-full px-4 py-1.5">
               Fab Creations · Cut-to-size

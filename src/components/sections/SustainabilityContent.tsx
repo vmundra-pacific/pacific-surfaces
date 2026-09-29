@@ -377,7 +377,7 @@ export function SustainabilityContent({
   const ctaImage = data?.ctaImage ?? null;
 
   return (
-    <>
+    <div data-light-page>
       {/* Hero — full screen. Background video (or image) sits
           full-bleed behind the headline; gradient + scrim keep the
           copy readable against any frame. */}
@@ -419,6 +419,7 @@ export function SustainabilityContent({
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
+          data-over-media
           className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pb-12 sm:pb-16 lg:pb-24 pt-24 sm:pt-32"
         >
           <div className="text-xs font-medium tracking-[0.3em] uppercase text-pacific-mid mb-6">
@@ -666,7 +667,7 @@ export function SustainabilityContent({
                       <div className="w-12 h-12 rounded-xl bg-pacific-mid/10 border border-pacific-mid/25 flex items-center justify-center flex-shrink-0">
                         <Icon className="w-6 h-6 text-pacific-light" />
                       </div>
-                      <div className="text-3xl font-light text-pacific-mid/40 tabular-nums leading-none mt-1">
+                      <div className="text-3xl font-light text-pacific-mid/70 tabular-nums leading-none mt-1">
                         {String(i + 1).padStart(2, "0")}
                       </div>
                     </div>
@@ -715,6 +716,6 @@ export function SustainabilityContent({
           </AnimatedSection>
         </div>
       </section>
-    </>
+    </div>
   );
 }

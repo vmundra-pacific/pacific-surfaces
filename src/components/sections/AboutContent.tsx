@@ -176,7 +176,7 @@ export function AboutContent() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
-    <>
+    <div data-light-page>
       {/* Hero */}
       <section
         ref={heroRef}
@@ -235,6 +235,7 @@ export function AboutContent() {
           // already pulls us to the bottom — the old pt was
           // padding for a vertically-centred hero.
           className="relative z-10 max-w-3xl px-6 lg:px-8 pb-12"
+          data-over-media
         >
           <motion.span
             initial={{ opacity: 0, y: 10 }}
@@ -287,36 +288,32 @@ export function AboutContent() {
         </div>
       </section>
 
-      {/* Story — full-bleed team video as background, centered copy
-          on top. Replaces the previous side-by-side layout where a
-          family portrait sat next to the text; the video gives the
-          section more atmosphere and frees the copy to occupy the
-          frame on its own. The "10+ Years of Excellence" stat that
-          floated off the old portrait is now a small inline caption
-          beneath the headline so the brand stamp survives. */}
-      <section className="relative overflow-hidden bg-[#112732]">
-        {/* Background video. Muted/looped/playsInline so iOS Safari
-            autoplays without user gesture. Poster is the first
-            beautifully-lit frame, served via the file ffmpeg pulled
-            at t=1.5s. Falls back to the poster if the network can't
-            keep up — the dark scrim above means readability never
-            depends on the video frame underneath. */}
-        <video
-          src="/videos/team-section.mp4"
-          poster="/videos/team-section-poster.jpg"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        {/* Dark scrim — keeps the body copy at full WCAG contrast
-            regardless of which frame is on screen behind it. */}
-        <div aria-hidden="true" className="absolute inset-0 bg-[#112732]/75" />
+      {/* Story — the team film runs full-bleed and clean, with the copy
+          set beneath it on the page ground. It used to sit over the film
+          behind a 75% scrim, which dimmed the people it was showing and
+          left the text fighting the frame for contrast. The "25+ Years
+          of Excellence" colophon stays as a small caption under the
+          headline so the brand stamp survives. */}
+      <section className="bg-[#112732]">
+        {/* The film at its own 16:9, so the whole group stays in frame
+            at every width. Muted/looped/playsInline so iOS Safari
+            autoplays without a user gesture; the poster is the frame
+            ffmpeg pulled at t=1.5s. */}
+        <div className="relative aspect-video w-full overflow-hidden">
+          <video
+            src="/videos/team-section.mp4"
+            poster="/videos/team-section-poster.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </div>
 
-        <div className="relative mx-auto max-w-3xl px-6 lg:px-8 py-20 sm:py-28 lg:py-36 text-center">
+        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-16 sm:py-20 lg:py-28 text-center">
           <AnimatedSection animation="fadeIn">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/80 mb-5 block">
               Who We Are
@@ -500,7 +497,7 @@ export function AboutContent() {
           </AnimatedSection>
         </div>
       </section>
-    </>
+    </div>
   );
 }
 
@@ -527,7 +524,12 @@ function TimelineSection() {
           mood and keeps the timeline text readable over the video. */}
       <div className="absolute inset-0 bg-[#112732]/72 -z-10" />
 
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
+      {/* data-over-media: every line here sits on the film, so it reads
+          white whatever the page skin does to the ink around it. */}
+      <div
+        data-over-media
+        className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32"
+      >
         <AnimatedSection className="text-center mb-12 sm:mb-16">
           <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
             Our Journey
@@ -538,8 +540,9 @@ function TimelineSection() {
         </AnimatedSection>
 
         <div className="relative">
-          {/* Vertical timeline line */}
-          <div className="absolute left-0 lg:left-1/2 top-0 bottom-0 w-1 bg-white/10 lg:-translate-x-1/2" />
+          {/* Vertical timeline line — white, so the spine reads as clearly
+              as the dots it joins. */}
+          <div className="absolute left-0 lg:left-1/2 top-0 bottom-0 w-1 bg-white/60 lg:-translate-x-1/2" />
 
           <div className="space-y-12 lg:space-y-16">
             {timeline.map((item, index) => (
@@ -570,7 +573,13 @@ function TimelineSection() {
                       <h3 className="text-xl font-light tracking-tight text-white mb-3">
                         {item.title}
                       </h3>
-                      <p className="text-pacific-mid font-light leading-relaxed max-w-md">
+                      {/* Left-hand entries are right-aligned against the
+                          spine, so the capped paragraph needs ml-auto too —
+                          otherwise its box sits at the column's far edge and
+                          the text floats away from its own title. */}
+                      <p
+                        className={`text-pacific-mid font-light leading-relaxed max-w-md ${index % 2 === 0 ? "lg:ml-auto" : ""}`}
+                      >
                         {item.description}
                       </p>
                     </motion.div>
@@ -665,8 +674,11 @@ function TeamSection() {
                   </div>
                 )}
 
-                {/* Text — pinned to the bottom of the card. */}
-                <div className="absolute bottom-0 left-0 right-0 p-5">
+                {/* Text — pinned to the bottom of the card, on the photo. */}
+                <div
+                  data-over-media
+                  className="absolute bottom-0 left-0 right-0 p-5"
+                >
                   <h3 className="text-base font-medium text-white tracking-tight">
                     {member.name}
                   </h3>

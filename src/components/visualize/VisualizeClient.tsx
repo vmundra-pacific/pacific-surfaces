@@ -420,7 +420,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
   // -------------------- Intake screen --------------------
   if (!imageSrc) {
     return (
-      <main className="min-h-screen bg-[#0a1620] text-pacific-light">
+      <main data-over-media className="min-h-screen bg-[#0a1620] text-pacific-light">
         <div
           className="pointer-events-none fixed inset-0 opacity-60"
           style={{
@@ -572,7 +572,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
 
   // -------------------- Workspace screen --------------------
   return (
-    <main className="min-h-screen lg:h-screen w-screen lg:overflow-hidden bg-[#0a1620] text-pacific-light flex flex-col">
+    <main data-over-media className="min-h-screen lg:h-screen w-screen lg:overflow-hidden bg-[#0a1620] text-pacific-light flex flex-col">
       {/* Top bar */}
       <header className="shrink-0 h-14 px-4 md:px-6 flex items-center justify-between border-b border-white/8 bg-pacific-dark/60 backdrop-blur-xl">
         <div className="flex items-center gap-5">
@@ -1055,7 +1055,10 @@ function InspectorContents({
                   )}
                 </>
               )}
-              <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+              <div
+                data-over-media
+                className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent"
+              >
                 <div className="text-pacific-light text-base leading-tight font-light">
                   {slab.name}
                 </div>

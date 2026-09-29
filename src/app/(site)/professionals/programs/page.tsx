@@ -67,7 +67,7 @@ const benefits = [
 
 export default function ProgramsPage() {
   return (
-    <main className="bg-[#0a1620] text-pacific-light">
+    <main data-light-page className="bg-[#0a1620] text-pacific-light">
       {/* ── 1. Hero ── */}
       <section className="relative min-h-[80vh] flex items-end bg-pacific-dark overflow-hidden">
         <Image

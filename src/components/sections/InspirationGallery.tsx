@@ -134,7 +134,7 @@ export function InspirationGallery() {
   }, [filter]);
 
   return (
-    <main className="bg-[#0a1620] text-pacific-light">
+    <main data-light-page className="bg-[#0a1620] text-pacific-light">
       {/* ── 1. Hero ── */}
       <section className="relative min-h-[78vh] flex items-end bg-pacific-dark overflow-hidden">
         <Image
@@ -229,7 +229,10 @@ export function InspirationGallery() {
                       className="block w-full h-auto transition-transform duration-700 group-hover:scale-[1.04]"
                     />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                    <div className="absolute left-5 right-5 bottom-4 flex items-end justify-between gap-3">
+                    <div
+                      data-over-media
+                      className="absolute left-5 right-5 bottom-4 flex items-end justify-between gap-3"
+                    >
                       <div className="text-white">
                         <div className="text-[10px] tracking-[0.25em] uppercase text-white/70 font-medium">
                           {p.surface}

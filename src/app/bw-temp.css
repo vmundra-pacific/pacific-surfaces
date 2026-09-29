@@ -1466,3 +1466,94 @@ html body [data-portal-dark][data-portal-dark] textarea:-webkit-autofill {
   border-color: rgba(255, 255, 255, 0.28) !important;
   transition: background-color 100000s ease-in-out 0s;
 }
+
+/* ==========================================================================
+   Pages that read black on white — scoped fix
+   --------------------------------------------------------------------------
+   Rule 3 above hands white back to any text inside a dark container. On
+   the Professionals pages, the Inspiration Gallery, About and
+   Sustainability the dark class sits on the page wrapper itself, so every
+   heading and paragraph came out #f2f2f2 on a white section, and copy set
+   over photographs came out black.
+
+   Rather than change that rule for every page, the pages it broke opt in
+   with `data-light-page` on their wrapper. Inside it grounds read white,
+   ink reads dark, and copy on a photograph reads white — declared with
+   `data-over-media`, or detected from an image or video sitting directly
+   under its container. Pages without the attribute are untouched.
+   ========================================================================== */
+
+/* grounds — scrims (opacity variants) and absolute overlays are left dark,
+   since they exist to darken a photograph under white copy */
+html:root body [data-light-page][data-light-page],
+html:root body [data-light-page][data-light-page] :is(section, div, aside, article)[class*="bg-[#0"]:not([class*="]/"]):not([class*="absolute"]):not([data-over-media]),
+html:root body [data-light-page][data-light-page] :is(section, div, aside, article)[class*="bg-[#1"]:not([class*="]/"]):not([class*="absolute"]):not([data-over-media]),
+html:root body [data-light-page][data-light-page] :is(section, aside, article)[class*="bg-pacific-dark"]:not([class^="bg-pacific-dark\/"]):not([class*=" bg-pacific-dark\/"]):not([class*="absolute"]):not([data-over-media]) {
+  background-color: #ffffff !important;
+}
+
+/* ink — dark, with the muted register kept muted */
+html:root body [data-light-page][data-light-page] :is(h1, h2, h3, h4, h5, h6, p, li, blockquote, dt, dd, label, span, strong, em, small, a, button, figcaption, td, th) {
+  color: #14140f !important;
+}
+html:root body [data-light-page][data-light-page] div:is(.text-white, .text-pacific-light):where(:not([data-over-media] *)) {
+  color: #14140f !important;
+}
+html:root body [data-light-page][data-light-page] :is(.text-pacific-mid, [class*="text-pacific-mid\/"], [class*="text-white\/"], [class*="text-pacific-light\/"]) {
+  color: rgba(20, 20, 15, 0.62) !important;
+}
+
+/* icons drawn for a dark ground — the card glyphs on the Services and
+   Programs pages were #f2f2f2 on the white card */
+html:root body [data-light-page][data-light-page] svg:is(.text-white, .text-pacific-light, [class*="text-white\/"], [class*="text-pacific-light\/"]):where(:not([data-over-media] *)) {
+  color: rgba(20, 20, 15, 0.7) !important;
+}
+
+/* copy on a photograph, detected: an <img>/<video> directly under the
+   container that also holds the copy */
+html:root body [data-light-page][data-light-page] :is(div, section, figure, a, button):is(:has(> img), :has(> video), :has(> [class*="absolute"] > img), :has(> [class*="absolute"] > video)) :is(h1, h2, h3, h4, h5, h6, p, li, span, strong, em, small, a, button, figcaption, div) {
+  color: #ffffff !important;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+}
+/* …except a solid pale plate on the photograph — a button keeps dark type.
+   Resting classes only (`bg-…` at the start or after a space), so a
+   `hover:bg-white` outline button is not mistaken for a plate. */
+html:root body [data-light-page][data-light-page] :is(div, section):is(:has(> img), :has(> video), :has(> [class*="absolute"] > img)) :is([class^="bg-white"], [class*=" bg-white"], [class^="bg-pacific-light"], [class*=" bg-pacific-light"]):not([class^="bg-white\/"]):not([class*=" bg-white\/"]):not([class^="bg-pacific-light\/"]):not([class*=" bg-pacific-light\/"]),
+html:root body [data-light-page][data-light-page] :is(div, section):is(:has(> img), :has(> video), :has(> [class*="absolute"] > img)) :is([class^="bg-white"], [class*=" bg-white"], [class^="bg-pacific-light"], [class*=" bg-pacific-light"]):not([class^="bg-white\/"]):not([class*=" bg-white\/"]):not([class^="bg-pacific-light\/"]):not([class*=" bg-pacific-light\/"]) * {
+  color: #14140f !important;
+  text-shadow: none;
+}
+
+/* (Exclusions below match RESTING opacity variants only — `hover:bg-…/90`
+   on the same element must not disqualify it.)
+   A dark pill on a light page — the MagneticButton `primary` CTA is
+   `bg-pacific-dark text-white` — keeps its white type. Only grounds on
+   section/aside/article are whitened above, so a div or link with this
+   class is still dark. */
+html:root body [data-light-page][data-light-page] :is([class^="bg-pacific-dark"], [class*=" bg-pacific-dark"], [class^="bg-black"], [class*=" bg-black"]):not([class^="bg-pacific-dark\/"]):not([class*=" bg-pacific-dark\/"]):not([class^="bg-black\/"]):not([class*=" bg-black\/"]):not(section):not(aside):not(article),
+html:root body [data-light-page][data-light-page] :is([class^="bg-pacific-dark"], [class*=" bg-pacific-dark"], [class^="bg-black"], [class*=" bg-black"]):not([class^="bg-pacific-dark\/"]):not([class*=" bg-pacific-dark\/"]):not([class^="bg-black\/"]):not([class*=" bg-black\/"]):not(section):not(aside):not(article) * {
+  color: #ffffff !important;
+}
+
+/* copy on a photograph, declared — used on any page. Doubled attribute so
+   it outranks the (0,2,x) ink rules above on merit. */
+html:root body [data-over-media][data-over-media],
+html:root body [data-over-media][data-over-media] :is(h1, h2, h3, h4, h5, h6, p, li, span, strong, em, small, a, button, figcaption, div, time) {
+  color: #ffffff !important;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+}
+html:root body [data-over-media][data-over-media] :is(.text-pacific-mid, [class*="text-pacific-mid\/"], .text-pacific-light, [class*="text-pacific-light\/"], [class*="text-white\/"]) {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+/* a pale plate inside — the visualiser's "Choose file" is bg-pacific-light */
+html:root body [data-over-media][data-over-media] :is([class^="bg-white"], [class*=" bg-white"], [class^="bg-pacific-light"], [class*=" bg-pacific-light"]):not([class^="bg-white\/"]):not([class*=" bg-white\/"]):not([class^="bg-pacific-light\/"]):not([class*=" bg-pacific-light\/"]),
+html:root body [data-over-media][data-over-media] :is([class^="bg-white"], [class*=" bg-white"], [class^="bg-pacific-light"], [class*=" bg-pacific-light"]):not([class^="bg-white\/"]):not([class*=" bg-white\/"]):not([class^="bg-pacific-light\/"]):not([class*=" bg-pacific-light\/"]) * {
+  color: #14140f !important;
+  text-shadow: none;
+}
+
+/* footer small print — the remap's #5f5f5f is a light-ground grey, and at
+   /70 on the black footer the copyright line all but disappeared */
+html body footer :is(.text-pacific-mid, [class*="text-pacific-mid\/"]) {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
