@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChevronRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { auth } from "@/auth";
 import LoginForm from "@/components/customer/LoginForm";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
@@ -17,13 +17,10 @@ export const metadata: Metadata = {
 const SALESFORCE_LOGIN_URL =
   process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL ?? "https://login.salesforce.com";
 
-/** What one portal login covers, named across the top of the card. */
-const PORTAL_PARTS = ["Customer Care", "Service requests", "Your profile"];
-
 /**
  * Customer Care Portal sign-in, laid out after Cosentino's: a white card
- * centred over an application photograph, the portal's parts named in a
- * dark strip across its top, and the employee route set below the card.
+ * centred over an application photograph, with two boxes across its top.
+ * Customer login is the form below; Employee login goes to Salesforce.
  *
  * This page sits OUTSIDE the portal's dark theme (see customer/layout.tsx)
  * and leans on the site skin instead: copy on the white card reads black,
@@ -54,16 +51,27 @@ export default async function CustomerLoginPage() {
       </div>
 
       <div className="relative w-full max-w-[556px] shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
-        <div
-          data-over-media
-          className="flex items-center justify-center gap-2.5 bg-[#1b1b19] px-4 py-4 text-[13px] font-light text-white sm:gap-4 sm:px-6 sm:text-[15px]"
-        >
-          {PORTAL_PARTS.map((part, i) => (
-            <span key={part} className="flex items-center gap-2.5 whitespace-nowrap sm:gap-4">
-              {i > 0 && <span aria-hidden="true" className="block h-px w-5 bg-white/60 sm:w-10" />}
-              {part}
-            </span>
-          ))}
+        {/* Two ways in. The customer box is the form below, so it reads as
+            the open tab, white into the card. The sales team signs in to
+            Salesforce, not to this portal: the form authenticates a
+            CUSTOMER against the Sanity `customer` collection, and a
+            Salesforce session here would have no customer `_id` for the
+            /customer/* pages to read. So Employee login stays a plain
+            outbound link. */}
+        <div data-over-media className="grid grid-cols-2 bg-[#1b1b19] text-[14px] sm:text-[15px]">
+          <span aria-current="page" className="flex items-center justify-center bg-white px-3 py-4 font-medium text-[#14140f]">
+            Customer login
+          </span>
+          <a
+            href={SALESFORCE_LOGIN_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Employee login (opens the Salesforce login in a new tab)"
+            className="flex items-center justify-center gap-1.5 px-3 py-4 font-light text-white transition-colors hover:bg-white/10"
+          >
+            Employee login
+            <ArrowUpRight className="h-4 w-4 opacity-70" aria-hidden="true" />
+          </a>
         </div>
 
         <div className="bg-white">
@@ -77,22 +85,6 @@ export default async function CustomerLoginPage() {
           <LoginForm />
         </div>
       </div>
-
-      {/* The sales team signs in to Salesforce, not to this portal: the form
-          above authenticates a CUSTOMER against the Sanity `customer`
-          collection, and a Salesforce session here would have no customer
-          `_id` for the /customer/* pages to read. So this stays a plain
-          outbound link. */}
-      <a
-        data-over-media
-        href={SALESFORCE_LOGIN_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="relative mt-8 inline-flex items-center gap-1 text-[15px] font-medium text-white underline-offset-4 hover:underline"
-      >
-        Pacific Surfaces employee access
-        <ChevronRight className="h-4 w-4" aria-hidden="true" />
-      </a>
     </main>
   );
 }
