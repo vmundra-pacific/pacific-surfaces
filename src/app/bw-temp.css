@@ -1124,13 +1124,11 @@ html body a[class*="bg-[#1"] {
 }
 
 /* ---- header stays solid ------------------------------------------------
-   At the top of a page the header is transparent by design, sitting over a
-   dark hero. With the page now white, that left pale nav text on white.
-   Keep it solid navy throughout the test. */
-html body header[class*="fixed"] {
-  background-color: #112732 !important;
-  background-image: none !important;
-}
+   The header now owns its own four-state theme (idle over a hero, light on
+   hover and on scroll, white with a mega open) and sets every ground and
+   ink inline from `navTheme` in Header.tsx. The old rule here pinned the
+   bar to solid navy with !important, which beats inline styles, so it is
+   gone; retheming the header means editing `NAV` in Header.tsx. */
 
 /* ---- catalogue grid on pure white --------------------------------------
    The slab grid sat on a black ground, which fought the pale marbles it is

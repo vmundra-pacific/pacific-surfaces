@@ -27,6 +27,7 @@ import { APPLICATIONS, type Application } from "@/data/applications";
 export const COLLECTION_APPLICATIONS: Record<string, string[]> = {
   // Mineral infused low silica surface — the flagship engineered line.
   quartz: [
+    "pacific-kitchen",
     "kitchen-countertops",
     "kitchen-islands",
     "backsplashes",
@@ -53,6 +54,7 @@ export const COLLECTION_APPLICATIONS: Record<string, string[]> = {
   ],
   // Eclipse — inlayered design quartz. Engineered, so interiors only.
   vision: [
+    "pacific-kitchen",
     "kitchen-countertops",
     "kitchen-islands",
     "waterfall-islands",
@@ -67,6 +69,7 @@ export const COLLECTION_APPLICATIONS: Record<string, string[]> = {
   // Fab Creations — bespoke cut-to-size, so the list leans to the
   // pieces that are made rather than specified from a catalogue.
   "fab-creations": [
+    "pacific-kitchen",
     "waterfall-islands",
     "kitchen-countertops",
     "kitchen-islands",
@@ -89,6 +92,7 @@ export const COLLECTION_APPLICATIONS: Record<string, string[]> = {
   // Granites — natural stone, the only line cleared for outdoors and
   // underfoot.
   granites: [
+    "pacific-kitchen",
     "kitchen-countertops",
     "kitchen-islands",
     "bathroom-vanity-tops",
@@ -113,6 +117,93 @@ export const COLLECTION_APPLICATIONS: Record<string, string[]> = {
     "wall-cladding",
   ],
 };
+
+/**
+ * The photograph the Products mega shows while an application is
+ * hovered. Picked by eye, one per application, so the picture is of the
+ * thing named: Shower Walls shows a shower wall, Bar Counters a bar.
+ * The menu used to take the first project photo of the matching room
+ * type, which gave Countertops, Islands and Backsplashes the same
+ * kitchen and Reception Desks an unrelated one.
+ *
+ * `null` means no photograph of that application exists yet. The menu
+ * then shows a plain named plate rather than a wrong picture. Replace
+ * the null with a path once one is shot.
+ */
+const MENU_IMAGE: Record<string, string | null> = {
+  "pacific-kitchen": "/projects/islands/artemis-kitchen.webp",
+  "kitchen-countertops": "/projects/islands/new-application-image.webp",
+  "kitchen-islands": "/projects/islands/statuario.webp",
+  "waterfall-islands": "/images/spaces/kitchens.png",
+  backsplashes: "/projects/islands/orenda-kitchen-new.webp",
+  "bathroom-vanity-tops": "/videos/vanity-poster.jpg",
+  "shower-walls-and-trays": "/projects/bathrooms/bathroom.webp",
+  washbasins: "/videos/integra-poster.jpg",
+  "wall-cladding": "/projects/cladding/horizon-veil.webp",
+  "feature-walls": "/projects/cladding/patagonia.webp",
+  "backlit-features": "/images/products/translucent.jpeg",
+  facades: "/images/products/facades.png",
+  flooring: "/images/flooring/card-courtyard.webp",
+  "bar-counters": "/projects/islands/patagonia.webp",
+  "dining-and-furniture": "/projects/islands/almond-mist-application.webp",
+  "hospitality-interiors": "/projects/cladding/tiffany.webp",
+  "fireplace-surrounds": "/images/products/vision.png",
+  "reception-desks": null,
+  staircases: null,
+  "retail-interiors": null,
+};
+
+/**
+ * Where a collection has its own photograph of an application, it wins
+ * over the general one above, so Granites › Kitchen Countertops shows a
+ * granite worktop. Only designs that belong to the collection are used:
+ * the four-digit codes (Arya 3008, Alabaster Noir 3003, Ruskin 5028,
+ * Alabaster 3001) are quartz, the P codes (Taj Vein P01, Orenda P25)
+ * are Eclipse.
+ */
+const COLLECTION_MENU_IMAGE: Record<string, Record<string, string>> = {
+  quartz: {
+    "kitchen-islands": "/projects/islands/arya-application-kitchen.webp",
+    "kitchen-countertops": "/projects/islands/alabaster-noir.webp",
+    "bathroom-vanity-tops": "/projects/bathrooms/alabaster-and-latte-luxe.webp",
+    "wall-cladding": "/projects/cladding/ruskin.webp",
+  },
+  vision: {
+    "pacific-kitchen": "/projects/islands/orenda-application.webp",
+    "kitchen-islands": "/projects/islands/taj-application.webp",
+    "kitchen-countertops": "/projects/islands/taj-vein-application-2.webp",
+  },
+  "fab-creations": {
+    "bathroom-vanity-tops": "/images/products/fab-creations.jpeg",
+  },
+  granites: {
+    "kitchen-countertops": "/images/products/granites.png",
+  },
+  "semi-precious": {
+    "backlit-features": "/images/products/semi-precious.png",
+    "kitchen-islands": "/images/products/semi-precious.png",
+  },
+};
+
+/** The Products-mega preview for one application of one collection. */
+export function menuImageFor(categorySlug: string, applicationSlug: string): string | null {
+  return COLLECTION_MENU_IMAGE[categorySlug]?.[applicationSlug] ?? MENU_IMAGE[applicationSlug] ?? null;
+}
+
+/**
+ * Product pages listed beside the applications in a collection's menu.
+ * Not applications (no /applications/<slug> page): each links straight
+ * to its own page under /products.
+ */
+export const MENU_EXTRA_LINKS: Record<string, { name: string; href: string; image: string | null }[]> = {};
+const SILLS = {
+  name: "Window Sills & Thresholds",
+  href: "/products/pacific-european-window-sill-threshold-collection",
+  image: "/images/thresholds-and-sills/granite-sills-black-row.jpg",
+};
+// Listed under Granites and Fab Creations, not as a plate of its own
+// (owner, 2026-10-05).
+for (const slug of ["granites", "fab-creations"]) MENU_EXTRA_LINKS[slug] = [SILLS];
 
 /** Shown when a category has no list of its own. */
 const FALLBACK = [

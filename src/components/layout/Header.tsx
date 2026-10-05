@@ -17,10 +17,10 @@ import {
   User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { applicationsForCollection } from "@/data/collection-applications";
 import { useCart } from "@/lib/cart";
 import { SearchOverlay } from "@/components/ui/search-overlay";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
+import { ProductsMega } from "@/components/layout/ProductsMega";
 
 // PRODUCTS_CATEGORIES drives the Products mega-menu — five cards
 // matching the Sidharth UI/UX deck exactly:
@@ -38,15 +38,20 @@ type MegaCategory = {
   tagline: string;
   /** Override — "<Cat> Colours" CTA target. Default `/products/[slug]`. */
   coloursHref?: string;
-  /** A card that goes straight to its page instead of opening the About
-   *  sub-panel (a category with no colours of its own). */
-  href?: string;
   /** Override — slug used to compose `/learn/what-is-[X]`. Default = slug. */
   whatIsSlug?: string;
+  /** Short label for the mega-menu card face only. `name` is the full
+   *  editorial name and is what the nav list, prefetch keys and the
+   *  sub-panel use; a couple of those run long enough to wrap to three
+   *  lines on a card that sits beside one-word siblings. Set this to
+   *  whatever the card should actually read. Falls back to `name`. */
+  cardLabel?: string;
   /** Optional thumbnail rendered inside the dropdown card (full-bleed,
    *  object-cover). When set, replaces the gradient placeholder.
    *  Currently used for the Spaces cards. */
   imageUrl?: string;
+  /** CSS object-position for imageUrl, when the subject is not centred. */
+  imagePosition?: string;
   /** When true, the card renders as a button that opens a "Coming
    *  Soon" modal instead of navigating. Used for routes that aren't
    *  built yet (e.g. 3D Showroom). coloursHref is ignored. */
@@ -56,53 +61,31 @@ type MegaCategory = {
    *  with the dark navy panel. Visible at rest; the regular photo
    *  fades in on hover on top of it. */
   brandedImageUrl?: string;
-  /** Optional list of curated design picks for this category. Renders
-   *  inside the Products mega's expanded sub-panel as a "Top Picks"
-   *  column. Each entry routes to the picked design; the column ends
-   *  with a "See more <name>" link back to the category page. */
-  topPicks?: { name: string; href: string }[];
 };
 
 const PRODUCTS_CATEGORIES: MegaCategory[] = [
   {
     slug: "quartz",
-    name: "Mineral infused low silica surface",
-    tagline: "Engineered stone for everyday surfaces.",
+    name: "Mineral infused zero silica surface",
+    cardLabel: "Zero Silica Surfaces",
+    tagline: "Engineered everyday surfaces",
     imageUrl: "/images/products/quartz.jpg",
     brandedImageUrl: "/images/products/branded/quartz.png",
-    topPicks: [
-      { name: "Ruskin", href: "/products/ruskin-5028" },
-      { name: "Adonis", href: "/products/adonis-5060" },
-      { name: "Stellar Ember", href: "/products/stellar-ember-5031" },
-      { name: "Galactic Halo", href: "/products/galactic-halo-5012" },
-    ],
   },
   {
     slug: "facades-and-finishes",
     name: "Beyond Stone",
-    tagline: "Large-format facade and feature surfaces.",
+    tagline: "Large-format facade panels",
     imageUrl: "/images/products/facades.png",
     brandedImageUrl: "/images/products/branded/facades-and-finishes.png",
-    topPicks: [
-      { name: "Lineal Design", href: "/products/lineal-design" },
-      { name: "Cotton Design", href: "/products/cotton-design" },
-      { name: "Velvet Design", href: "/products/velvet-design" },
-      { name: "Rock Design", href: "/products/rock-design" },
-    ],
   },
   {
     slug: "vision",
     name: "Eclipse",
-    tagline: "Inlayered design quartz surfaces.",
+    tagline: "Inlayered design quartz",
     coloursHref: "/products/quartz/chromia",
     imageUrl: "/images/products/vision.png",
     brandedImageUrl: "/images/products/branded/vision.png",
-    topPicks: [
-      { name: "Taj Vein", href: "/products/taj-vein-p01" },
-      { name: "Himalayan Vein", href: "/products/himalayan-vein-p14" },
-      { name: "Stone Lily", href: "/products/stone-lily-p13" },
-      { name: "Frost Vein", href: "/products/frost-vein-p18" },
-    ],
   },
   {
     // Cut to Size links to the existing Fab Creations collection page.
@@ -110,7 +93,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     // (not "Cut to Size") — slug stays fab-creations for routing.
     slug: "fab-creations",
     name: "Fab Creations",
-    tagline: "Bespoke cut-to-size surfaces, made to spec.",
+    tagline: "Bespoke, cut to size",
     // Hover image (fades in on hover). "At rest" slot below is
     // optional — drop a file at that path and it'll show dimly at
     // rest, same as Quartz/Granites/etc.
@@ -133,7 +116,7 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     // once that happens.
     slug: "translucent",
     name: "Translucent",
-    tagline: "Backlit stone that glows from within.",
+    tagline: "Stone that glows",
     // Hover image (fades in on hover). "At rest" slot below is
     // optional — drop a file at that path and it'll show dimly at
     // rest, same as Quartz/Granites/etc.
@@ -143,73 +126,60 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
   {
     slug: "granites",
     name: "Granites",
-    tagline: "Natural stone for every space and surface.",
+    tagline: "Natural stone, every space",
     imageUrl: "/images/products/granites.png",
     brandedImageUrl: "/images/products/branded/granites.png",
-    topPicks: [
-      { name: "Absolute Black", href: "/products/absolute-black" },
-      { name: "Black Galaxy", href: "/products/black-galaxy" },
-      { name: "Bianco Antico", href: "/products/bianco-antico" },
-      { name: "Coffee Brown", href: "/products/coffee-brown" },
-    ],
   },
   {
     slug: "semi-precious",
     name: "Semi-Precious Stones",
-    tagline: "Hand-selected gemstone surfaces.",
+    cardLabel: "Semi-Precious",
+    tagline: "Hand-selected gemstone",
     imageUrl: "/images/products/semi-precious.png",
     brandedImageUrl: "/images/products/branded/semi-precious.png",
-    topPicks: [
-      { name: "Amethyst", href: "/products/amethyst" },
-      { name: "Rose Quartz", href: "/products/rose-quartz" },
-      { name: "Tigers Eye", href: "/products/tigers-eye" },
-      { name: "Mother of Pearl", href: "/products/mother-of-pearl" },
-    ],
-  },
-  {
-    // Window sills, door sills and thresholds: a category of its own
-    // (owner, 2026-10-05), its card a straight link to the collection.
-    slug: "pacific-european-window-sill-threshold-collection",
-    name: "Window Sills & Thresholds",
-    tagline: "Granite and quartz, cut to size.",
-    href: "/products/pacific-european-window-sill-threshold-collection",
-    imageUrl: "/images/thresholds-and-sills/granite-sills-black-row.jpg",
   },
 ];
 
-// SPACES_CATEGORIES — four rooms / environments where Pacific
-// surfaces live. Cards in the Spaces mega-menu are direct links
-// (NOT click-to-expand toggles like Products) — each navigates
-// straight to its dedicated /spaces/<slug> landing page, which
-// pairs four Pacific product callouts with image placeholders.
+// SPACES_CATEGORIES — the four spaces Pacific surfaces are sold for:
+// kitchen, bathroom, hotels and flooring. Cards in the Spaces
+// mega-menu are direct links (NOT click-to-expand toggles like
+// Products) — each navigates straight to its landing page. Flooring
+// goes to /applications/flooring, which already carries the granite-
+// and Beyond Stone-only rule (quartz is not rated underfoot).
 const SPACES_CATEGORIES: MegaCategory[] = [
   {
     slug: "kitchens",
-    name: "Kitchens",
-    tagline: "Worktops, islands, and splashbacks.",
+    name: "Kitchens by Pacific Surfaces",
+    tagline: "Worktops, islands, and backsplashes.",
     coloursHref: "/spaces/kitchens",
-    imageUrl: "/images/spaces/kitchens.png",
+    // A whole kitchen: island, worktop and full-height backsplash.
+    imageUrl: "/projects/islands/orenda-application.webp",
   },
   {
     slug: "bathrooms",
-    name: "Bathrooms",
+    name: "Bathrooms by Pacific Surfaces",
     tagline: "Vanity tops, sinks, and shower trays.",
     coloursHref: "/spaces/bathrooms",
-    imageUrl: "/images/spaces/bathrooms.jpg",
+    // A stone-clad shower and bath.
+    imageUrl: "/projects/bathrooms/bathtub.webp",
   },
   {
-    slug: "architecture",
-    name: "Outdoors",
-    tagline: "Facades, cladding, and feature walls.",
-    coloursHref: "/spaces/outdoor",
-    imageUrl: "/images/spaces/architecture.png",
-  },
-  {
-    slug: "commercial",
-    name: "Interior",
-    tagline: "Hospitality, retail, and workspaces.",
+    slug: "hospitality",
+    name: "Hotels by Pacific Surfaces",
+    tagline: "Lobbies, suites, bars and restaurants.",
     coloursHref: "/spaces/hospitality",
-    imageUrl: "/images/spaces/commercial.jpg",
+    // A restaurant booth against a stone feature wall; the old picture
+    // was a close-up of a textured wall with power sockets.
+    imageUrl: "/projects/cladding/tiffany.webp",
+  },
+  {
+    slug: "flooring",
+    name: "Flooring by Pacific Surfaces",
+    tagline: "Large-format granite floors and stairs.",
+    coloursHref: "/applications/flooring",
+    imageUrl: "/images/flooring/card-courtyard.webp",
+    // Crop to the large-format floor rather than the wall above it.
+    imagePosition: "50% 85%",
   },
 ];
 
@@ -336,27 +306,31 @@ const navigation = [
     name: "Spaces",
     href: "/spaces",
     // Spaces gets the same mega-menu treatment as Products — hover
-    // opens a 5-card panel with the major room/environment types.
+    // opens a 4-card panel with the major room/environment types.
     // Click on the nav label still routes to /spaces (top-level
     // overview page), so keyboard users + folks with hover disabled
     // still reach the destination.
     mega: true,
     children: [
-      { name: "Kitchens", href: "/spaces#kitchens" },
-      { name: "Bathrooms", href: "/spaces#bathrooms" },
-      { name: "Outdoors", href: "/spaces/outdoor" },
-      { name: "Interior", href: "/spaces/hospitality" },
+      { name: "Kitchens by Pacific Surfaces", href: "/spaces/kitchens" },
+      { name: "Bathrooms by Pacific Surfaces", href: "/spaces/bathrooms" },
+      { name: "Hotels by Pacific Surfaces", href: "/spaces/hospitality" },
+      { name: "Flooring by Pacific Surfaces", href: "/applications/flooring" },
     ],
   },
   {
+    // Every href here used to be /contact — a placeholder from before
+    // the four Professionals pages existed. They all exist now, so the
+    // top-level click lands on Collaboration and each child goes to its
+    // own page (same destinations as PROFESSIONS_CATEGORIES above).
     name: "Professionals",
-    href: "/contact",
+    href: "/professionals/collaboration",
     mega: true,
     children: [
-      { name: "Services", href: "/contact" },
-      { name: "Collaboration", href: "/contact" },
-      { name: "Applications", href: "/contact" },
-      { name: "Programs", href: "/contact" },
+      { name: "Services", href: "/professionals/services" },
+      { name: "Collaboration", href: "/professionals/collaboration" },
+      { name: "Applications", href: "/professionals/applications" },
+      { name: "Programs", href: "/professionals/programs" },
     ],
   },
   // Resources - plain top-level Link. Used to live as a card inside
@@ -369,11 +343,19 @@ const navigation = [
   { name: "Store", href: "/shop" },
   { name: "Resources", href: "/resources" },
   {
+    // Clicking the top-level item lands on the Inspiration Gallery,
+    // which is the section's own landing page. It used to point at
+    // /visualize — the Visualizer is one of the three cards in this
+    // mega, not the section itself, so a click skipped past the
+    // gallery entirely.
     name: "Inspirations",
-    href: "/visualize",
+    href: "/inspirations/inspiration-gallery",
     mega: true,
     children: [
-      { name: "Inspiration Gallery", href: "/contact" },
+      {
+        name: "Inspiration Gallery",
+        href: "/inspirations/inspiration-gallery",
+      },
       { name: "Visualizer", href: "/visualize" },
       { name: "3D Showroom", href: "#coming-soon" },
     ],
@@ -448,28 +430,61 @@ function preloadMegaThumbs() {
   }
 }
 
-/**
- * Pacific Applications inside the Products mega.
- *
- * The list is per collection, not one set repeated against every
- * card: Granites offers facades and staircases, Translucent offers
- * backlit features, Eclipse offers neither. See
- * src/data/collection-applications.ts for the lists and why the
- * wording was harmonised.
- *
- * Names, hrefs and preview images all come from applications.ts, so
- * every label in the menu is the title of the page it opens.
- */
-function megaApplications(categorySlug: string) {
-  return applicationsForCollection(categorySlug).map((a) => ({
-    name: a.name,
-    href: `/applications/${a.slug}`,
-    image: a.sections[0].imageUrl,
-  }));
-}
+/* Navbar palette, lifted from cosentino.com's own `--bg-*` / `--btn-*` /
+   `--overlay-bg` custom properties rather than sampled off a screenshot.
+   The whole bar is themed from this one object so a future re-skin is a
+   single edit rather than a sweep through fifteen ternaries. */
+const NAV = {
+  /** Mega open. White, not the old #3C3C3B grey — the panel and the bar
+   *  above it read as one sheet of paper, and every ink inside the panel
+   *  is dark as a result. Renamed from `bgDark` when it stopped being
+   *  dark, so the name can't drift from the value. */
+  bgMega: "#FFFFFF",
+  /** Hairline rules on the white mega ground. */
+  megaRule: "rgba(60,60,59,0.14)",
+  /** Scrolled, or hovering the bar at the top of the page. */
+  bgLight: "#F8F8F8",
+  inkOnDark: "#FFFFFF",
+  inkOnLight: "#3C3C3B",
+  /** Primary CTA pill, one per bar state. */
+  btnDark: "#1D1D1C",
+  btnLight: "#ECECE8",
+  btnRegular: "rgba(248,248,248,0.24)",
+  /** Full-viewport veil behind an open mega. Pale rather than the old
+   *  rgba(60,60,59,0.7) charcoal: the panel above it is white now, and a
+   *  dark dim under a white sheet read as a hole in the page. Paired with
+   *  `overlayFilter` below — the veil lightens, the filter drains the
+   *  colour, and between them the page recedes to a grey wash while the
+   *  cards keep theirs. */
+  overlay: "rgba(255,255,255,0.42)",
+  /** Backdrop filter applied with it. Desaturating rather than blurring:
+   *  a blur turns the page to mush and costs a full-screen repaint on
+   *  every frame of the fade, whereas draining saturation keeps the
+   *  layout legible underneath and reads as "inactive" rather than
+   *  "broken". Not pure grayscale(1) — a trace of colour left in stops
+   *  photography behind it looking like a printing error. */
+  overlayFilter: "grayscale(0.9) saturate(0.15) brightness(1.04)",
+  /* Idle state over a hero: a soft grey wash, not the near-black scrim
+     that was here before. It is a background-IMAGE, so it cannot cross-
+     fade to a flat colour - the reference snaps it off and fades the
+     colour up underneath, and so does this. */
+  scrim:
+    "linear-gradient(180deg, rgba(102,102,102,0.25) 0%, rgba(0,0,0,0) 100%)",
+  shadow: "0 4px 54px 0 rgba(0,0,0,0.2)",
+  /** Bar colour change. */
+  fast: "0.2s",
+  /** Overlay fade - deliberately three times slower than the bar. */
+  base: "0.6s",
+} as const;
+
+type NavTheme = "regular" | "light" | "dark";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
+  /* Cursor is somewhere over the bar. This is the whole trick: the bar
+     is one hover target, and the nav items inside it have no hover
+     colour of their own - they just inherit. */
+  const [barHover, setBarHover] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   // Which mega-section is expanded inside the mobile menu drawer.
   // null = none (top-level list view). Setting to a nav item name
@@ -542,6 +557,10 @@ export default function Header() {
   };
 
   const pathname = usePathname();
+  const [lightMarker, setLightMarker] = useState(false);
+  useEffect(() => {
+    setLightMarker(!!document.querySelector("[data-header-light]"));
+  }, [pathname]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -678,8 +697,60 @@ export default function Header() {
     pathname === "/resources" ||
     pathname.startsWith("/resources/") ||
     pathname === "/blog" ||
-    pathname.startsWith("/blog/");
+    pathname.startsWith("/blog/") ||
+    // Pacific Applications, the shop and the account pages open on the
+    // same white PageHeader.
+    pathname === "/applications" ||
+    pathname.startsWith("/applications/") ||
+    pathname === "/shop" ||
+    // Store product pages open on a white breadcrumb and gallery too.
+    pathname.startsWith("/shop/") ||
+    pathname === "/cart" ||
+    pathname === "/favorites" ||
+    pathname === "/products/pacific-european-window-sill-threshold-collection" ||
+    pathname === "/privacy" ||
+    pathname === "/search" ||
+    (pathname.startsWith("/products/") && pathname.endsWith("/about")) ||
+    // Pages whose address can be anything (the not-found page) say so
+    // themselves with a data-header-light element.
+    lightMarker;
   const headerDark = scrolled || isLightHeroPath;
+
+  /* The bar's three grounds, in priority order:
+       dark    - a mega is open. Beats everything, including scroll.
+       light   - scrolled, a light-hero page, or the cursor is on the bar.
+                 Hover only reaches here when no mega is open, which is
+                 what stops the bar flickering light as a panel opens.
+       regular - top of a dark-hero page, untouched: transparent + wash.
+     Every child then takes its ink from `currentColor`, so one value on
+     the wrapper repaints the logo, the links and the icons together. */
+  const navTheme: NavTheme = megaOpen
+    ? "dark"
+    : headerDark || barHover
+      ? "light"
+      : "regular";
+  /* Only the transparent-over-hero state still wants white ink. Both
+     settled states (scrolled/hover, and mega-open) are now light grounds,
+     so they share the dark ink. */
+  const navInk =
+    navTheme === "regular" ? NAV.inkOnDark : NAV.inkOnLight;
+
+  /* Primary CTA pills (Visualizer, Get a Quote) - `.menu-btn.is-primary`
+     in the reference. Translucent glass at rest, solid in both settled
+     states. */
+  const primaryPill: React.CSSProperties = {
+    backgroundColor:
+      navTheme === "dark"
+        ? NAV.btnDark
+        : navTheme === "light"
+          ? NAV.btnLight
+          : NAV.btnRegular,
+    /* btnDark and btnRegular both want a light label; btnLight wants a
+       dark one. Keyed off the pill colour, not the bar. */
+    color: navTheme === "light" ? NAV.inkOnLight : NAV.inkOnDark,
+    backdropFilter: navTheme === "regular" ? "blur(6px)" : undefined,
+    transition: "background-color " + NAV.fast + " ease, color " + NAV.fast + " ease",
+  };
 
   // Logo is always white now, everywhere, no color switching — per
   // explicit request. The one place this needs help is the homepage
@@ -759,53 +830,110 @@ export default function Header() {
         )}
       </AnimatePresence>
 
+      {/* Dim behind an open mega. Sits under the header and the panel
+          (both z-50) and over the page. Kept pointer-events-none on
+          purpose: the open/close logic runs on a 150 ms hover grace
+          (see handleMegaLeave) and an interactive overlay would race
+          it. It is a scrim, not a click-catcher. */}
+      <AnimatePresence>
+        {megaOpen && (
+          <motion.div
+            key="mega-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "linear" }}
+            className="fixed inset-0 z-40 pointer-events-none"
+            style={{
+              backgroundColor: NAV.overlay,
+              backdropFilter: NAV.overlayFilter,
+              WebkitBackdropFilter: NAV.overlayFilter,
+            }}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          // Three states:
-          //  - megaOpen: solid navy, no /95 — matches the dropdown
-          //    below it so the two read as one continuous block.
-          //  - scrolled (no menu): slightly translucent navy + blur
-          //    so page content shows faintly through.
-          //  - top of page (no menu, no scroll): gradient scrim that
-          //    keeps the logo legible over both bright marble heroes
-          //    and dark video heroes.
-          megaOpen
-            ? "bg-[#112732] backdrop-blur-xl"
-            : headerDark
-              ? "bg-[#112732]/95 backdrop-blur-xl"
-              : "bg-gradient-to-b from-black/45 via-black/20 to-transparent backdrop-blur-[2px]"
-        )}
+        /* Hover is on the bar itself, not on the nav list, so the flip
+           fires anywhere along the full-bleed row - including the dead
+           space either side of the links. */
+        onMouseEnter={() => setBarHover(true)}
+        onMouseLeave={() => setBarHover(false)}
+        className="fixed top-0 left-0 right-0 z-50"
+        style={{
+          backgroundColor:
+            navTheme === "dark"
+              ? NAV.bgMega
+              : navTheme === "light"
+                ? NAV.bgLight
+                : "transparent",
+          backgroundImage: navTheme === "regular" ? NAV.scrim : "none",
+          color: navInk,
+          boxShadow: navTheme === "light" ? NAV.shadow : "none",
+          transition: [
+            "background-color " + NAV.fast + " ease",
+            "color " + NAV.fast + " ease",
+            "border-color " + NAV.fast + " ease",
+            "box-shadow " + NAV.fast + " ease",
+          ].join(", "),
+        }}
       >
         <nav
-          className="mx-auto max-w-[1500px] px-8"
+          /* Asymmetric by design: the logo sits closer to the left edge
+             than the CTAs do to the right. The inline paddings win over
+             `px-8` — they exist to keep the row clear of the notch /
+             rounded corners on landscape phones, so the safe-area inset
+             is still the floor on the left, just with a smaller default
+             behind it. */
+          /* Full-bleed, not a centred 1760px column. The cap was adding
+             ~80px of dead space either side on a 1920 viewport, which is
+             what kept the logo floating in from the left edge instead of
+             sitting at it. The row now spans the bar and the inline
+             paddings are the only gutter. */
+          className="w-full px-8"
           style={{
-            paddingLeft: "max(1.5rem, env(safe-area-inset-left))",
+            paddingLeft: "max(1rem, env(safe-area-inset-left))",
             paddingRight: "max(1.5rem, env(safe-area-inset-right))",
           }}
         >
-          {/* gap-x guarantees a minimum breathing room between logo,
-              nav, and CTAs even when justify-between would otherwise
-              squeeze them together (PACIFIC SURFACES + ABOUT were
-              previously touching at wide viewports because the row
-              filled fully). */}
-          <div className="grid h-20 grid-cols-[auto_1fr_auto] items-center gap-x-10">
+          {/* Three columns, the outer two equal, so the nav sits on the
+              centre of the page rather than the centre of whatever the
+              logo and the CTAs leave over. A `1fr` column never shrinks
+              below its content: if the CTAs outgrow their half, the nav
+              gives way to the left instead of overlapping anything.
+              Items are pinned to their columns because the nav is
+              display:none below 1700px and would otherwise let the CTAs
+              flow into the middle one. The CTAs' pl-8 is the least room
+              the nav keeps from the search icon when it has to give way
+              (1700-1900px). */}
+          <div className="grid h-20 min-w-0 grid-cols-[1fr_auto_1fr] items-center gap-x-4">
             {/* Logo — one PacificLogoMark graphic, always white. The
                 drop-shadow is a soft glow (not a hard box) so the mark
                 stays legible over the bright homepage marble hero
                 without reintroducing the flat background tile that
                 used to sit behind it. */}
-            <Link href="/" className="flex items-center group">
-              {/* Full icon + "PACIFIC" + "ITALIAN SURFACES" lockup as
-                  one graphic (matches the official logo exactly)
-                  instead of a separate icon + HTML text spans. Renders
-                  at the same size across every breakpoint — no more
-                  hiding the tagline until 2xl+, the mark is compact
-                  enough on its own that it never crowds the nav. */}
-              <PacificLogoMark className="h-11 w-auto text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)]" />
+            <Link href="/" className="col-start-1 justify-self-start flex items-center group">
+              {/* The Pacific Surfaces lockup (mark + PACIFIC +
+                  SURFACES) as one graphic from the official artwork,
+                  rather than an icon plus HTML text. Same size at every
+                  breakpoint; it is compact enough never to crowd the
+                  nav. */}
+              <PacificLogoMark
+                className={cn(
+                  // h-10, down from h-12: at the old size the lockup
+                  // crowded the nav on the narrower desktop widths.
+                  "h-10 w-auto text-current transition-[filter] duration-200",
+                  // The glow exists to lift the mark off photography.
+                  // On a settled light or dark bar there is no photo
+                  // behind it, and the shadow reads as a smudge.
+                  navTheme === "regular" &&
+                    "drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)]"
+                )}
+              />
             </Link>
 
             {/* Desktop nav.
@@ -822,9 +950,8 @@ export default function Header() {
                 over after the logo and CTAs, IT scrolls internally —
                 the Get-a-Quote pill (a sibling, not inside this div)
                 can never be pushed off-screen and clipped by it. */}
-            <div className="hidden xl:flex items-center justify-center gap-x-6">
+            <div className="col-start-2 hidden min-[1700px]:flex items-center justify-center gap-x-4">
               {desktopNavigation.map((item: NavItem) => {
-                console.log(item.name);
                 return (
                   <div
                     key={item.name}
@@ -852,7 +979,12 @@ export default function Header() {
                         aria-expanded={openMegaItem === item.name}
                         className={cn(
                           "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2 cursor-default select-none",
-                          "text-white hover:text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
+                          // No per-item hover colour, by design - the
+                          // whole bar flips instead. Ink is inherited
+                          // from the header wrapper.
+                          "text-current",
+                          navTheme === "regular" &&
+                            "drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
                         )}
                       >
                         {item.name}
@@ -869,7 +1001,12 @@ export default function Header() {
                           "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
                           // Same colour treatment in both states now —
                           // header bg is dark in both cases.
-                          "text-white hover:text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
+                          // No per-item hover colour, by design - the
+                          // whole bar flips instead. Ink is inherited
+                          // from the header wrapper.
+                          "text-current",
+                          navTheme === "regular" &&
+                            "drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
                         )}
                       >
                         {item.name}
@@ -937,7 +1074,11 @@ export default function Header() {
                             }}
                             onMouseEnter={() => handleMegaEnter(item.name)}
                             onMouseLeave={handleMegaLeave}
-                            className="fixed inset-x-0 top-20 z-50 bg-[#112732] before:content-[''] before:absolute before:inset-x-0 before:-top-4 before:h-4"
+                            /* The hover bridge lives on THIS element,
+                               which never moves. The panel that slides
+                               is nested one level down inside its own
+                               clipping box - see the note there. */
+                            className="fixed inset-x-0 top-20 z-50 before:content-[''] before:absolute before:inset-x-0 before:-top-4 before:h-4"
                           >
                             {/* Brand navy panel — same #112732 used in the
                           header (scrolled state) and the dark sections
@@ -945,23 +1086,84 @@ export default function Header() {
                           as one continuous navy block with the header
                           above; shadow stays for the panel's bottom
                           edge against page content beneath. */}
-                            <div className="bg-[#112732] shadow-[0_18px_60px_rgba(0,0,0,0.4)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain">
-                              <div className="mx-auto max-w-[1400px] px-6 lg:px-8 py-5 lg:py-6">
-                                {/* Cards row. Both Products and Spaces
-                              render as direct Links — click =
+                            {/* Clipping box. The panel slides down from
+                                behind the bar (translateY(-100%) -> 0),
+                                which is only a reveal if something crops
+                                the part still above the bar.
+
+                                Why the slide is HERE and not on the
+                                motion.div above: that element carries
+                                the `before:` hover bridge, and the
+                                earlier y:-10 -> 0 animation on it slid
+                                the bridge out from under a stationary
+                                cursor mid-open, firing mouseleave and
+                                slamming the menu shut. Keeping the
+                                bridge on a fixed parent and moving only
+                                the panel gets the reference's motion
+                                without reopening that bug. */}
+                            <div className="overflow-hidden">
+                              <motion.div
+                                initial={{ y: "-100%" }}
+                                animate={{
+                                  y: 0,
+                                  transition: {
+                                    duration: 0.45,
+                                    ease: [0.25, 0.4, 0.25, 1],
+                                  },
+                                }}
+                                exit={{
+                                  y: "-100%",
+                                  transition: {
+                                    duration: 0.4,
+                                    ease: [0.4, 0, 0.2, 1],
+                                  },
+                                }}
+                                style={{ backgroundColor: NAV.bgMega }}
+                                className="shadow-[0_18px_48px_rgba(0,0,0,0.16)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain"
+                              >
+                              <div
+                                /* Full-bleed, like the bar above it. The
+                                   1400px cap left the seven cards huddled
+                                   in the middle of a 1920 screen while the
+                                   nav ran edge to edge, so the panel read
+                                   as a smaller, separate thing. Padding
+                                   matches the header row exactly. */
+                                className={cn(
+                                  "w-full px-8",
+                                  item.name === "Products"
+                                    ? "pb-8 pt-7"
+                                    : "py-5 lg:py-6"
+                                )}
+                              >
+                                {/* Products has its own panel: seven
+                              collection plates on one grid with the
+                              detail row, colour on the plate under
+                              the cursor. See ProductsMega. */}
+                                {item.name === "Products" ? (
+                                  <ProductsMega
+                                    categories={PRODUCTS_CATEGORIES}
+                                    active={activeMega}
+                                    onToggle={(slug) => {
+                                      setActiveMega(
+                                        activeMega === slug ? null : slug
+                                      );
+                                      setHoveredApp(0);
+                                    }}
+                                    hoveredApp={hoveredApp}
+                                    onHoverApp={setHoveredApp}
+                                  />
+                                ) : (
+                                /* Cards row for the other megas. Each
+                              card is a direct Link — click =
                               navigate, no sub-panel, no toggle.
-                              Products: 7-card grid (was 6 — added
-                              Translucent as its own standalone card,
-                              see PRODUCTS_CATEGORIES); Spaces: 4-card. */}
+                              Spaces and Professionals: 4 cards;
+                              Corporate and Inspirations: 3. */
                                 <div
                                   className={`grid gap-3 ${
                                     item.name === "Corporate" ||
                                     item.name === "Inspirations"
                                       ? "grid-cols-3"
-                                      : item.name === "Spaces" ||
-                                          item.name === "Professionals"
-                                        ? "grid-cols-4"
-                                        : "grid-cols-8"
+                                      : "grid-cols-4"
                                   }`}
                                 >
                                   {(item.name === "Spaces"
@@ -970,29 +1172,13 @@ export default function Header() {
                                       ? CORPORATE_CATEGORIES
                                       : item.name === "Professionals"
                                         ? PROFESSIONS_CATEGORIES
-                                        : item.name === "Inspirations"
-                                          ? INSPIRATIONS_CATEGORIES
-                                          : PRODUCTS_CATEGORIES
+                                        : INSPIRATIONS_CATEGORIES
                                   ).map((cat) => {
                                     // Spaces / Corporate / Professions /
                                     // Inspirations all use the same
                                     // direct-Link card layout (each card
                                     // is a destination, no sub-panel).
-                                    // Only Products uses the expanding
-                                    // button + sub-panel pattern.
-                                    const isSpacesItem =
-                                      item.name === "Spaces" ||
-                                      item.name === "Corporate" ||
-                                      item.name === "Professionals" ||
-                                      item.name === "Inspirations";
-
-                                    // Spaces cards — direct Link, no
-                                    // toggle. Click navigates straight
-                                    // to /spaces/<slug>. Name overlays
-                                    // the image (centered) and the
-                                    // tagline subscript sits below the
-                                    // card as a small caption.
-                                    if (isSpacesItem) {
+                                    // Products has its own panel above.
                                       // comingSoon cards render as a
                                       // button that triggers the modal
                                       // instead of navigating. Same
@@ -1008,7 +1194,7 @@ export default function Header() {
                                             }
                                             className="group block w-full text-left transition-transform hover:scale-[1.02]"
                                           >
-                                            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
+                                            <div data-over-media className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
                                               {cat.imageUrl ? (
                                                 <Image
                                                   src={cat.imageUrl}
@@ -1030,7 +1216,7 @@ export default function Header() {
                                                 </span>
                                               </div>
                                             </div>
-                                            <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
+                                            <p className="mt-2.5 px-1 text-xs font-light tracking-wide text-[#3C3C3B]/70 leading-snug">
                                               {cat.tagline}
                                             </p>
                                           </button>
@@ -1045,7 +1231,7 @@ export default function Header() {
                                           }
                                           className="group block transition-transform hover:scale-[1.02]"
                                         >
-                                          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
+                                          <div data-over-media className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
                                             {cat.imageUrl ? (
                                               // Spaces cards keep their
                                               // thumbnail visible at
@@ -1057,6 +1243,11 @@ export default function Header() {
                                                 alt={cat.name}
                                                 fill
                                                 className="object-cover"
+                                                style={
+                                                  cat.imagePosition
+                                                    ? { objectPosition: cat.imagePosition }
+                                                    : undefined
+                                                }
                                                 sizes="(min-width: 1024px) 25vw, 50vw"
                                                 priority={false}
                                                 unoptimized
@@ -1077,349 +1268,14 @@ export default function Header() {
                                           {/* Subscript tagline — sits
                                             below the card, kept from
                                             the pre-overlay layout. */}
-                                          <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
+                                          <p className="mt-2.5 px-1 text-xs font-light tracking-wide text-[#3C3C3B]/70 leading-snug">
                                             {cat.tagline}
                                           </p>
                                         </Link>
                                       );
-                                    }
-
-                                    // Products cards — button that
-                                    // toggles the About sub-panel below.
-                                    // Name overlays the image centered;
-                                    // chevron sits in the top-right
-                                    // corner to indicate expanded state;
-                                    // tagline subscript renders beneath
-                                    // the card.
-                                    // A category with a page of its own
-                                    // (the window sills and thresholds)
-                                    // links straight there; it has no
-                                    // branded mark, so its photo shows
-                                    // at rest under its name.
-                                    if (cat.href) {
-                                      return (
-                                        <Link
-                                          key={cat.slug}
-                                          href={cat.href}
-                                          className="group/card block text-left transition-transform hover:scale-[1.02]"
-                                        >
-                                          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-[#0d1f29]">
-                                            {cat.imageUrl ? (
-                                              <Image
-                                                src={cat.imageUrl}
-                                                alt=""
-                                                fill
-                                                className="object-cover opacity-70 transition-opacity duration-300 ease-out group-hover/card:opacity-100"
-                                                sizes="(min-width: 1024px) 20vw, 50vw"
-                                                priority={false}
-                                                unoptimized
-                                              />
-                                            ) : null}
-                                            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
-                                            <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
-                                              <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
-                                                {cat.name}
-                                              </span>
-                                            </div>
-                                          </div>
-                                          <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
-                                            {cat.tagline}
-                                          </p>
-                                        </Link>
-                                      );
-                                    }
-
-                                    const isActive = activeMega === cat.slug;
-                                    return (
-                                      <button
-                                        key={cat.slug}
-                                        type="button"
-                                        onClick={() =>
-                                          setActiveMega(
-                                            isActive ? null : cat.slug
-                                          )
-                                        }
-                                        // Named group `card` scopes the
-                                        // hover to this specific card.
-                                        // Without the name, the outer
-                                        // nav-item wrapper's `group`
-                                        // (used for the trigger
-                                        // underline) would fire and
-                                        // reveal every card image the
-                                        // moment the Products trigger is
-                                        // hovered.
-                                        className={cn(
-                                          "group/card block text-left transition-transform",
-                                          isActive
-                                            ? "scale-[1.02]"
-                                            : "hover:scale-[1.02]"
-                                        )}
-                                      >
-                                        <div
-                                          className={cn(
-                                            "relative aspect-[16/10] w-full overflow-hidden rounded-md bg-[#0d1f29] transition-all",
-                                            isActive && "ring-2 ring-white/40"
-                                          )}
-                                        >
-                                          {/* Branded mark layer - always
-                                            visible at rest, blends with
-                                            the navy panel via multiply.
-                                            Painted BEFORE the photo so
-                                            the photo fades in on top of
-                                            it on hover. */}
-                                          {cat.brandedImageUrl ? (
-                                            <Image
-                                              src={cat.brandedImageUrl}
-                                              alt=""
-                                              fill
-                                              className={cn(
-                                                "object-cover pointer-events-none transition-opacity duration-300 ease-out",
-                                                isActive
-                                                  ? "opacity-0"
-                                                  : "opacity-100 group-hover/card:opacity-0"
-                                              )}
-                                              sizes="(min-width: 1024px) 20vw, 50vw"
-                                              priority={false}
-                                              unoptimized
-                                              aria-hidden="true"
-                                            />
-                                          ) : null}
-                                          {cat.imageUrl ? (
-                                            // Image is hidden at rest
-                                            // and fades in when the
-                                            // cursor enters THIS card
-                                            // (or when the card is
-                                            // expanded — `isActive`).
-                                            <Image
-                                              src={cat.imageUrl}
-                                              alt={cat.name}
-                                              fill
-                                              className={cn(
-                                                "object-cover transition-opacity duration-300 ease-out",
-                                                isActive
-                                                  ? "opacity-100"
-                                                  : "opacity-0 group-hover/card:opacity-100"
-                                              )}
-                                              sizes="(min-width: 1024px) 20vw, 50vw"
-                                              priority={false}
-                                              unoptimized
-                                            />
-                                          ) : null}
-                                          {/* Dark scrim - only shown
-                                            when the photo is visible
-                                            (hover / expanded). At rest
-                                            we want the branded SVG to
-                                            read as fully white, not
-                                            dimmed by 30-60% black. */}
-                                          <div
-                                            className={cn(
-                                              "absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60 transition-opacity duration-300",
-                                              isActive
-                                                ? "opacity-100"
-                                                : "opacity-0 group-hover/card:opacity-100"
-                                            )}
-                                          />
-                                          {/* Chevron in top-right —
-                                            rotates 180° when this card
-                                            is expanded. */}
-                                          <ChevronDown
-                                            className={cn(
-                                              "absolute top-2 right-2 w-4 h-4 text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] transition-transform",
-                                              isActive ? "rotate-180" : ""
-                                            )}
-                                          />
-                                        </div>
-                                        {/* Subscript tagline — sits
-                                          below the card, restored from
-                                          the pre-overlay layout. */}
-                                        <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
-                                          {cat.tagline}
-                                        </p>
-                                      </button>
-                                    );
                                   })}
                                 </div>
-
-                                {/* Expanded sub-panel — only for
-                                  Products. Slides down when a card
-                                  is clicked. Shows the About column
-                                  (What is X / Maintenance / Warranty
-                                  for Quartz only) and the right-
-                                  aligned "<Cat> Colours" CTA pill. */}
-                                <AnimatePresence initial={false}>
-                                  {item.name === "Products" &&
-                                    activeMega &&
-                                    (() => {
-                                      const active = PRODUCTS_CATEGORIES.find(
-                                        (c) => c.slug === activeMega
-                                      );
-                                      if (!active) return null;
-                                      // This category's own
-                                      // applications - Granites lists
-                                      // facades and staircases,
-                                      // Translucent lists backlit
-                                      // features, and neither sees the
-                                      // other's.
-                                      const megaApps = megaApplications(
-                                        active.slug
-                                      );
-                                      const previewApp =
-                                        megaApps[hoveredApp] ?? megaApps[0];
-                                      return (
-                                        <motion.div
-                                          key="mega-sub"
-                                          initial={{ height: 0, opacity: 0 }}
-                                          animate={{
-                                            height: "auto",
-                                            opacity: 1,
-                                          }}
-                                          exit={{ height: 0, opacity: 0 }}
-                                          transition={{
-                                            duration: 0.32,
-                                            ease: [0.25, 0.4, 0.25, 1],
-                                          }}
-                                          style={{ overflow: "hidden" }}
-                                        >
-                                          <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-x-6 gap-y-5">
-                                            {/* About column — what the
-                                              product is, how to keep it,
-                                              warranty (Quartz only). */}
-                                            <div className="lg:col-span-3">
-                                              <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
-                                                About {active.name}
-                                              </h4>
-                                              <ul className="space-y-2">
-                                                <li>
-                                                  <Link
-                                                    href={`/learn/what-is-${active.whatIsSlug ?? active.slug}`}
-                                                    className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                  >
-                                                    What is {active.name}?
-                                                  </Link>
-                                                </li>
-                                                <li>
-                                                  <Link
-                                                    href={`/learn/maintenance-${active.whatIsSlug ?? active.slug}`}
-                                                    className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                  >
-                                                    Maintenance
-                                                  </Link>
-                                                </li>
-                                                {active.slug === "quartz" && (
-                                                  <li>
-                                                    <Link
-                                                      href="/learn/warranty-quartz"
-                                                      className="text-sm font-light text-pacific-light hover:text-white transition-colors"
-                                                    >
-                                                      Warranty
-                                                    </Link>
-                                                  </li>
-                                                )}
-                                              </ul>
-                                            </div>
-
-                                            {/* Pacific Applications —
-                                              the full list of surface
-                                              uses in two scannable
-                                              columns, with a preview
-                                              image on the right that
-                                              swaps as the cursor moves
-                                              down the list. */}
-                                            <div className="lg:col-span-4">
-                                              <h4 className="text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-3">
-                                                Pacific Applications
-                                              </h4>
-                                              <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                                                {megaApps.map((app, i) => (
-                                                  <li key={app.name}>
-                                                    <Link
-                                                      href={app.href}
-                                                      onMouseEnter={() =>
-                                                        setHoveredApp(i)
-                                                      }
-                                                      onFocus={() =>
-                                                        setHoveredApp(i)
-                                                      }
-                                                      className={cn(
-                                                        "block text-sm font-light transition-colors",
-                                                        hoveredApp === i
-                                                          ? "text-white"
-                                                          : "text-pacific-light hover:text-white"
-                                                      )}
-                                                    >
-                                                      {app.name}
-                                                    </Link>
-                                                  </li>
-                                                ))}
-                                              </ul>
-                                              <div className="pt-3">
-                                                <Link
-                                                  href="/applications"
-                                                  className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.15em] uppercase text-white hover:text-pacific-light transition-colors"
-                                                >
-                                                  See more applications
-                                                  <ArrowRight className="w-3.5 h-3.5" />
-                                                </Link>
-                                              </div>
-                                            </div>
-
-                                            {/* Preview pane — mirrors
-                                              whichever application row
-                                              is hovered. Hidden below
-                                              lg, where the mega itself
-                                              collapses to the mobile
-                                              drawer. */}
-                                            <div className="hidden lg:block lg:col-span-3">
-                                              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-white/5">
-                                                {megaApps.map((app, i) => (
-                                                  <Image
-                                                    key={app.name}
-                                                    src={app.image}
-                                                    alt={app.name}
-                                                    fill
-                                                    sizes="20vw"
-                                                    className={cn(
-                                                      "object-cover transition-opacity duration-300",
-                                                      hoveredApp === i
-                                                        ? "opacity-100"
-                                                        : "opacity-0"
-                                                    )}
-                                                  />
-                                                ))}
-                                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                                                  <div className="text-xs font-light tracking-wide text-white">
-                                                    {previewApp?.name}
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </div>
-
-                                            {/* Right-aligned primary CTA
-                                              pill — routes to the
-                                              category's collection
-                                              page, visually elevated
-                                              as the main action of
-                                              the panel. */}
-                                            <div className="lg:col-span-2 flex flex-col items-start lg:items-end justify-end">
-                                              <Link
-                                                href={
-                                                  active.coloursHref ??
-                                                  `/products/${active.slug}`
-                                                }
-                                                className="inline-flex items-center gap-2 rounded-full px-5 py-3 bg-white text-pacific-dark text-[10px] font-medium tracking-[0.2em] uppercase hover:bg-pacific-light transition-colors"
-                                              >
-                                                {active.slug ===
-                                                "facades-and-finishes"
-                                                  ? "Explore"
-                                                  : "Browse"}
-                                                <ArrowRight className="w-4 h-4" />
-                                              </Link>
-                                            </div>
-                                          </div>
-                                        </motion.div>
-                                      );
-                                    })()}
-                                </AnimatePresence>
+                                )}
                               </div>
                               {/* Footer strip — Products-only. Only
                             surfaces the "All Products" CTA, right-
@@ -1435,11 +1291,11 @@ export default function Header() {
                             "All ..." link wouldn't make sense in
                             those contexts. */}
                               {item.name === "Products" && (
-                                <div className="border-t border-white/10 bg-[#0d1f29]">
+                                <div className="border-t border-[#3C3C3B]/12 bg-[#F4F4F3]">
                                   <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-end py-3">
                                     <Link
                                       href="/products"
-                                      className="text-[12px] font-medium tracking-[0.2em] uppercase text-white inline-flex items-center gap-1.5 hover:gap-2 transition-all"
+                                      className="text-[12px] font-medium tracking-[0.2em] uppercase text-[#3C3C3B] inline-flex items-center gap-1.5 hover:gap-2 transition-all"
                                     >
                                       All Products
                                       <ArrowRight className="w-3.5 h-3.5" />
@@ -1447,6 +1303,7 @@ export default function Header() {
                                   </div>
                                 </div>
                               )}
+                              </motion.div>
                             </div>
                           </motion.div>
                         )}
@@ -1474,7 +1331,7 @@ export default function Header() {
             </div>
 
             {/* CTA + Search + Mobile toggle */}
-            <div className="flex items-center gap-2 lg:gap-2.5 xl:gap-3 shrink-0">
+            <div className="col-start-3 justify-self-end flex items-center gap-1 min-[1700px]:gap-0.5 min-[1700px]:pl-8 shrink-0">
               <button
                 onClick={() => setSearchOpen(true)}
                 aria-label="Open search"
@@ -1483,9 +1340,11 @@ export default function Header() {
                   // the only entry point to search (the hamburger menu
                   // doesn't carry one), and the row has room since the
                   // Quote/Visualizer pills are hidden below sm/2xl.
-                  "flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
+                  "flex items-center justify-center w-9 h-9 min-[1700px]:w-8 min-[1700px]:h-8 rounded-full transition-all duration-300 shrink-0",
                   // Dark in both states — same hover treatment.
-                  "text-pacific-light hover:text-white hover:bg-white/10"
+                  // Inherits the bar's ink; the hover wash is struck
+                  // from that same colour so it works on both grounds.
+                  "text-current hover:bg-current/10"
                 )}
               >
                 <Search className="w-4 h-4" />
@@ -1499,6 +1358,12 @@ export default function Header() {
                   the lg/xl range (see Get-a-Quote clipping note) — the
                   mobile menu carries its own Favorites link for every
                   other breakpoint. */}
+              {/* Market switcher (INT / IND). First in the utility row so
+                  it sits furthest from the CTAs and reads as a setting
+                  rather than an action — the same position the reference
+                  gives it. Inherits the bar's ink via `text-current`, so
+                  it repaints with all four header theme states. */}
+
               {/* Store cart — kept beside Favorites at the same
                   breakpoint; the mobile menu carries its own link. */}
               <Link
@@ -1509,13 +1374,24 @@ export default function Header() {
                     : "View cart"
                 }
                 className={cn(
-                  "relative hidden 2xl:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
-                  "text-pacific-light hover:text-white hover:bg-white/10"
+                  "relative hidden 2xl:flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 shrink-0",
+                  // Inherits the bar's ink; the hover wash is struck
+                  // from that same colour so it works on both grounds.
+                  "text-current hover:bg-current/10"
                 )}
               >
                 <ShoppingBag className="w-4 h-4" />
                 {cartReady && cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[1.15rem] rounded-full bg-white px-1 text-[10px] font-medium leading-[1.15rem] text-pacific-dark">
+                  <span
+                    className="absolute -top-0.5 -right-0.5 min-w-[1.15rem] rounded-full px-1 text-[10px] font-medium leading-[1.15rem]"
+                    /* Inverted against the bar rather than fixed white,
+                       which vanished once the bar went light. */
+                    style={{
+                      backgroundColor: navInk,
+                      color:
+                        navTheme === "regular" ? NAV.inkOnLight : NAV.bgLight,
+                    }}
+                  >
                     {cartCount > 99 ? "99+" : cartCount}
                   </span>
                 )}
@@ -1525,36 +1401,32 @@ export default function Header() {
                 href="/favorites"
                 aria-label="View favorites"
                 className={cn(
-                  "hidden 2xl:flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 shrink-0",
-                  "text-pacific-light hover:text-white hover:bg-white/10"
+                  "hidden 2xl:flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 shrink-0",
+                  // Inherits the bar's ink; the hover wash is struck
+                  // from that same colour so it works on both grounds.
+                  "text-current hover:bg-current/10"
                 )}
               >
                 <Heart className="w-4 h-4" />
               </Link>
 
               {/* Customer Login — the /customer/login page and its
-                  grievance/dashboard flow already existed and worked,
-                  but nothing in the site's actual nav linked to it, so
-                  visitors had no way to discover or reach it. Rendered
-                  as a visible outline pill (not just a dim icon) with
-                  a background/border at rest — same headerDark-aware
-                  treatment as the Visualizer pill below — so it reads
-                  clearly on first glance instead of relying on hover
-                  to become legible. Same 2xl+ tier as Favorites/
-                  Visualizer for now; the mobile menu carries its own
-                  link below for every other breakpoint. */}
+                  grievance/dashboard flow. An icon beside Cart and
+                  Favorites (it was a labelled pill, which pushed the nav
+                  off the centre of the page). Same 2xl+ tier; the mobile
+                  menu carries its own link for every other breakpoint. */}
               <Link
                 href="/customer/login"
                 aria-label="Customer login"
+                title="Customer login"
                 className={cn(
-                  "hidden 2xl:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300 shrink-0",
-                  headerDark
-                    ? "bg-white/15 text-white border border-white/40 hover:bg-white/25"
-                    : "bg-white/20 text-white backdrop-blur-sm border border-white/50 hover:bg-white/30"
+                  "hidden 2xl:flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 shrink-0",
+                  // Inherits the bar's ink; the hover wash is struck
+                  // from that same colour so it works on both grounds.
+                  "text-current hover:bg-current/10"
                 )}
               >
-                <User className="w-3.5 h-3.5" />
-                Login
+                <User className="w-4 h-4" />
               </Link>
 
               {/* Visualizer pill — now shows from xl+ (≥1280px),
@@ -1568,31 +1440,20 @@ export default function Header() {
                   mobile menu and the homepage hero. */}
               <Link
                 href="/visualize"
-                className={cn(
-                  "hidden xl:inline-flex items-center gap-1.5 rounded-full px-4 xl:px-5 py-2 text-[11px] xl:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
-                  headerDark
-                    ? "bg-white text-[#112732] border border-transparent hover:bg-pacific-light"
-                    : "bg-white/20 text-white backdrop-blur-sm border border-white/40 hover:bg-white/30"
-                )}
+                style={primaryPill}
+                className="hidden xl:inline-flex ml-2 items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.1em] uppercase whitespace-nowrap border border-transparent"
               >
                 Visualizer
-                <ArrowRight className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
+                <ArrowRight className="w-3 h-3 min-[1700px]:hidden" />
               </Link>
 
               <Link
                 href="/contact"
-                className={cn(
-                  "hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 lg:px-4 xl:px-5 py-2 text-[11px] lg:text-xs font-medium tracking-[0.1em] uppercase whitespace-nowrap transition-all duration-300",
-                  // Scrolled now uses a solid white pill for max
-                  // contrast against the dark navy header. Top of
-                  // page keeps the translucent glass-pill style.
-                  headerDark
-                    ? "bg-white text-[#112732] border border-transparent hover:bg-pacific-light"
-                    : "bg-white/20 text-white backdrop-blur-sm border border-white/40 hover:bg-white/30"
-                )}
+                style={primaryPill}
+                className="hidden sm:inline-flex ml-1.5 items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.1em] uppercase whitespace-nowrap border border-transparent"
               >
                 Get a Quote
-                <ArrowRight className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
+                <ArrowRight className="w-3 h-3 min-[1700px]:hidden" />
               </Link>
               <button
                 onClick={() => {
@@ -1607,9 +1468,9 @@ export default function Header() {
                   // Symmetric with the desktop nav's xl: breakpoint
                   // above — hamburger shows exactly while the full
                   // nav row is hidden, no gap where neither is visible.
-                  "xl:hidden p-2 rounded-lg transition-colors",
-                  // Always white now since both states are dark.
-                  "text-white"
+                  "min-[1700px]:hidden p-2 rounded-lg transition-colors",
+                  // Inherits the bar's ink like everything else.
+                  "text-current"
                 )}
               >
                 {mobileOpen ? (
@@ -1631,7 +1492,7 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[60] bg-pacific-dark/95 backdrop-blur-xl xl:hidden overflow-y-auto overscroll-contain"
+            className="fixed inset-0 z-[60] bg-pacific-dark/95 backdrop-blur-xl min-[1700px]:hidden overflow-y-auto overscroll-contain"
             onClick={() => setMobileOpen(false)}
           >
             <button
