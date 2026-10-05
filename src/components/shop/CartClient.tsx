@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { useCart, lineKey, type CartItem, type CartOption } from "@/lib/cart";
 import { formatCollection } from "@/components/catalogue/labels";
-import { CUSTOM_SIZE, type StoreOptions } from "@/data/store";
+import { CUSTOM_SIZE, dimensionLabel, type StoreOptions } from "@/data/store";
+import { isDrawing, servedAsIs } from "@/components/shop/ShopClient";
 import { trackMetaEvent } from "@/lib/meta-pixel";
 
 /**
@@ -48,11 +49,14 @@ const EMPTY_FORM: OrderForm = {
 export function CartClient({
   optionsByProduct,
   colours,
+  graniteColours = [],
 }: {
   /** Dimension, basin and finish choices per product id. */
   optionsByProduct: Record<string, StoreOptions>;
-  /** The quartz range, offered as the colour of every piece. */
+  /** The quartz range, offered as the colour of every quartz piece. */
   colours: string[];
+  /** The granite range, for lines made in granite (a granite sill). */
+  graniteColours?: string[];
 }) {
   const { items, count, ready, setQuantity, setOption, removeItem, clear } =
     useCart();
@@ -172,7 +176,7 @@ export function CartClient({
                 key={lineKey(item)}
                 item={item}
                 options={optionsByProduct[item.id]}
-                colours={colours}
+                colours={item.collection === "Granite" ? graniteColours : colours}
                 onQuantity={(q) => setQuantity(lineKey(item), q)}
                 onOption={(o, v) => setOption(lineKey(item), o, v)}
                 onRemove={() => removeItem(lineKey(item))}
@@ -239,10 +243,11 @@ export function CartClient({
                     type="button"
                     onClick={() => setForm({ ...form, customerType: value })}
                     aria-pressed={form.customerType === value}
+                    data-over-media={form.customerType === value ? "" : undefined}
                     className={
                       form.customerType === value
-                        ? "rounded-full bg-pacific-dark px-4 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-white"
-                        : "rounded-full border border-pacific-mid/30 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-pacific-dark hover:border-pacific-dark"
+                        ? "rounded-full border border-[#14140f] bg-[#14140f] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-white"
+                        : "rounded-full border border-[#14140f]/30 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-[#14140f] hover:border-[#14140f]"
                     }
                   >
                     {label}
@@ -313,8 +318,9 @@ function CartLine({
             src={item.image}
             alt={item.name}
             fill
+            unoptimized={servedAsIs(item.image)}
             sizes="96px"
-            className="object-cover"
+            className={isDrawing(item.image) ? "bg-white object-contain p-1.5" : "object-cover"}
           />
         ) : null}
       </div>
@@ -357,21 +363,21 @@ function CartLine({
             onOption={onOption}
           />
           <LineOption
-            name="Length"
+            name={dimensionLabel(options, "length")}
             field="length"
             item={item}
             list={options?.lengths}
             onOption={onOption}
           />
           <LineOption
-            name="Width"
+            name={dimensionLabel(options, "width")}
             field="width"
             item={item}
             list={options?.widths}
             onOption={onOption}
           />
           <LineOption
-            name="Height"
+            name={dimensionLabel(options, "height")}
             field="height"
             item={item}
             list={options?.heights}
@@ -445,7 +451,7 @@ function Field({
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-pacific-mid/25 px-3 py-2.5 text-sm font-light text-pacific-dark focus:border-pacific-dark focus:outline-none"
+        className="w-full rounded-md border border-[#14140f]/25 bg-white px-3 py-2.5 text-sm font-light text-[#14140f] focus:border-[#14140f] focus:outline-none focus:ring-1 focus:ring-[#14140f]"
       />
     </label>
   );
@@ -478,7 +484,7 @@ function TextArea({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-pacific-mid/25 px-3 py-2.5 text-sm font-light text-pacific-dark placeholder-pacific-mid/60 focus:border-pacific-dark focus:outline-none"
+        className="w-full rounded-md border border-[#14140f]/25 bg-white px-3 py-2.5 text-sm font-light text-[#14140f] placeholder:text-[#14140f]/40 focus:border-[#14140f] focus:outline-none focus:ring-1 focus:ring-[#14140f]"
       />
     </label>
   );

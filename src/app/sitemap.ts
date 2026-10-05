@@ -29,6 +29,8 @@ const STATIC_PATHS = [
   // (src/app/(site)/products/_lib/category.ts) — but were missing here,
   // so Googlebot had no path to discover them.
   "/products/fab-creations",
+  // Cut pieces: the Pacific European Window Sill & Threshold Collection.
+  "/products/pacific-european-window-sill-threshold-collection",
   "/products/translucent",
   // Quartz sub-collection landings. Each routes through
   // /products/[slug]/[item] and renders a filtered catalogue

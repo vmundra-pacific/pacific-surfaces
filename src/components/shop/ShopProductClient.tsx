@@ -6,9 +6,29 @@ import Link from "next/link";
 import { Check, Download, FileText, Minus, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
-import { CUSTOM_SIZE, type StoreOptions } from "@/data/store";
-import type { ShopColour } from "@/components/shop/ShopClient";
+import { CUSTOM_SIZE, dimensionLabel, type StoreOptions } from "@/data/store";
+import { isDrawing, servedAsIs, type ShopColour } from "@/components/shop/ShopClient";
 import { BasinPreview } from "@/components/shop/BasinPreview";
+import { PieceRender } from "@/components/shop/PieceRender";
+import { VanityTopRender } from "@/components/shop/VanityTopRender";
+import {
+  VanityGlance,
+  VanitySections,
+  type VanityDetails,
+  type VanitySelection,
+} from "@/components/shop/VanityTopDetails";
+import type { CutPiece } from "@/data/thresholds-and-sills";
+
+/** The guide each shelf points to under the order button. */
+const GUIDES: Record<string, { href: string; label: string }> = {
+  "Integrated Quartz Sinks": { href: "/applications/washbasins", label: "washbasins guide" },
+  "Window Sills & Thresholds": { href: "/products/pacific-european-window-sill-threshold-collection", label: "sills and thresholds page" },
+};
+
+/** The gallery frame that shows a cut piece drawn live. */
+const RENDER = "live-render";
+/** The gallery frame that shows a vanity top drawn to its chosen size. */
+const SCALE = "to-scale";
 import type { BasinLayers } from "@/data/store";
 
 /**
@@ -43,12 +63,29 @@ export interface SimilarProduct {
   image: string | null;
 }
 
+/**
+ * One of a family of products that differ only by basin count (the
+ * made-to-order vanity tops). Given the family, the page switches between
+ * them in place when the basin count changes, keeping every other choice.
+ */
+export interface BasinVariant {
+  /** The basin count this variant answers to, e.g. "2". */
+  basins: string;
+  product: ShopProductDetail;
+  options: StoreOptions;
+  layers: BasinLayers | null;
+  similar: SimilarProduct[];
+}
+
 export function ShopProductClient({
-  product,
-  options,
+  product: productProp,
+  options: optionsProp,
   colours,
-  similar,
-  layers,
+  similar: similarProp,
+  layers: layersProp,
+  variants,
+  piece,
+  details,
 }: {
   product: ShopProductDetail;
   options: StoreOptions;
@@ -60,8 +97,26 @@ export function ShopProductClient({
    * swaps a surface in a room.
    */
   layers: BasinLayers | null;
+  /** The basin-count family this product belongs to, if any. */
+  variants?: BasinVariant[];
+  /** A cut piece: the first gallery frame draws it in the chosen colour. */
+  piece?: CutPiece;
+  /** A vanity top: the Lowe's-style detail sections and choice pills. */
+  details?: VanityDetails;
 }) {
   const { addItem } = useCart();
+
+  // Which variant is showing. Switching one swaps the product, its scene,
+  // its lengths and its neighbours without leaving the page, so the
+  // chosen colour is laid straight into the new scene.
+  const [variantIndex, setVariantIndex] = useState(() =>
+    Math.max(0, variants?.findIndex((v) => v.product.slug === productProp.slug) ?? 0)
+  );
+  const variant = variants?.[variantIndex];
+  const product = variant?.product ?? productProp;
+  const options = variant?.options ?? optionsProp;
+  const layers = variant?.layers ?? (variant ? null : layersProp);
+  const similar = variant?.similar ?? similarProp;
 
   const [active, setActive] = useState(0);
   const [colour, setColour] = useState(colours[0]?.name ?? "");
@@ -92,6 +147,88 @@ export function ShopProductClient({
 
   const selectedColour = colours.find((c) => c.name === colour);
 
+  // A colour chosen on the listing arrives as ?colour=<name>.
+  useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get("colour");
+    if (wanted && colours.some((c) => c.name === wanted)) setColour(wanted);
+  }, [colours]);
+
+  // A cut piece opens on its live view; its photographs and drawing follow.
+  // A vanity top with a scene gets a second frame drawn to its chosen size,
+  // since the photograph cannot change size.
+  const frames = piece
+    ? [RENDER, ...product.images]
+    : layers
+      ? [product.images[0] ?? "scene", SCALE, ...product.images.slice(1)]
+      : product.images;
+  const scaleIndex = frames.indexOf(SCALE);
+  /** A new size shows the to-scale view, where a size can be seen. */
+  const resized =
+    (set: (value: string) => void) =>
+    (value: string) => {
+      set(value);
+      if (scaleIndex >= 0) setActive(scaleIndex);
+    };
+  const renderTop = (label: string, showSize = true) => (
+    <VanityTopRender
+      basins={Math.max(1, ["Single", "Double", "Triple"].indexOf(basins) + 1)}
+      length={resolve("length", length)}
+      width={resolve("width", width)}
+      height={resolve("height", height)}
+      colourImage={selectedColour?.image ?? null}
+      finish={finish}
+      label={label}
+      showSize={showSize}
+    />
+  );
+  const renderPiece = (label: string) =>
+    piece ? (
+      <PieceRender
+        piece={piece}
+        length={resolve("length", length)}
+        width={resolve("width", width)}
+        thickness={height}
+        colourImage={selectedColour?.image ?? null}
+        finish={finish}
+        label={label}
+      />
+    ) : null;
+
+  // With a family, the basin choices are the family's; picking one moves
+  // to that variant, keeps colour, width, height and finish, and keeps the
+  // length where the new layout offers it.
+  const basinChoices = variants ? variants.map((v) => v.basins) : options.basins;
+  const changeBasins = (value: string) => {
+    setBasins(value);
+    if (!variants) return;
+    const next = variants.findIndex((v) => v.basins === value);
+    if (next < 0 || next === variantIndex) return;
+    const nextLengths = variants[next].options.lengths;
+    if (!nextLengths.includes(length)) setLength(nextLengths[0] ?? "");
+    setVariantIndex(next);
+    setActive(0);
+    // Keep the address honest without a navigation, which would reset the
+    // page and lose the choices.
+    window.history.replaceState(null, "", `/shop/${variants[next].product.slug}`);
+    document.title = `${variants[next].product.name} — Pacific Store`;
+  };
+
+  const selection: VanitySelection | null = details
+    ? {
+        layout: product.name.replace(/\s*Quartz Vanity Top$/, ""),
+        basins: Math.max(1, ["Single", "Double", "Triple"].indexOf(basins) + 1),
+        colour,
+        length: resolve("length", length),
+        width: resolve("width", width),
+        height: resolve("height", height),
+        finish,
+        lengths: options.lengths,
+        widths: options.widths,
+        heights: options.heights,
+        finishes: options.finishes,
+      }
+    : null;
+
   const handleAdd = () => {
     addItem(
       {
@@ -118,7 +255,15 @@ export function ShopProductClient({
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
         {/* ---- gallery ---- */}
         <div>
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-pacific-dark/5">
+          <div
+            className={cn(
+              "relative w-full overflow-hidden rounded-lg bg-pacific-dark/5",
+              // A layered scene is shot wide (the double-basin top is
+              // ~2.1:1); give it its own frame rather than crop it to 4:3.
+              // The to-scale view keeps that frame, so the page doesn't jump.
+              layers && (active === 0 || frames[active] === SCALE) ? "aspect-[21/10]" : "aspect-[4/3]"
+            )}
+          >
             {/* The live preview replaces the photograph only on the first
                 gallery frame — the thumbnails still show the shot images. */}
             {layers && active === 0 ? (
@@ -128,21 +273,41 @@ export function ShopProductClient({
                 colourImage={selectedColour?.image ?? null}
                 alt={product.name}
               />
-            ) : product.images[active] ? (
+            ) : frames[active] === SCALE ? (
+              renderTop(`${product.name} in ${colour}, to scale`)
+            ) : frames[active] === RENDER ? (
+              renderPiece(`${product.name} in ${colour}`)
+            ) : frames[active] ? (
               <Image
-                src={product.images[active]}
+                src={frames[active]}
                 alt={product.name}
                 fill
+                // Our own photographs and drawings are served as they are.
+                unoptimized={servedAsIs(frames[active])}
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
+                className={isDrawing(frames[active]) ? "bg-white object-contain p-6" : "object-cover"}
                 priority
               />
             ) : null}
           </div>
 
-          {product.images.length > 1 && (
-            <div className="mt-3 flex gap-3">
-              {product.images.slice(0, 6).map((src, i) => (
+          {/* The visualizer's slab dock, under a live preview: one tap on a
+              slab lays it into the scene. Same list, and the same choice, as
+              the Colours field on the right. */}
+          {layers && colours.length > 0 && (
+            <SlabStrip
+              colours={colours}
+              current={colour}
+              onPick={(name) => {
+                setColour(name);
+                setActive(0);
+              }}
+            />
+          )}
+
+          {frames.length > 1 && (
+            <div className="mt-3 flex flex-wrap gap-3">
+              {frames.slice(0, 7).map((src, i) => (
                 <button
                   key={src}
                   type="button"
@@ -156,15 +321,30 @@ export function ShopProductClient({
                       : "opacity-70 hover:opacity-100"
                   )}
                 >
-                  <Image
-                    src={src}
-                    alt=""
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
+                  {src === RENDER ? (
+                    renderPiece("")
+                  ) : src === SCALE ? (
+                    renderTop("", false)
+                  ) : (
+                    <Image
+                      src={src}
+                      alt=""
+                      fill
+                      unoptimized={servedAsIs(src)}
+                      sizes="96px"
+                      className={isDrawing(src) ? "bg-white object-contain p-1" : "object-cover"}
+                    />
+                  )}
                 </button>
               ))}
+            </div>
+          )}
+
+          {/* Under the gallery on a desktop; after the order button on a
+              phone, so the title and the choices come first there. */}
+          {selection && (
+            <div className="hidden lg:block">
+              <VanityGlance sel={selection} />
             </div>
           )}
 
@@ -218,6 +398,17 @@ export function ShopProductClient({
             </p>
           )}
 
+          {/* A vanity top's layout and width are chosen as pills, the way the
+              category shows its common sizes. */}
+          {details && (
+            <div className="mt-8 space-y-5">
+              {basinChoices.length > 0 && (
+                <Pills label="Basins" value={basins} options={basinChoices} onChange={changeBasins} />
+              )}
+              <Pills label="Common width (in)" value={length} options={options.lengths} onChange={resized(setLength)} />
+            </div>
+          )}
+
           <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-5 sm:grid-cols-3">
             {colours.length > 0 && (
               <Field label="Colours">
@@ -244,36 +435,40 @@ export function ShopProductClient({
               </Field>
             )}
 
-            <Field label="Length (in)">
+            {!details && (
+            <Field label={`${dimensionLabel(options, "length")} (in)`}>
               <Select
                 value={length}
                 options={options.lengths}
                 onChange={setLength}
-                label={`Length for ${product.name}`}
+                label={`${dimensionLabel(options, "length")} for ${product.name}`}
               />
             </Field>
-            <Field label="Width (in)">
+            )}
+            {options.widths.length > 0 && (
+            <Field label={`${dimensionLabel(options, "width")} (in)`}>
               <Select
                 value={width}
                 options={options.widths}
-                onChange={setWidth}
-                label={`Width for ${product.name}`}
+                onChange={resized(setWidth)}
+                label={`${dimensionLabel(options, "width")} for ${product.name}`}
               />
             </Field>
-            <Field label="Height (in)">
+            )}
+            <Field label={`${dimensionLabel(options, "height")} (in)`}>
               <Select
                 value={height}
                 options={options.heights}
-                onChange={setHeight}
-                label={`Height for ${product.name}`}
+                onChange={resized(setHeight)}
+                label={`${dimensionLabel(options, "height")} for ${product.name}`}
               />
             </Field>
-            {options.basins.length > 0 && (
-              <Field label="Number of sinks">
+            {!details && basinChoices.length > 0 && (
+              <Field label={variants ? "Basins" : "Number of sinks"}>
                 <Select
                   value={basins}
-                  options={options.basins}
-                  onChange={setBasins}
+                  options={basinChoices}
+                  onChange={changeBasins}
                   label={`Number of sinks for ${product.name}`}
                 />
               </Field>
@@ -291,7 +486,7 @@ export function ShopProductClient({
           {custom.length > 0 && (
             <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
               {custom.map(([field]) => (
-                <Field key={field} label={`${field} in inches`}>
+                <Field key={field} label={`${dimensionLabel(options, field as "length" | "width" | "height")} in inches`}>
                   <input
                     type="text"
                     inputMode="decimal"
@@ -376,10 +571,10 @@ export function ShopProductClient({
                   this page to it for search as well as for readers. */}
               * New to these? Read the{" "}
               <Link
-                href="/applications/bathroom-vanity-tops"
+                href={GUIDES[product.section]?.href ?? "/applications/bathroom-vanity-tops"}
                 className="underline"
               >
-                vanity tops guide
+                {GUIDES[product.section]?.label ?? "vanity tops guide"}
               </Link>{" "}
               — sizes, finishes and care.
             </li>
@@ -395,8 +590,15 @@ export function ShopProductClient({
               .
             </li>
           </ul>
+          {selection && (
+            <div className="lg:hidden">
+              <VanityGlance sel={selection} />
+            </div>
+          )}
         </div>
       </div>
+
+      {details && selection && <VanitySections details={details} sel={selection} />}
 
       {similar.length > 0 && (
         <div className="mx-auto mt-20 max-w-7xl border-t border-pacific-dark/10 pt-12">
@@ -420,8 +622,12 @@ export function ShopProductClient({
                       src={s.image}
                       alt={s.name}
                       fill
+                      unoptimized={servedAsIs(s.image)}
                       sizes="(max-width: 1024px) 50vw, 25vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                      className={cn(
+                        "transition-transform duration-700 group-hover:scale-[1.04]",
+                        isDrawing(s.image) ? "bg-white object-contain p-3" : "object-cover"
+                      )}
                     />
                   ) : null}
                 </div>
@@ -447,6 +653,46 @@ export function ShopProductClient({
         />
       )}
     </section>
+  );
+}
+
+/** A choice shown as a row of pills, the chosen one filled. */
+function Pills({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div>
+      <p className="text-sm font-light text-pacific-dark">
+        {label}: <span className="font-medium">{value}</span>
+      </p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {options.map((o) => (
+          <button
+            key={o}
+            type="button"
+            aria-pressed={o === value}
+            data-over-media={o === value ? "" : undefined}
+            onClick={() => onChange(o)}
+            className={cn(
+              "h-10 min-w-10 rounded-full border px-4 text-sm font-light transition-colors",
+              o === value
+                ? "border-[#14140f] bg-[#14140f] text-white"
+                : "border-[#14140f]/25 text-[#14140f] hover:border-[#14140f]"
+            )}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -609,6 +855,76 @@ function ColourPanel({
           )}
         </ul>
       </aside>
+    </div>
+  );
+}
+
+/**
+ * A horizontal dock of slab swatches, after the visualizer's SlabPicker:
+ * each design as a small portrait tile of its slab with its name across
+ * the foot, the chosen one ringed and ticked. The vertical wheel scrolls
+ * it sideways, as the visualizer's dock does.
+ */
+function SlabStrip({
+  colours,
+  current,
+  onPick,
+}: {
+  colours: ShopColour[];
+  current: string;
+  onPick: (name: string) => void;
+}) {
+  return (
+    <div className="mt-4">
+      <div className="mb-2 flex items-baseline justify-between gap-3">
+        <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-pacific-dark/55">
+          Choose a slab
+        </span>
+        <span className="truncate text-sm font-light text-pacific-dark">{current}</span>
+      </div>
+      <div
+        className="-mx-1 overflow-x-auto pb-2 [scrollbar-width:thin]"
+        onWheel={(e) => {
+          const el = e.currentTarget;
+          const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+          if (el.scrollWidth > el.clientWidth) el.scrollLeft += delta;
+        }}
+      >
+        <div className="flex gap-2 px-1">
+          {colours.map((c) => {
+            const on = c.name === current;
+            return (
+              <button
+                key={c.name}
+                type="button"
+                onClick={() => onPick(c.name)}
+                aria-pressed={on}
+                aria-label={c.name}
+                title={c.name}
+                className={cn(
+                  "relative h-[88px] w-[72px] shrink-0 overflow-hidden rounded-lg bg-pacific-dark/5 ring-1 transition-all",
+                  on ? "ring-2 ring-pacific-dark" : "ring-pacific-dark/10 hover:ring-pacific-dark/40"
+                )}
+              >
+                {c.image ? (
+                  <Image src={c.image} alt="" fill sizes="72px" className="object-cover" />
+                ) : null}
+                <span
+                  data-over-media
+                  className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-1.5 text-left text-[9px] uppercase leading-tight tracking-[0.06em] text-white"
+                >
+                  <span className="line-clamp-2">{c.name}</span>
+                </span>
+                {on && (
+                  <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white">
+                    <Check className="h-3 w-3 text-pacific-dark" aria-hidden="true" />
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

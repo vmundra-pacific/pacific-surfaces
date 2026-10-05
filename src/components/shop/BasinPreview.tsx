@@ -44,18 +44,44 @@ export function BasinPreview({
   colourName,
   colourImage,
   alt,
+  maxWidth,
+  lazy = false,
 }: {
   assets: BasinAssets;
   colourName: string;
   /** The chosen design's slab photograph. */
   colourImage: string | null;
   alt: string;
+  /** Composite at most this wide (a grid card needs a fraction of the
+   *  photograph's pixels, and compositing cost grows with them). */
+  maxWidth?: number;
+  /** Wait until the preview scrolls near the screen before compositing. */
+  lazy?: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [inView, setInView] = useState(!lazy);
 
   useEffect(() => {
+    if (inView) return;
+    const el = canvasRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setInView(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "400px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [inView]);
+
+  useEffect(() => {
+    if (!inView) return;
     let cancelled = false;
 
     const run = async () => {
@@ -73,13 +99,14 @@ export function BasinPreview({
         ]);
         if (cancelled) return;
 
-        canvas.width = base.naturalWidth;
-        canvas.height = base.naturalHeight;
+        const scale = maxWidth ? Math.min(1, maxWidth / base.naturalWidth) : 1;
+        canvas.width = Math.round(base.naturalWidth * scale);
+        canvas.height = Math.round(base.naturalHeight * scale);
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(base, 0, 0);
+        ctx.drawImage(base, 0, 0, canvas.width, canvas.height);
 
         // No colour picked yet, or the design has no photograph: leave the
         // basin as shot rather than compositing nothing over it.
@@ -137,7 +164,7 @@ export function BasinPreview({
     return () => {
       cancelled = true;
     };
-  }, [assets, colourImage, colourName]);
+  }, [assets, colourImage, colourName, inView, maxWidth]);
 
   if (failed) {
     // eslint-disable-next-line @next/next/no-img-element

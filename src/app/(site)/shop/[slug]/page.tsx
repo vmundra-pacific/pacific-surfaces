@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import {
   ShopProductClient,
+  type BasinVariant,
   type ShopProductDetail,
 } from "@/components/shop/ShopProductClient";
 import type { ShopColour } from "@/components/shop/ShopClient";
@@ -12,7 +13,22 @@ import {
   catalogueProductsQuery,
   productBySlugQuery,
 } from "@/sanity/lib/queries";
-import { basinLayers, storeOptions, storeSection } from "@/data/store";
+import {
+  CUT_PIECE_PRODUCTS,
+  VANITY_TOP_PRODUCTS,
+  basinLayers,
+  cutPieceBySlug,
+  isListedInStore,
+  storeOptions,
+  storeSection,
+  vanityTopBySlug,
+  vanityTopOptions,
+  type CutPieceProduct,
+  type MadeToOrderTop,
+} from "@/data/store";
+import { REFILE } from "@/data/catalogue-refile";
+import { applicationBySlug } from "@/data/applications";
+import type { VanityDetails } from "@/components/shop/VanityTopDetails";
 
 /**
  * /shop/<slug> — the store's product page.
@@ -78,6 +94,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const top = vanityTopBySlug(slug) ?? cutPieceBySlug(slug);
+  if (top) {
+    return {
+      title: `${top.name} — Pacific Store`,
+      description: top.description,
+      alternates: { canonical: `/shop/${slug}` },
+    };
+  }
   const doc = await client.fetch<ProductDoc | null>(productBySlugQuery, {
     slug,
   });
@@ -98,6 +122,21 @@ export default async function ShopProductPage({
 }) {
   const { slug } = await params;
 
+  // A made-to-order vanity top is defined in code, not Sanity.
+  const top = vanityTopBySlug(slug);
+  if (top) {
+    const rows = await client.fetch<CatalogueRow[]>(catalogueProductsQuery);
+    return <MadeToOrderTopPage top={top} colours={rangeColours(rows)} details={vanityDetails(rows)} />;
+  }
+
+  // So are the sills, thresholds and bath pieces.
+  const piece = cutPieceBySlug(slug);
+  if (piece) {
+    const rows = await client.fetch<CatalogueRow[]>(catalogueProductsQuery);
+    const colours = piece.material === "Granite" ? graniteColours(rows) : rangeColours(rows);
+    return <CutPiecePage piece={piece} colours={colours} />;
+  }
+
   const [doc, rows] = await Promise.all([
     client.fetch<ProductDoc | null>(productBySlugQuery, { slug }),
     client.fetch<CatalogueRow[]>(catalogueProductsQuery),
@@ -113,16 +152,7 @@ export default async function ShopProductPage({
   // marketing product page rather than a configurator.
   if (!section) notFound();
 
-  const seen = new Set<string>();
-  const colours: ShopColour[] = (rows ?? [])
-    .filter((r) => r.visible !== false && r.productType === "quartz-slab")
-    .flatMap((r) => {
-      const name = r.name?.trim();
-      if (!name || seen.has(name)) return [];
-      seen.add(name);
-      return [{ name, image: r.mainImage ?? null }];
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const colours = rangeColours(rows);
 
   // Similar products: the rest of this shelf. Same section rather than same
   // Sanity collection, because the shelf is how the range is actually
@@ -137,7 +167,7 @@ export default async function ShopProductPage({
         slug: rowSlug,
         collection: r.collectionName,
       });
-      if (rowSection !== section) return [];
+      if (rowSection !== section || !isListedInStore(rowSlug)) return [];
       return [{ name: r.name, slug: rowSlug, image: r.mainImage ?? null }];
     })
     .slice(0, 8);
@@ -191,10 +221,214 @@ export default async function ShopProductPage({
 
       <ShopProductClient
         product={product}
-        options={storeOptions({ section, finishes: doc.finishes })}
+        options={storeOptions({ section, finishes: doc.finishes, name: doc.name, slug })}
         colours={colours}
         similar={similar}
         layers={basinLayers(slug)}
+      />
+    </>
+  );
+}
+
+/**
+ * The colours a piece can be made in: the visible quartz range, one row per
+ * name, alphabetical.
+ */
+function rangeColours(rows: CatalogueRow[] | null): ShopColour[] {
+  const seen = new Set<string>();
+  return (rows ?? [])
+    .filter((r) => r.visible !== false && r.productType === "quartz-slab")
+    .flatMap((r) => {
+      const name = r.name?.trim();
+      if (!name || seen.has(name)) return [];
+      seen.add(name);
+      return [{ name, image: r.mainImage ?? null }];
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * The granite range, for pieces made in granite: every visible granite,
+ * including the ones the catalogue re-files as granite (data/catalogue-refile).
+ */
+function graniteColours(rows: CatalogueRow[] | null): ShopColour[] {
+  const seen = new Set<string>();
+  return (rows ?? [])
+    .filter((r) => {
+      if (r.visible === false) return false;
+      const slug = (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? "";
+      return r.productType === "granite-slab" || REFILE[slug]?.productType === "granite-slab";
+    })
+    .flatMap((r) => {
+      const name = r.name?.trim();
+      if (!name || seen.has(name)) return [];
+      seen.add(name);
+      return [{ name, image: r.mainImage ?? null }];
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** A sill, threshold or bath piece: the standard store page, with its
+ *  photographs or drawing, its sizes, and the rest of the shelf beside it. */
+function CutPiecePage({ piece, colours }: { piece: CutPieceProduct; colours: ShopColour[] }) {
+  const product: ShopProductDetail = {
+    id: piece.id,
+    name: piece.name,
+    slug: piece.slug,
+    code: null,
+    description: piece.description,
+    images: piece.images,
+    collection: piece.material,
+    section: "Window Sills & Thresholds",
+    hdFileUrl: null,
+    specSheetUrl: null,
+  };
+  const similar = CUT_PIECE_PRODUCTS.filter((p) => p.slug !== piece.slug).map((p) => ({
+    name: p.name,
+    slug: p.slug,
+    image: p.images[0] ?? null,
+  }));
+  return (
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Store", url: "/shop" },
+          { name: piece.name, url: `/shop/${piece.slug}` },
+        ]}
+      />
+      <nav className="bg-white px-6 pt-24 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap gap-2 text-xs font-light text-pacific-dark/55">
+          <Link href="/" className="hover:text-pacific-dark">
+            Home
+          </Link>
+          <span>/</span>
+          <Link href="/shop" className="hover:text-pacific-dark">
+            Window Sills &amp; Thresholds
+          </Link>
+          <span>/</span>
+          <span className="text-pacific-dark">{piece.name}</span>
+          <Link
+            href={`/products/pacific-european-window-sill-threshold-collection#${piece.piece.slug}`}
+            className="ml-auto underline-offset-4 hover:text-pacific-dark hover:underline"
+          >
+            Drawing and standard sizes
+          </Link>
+        </div>
+      </nav>
+      <ShopProductClient
+        product={product}
+        options={piece.options}
+        colours={colours}
+        similar={similar}
+        layers={null}
+        piece={piece.piece}
+      />
+    </>
+  );
+}
+
+/**
+ * The page for a made-to-order vanity top: the same layout as any store
+ * product. Where the top has composite layers (Double Basin), the main
+ * image is the live preview, so picking a colour lays that slab into the
+ * scene the way the visualizer does.
+ */
+function topDetail(t: MadeToOrderTop): ShopProductDetail {
+  return {
+    id: t.id,
+    name: t.name,
+    slug: t.slug,
+    code: null,
+    description: t.description,
+    images: [t.image],
+    collection: "Vanity",
+    section: "Vanity Tops",
+    hdFileUrl: null,
+    specSheetUrl: null,
+  };
+}
+
+/** The vanity-tops guide's copy, specs and FAQ, and each design's
+ *  collection, for the detail sections of a vanity top's page. */
+function vanityDetails(rows: CatalogueRow[] | null): VanityDetails | undefined {
+  const guide = applicationBySlug("bathroom-vanity-tops")?.seo;
+  if (!guide) return undefined;
+  const series: Record<string, string> = {};
+  for (const r of rows ?? []) {
+    const name = r.name?.trim();
+    if (name && r.productType === "quartz-slab" && r.collectionName) series[name] = r.collectionName;
+  }
+  return {
+    intro: guide.intro,
+    // Benefits exist only where the guide has them; the store page shows
+    // what the guide says and nothing more.
+    benefits: ((guide as { benefits?: { title: string; body: string }[] }).benefits ?? []).map((x) => ({
+      title: x.title,
+      body: x.body,
+    })),
+    specs: guide.specs,
+    faqs: guide.faqs,
+    series,
+  };
+}
+
+function MadeToOrderTopPage({
+  top,
+  colours,
+  details,
+}: {
+  top: MadeToOrderTop;
+  colours: ShopColour[];
+  details?: VanityDetails;
+}) {
+  // All three tops, so the Basins field can move between them in place
+  // (Single / Double / Triple) without losing the chosen colour.
+  const variants: BasinVariant[] = VANITY_TOP_PRODUCTS.map((t) => {
+    const options = vanityTopOptions(t.layout);
+    return {
+      basins: options.basins[0],
+      product: topDetail(t),
+      options,
+      layers: t.layers,
+      similar: VANITY_TOP_PRODUCTS.filter((o) => o.slug !== t.slug).map((o) => ({
+        name: o.name,
+        slug: o.slug,
+        image: o.image,
+      })),
+    };
+  });
+  const current = variants.find((v) => v.product.slug === top.slug)!;
+  return (
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Store", url: "/shop" },
+          { name: top.name, url: `/shop/${top.slug}` },
+        ]}
+      />
+      <nav className="bg-white px-6 pt-24 lg:px-8">
+        <div className="mx-auto flex max-w-7xl gap-2 text-xs font-light text-pacific-dark/55">
+          <Link href="/" className="hover:text-pacific-dark">
+            Home
+          </Link>
+          <span>/</span>
+          {/* Ends at the shelf: the Basins field switches the top in place,
+              so naming one here would go stale. The heading names it. */}
+          <Link href="/shop" className="text-pacific-dark hover:opacity-70">
+            Vanity Tops
+          </Link>
+        </div>
+      </nav>
+      <ShopProductClient
+        product={current.product}
+        options={current.options}
+        colours={colours}
+        similar={current.similar}
+        layers={current.layers}
+        variants={variants}
+        details={details}
       />
     </>
   );

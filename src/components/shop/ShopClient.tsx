@@ -6,11 +6,17 @@ import Link from "next/link";
 import { Check, Plus, ShoppingBag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
+import { PieceRender } from "@/components/shop/PieceRender";
+import type { CutPiece } from "@/data/thresholds-and-sills";
 import {
   CUSTOM_SIZE,
   STORE_SECTIONS,
+  dimensionLabel,
   storeOptions,
+  vanityTopOptions,
+  type StoreOptions,
   type StoreSection,
+  type VanityTopLayout,
 } from "@/data/store";
 
 /**
@@ -43,20 +49,52 @@ export interface ShopProduct {
   name: string;
   slug: string;
   image: string | null;
-  /** Customer-facing shelf: Vanities / Vanity Tops / Vanity Sinks. */
+  /** Customer-facing shelf: Vanities / Vanity Tops / Integrated Quartz Sinks. */
   section: StoreSection;
+  /** Vanity tops only: which basin layout it sits under. */
+  layout?: VanityTopLayout;
   /** Sanity collection, carried into the cart line for the order. */
   collection: string;
   finishes: string[];
+  /** A piece defined in code (a sill, a threshold) brings its own sizes. */
+  options?: StoreOptions;
+  /** Which range its colours come from; quartz unless it says granite. */
+  colourRange?: "granite";
+  /** A cut piece is drawn live, in the chosen colour and size. */
+  piece?: CutPiece;
 }
+
+/** Who is choosing a colour, from which list, and what to do with it. */
+interface Picking {
+  product: string;
+  current: string;
+  colours: ShopColour[];
+  onPick: (name: string) => void;
+}
+
+/** Where a shelf leads: its own aisle, or the page with its sizes. */
+const SHELF_LINKS: Partial<Record<StoreSection, { href: string; label: string }>> = {
+  "Vanity Tops": { href: "/shop/vanity-tops", label: "Shop all vanity tops" },
+  "Window Sills & Thresholds": { href: "/products/pacific-european-window-sill-threshold-collection", label: "Sizes and drawings" },
+};
+
+/** Drawings are shown whole on white; photographs fill the frame. */
+export const isDrawing = (src: string) => src.endsWith(".svg");
+
+/** Our own files served as they are, not recompressed (see store.ts). */
+export const servedAsIs = (src: string) =>
+  src.startsWith("/store-basins/") || src.startsWith("/store-sills/") || src.startsWith("/images/thresholds-and-sills/");
 
 export function ShopClient({
   products,
   colours,
+  graniteColours = [],
 }: {
   products: ShopProduct[];
-  /** The quartz range, offered as the colour of every piece. */
+  /** The quartz range, offered as the colour of every quartz piece. */
   colours: ShopColour[];
+  /** The granite range, for pieces made in granite (window sills). */
+  graniteColours?: ShopColour[];
 }) {
   const { addItem, count } = useCart();
   const [activeCollection, setActiveCollection] = useState<string>("All");
@@ -64,11 +102,7 @@ export function ShopClient({
   const [justAdded, setJustAdded] = useState<string | null>(null);
   /* Which card is choosing a colour. Held here rather than per card so
      only one drawer can ever be open, and it can cover the page. */
-  const [picking, setPicking] = useState<{
-    product: string;
-    current: string;
-    onPick: (name: string) => void;
-  } | null>(null);
+  const [picking, setPicking] = useState<Picking | null>(null);
 
   // Counts per shelf, in the fixed STORE_SECTIONS order rather than
   // by size — the order is a merchandising decision, not a statistic.
@@ -160,8 +194,18 @@ export function ShopClient({
               <h2 className="text-lg font-light tracking-tight text-pacific-dark">
                 {section}
               </h2>
-              <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-pacific-dark/45">
-                {list.length} design{list.length === 1 ? "" : "s"}
+              <span className="flex items-baseline gap-4">
+                {SHELF_LINKS[section] && (
+                  <Link
+                    href={SHELF_LINKS[section].href}
+                    className="text-[11px] font-medium uppercase tracking-[0.15em] text-pacific-dark underline-offset-4 hover:underline"
+                  >
+                    {SHELF_LINKS[section].label}
+                  </Link>
+                )}
+                <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-pacific-dark/45">
+                  {list.length} design{list.length === 1 ? "" : "s"}
+                </span>
               </span>
             </div>
 
@@ -170,7 +214,7 @@ export function ShopClient({
                 <ProductCard
                   key={p.id}
                   product={p}
-                  colours={colours}
+                  colours={p.colourRange === "granite" ? graniteColours : colours}
                   added={justAdded === p.id}
                   onAdd={handleAdd}
                   onPickColour={setPicking}
@@ -181,11 +225,7 @@ export function ShopClient({
         ))}
       </div>
 
-      <ColourDrawer
-        colours={colours}
-        picking={picking}
-        onClose={() => setPicking(null)}
-      />
+      <ColourDrawer picking={picking} onClose={() => setPicking(null)} />
     </div>
   );
 }
@@ -199,16 +239,10 @@ export function ShopClient({
  * shown as its own slab with the name beside it.
  */
 function ColourDrawer({
-  colours,
   picking,
   onClose,
 }: {
-  colours: ShopColour[];
-  picking: {
-    product: string;
-    current: string;
-    onPick: (name: string) => void;
-  } | null;
+  picking: Picking | null;
   onClose: () => void;
 }) {
   const [query, setQuery] = useState("");
@@ -234,6 +268,7 @@ function ColourDrawer({
 
   if (!picking) return null;
 
+  const colours = picking.colours;
   const shown = query.trim()
     ? colours.filter((c) =>
         c.name.toLowerCase().includes(query.trim().toLowerCase())
@@ -380,18 +415,20 @@ function ProductCard({
   colours: ShopColour[];
   added: boolean;
   onAdd: (p: ShopProduct, options: SelectedOptions) => void;
-  onPickColour: (
-    picking: {
-      product: string;
-      current: string;
-      onPick: (name: string) => void;
-    } | null
-  ) => void;
+  onPickColour: (picking: Picking | null) => void;
 }) {
-  const options = storeOptions({
-    section: product.section,
-    finishes: product.finishes,
-  });
+  // A made-to-order vanity top carries its own lengths and basin count, and
+  // a cut piece its own sizes.
+  const options = product.options
+    ? product.options
+    : product.layout
+    ? vanityTopOptions(product.layout)
+    : storeOptions({
+        section: product.section,
+        finishes: product.finishes,
+        name: product.name,
+        slug: product.slug,
+      });
 
   const [colour, setColour] = useState(colours[0]?.name ?? "");
   const [length, setLength] = useState(options.lengths[0] ?? "");
@@ -423,13 +460,30 @@ function ProductCard({
         href={`/shop/${product.slug}`}
         className="relative block aspect-square overflow-hidden bg-pacific-dark/5"
       >
-        {product.image ? (
+        {product.piece ? (
+          <PieceRender
+            piece={product.piece}
+            length={resolve("length", length)}
+            width={resolve("width", width)}
+            thickness={height}
+            colourImage={colours.find((c) => c.name === colour)?.image ?? null}
+            finish={finish}
+            label={`${product.name} in ${colour}`}
+          />
+        ) : product.image ? (
           <Image
             src={product.image}
             alt={product.name}
             fill
+            // Our own vanity-top photographs are served as they are, not
+            // recompressed: at a square crop of a wide shot the optimizer's
+            // copy was visibly soft.
+            unoptimized={servedAsIs(product.image)}
             sizes="(max-width: 640px) 50vw, 25vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+            className={cn(
+              "transition-transform duration-700 group-hover:scale-[1.04]",
+              isDrawing(product.image) ? "bg-white object-contain p-3" : "object-cover"
+            )}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-pacific-light to-pacific-mid/40" />
@@ -460,6 +514,7 @@ function ProductCard({
                   onPickColour({
                     product: product.name,
                     current: colour,
+                    colours,
                     onPick: setColour,
                   })
                 }
@@ -485,22 +540,22 @@ function ProductCard({
             </div>
           )}
           <CardOption
-            caption="Length (in)"
+            caption={`${dimensionLabel(options, "length")} (in)`}
             label={`Length for ${product.name}`}
             value={length}
             options={options.lengths}
             onChange={setLength}
           />
           <CardOption
-            caption="Width (in)"
+            caption={`${dimensionLabel(options, "width")} (in)`}
             label={`Width for ${product.name}`}
             value={width}
             options={options.widths}
             onChange={setWidth}
           />
           <CardOption
-            caption="Height (in)"
-            label={`Height for ${product.name}`}
+            caption={`${dimensionLabel(options, "height")} (in)`}
+            label={`${dimensionLabel(options, "height")} for ${product.name}`}
             value={height}
             options={options.heights}
             onChange={setHeight}
@@ -539,7 +594,7 @@ function ProductCard({
                   onChange={(e) =>
                     setTyped((t) => ({ ...t, [field]: e.target.value }))
                   }
-                  placeholder={`${field} in inches`}
+                  placeholder={`${dimensionLabel(options, field as "length" | "width" | "height").toLowerCase()} in inches`}
                   className="w-full rounded-md border border-pacific-dark/15 px-2.5 py-1.5 text-xs font-light text-pacific-dark placeholder-pacific-dark/35 focus:border-pacific-dark focus:outline-none"
                 />
               </label>
