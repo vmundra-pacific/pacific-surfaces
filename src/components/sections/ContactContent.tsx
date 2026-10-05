@@ -11,14 +11,11 @@ import {
   Phone,
   MapPin,
   ArrowRight,
-  ArrowUpRight,
   CheckCircle,
   Clock,
   ExternalLink,
   Search,
   MessageCircle,
-  FileText,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -60,17 +57,17 @@ export interface Dealer {
 
 /** Every photograph on the page, in one place so each can be swapped. */
 const MEDIA = {
-  hero: { src: "/images/india-home/taj-vein-kitchen.webp", alt: "A kitchen island and full-height wall in Taj Vein" },
-  quote: { src: "/projects/cladding/horizon-veil.webp", alt: "A living-room wall clad in large-format stone" },
-  visualize: { src: "/projects/islands/orenda-application.webp", alt: "A complete kitchen in Orenda" },
-  talk: { src: "/images/india-home/bretonstone-robot.webp", alt: "A Breton robot at work over a slab" },
+  hero: { src: "/images/india-home/collection-eclipse.webp", alt: "A long Eclipse quartz bar counter in a restaurant" },
   enquiry: { src: "/projects/islands/statuario.webp", alt: "A white-veined quartz island by a city window" },
-  closing: { src: "/projects/islands/taj-vein-application-2.webp", alt: "Taj Vein island and wall" },
+  closing: { src: "/videos/india-film-poster.jpg", alt: "A white quartz kitchen in morning light" },
 };
 
 const LIGHT = { fontVariationSettings: "'wght' 250, 'wdth' 100" };
 const PANEL = "bg-[#EFEDE9]";
 const INK = "#14140f";
+
+/** The where-to-buy finder in the hero; off for now (owner, 2026-10-05). */
+const SHOW_FINDER = false;
 
 const PHONE = "+91 98940 33566";
 const PHONE_HREF = "tel:+919894033566";
@@ -354,6 +351,36 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
             </p>
           </motion.div>
 
+          {/* The partner finder is off for now (owner, 2026-10-05): until it
+              is back, the hero hands straight on to the enquiry form, which
+              asks for the city as well. Flip SHOW_FINDER to restore it. */}
+          {!SHOW_FINDER && (
+            <motion.div
+              data-over-media
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-10 flex flex-col items-center gap-5"
+            >
+              <a
+                href="#enquiry"
+                className="inline-flex h-[52px] items-center justify-center gap-2 bg-white px-10 text-sm uppercase tracking-[0.14em] text-[#14140f] transition-opacity hover:opacity-90"
+              >
+                Send an enquiry
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </a>
+              <p className="text-[13px] font-light">
+                Prefer to talk?{" "}
+                <a href={PHONE_HREF} className="underline underline-offset-4">{PHONE}</a>
+                {" · "}
+                <a href={whatsApp("Hi, I'd like to know where to buy Pacific Surfaces.")} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                  WhatsApp
+                </a>
+              </p>
+            </motion.div>
+          )}
+
+          {SHOW_FINDER && (
           <motion.form
             onSubmit={handleSearch}
             initial={{ opacity: 0, y: 24 }}
@@ -407,6 +434,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
               </a>
             </p>
           </motion.form>
+          )}
         </Container>
       </section>
 
@@ -490,47 +518,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         </section>
       )}
 
-      {/* 3 · Three ways in ------------------------------------------------ */}
-      <section className="bg-white py-14 lg:py-20">
-        <Container>
-          <div className="grid gap-3 md:grid-cols-3">
-            {[
-              { title: "Get a quote", body: "Send your plan or measurements and our team prices the job, slab by slab.", href: "#enquiry", icon: FileText, media: MEDIA.quote },
-              { title: "See it in your room", body: "Upload a photograph and lay any Pacific design onto your own kitchen or bathroom.", href: "/visualize", icon: Sparkles, media: MEDIA.visualize },
-              { title: "Talk to our team", body: `Monday to Saturday, 9 am to 7 pm. Call ${PHONE} or message us on WhatsApp.`, href: whatsApp("Hi, I'd like to talk to the Pacific Surfaces team."), icon: MessageCircle, media: MEDIA.talk, external: true },
-            ].map((c) => {
-              const Icon = c.icon;
-              const inner = (
-                <>
-                  <Photo src={c.media.src} alt="" sizes="(min-width: 768px) 33vw, 100vw" className="transition-transform duration-[1.2s] ease-out group-hover:scale-[1.05]" />
-                  <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/35 to-black/10" />
-                  <div data-over-media className="flex h-full flex-col justify-between p-7 lg:p-9">
-                    <Icon className="h-7 w-7" strokeWidth={1.25} aria-hidden="true" />
-                    <div>
-                      <h2 style={LIGHT} className="text-[30px] uppercase leading-none tracking-[-0.02em] lg:text-[38px]">{c.title}</h2>
-                      <p className="mt-3 max-w-sm text-[15px] font-light leading-snug">{c.body}</p>
-                      <span className="mt-6 inline-flex items-center gap-2 border-b border-white/60 pb-1 text-[13px] uppercase tracking-[0.12em]">
-                        {c.external ? "Start a chat" : c.href === "#enquiry" ? "Request a quote" : "Open the visualizer"}
-                        {c.external ? <ArrowUpRight className="h-4 w-4" aria-hidden="true" /> : <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              );
-              const cls = "group relative isolate block aspect-[4/5] overflow-hidden bg-[#14140f] md:aspect-[3/4] xl:aspect-[4/5]";
-              return c.external ? (
-                <a key={c.title} href={c.href} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a>
-              ) : c.href.startsWith("#") ? (
-                <a key={c.title} href={c.href} className={cls}>{inner}</a>
-              ) : (
-                <Link key={c.title} href={c.href} className={cls}>{inner}</Link>
-              );
-            })}
-          </div>
-        </Container>
-      </section>
-
-      {/* 4 · The enquiry --------------------------------------------------- */}
+      {/* 3 · The enquiry --------------------------------------------------- */}
       <section id="enquiry" className={cn(PANEL, "scroll-mt-20")}>
         <div className="grid lg:grid-cols-2">
           <div className="relative isolate hidden min-h-[640px] lg:block">
@@ -635,7 +623,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         </div>
       </section>
 
-      {/* 5 · Direct lines -------------------------------------------------- */}
+      {/* 4 · Direct lines -------------------------------------------------- */}
       <section className="border-b border-[#14140f]/10 bg-white">
         <Container className="grid gap-px py-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -664,7 +652,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         </Container>
       </section>
 
-      {/* 6 · Department contacts ------------------------------------------- */}
+      {/* 5 · Department contacts ------------------------------------------- */}
       <section className="bg-white">
         <Container className="py-14 lg:py-20">
           <div className="flex flex-wrap items-end justify-between gap-4">
@@ -700,7 +688,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         </Container>
       </section>
 
-      {/* 7 · Closing band -------------------------------------------------- */}
+      {/* 6 · Closing band -------------------------------------------------- */}
       <section className="relative isolate overflow-hidden bg-[#14140f]">
         <Photo src={MEDIA.closing.src} alt="" />
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/50" />
