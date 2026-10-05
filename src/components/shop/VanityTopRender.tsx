@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { inchesOr, renderScene, type Face3, type ToScreen, type V3 } from "@/components/shop/render3d";
-import { useSize, useSlab } from "@/components/shop/PieceRender";
+import { useEffect, useRef, useState } from "react";
+import { inchesOr, loadSlab, renderScene, type Face3, type ToScreen, type V3 } from "@/components/shop/render3d";
 
 /**
  * A vanity top drawn to scale in the chosen design: the width, depth and
@@ -15,6 +14,41 @@ import { useSize, useSlab } from "@/components/shop/PieceRender";
  * three holes on 4 in centres): the real cut-outs follow the customer's own
  * basin and tap layout, as the page says.
  */
+
+/** The slab photograph for a design, once loaded. */
+function useSlab(colourImage: string | null): HTMLImageElement | null {
+  const [tex, setTex] = useState<HTMLImageElement | null>(null);
+  useEffect(() => {
+    let live = true;
+    if (!colourImage) {
+      setTex(null);
+      return;
+    }
+    loadSlab(colourImage)
+      .then((img) => live && setTex(img))
+      .catch(() => live && setTex(null));
+    return () => {
+      live = false;
+    };
+  }, [colourImage]);
+  return tex;
+}
+
+/** The size of an element, kept up to date. */
+function useSize(ref: React.RefObject<HTMLElement | null>) {
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width: w, height: h } = entry.contentRect;
+      setSize({ w, h });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return size;
+}
 
 function topFaces(L: number, D: number, H: number): Face3[] {
   return [

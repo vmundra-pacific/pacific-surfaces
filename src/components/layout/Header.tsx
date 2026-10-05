@@ -38,6 +38,9 @@ type MegaCategory = {
   tagline: string;
   /** Override — "<Cat> Colours" CTA target. Default `/products/[slug]`. */
   coloursHref?: string;
+  /** A card that goes straight to its page instead of opening the About
+   *  sub-panel (a category with no colours of its own). */
+  href?: string;
   /** Override — slug used to compose `/learn/what-is-[X]`. Default = slug. */
   whatIsSlug?: string;
   /** Optional thumbnail rendered inside the dropdown card (full-bleed,
@@ -162,6 +165,15 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
       { name: "Tigers Eye", href: "/products/tigers-eye" },
       { name: "Mother of Pearl", href: "/products/mother-of-pearl" },
     ],
+  },
+  {
+    // Window sills, door sills and thresholds: a category of its own
+    // (owner, 2026-10-05), its card a straight link to the collection.
+    slug: "pacific-european-window-sill-threshold-collection",
+    name: "Window Sills & Thresholds",
+    tagline: "Granite and quartz, cut to size.",
+    href: "/products/pacific-european-window-sill-threshold-collection",
+    imageUrl: "/images/thresholds-and-sills/granite-sills-black-row.jpg",
   },
 ];
 
@@ -316,6 +328,7 @@ const navigation = [
         href: "/products/facades-and-finishes",
       },
       { name: "Vanity", href: "/products/vanity" },
+      { name: "Window Sills & Thresholds", href: "/products/pacific-european-window-sill-threshold-collection" },
       { name: "All Products", href: "/products" },
     ],
   },
@@ -948,7 +961,7 @@ export default function Header() {
                                       : item.name === "Spaces" ||
                                           item.name === "Professionals"
                                         ? "grid-cols-4"
-                                        : "grid-cols-7"
+                                        : "grid-cols-8"
                                   }`}
                                 >
                                   {(item.name === "Spaces"
@@ -1078,6 +1091,44 @@ export default function Header() {
                                     // corner to indicate expanded state;
                                     // tagline subscript renders beneath
                                     // the card.
+                                    // A category with a page of its own
+                                    // (the window sills and thresholds)
+                                    // links straight there; it has no
+                                    // branded mark, so its photo shows
+                                    // at rest under its name.
+                                    if (cat.href) {
+                                      return (
+                                        <Link
+                                          key={cat.slug}
+                                          href={cat.href}
+                                          className="group/card block text-left transition-transform hover:scale-[1.02]"
+                                        >
+                                          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md bg-[#0d1f29]">
+                                            {cat.imageUrl ? (
+                                              <Image
+                                                src={cat.imageUrl}
+                                                alt=""
+                                                fill
+                                                className="object-cover opacity-70 transition-opacity duration-300 ease-out group-hover/card:opacity-100"
+                                                sizes="(min-width: 1024px) 20vw, 50vw"
+                                                priority={false}
+                                                unoptimized
+                                              />
+                                            ) : null}
+                                            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+                                            <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
+                                              <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
+                                                {cat.name}
+                                              </span>
+                                            </div>
+                                          </div>
+                                          <p className="mt-2 px-1 text-xs font-light tracking-wide text-pacific-mid leading-snug min-h-[2.25rem] line-clamp-2">
+                                            {cat.tagline}
+                                          </p>
+                                        </Link>
+                                      );
+                                    }
+
                                     const isActive = activeMega === cat.slug;
                                     return (
                                       <button

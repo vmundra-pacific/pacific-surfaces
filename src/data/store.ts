@@ -10,26 +10,16 @@
  * Sanity groups these under two collections, "Vanity" and "Integra",
  * which is not how they are sold. The store sections below are the
  * customer-facing split, and this file is the only place that mapping
- * lives. Window sills, thresholds and the small bath pieces (2026-10-05)
- * are defined here too, not in Sanity: see CUT_PIECE_PRODUCTS.
+ * lives. (Window sills and thresholds were sold here for a day and moved
+ * to their own category under Products on 2026-10-05: /products/
+ * pacific-european-window-sill-threshold-collection.)
  */
-
-import {
-  CUT_PIECES,
-  SILL_PHOTOS,
-  inchValue,
-  materialsFor,
-  storeSlug,
-  type CutPiece,
-  type PieceMaterial,
-} from "@/data/thresholds-and-sills";
 
 /** Section order on the storefront. */
 export const STORE_SECTIONS = [
   "Vanities",
   "Vanity Tops",
   "Integrated Quartz Sinks",
-  "Window Sills & Thresholds",
 ] as const;
 
 export type StoreSection = (typeof STORE_SECTIONS)[number];
@@ -172,16 +162,6 @@ const OPTIONS_BY_SECTION: Record<StoreSection, StoreOptions> = {
     heights: ["4", "5", "6", CUSTOM_SIZE],
     basins: [],
     finishes: FINISHES,
-  },
-  // Each cut piece carries its own sizes (cutPieceOptions); these are only
-  // the fallback for anything filed on this shelf without them.
-  "Window Sills & Thresholds": {
-    lengths: ["36", "48", "72", CUSTOM_SIZE],
-    widths: ["4", "6", CUSTOM_SIZE],
-    heights: ["5/8", "3/4"],
-    basins: [],
-    finishes: ["Polished", "Honed"],
-    labels: { height: "Thickness" },
   },
 };
 
@@ -388,81 +368,3 @@ export function vanityTopOptions(layout: VanityTopLayout): StoreOptions {
     basins: [layout.split(" ")[0]],
   };
 }
-
-/* ---- cut pieces -----------------------------------------------------------
- * Window sills, thresholds, shower jambs and the small bath pieces from
- * /products/pacific-european-window-sill-threshold-collection, sold by the piece at that page's
- * standard sizes (inches) or cut to a custom length and width. Quartz
- * pieces come in the quartz range; window sills come in granite too, with
- * the same standard sizes until Pacific's own granite sizes are given.
- * The edges are polished or honed, as the page says.
- * ---------------------------------------------------------------------- */
-
-export interface CutPieceProduct {
-  /** Cart line id (not a Sanity _id). */
-  id: string;
-  slug: string;
-  name: string;
-  piece: CutPiece;
-  material: PieceMaterial;
-  /** Card photograph or drawing, then the rest of the gallery. */
-  images: string[];
-  description: string;
-  options: StoreOptions;
-}
-
-/** A piece's standard sizes as store options. */
-function cutPieceOptions(piece: CutPiece): StoreOptions {
-  const corner = piece.drawing.kind === "corner";
-  const widths = piece.widthRange
-    ? [piece.widthRange[0], 2, 2.5, piece.widthRange[1]].filter((v, i, a) => a.indexOf(v) === i)
-    : (piece.width ?? []);
-  return {
-    lengths: [...piece.length.map(inchValue), CUSTOM_SIZE],
-    widths: corner ? [] : [...widths.map(inchValue), CUSTOM_SIZE],
-    heights: piece.thickness.map(inchValue),
-    basins: [],
-    finishes: ["Polished", "Honed"],
-    labels: { length: corner ? "Sides" : "Length", height: "Thickness" },
-  };
-}
-
-/** Shelf names, title case like the rest of the store. */
-const PIECE_NAMES: Record<string, string> = {
-  "window-sill": "Window Sill",
-  "threshold-1-bevel": "Threshold, One Bevel",
-  "threshold-2-bevels": "Threshold, Two Bevels",
-  "threshold-hollywood": "Hollywood Threshold",
-  "shower-jamb": "Shower Jamb",
-  "corner-shelf": "Corner Shelf",
-  "corner-seat": "Corner Seat",
-  "shower-bench": "Shower Bench",
-};
-
-/** The drawing of each piece, exported from its line drawing on the page. */
-const drawing = (piece: CutPiece) => `/store-sills/${piece.slug}.svg`;
-
-const photos = (material: PieceMaterial) =>
-  SILL_PHOTOS.filter((p) => p.material === material).map((p) => p.src);
-
-export const CUT_PIECE_PRODUCTS: CutPieceProduct[] = CUT_PIECES.flatMap((piece) =>
-  materialsFor(piece).map((material) => {
-    const sill = piece.slug === "window-sill";
-    return {
-      id: `cut-piece-${storeSlug(piece, material)}`,
-      slug: storeSlug(piece, material),
-      name: `${material} ${PIECE_NAMES[piece.slug] ?? piece.name}`,
-      piece,
-      material,
-      // Sills are photographed; the other pieces are shown as drawn.
-      images: sill ? [...photos(material), drawing(piece)] : [drawing(piece)],
-      description: `${piece.profile} Cut from any Pacific ${material.toLowerCase()} design, at a standard size or to yours.`,
-      options: cutPieceOptions(piece),
-    };
-  })
-);
-
-export function cutPieceBySlug(slug: string): CutPieceProduct | null {
-  return CUT_PIECE_PRODUCTS.find((p) => p.slug === slug) ?? null;
-}
-

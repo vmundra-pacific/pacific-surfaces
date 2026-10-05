@@ -110,6 +110,7 @@ const footerLinks = {
     // Vanity is a top-level category; previously missing from the
     // footer even though the header dropdown surfaces it.
     { name: "Vanity", href: "/products/vanity" },
+    { name: "Window Sills & Thresholds", href: "/products/pacific-european-window-sill-threshold-collection" },
     // Ecosurfaces + Sinks remain absent from the footer per editorial
     // direction — users reach them through the header dropdown +
     // All Surfaces.

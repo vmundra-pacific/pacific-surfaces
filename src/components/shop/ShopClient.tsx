@@ -6,15 +6,12 @@ import Link from "next/link";
 import { Check, Plus, ShoppingBag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
-import { PieceRender } from "@/components/shop/PieceRender";
-import type { CutPiece } from "@/data/thresholds-and-sills";
 import {
   CUSTOM_SIZE,
   STORE_SECTIONS,
   dimensionLabel,
   storeOptions,
   vanityTopOptions,
-  type StoreOptions,
   type StoreSection,
   type VanityTopLayout,
 } from "@/data/store";
@@ -56,12 +53,6 @@ export interface ShopProduct {
   /** Sanity collection, carried into the cart line for the order. */
   collection: string;
   finishes: string[];
-  /** A piece defined in code (a sill, a threshold) brings its own sizes. */
-  options?: StoreOptions;
-  /** Which range its colours come from; quartz unless it says granite. */
-  colourRange?: "granite";
-  /** A cut piece is drawn live, in the chosen colour and size. */
-  piece?: CutPiece;
 }
 
 /** Who is choosing a colour, from which list, and what to do with it. */
@@ -72,29 +63,24 @@ interface Picking {
   onPick: (name: string) => void;
 }
 
-/** Where a shelf leads: its own aisle, or the page with its sizes. */
+/** Where a shelf leads: its own aisle. */
 const SHELF_LINKS: Partial<Record<StoreSection, { href: string; label: string }>> = {
   "Vanity Tops": { href: "/shop/vanity-tops", label: "Shop all vanity tops" },
-  "Window Sills & Thresholds": { href: "/products/pacific-european-window-sill-threshold-collection", label: "Sizes and drawings" },
 };
 
 /** Drawings are shown whole on white; photographs fill the frame. */
 export const isDrawing = (src: string) => src.endsWith(".svg");
 
 /** Our own files served as they are, not recompressed (see store.ts). */
-export const servedAsIs = (src: string) =>
-  src.startsWith("/store-basins/") || src.startsWith("/store-sills/") || src.startsWith("/images/thresholds-and-sills/");
+export const servedAsIs = (src: string) => src.startsWith("/store-basins/");
 
 export function ShopClient({
   products,
   colours,
-  graniteColours = [],
 }: {
   products: ShopProduct[];
-  /** The quartz range, offered as the colour of every quartz piece. */
+  /** The quartz range, offered as the colour of every piece. */
   colours: ShopColour[];
-  /** The granite range, for pieces made in granite (window sills). */
-  graniteColours?: ShopColour[];
 }) {
   const { addItem, count } = useCart();
   const [activeCollection, setActiveCollection] = useState<string>("All");
@@ -214,7 +200,7 @@ export function ShopClient({
                 <ProductCard
                   key={p.id}
                   product={p}
-                  colours={p.colourRange === "granite" ? graniteColours : colours}
+                  colours={colours}
                   added={justAdded === p.id}
                   onAdd={handleAdd}
                   onPickColour={setPicking}
@@ -417,11 +403,8 @@ function ProductCard({
   onAdd: (p: ShopProduct, options: SelectedOptions) => void;
   onPickColour: (picking: Picking | null) => void;
 }) {
-  // A made-to-order vanity top carries its own lengths and basin count, and
-  // a cut piece its own sizes.
-  const options = product.options
-    ? product.options
-    : product.layout
+  // A made-to-order vanity top carries its own lengths and basin count.
+  const options = product.layout
     ? vanityTopOptions(product.layout)
     : storeOptions({
         section: product.section,
@@ -460,17 +443,7 @@ function ProductCard({
         href={`/shop/${product.slug}`}
         className="relative block aspect-square overflow-hidden bg-pacific-dark/5"
       >
-        {product.piece ? (
-          <PieceRender
-            piece={product.piece}
-            length={resolve("length", length)}
-            width={resolve("width", width)}
-            thickness={height}
-            colourImage={colours.find((c) => c.name === colour)?.image ?? null}
-            finish={finish}
-            label={`${product.name} in ${colour}`}
-          />
-        ) : product.image ? (
+        {product.image ? (
           <Image
             src={product.image}
             alt={product.name}

@@ -9,7 +9,6 @@ import { useCart } from "@/lib/cart";
 import { CUSTOM_SIZE, dimensionLabel, type StoreOptions } from "@/data/store";
 import { isDrawing, servedAsIs, type ShopColour } from "@/components/shop/ShopClient";
 import { BasinPreview } from "@/components/shop/BasinPreview";
-import { PieceRender } from "@/components/shop/PieceRender";
 import { VanityTopRender } from "@/components/shop/VanityTopRender";
 import {
   VanityGlance,
@@ -17,16 +16,12 @@ import {
   type VanityDetails,
   type VanitySelection,
 } from "@/components/shop/VanityTopDetails";
-import type { CutPiece } from "@/data/thresholds-and-sills";
 
 /** The guide each shelf points to under the order button. */
 const GUIDES: Record<string, { href: string; label: string }> = {
   "Integrated Quartz Sinks": { href: "/applications/washbasins", label: "washbasins guide" },
-  "Window Sills & Thresholds": { href: "/products/pacific-european-window-sill-threshold-collection", label: "sills and thresholds page" },
 };
 
-/** The gallery frame that shows a cut piece drawn live. */
-const RENDER = "live-render";
 /** The gallery frame that shows a vanity top drawn to its chosen size. */
 const SCALE = "to-scale";
 import type { BasinLayers } from "@/data/store";
@@ -84,7 +79,6 @@ export function ShopProductClient({
   similar: similarProp,
   layers: layersProp,
   variants,
-  piece,
   details,
 }: {
   product: ShopProductDetail;
@@ -99,8 +93,6 @@ export function ShopProductClient({
   layers: BasinLayers | null;
   /** The basin-count family this product belongs to, if any. */
   variants?: BasinVariant[];
-  /** A cut piece: the first gallery frame draws it in the chosen colour. */
-  piece?: CutPiece;
   /** A vanity top: the Lowe's-style detail sections and choice pills. */
   details?: VanityDetails;
 }) {
@@ -153,14 +145,11 @@ export function ShopProductClient({
     if (wanted && colours.some((c) => c.name === wanted)) setColour(wanted);
   }, [colours]);
 
-  // A cut piece opens on its live view; its photographs and drawing follow.
   // A vanity top with a scene gets a second frame drawn to its chosen size,
   // since the photograph cannot change size.
-  const frames = piece
-    ? [RENDER, ...product.images]
-    : layers
-      ? [product.images[0] ?? "scene", SCALE, ...product.images.slice(1)]
-      : product.images;
+  const frames = layers
+    ? [product.images[0] ?? "scene", SCALE, ...product.images.slice(1)]
+    : product.images;
   const scaleIndex = frames.indexOf(SCALE);
   /** A new size shows the to-scale view, where a size can be seen. */
   const resized =
@@ -181,18 +170,6 @@ export function ShopProductClient({
       showSize={showSize}
     />
   );
-  const renderPiece = (label: string) =>
-    piece ? (
-      <PieceRender
-        piece={piece}
-        length={resolve("length", length)}
-        width={resolve("width", width)}
-        thickness={height}
-        colourImage={selectedColour?.image ?? null}
-        finish={finish}
-        label={label}
-      />
-    ) : null;
 
   // With a family, the basin choices are the family's; picking one moves
   // to that variant, keeps colour, width, height and finish, and keeps the
@@ -275,8 +252,6 @@ export function ShopProductClient({
               />
             ) : frames[active] === SCALE ? (
               renderTop(`${product.name} in ${colour}, to scale`)
-            ) : frames[active] === RENDER ? (
-              renderPiece(`${product.name} in ${colour}`)
             ) : frames[active] ? (
               <Image
                 src={frames[active]}
@@ -321,9 +296,7 @@ export function ShopProductClient({
                       : "opacity-70 hover:opacity-100"
                   )}
                 >
-                  {src === RENDER ? (
-                    renderPiece("")
-                  ) : src === SCALE ? (
+                  {src === SCALE ? (
                     renderTop("", false)
                   ) : (
                     <Image

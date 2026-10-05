@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import {
   ShopProductClient,
@@ -14,19 +14,15 @@ import {
   productBySlugQuery,
 } from "@/sanity/lib/queries";
 import {
-  CUT_PIECE_PRODUCTS,
   VANITY_TOP_PRODUCTS,
   basinLayers,
-  cutPieceBySlug,
   isListedInStore,
   storeOptions,
   storeSection,
   vanityTopBySlug,
   vanityTopOptions,
-  type CutPieceProduct,
   type MadeToOrderTop,
 } from "@/data/store";
-import { REFILE } from "@/data/catalogue-refile";
 import { applicationBySlug } from "@/data/applications";
 import type { VanityDetails } from "@/components/shop/VanityTopDetails";
 
@@ -39,6 +35,12 @@ import type { VanityDetails } from "@/components/shop/VanityTopDetails";
  */
 
 export const revalidate = 3600;
+
+/** The window sills, thresholds and bath pieces the store sold for a day
+ *  (2026-10-05) before they became their own category under Products:
+ *  their old store addresses lead there now. */
+const RETIRED_PIECE = /^(quartz|granite)-(threshold-1-bevel|threshold-2-bevels|threshold-hollywood|window-sill|shower-jamb|corner-shelf|corner-seat|shower-bench)$/;
+const SILLS_PAGE = "/products/pacific-european-window-sill-threshold-collection";
 
 /** A Portable Text block, as far as this page needs to understand one. */
 interface PortableBlock {
@@ -94,7 +96,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const top = vanityTopBySlug(slug) ?? cutPieceBySlug(slug);
+  const top = vanityTopBySlug(slug);
   if (top) {
     return {
       title: `${top.name} — Pacific Store`,
@@ -129,13 +131,7 @@ export default async function ShopProductPage({
     return <MadeToOrderTopPage top={top} colours={rangeColours(rows)} details={vanityDetails(rows)} />;
   }
 
-  // So are the sills, thresholds and bath pieces.
-  const piece = cutPieceBySlug(slug);
-  if (piece) {
-    const rows = await client.fetch<CatalogueRow[]>(catalogueProductsQuery);
-    const colours = piece.material === "Granite" ? graniteColours(rows) : rangeColours(rows);
-    return <CutPiecePage piece={piece} colours={colours} />;
-  }
+  if (RETIRED_PIECE.test(slug)) permanentRedirect(SILLS_PAGE);
 
   const [doc, rows] = await Promise.all([
     client.fetch<ProductDoc | null>(productBySlugQuery, { slug }),
@@ -245,87 +241,6 @@ function rangeColours(rows: CatalogueRow[] | null): ShopColour[] {
       return [{ name, image: r.mainImage ?? null }];
     })
     .sort((a, b) => a.name.localeCompare(b.name));
-}
-
-/**
- * The granite range, for pieces made in granite: every visible granite,
- * including the ones the catalogue re-files as granite (data/catalogue-refile).
- */
-function graniteColours(rows: CatalogueRow[] | null): ShopColour[] {
-  const seen = new Set<string>();
-  return (rows ?? [])
-    .filter((r) => {
-      if (r.visible === false) return false;
-      const slug = (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? "";
-      return r.productType === "granite-slab" || REFILE[slug]?.productType === "granite-slab";
-    })
-    .flatMap((r) => {
-      const name = r.name?.trim();
-      if (!name || seen.has(name)) return [];
-      seen.add(name);
-      return [{ name, image: r.mainImage ?? null }];
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
-}
-
-/** A sill, threshold or bath piece: the standard store page, with its
- *  photographs or drawing, its sizes, and the rest of the shelf beside it. */
-function CutPiecePage({ piece, colours }: { piece: CutPieceProduct; colours: ShopColour[] }) {
-  const product: ShopProductDetail = {
-    id: piece.id,
-    name: piece.name,
-    slug: piece.slug,
-    code: null,
-    description: piece.description,
-    images: piece.images,
-    collection: piece.material,
-    section: "Window Sills & Thresholds",
-    hdFileUrl: null,
-    specSheetUrl: null,
-  };
-  const similar = CUT_PIECE_PRODUCTS.filter((p) => p.slug !== piece.slug).map((p) => ({
-    name: p.name,
-    slug: p.slug,
-    image: p.images[0] ?? null,
-  }));
-  return (
-    <>
-      <BreadcrumbList
-        items={[
-          { name: "Home", url: "/" },
-          { name: "Store", url: "/shop" },
-          { name: piece.name, url: `/shop/${piece.slug}` },
-        ]}
-      />
-      <nav className="bg-white px-6 pt-24 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-wrap gap-2 text-xs font-light text-pacific-dark/55">
-          <Link href="/" className="hover:text-pacific-dark">
-            Home
-          </Link>
-          <span>/</span>
-          <Link href="/shop" className="hover:text-pacific-dark">
-            Window Sills &amp; Thresholds
-          </Link>
-          <span>/</span>
-          <span className="text-pacific-dark">{piece.name}</span>
-          <Link
-            href={`/products/pacific-european-window-sill-threshold-collection#${piece.piece.slug}`}
-            className="ml-auto underline-offset-4 hover:text-pacific-dark hover:underline"
-          >
-            Drawing and standard sizes
-          </Link>
-        </div>
-      </nav>
-      <ShopProductClient
-        product={product}
-        options={piece.options}
-        colours={colours}
-        similar={similar}
-        layers={null}
-        piece={piece.piece}
-      />
-    </>
-  );
 }
 
 /**

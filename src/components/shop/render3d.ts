@@ -1,7 +1,6 @@
 /**
- * The small 3D renderer behind the store's live views (PieceRender for
- * sills and thresholds, VanityTopRender for vanity tops): a piece is a list
- * of flat faces in inches, drawn in one fixed three-quarter view from above,
+ * The small 3D renderer behind the store's live vanity-top view
+ * (VanityTopRender): a piece is a list of flat faces in inches, drawn in one fixed three-quarter view from above,
  * with the chosen slab photograph laid onto every stone face at true scale,
  * one light, a polish sheen and a soft shadow. Canvas 2D only: each face is
  * an affine map of the photograph, clipped to the face.

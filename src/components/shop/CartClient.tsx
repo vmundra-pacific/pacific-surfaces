@@ -49,14 +49,11 @@ const EMPTY_FORM: OrderForm = {
 export function CartClient({
   optionsByProduct,
   colours,
-  graniteColours = [],
 }: {
   /** Dimension, basin and finish choices per product id. */
   optionsByProduct: Record<string, StoreOptions>;
-  /** The quartz range, offered as the colour of every quartz piece. */
+  /** The quartz range, offered as the colour of every piece. */
   colours: string[];
-  /** The granite range, for lines made in granite (a granite sill). */
-  graniteColours?: string[];
 }) {
   const { items, count, ready, setQuantity, setOption, removeItem, clear } =
     useCart();
@@ -176,7 +173,7 @@ export function CartClient({
                 key={lineKey(item)}
                 item={item}
                 options={optionsByProduct[item.id]}
-                colours={item.collection === "Granite" ? graniteColours : colours}
+                colours={colours}
                 onQuantity={(q) => setQuantity(lineKey(item), q)}
                 onOption={(o, v) => setOption(lineKey(item), o, v)}
                 onRemove={() => removeItem(lineKey(item))}
