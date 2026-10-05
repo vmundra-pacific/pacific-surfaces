@@ -56,7 +56,31 @@ const nextConfig: NextConfig = {
      when the maps that exist are malformed, so leaving this off is
      net-positive. Re-enable only if production debugging needs it. */
 
+  /* The certificate viewer rasterises PDFs on the server
+     (src/lib/certificates/render.ts). @napi-rs/canvas is a native module,
+     so it is required from node_modules at runtime. pdf.js is imported
+     there by file path, past the bundler, rather than listed here: listing
+     the package also externalised the catalogue Flipbook's client worker
+     URL during server rendering and broke the build. Its files, and the
+     standard fonts read by path, are invisible to file tracing, so they
+     are included explicitly. */
+  serverExternalPackages: ["@napi-rs/canvas"],
+  outputFileTracingIncludes: {
+    "/api/certificates/**": [
+      "./node_modules/pdfjs-dist/legacy/build/pdf.mjs",
+      "./node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs",
+      "./node_modules/pdfjs-dist/standard_fonts/**",
+    ],
+  },
+
   images: {
+    // No recompression anywhere: our files are served as they are and
+    // Sanity photographs are resized by Sanity at quality 100. See
+    // src/lib/image-loader.ts. With a custom loader the optimizer, and
+    // the formats / qualities below, are no longer used; they are kept
+    // so switching back is a one-line change.
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
     // Vercel's /_next/image optimizer is re-enabled now that the
     // project is on the Pro plan (5,000 free transformations + PAYG
     // beyond that). The optimizer wraps `cdn.sanity.io` URLs through

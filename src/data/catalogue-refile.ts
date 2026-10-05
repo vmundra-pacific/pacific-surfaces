@@ -47,6 +47,13 @@ export const REFILE: Record<string, Refile> = {
   // on "quartz-slab") left it out. Owner, 2026-09-30: it belongs in
   // Eclipse.
   statuario: { collection: "Eclipse", productType: "quartz-slab", page: "quartz" },
+  // The same gap left these three under "Other" on /products: each sits in
+  // its collection in Sanity with no productType. Owner, 2026-10-05: Dolce
+  // Vita in Eclipse, Cappuccino Dark in Kosmic, Desert Silk in Aurora (the
+  // basics).
+  "dolce-vita": { collection: "Eclipse", productType: "quartz-slab", page: "quartz" },
+  "cappuccino-dark": { collection: "Kosmic", productType: "quartz-slab", page: "quartz" },
+  "desert-silk": { collection: "Aurora", productType: "quartz-slab", page: "quartz" },
 };
 
 /** Slugs a category page lists on top of what Sanity assigns it. */

@@ -5,6 +5,7 @@
  */
 
 import type { Slab, Hue, Pattern, Ribbon, Finish, Thickness } from "./slabs";
+import { REFILE } from "./catalogue-refile";
 
 /* ------------------------------------------------------------------ *
  * Raw shape coming back from catalogueProductsQuery                   *
@@ -465,7 +466,10 @@ export function mapSanityToCatalogue(products: SanityProduct[]): Slab[] {
     .map((p) => {
       const slug =
         typeof p.slug === "string" ? p.slug : (p.slug?.current ?? p._id);
-      const collection = p.collectionName ?? "Vision Series";
+      // Code-side re-filing wins over Sanity until Sanity is corrected
+      // (data/catalogue-refile.ts).
+      const refile = REFILE[slug];
+      const collection = refile?.collection ?? p.collectionName ?? "Vision Series";
       const hues = deriveHues(
         p.name,
         collection,
@@ -504,7 +508,7 @@ export function mapSanityToCatalogue(products: SanityProduct[]): Slab[] {
         slug,
         hues,
         collection,
-        productType: p.productType ?? undefined,
+        productType: refile?.productType ?? p.productType ?? undefined,
         pattern,
         finishes,
         thicknesses,

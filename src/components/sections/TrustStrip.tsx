@@ -3,6 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import {
+  CERTIFICATION_LINKS,
+  type CertificationLink,
+} from "@/data/certifications";
+import { CertificateViewer } from "@/components/certificates/CertificateViewer";
 
 /* Certification badges. Each entry references an image file under
  * /public/certifications/. Drop the relevant PNG/SVG at the listed
@@ -14,31 +19,37 @@ import { motion } from "framer-motion";
 const badges = [
   {
     title: "NSF/ANSI 51",
+    cert: "nsf" as const,
     sub: "Food Contact Safe",
     src: "/certifications/nsf.png",
   },
   {
     title: "Greenguard Gold",
+    cert: "greenguard" as const,
     sub: "Low Emissions",
     src: "/certifications/greenguard.png",
   },
   {
     title: "CE Marked",
+    cert: "ce" as const,
     sub: "EU Conformity",
     src: "/certifications/ce.png",
   },
   {
     title: "ISO 9001:2015",
+    cert: "iso" as const,
     sub: "Quality System",
     src: "/certifications/iso.png",
   },
   {
     title: "Kosher",
+    cert: "kosher" as const,
     sub: "Certified",
     src: "/certifications/kosher.png",
   },
   {
     title: "EPD",
+    cert: "epd" as const,
     sub: "Environmental Declaration",
     src: "/certifications/epd.png",
   },
@@ -75,13 +86,16 @@ function BadgeTile({
     );
   }
 
+  // Capped at 200px: with the strip running full width, each of the six
+  // tiles was ~290px square on a 1920 screen and the marks overpowered the
+  // section. Narrower screens never reach the cap, so they are unchanged.
   return (
-    <div className="relative w-full aspect-square overflow-hidden">
+    <div className="relative w-full max-w-[200px] mx-auto aspect-square overflow-hidden">
       <Image
         src={src}
         alt={`${title} — ${sub}`}
         fill
-        className="object-contain p-6 sm:p-8"
+        className="object-contain p-5 sm:p-6"
         sizes="(max-width: 640px) 50vw, 25vw"
         unoptimized={false}
         onError={() => setFailed(true)}
@@ -91,6 +105,10 @@ function BadgeTile({
 }
 
 export function TrustStrip() {
+  const [openCert, setOpenCert] = useState<CertificationLink["id"] | null>(
+    null,
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -112,23 +130,51 @@ export function TrustStrip() {
             Six across on desktop; two rows of three at sm so EPD does
             not orphan onto a row of its own. */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
-          {badges.map((b) => (
-            <div key={b.title} className="flex flex-col items-center">
-              {/* Image tile */}
-              <BadgeTile title={b.title} src={b.src} sub={b.sub} />
-              {/* Caption — sits BELOW the card, centred. */}
-              <div className="mt-3 text-center">
-                <div className="text-[12px] sm:text-[13px] font-medium tracking-[0.05em] text-white/90 leading-tight">
-                  {b.title}
+          {badges.map((b) => {
+            const link = CERTIFICATION_LINKS[b.cert];
+            const body = (
+              <>
+                {/* Image tile */}
+                <BadgeTile title={b.title} src={b.src} sub={b.sub} />
+                {/* Caption — sits BELOW the card, centred. */}
+                <div className="mt-3 text-center">
+                  <div className="text-[12px] sm:text-[13px] font-medium tracking-[0.05em] text-white/90 leading-tight">
+                    {b.title}
+                  </div>
+                  <div className="text-[10px] tracking-[0.15em] uppercase text-[#9AA8B6] leading-tight mt-1">
+                    {b.sub}
+                  </div>
                 </div>
-                <div className="text-[10px] tracking-[0.15em] uppercase text-[#9AA8B6] leading-tight mt-1">
-                  {b.sub}
+              </>
+            );
+
+            // No certificate on file (Greenguard, for now): a plain tile.
+            if (!link.viewable) {
+              return (
+                <div key={b.title} className="flex flex-col items-center">
+                  {body}
                 </div>
-              </div>
-            </div>
-          ))}
+              );
+            }
+
+            return (
+              <button
+                key={b.title}
+                type="button"
+                onClick={() => setOpenCert(b.cert)}
+                aria-label={`${b.title} — ${link.label}`}
+                className="flex flex-col items-center transition-opacity duration-300 hover:opacity-75 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#9AA8B6]"
+              >
+                {body}
+              </button>
+            );
+          })}
         </div>
       </div>
+
+      {openCert && (
+        <CertificateViewer cert={openCert} onClose={() => setOpenCert(null)} />
+      )}
     </motion.div>
   );
 }

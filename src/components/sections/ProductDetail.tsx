@@ -5,6 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { sanityImg } from "@/lib/sanity-img";
 import { isOfferedThickness, normalizeThickness } from "@/data/sanityToSlab";
+import {
+  CERTIFICATION_LINKS,
+  type CertificationLink,
+} from "@/data/certifications";
+import { CertificateViewer } from "@/components/certificates/CertificateViewer";
 import { preload } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -1603,26 +1608,31 @@ export function ProductDetail({ product }: { product: Product }) {
                 name="NSF Certified"
                 desc="Food Equipment Materials"
                 mark={<NSFMark />}
+                cert="nsf"
               />
               <CertBadge
                 name="Greenguard Gold"
                 desc="Indoor Air Quality"
                 mark={<GreenguardMark />}
+                cert="greenguard"
               />
               <CertBadge
                 name="ISO 9001:2015"
                 desc="Quality Management"
                 mark={<ISOMark />}
+                cert="iso"
               />
               <CertBadge
                 name="CE Marking"
                 desc="European Conformity"
                 mark={<CEMark />}
+                cert="ce"
               />
               <CertBadge
                 name="EPD"
                 desc="Environmental Declaration"
                 mark={<EPDMark />}
+                cert="epd"
               />
             </div>
           </AnimatedSection>
@@ -1866,13 +1876,19 @@ function CertBadge({
   name,
   desc,
   mark,
+  cert,
 }: {
   name: string;
   desc: string;
   mark: React.ReactNode;
+  /** Key into CERTIFICATION_LINKS. When that certificate is on file the
+   *  tile opens it in the view-only CertificateViewer; omit it (or point
+   *  at an entry that isn't viewable) for a plain tile. */
+  cert?: CertificationLink["id"];
 }) {
-  return (
-    <div className="flex flex-col items-center gap-3">
+  const [open, setOpen] = useState(false);
+  const body = (
+    <>
       <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center p-3 shadow-[0_2px_12px_rgba(0,0,0,.25)]">
         {mark}
       </div>
@@ -1880,7 +1896,26 @@ function CertBadge({
         {name}
       </div>
       <div className="text-[10px] text-white/40 font-light">{desc}</div>
-    </div>
+    </>
+  );
+
+  const link = cert ? CERTIFICATION_LINKS[cert] : undefined;
+  if (!cert || !link?.viewable) {
+    return <div className="flex flex-col items-center gap-3">{body}</div>;
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={`${name} — ${link.label}`}
+        className="flex flex-col items-center gap-3 transition-opacity duration-300 hover:opacity-75 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
+      >
+        {body}
+      </button>
+      {open && <CertificateViewer cert={cert} onClose={() => setOpen(false)} />}
+    </>
   );
 }
 

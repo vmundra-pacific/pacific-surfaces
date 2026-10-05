@@ -2,6 +2,7 @@ import "server-only";
 import { groq } from "next-sanity";
 import { client, freshClient } from "@/sanity/lib/client";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
+import { refiledForPage } from "@/data/catalogue-refile";
 import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVideo";
 import type { Slab } from "@/data/slabs";
 
@@ -321,6 +322,7 @@ const productsByCollectionsOrTypeQuery = groq`
   *[_type == "product" && (
     collection._ref in $cids
     || ($pt != null && productType == $pt)
+    || slug.current in $refiled
   )] | order(name asc) {
     _id,
     name,
@@ -463,6 +465,8 @@ export async function resolveCategoryPage(
   const products = await client.fetch(productsByCollectionsOrTypeQuery, {
     cids,
     pt: config.productType ?? null,
+    // Products the site re-files onto this page (data/catalogue-refile).
+    refiled: refiledForPage(slug),
   });
 
   return {
