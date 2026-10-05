@@ -122,6 +122,10 @@ const departmentContacts: {
     ],
   },
   {
+    name: "Inquiries for Germany",
+    contacts: [{ name: "Satakshi Rautaray", phone: "+49 1525 5460275", email: "satakshi@thepacific.group" }],
+  },
+  {
     name: "Inquiries for Middle East",
     contacts: [{ name: "Saral", phone: "+91 73977 46963", email: "saral@thepacific.group" }],
   },
