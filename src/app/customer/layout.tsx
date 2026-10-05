@@ -37,12 +37,11 @@ export default async function CustomerLayout({
 }) {
   const session = await auth();
 
+  // Signed out, the only thing rendered here is the login page, which
+  // draws its own photograph and white card — so it stays outside the
+  // portal's dark theme (data-portal-dark would turn the card's type white).
   if (!session?.user) {
-    return (
-      <div data-portal-dark className="min-h-screen bg-black text-white">
-        {children}
-      </div>
-    );
+    return <>{children}</>;
   }
 
   return (

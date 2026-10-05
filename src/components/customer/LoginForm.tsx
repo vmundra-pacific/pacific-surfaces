@@ -3,22 +3,26 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { MagneticButton } from "@/components/ui/magnetic-button";
-import { ArrowUpRight, Cloud } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
-/* The org's Salesforce entry point. Falls back to the generic login
-   host so the button is never dead if the env var isn't set. */
-const SALESFORCE_LOGIN_URL =
-  process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL ?? "https://login.salesforce.com";
+/* The portal has no self-service reset or sign-up: customer accounts are
+   created by Pacific. Both requests go to the team by email instead. */
+const TEAM_EMAIL = "info@thepacific.group";
+const RESET_HREF = `mailto:${TEAM_EMAIL}?subject=${encodeURIComponent("Customer Care Portal: password reset")}`;
+const ACCESS_HREF = `mailto:${TEAM_EMAIL}?subject=${encodeURIComponent("Customer Care Portal: account request")}`;
 
+/**
+ * The sign-in form on the white card of the Customer Care Portal login
+ * (customer/login/page.tsx). Authenticates a customer against the Sanity
+ * `customer` collection through next-auth credentials.
+ */
 export default function LoginForm() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -44,92 +48,89 @@ export default function LoginForm() {
     router.refresh();
   }
 
+  const field =
+    "h-14 w-full border border-black/40 bg-white px-3.5 text-[15px] text-[#14140f] placeholder:italic placeholder:text-black/40 focus:border-black focus:outline-none";
+
   return (
-    <div className="rounded-3xl border border-white/20 bg-black p-10 text-white">
-      <h2 className="mb-8 text-2xl font-light">
-        Sign In
-      </h2>
+    <div className="px-6 pb-10 pt-8 sm:px-24">
+      {/* Weight set inline: the site skin pins every h1–h3 to 400 with an
+          unlayered rule that outranks Tailwind's font-weight classes. */}
+      <h1
+        style={{ fontVariationSettings: "'wght' 600, 'wdth' 100" }}
+        className="text-center text-[22px] tracking-[-0.01em]"
+      >
+        Sign in with your email address
+      </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-
+      <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
-          <label className="mb-2 block text-sm text-white/70">Email</label>
-
+          <label htmlFor="portal-email" className="mb-2 block text-[15px] font-medium">
+            Email address
+          </label>
           <input
+            id="portal-email"
             type="email"
             required
             autoComplete="email"
+            placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-white/25 bg-black px-4 py-3 text-white placeholder:text-white/35 focus:border-white focus:outline-none"
+            className={field}
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm text-white/70">Password</label>
-
-          <input
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-white/25 bg-black px-4 py-3 text-white placeholder:text-white/35 focus:border-white focus:outline-none"
-          />
+          <label htmlFor="portal-password" className="mb-2 block text-[15px] font-medium">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              id="portal-password"
+              type={showPassword ? "text" : "password"}
+              required
+              autoComplete="current-password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`${field} pr-12`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((s) => !s)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center"
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
 
+        <a href={RESET_HREF} className="inline-block text-[15px] underline underline-offset-2">
+          Forgot your password?
+        </a>
+
         {error && (
-          <p className="text-sm text-red-300" role="alert">
+          <p role="alert" className="border border-black/25 bg-[#f4f3f0] px-3.5 py-2.5 text-sm">
             {error}
           </p>
         )}
 
-        <MagneticButton
+        <button
           type="submit"
           disabled={loading}
-          variant="primary-dark"
-          size="lg"
-          className="w-full"
+          className="h-14 w-full bg-[#1d1d1b] text-[15px] text-white shadow-[0_6px_14px_rgba(0,0,0,0.25)] transition-colors hover:bg-black disabled:opacity-60"
         >
-          {loading ? "Signing In..." : "Sign In"}
-        </MagneticButton>
+          {loading ? "Signing in…" : "Sign in"}
+        </button>
       </form>
 
-      {/* ---- Sales team ----------------------------------------------
-          Separate route in, below a rule, because this is not the same
-          thing as the form above: the form authenticates a CUSTOMER
-          against the Sanity `customer` collection, while this hands the
-          sales team straight to the CRM. Deliberately a plain outbound
-          link rather than an auth provider — signing in through
-          Salesforce here would mint a portal session with no Sanity
-          customer `_id`, and every /customer/* page reads
-          `session.user.id` to find "this customer's records", so those
-          users would land on a dashboard that queries nothing.
-
-          Point NEXT_PUBLIC_SALESFORCE_LOGIN_URL at the org's My Domain
-          (e.g. https://pacific.my.salesforce.com) to skip the generic
-          login page. */}
-      <div className="mt-8 border-t border-white/20 pt-8">
-        <p className="mb-4 text-xs uppercase tracking-[0.25em] text-white/60">
-          Pacific sales team
-        </p>
-
-        <a
-          href={SALESFORCE_LOGIN_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/40 bg-transparent px-4 py-3.5 text-sm font-light text-white transition-colors hover:bg-white hover:text-black"
-        >
-          <Cloud className="h-4 w-4 shrink-0" aria-hidden="true" />
-          Continue with Salesforce
-          <ArrowUpRight className="h-3.5 w-3.5 shrink-0 opacity-60" />
+      <p className="mt-7 text-center text-[15px] text-black/60">
+        Don&apos;t have an account?{" "}
+        <a href={ACCESS_HREF} className="underline underline-offset-2">
+          Request access
         </a>
-
-        <p className="mt-3 text-xs font-light leading-relaxed text-white/55">
-          Opens the Salesforce CRM in a new tab. Use your Pacific
-          Salesforce credentials, not your portal login.
-        </p>
-      </div>
+      </p>
     </div>
   );
 }
