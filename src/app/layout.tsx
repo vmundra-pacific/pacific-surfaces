@@ -119,7 +119,7 @@ export default function RootLayout({
               name: "Pacific Surfaces",
               alternateName: "Pacific Surfaces (Pacific Group)",
               url: "https://pacific-surfaces.com",
-              logo: "https://pacific-surfaces.com/logos/monogram-light.png",
+              logo: "https://pacific-surfaces.com/logos/pacific-surfaces-logo-black.png",
               description:
                 "Premium quartz, granite, and semi-precious stone surfaces for kitchens, bathrooms, and architectural applications. Engineered in India, shipped to 45+ countries.",
               sameAs: [
@@ -159,8 +159,8 @@ export default function RootLayout({
               "@id": "https://pacific-surfaces.com/#localbusiness",
               name: "Pacific Surfaces",
               url: "https://pacific-surfaces.com",
-              logo: "https://pacific-surfaces.com/logos/monogram-light.png",
-              image: "https://pacific-surfaces.com/logos/monogram-light.png",
+              logo: "https://pacific-surfaces.com/logos/pacific-surfaces-logo-black.png",
+              image: "https://pacific-surfaces.com/logos/pacific-surfaces-logo-black.png",
               telephone: "+91-9894033566",
               email: "info@thepacific.group",
               priceRange: "$$$",

@@ -792,7 +792,7 @@ export default function Header() {
                   at the same size across every breakpoint — no more
                   hiding the tagline until 2xl+, the mark is compact
                   enough on its own that it never crowds the nav. */}
-              <PacificLogoMark className="h-12 w-auto text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)]" />
+              <PacificLogoMark className="h-11 w-auto text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)]" />
             </Link>
 
             {/* Desktop nav.

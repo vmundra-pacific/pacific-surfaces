@@ -189,7 +189,7 @@ export function ArticleSchema({
       name: "Pacific Surfaces",
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/logos/monogram-light.png`,
+        url: `${SITE_URL}/logos/pacific-surfaces-logo-black.png`,
       },
     },
     mainEntityOfPage: {

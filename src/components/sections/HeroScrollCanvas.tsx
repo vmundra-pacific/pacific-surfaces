@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
 
 const TOTAL_FRAMES = 520;
 const pad = (n: number) => String(n).padStart(4, "0");
@@ -519,16 +520,7 @@ export function HeroScrollCanvas() {
           ready ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
       >
-        <Image
-          unoptimized={false}
-          src="/logo-pacific-white.png"
-          alt="Pacific Surfaces logo"
-          width={160}
-          height={40}
-          style={{ height: "auto" }}
-          className="mb-8 object-contain"
-          priority
-        />
+        <PacificLogoMark className="mb-8 h-12 w-auto text-white" />
         <div className="w-48 h-[2px] bg-white/20 rounded-full overflow-hidden">
           <div
             className="h-full bg-white transition-all duration-200"
