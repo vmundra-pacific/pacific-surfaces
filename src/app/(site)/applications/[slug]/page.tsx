@@ -19,8 +19,14 @@ import { APPLICATIONS, applicationBySlug } from "@/data/applications";
  * there is nothing to revalidate.
  */
 
+/** Applications with a page of their own under app/(site)/applications.
+ *  They must not be pre-rendered here too: the build writes both to the
+ *  same output path, and this template's copy won over Flooring's own page
+ *  in production (2026-10-05). */
+const OWN_PAGES = new Set(["flooring"]);
+
 export function generateStaticParams() {
-  return APPLICATIONS.map((a) => ({ slug: a.slug }));
+  return APPLICATIONS.filter((a) => !OWN_PAGES.has(a.slug)).map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({
