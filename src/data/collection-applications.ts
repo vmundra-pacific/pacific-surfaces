@@ -190,21 +190,6 @@ export function menuImageFor(categorySlug: string, applicationSlug: string): str
   return COLLECTION_MENU_IMAGE[categorySlug]?.[applicationSlug] ?? MENU_IMAGE[applicationSlug] ?? null;
 }
 
-/**
- * Product pages listed beside the applications in a collection's menu.
- * Not applications (no /applications/<slug> page): each links straight
- * to its own page under /products.
- */
-export const MENU_EXTRA_LINKS: Record<string, { name: string; href: string; image: string | null }[]> = {};
-const SILLS = {
-  name: "Window Sills & Thresholds",
-  href: "/products/pacific-european-window-sill-threshold-collection",
-  image: "/images/thresholds-and-sills/granite-sills-black-row.jpg",
-};
-// Listed under Granites and Fab Creations, not as a plate of its own
-// (owner, 2026-10-05).
-for (const slug of ["granites", "fab-creations"]) MENU_EXTRA_LINKS[slug] = [SILLS];
-
 /** Shown when a category has no list of its own. */
 const FALLBACK = [
   "kitchen-countertops",

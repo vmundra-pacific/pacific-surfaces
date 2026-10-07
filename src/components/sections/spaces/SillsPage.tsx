@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
 import {
   Container,
   DarkButton,
@@ -15,8 +14,10 @@ import {
   SpaceTabs,
   Split,
   type SpaceShot,
-} from "@/components/sections/spaces/SpaceBlocks";
-import { SillProfileDrawing } from "@/components/sections/SillProfileDrawing";
+} from "@/components/sections/sills/SillsBlocks";
+import { ProductLineUp } from "@/components/sections/sills/ProductLineUp";
+import { SillCatalogue } from "@/components/sections/sills/SillCatalogue";
+import { SizeChartButton } from "@/components/sections/sills/SizeChart";
 import { TechSpecsButtons } from "@/components/sections/sills/TechSpecsDialog";
 import {
   CARE,
@@ -26,35 +27,31 @@ import {
   MATERIALS,
   MOQ,
   PACKING,
-  PROFILES,
-  PROFILE_GROUPS,
   SILLS_PAGE,
+  SILL_COLOURS,
   SILL_PHOTOS,
   SILL_SIZES,
   THRESHOLD_SIZES,
   VARIATION,
-  sizeGrid,
   type CrateRow,
-  type SillProfile,
 } from "@/data/thresholds-and-sills";
 import { cn } from "@/lib/utils";
 
 /**
  * /products/pacific-european-window-sill-threshold-collection, laid out
- * like "Kitchens by Pacific Surfaces" (owner, 2026-10-05) with the shared
- * blocks in SpaceBlocks: hero, reasons in tabs, the six profile drawings,
- * the sizes at a glance, colours and finishes, then the technical
+ * like "Kitchens by Pacific Surfaces" (owner, 2026-10-05) and kept in that
+ * published layout (owner, 2026-10-06) with its own copy of the blocks in
+ * sills/SillsBlocks: hero, reasons in tabs, the products of the team's
+ * list (2026-10-06) as a line-up of 3D drawings, the popular sizes
+ * (their chart behind a button), the collection piece by piece, colours
+ * and finishes, then the technical
  * specifications behind a button and a PDF (the full crate tables were too
  * much for the page, owner), planning, the gallery, care, FAQ and the
- * other spaces. Every figure is from the supplier's crate
- * sheet and brief (data/thresholds-and-sills).
+ * other spaces. Every figure is from the supplier's crate sheet and brief
+ * (data/thresholds-and-sills).
  */
 
-const GALLERY: SpaceShot[] = SILL_PHOTOS.map((p) => ({
-  src: p.src,
-  alt: p.alt,
-  tags: ["All", p.kind === "fitted" ? "Fitted" : "Finished pieces"],
-}));
+const GALLERY: SpaceShot[] = SILL_PHOTOS.map((p) => ({ src: p.src, alt: p.alt, tags: ["All"] }));
 
 export default function SillsPage() {
   const s = SILLS_PAGE;
@@ -63,8 +60,9 @@ export default function SillsPage() {
       <SpaceHero {...s.hero} titleClassName="lg:text-[80px]" />
       <SpaceCrumbs label="Window Sills & Thresholds" parent={{ label: "Products", href: "/products" }} />
       <SpaceTabs tabs={s.tabs} label="Why Pacific granite sills and thresholds" idPrefix="sills" />
-      <Profiles />
+      <Products />
       <SizesAtAGlance />
+      <Browse />
       <ColoursAndFinishes />
       <Specifications />
       <Split {...s.plan} />
@@ -76,127 +74,99 @@ export default function SillsPage() {
   );
 }
 
-/* The six sections as drawn, window sills first. */
-function Profiles() {
+/* The products of the team's list (2026-10-06) as a line-up of small
+   cards, each drawn in 3D and opening the piece in full (owner: "this is
+   nice, use this layout"; drawings, not photographs, so a layman can read
+   them). */
+function Products() {
   return (
-    <section id="profiles" className="scroll-mt-28 bg-white py-20 lg:py-28">
+    <section id="products" className="scroll-mt-28 bg-white py-20 lg:py-28">
       <Container>
         <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
-          <Heading>Six profiles</Heading>
+          <Heading>Products</Heading>
           <p className="text-base font-light leading-relaxed lg:col-span-2 lg:pt-2">
-            The sections as the supplier draws them, not to a common scale. Every piece is finished, cut to size and
-            edge-bevelled.
+            For the window and the door line, finished and edge-bevelled, in popular sizes or custom sizes cut to your
+            drawings. Open one to see it in 3D, its section and its sizes.
           </p>
         </div>
-        {PROFILE_GROUPS.map((g) => (
-          <div key={g.id} className="mt-14">
-            <div className="flex flex-col gap-1 border-b border-[#14140f]/15 pb-3 sm:flex-row sm:items-baseline sm:justify-between">
-              <h3 className="text-sm uppercase tracking-[0.12em]">{g.title}</h3>
-              <p className="text-sm font-light opacity-70">{g.lead}</p>
-            </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {PROFILES.filter((p) => p.group === g.id).map((p) => (
-                <ProfileCard key={p.slug} profile={p} />
-              ))}
-            </div>
-          </div>
-        ))}
+        <div className="mt-12">
+          <ProductLineUp />
+        </div>
       </Container>
     </section>
   );
 }
 
-function ProfileCard({ profile }: { profile: SillProfile }) {
-  return (
-    // A div, not an article: the site skin gives `main article:has(img)`
-    // the catalogue's card shadow.
-    <div id={profile.slug} className={cn(PANEL, "flex scroll-mt-28 flex-col p-5 lg:p-6")}>
-      <div className="flex aspect-[3/2] items-center bg-white px-3">
-        <SillProfileDrawing profile={profile} className="h-auto max-h-full w-full" />
-      </div>
-      <h4 className="mt-5 text-lg font-light">{profile.name}</h4>
-      <p className="mt-2 flex-1 text-sm font-light leading-relaxed opacity-75">{profile.description}</p>
-      <a href="#sizes" className="mt-4 inline-flex w-fit items-center gap-1.5 border-b border-[#14140f] pb-0.5 text-xs font-light">
-        {profile.sizes === "sills" ? "Window sill sizes" : "Threshold and door sill sizes"}
-        <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-      </a>
-    </div>
-  );
-}
+/* The popular sizes in a line per product, the chart itself behind "View
+   size chart" (owner, 2026-10-06: not shown on the page; in the chart, the
+   units in the headings and length and width plain, the boss's note). */
+const span = (v: number[]) => {
+  const lo = Math.min(...v);
+  const hi = Math.max(...v);
+  return lo === hi ? `${lo}` : `${lo}–${hi}`;
+};
 
-/* Length by width, the thickness in each cell: the short sizes table the
-   brief asked for. The crate figures are in the specifications. */
 function SizesAtAGlance() {
   return (
     <section id="sizes" className={cn(PANEL, "scroll-mt-28 py-16 lg:py-24")}>
       <Container>
         <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
-          <Heading>Standard sizes</Heading>
-          <p className="text-base font-light leading-relaxed lg:col-span-2 lg:pt-2">
-            Length down the side and width across the top, in centimetres; each cell gives the thickness in centimetres.
-            Other lengths are cut to size.
-          </p>
-        </div>
-        <div className="mt-12 grid gap-12 lg:grid-cols-2 lg:gap-16">
-          <SizeGrid title="Window sills" rows={SILL_SIZES} />
-          <SizeGrid title="Thresholds and door sills" rows={THRESHOLD_SIZES} />
+          <Heading>Popular sizes</Heading>
+          <div className="lg:col-span-2 lg:pt-2">
+            <p className="text-base font-light leading-relaxed">
+              Window sills and thresholds in popular sizes, crated for export, and in custom sizes cut to your drawings. The
+              size chart lists the popular sizes.
+            </p>
+            <dl className="mt-6 border-t border-[#14140f]/15">
+              <SizeRange title="Window sills" rows={SILL_SIZES} />
+              <SizeRange title="Thresholds" rows={THRESHOLD_SIZES} />
+            </dl>
+            <div className="mt-8">
+              <SizeChartButton />
+            </div>
+          </div>
         </div>
       </Container>
     </section>
   );
 }
 
-function SizeGrid({ title, rows }: { title: string; rows: CrateRow[] }) {
-  const { lengths, widths, has } = sizeGrid(rows);
+function SizeRange({ title, rows }: { title: string; rows: CrateRow[] }) {
   return (
-    <div>
-      <h3 className="text-sm uppercase tracking-[0.12em]">{title}</h3>
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-max border-collapse text-center text-sm tabular-nums">
-          <caption className="sr-only">{title}: lengths by widths in centimetres, thickness in each cell</caption>
-          <thead>
-            <tr className="border-b border-[#14140f]/25">
-              <th scope="col" className="py-2 pr-3 text-left text-[10px] font-normal uppercase tracking-[0.15em] opacity-60">
-                L \ W
-              </th>
-              {widths.map((w) => (
-                <th key={w} scope="col" className="px-2 py-2 font-light opacity-70">
-                  {w}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {lengths.map((l) => (
-              <tr key={l} className="border-b border-[#14140f]/10">
-                <th scope="row" className="py-2.5 pr-3 text-left font-light">
-                  {l}
-                </th>
-                {widths.map((w) => {
-                  const r = has(l, w);
-                  return (
-                    <td key={w} className="px-2 py-2.5">
-                      {r ? (
-                        <span className="inline-flex h-7 min-w-7 items-center justify-center bg-white px-1.5 font-light">{r.thickness}</span>
-                      ) : (
-                        <span className="opacity-25">·</span>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="grid gap-1 border-b border-[#14140f]/15 py-3.5 sm:grid-cols-[9rem_1fr] sm:items-baseline sm:gap-6">
+      <dt className="text-sm uppercase tracking-[0.12em]">{title}</dt>
+      <dd className="text-sm font-light">
+        Length {span(rows.map((r) => r.length))} cm · Width {span(rows.map((r) => r.width))} cm · Thickness{" "}
+        {span(rows.map((r) => r.thickness))} cm
+      </dd>
     </div>
   );
 }
 
-/* Granite or quartz in any colour (no colour list, owner), and the
-   finishes, beside the owner's photograph of both. */
+/* Every piece, laid out like the dealer catalogue the owner liked
+   (kerasom.nl): filters down the side, the pieces as rows, in
+   sills/SillCatalogue. */
+function Browse() {
+  return (
+    <section id="browse" className="scroll-mt-28 bg-white py-20 lg:py-28">
+      <Container>
+        <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
+          <Heading>Browse the collection</Heading>
+          <p className="text-base font-light leading-relaxed lg:col-span-2 lg:pt-2">
+            Every popular size in every colour. Use the filters to narrow the list, and open a piece for its figures.
+            Custom sizes are cut to your drawings.
+          </p>
+        </div>
+        <SillCatalogue />
+      </Container>
+    </section>
+  );
+}
+
+/* The two materials, their colours and finishes: the palette of the
+   European Program catalogue (owner, 2026-10-06: three granites and four
+   quartz), its swatches beside the list. */
 function ColoursAndFinishes() {
-  const ph = SILLS_PAGE.materials;
   return (
     <section id="colours" className="scroll-mt-28 bg-white py-20 lg:py-28">
       <Container>
@@ -207,13 +177,9 @@ function ColoursAndFinishes() {
               <p className="text-[11px] uppercase tracking-[0.15em] opacity-60">Materials</p>
               <ul className="mt-3 border-t border-[#14140f]/15">
                 {MATERIALS.map((m) => (
-                  <li key={m.name} className="grid gap-1 border-b border-[#14140f]/15 py-3.5 sm:grid-cols-[7rem_1fr_auto] sm:items-baseline sm:gap-6">
+                  <li key={m.name} className="grid gap-1 border-b border-[#14140f]/15 py-3.5 sm:grid-cols-[7rem_1fr] sm:items-baseline sm:gap-6">
                     <span className="text-lg font-light">{m.name}</span>
                     <span className="text-sm font-light leading-relaxed opacity-75">{m.note}</span>
-                    <a href={m.href} className="inline-flex w-fit items-center gap-1 border-b border-[#14140f] pb-0.5 text-xs font-light">
-                      Colours
-                      <ArrowRight className="h-3 w-3" aria-hidden="true" />
-                    </a>
                   </li>
                 ))}
               </ul>
@@ -234,12 +200,38 @@ function ColoursAndFinishes() {
               </div>
             </div>
           </div>
-          <figure className="relative aspect-[4/3] w-full overflow-hidden md:aspect-auto md:min-h-[480px]">
-            <Image src={ph.src} alt={ph.alt} fill unoptimized sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
-            <figcaption data-on-light className="absolute bottom-4 left-4 bg-white px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-[#14140f]">
-              Granite and quartz
-            </figcaption>
-          </figure>
+          <div className="flex flex-col gap-10 border border-[#14140f]/10 p-8 lg:p-12">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <p className="text-[11px] uppercase tracking-[0.15em]">Colour palette</p>
+              <p className="text-xs font-light opacity-60">Indicative colours</p>
+            </div>
+            {SILL_COLOURS.map((g) => (
+              <div key={g.material}>
+                <p className="text-sm">
+                  {g.material}
+                  <span className="ml-2 font-light opacity-60">{g.finishes.join(" · ")}</span>
+                </p>
+                <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-4">
+                  {g.colours.map((c) => (
+                    <li key={c.name}>
+                      <div className="relative aspect-[4/3] w-full overflow-hidden border border-[#14140f]/10">
+                        <Image
+                          src={c.image}
+                          alt={`${c.name} ${g.material.toLowerCase()}`}
+                          fill
+                          unoptimized
+                          sizes="(min-width: 768px) 12vw, 50vw"
+                          className="object-cover"
+                        />
+                      </div>
+                      <p className="mt-2 text-sm font-light">{c.name}</p>
+                    </li>
+                  ))}
+                  {g.note && <li className={cn(PANEL, "p-3 text-xs font-light leading-relaxed")}>{g.note}</li>}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
       </Container>
     </section>
@@ -267,8 +259,8 @@ function Specifications() {
             <Heading className="lg:text-[36px]">Technical specifications</Heading>
             <div>
               <p className="max-w-md text-base font-light leading-relaxed">
-                Every size with its thickness, the pieces in a crate and the crate&apos;s approximate weight and area, with
-                packing, MOQ and HS codes.
+                The test results for quartz and Warangal Black granite, every size with its thickness, the pieces in a crate
+                and the crate&apos;s approximate weight and area, with packing, MOQ and HS codes.
               </p>
               <dl className="mt-6 border-t border-[#14140f]/15">
                 <Fact label="Packing">{PACKING}</Fact>

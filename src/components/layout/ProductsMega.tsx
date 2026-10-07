@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { MENU_EXTRA_LINKS, applicationsForCollection, menuImageFor } from "@/data/collection-applications";
+import { applicationsForCollection, menuImageFor } from "@/data/collection-applications";
 
 /**
  * The Products mega, laid out after cosentino.com's brand menu.
@@ -14,8 +14,10 @@ import { MENU_EXTRA_LINKS, applicationsForCollection, menuImageFor } from "@/dat
  * the dark ground: the panel stays the site's white sheet.
  *
  *  - One grid for everything. The collection plates and the detail row
- *    below them sit on the same seven columns and the same gutter, so
- *    every column edge in the open panel lines up with a plate edge.
+ *    below them sit on the same columns, one per plate, and the same
+ *    gutter, so every column edge in the open panel lines up with a plate
+ *    edge. A plate with an `href` (Liminal, the window sills) goes
+ *    straight to its page instead of opening a detail row.
  *  - Colour only where the cursor is. At rest every plate is its
  *    collection's photograph in black and white under a dark shade, with
  *    the name set on it like a wordmark. The plate under the cursor, and
@@ -39,6 +41,8 @@ export interface ProductsMegaCategory {
   imageUrl?: string;
   coloursHref?: string;
   whatIsSlug?: string;
+  /** Go straight to this page; no detail row. */
+  href?: string;
 }
 
 interface ProductsMegaProps {
@@ -59,13 +63,14 @@ const ITEM = "text-sm font-light leading-snug transition-colors";
 const RULE = "rgba(60,60,59,0.14)";
 
 export function ProductsMega({ categories, active, onToggle, hoveredApp, onHoverApp }: ProductsMegaProps) {
-  const open = categories.find((c) => c.slug === active) ?? null;
+  const open = categories.find((c) => c.slug === active && !c.href) ?? null;
+  const columns = { gridTemplateColumns: `repeat(${categories.length}, minmax(0, 1fr))` };
 
   return (
     <>
       {/* items-start: a plate whose tagline wraps is taller, and a stretched
           button would centre its content and sit lower than its neighbours. */}
-      <div className="grid grid-cols-7 items-start gap-x-6">
+      <div className="grid items-start gap-x-6" style={columns}>
         {categories.map((cat) => {
           const isActive = active === cat.slug;
           const plate = (
@@ -115,18 +120,31 @@ export function ProductsMega({ categories, active, onToggle, hoveredApp, onHover
                 >
                   {cat.tagline}
                 </span>
-                <ChevronDown
-                  aria-hidden="true"
-                  className={cn(
-                    "mt-0.5 h-4 w-4 shrink-0 text-[#3C3C3B] transition-transform duration-300",
-                    isActive && "rotate-180"
-                  )}
-                />
+                {cat.href ? (
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-[#3C3C3B] transition-transform duration-300 group-hover/card:translate-x-0.5"
+                  />
+                ) : (
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={cn(
+                      "mt-0.5 h-4 w-4 shrink-0 text-[#3C3C3B] transition-transform duration-300",
+                      isActive && "rotate-180"
+                    )}
+                  />
+                )}
               </div>
             </>
           );
           // Named group so only this plate reacts, not every plate under
           // the nav item's own `group`.
+          if (cat.href)
+            return (
+              <Link key={cat.slug} href={cat.href} className="group/card block text-left">
+                {plate}
+              </Link>
+            );
           return (
             <button
               key={cat.slug}
@@ -143,7 +161,15 @@ export function ProductsMega({ categories, active, onToggle, hoveredApp, onHover
       </div>
 
       <AnimatePresence initial={false}>
-        {open && <Detail key="products-mega-detail" category={open} hoveredApp={hoveredApp} onHoverApp={onHoverApp} />}
+        {open && (
+          <Detail
+            key="products-mega-detail"
+            category={open}
+            columns={categories.length}
+            hoveredApp={hoveredApp}
+            onHoverApp={onHoverApp}
+          />
+        )}
       </AnimatePresence>
     </>
   );
@@ -151,24 +177,26 @@ export function ProductsMega({ categories, active, onToggle, hoveredApp, onHover
 
 function Detail({
   category,
+  columns,
   hoveredApp,
   onHoverApp,
 }: {
   category: ProductsMegaCategory;
+  /** The plate count: the detail row sits on the same columns. */
+  columns: number;
   hoveredApp: number;
   onHoverApp: (index: number) => void;
 }) {
   const label = category.cardLabel ?? category.name;
   const learn = category.whatIsSlug ?? category.slug;
   const colours = category.coloursHref ?? `/products/${category.slug}`;
-  const apps = [
-    ...applicationsForCollection(category.slug).map((a) => ({
-      name: a.name,
-      href: `/applications/${a.slug}`,
-      image: menuImageFor(category.slug, a.slug),
-    })),
-    ...(MENU_EXTRA_LINKS[category.slug] ?? []),
-  ];
+  const apps = applicationsForCollection(category.slug).map((a) => ({
+    name: a.name,
+    href: `/applications/${a.slug}`,
+    image: menuImageFor(category.slug, a.slug),
+  }));
+  // About takes one column and the applications two; the preview the rest.
+  const rest = Math.max(1, columns - 3);
   const shown = Math.max(0, Math.min(hoveredApp, apps.length - 1));
   const preview = apps[shown];
   if (!preview) return null;
@@ -182,7 +210,10 @@ function Detail({
       transition={{ duration: 0.32, ease: [0.25, 0.4, 0.25, 1] }}
       style={{ overflow: "hidden" }}
     >
-      <div className="mt-8 grid grid-cols-7 gap-x-6 border-t pt-8" style={{ borderColor: RULE }}>
+      <div
+        className="mt-8 grid gap-x-6 border-t pt-8"
+        style={{ borderColor: RULE, gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+      >
         {/* About, and the way to the colours. */}
         <div className="flex flex-col">
           <h4 className={LABEL}>About {label}</h4>
@@ -243,7 +274,7 @@ function Detail({
         {/* Preview of the application under the cursor. Every picture is
             mounted and cross-faded, so moving down the list never waits
             on a fetch. */}
-        <div className="col-span-4">
+        <div style={{ gridColumn: `span ${rest} / span ${rest}` }}>
           <Link
             href={preview.href}
             tabIndex={-1}

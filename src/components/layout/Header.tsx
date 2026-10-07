@@ -52,6 +52,9 @@ type MegaCategory = {
   imageUrl?: string;
   /** CSS object-position for imageUrl, when the subject is not centred. */
   imagePosition?: string;
+  /** Products only: the card goes straight to this page instead of
+   *  opening a detail row (Liminal, the window sills). */
+  href?: string;
   /** When true, the card renders as a button that opens a "Coming
    *  Soon" modal instead of navigating. Used for routes that aren't
    *  built yet (e.g. 3D Showroom). coloursHref is ignored. */
@@ -137,6 +140,18 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     tagline: "Hand-selected gemstone",
     imageUrl: "/images/products/semi-precious.png",
     brandedImageUrl: "/images/products/branded/semi-precious.png",
+  },
+  {
+    // Window sills and thresholds, a card of its own (owner, 2026-10-07:
+    // "a separate card ... name something unique and classy"): Liminal,
+    // from the Latin limen, the threshold. It opens the collection page
+    // directly, on phones too (coloursHref); there is no detail row.
+    slug: "window-sills-and-thresholds",
+    name: "Liminal",
+    tagline: "Window sills & thresholds",
+    href: "/products/pacific-european-window-sill-threshold-collection",
+    coloursHref: "/products/pacific-european-window-sill-threshold-collection",
+    imageUrl: "/images/thresholds-and-sills/hero-charcoal-sill.webp",
   },
 ];
 

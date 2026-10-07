@@ -15,7 +15,7 @@ import { SILLS_PAGE } from "@/data/thresholds-and-sills";
 const PATH = "/products/pacific-european-window-sill-threshold-collection";
 const COLLECTION = SILLS_PAGE.hero.title;
 const DESCRIPTION =
-  "Granite and quartz window sills, door sills and thresholds in six profiles, cut to size and edge-bevelled. Standard sizes, crate weights and areas, finishes, packing, MOQ and HS codes.";
+  "Granite and quartz window sills, window thresholds and door thresholds, cut to size and edge-bevelled. Popular sizes, crate weights and areas, colours, finishes, packing, MOQ and HS codes.";
 
 export const metadata: Metadata = {
   title: `${COLLECTION} | Pacific Surfaces`,

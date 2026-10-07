@@ -128,7 +128,7 @@ export const FLOORING_PAGE = {
       { title: "Red Multi", href: "/products/red-multi", image: `${IMG}/red-multi-patio.webp`, alt: "A garden patio in Red Multi granite" },
       { title: "Viscont White", href: "/products/viscont-white", image: `${IMG}/viscont-white-deck.webp`, alt: "A deck in Viscont White granite seen from above" },
       { title: "Tan Brown", href: "/products/tan-brown", image: `${IMG}/tan-brown-terrace.webp`, alt: "Tan Brown granite squares on a terrace" },
-      { title: "Window sills & thresholds", href: "/products/pacific-european-window-sill-threshold-collection", image: "/images/thresholds-and-sills/granite-sill-brown.jpg", alt: "A brown granite window sill" },
+      { title: "Window sills & thresholds", href: "/products/pacific-european-window-sill-threshold-collection", image: "/images/thresholds-and-sills/hero-charcoal-sill.webp", alt: "A charcoal granite window sill above the sea" },
       { title: "All granites", href: "/products/granites", image: `${IMG}/steel-grey-patio.webp`, alt: "A patio paved in Steel Grey granite" },
     ] satisfies SpaceCard[],
   },
