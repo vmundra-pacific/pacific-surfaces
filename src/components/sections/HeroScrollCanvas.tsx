@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
+import { ALTERNATE_NAME, ALTERNATE_NAME_PAGE, HOME_H1 } from "@/data/business";
 
 const TOTAL_FRAMES = 520;
 const pad = (n: number) => String(n).padStart(4, "0");
@@ -569,11 +571,29 @@ export function HeroScrollCanvas() {
             style={{ opacity: 0.25 }}
           />
 
-          {/* Brand footer — bottom-left. */}
-          <div className="absolute bottom-8 left-8 z-20 hidden md:flex flex-col gap-3">
-            <div className="text-[10px] tracking-[0.2em] text-white font-mono drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]">
-              PACIFIC · EST 2000 · INDIA
-            </div>
+          {/* The homepage's one H1: brand, what is made and where, in the
+              brand line's place at the foot of the hero. Above the scroll
+              hint on phones, bottom-left from md. The rotating lines below
+              are taglines, so they are <p>. The skin pins h1 tracking and
+              weight, hence the inline style. Under it, the name the brand
+              is also searched under, linked to its page (owner,
+              2026-10-07: the homepage names Pacific Quartz and links to
+              it). */}
+          <div data-over-media className="absolute bottom-32 left-5 right-5 z-20 md:bottom-8 md:left-8 md:right-auto">
+            <h1
+              className="text-[11px] uppercase leading-relaxed text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
+              style={{ letterSpacing: "0.2em", fontVariationSettings: "'wght' 500, 'wdth' 100" }}
+            >
+              {HOME_H1}
+            </h1>
+            <Link
+              href={ALTERNATE_NAME_PAGE}
+              className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] uppercase leading-relaxed text-white underline-offset-4 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] hover:underline"
+              style={{ letterSpacing: "0.2em" }}
+            >
+              About {ALTERNATE_NAME}
+              <ArrowRight className="h-3 w-3 shrink-0" aria-hidden="true" />
+            </Link>
           </div>
 
           {/* Headlines */}
@@ -602,9 +622,12 @@ export function HeroScrollCanvas() {
                       {hl.kicker}
                     </div>
                   )}
-                  <h1
+                  <p
                     className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight leading-[1.05]"
                     style={{
+                      // The weight an <h1> got from the skin, kept now
+                      // that these are paragraphs.
+                      fontVariationSettings: "'wght' 400, 'wdth' 100",
                       backgroundImage:
                         "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(200,220,235,0.82) 48%, rgba(160,185,210,0.78) 60%, rgba(255,255,255,0.95) 100%)",
                       WebkitBackgroundClip: "text",
@@ -647,7 +670,7 @@ export function HeroScrollCanvas() {
                         )}
                       </span>
                     ))}
-                  </h1>
+                  </p>
                 </div>
               );
             })}

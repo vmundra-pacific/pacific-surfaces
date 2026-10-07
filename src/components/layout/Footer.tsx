@@ -7,6 +7,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Mail, Phone, MapPin, Send } from "lucide-react";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
+import { EMAIL, FACTORY, FACTORY_ADDRESS, SALES_PHONE, SOCIAL_PROFILES } from "@/data/business";
 
 /* ------------------------------------------------------------------ *
  * Social-platform icons — inline SVGs.
@@ -158,22 +159,22 @@ const socialLinks: {
 }[] = [
   {
     name: "Instagram",
-    href: "https://www.instagram.com/pacificitaliansurfaces",
+    href: SOCIAL_PROFILES.instagram,
     Icon: InstagramIcon,
   },
   {
     name: "Facebook",
-    href: "https://www.facebook.com/thepacificstone/",
+    href: SOCIAL_PROFILES.facebook,
     Icon: FacebookIcon,
   },
   {
     name: "LinkedIn",
-    href: "https://www.linkedin.com/company/pacific-granites-india-pvt-ltd/",
+    href: SOCIAL_PROFILES.linkedin,
     Icon: LinkedInIcon,
   },
   {
     name: "YouTube",
-    href: "https://www.youtube.com/channel/UCWeTO3mX6zInSev42K9h5Fw",
+    href: SOCIAL_PROFILES.youtube,
     Icon: YoutubeIcon,
   },
 ];
@@ -339,18 +340,18 @@ export default function Footer() {
                 separate visual register. */}
             <div className="space-y-3">
               <a
-                href="mailto:info@thepacific.group"
+                href={`mailto:${EMAIL}`}
                 className="flex items-center gap-3 text-[13px] text-pacific-mid hover:text-white transition-colors duration-300 group"
               >
                 <Mail className="w-4 h-4 text-pacific-mid group-hover:text-white transition-colors duration-300 shrink-0" />
-                info@thepacific.group
+                {EMAIL}
               </a>
               <a
-                href="tel:+919894033566"
+                href={SALES_PHONE.href}
                 className="flex items-center gap-3 text-[13px] text-pacific-mid hover:text-white transition-colors duration-300 group"
               >
                 <Phone className="w-4 h-4 text-pacific-mid group-hover:text-white transition-colors duration-300 shrink-0" />
-                +91 98940 33566
+                {SALES_PHONE.display}
               </a>
               <div className="flex items-center gap-3 text-[13px] text-pacific-mid">
                 <MapPin className="w-4 h-4 text-pacific-mid shrink-0" />
@@ -403,14 +404,26 @@ export default function Footer() {
 
         {/* Addresses — full-width, one line each */}
         <div className="mt-12 pt-8 border-t border-pacific-mid/20 space-y-2.5 text-[12px] text-pacific-mid">
+          {/* Name, address and phones as on the Google Business Profile
+              and in the JSON-LD; all three read data/business. */}
           <div className="flex items-start gap-2.5">
             <MapPin className="w-4 h-4 text-pacific-mid shrink-0 mt-0.5" />
             <p className="font-light">
               <span className="text-pacific-light font-medium">
                 Factory / Experience Centre:
               </span>{" "}
-              SY. No. 73/2B, National Highway 44, Nallaganakothapalli, Hosur,
-              Tamil Nadu 635117
+              {FACTORY.name}, {FACTORY_ADDRESS}
+              {FACTORY.phones.map((phone) => (
+                <span key={phone.href}>
+                  {" · "}
+                  <a
+                    href={phone.href}
+                    className="whitespace-nowrap hover:text-white transition-colors duration-300"
+                  >
+                    {phone.display}
+                  </a>
+                </span>
+              ))}
             </p>
           </div>
           <div className="flex items-start gap-2.5">

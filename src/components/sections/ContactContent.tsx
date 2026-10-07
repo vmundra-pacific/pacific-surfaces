@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -11,6 +11,7 @@ import {
   Phone,
   MapPin,
   ArrowRight,
+  ArrowUpRight,
   CheckCircle,
   Clock,
   ExternalLink,
@@ -18,6 +19,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EMAIL, FACTORY, OPENING_HOURS, SALES_PHONE } from "@/data/business";
 
 /**
  * /contact, laid out after Cosentino's "where to buy" page: a full-bleed
@@ -27,7 +29,13 @@ import { cn } from "@/lib/utils";
  * with the same three answers, so no visitor reaches a dead end.
  *
  * Running order: search hero, results, three calls to action, the
- * enquiry form, direct lines, department contacts, closing band.
+ * enquiry form, direct lines, the factory with its map, department
+ * contacts, closing band.
+ *
+ * Everything renders on the server. Only the `?type=` pre-fill reads the
+ * URL, inside its own Suspense (TypeParam), because useSearchParams at
+ * the top would make the whole page client-only and leave its server
+ * HTML empty: no H1, no address.
  *
  * The black-on-white skin (app/bw-temp.css) pins heading weights, so
  * they are set inline. Photographs sit one wrapper deep so the skin's
@@ -69,9 +77,8 @@ const INK = "#14140f";
 /** The where-to-buy finder in the hero; off for now (owner, 2026-10-05). */
 const SHOW_FINDER = false;
 
-const PHONE = "+91 98940 33566";
-const PHONE_HREF = "tel:+919894033566";
-const EMAIL = "info@thepacific.group";
+const PHONE = SALES_PHONE.display;
+const PHONE_HREF = SALES_PHONE.href;
 const whatsApp = (text: string) =>
   `https://api.whatsapp.com/send/?phone=919894033566&text=${encodeURIComponent(text)}&type=phone_number&app_absent=0`;
 
@@ -176,6 +183,15 @@ const EMPTY_FORM = {
   message: "",
 };
 
+/** Reports `?type=` (a PartnerWithUs card's link) to the page. */
+function TypeParam({ onChange }: { onChange: (type: string | null) => void }) {
+  const type = useSearchParams().get("type");
+  useEffect(() => {
+    onChange(type);
+  }, [type, onChange]);
+  return null;
+}
+
 /** An address that wraps only after the @, never mid-word. */
 function EmailText({ email }: { email: string }) {
   const at = email.indexOf("@");
@@ -208,7 +224,7 @@ const FIELD =
 const LABEL = "mb-2 block text-[11px] uppercase tracking-[0.16em]";
 
 export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
-  const searchParams = useSearchParams();
+  const [typeParam, setTypeParam] = useState<string | null>(null);
   const [formState, setFormState] = useState<"idle" | "sending" | "sent">("idle");
   const [formData, setFormData] = useState(EMPTY_FORM);
 
@@ -279,14 +295,13 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
   // Pre-fill "I am" from ?type=<x>. Only fires when the param changes,
   // so later edits are never clobbered.
   useEffect(() => {
-    const type = searchParams.get("type");
-    if (!type) return;
-    const mapped = TYPE_PARAM_TO_ROLE[type];
+    if (!typeParam) return;
+    const mapped = TYPE_PARAM_TO_ROLE[typeParam];
     if (mapped) {
       setWho(mapped);
       setFormData((prev) => ({ ...prev, role: mapped }));
     }
-  }, [searchParams]);
+  }, [typeParam]);
 
   // Success-panel auto-reset, kept in a ref so "Send another enquiry"
   // can cancel it before it wipes fresh input; cleared on unmount.
@@ -308,7 +323,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
           ...formData,
           // Provenance for triage: a PartnerWithUs card click, or the
           // hero search.
-          source: searchParams.get("type") || (searchCount > 0 ? "where-to-buy" : undefined),
+          source: typeParam || (searchCount > 0 ? "where-to-buy" : undefined),
         }),
       });
       if (!res.ok) throw new Error("Submission failed");
@@ -316,7 +331,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
       // Fired only once the API confirms, so a failed POST never counts.
       trackMetaEvent("Lead", {
         content_name: "Contact Form",
-        content_category: searchParams.get("type") || "contact",
+        content_category: typeParam || "contact",
       });
       resetTimerRef.current = setTimeout(() => {
         setFormState("idle");
@@ -334,6 +349,10 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <TypeParam onChange={setTypeParam} />
+      </Suspense>
+
       {/* 1 · Where to buy ------------------------------------------------ */}
       <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-[#14140f] pb-16 pt-32 lg:pt-36">
         <Photo src={MEDIA.hero.src} alt={MEDIA.hero.alt} priority />
@@ -634,7 +653,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
             { icon: Mail, label: "Email", value: EMAIL, href: `mailto:${EMAIL}` },
             { icon: Phone, label: "Call", value: PHONE, href: PHONE_HREF },
             { icon: MessageCircle, label: "WhatsApp", value: "Message the sales team", href: whatsApp("Hi, I have an enquiry for Pacific Surfaces."), external: true },
-            { icon: Clock, label: "Hours", value: "Mon to Sat, 9 am to 7 pm" },
+            { icon: Clock, label: "Hours", value: OPENING_HOURS.display },
           ].map((l) => {
             const Icon = l.icon;
             const body = (
@@ -656,7 +675,79 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         </Container>
       </section>
 
-      {/* 5 · Department contacts ------------------------------------------- */}
+      {/* 5 · The factory --------------------------------------------------
+          Name, address, phones and hours exactly as on the Google Business
+          Profile and in the site's JSON-LD (data/business), with Google
+          Maps' own embed of the listing and a directions link. */}
+      <section id="factory" className={cn(PANEL, "scroll-mt-20")}>
+        <Container className="grid gap-10 py-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:py-20">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.16em] opacity-60">Factory and experience centre</p>
+            <h2 style={LIGHT} className="mt-3 text-[28px] uppercase leading-tight tracking-[-0.02em] sm:text-4xl lg:text-[42px]">
+              See the slabs where they are made
+            </h2>
+            <address className="mt-8 text-[17px] font-light not-italic leading-relaxed">
+              <span className="block font-normal">{FACTORY.name}</span>
+              {FACTORY.streetAddress},
+              <br />
+              {FACTORY.locality}, {FACTORY.region} {FACTORY.postalCode}, India
+            </address>
+            <ul className="mt-6 space-y-2 text-[17px] font-light">
+              {FACTORY.phones.map((phone) => (
+                <li key={phone.href}>
+                  <a href={phone.href} className="inline-flex items-center gap-3 underline-offset-4 hover:underline">
+                    <Phone className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                    {phone.display}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <a href={`mailto:${EMAIL}`} className="inline-flex items-center gap-3 underline-offset-4 hover:underline">
+                  <Mail className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                  <EmailText email={EMAIL} />
+                </a>
+              </li>
+              <li className="flex items-center gap-3">
+                <Clock className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                {OPENING_HOURS.display}
+              </li>
+            </ul>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <a
+                href={FACTORY.directionsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-over-media
+                className="inline-flex h-12 items-center gap-2 bg-[#1D1D1C] px-7 text-[13px] uppercase tracking-[0.12em] text-white hover:opacity-85"
+              >
+                Get directions
+                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              </a>
+              <a
+                href={FACTORY.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 items-center gap-2 border border-[#14140f] px-7 text-[13px] uppercase tracking-[0.12em] hover:bg-black/5"
+              >
+                Open in Google Maps
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+          <div className="relative aspect-[4/3] w-full overflow-hidden border border-[#14140f]/10 bg-white lg:aspect-auto lg:min-h-[480px]">
+            <iframe
+              src={FACTORY.embedUrl}
+              title={`Map showing ${FACTORY.name}`}
+              className="absolute inset-0 h-full w-full border-0"
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
+        </Container>
+      </section>
+
+      {/* 6 · Department contacts ------------------------------------------- */}
       <section className="bg-white">
         <Container className="py-14 lg:py-20">
           <div className="flex flex-wrap items-end justify-between gap-4">
@@ -692,7 +783,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         </Container>
       </section>
 
-      {/* 6 · Closing band -------------------------------------------------- */}
+      {/* 7 · Closing band -------------------------------------------------- */}
       <section className="relative isolate overflow-hidden bg-[#14140f]">
         <Photo src={MEDIA.closing.src} alt="" />
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/50" />

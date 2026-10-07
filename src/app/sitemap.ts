@@ -9,94 +9,133 @@ import { APPLICATIONS } from "@/data/applications";
 // improves crawl budget efficiency.
 const SITE_URL = "https://pacific-surfaces.com";
 
-// Static routes the build always knows about — every public page in
-// `/app/(site)`. Update this list when adding new top-level routes.
-const STATIC_PATHS = [
-  "",
-  "/about",
-  "/products",
-  "/products/quartz",
-  "/products/granites",
-  "/products/semi-precious",
-  "/products/exotic",
-  "/products/centrepiece-couture",
-  "/products/integra",
-  "/products/facades-and-finishes",
-  "/products/vanity",
-  "/products/ecosurfaces",
-  // These two are real category landings — they resolve through the
-  // /products/[slug] dispatcher because they're keys in CATEGORY_PAGES
-  // (src/app/(site)/products/_lib/category.ts) — but were missing here,
-  // so Googlebot had no path to discover them.
-  "/products/fab-creations",
-  // Cut pieces: the Pacific European Window Sill & Threshold Collection.
-  "/products/pacific-european-window-sill-threshold-collection",
-  "/products/translucent",
-  // Quartz sub-collection landings. Each routes through
-  // /products/[slug]/[item] and renders a filtered catalogue
-  // for that collection's slabs. SEO value: each collection has
-  // its own brand identity (Vision/Eclipse, Kosmic, Aurora, etc.)
-  // and ranks for distinct designer queries.
-  "/products/quartz/chromia",
-  "/products/quartz/aurora",
-  "/products/quartz/celestia",
-  "/products/quartz/kosmic",
-  "/products/quartz/luminara",
-  "/products/quartz/nebula",
-  // Spaces — environment-led landing pages.
-  "/spaces",
-  "/spaces/kitchens",
-  "/spaces/bathrooms",
-  "/spaces/architecture",
-  "/spaces/commercial",
-  "/spaces/hospitality",
-  "/spaces/outdoor",
-  // Inspirations gallery.
-  "/inspirations/inspiration-gallery",
-  // Professionals hub — services, collaboration model, application
-  // showcases, and partner programs.
-  "/professionals/services",
-  "/professionals/collaboration",
-  "/professionals/applications",
-  "/professionals/programs",
-  // Learn — educational topic pages that rank well for
-  // informational searches ("what is quartz", "granite care",
-  // etc.) and funnel visitors into product browsing.
-  "/learn/what-is-quartz",
-  "/learn/what-is-granites",
-  "/learn/what-is-semi-precious",
-  "/learn/maintenance-quartz",
-  "/learn/maintenance-granites",
-  "/learn/maintenance-semi-precious",
-  "/learn/warranty-quartz",
-  // Legacy /sinks, /granites, /semi-precious, /ecosurfaces URLs
-  // intentionally NOT listed here — they 301-redirect to the
-  // /products/<category> equivalents per next.config.ts, and
-  // including a redirect source in the sitemap wastes Googlebot's
-  // crawl budget. The redirect destinations are already listed
-  // above.
-  "/blog",
-  "/resources",
-  "/sustainability",
-  "/careers",
-  "/contact",
-  // /catalogue intentionally NOT listed. It renders the same
-  // CatalogueClient over the same query as /products, so the two were
-  // near-duplicates competing for identical queries. /products is the
-  // canonical version (it adds the hero, OriginStats and
-  // StatementSection), and /catalogue now canonicals to it — see
-  // src/app/(site)/catalogue/page.tsx. The URL still works for anyone
-  // holding an old link; it just shouldn't be advertised for crawling.
-  "/visualize",
-  "/privacy",
+// Rebuilt hourly, so an editor's change in Sanity reaches <lastmod>
+// without a deploy.
+export const revalidate = 3600;
+
+/**
+ * Where a page's content comes from in Sanity, if anywhere. Each key is
+ * resolved below to the newest `_updatedAt` among those documents, so an
+ * editor's change moves the page's date and nothing else does.
+ */
+type ContentKey =
+  | "home"
+  | "catalogue"
+  | "facades"
+  | "blog"
+  | "resources"
+  | "sustainability"
+  | "careers"
+  | `space:${string}`;
+
+/**
+ * Every static page, with the date its own copy or layout last changed
+ * (`since`, YYYY-MM-DD) and, when it draws on Sanity, which documents.
+ * A page's <lastmod> is the later of the two.
+ *
+ * `since` was seeded on 2026-10-05 from git history: the last commit
+ * touching the page's own route and section files (brought up to date on
+ * 2026-10-07 for the pages changed since, the catalogue re-filing among
+ * them). Kitchens, Bathrooms and Hospitality are built in code now, not
+ * from their Sanity space pages, so they carry no content key. Bump it when you
+ * change a page's content; leave it alone for sitewide header, footer or
+ * JSON-LD changes. Never stamp the build time: that would tell Google
+ * every page changed on every deploy.
+ *
+ * Legacy /sinks, /granites, /semi-precious and /ecosurfaces are left out
+ * (they 301 to /products/<category>), and so is /catalogue (it canonicals
+ * to /products).
+ */
+const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
+  { path: "", since: "2026-10-07", content: "home" },
+  { path: "/about", since: "2026-09-29" },
+  { path: "/products", since: "2026-10-05", content: "catalogue" },
+  // Category landings, resolved by /products/[slug] through
+  // CATEGORY_PAGES (products/_lib/category.ts).
+  { path: "/products/quartz", since: "2026-10-05", content: "catalogue" },
+  { path: "/products/quartz/about", since: "2026-10-07" },
+  { path: "/products/granites", since: "2026-10-05", content: "catalogue" },
+  { path: "/products/semi-precious", since: "2026-09-12", content: "catalogue" },
+  { path: "/products/exotic", since: "2026-07-06", content: "catalogue" },
+  { path: "/products/centrepiece-couture", since: "2026-09-12", content: "catalogue" },
+  { path: "/products/integra", since: "2026-09-12", content: "catalogue" },
+  { path: "/products/facades-and-finishes", since: "2026-09-12", content: "facades" },
+  { path: "/products/vanity", since: "2026-09-12", content: "catalogue" },
+  { path: "/products/ecosurfaces", since: "2026-09-12", content: "catalogue" },
+  { path: "/products/fab-creations", since: "2026-10-05", content: "catalogue" },
+  // Cut pieces: the Pacific European Window Sill & Threshold Collection,
+  // built in code.
+  { path: "/products/pacific-european-window-sill-threshold-collection", since: "2026-10-07" },
+  { path: "/products/translucent", since: "2026-09-12", content: "catalogue" },
+  // Quartz series landings, via /products/[slug]/[item].
+  { path: "/products/quartz/chromia", since: "2026-10-05", content: "catalogue" },
+  { path: "/products/quartz/aurora", since: "2026-10-05", content: "catalogue" },
+  { path: "/products/quartz/celestia", since: "2026-07-06", content: "catalogue" },
+  { path: "/products/quartz/kosmic", since: "2026-10-05", content: "catalogue" },
+  { path: "/products/quartz/luminara", since: "2026-07-06", content: "catalogue" },
+  { path: "/products/quartz/nebula", since: "2026-07-06", content: "catalogue" },
+  { path: "/spaces", since: "2026-10-05" },
+  { path: "/spaces/kitchens", since: "2026-10-05" },
+  { path: "/spaces/bathrooms", since: "2026-10-05" },
+  { path: "/spaces/architecture", since: "2026-09-12", content: "space:architecture" },
+  { path: "/spaces/commercial", since: "2026-07-06", content: "space:commercial" },
+  { path: "/spaces/hospitality", since: "2026-10-05" },
+  { path: "/spaces/outdoor", since: "2026-09-12", content: "space:outdoor" },
+  { path: "/inspirations/inspiration-gallery", since: "2026-09-29" },
+  { path: "/professionals/services", since: "2026-09-29" },
+  { path: "/professionals/collaboration", since: "2026-09-29" },
+  { path: "/professionals/applications", since: "2026-09-29" },
+  { path: "/professionals/programs", since: "2026-09-29" },
+  // Learn topics share one route file, learn/[topic]/page.tsx.
+  { path: "/learn/what-is-quartz", since: "2026-09-12" },
+  { path: "/learn/what-is-granites", since: "2026-09-12" },
+  { path: "/learn/what-is-semi-precious", since: "2026-09-12" },
+  { path: "/learn/maintenance-quartz", since: "2026-09-12" },
+  { path: "/learn/maintenance-granites", since: "2026-09-12" },
+  { path: "/learn/maintenance-semi-precious", since: "2026-09-12" },
+  { path: "/learn/warranty-quartz", since: "2026-09-12" },
+  { path: "/blog", since: "2026-07-30", content: "blog" },
+  { path: "/resources", since: "2026-07-07", content: "resources" },
+  { path: "/sustainability", since: "2026-09-29", content: "sustainability" },
+  { path: "/careers", since: "2026-07-06", content: "careers" },
+  { path: "/contact", since: "2026-10-07" },
+  { path: "/visualize", since: "2026-07-06", content: "catalogue" },
+  { path: "/privacy", since: "2026-07-06" },
 ];
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+/** The /applications/<slug> pages, built from data/applications.ts;
+ *  Flooring has had a page of its own since 2026-10-05. */
+const APPLICATIONS_SINCE = "2026-09-12";
+const APPLICATION_SINCE: Record<string, string> = { flooring: "2026-10-05" };
 
-  // Pull dynamic slugs from Sanity. We grab everything in parallel
-  // so the build doesn't bottleneck on the slowest query.
-  const [products, blogPosts] = await Promise.all([
+/** The space pages still built from their Sanity space page. */
+const SPACES = ["architecture", "commercial", "outdoor"];
+
+/** The newest `_updatedAt` among the documents a filter matches. */
+const newest = (filter: string) => `*[${filter}] | order(_updatedAt desc)[0]._updatedAt`;
+
+const contentDatesQuery = groq`{
+  "home": ${newest('_type in ["collection", "signatureProject", "applicationCard", "inspirationImage"]')},
+  "catalogue": ${newest('_type in ["product", "collection"]')},
+  "facades": ${newest('_type in ["facadesAndFinishesPage", "product", "collection"]')},
+  "blog": ${newest('_type == "blogPost"')},
+  "resources": ${newest('_type == "resource"')},
+  "sustainability": ${newest('_type == "sustainabilityPage"')},
+  "careers": ${newest('_type in ["careersPage", "jobOpening"]')},
+  ${SPACES.map((s) => `"space:${s}": ${newest(`_type == "spacePage" && slug == "${s}"`)}`).join(",\n  ")}
+}`;
+
+/** The later of a code date (written as the plain date) and a content
+ *  timestamp (written as Sanity gives it). Both are valid W3C dates. */
+function later(since: string, content?: string | null): string {
+  if (!content) return since;
+  const edited = new Date(content).getTime();
+  return Number.isNaN(edited) || edited < new Date(`${since}T00:00:00Z`).getTime() ? since : content;
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Pull dynamic slugs and the content dates from Sanity in parallel.
+  const [products, blogPosts, contentDates] = await Promise.all([
     client
       .fetch<{ slug: string; updatedAt: string | null }[]>(
         groq`*[_type == "product" && defined(slug.current) && visible != false]{
@@ -111,46 +150,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }`
       )
       .catch(() => []),
+    client
+      .fetch<Partial<Record<ContentKey, string | null>>>(contentDatesQuery)
+      .catch((): Partial<Record<ContentKey, string | null>> => ({})),
   ]);
 
-  // Static pages don't get a `lastModified` — emitting `now` on
-  // every build would falsely signal that every page just changed,
-  // wasting Googlebot's crawl budget re-fetching unchanged content.
-  // Pages whose content actually evolves (products, blog posts)
-  // emit real `_updatedAt` timestamps below; everything else stays
-  // unlabeled so Google uses its own freshness heuristics. `now`
-  // is still used as a fallback for Sanity docs that lack an
-  // `_updatedAt` field — see productEntries / blogEntries below.
-  const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.map((p) => ({
-    url: `${SITE_URL}${p}`,
-    changeFrequency: p === "" ? "weekly" : "monthly",
-    priority: p === "" ? 1 : 0.8,
+  const staticEntries: MetadataRoute.Sitemap = STATIC_PAGES.map((p) => ({
+    url: `${SITE_URL}${p.path}`,
+    lastModified: later(p.since, p.content ? contentDates[p.content] : null),
+    changeFrequency: p.path === "" ? "weekly" : "monthly",
+    priority: p.path === "" ? 1 : 0.8,
+  }));
+
+  // Application pages. Vanity Tops carries the long-form copy and FAQ,
+  // so it is ranked above its siblings here.
+  const applicationEntries: MetadataRoute.Sitemap = APPLICATIONS.map((a) => ({
+    url: `${SITE_URL}/applications/${a.slug}`,
+    lastModified: later(APPLICATION_SINCE[a.slug] ?? APPLICATIONS_SINCE),
+    changeFrequency: "monthly",
+    priority: a.seo ? 0.9 : 0.7,
   }));
 
   // Sanity catalogue uses `/products/[category]/[item]` — we don't
   // know the category from the slug query alone, so list every
   // product under the bare /products/[slug] convention. The actual
-  // route resolution happens in the dynamic segment.
+  // route resolution happens in the dynamic segment. Products and posts
+  // carry their own `_updatedAt`; one without is left undated rather
+  // than stamped with the build time.
   const productEntries: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${SITE_URL}/products/${p.slug}`,
-    lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
+    ...(p.updatedAt ? { lastModified: new Date(p.updatedAt) } : {}),
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
-  // Application pages. These were missing entirely — twenty pages whose
-  // only route in was the Products mega, which Googlebot renders but does
-  // not weight like a listed URL. Vanity Tops carries the long-form copy
-  // and FAQ, so it is ranked above its siblings here.
-  const applicationEntries: MetadataRoute.Sitemap = APPLICATIONS.map((a) => ({
-    url: `${SITE_URL}/applications/${a.slug}`,
-    changeFrequency: "monthly",
-    priority: a.seo ? 0.9 : 0.7,
-  }));
-
   const blogEntries: MetadataRoute.Sitemap = blogPosts.map((b) => ({
     url: `${SITE_URL}/blog/${b.slug}`,
-    lastModified: b.updatedAt ? new Date(b.updatedAt) : now,
+    ...(b.updatedAt ? { lastModified: new Date(b.updatedAt) } : {}),
     changeFrequency: "monthly",
     priority: 0.6,
   }));

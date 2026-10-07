@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { ContactContent } from "@/components/sections/ContactContent";
 import { freshClient } from "@/sanity/lib/client";
 import { allDealersQuery } from "@/sanity/lib/queries";
@@ -7,7 +6,7 @@ import { allDealersQuery } from "@/sanity/lib/queries";
 export const metadata: Metadata = {
   title: "Contact Pacific Surfaces — Sales, Samples & Project Enquiries",
   description:
-    "Request a quote, order samples, or speak to our team. Pacific Surfaces ships premium quartz and granite to 45+ countries from our India facility.",
+    "Quotes, samples and project enquiries for Pacific Surfaces. Visit the quartz factory and experience centre, Mon to Sat, 9 am to 8 pm, or call +91 98940 33566.",
   alternates: { canonical: "/contact" },
 };
 
@@ -31,12 +30,8 @@ export default async function ContactPage() {
     .fetch(allDealersQuery)
     .catch(() => [] as never[]);
 
-  // Suspense boundary required for `useSearchParams` inside
-  // ContactContent — Next.js 15 needs it so static rendering can
-  // hydrate the URL params without blocking the rest of the page.
-  return (
-    <Suspense fallback={null}>
-      <ContactContent dealers={dealers} />
-    </Suspense>
-  );
+  // No Suspense here: ContactContent keeps its one useSearchParams in a
+  // boundary of its own, so the page's copy, H1 and factory address are
+  // in the server HTML.
+  return <ContactContent dealers={dealers} />;
 }

@@ -75,11 +75,17 @@ import { HomepageSectionNav } from "@/components/global/HomepageSectionNav";
 // without a redeploy.
 export const revalidate = 60;
 
+// Title, description and the hero's H1 name the brand, what is made and
+// where (SEO brief, 2026-10-05): India, not the town (owner, 2026-10-07).
+// Facts as in the site's safe list and confirmed by the owner: the plant
+// wording, 12/20/30 mm, the superjumbo size and 45+ countries.
 export const metadata: Metadata = {
-  title: "Pacific Surfaces — Premium Quartz & Granite Surfaces",
+  title: "Pacific Surfaces | Quartz Slab Manufacturer in India",
   description:
-    "Discover premium quartz slabs, granite surfaces, and semi-precious stones for countertops, vanities, flooring, and wall cladding. Engineered for beauty and durability.",
+    "Pacific Surfaces makes quartz slabs at a state-of-the-art Bretonstone plant in India: 12, 20 and 30 mm, up to 3,480 × 2,007 mm, for 45+ countries.",
   keywords: [
+    "quartz slab manufacturer",
+    "Pacific Quartz",
     "quartz slabs",
     "granite surfaces",
     "kitchen countertops",

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { CATEGORY_PAGES } from "../../_lib/category";
 import { PageHeader } from "@/components/ui/page-header";
+import { PacificQuartz } from "@/components/sections/PacificQuartz";
 
 /**
  * /products/[slug]/about — category overview / "ss2" page.
@@ -21,7 +22,18 @@ import { PageHeader } from "@/components/ui/page-header";
  * direction "put same for all as of now, we'll change later"). When the
  * content team needs category-specific section lists, swap the SECTIONS
  * constant for a per-slug map.
+ *
+ * Quartz is the exception: /products/quartz/about is the Pacific Quartz
+ * page (components/sections/PacificQuartz), with its own title and
+ * description below.
  */
+
+const PACIFIC_QUARTZ_METADATA: Metadata = {
+  title: "Pacific Quartz | Engineered Quartz Slabs by Pacific Surfaces",
+  description:
+    "Pacific Quartz: engineered quartz slabs by Pacific Surfaces, made at a state-of-the-art Bretonstone plant in India. 12, 20 and 30 mm; up to 3,480 × 2,007 mm.",
+  alternates: { canonical: "/products/quartz/about" },
+};
 
 interface Params {
   slug: string;
@@ -33,6 +45,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === "quartz") return PACIFIC_QUARTZ_METADATA;
   const cfg = CATEGORY_PAGES[slug];
   if (!cfg) return { title: "Pacific Surfaces" };
   const display = cfg.displayName ?? slug;
@@ -87,6 +100,7 @@ export default async function CategoryAboutPage({
   params: Promise<Params>;
 }) {
   const { slug } = await params;
+  if (slug === "quartz") return <PacificQuartz />;
   const cfg = CATEGORY_PAGES[slug];
   if (!cfg) notFound();
 

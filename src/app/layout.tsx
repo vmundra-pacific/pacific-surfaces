@@ -10,6 +10,7 @@ import GlobalDustMount from "@/components/global/GlobalDustMount";
 import MetaPixel from "@/components/global/MetaPixel";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { safeJsonLd } from "@/lib/escape";
+import { siteGraph } from "@/data/business";
 
 /**
  * Google Analytics 4 measurement ID. Points at the existing
@@ -103,116 +104,17 @@ export default function RootLayout({
         <BwTempSections />
         <GlobalDustMount />
         {/*
-          Organization JSON-LD — gives Google enough metadata to
-          show the brand panel in search results (logo, social
-          links, contact). One emit at the layout level so it
-          covers every page on the site. BreadcrumbList is added
-          per-nested-route where the path is meaningful.
+          Site-wide JSON-LD: one graph holding the brand (Organization),
+          the factory (LocalBusiness) and the website, linked by stable
+          @ids. Built from data/business, the same source the footer and
+          the Contact page print, so the name, address, phone and hours
+          always agree. Page-level schema (BreadcrumbList, Product,
+          FAQPage, Article) is added per route and can point at these
+          ids.
         */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: safeJsonLd({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "@id": "https://pacific-surfaces.com/#organization",
-              name: "Pacific Surfaces",
-              alternateName: "Pacific Surfaces (Pacific Group)",
-              url: "https://pacific-surfaces.com",
-              logo: "https://pacific-surfaces.com/logos/pacific-surfaces-logo-black.png",
-              description:
-                "Premium quartz, granite, and semi-precious stone surfaces for kitchens, bathrooms, and architectural applications. Engineered in India, shipped to 45+ countries.",
-              sameAs: [
-                "https://www.instagram.com/pacific.surfaces/",
-                "https://www.linkedin.com/company/pacific-surfaces/",
-              ],
-              contactPoint: [
-                {
-                  "@type": "ContactPoint",
-                  contactType: "customer service",
-                  email: "info@thepacific.group",
-                  telephone: "+91-9894033566",
-                  areaServed: "Worldwide",
-                  availableLanguage: ["en"],
-                },
-              ],
-            }),
-          }}
-        />
-        {/*
-          LocalBusiness JSON-LD — child type HomeAndConstructionBusiness
-          inherits all Organization fields and adds business-specific
-          ones (priceRange, geo, address, opening hours). Eligible for
-          the Google local pack and "stone fabricator near me" queries.
-
-          NOTE: address is country-only for now. Once the showroom address
-          is canonicalized in Sanity siteSettings, swap the hardcoded
-          values out for a server-fetched version. priceRange "$$$"
-          signals premium tier without exposing actual pricing.
-        */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: safeJsonLd({
-              "@context": "https://schema.org",
-              "@type": "HomeAndConstructionBusiness",
-              "@id": "https://pacific-surfaces.com/#localbusiness",
-              name: "Pacific Surfaces",
-              url: "https://pacific-surfaces.com",
-              logo: "https://pacific-surfaces.com/logos/pacific-surfaces-logo-black.png",
-              image: "https://pacific-surfaces.com/logos/pacific-surfaces-logo-black.png",
-              telephone: "+91-9894033566",
-              email: "info@thepacific.group",
-              priceRange: "$$$",
-              description:
-                "Premium quartz, granite, and semi-precious stone surfaces for architects, designers, and homeowners.",
-              address: {
-                "@type": "PostalAddress",
-                addressCountry: "IN",
-              },
-              areaServed: [
-                { "@type": "Country", name: "India" },
-                { "@type": "Country", name: "United Arab Emirates" },
-                { "@type": "Country", name: "United States" },
-                { "@type": "Country", name: "United Kingdom" },
-              ],
-              sameAs: [
-                "https://www.instagram.com/pacific.surfaces/",
-                "https://www.linkedin.com/company/pacific-surfaces/",
-              ],
-            }),
-          }}
-        />
-        {/*
-          WebSite + SearchAction — eligible for the sitelinks search box
-          that Google shows under your brand SERP. The SearchAction
-          target points to /search?q={...}; that route forwards to the
-          products grid filtered by the term. If you later build a
-          dedicated search page, just keep the URL pattern stable.
-        */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: safeJsonLd({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              "@id": "https://pacific-surfaces.com/#website",
-              url: "https://pacific-surfaces.com",
-              name: "Pacific Surfaces",
-              publisher: {
-                "@id": "https://pacific-surfaces.com/#organization",
-              },
-              potentialAction: {
-                "@type": "SearchAction",
-                target: {
-                  "@type": "EntryPoint",
-                  urlTemplate:
-                    "https://pacific-surfaces.com/search?q={search_term_string}",
-                },
-                "query-input": "required name=search_term_string",
-              },
-            }),
-          }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(siteGraph()) }}
         />
         {/*
           Google Analytics 4. gtag.js loads from googletagmanager.com
