@@ -142,13 +142,12 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     brandedImageUrl: "/images/products/branded/semi-precious.png",
   },
   {
-    // Window sills and thresholds, a card of its own (owner, 2026-10-07),
-    // named after the collection (owner, the same day: "European window
-    // sill & threshold collection", not "Liminal"). It opens the
-    // collection page directly, on phones too (coloursHref); there is no
-    // detail row.
+    // Window sills and thresholds, a card of its own (owner, 2026-10-07).
+    // Its name is plain, as the owner chose the same day: not "Liminal",
+    // not the collection's full name. It opens the collection page
+    // directly, on phones too (coloursHref); there is no detail row.
     slug: "window-sills-and-thresholds",
-    name: "European Window Sill & Threshold Collection",
+    name: "Window Sills & Thresholds",
     tagline: "In granite and quartz",
     href: "/products/pacific-european-window-sill-threshold-collection",
     coloursHref: "/products/pacific-european-window-sill-threshold-collection",
