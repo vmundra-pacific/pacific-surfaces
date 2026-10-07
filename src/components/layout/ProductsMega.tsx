@@ -16,7 +16,7 @@ import { applicationsForCollection, menuImageFor } from "@/data/collection-appli
  *  - One grid for everything. The collection plates and the detail row
  *    below them sit on the same columns, one per plate, and the same
  *    gutter, so every column edge in the open panel lines up with a plate
- *    edge. A plate with an `href` (Liminal, the window sills) goes
+ *    edge. A plate with an `href` (the window sills card) goes
  *    straight to its page instead of opening a detail row.
  *  - Colour only where the cursor is. At rest every plate is its
  *    collection's photograph in black and white under a dark shade, with

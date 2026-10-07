@@ -53,7 +53,7 @@ type MegaCategory = {
   /** CSS object-position for imageUrl, when the subject is not centred. */
   imagePosition?: string;
   /** Products only: the card goes straight to this page instead of
-   *  opening a detail row (Liminal, the window sills). */
+   *  opening a detail row (the window sills card). */
   href?: string;
   /** When true, the card renders as a button that opens a "Coming
    *  Soon" modal instead of navigating. Used for routes that aren't
@@ -142,13 +142,14 @@ const PRODUCTS_CATEGORIES: MegaCategory[] = [
     brandedImageUrl: "/images/products/branded/semi-precious.png",
   },
   {
-    // Window sills and thresholds, a card of its own (owner, 2026-10-07:
-    // "a separate card ... name something unique and classy"): Liminal,
-    // from the Latin limen, the threshold. It opens the collection page
-    // directly, on phones too (coloursHref); there is no detail row.
+    // Window sills and thresholds, a card of its own (owner, 2026-10-07),
+    // named after the collection (owner, the same day: "European window
+    // sill & threshold collection", not "Liminal"). It opens the
+    // collection page directly, on phones too (coloursHref); there is no
+    // detail row.
     slug: "window-sills-and-thresholds",
-    name: "Liminal",
-    tagline: "Window sills & thresholds",
+    name: "European Window Sill & Threshold Collection",
+    tagline: "In granite and quartz",
     href: "/products/pacific-european-window-sill-threshold-collection",
     coloursHref: "/products/pacific-european-window-sill-threshold-collection",
     imageUrl: "/images/thresholds-and-sills/hero-charcoal-sill.webp",
@@ -1629,7 +1630,9 @@ export default function Header() {
                                     )}
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <div className="text-sm font-medium text-white truncate">
+                                    {/* Two lines, not one: the sills card's
+                                        name is the collection's full name. */}
+                                    <div className="text-sm font-medium leading-snug text-white line-clamp-2">
                                       {cat.name}
                                     </div>
                                     <div className="text-[11px] font-light text-pacific-light truncate">
