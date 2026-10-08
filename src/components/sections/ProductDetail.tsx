@@ -43,6 +43,7 @@ import { finishDescription } from "@/lib/finish-copy";
 import { allowedApplications, materialFamily } from "@/lib/application-rules";
 import WorktopDetailTabs from "@/components/sections/WorktopDetailTabs";
 import { formatCollection } from "@/components/catalogue/labels";
+import { collectionPath } from "@/lib/collection-route";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PortableTextBlock = any;
@@ -124,14 +125,6 @@ const SECTION_IDS = [
   // section itself (vanity/centrepiece/sinks/facades don't render it).
   { id: "sec-compare", label: "Compare Colors" },
 ];
-
-// Sanity collection slugs don't always match the /products/<category>
-// routes — notably the "granite" collection's category page lives at
-// /products/granites, so linking the raw collection slug 404s. Map the
-// known exceptions; everything else falls through unchanged.
-const COLLECTION_TO_CATEGORY: Record<string, string> = {
-  granite: "granites",
-};
 
 export function ProductDetail({ product }: { product: Product }) {
   // ---- Similar-product ranking — single source of truth ----
@@ -1056,14 +1049,12 @@ export function ProductDetail({ product }: { product: Product }) {
                   favor of /products/<category>. Pointing the breadcrumb
                   at the new canonical category page so the link both
                   works AND matches the BreadcrumbList JSON-LD on the
-                  page. Slug goes through COLLECTION_TO_CATEGORY so
-                  collections whose slug differs from their category
-                  route (granite → granites) don't 404. */}
+                  page. The slug goes through collectionPath: collection
+                  slugs are not routes (the quartz series live under
+                  /products/quartz/<series>), and linking them raw sent
+                  product pages to a 404. */}
               <Link
-                href={`/products/${
-                  COLLECTION_TO_CATEGORY[product.collection.slug.current] ??
-                  product.collection.slug.current
-                }`}
+                href={collectionPath(product.collection.slug.current)}
                 className="hover:text-white transition-colors"
               >
                 {formatCollection(product.collection.name)}

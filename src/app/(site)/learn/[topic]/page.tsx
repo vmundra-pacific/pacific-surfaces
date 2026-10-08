@@ -114,7 +114,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
       {
         heading: "Manufacturing",
         content:
-          "Every Pacific slab is engineered in-house at our 378,000 sq ft facility in Hosur, India, using Italian production technology. Raw quartz is mixed with resin and pigment, vibro-compacted under vacuum to remove air pockets, cured at high temperature, then calibrated and polished to a mirror finish. The result is dimensional consistency natural stone can never guarantee — slabs that match across an entire run, ideal for kitchens with long worktops or installations spanning multiple slabs.",
+          "Every Pacific slab is engineered in-house at our 378,000 sq ft facility in India, using Italian production technology. Raw quartz is mixed with resin and pigment, vibro-compacted under vacuum to remove air pockets, cured at high temperature, then calibrated and polished to a mirror finish. The result is dimensional consistency natural stone can never guarantee — slabs that match across an entire run, ideal for kitchens with long worktops or installations spanning multiple slabs.",
         imageLabel: "Pacific manufacturing line",
       },
       {

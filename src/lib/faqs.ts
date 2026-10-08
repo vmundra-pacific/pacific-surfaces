@@ -35,7 +35,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "What sizes do Pacific quartz slabs come in?",
-      a: 'Standard slabs are 137" x 79" (≈3480 x 2010 mm), with thicknesses of 12 mm, 20 mm, and 30 mm. The 137" jumbo format reduces the number of joints needed on long countertops and feature walls. Custom dimensions are available on indent orders.',
+      a: "Slabs are 3,480 × 2,007 mm (137 × 79 in), in 12, 20 and 30 mm thicknesses. The superjumbo format reduces the number of joints needed on long countertops and feature walls. Custom dimensions are available on indent orders.",
     },
     {
       q: "How do I clean and maintain quartz?",
@@ -43,7 +43,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "Where is your quartz manufactured?",
-      a: "Every Pacific quartz slab is engineered at our 378,000 sq ft facility in Hosur, India, using Italian production technology. We produce up to 12 million sq ft of quartz annually and ship to more than 45 countries.",
+      a: "Every Pacific quartz slab is engineered at our 378,000 sq ft facility in India, using Italian production technology. We produce up to 12 million sq ft of quartz annually and ship to more than 45 countries.",
     },
   ],
   granites: [
@@ -217,11 +217,11 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
   about: [
     {
       q: "Where are Pacific Surfaces manufactured?",
-      a: "All Pacific products are engineered at our 378,000 sq ft facility in Hosur, Tamil Nadu, India. The facility uses Italian-engineered presses and runs end-to-end manufacturing — from raw quartz processing to slab finishing — under one roof.",
+      a: "All Pacific products are engineered at our 378,000 sq ft facility in India. The facility uses Italian-engineered presses and runs end-to-end manufacturing — from raw quartz processing to slab finishing — under one roof.",
     },
     {
       q: "How long has Pacific been operating?",
-      a: "Pacific Surfaces was established in 2000. Over the past 13+ years we've grown from a regional Indian supplier into a global brand shipping to more than 45 countries with 273+ unique designs across 44 collections.",
+      a: "Pacific Surfaces was established in 2000. Over more than 25 years we've grown from a regional Indian supplier into a global brand shipping to more than 45 countries with 273+ unique designs across 44 collections.",
     },
     {
       q: "What's your annual production capacity?",
@@ -233,7 +233,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "Where can I see Pacific products in person?",
-      a: "Through our authorised dealer network across India, the US, Europe, and the Middle East. Use the contact form to request your nearest dealer, or book a visit to our Hosur facility for spec-room walkthroughs.",
+      a: "Through our authorised dealer network across India, the US, Europe, and the Middle East. Use the contact form to request your nearest dealer, or book a visit to the factory and experience centre for spec-room walkthroughs.",
     },
   ],
 };

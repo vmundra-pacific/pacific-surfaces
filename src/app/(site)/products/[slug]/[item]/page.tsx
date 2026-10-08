@@ -88,12 +88,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, item } = await params;
   const collection = await client.fetch(collectionBySlugQuery, { slug: item });
   if (!collection) return { title: "Collection Not Found" };
+  const seriesName = formatCollection(collection.name);
+  const seriesLabel = /series$/i.test(seriesName) ? seriesName : `${seriesName} series`;
 
   return {
     title:
       collection.seoTitle ||
       `${formatCollection(collection.name)} — Pacific Surfaces`,
-    description: collection.seoDescription || collection.description,
+    // Series with no description in Sanity get a plain one rather than
+    // none: every page in the sitemap carries a description.
+    description:
+      collection.seoDescription ||
+      collection.description ||
+      `The ${seriesLabel} of engineered quartz by Pacific Surfaces. Browse every design in the series, then ask for samples or a quote.`,
     alternates: { canonical: `/products/${slug}/${item}` },
   };
 }

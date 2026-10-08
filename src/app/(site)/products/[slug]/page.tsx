@@ -13,6 +13,7 @@ import {
 import { FAQ } from "@/components/sections/FAQ";
 import { getFaqs, type FaqPageKey } from "@/lib/faqs";
 import { zoomImageUrl } from "@/lib/zoom-image";
+import { collectionPath } from "@/lib/collection-route";
 import { BreadcrumbList, ProductSchema } from "@/components/global/JsonLd";
 import {
   CATEGORY_PAGES,
@@ -308,18 +309,16 @@ export default async function ProductOrCategoryPage({ params }: Props) {
 
   const categoryName =
     product.collection?.name ?? product.category?.name ?? "Products";
-  // Some collection slugs don't match their category route — the
-  // "granite" collection's page lives at /products/granites. Map the
-  // known exceptions so the breadcrumb (and its JSON-LD) doesn't 404.
-  const COLLECTION_TO_CATEGORY: Record<string, string> = {
-    granite: "granites",
-  };
+  // Collection slugs are not routes (the quartz series live under
+  // /products/quartz/<series>); collectionPath maps them so the
+  // breadcrumb and its JSON-LD don't 404.
   const rawCrumbSlug =
     product.collection?.slug?.current ??
     product.category?.slug?.current ??
     slug;
-  const categorySlugForCrumb =
-    COLLECTION_TO_CATEGORY[rawCrumbSlug] ?? rawCrumbSlug;
+  const categoryPathForCrumb = product.collection?.slug?.current
+    ? collectionPath(rawCrumbSlug)
+    : `/products/${rawCrumbSlug}`;
 
   // Material classification for Product schema. Maps the product's
   // category to a generic stone-industry term Google understands. Falls
@@ -348,7 +347,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
         items={[
           { name: "Home", url: "/" },
           { name: "Products", url: "/products" },
-          { name: categoryName, url: `/products/${categorySlugForCrumb}` },
+          { name: categoryName, url: categoryPathForCrumb },
           { name: product.name, url: `/products/${slug}` },
         ]}
       />

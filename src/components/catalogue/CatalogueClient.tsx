@@ -70,9 +70,11 @@ export function CatalogueClient({
         <div className="mb-5 text-sm font-medium tracking-[0.3em] uppercase text-pacific-mid">
           Our Surfaces · {slabs.length} designs
         </div>
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-6 leading-[1.05]">
+        {/* An h2: the hero above (or the host page) carries the page's
+            one H1. */}
+        <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-6 leading-[1.05]">
           Explore the Collection
-        </h1>
+        </h2>
         <p className="text-lg text-pacific-mid font-light max-w-2xl leading-relaxed">
           {/* Count derives from the slabs prop so per-category pages
               (Quartz / Granite / etc.) report their actual count

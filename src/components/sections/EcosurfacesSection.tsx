@@ -85,7 +85,7 @@ export function EcosurfacesSection() {
             className="mt-12 sm:mt-14"
           >
             <Link
-              href="/ecosurfaces"
+              href="/products/ecosurfaces"
               className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 bg-white text-pacific-dark text-xs font-medium tracking-[0.2em] uppercase hover:bg-pacific-light transition-colors"
             >
               Explore Ecosurfaces

@@ -48,11 +48,11 @@ type ContentKey =
  */
 const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
   { path: "", since: "2026-10-07", content: "home" },
-  { path: "/about", since: "2026-09-29" },
+  { path: "/about", since: "2026-10-08" },
   { path: "/products", since: "2026-10-05", content: "catalogue" },
   // Category landings, resolved by /products/[slug] through
   // CATEGORY_PAGES (products/_lib/category.ts).
-  { path: "/products/quartz", since: "2026-10-05", content: "catalogue" },
+  { path: "/products/quartz", since: "2026-10-08", content: "catalogue" },
   { path: "/products/quartz/about", since: "2026-10-07" },
   { path: "/products/granites", since: "2026-10-05", content: "catalogue" },
   { path: "/products/semi-precious", since: "2026-09-12", content: "catalogue" },
@@ -87,7 +87,7 @@ const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
   { path: "/professionals/applications", since: "2026-09-29" },
   { path: "/professionals/programs", since: "2026-09-29" },
   // Learn topics share one route file, learn/[topic]/page.tsx.
-  { path: "/learn/what-is-quartz", since: "2026-09-12" },
+  { path: "/learn/what-is-quartz", since: "2026-10-08" },
   { path: "/learn/what-is-granites", since: "2026-09-12" },
   { path: "/learn/what-is-semi-precious", since: "2026-09-12" },
   { path: "/learn/maintenance-quartz", since: "2026-09-12" },

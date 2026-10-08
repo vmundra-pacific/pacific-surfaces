@@ -171,8 +171,10 @@ export const productBySlugQuery = groq`
     seoKeywords,
     visible,
     manualHues,
+    // Hidden products (visible == false) have no page, so they are left
+    // out of both rails: linking them sent product pages to a 404.
     "relatedProducts": coalesce(
-      *[_type == "product" && collection._ref == ^.collection._ref && _id != ^._id][0...12] {
+      *[_type == "product" && collection._ref == ^.collection._ref && _id != ^._id && visible != false && defined(slug.current)][0...12] {
         _id, name, slug, "mainImage": mainImage.asset->url, price,
         "collectionName": collection->name,
         "categoryName": category->name,
@@ -180,7 +182,7 @@ export const productBySlugQuery = groq`
       },
       []
     ),
-    "allOtherProducts": *[_type == "product" && _id != ^._id] | order(name asc) [0...60] {
+    "allOtherProducts": *[_type == "product" && _id != ^._id && visible != false && defined(slug.current)] | order(name asc) [0...60] {
       _id, name, slug, "mainImage": mainImage.asset->url, price,
       "categoryName": category->name,
       "collectionName": collection->name,

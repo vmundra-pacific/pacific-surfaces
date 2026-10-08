@@ -96,7 +96,7 @@ export default async function ApplicationPage({
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               <Link
-                href="/samples"
+                href="/contact#enquiry"
                 className="inline-flex items-center gap-2 rounded-full border border-pacific-dark/20 px-6 py-3 text-sm font-light text-pacific-dark transition-colors hover:border-pacific-dark"
               >
                 Order a sample
