@@ -40,6 +40,14 @@ const nextConfig: NextConfig = {
      for framework-specific CVEs. */
   poweredByHeader: false,
 
+  /* Every request gets its title, description and canonical in <head>.
+     Next 15 otherwise streams generateMetadata into the <body> of pages
+     rendered on demand (the Pacific Quartz page, blog posts, series
+     pages) for any user agent outside its short bot list, Googlebot
+     included; a canonical outside <head> is not one Google can rely on
+     (site audit, 2026-10-08). */
+  htmlLimitedBots: /.*/,
+
   /* Strip dev-time console.log/info/debug calls during production builds.
      Keeps console.error and console.warn so real production issues still
      surface. Lighthouse's `errors-in-console` audit is friendlier without

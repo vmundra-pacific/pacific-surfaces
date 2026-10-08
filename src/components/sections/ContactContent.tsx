@@ -358,13 +358,10 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         <Photo src={MEDIA.hero.src} alt={MEDIA.hero.alt} priority />
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/25 to-black/55" />
         <Container className="flex flex-col items-center">
-          <motion.div
-            data-over-media
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
+          {/* A CSS entrance, not framer-motion: the H1 is the page's
+              largest paint, and a JS fade kept it invisible until the page
+              hydrated, about 13 s on a slow phone (site audit, 2026-10-08). */}
+          <div data-over-media className="animate-fade-up text-center">
             <p className="text-xs uppercase tracking-[0.3em]">Where to buy</p>
             <h1 style={LIGHT} className="mt-4 text-[40px] uppercase leading-none tracking-[-0.03em] sm:text-6xl lg:text-[84px]">
               Find Pacific Surfaces near you
@@ -372,18 +369,16 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
             <p className="mx-auto mt-5 max-w-xl text-base font-light leading-snug sm:text-lg">
               Pacific ships to 45+ countries. Tell us who you are, what you need and where, and we connect you with the nearest partner.
             </p>
-          </motion.div>
+          </div>
 
           {/* The partner finder is off for now (owner, 2026-10-05): until it
               is back, the hero hands straight on to the enquiry form, which
               asks for the city as well. Flip SHOW_FINDER to restore it. */}
           {!SHOW_FINDER && (
-            <motion.div
+            <div
               data-over-media
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-10 flex flex-col items-center gap-5"
+              className="animate-fade-up mt-10 flex flex-col items-center gap-5"
+              style={{ animationDelay: "0.15s" }}
             >
               <a
                 href="#enquiry"
@@ -400,7 +395,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                   WhatsApp
                 </a>
               </p>
-            </motion.div>
+            </div>
           )}
 
           {SHOW_FINDER && (

@@ -118,3 +118,25 @@ body {
 .animate-bounce-slow {
   animation: bounce-slow 1.8s ease-in-out infinite;
 }
+
+/* A first-paint entrance that needs no JavaScript, for hero copy: the
+   text paints as soon as the HTML arrives, so it never holds back the
+   largest contentful paint the way a hydration-driven fade does. */
+@keyframes fade-up {
+  from {
+    opacity: 0.01;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none;
+  }
+}

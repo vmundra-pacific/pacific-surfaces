@@ -108,12 +108,17 @@ export function HeroScrollCanvas() {
   const [ready, setReady] = useState(false);
 
   // Progressive frame preloading:
-  // Phase 1: Load first INITIAL_BATCH kitchen frames → dismiss loading
-  // Phase 2: Wide-then-dense pyramid; tail passes drain via idle.
+  // Phase 1: the first INITIAL_BATCH frames → dismiss loading.
+  // Phase 2: a sparse spread over the whole range, so any scroll position
+  //          has a nearby frame (about 6 MB in all before any scroll).
+  // Phase 3: the dense fill, only once the visitor scrolls, and never on
+  //          Save-Data or 2G/3G connections. Loading all 520 frames up
+  //          front cost every visitor about 77 MB (site audit, 2026-10-01).
   useEffect(() => {
-    const INITIAL_BATCH = 80; // enough for first ~15% scroll
+    const INITIAL_BATCH = 20; // the opening frames, ~3 MB
     let count = 0;
     let cancelled = false;
+    let cleanupScroll = () => {};
     const imgs: HTMLImageElement[] = new Array(TOTAL_FRAMES);
     imagesRef.current = imgs;
 
@@ -173,8 +178,8 @@ export function HeroScrollCanvas() {
 
     // Hard safety timeout — if any frame stalls (network blip, CDN
     // miss), the user shouldn't sit on the loading screen forever.
-    // 8s is long enough for any reasonable connection to load 80
-    // frames at AVIF sizes (~30 KB each ≈ 2.4 MB).
+    // 8s is long enough for any reasonable connection to load the
+    // opening frames (~150 KB each at AVIF).
     const safety = setTimeout(() => {
       if (!cancelled) setReady(true);
     }, 8000);
@@ -222,8 +227,14 @@ export function HeroScrollCanvas() {
         // assets. Total bytes loaded = same 520 frames, smarter order.
         const FAST_BATCH = 20;
         const SLOW_BATCH = 8;
-        const FAST_STRIDES = [80, 40, 20, 10, 5];
+        const FAST_STRIDES = [40, 20];
+        const ON_SCROLL_STRIDES = [10, 5];
         const SLOW_STRIDES = [2, 1];
+        const conn = (navigator as Navigator & {
+          connection?: { saveData?: boolean; effectiveType?: string };
+        }).connection;
+        const lightOnly =
+          !!conn?.saveData || /(^|-)(2g|3g)$/.test(conn?.effectiveType ?? "");
 
         const loadedSet = new Set<number>();
         for (let i = 0; i < INITIAL_BATCH; i++) loadedSet.add(i);
@@ -242,16 +253,17 @@ export function HeroScrollCanvas() {
         };
 
         const fastQueue = buildQueue(FAST_STRIDES);
+        const scrollQueue = buildQueue(ON_SCROLL_STRIDES);
         const slowQueue = buildQueue(SLOW_STRIDES);
 
-        const drainFast = (qIdx: number): Promise<void> => {
-          if (cancelled || qIdx >= fastQueue.length) return Promise.resolve();
-          const upTo = Math.min(qIdx + FAST_BATCH, fastQueue.length);
+        const drain = (queue: number[], qIdx: number): Promise<void> => {
+          if (cancelled || qIdx >= queue.length) return Promise.resolve();
+          const upTo = Math.min(qIdx + FAST_BATCH, queue.length);
           const batch: Promise<void>[] = [];
           for (let i = qIdx; i < upTo; i++) {
-            batch.push(loadFrame(fastQueue[i], ext));
+            batch.push(loadFrame(queue[i], ext));
           }
-          return Promise.all(batch).then(() => drainFast(upTo));
+          return Promise.all(batch).then(() => drain(queue, upTo));
         };
 
         const idle = (cb: () => void) => {
@@ -278,9 +290,19 @@ export function HeroScrollCanvas() {
           Promise.all(batch).then(() => idle(() => drainSlow(upTo)));
         };
 
-        drainFast(0).then(() => {
-          if (cancelled) return;
-          idle(() => drainSlow(0));
+        drain(fastQueue, 0).then(() => {
+          if (cancelled || lightOnly) return;
+          // The dense fill waits for the visitor to start scrolling.
+          const start = () => {
+            window.removeEventListener("scroll", start);
+            if (cancelled) return;
+            drain(scrollQueue, 0).then(() => {
+              if (!cancelled) idle(() => drainSlow(0));
+            });
+          };
+          if (window.scrollY > 0) start();
+          else window.addEventListener("scroll", start, { passive: true });
+          cleanupScroll = () => window.removeEventListener("scroll", start);
         });
       });
     });
@@ -288,6 +310,7 @@ export function HeroScrollCanvas() {
     return () => {
       cancelled = true;
       clearTimeout(safety);
+      cleanupScroll();
     };
   }, []);
 
@@ -503,9 +526,9 @@ export function HeroScrollCanvas() {
   // land in state only when they change; continuous values are
   // written straight to the DOM via refs.
 
-  // Loading screen shows progress of the initial batch (80 frames),
+  // Loading screen shows progress of the initial batch (the opening frames),
   // not all 520 — so it dismisses quickly while the rest loads in background
-  const INITIAL_BATCH = 80;
+  const INITIAL_BATCH = 20; // keep in step with the loader above
   // Cap visible progress at 90% until `ready` (canvas drew its
   // first frame) so the bar never reads 100% while the user is
   // still staring at the loading screen waiting for paint.
