@@ -1,16 +1,19 @@
 import { Metadata } from "next";
 import { client } from "@/sanity/lib/client";
 import { careersPageQuery, jobOpeningsQuery } from "@/sanity/lib/queries";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 import { CareersContent } from "@/components/sections/CareersContent";
 
 // Re-render at most every 60s so new job openings published in
 // Sanity appear without a redeploy.
 export const revalidate = 60;
 
+// No JobPosting data here: Google wants it on each job's own page, never
+// on a page that lists jobs. Give each role a page first.
 export const metadata: Metadata = {
-  title: "Careers at Pacific Surfaces — Join Our Team",
+  title: "Careers at Pacific Surfaces | Open Roles",
   description:
-    "Join Pacific Surfaces — engineered stone manufacturer with 13+ years of growth, shipping to 45+ countries. View open roles in design, manufacturing, and operations.",
+    "Open roles at Pacific Surfaces in sales, marketing, HR and technology, in cities across India. Read each role, then apply online with your CV.",
   alternates: { canonical: "/careers" },
 };
 
@@ -32,5 +35,15 @@ export default async function CareersPage() {
     client.fetch(jobOpeningsQuery),
   ]);
 
-  return <CareersContent pageData={pageData} openings={openings} />;
+  return (
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Careers", url: "/careers" },
+        ]}
+      />
+      <CareersContent pageData={pageData} openings={openings} />
+    </>
+  );
 }

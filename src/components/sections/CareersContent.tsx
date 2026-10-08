@@ -1,14 +1,8 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronDown, Send } from "lucide-react";
-import {
-  AnimatedSection,
-  StaggerContainer,
-  StaggerItem,
-} from "@/components/ui/animated-section";
-import { MagneticButton } from "@/components/ui/magnetic-button";
+import { ArrowRight, ChevronDown, Send } from "lucide-react";
+import { CompanyNav, LABEL, LIGHT, ProClose, ProHero, ProSteps } from "@/components/sections/professionals/ProKit";
 
 /* ------------------------------------------------------------------ *
  * Sanity data shapes                                                  *
@@ -141,11 +135,9 @@ export function CareersContent({ pageData, openings }: Props) {
     pageData?.ctaDescription ||
     "Send us your resume and let us know your interest. We'd love to consider you for future opportunities.";
 
-  // Hero media — defaults to /videos/careers-hero.mp4 if the
-  // editor hasn't overridden it in Sanity. Drop the file into
-  // pacific-surfaces/public/videos/ for it to play.
-  const heroVideoUrl = pageData?.heroVideoUrl ?? "/videos/careers-hero.mp4";
-  const heroImage = pageData?.heroImage ?? null;
+  // Hero media is fixed to careers-hero.mp4 (plant and people) since
+  // 2026-10-08; the careersPage heroVideoUrl / heroImage fields are no
+  // longer read.
 
   /* --- Dropdown search -------------------------------------------- */
 
@@ -447,435 +439,256 @@ export function CareersContent({ pageData, openings }: Props) {
 
   /* --- Render ------------------------------------------------------ */
 
+  // One role may be open in several cities; count roles, not documents.
+  const roleCount = new Set(openings.map((o) => o.title)).size;
+
   return (
-    <>
-      {/* Hero — full-screen, optional looped video background.
-          Layer order (bottom → top):
-            1. <video> (or <img> fallback / dark fallback)
-            2. dark gradient scrim so headline reads against any frame
-            3. text content (eyebrow + headline + paragraph) */}
-      <section className="relative min-h-screen flex items-center bg-pacific-dark overflow-hidden">
-        {/* Background media */}
-        <div className="absolute inset-0 z-0">
-          {heroVideoUrl ? (
-            <video
-              key={heroVideoUrl}
-              src={heroVideoUrl}
-              poster={
-                heroVideoUrl.startsWith("/videos/")
-                  ? heroVideoUrl.replace(/\.mp4$/, "-poster.jpg")
-                  : undefined
-              }
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          ) : heroImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={heroImage}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          ) : null}
-          {/* Scrim — keeps the corner caption readable regardless of
-              which frame the video is on, ramps to fully opaque
-              dark at the bottom so the section transitions cleanly
-              into the Values block below. */}
-          <div className="absolute inset-0 bg-gradient-to-b from-pacific-dark/30 via-pacific-dark/55 to-pacific-dark" />
-        </div>
+    <main data-light-page className="bg-white text-[#14140f]">
+      {/* Rebuilt 2026-10-08 in the Professionals pages' language (owner:
+          the Corporate section to get the same upgrade). The team film
+          opens the page; roles are collapsed rows that open to the full
+          description; the form sits on a light ground. The search, the
+          filters, apply-to-role and submission are unchanged. */}
+      <ProHero
+        eyebrow="Company · Work with us"
+        title="Careers at Pacific Surfaces"
+        lead={hero.description}
+        image="/videos/careers-hero-poster.jpg"
+        video="/videos/careers-hero.mp4"
+        alt="The Pacific Surfaces plant from the air"
+        ctas={[
+          { label: "See open roles", href: "#roles" },
+          { label: "Send your CV", href: "#apply" },
+        ]}
+        facts={[
+          { value: String(roleCount), label: roleCount === 1 ? "Open role" : "Open roles" },
+          { value: String(locationOptions.length), label: locationOptions.length === 1 ? "City" : "Cities" },
+          { value: "45+", label: "Countries supplied" },
+          { value: "Since 2000", label: "Working in stone" },
+        ]}
+      />
+      <CompanyNav current="careers" />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 py-24 text-center"
-        >
-          <span className="inline-block text-xs font-medium tracking-[0.25em] uppercase text-pacific-light/80 mb-6">
-            {hero.eyebrow}
-          </span>
-          <h1
-            className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl mx-auto"
-            style={{
-              textShadow: "0 2px 6px rgba(0,0,0,.6), 0 6px 32px rgba(0,0,0,.5)",
-            }}
-          >
-            {hero.headline}
-          </h1>
-          <p
-            className="mt-6 text-lg text-pacific-light/85 max-w-2xl mx-auto font-light leading-relaxed"
-            style={{
-              textShadow: "0 1px 3px rgba(0,0,0,.6)",
-            }}
-          >
-            {hero.description}
-          </p>
-        </motion.div>
-      </section>
+      <ProSteps
+        eyebrow="Why Pacific Surfaces"
+        title={hero.headline}
+        steps={values.map((v) => ({ title: v.title, body: v.description }))}
+        tone="white"
+      />
 
-      {/* Values */}
-      <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-            {values.map((value) => (
-              <StaggerItem key={value.title} className="h-full">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5 }}
-                  className="bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-white/15 transition-all duration-500 h-full flex flex-col"
-                >
-                  <h3 className="text-xl font-light tracking-tight text-white mb-3">
-                    {value.title}
-                  </h3>
-                  <p className="text-pacific-mid font-light leading-relaxed">
-                    {value.description}
-                  </p>
-                </motion.div>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </div>
-      </section>
+      {/* Open roles: search, then one row per role. */}
+      <section id="roles" className="scroll-mt-24 bg-[#EFEDE9]">
+        <div ref={resultsRef} className="mx-auto w-full max-w-[1760px] px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
+            <div>
+              <p className={LABEL}>Open roles</p>
+              <h2 style={LIGHT} className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]">
+                {openPositionsHeading}
+              </h2>
+            </div>
+            <p className="max-w-xl text-[17px] font-light leading-relaxed">{openPositionsDescription}</p>
+          </div>
 
-      {/* Open Positions — search bar + results */}
-      <section className="bg-[#0e2030]" ref={resultsRef}>
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
-          <AnimatedSection className="mb-10">
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
-              {openPositionsHeading}
-            </h2>
-            <p className="mt-3 text-pacific-mid font-light">
-              {openPositionsDescription}
-            </p>
-          </AnimatedSection>
-
-          {/* Search bar — Job Title + Location dropdowns + GO. The
-              dropdowns are populated from `openings` so adding a new
-              role in Studio extends them automatically. */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mb-12 bg-white/5 rounded-2xl p-5 sm:p-6 lg:p-8 border border-white/10"
-          >
-            {/* Job-title search is now a free-text input instead of
-                a Job-Title dropdown — candidates can type any
-                keyword (role, department, words from the
-                description, experience phrase) and we'll surface
-                the best matches. */}
-            <div className="md:col-span-5">
-              <label className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3">
-                Search Role
+          <div className="mt-10 grid grid-cols-1 items-end gap-4 border border-[#14140f]/15 bg-white p-5 sm:p-6 md:grid-cols-12">
+            <div className="md:col-span-6">
+              <label htmlFor="role-search" className={FIELD_LABEL}>
+                Search roles
               </label>
               <input
+                id="role-search"
                 type="search"
                 value={titleQuery}
                 onChange={(e) => setTitleQuery(e.target.value)}
-                placeholder="e.g. Sales, HR Manager, Marketing"
-                className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white placeholder:text-pacific-mid/60 focus:outline-none focus:border-white/30 transition-colors"
+                placeholder="e.g. Sales, HR, Marketing"
+                className={FIELD}
               />
             </div>
             <DropdownField
               label="Location"
               value={locationFilter}
               onChange={setLocationFilter}
-              placeholder="Select Location"
+              placeholder="All locations"
               options={locationOptions}
-              className="md:col-span-5"
+              className="md:col-span-4"
             />
             <div className="md:col-span-2">
               <button
                 type="button"
                 onClick={handleGo}
-                className="w-full bg-white text-[#112732] px-6 py-3 rounded-lg font-medium tracking-wide hover:bg-white/90 transition-colors"
+                data-over-media
+                className="inline-flex h-[50px] w-full items-center justify-center bg-[#1D1D1C] px-6 text-[13px] uppercase tracking-[0.12em] text-white hover:opacity-85"
               >
-                GO!
+                <span>Search</span>
               </button>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Results — always rendered. With no filters the
-              candidate sees every open position by default; typing
-              in the search box or picking a location narrows the
-              list live without needing to click GO!. */}
-          <>
-            <div className="mb-6 text-sm text-pacific-mid font-light tracking-wide">
-              <span className="text-white font-medium">
-                {filteredOpenings.length}
-              </span>{" "}
-              {filteredOpenings.length === 1
-                ? "position"
-                : "positions"}
-              {(titleQuery || locationFilter) && (
-                <>
-                  {" "}
-                  matching your search
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTitleQuery("");
-                      setLocationFilter("");
-                    }}
-                    className="ml-3 underline underline-offset-4 hover:text-white"
-                  >
-                    Clear filters
-                  </button>
-                </>
-              )}
-            </div>
+          <p className="mt-8 text-[15px] font-light">
+            <span className="tabular-nums">{filteredOpenings.length}</span>{" "}
+            {filteredOpenings.length === 1 ? "role" : "roles"}
+            {(titleQuery || locationFilter) && (
+              <>
+                {" "}
+                match your search
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTitleQuery("");
+                    setLocationFilter("");
+                  }}
+                  className="ml-3 underline underline-offset-4"
+                >
+                  Clear filters
+                </button>
+              </>
+            )}
+          </p>
 
-            {filteredOpenings.length === 0 ? (
-              <div className="bg-white/5 rounded-2xl p-12 text-center border border-white/10">
-                <p className="text-pacific-mid font-light">
-                  No positions match these filters right now. Try widening the
-                  search, or send your resume via the application form below —
-                  we&apos;d love to consider you for future opportunities.
-                </p>
-              </div>
-            ) : (
-              // Plain grid + per-card motion.div. The shared
-              // StaggerContainer/StaggerItem wrappers use whileInView
-              // with viewport.once=true, which leaves newly-mounted
-              // children stuck on the "hidden" variant after a
-              // search → clear cycle. Each card now drives its own
-              // fade-in on mount instead.
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                {filteredOpenings.map((job) => (
-                  <div
-                    key={job._id}
-                    className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-colors duration-300 flex flex-col h-full"
-                  >
-                        <div className="flex-1">
-                          <h3 className="text-lg font-light tracking-tight text-white">
-                            {job.title}
-                          </h3>
-                          <div className="mt-2 flex gap-2 flex-wrap">
-                            {job.locations.map((loc) => (
-                              <span
-                                key={loc}
-                                className="px-3 py-1 rounded-full bg-white/5 text-xs font-medium tracking-wide text-pacific-mid"
-                              >
-                                {loc}
-                              </span>
-                            ))}
-                            {job.department && (
-                              <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-medium tracking-wide text-pacific-light">
-                                {job.department}
-                              </span>
-                            )}
-                            {job.experience && (
-                              <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-medium tracking-wide text-white/90 border border-white/20">
-                                {job.experience}
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-4 text-sm text-pacific-mid font-light leading-relaxed">
-                            {job.description}
-                          </p>
-                          {job.responsibilities &&
-                            job.responsibilities.length > 0 && (
-                              <div className="mt-4">
-                                <p className="text-xs font-medium tracking-[0.15em] uppercase text-pacific-light mb-2">
-                                  Key Responsibilities
-                                </p>
-                                <ul className="space-y-1.5">
-                                  {job.responsibilities.map((r, i) => (
-                                    <li
-                                      key={i}
-                                      className="text-sm text-pacific-mid font-light leading-relaxed flex gap-2"
-                                    >
-                                      <span
-                                        aria-hidden="true"
-                                        className="text-white/40 flex-shrink-0 mt-0.5"
-                                      >
-                                        •
-                                      </span>
-                                      <span>{r}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                        </div>
+          {filteredOpenings.length === 0 ? (
+            <p className="mt-6 max-w-2xl border border-[#14140f]/15 bg-white p-8 text-[16px] font-light leading-relaxed">
+              No roles match these filters right now. Try a wider search, or send your CV with the form below and we
+              will keep it for future openings.
+            </p>
+          ) : (
+            <ul className="mt-6 border-t border-[#14140f]">
+              {filteredOpenings.map((job) => (
+                <li key={job._id} className="border-b border-[#14140f]/20">
+                  <details className="group">
+                    <summary className="grid cursor-pointer list-none gap-2 py-6 md:grid-cols-[minmax(0,5fr)_minmax(0,3fr)_minmax(0,3fr)_auto] md:items-center md:gap-6 [&::-webkit-details-marker]:hidden">
+                      <span className="text-[19px] leading-snug">{job.title}</span>
+                      <span className="text-[14px] font-light opacity-80">{job.locations.join(" · ")}</span>
+                      <span className="text-[14px] font-light opacity-80">
+                        {[job.department, job.experience].filter(Boolean).join(" · ")}
+                      </span>
+                      <span aria-hidden="true" className="hidden text-2xl leading-none transition-transform group-open:rotate-45 md:block">
+                        +
+                      </span>
+                    </summary>
+                    <div className="grid gap-8 pb-10 md:grid-cols-[minmax(0,8fr)_minmax(0,4fr)]">
+                      <div>
+                        <p className="max-w-3xl text-[16px] font-light leading-relaxed">{job.description}</p>
+                        {job.responsibilities && job.responsibilities.length > 0 && (
+                          <>
+                            <p className={`mt-7 ${LABEL}`}>Key responsibilities</p>
+                            <ul className="mt-3 max-w-3xl border-t border-[#14140f]/15">
+                              {job.responsibilities.map((r, i) => (
+                                <li key={i} className="flex gap-4 border-b border-[#14140f]/15 py-3 text-[15px] font-light leading-relaxed">
+                                  <span aria-hidden="true" className="mt-[11px] h-px w-4 shrink-0 bg-[#14140f]" />
+                                  {r}
+                                </li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+                      </div>
+                      <div>
                         <button
                           type="button"
                           onClick={() => handleApply(job)}
-                          className="mt-6 self-start text-sm font-medium tracking-wide text-white border-b border-white/40 pb-1 hover:border-white transition-colors"
+                          data-over-media
+                          className="inline-flex h-12 items-center gap-2 bg-[#1D1D1C] px-7 text-[13px] uppercase tracking-[0.12em] text-white hover:opacity-85"
                         >
-                          Apply for this role →
+                          <span>Apply for this role</span>
+                          <ArrowRight className="h-4 w-4" aria-hidden="true" />
                         </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
+                      </div>
+                    </div>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
 
-      {/* Application Form */}
-      <section className="bg-[#112732]" ref={formRef}>
-        <div className="mx-auto max-w-2xl px-6 lg:px-8 py-16 lg:py-24">
-          <AnimatedSection className="mb-12">
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white">
+      {/* Application form */}
+      <section id="apply" className="scroll-mt-24 bg-white">
+        <div
+          ref={formRef}
+          className="mx-auto grid w-full max-w-[1760px] gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20 lg:px-12 lg:py-24"
+        >
+          <div>
+            <p className={LABEL}>Apply</p>
+            <h2 style={LIGHT} className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]">
               {applyHeading}
             </h2>
-            <p className="mt-3 text-pacific-mid font-light">
-              {applyDescription}
-            </p>
+            <p className="mt-6 max-w-md text-[17px] font-light leading-relaxed">{applyDescription}</p>
             {appliedRole && (
-              <p className="mt-3 text-sm text-pacific-light">
-                Applying for: <strong>{appliedRole}</strong>
+              <p className="mt-6 text-[15px] font-light">
+                Applying for: <strong className="font-normal">{appliedRole}</strong>
                 <button
                   type="button"
                   onClick={() => {
                     setAppliedRole("");
                     setAppliedRoleRequiresPortfolio(false);
                   }}
-                  className="ml-2 text-pacific-mid hover:text-white transition-colors text-xs"
+                  className="ml-2 text-[13px] underline underline-offset-4"
                 >
-                  (clear)
+                  clear
                 </button>
               </p>
             )}
-          </AnimatedSection>
+          </div>
 
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            onSubmit={handleSubmit}
-            className="space-y-6 bg-white/5 rounded-2xl p-6 sm:p-8 border border-white/10"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <FormInput
-                label="First Name"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                placeholder="John"
-                required
-              />
-              <FormInput
-                label="Last Name"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                placeholder="Doe"
-                required
-              />
+          <form onSubmit={handleSubmit} className="space-y-6 border border-[#14140f]/15 bg-white p-6 sm:p-8">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <FormInput label="First name" name="firstName" value={formData.firstName} onChange={handleInputChange} required />
+              <FormInput label="Last name" name="lastName" value={formData.lastName} onChange={handleInputChange} required />
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <FormInput
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="john@example.com"
-                required
-              />
-              <FormInput
-                label="Phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="+1 (555) 123-4567"
-                required
-              />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <FormInput label="Email" name="email" type="email" value={formData.email} onChange={handleInputChange} required />
+              <FormInput label="Phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} required />
             </div>
-
-            <FormInput
-              label="Address"
-              name="address"
-              value={formData.address}
-              onChange={handleInputChange}
-              placeholder="123 Main Street, City, State"
-              required
-            />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <FormInput label="Address" name="address" value={formData.address} onChange={handleInputChange} required />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <FormInput
-                label="Current Location"
+                label="Current location"
                 name="currentLocation"
                 value={formData.currentLocation}
                 onChange={handleInputChange}
                 placeholder="e.g. Bangalore, Karnataka"
                 required
               />
-              <FormInput
-                label="Age"
-                name="age"
-                type="number"
-                value={formData.age}
-                onChange={handleInputChange}
-                placeholder="e.g. 28"
-                required
-              />
+              <FormInput label="Age" name="age" type="number" value={formData.age} onChange={handleInputChange} required />
             </div>
-
             <FormInput
-              label="Total Experience"
+              label="Total experience"
               name="totalExperience"
               value={formData.totalExperience}
               onChange={handleInputChange}
-              placeholder='e.g. "5 years", "Fresher", "8+ years in sales"'
+              placeholder='e.g. "5 years", "Fresher"'
               required
             />
 
             <div>
-              <label className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3">
+              <label htmlFor="department" className={FIELD_LABEL}>
                 Department
               </label>
-              <select
-                name="department"
-                value={formData.department}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white focus:outline-none focus:border-white/30 transition-colors"
-              >
-                <option value="" className="bg-[#112732]">
-                  Select a department...
-                </option>
-                <option value="sales" className="bg-[#112732]">
-                  Sales & Business Development
-                </option>
-                <option value="marketing" className="bg-[#112732]">
-                  Marketing & Communications
-                </option>
-                <option value="operations" className="bg-[#112732]">
-                  Operations & Supply Chain
-                </option>
-                <option value="finance" className="bg-[#112732]">
-                  Finance & Accounting
-                </option>
-                <option value="design" className="bg-[#112732]">
-                  Design & Architecture
-                </option>
-                <option value="hr" className="bg-[#112732]">
-                  Human Resources
-                </option>
-                <option value="other" className="bg-[#112732]">
-                  Other
-                </option>
-              </select>
+              <div className="relative">
+                <select
+                  id="department"
+                  name="department"
+                  value={formData.department}
+                  onChange={handleInputChange}
+                  required
+                  className={`${FIELD} appearance-none pr-10`}
+                >
+                  <option value="">Select a department...</option>
+                  <option value="sales">Sales & Business Development</option>
+                  <option value="marketing">Marketing & Communications</option>
+                  <option value="operations">Operations & Supply Chain</option>
+                  <option value="finance">Finance & Accounting</option>
+                  <option value="design">Design & Architecture</option>
+                  <option value="hr">Human Resources</option>
+                  <option value="other">Other</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" aria-hidden="true" />
+              </div>
             </div>
 
             <div>
-              <label
-                htmlFor="resume"
-                className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3"
-              >
-                Upload Resume
+              <label htmlFor="resume" className={FIELD_LABEL}>
+                CV
               </label>
               <input
                 id="resume"
@@ -884,38 +697,19 @@ export function CareersContent({ pageData, openings }: Props) {
                 accept=".pdf,.doc,.docx"
                 onChange={handleFileChange}
                 required
-                className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white focus:outline-none focus:border-white/30 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-white/10 file:font-light file:text-pacific-light hover:file:bg-white/15"
+                className={`${FIELD} file:mr-4 file:border-0 file:bg-[#EFEDE9] file:px-4 file:py-2 file:font-light`}
               />
-              {/* Explicit hint about accepted file formats + the 8 MB
-                  cap enforced server-side in /api/careers/apply.
-                  Surfaces the constraint to the candidate BEFORE
-                  they hit Submit so an oversize PDF doesn't fail
-                  silently with a generic error. */}
-              <p className="mt-2 text-xs text-pacific-mid">
-                PDF, DOC, or DOCX — up to 8 MB.
-              </p>
-              {resumeFile && (
-                <p className="mt-1 text-xs text-pacific-mid">
-                  Selected: {resumeFile.name}
-                </p>
-              )}
+              {/* The 8 MB cap is enforced in /api/careers/apply. */}
+              <p className="mt-2 text-[13px] font-light opacity-70">PDF, DOC or DOCX, up to 8 MB.</p>
+              {resumeFile && <p className="mt-1 text-[13px] font-light">Selected: {resumeFile.name}</p>}
             </div>
 
-            {/* Portfolio — only rendered at all when the applied-for
-                role has requiresPortfolio set in Sanity (e.g. Senior
-                Graphic Designer). Not shown for roles that don't need
-                one. A link field and a file upload are both offered;
-                either one satisfies the requirement. */}
+            {/* Only for roles with requiresPortfolio set in Sanity; a link
+                or a file satisfies it. */}
             {appliedRoleRequiresPortfolio && (
               <div>
-                <label
-                  htmlFor="portfolioUrl"
-                  className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3"
-                >
-                  Portfolio Link{" "}
-                  <span className="text-white normal-case tracking-normal font-light">
-                    — required for this role
-                  </span>
+                <label htmlFor="portfolioUrl" className={FIELD_LABEL}>
+                  Portfolio link, required for this role
                 </label>
                 <input
                   id="portfolioUrl"
@@ -923,12 +717,11 @@ export function CareersContent({ pageData, openings }: Props) {
                   name="portfolioUrl"
                   value={formData.portfolioUrl}
                   onChange={handleInputChange}
-                  placeholder="https://behance.net/yourname or Drive/Dropbox link"
-                  className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white placeholder-pacific-mid/70 focus:outline-none focus:border-white/30 transition-colors"
+                  placeholder="https://behance.net/yourname or a Drive or Dropbox link"
+                  className={FIELD}
                 />
-                <p className="mt-2 text-xs text-pacific-mid">
-                  Or upload a file instead — PDF, PPT/PPTX, JPG, or PNG, up to
-                  20 MB.
+                <p className="mt-2 text-[13px] font-light opacity-70">
+                  Or upload a file instead: PDF, PPT/PPTX, JPG or PNG, up to 20 MB.
                 </p>
                 <input
                   id="portfolio"
@@ -936,22 +729,15 @@ export function CareersContent({ pageData, openings }: Props) {
                   type="file"
                   accept=".pdf,.ppt,.pptx,.jpg,.jpeg,.png"
                   onChange={handlePortfolioFileChange}
-                  className="mt-2 w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white focus:outline-none focus:border-white/30 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-white/10 file:font-light file:text-pacific-light hover:file:bg-white/15"
+                  className={`mt-2 ${FIELD} file:mr-4 file:border-0 file:bg-[#EFEDE9] file:px-4 file:py-2 file:font-light`}
                 />
-                {portfolioFile && (
-                  <p className="mt-1 text-xs text-pacific-mid">
-                    Selected: {portfolioFile.name}
-                  </p>
-                )}
+                {portfolioFile && <p className="mt-1 text-[13px] font-light">Selected: {portfolioFile.name}</p>}
               </div>
             )}
 
             <div>
-              <label
-                htmlFor="comments"
-                className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3"
-              >
-                Comments / Remarks
+              <label htmlFor="comments" className={FIELD_LABEL}>
+                Comments
               </label>
               <textarea
                 id="comments"
@@ -959,76 +745,61 @@ export function CareersContent({ pageData, openings }: Props) {
                 value={formData.comments}
                 onChange={handleInputChange}
                 rows={4}
-                placeholder="Anything else you'd like us to know — notice period, preferred locations, links to portfolio, etc."
-                className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white placeholder-pacific-mid/70 focus:outline-none focus:border-white/30 transition-colors resize-y"
+                placeholder="Notice period, preferred locations, links to your work"
+                className={`${FIELD} resize-y`}
               />
             </div>
 
-            <div className="pt-4">
-              <button
-                type="submit"
-                disabled={submitStatus === "submitting"}
-                className="w-full bg-white text-[#112732] px-6 py-3 rounded-lg font-light tracking-wide hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 group"
-              >
-                <span>
-                  {submitStatus === "submitting"
-                    ? "Submitting..."
-                    : submitStatus === "success"
-                      ? "Application Sent!"
-                      : "Submit Application"}
-                </span>
-                {submitStatus !== "submitting" && (
-                  <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={submitStatus === "submitting"}
+              data-over-media
+              className="group inline-flex h-[52px] w-full items-center justify-center gap-2 bg-[#1D1D1C] px-6 text-[13px] uppercase tracking-[0.14em] text-white hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <span>
+                {submitStatus === "submitting"
+                  ? "Submitting..."
+                  : submitStatus === "success"
+                    ? "Application sent"
+                    : "Submit application"}
+              </span>
+              {submitStatus !== "submitting" && <Send className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />}
+            </button>
 
             {submitStatus === "success" && (
-              <div className="bg-white/5 border border-pacific-mid/30 rounded-lg p-4">
-                <p className="text-sm text-pacific-light font-light">
-                  Thank you for your application! We&apos;ll review it and get
-                  back to you soon.
-                </p>
-              </div>
+              <p className="border border-[#14140f]/20 bg-[#EFEDE9] p-4 text-[15px] font-light">
+                Thank you for your application. We will review it and get back to you.
+              </p>
             )}
-
             {submitStatus === "error" && (
-              <div className="bg-white/10 border border-white/40 rounded-lg p-4">
-                <p className="text-sm text-white font-light">
-                  {submitError ||
-                    "There was an error submitting your application. Please try again."}
-                </p>
-              </div>
+              <p className="border border-[#14140f]/40 p-4 text-[15px] font-light">
+                {submitError || "There was an error submitting your application. Please try again."}
+              </p>
             )}
-          </motion.form>
+          </form>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-pacific-dark">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-20 text-center">
-          <AnimatedSection>
-            <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-white">
-              {ctaHeading}
-            </h2>
-            <p className="mt-3 text-pacific-mid font-light max-w-md mx-auto">
-              {ctaDescription}
-            </p>
-            <div className="mt-8">
-              <MagneticButton href="/contact" variant="primary" size="lg">
-                Get in Touch
-              </MagneticButton>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
-    </>
+      <ProClose
+        title={ctaHeading}
+        body={ctaDescription}
+        ctas={[
+          { label: "Get in touch", href: "/contact#enquiry" },
+          { label: "Our story", href: "/about" },
+        ]}
+        image="/videos/origin-poster.jpg"
+      />
+    </main>
   );
 }
 
 /* ------------------------------------------------------------------ *
  * Small reusable form bits                                            *
  * ------------------------------------------------------------------ */
+
+const FIELD_LABEL = "mb-2 block text-[11px] uppercase tracking-[0.14em] opacity-70";
+const FIELD =
+  "w-full border border-[#14140f]/25 bg-white px-4 py-3 text-[15px] font-light text-[#14140f] placeholder:text-[#14140f]/40 focus:border-[#14140f] focus:outline-none";
 
 function FormInput({
   label,
@@ -1049,25 +820,14 @@ function FormInput({
 }) {
   return (
     <div>
-      <label
-        htmlFor={name}
-        className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3"
-      >
+      <label htmlFor={name} className={FIELD_LABEL}>
         {label}
       </label>
-      <input
-        id={name}
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        placeholder={placeholder}
-        className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 font-light text-white placeholder-pacific-mid/70 focus:outline-none focus:border-white/30 transition-colors"
-      />
+      <input id={name} type={type} name={name} value={value} onChange={onChange} required={required} placeholder={placeholder} className={FIELD} />
     </div>
   );
 }
+
 function DropdownField({
   label,
   value,
@@ -1085,25 +845,19 @@ function DropdownField({
 }) {
   return (
     <div className={className}>
-      <label className="block text-xs font-medium tracking-[0.15em] uppercase text-pacific-mid mb-3">
+      <label htmlFor={`dropdown-${label}`} className={FIELD_LABEL}>
         {label}
       </label>
       <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full appearance-none px-4 py-3 pr-10 rounded-lg border border-white/15 bg-white/5 font-light text-white focus:outline-none focus:border-white/30 transition-colors"
-        >
-          <option value="" className="bg-[#112732]">
-            {placeholder}
-          </option>
+        <select id={`dropdown-${label}`} value={value} onChange={(e) => onChange(e.target.value)} className={`${FIELD} appearance-none pr-10`}>
+          <option value="">{placeholder}</option>
           {options.map((opt) => (
-            <option key={opt} value={opt} className="bg-[#112732]">
+            <option key={opt} value={opt}>
               {opt}
             </option>
           ))}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-pacific-mid" />
+        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" aria-hidden="true" />
       </div>
     </div>
   );

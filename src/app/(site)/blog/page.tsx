@@ -1,125 +1,83 @@
 import type { Metadata } from "next";
 import { client } from "@/sanity/lib/client";
 import { allBlogPostsQuery } from "@/sanity/lib/queries";
-import { BlogGrid } from "@/components/sections/BlogGrid";
+import { BreadcrumbList } from "@/components/global/JsonLd";
+import { BlogGrid, type BlogPost } from "@/components/sections/BlogGrid";
+import { CompanyNav, Container, LABEL, LIGHT, ProClose } from "@/components/sections/professionals/ProKit";
+
+/**
+ * /blog, News: The Pacific Journal, rebuilt 2026-10-08 in the
+ * Professionals pages' language (owner: the Corporate section to get the
+ * same upgrade). A plain masthead, the company nav, the newest post as a
+ * feature and every other post as a card (BlogGrid).
+ */
 
 export const metadata: Metadata = {
-  title: "Field Notes — The Pacific Journal",
+  title: "The Pacific Journal: News, Guides and Field Notes | Pacific Surfaces",
   description:
-    "The ultimate design ledger curated for you. Trends, guides, and stories from Pacific Surfaces — premium quartz and stone for architects and homeowners.",
+    "News, guides and field notes from Pacific Surfaces: trade shows, new collections, and how to choose and care for quartz, granite and stone surfaces.",
   alternates: { canonical: "/blog" },
 };
 
-/**
- * /blog — the editorial index, revamped.
- *
- * Layout from top to bottom:
- *
- *   1. Slim navy ribbon (brand stamp; same ribbon repeats on the
- *      blog post detail page so the two views feel like the same
- *      magazine).
- *
- *   2. Cream editorial masthead. Three-column header layout on
- *      desktop:
- *        - Left:  oversized "Field Notes" wordmark in dark navy.
- *        - Right: tracked-out small caps eyebrow + a short
- *                introduction paragraph + the issue meta (count
- *                of articles, last updated). Reads like the
- *                colophon on a print magazine cover.
- *      The header sits above a thin hairline rule that visually
- *      anchors the body grid below.
- *
- *   3. BlogGrid renders a featured cover-story card for the most
- *      recent post, then a 3-column uniform grid for the rest.
- *      Section divider between the two sections so the magazine
- *      hierarchy is unambiguous.
- */
-
 export default async function BlogPage() {
-  const posts = await client.fetch(allBlogPostsQuery);
-  const totalCount = posts.length;
+  const posts: BlogPost[] = await client.fetch(allBlogPostsQuery);
   const lastUpdated =
     posts.length > 0
-      ? new Date(posts[0].publishedAt).toLocaleDateString("en-IN", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
+      ? new Date(posts[0].publishedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
       : null;
 
   return (
-    // pt-20 clears the site's fixed top-0 navbar so the navy ribbon
-    // doesn't slide under it.
-    <div className="pt-20">
-      {/* Brand stamp ribbon — slim, dark, full-width. */}
-      <div className="bg-[#112732] py-3 lg:py-4">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
-          <p className="text-[11px] md:text-xs font-medium tracking-[0.3em] uppercase text-pacific-light">
-            Quartz &amp; Stone · Field Notes &amp; Industry Insight
-          </p>
-        </div>
-      </div>
+    <main data-light-page className="bg-white text-[#14140f]">
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "The Pacific Journal", url: "/blog" },
+        ]}
+      />
 
-      {/* Cream body */}
-      <div className="bg-[#f4efe8] min-h-screen">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
-          {/* Editorial masthead — three-column header on desktop:
-              wordmark left, copy + colophon right. Stacks on mobile. */}
-          <header className="mb-14 lg:mb-20">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start lg:items-end">
-              {/* Wordmark — left column on desktop. The "Issue NN"
-                  eyebrow has been promoted to be the eyebrow only;
-                  the big-type wordmark below is now "The Pacific
-                  Journal" itself (was "Field / Notes"). Same font
-                  size, weight, and split-italic treatment so the
-                  visual hierarchy stays identical. */}
-              <div className="lg:col-span-7">
-                <p className="text-[11px] sm:text-xs font-medium tracking-[0.32em] uppercase text-pacific-dark/60 mb-4 lg:mb-6">
-                  Issue {String(totalCount).padStart(2, "0")}
+      <header className="bg-white pt-32 lg:pt-40">
+        <Container className="grid gap-8 pb-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end lg:pb-16">
+          <div>
+            <p className={LABEL}>Company · News</p>
+            <h1 style={LIGHT} className="mt-5 text-[46px] uppercase leading-[0.95] tracking-[-0.03em] sm:text-7xl lg:text-[104px]">
+              The Pacific Journal
+            </h1>
+          </div>
+          <div>
+            <p className="max-w-md text-[17px] font-light leading-relaxed">
+              News, guides and field notes from Pacific Surfaces: trade shows and new collections, and how to choose and
+              care for quartz, granite and stone.
+            </p>
+            <div className="mt-8 grid max-w-md grid-cols-2 border-t border-[#14140f]/20">
+              <div className="pt-4">
+                <p className="text-[11px] uppercase tracking-[0.14em] opacity-60">Articles</p>
+                <p style={LIGHT} className="mt-1 text-[32px] leading-none">
+                  {posts.length}
                 </p>
-                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-tight text-[#112732] leading-[0.95]">
-                  The Pacific
-                  <br />
-                  <em className="not-italic text-pacific-mid">Journal</em>
-                </h1>
               </div>
-
-              {/* Colophon — right column on desktop */}
-              <div className="lg:col-span-5 lg:pb-3">
-                <p className="text-base lg:text-lg font-light text-pacific-dark/70 leading-relaxed mb-8 max-w-md">
-                  The ultimate design ledger curated for you.
-                </p>
-                <dl className="grid grid-cols-2 gap-6 max-w-md text-sm">
-                  <div>
-                    <dt className="text-[10px] tracking-[0.28em] uppercase text-pacific-dark/60 font-medium mb-1">
-                      Articles
-                    </dt>
-                    <dd className="text-2xl font-light text-[#112732] tracking-tight">
-                      {totalCount.toString().padStart(2, "0")}
-                    </dd>
-                  </div>
-                  {lastUpdated && (
-                    <div>
-                      <dt className="text-[10px] tracking-[0.28em] uppercase text-pacific-dark/60 font-medium mb-1">
-                        Last Update
-                      </dt>
-                      <dd className="text-sm font-light text-[#112732] tracking-tight pt-1.5">
-                        {lastUpdated}
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
+              {lastUpdated && (
+                <div className="border-l border-[#14140f]/20 pl-6 pt-4">
+                  <p className="text-[11px] uppercase tracking-[0.14em] opacity-60">Last update</p>
+                  <p className="mt-2 text-[17px] font-light">{lastUpdated}</p>
+                </div>
+              )}
             </div>
+          </div>
+        </Container>
+      </header>
+      <CompanyNav current="blog" />
 
-            {/* Hairline rule anchoring the masthead to the body */}
-            <div className="mt-12 lg:mt-16 h-px bg-[#112732]/15" />
-          </header>
+      <BlogGrid posts={posts} />
 
-          {/* Featured cover-story card + uniform 3-column grid below */}
-          <BlogGrid posts={posts} />
-        </div>
-      </div>
-    </div>
+      <ProClose
+        title="Talk to us about a project"
+        body="Samples, quotes and specification help, from the team behind the journal."
+        ctas={[
+          { label: "Get in touch", href: "/contact#enquiry" },
+          { label: "Our story", href: "/about" },
+        ]}
+        image="/images/spaces/hotels/lobby-bar.jpg"
+      />
+    </main>
   );
 }

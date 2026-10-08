@@ -133,13 +133,21 @@ const PAGES = [
 
 export type ProSlug = (typeof PAGES)[number]["slug"];
 
-/** The four Professionals pages, one after another, under each hero. */
-export function ProNav({ current }: { current: ProSlug }) {
+/** A row of sibling pages under a hero, the current one underlined. */
+export function SectionNav({
+  label,
+  pages,
+  current,
+}: {
+  label: string;
+  pages: readonly { slug: string; label: string; href: string }[];
+  current: string;
+}) {
   return (
-    <nav aria-label="Professionals" className="border-b border-[#14140f]/10 bg-white">
+    <nav aria-label={label} className="border-b border-[#14140f]/10 bg-white">
       <Container>
         <ul className="-mb-px flex gap-6 overflow-x-auto sm:gap-10">
-          {PAGES.map((p) => {
+          {pages.map((p) => {
             const on = p.slug === current;
             return (
               <li key={p.slug} className="shrink-0">
@@ -157,6 +165,23 @@ export function ProNav({ current }: { current: ProSlug }) {
       </Container>
     </nav>
   );
+}
+
+/** The four Professionals pages, one after another, under each hero. */
+export function ProNav({ current }: { current: ProSlug }) {
+  return <SectionNav label="Professionals" pages={PAGES} current={current} />;
+}
+
+const COMPANY = [
+  { slug: "about", label: "Our story", href: "/about" },
+  { slug: "sustainability", label: "Sustainability", href: "/sustainability" },
+  { slug: "careers", label: "Work with us", href: "/careers" },
+  { slug: "blog", label: "News", href: "/blog" },
+] as const;
+
+/** Our Story and the Corporate pages, one after another. */
+export function CompanyNav({ current }: { current: (typeof COMPANY)[number]["slug"] }) {
+  return <SectionNav label="Company" pages={COMPANY} current={current} />;
 }
 
 /* ------------------------------------------------------------------ */
@@ -487,6 +512,134 @@ export function ProTable({
         </table>
       </Container>
     </section>
+  );
+}
+
+/** Dated milestones on a hairline row; a column on phones. */
+export function ProTimeline({
+  eyebrow,
+  title,
+  items,
+  tone = "white",
+}: {
+  eyebrow: string;
+  title: string;
+  items: { year: string; title: string; body: string }[];
+  tone?: "white" | "stone";
+}) {
+  return (
+    <section className={tone === "stone" ? "bg-[#EFEDE9]" : "bg-white"}>
+      <Container className="py-16 lg:py-24">
+        <p className={LABEL}>{eyebrow}</p>
+        <h2 style={LIGHT} className={`mt-4 ${H2}`}>
+          {title}
+        </h2>
+        <ol className="mt-12 grid border-t border-[#14140f] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {items.map((m) => (
+            <li key={m.year + m.title} className="relative border-b border-[#14140f]/15 py-7 pr-6 xl:border-b-0">
+              <span aria-hidden="true" className="absolute -top-[5px] left-0 h-[9px] w-[9px] rounded-full bg-[#14140f]" />
+              <p style={LIGHT} className="text-[40px] leading-none tracking-[-0.02em] lg:text-[48px]">
+                {m.year}
+              </p>
+              <h3 className="mt-5 text-[14px] uppercase tracking-[0.1em]">{m.title}</h3>
+              <p className="mt-3 text-[15px] font-light leading-relaxed opacity-80">{m.body}</p>
+            </li>
+          ))}
+        </ol>
+      </Container>
+    </section>
+  );
+}
+
+/** Portraits with names and roles; a LinkedIn link where one is known. */
+export function ProTeam({
+  eyebrow,
+  title,
+  lead,
+  people,
+}: {
+  eyebrow: string;
+  title: string;
+  lead?: string;
+  people: { name: string; role: string; photo: string; linkedin?: string }[];
+}) {
+  return (
+    <section className="bg-white">
+      <Container className="py-16 lg:py-24">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
+          <div>
+            <p className={LABEL}>{eyebrow}</p>
+            <h2 style={LIGHT} className={`mt-4 ${H2}`}>
+              {title}
+            </h2>
+          </div>
+          {lead && <p className="max-w-xl text-[17px] font-light leading-relaxed">{lead}</p>}
+        </div>
+        <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-6">
+          {people.map((p) => {
+            const body = (
+              <>
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#E4E1DB]">
+                  <Image
+                    src={p.photo}
+                    alt={p.name}
+                    fill
+                    sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
+                    className="object-cover grayscale transition duration-500 group-hover/person:grayscale-0"
+                  />
+                </div>
+                <p className="mt-4 text-[15px] uppercase tracking-[0.08em]">{p.name}</p>
+                <p className="mt-1 text-[14px] font-light leading-snug opacity-70">{p.role}</p>
+              </>
+            );
+            return (
+              <li key={p.name}>
+                {p.linkedin ? (
+                  <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="group/person block" aria-label={`${p.name} on LinkedIn`}>
+                    {body}
+                  </a>
+                ) : (
+                  <div className="group/person">{body}</div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </Container>
+    </section>
+  );
+}
+
+/** Big figures on a black band: the facts a page rests on. */
+export function ProFigures({
+  eyebrow,
+  title,
+  items,
+}: {
+  eyebrow: string;
+  title: string;
+  items: { value: string; label: string; note?: string }[];
+}) {
+  return (
+    <div data-over-media className="bg-[#14140f]">
+      <Container className="py-16 lg:py-24">
+        <p className={LABEL}>{eyebrow}</p>
+        <h2 style={LIGHT} className={`mt-4 max-w-4xl ${H2}`}>
+          {title}
+        </h2>
+        <div className={`mt-12 grid border-t border-white/25 sm:grid-cols-2 ${items.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
+          {items.map((f) => (
+            <div key={f.label} className="border-b border-white/15 py-8 pr-6 lg:border-b-0 lg:border-r lg:pl-6 lg:[&:first-child]:pl-0 lg:[&:last-child]:border-r-0">
+              <p style={LIGHT} className="text-[48px] leading-none tracking-[-0.03em] lg:text-[64px]">
+                {f.value}
+              </p>
+              <p className="mt-4 text-[14px] uppercase tracking-[0.1em]">{f.label}</p>
+              {f.note && <p className="mt-2 text-[15px] font-light leading-relaxed text-white/75">{f.note}</p>}
+            </div>
+          ))}
+        </div>
+      </Container>
+    </div>
   );
 }
 

@@ -1,32 +1,18 @@
-"use client";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { Container, LABEL, LIGHT } from "@/components/sections/professionals/ProKit";
 
 /**
- * BlogGrid — editorial layout for the /blog index, image-first.
- *
- * Both card variants (Featured cover story + Standard archive cards)
- * are full-bleed photos with the text overlaid at the bottom over a
- * dark gradient scrim. Reads like an editorial photo feature where
- * the image carries the page; the title is the caption underneath.
- *
- * Card shapes:
- *   - Featured: 16/8 horizontal hero, full row width.
- *   - Standard: 4/5 portrait, three across at lg+, two at sm, one
- *     on phone.
- *
- * Hover: image scales 1.04, the bottom scrim deepens slightly, and
- * the read-arrow nudges right.
+ * BlogGrid: the /blog index, rebuilt 2026-10-08 with the Professionals
+ * pages' language (owner: the Corporate section to get the same upgrade).
+ * The text no longer sits on the photographs, where light images made
+ * titles unreadable: the newest post is a feature with the picture beside
+ * the copy, the rest are cards with the picture above. No scroll-in
+ * animation, so every card is in the HTML and visible at once.
  */
 
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Clock, ArrowRight } from "lucide-react";
-import { sanityImg } from "@/lib/sanity-img";
-import {
-  StaggerContainer,
-  StaggerItem,
-} from "@/components/ui/animated-section";
-
-interface BlogPost {
+export interface BlogPost {
   _id: string;
   title: string;
   slug: { current: string };
@@ -36,205 +22,104 @@ interface BlogPost {
   minutesToRead?: number;
 }
 
+const dateOf = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
+function Meta({ post }: { post: BlogPost }) {
+  return (
+    <p className="text-[12px] uppercase tracking-[0.12em] opacity-60">
+      <time dateTime={post.publishedAt}>{dateOf(post.publishedAt)}</time>
+      {post.minutesToRead ? ` · ${post.minutesToRead} min read` : ""}
+    </p>
+  );
+}
+
 export function BlogGrid({ posts }: { posts: BlogPost[] }) {
   if (posts.length === 0) {
     return (
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-pacific-mid py-24 text-center text-lg font-light"
-      >
-        Field notes are being written. Check back soon.
-      </motion.p>
+      <Container className="py-24">
+        <p className="text-[17px] font-light">New articles are on their way.</p>
+      </Container>
     );
   }
-
-  // Posts are sorted by publishedAt desc by the GROQ query.
-  // The first post takes the featured cover-story slot; the rest
-  // fill the standard grid below.
   const [featured, ...rest] = posts;
 
   return (
-    <div className="space-y-12 lg:space-y-16">
-      <FeaturedCard post={featured} />
+    <>
+      {/* The newest post. */}
+      <section className="bg-white">
+        <Container className="py-14 lg:py-20">
+          <Link
+            href={`/blog/${featured.slug.current}`}
+            className="group/post grid items-center gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16"
+          >
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#E4E1DB]">
+              {featured.mainImage && (
+                <Image
+                  src={featured.mainImage}
+                  alt={featured.title}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 58vw, 100vw"
+                  className="object-cover transition-transform duration-700 group-hover/post:scale-[1.02]"
+                />
+              )}
+            </div>
+            <div>
+              <p className={LABEL}>Latest</p>
+              <div className="mt-4">
+                <Meta post={featured} />
+              </div>
+              <h2 style={LIGHT} className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[44px]">
+                {featured.title}
+              </h2>
+              {featured.excerpt && <p className="mt-5 text-[17px] font-light leading-relaxed opacity-80">{featured.excerpt}</p>}
+              <span className="mt-7 inline-flex items-center gap-2 border-b border-[#14140f] pb-0.5 text-[12px] uppercase tracking-[0.12em]">
+                Read the article
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </span>
+            </div>
+          </Link>
+        </Container>
+      </section>
 
+      {/* Everything else, newest first. */}
       {rest.length > 0 && (
-        <>
-          <div className="flex items-center gap-4">
-            <div className="h-px flex-1 bg-[#112732]/15" />
-            <span className="text-[11px] tracking-[0.28em] uppercase text-pacific-mid font-medium">
-              More Field Notes
-            </span>
-            <div className="h-px flex-1 bg-[#112732]/15" />
-          </div>
-
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
-            {rest.map((post) => (
-              <StaggerItem key={post._id} className="h-full">
-                <StandardCard post={post} />
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </>
+        <section className="bg-[#EFEDE9]">
+          <Container className="py-16 lg:py-24">
+            <p className={LABEL}>More from the journal</p>
+            <h2 style={LIGHT} className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]">
+              All articles
+            </h2>
+            <ul className="mt-12 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+              {rest.map((post) => (
+                <li key={post._id}>
+                  <Link href={`/blog/${post.slug.current}`} className="group/post block">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#E4E1DB]">
+                      {post.mainImage && (
+                        <Image
+                          src={post.mainImage}
+                          alt={post.title}
+                          fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          className="object-cover transition-transform duration-700 group-hover/post:scale-[1.03]"
+                        />
+                      )}
+                    </div>
+                    <div className="mt-5">
+                      <Meta post={post} />
+                    </div>
+                    <h3 className="mt-3 text-[19px] leading-snug group-hover/post:underline group-hover/post:underline-offset-4">
+                      {post.title}
+                    </h3>
+                    {post.excerpt && <p className="mt-2 line-clamp-3 text-[15px] font-light leading-relaxed opacity-80">{post.excerpt}</p>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Container>
+        </section>
       )}
-    </div>
-  );
-}
-
-/* ================================================================== *
- *  Featured cover-story card — full-bleed photo, text bottom-left.    *
- * ================================================================== */
-
-function FeaturedCard({ post }: { post: BlogPost }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
-    >
-      <Link
-        href={`/blog/${post.slug.current}`}
-        title={post.title}
-        // Featured aspect ratio: cinematic 16/8 on desktop, square-ish
-        // 4/3 on mobile so the headline doesn't get cramped on narrow
-        // screens. shadow lifts on hover; image zooms via inner span.
-        className="group relative block aspect-[4/3] sm:aspect-[16/9] lg:aspect-[16/8] rounded-none overflow-hidden bg-pacific-dark shadow-[0_1px_3px_rgba(17,39,50,0.08)] hover:shadow-[0_16px_50px_rgba(17,39,50,0.18)] transition-shadow duration-500"
-      >
-        {/* Image fills the entire card */}
-        {post.mainImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={sanityImg(post.mainImage, { w: 1200 }) ?? post.mainImage}
-            alt={post.title}
-            loading="eager"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-pacific-light to-pacific-mid" />
-        )}
-
-        {/* Bottom gradient scrim — keeps text legible against any
-            frame of the photo. Slightly deeper at the bottom edge
-            where the text sits, fading out by the upper third. */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
-
-        {/* Top-left "Featured Note" stamp — sits in the lit half of
-            the gradient with a subtle scrim under it. */}
-        <div className="absolute top-6 left-6 lg:top-8 lg:left-10">
-          <span className="inline-block text-[10px] tracking-[0.28em] uppercase text-white/90 font-medium px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15">
-            Featured Note
-          </span>
-        </div>
-
-        {/* Bottom-left content — title + meta + read affordance */}
-        <div className="absolute inset-x-0 bottom-0 p-6 lg:p-10 max-w-3xl">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-light tracking-tight text-white leading-[1.1] mb-4 lg:mb-5">
-            {post.title}
-          </h2>
-          {post.excerpt && (
-            <p className="hidden sm:block text-sm lg:text-base font-light text-white/80 leading-relaxed mb-5 lg:mb-6 line-clamp-2 max-w-2xl">
-              {post.excerpt}
-            </p>
-          )}
-          <div className="flex items-center gap-4 text-[10px] tracking-[0.22em] uppercase text-white/70 font-medium">
-            <time dateTime={post.publishedAt}>
-              {new Date(post.publishedAt).toLocaleDateString("en-IN", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })}
-            </time>
-            {post.minutesToRead && (
-              <>
-                <span className="w-1 h-1 bg-white/40 rounded-full" />
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-3 h-3" />
-                  {post.minutesToRead} min read
-                </span>
-              </>
-            )}
-            <span className="w-1 h-1 bg-white/40 rounded-full" />
-            <span className="inline-flex items-center gap-1.5 group-hover:gap-2 transition-all">
-              Read note
-              <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
-            </span>
-          </div>
-        </div>
-      </Link>
-    </motion.div>
-  );
-}
-
-/* ================================================================== *
- *  Standard card — full-bleed portrait photo with text overlay.       *
- * ================================================================== */
-
-function StandardCard({ post }: { post: BlogPost }) {
-  return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.3 }}
-      className="group relative h-full"
-    >
-      <Link
-        href={`/blog/${post.slug.current}`}
-        title={post.title}
-        // 4/5 portrait — same as the previous design but the image
-        // now occupies the full card instead of a top thumbnail.
-        // bg-pacific-dark fallback so the gradient scrim has something
-        // to mix into when the image is still loading.
-        className="relative block aspect-[4/5] rounded-none overflow-hidden bg-pacific-dark shadow-[0_1px_3px_rgba(17,39,50,0.06)] hover:shadow-[0_12px_40px_rgba(17,39,50,0.14)] transition-shadow duration-500 h-full"
-      >
-        {post.mainImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={sanityImg(post.mainImage, { w: 1200 }) ?? post.mainImage}
-            alt={post.title}
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-pacific-light to-pacific-mid" />
-        )}
-
-        {/* Gradient scrim — taller and softer than the featured one
-            because the portrait card needs more reading area at the
-            bottom for a longer title. */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-
-        {/* Bottom-aligned text */}
-        <div className="absolute inset-x-0 bottom-0 p-5 lg:p-6">
-          <div className="flex items-center gap-3 text-[10px] tracking-[0.22em] uppercase text-white/75 mb-3 font-medium">
-            <time dateTime={post.publishedAt}>
-              {new Date(post.publishedAt).toLocaleDateString("en-IN", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })}
-            </time>
-            {post.minutesToRead && (
-              <>
-                <span className="w-1 h-1 bg-white/40 rounded-full" />
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-3 h-3" />
-                  {post.minutesToRead} min
-                </span>
-              </>
-            )}
-          </div>
-          <h3 className="text-base sm:text-lg lg:text-xl font-medium text-white leading-snug line-clamp-3 mb-3 tracking-tight">
-            {post.title}
-          </h3>
-          {/* Read affordance pinned at the bottom — small arrow
-              that nudges right on hover. Excerpt is omitted from the
-              standard card since the title takes prominence over the
-              image. */}
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-medium tracking-[0.22em] uppercase text-white/85 group-hover:text-white group-hover:gap-2 transition-all">
-            Read
-            <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
-          </span>
-        </div>
-      </Link>
-    </motion.div>
+    </>
   );
 }
