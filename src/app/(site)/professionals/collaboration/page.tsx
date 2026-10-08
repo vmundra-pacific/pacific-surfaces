@@ -1,267 +1,206 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  AnimatedSection,
-  StaggerContainer,
-  StaggerItem,
-} from "@/components/ui/animated-section";
-import { MagneticButton } from "@/components/ui/magnetic-button";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 import { ProfessionalsVideoGrid } from "@/components/sections/ProfessionalsVideoGrid";
+import { ProCertificates } from "@/components/sections/professionals/ProCertificates";
 import {
-  ArrowRight,
-  Building2,
-  PenTool,
-  HardHat,
-  Briefcase,
-  Handshake,
-  Lightbulb,
-  FileCheck,
-} from "lucide-react";
+  Container,
+  LABEL,
+  LIGHT,
+  ProCards,
+  ProClose,
+  ProFaq,
+  ProHero,
+  ProIntro,
+  ProNav,
+  ProSplit,
+  ProSteps,
+} from "@/components/sections/professionals/ProKit";
+
+/**
+ * /professionals/collaboration: how Pacific Surfaces works with architects,
+ * interior designers, developers and fabricators, rebuilt 2026-10-08
+ * (owner: the section looked "cheap"). The stock photograph of strangers
+ * round a model is gone; the cards show the work each trade does, the
+ * films are design professionals talking in front of Pacific slabs, and
+ * the team photograph is Pacific's own.
+ */
 
 export const metadata: Metadata = {
-  title: "Collaboration — Pacific Surfaces",
+  title: "For Architects, Designers & Builders | Pacific Surfaces",
   description:
-    "Partnerships for architects, designers, developers, and builders — co-creation, joint specifications, and bespoke finishes from Pacific Surfaces.",
+    "How Pacific Surfaces works with architects, interior designers, developers and fabricators: samples, test data, certificates and cut-to-size supply.",
   alternates: { canonical: "/professionals/collaboration" },
 };
 
-/**
- * /professionals/collaboration
- *
- * Editorial landing for Pacific's partner / collaboration programme.
- * Three audience cards (architects, designers, developers, builders),
- * three "how we co-create" pillars, a featured-projects placeholder,
- * and a CTA closer. Brand-system aligned (navy palette, pacific-mid
- * text, no slate/zinc/neutral grays).
- */
-
-const audiences = [
+const TRADES = [
   {
-    icon: Building2,
     title: "Architects",
-    body: "Long-form material partners on civic, hospitality, and residential commissions — from concept palettes through full spec packages and on-site QA.",
+    body: "Test data and certificates for specifications, and large-format slabs for cladding and feature walls.",
+    image: "/images/spaces/hotels/wellness-stone-cladding.jpg",
+    alt: "A wellness area with a wall clad in grey stone slabs",
+    href: "/contact?type=architect#enquiry",
+    linkLabel: "Talk to us",
   },
   {
-    icon: PenTool,
-    title: "Interior Designers",
-    body: "A library, a sounding board, a sample courier. We build alongside studios pushing for a specific tone — quiet, dramatic, or somewhere we haven't named yet.",
+    title: "Interior designers",
+    body: "Colours and finishes for hospitality, residential and retail interiors, with samples sent to the studio.",
+    image: "/projects/cladding/patagonia.webp",
+    alt: "A living room with a feature wall in Patagonia",
+    href: "/contact?type=interior-designer#enquiry",
+    linkLabel: "Ask for samples",
   },
   {
-    icon: HardHat,
-    title: "Developers & Builders",
-    body: "Multi-unit specifications, staged dispatch, and predictable lead times. Our trade team is built around the operational rhythm of a real construction calendar.",
+    title: "Developers and builders",
+    body: "Countertops, vanity tops, sills and cladding for multi-unit projects, cut to size and crated for site.",
+    image: "/images/spaces/kitchen-hero.webp",
+    alt: "A kitchen with quartz worktops and a quartz backsplash",
+    href: "/contact?type=builder#enquiry",
+    linkLabel: "Plan a project",
   },
   {
-    icon: Briefcase,
     title: "Fabricators",
-    body: "Technical training, edge-detail libraries, and direct lines to our production team. Our authorised fabricator network is small on purpose.",
+    body: "Slabs in 12, 20 and 30 mm and in superjumbo formats, straight from the plant that makes them.",
+    image: "/images/india-home/bretonstone-robot.webp",
+    alt: "A Breton robot over the quartz mix on the Bretonstone line",
+    href: "/contact?type=fabricator#enquiry",
+    linkLabel: "Buy slabs",
   },
 ];
 
-const pillars = [
+const STEPS = [
+  { title: "Specify", body: "Samples, finishes, sizes, test results and certificates for the drawings and the specification." },
   {
-    icon: Handshake,
-    title: "Joint Specification",
-    body: "We sit in your design reviews. Slabs are selected the way the rest of the palette is — as part of the conversation, not after it.",
+    title: "Detail",
+    body: "Cut-to-size pieces drawn from your set by Fab Creations, our fabrication service, and agreed before cutting.",
+  },
+  { title: "Supply", body: "Slabs or finished pieces, crated and shipped to site in India or to any of 45+ countries." },
+  { title: "Support", body: "One team from the first sample to the last delivery, with contacts for India, Europe and the Middle East." },
+];
+
+const FAQS = [
+  {
+    q: "How do I get samples for a specification?",
+    a: "Send an enquiry with the colours and the project, or order a sample from any design's page. Samples are sent to your studio or site.",
   },
   {
-    icon: Lightbulb,
-    title: "Custom Finishes",
-    body: "Tone, scale, and finish development against a real brief. If the catalogue doesn't have it yet, our R&D bench can usually get there.",
+    q: "Where can I find test data and certificates?",
+    a: "Each design's page lists its finishes and sizes. Test results for quartz and granite are on the Applications page, and the certificates on file (NSF/ANSI 51, CE, ISO 9001:2015, Kosher and EPD) open in full on this page.",
   },
   {
-    icon: FileCheck,
-    title: "Project Documentation",
-    body: "CAD-ready tile, slab, and finish details. Specification language, certifications, performance data — everything your set needs.",
+    q: "Can you cut pieces to our drawings?",
+    a: "Yes. Fab Creations, our fabrication service, cuts and finishes vanity tops, countertops, cladding, counters, sills and more from your DWG or PDF drawings.",
+  },
+  {
+    q: "Do you work on projects outside India?",
+    a: "Yes. Pacific Surfaces ships to more than 45 countries, with dedicated contacts for Poland, Germany, Croatia and the Middle East.",
+  },
+  {
+    q: "Can we visit the factory?",
+    a: "Yes. The factory and experience centre is open Monday to Saturday, 9 am to 8 pm. Book a visit through the contact page.",
   },
 ];
 
 export default function CollaborationPage() {
   return (
-    <main data-light-page className="bg-[#0a1620] text-pacific-light">
-      {/* ── 1. Hero ── */}
-      <section className="relative min-h-[80vh] flex items-end bg-pacific-dark overflow-hidden">
-        <Image
-          src="/images/professions/collaboration.jpg"
-          alt="Pacific Surfaces collaboration"
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark via-pacific-dark/55 to-pacific-dark/15" />
-        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pb-16 sm:pb-20 lg:pb-28 w-full">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-pacific-mid/80 font-medium">
-              Professionals · Collaboration
-            </span>
-            <h1 className="mt-5 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.05] max-w-4xl">
-              Partnerships, built{" "}
-              <em className="italic font-light">surface by surface.</em>
-            </h1>
-            <p className="mt-6 max-w-2xl text-base sm:text-lg font-light text-pacific-light/85 leading-relaxed">
-              The best surfaces don&apos;t arrive at the end of a project — they
-              shape it. Pacific co-creates with architects, designers, and
-              developers from the first sketch to the day the building opens.
-            </p>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* ── 2. Audience cards ── */}
-      <section className="bg-[#0a1620]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              Who we work with
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-2xl">
-              Built around how you actually work.
-            </h2>
-          </AnimatedSection>
-
-          <StaggerContainer className="mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {audiences.map((a) => {
-              const Icon = a.icon;
-              return (
-                <StaggerItem key={a.title} className="h-full">
-                  <div className="h-full bg-white/5 border border-white/10 rounded-2xl p-7 sm:p-8 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-500 flex flex-col">
-                    <div className="p-3 bg-white/10 rounded-xl w-fit">
-                      <Icon className="w-5 h-5 text-pacific-light" />
-                    </div>
-                    <h3 className="mt-6 text-lg font-medium text-white tracking-tight">
-                      {a.title}
-                    </h3>
-                    <p className="mt-3 text-sm sm:text-base font-light text-pacific-mid leading-relaxed">
-                      {a.body}
-                    </p>
-                  </div>
-                </StaggerItem>
-              );
-            })}
-          </StaggerContainer>
-        </div>
-      </section>
-
-      {/* ── 3. Video grid — click to play. ── */}
-      <ProfessionalsVideoGrid
-        eyebrow="In motion"
-        title="See the work in motion."
-        body="A few minutes inside the design reviews, fabrication floor, and on-site installs that shape a Pacific partnership."
+    <main data-light-page className="bg-white text-[#14140f]">
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Working with Pacific Surfaces", url: "/professionals/collaboration" },
+        ]}
       />
 
-      {/* ── 4. How we co-create ── */}
-      <section className="bg-[#112732] border-y border-white/5">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              How we co-create
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-2xl">
-              Three ways the partnership runs.
-            </h2>
-          </AnimatedSection>
+      <ProHero
+        eyebrow="Professionals · Working with us"
+        title="For architects, designers, builders and fabricators"
+        lead="Pacific Surfaces supports a project from the first specification to the last delivery: samples and test data for the drawings, cut-to-size pieces for the site, and one team to call."
+        image="/images/spaces/hotels/restaurant-alabaster-noir-seasons.jpg"
+        alt="A restaurant with stone tables and a black and white stone floor"
+        ctas={[
+          { label: "Start a project", href: "/contact#enquiry" },
+          { label: "Ask for samples", href: "/contact?type=architect#enquiry" },
+        ]}
+        facts={[
+          { value: "45+", label: "Countries supplied" },
+          { value: "3,480 × 2,007 mm", label: "Superjumbo slabs" },
+          { value: "5", label: "Certificates on file" },
+          { value: "Since 2000", label: "Working in stone" },
+        ]}
+      />
+      <ProNav current="collaboration" />
 
-          <StaggerContainer className="mt-12 lg:mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {pillars.map((p) => {
-              const Icon = p.icon;
-              return (
-                <StaggerItem key={p.title} className="h-full">
-                  <div className="h-full bg-white/[0.04] border border-white/10 rounded-2xl p-8 lg:p-10 hover:border-white/20 transition-all duration-500 flex flex-col">
-                    <div className="p-3 bg-white/10 rounded-xl w-fit">
-                      <Icon className="w-6 h-6 text-pacific-light" />
-                    </div>
-                    <h3 className="mt-6 text-xl font-light text-white tracking-tight">
-                      {p.title}
-                    </h3>
-                    <p className="mt-4 text-base font-light text-pacific-mid leading-relaxed">
-                      {p.body}
-                    </p>
-                  </div>
-                </StaggerItem>
-              );
-            })}
-          </StaggerContainer>
-        </div>
-      </section>
+      <ProIntro
+        eyebrow="Working with Pacific Surfaces"
+        title="One source for the specification and the supply"
+        body={[
+          "Architects and designers specify Pacific Surfaces quartz, Eclipse and granite for kitchens, bathrooms, hospitality interiors, cladding and facades. Builders and fabricators buy the same slabs, or finished pieces cut to the drawings.",
+          "Every colour comes with its finishes, sizes and test data, and the certificates on file can be read in full online. The slabs are made at a state-of-the-art Bretonstone plant with fully automated manufacturing, so what is specified is what is delivered.",
+        ]}
+        specs={[
+          { label: "Materials", value: "Quartz, Eclipse, granite, Beyond Stone panels" },
+          { label: "Slab format", value: "Up to 3,480 × 2,007 mm" },
+          { label: "Quartz thicknesses", value: "12, 20 and 30 mm" },
+          { label: "Certificates", value: "NSF/ANSI 51, CE, ISO 9001:2015, Kosher, EPD" },
+          { label: "Contacts", value: "India, Poland, Germany, Croatia, Middle East" },
+        ]}
+      />
 
-      {/* ── 4. Featured collaboration band ── */}
-      <section className="bg-[#0a1620]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            <AnimatedSection animation="fadeUp">
-              <div className="relative aspect-[5/4] rounded-2xl overflow-hidden border border-white/10 bg-white/5">
-                <Image
-                  src="/images/spaces/architecture.png"
-                  alt="Architecture and large-format facade collaboration"
-                  fill
-                  className="object-cover"
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                />
-              </div>
-            </AnimatedSection>
-            <AnimatedSection animation="fadeUp" delay={0.1}>
-              <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-                In the field
-              </span>
-              <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
-                Quiet partners on loud buildings.
+      <ProCards
+        eyebrow="Who we work with"
+        title="Built around how each trade works"
+        items={TRADES}
+        columns={4}
+        tone="stone"
+      />
+
+      <ProSteps eyebrow="How a project runs" title="From the first sample to the last crate" steps={STEPS} tone="white" />
+
+      <section className="bg-white">
+        <Container className="py-16 lg:py-24">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
+            <div>
+              <p className={LABEL}>In their words</p>
+              <h2 style={LIGHT} className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]">
+                Design professionals on Pacific Surfaces
               </h2>
-              <p className="mt-6 text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-                We don&apos;t name-drop. The clients we work with don&apos;t
-                like to be name-dropped. What we will tell you: civic landmarks,
-                listed hospitality interiors, residential towers, and a fair
-                number of homes you would recognise if you walked in.
-              </p>
-              <p className="mt-4 text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-                Reach out and we&apos;ll walk you through references that match
-                the scale and sensibility of your project — under NDA where it
-                matters.
-              </p>
-              <div className="mt-8">
-                <MagneticButton
-                  href="/contact"
-                  variant="outline-dark"
-                  size="md"
-                >
-                  Request references
-                </MagneticButton>
-              </div>
-            </AnimatedSection>
+            </div>
+            <p className="max-w-xl text-[17px] font-light leading-relaxed">
+              Short films recorded in front of Pacific Surfaces slabs. Tap a film to play it with sound.
+            </p>
           </div>
-        </div>
+          <div className="mt-12">
+            <ProfessionalsVideoGrid bare />
+          </div>
+        </Container>
       </section>
 
-      {/* ── 5. CTA closer ── */}
-      <section className="bg-[#112732] border-t border-white/10">
-        <div className="mx-auto max-w-4xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32 text-center">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              Become a partner
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
-              Let&apos;s build something worth coming back to.
-            </h2>
-            <p className="mt-5 max-w-2xl mx-auto text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-              We onboard a small number of studio and developer partners each
-              quarter. Tell us about your practice and the work ahead.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-              <MagneticButton href="/contact" variant="primary" size="lg">
-                Start the conversation
-              </MagneticButton>
-              <Link
-                href="/professionals/programs"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-medium tracking-[0.1em] uppercase text-white/80 hover:text-white transition-colors"
-              >
-                Explore trade programs
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
+      <ProSplit
+        eyebrow="The team"
+        title="The people you will work with"
+        body={[
+          "Sales, technical and production teams work from the factory and experience centre, with contacts for India, Poland, Germany, Croatia and the Middle East.",
+          "Bring a drawing or a brief to the experience centre to see full slabs, finishes and edge details before you specify.",
+        ]}
+        image="/videos/team-section-poster.jpg"
+        alt="The Pacific Surfaces team"
+        reverse
+        cta={{ label: "Find your contact", href: "/contact#factory" }}
+        tone="stone"
+      />
+
+      <ProCertificates />
+
+      <ProFaq title="Working together" items={FAQS} />
+
+      <ProClose
+        title="Start the specification"
+        body="Tell us about the project, the colours you are considering and the date it is needed. Samples, data and a contact follow."
+        ctas={[
+          { label: "Start a project", href: "/contact#enquiry" },
+          { label: "See the applications", href: "/professionals/applications" },
+        ]}
+        image="/images/spaces/hotels/spa-pool.jpg"
+      />
     </main>
   );
 }

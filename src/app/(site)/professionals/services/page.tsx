@@ -1,575 +1,232 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
+import { BreadcrumbList } from "@/components/global/JsonLd";
+import { ProCertificates } from "@/components/sections/professionals/ProCertificates";
+import { SALES_PHONE } from "@/data/business";
 import {
-  AnimatedSection,
-  StaggerContainer,
-  StaggerItem,
-} from "@/components/ui/animated-section";
-import { MagneticButton } from "@/components/ui/magnetic-button";
-import {
-  ArrowRight,
-  FileText,
-  Scissors,
-  Sparkles,
-  Truck,
-  Ruler,
-  Wrench,
-  Layers,
-  Boxes,
-  ShieldCheck,
-  Droplets,
-  Bolt,
-  ClipboardList,
-  Compass,
-} from "lucide-react";
+  ProCards,
+  ProClose,
+  ProFaq,
+  ProHero,
+  ProIntro,
+  ProNav,
+  ProSplit,
+  ProSteps,
+} from "@/components/sections/professionals/ProKit";
+
+/**
+ * /professionals/services: Fab Creations, the cut-to-size fabrication
+ * service, rebuilt 2026-10-08 (owner: the section looked "cheap"). Real
+ * photographs only: the plant's own footage opens the page, each card
+ * shows the piece it names. Figures are the confirmed ones; the old
+ * tolerances, lead times and Greenguard claim are off until confirmed.
+ */
 
 export const metadata: Metadata = {
-  title: "Services — Fab Creations Cut-to-Size — Pacific Surfaces",
+  title: "Quartz Fabrication & Cut-to-Size Services | Pacific Surfaces",
   description:
-    "Fab Creations — Pacific's end-to-end cut-to-size service. Send your DWG file; we engineer, fabricate, bond, and dispatch the finished piece. Vanities, sinks, counters, cladding, signage. All under one roof.",
+    "Fab Creations by Pacific Surfaces: send a drawing and we cut, finish and crate quartz, Eclipse and granite pieces, from vanity tops to cladding and sills.",
   alternates: { canonical: "/professionals/services" },
 };
 
-/**
- * /professionals/services
- *
- * Editorial landing for Pacific's professional services — built
- * around Fab Creations (cut-to-size) as the page's centre of gravity.
- *
- * Order:
- *   1. Hero
- *   2. Fab Creations USP band (oversized)
- *   3. What we cut — applications grid
- *   4. Workflow — 6 steps
- *   5. Engineering details (adhesives / boltable / tolerances)
- *   6. Materials list
- *   7. Supporting services
- *   8. CTA closer
- */
-
-const cutToSizeUses = [
+const MAKE = [
   {
-    icon: Droplets,
-    title: "Vanities & Bathroom Tops",
-    body: "Drop-in or undermount basins, integrated splashbacks, full-height shower walls — cut, polished, and ready to plumb.",
+    title: "Vanity tops",
+    body: "Single, double and triple basin tops, cut for the basins and taps you specify.",
+    image: "/images/spaces/bathrooms/double-vanity.jpg",
+    alt: "Two stone vanity units with marble-look quartz tops",
+    href: "/applications/bathroom-vanity-tops",
   },
   {
-    icon: Layers,
-    title: "Integrated Sinks",
-    body: "Seamless quartz-on-quartz Integra sinks bonded with marine-grade adhesives. No silicone line. No water ingress.",
+    title: "Integrated sinks",
+    body: "Integra basins bonded into the top in matching quartz, so no seam sits between basin and counter.",
+    image: "/videos/integra-poster.jpg",
+    alt: "A quartz vanity top with an integrated basin and a brass tap",
+    href: "/products/integra",
   },
   {
-    icon: Ruler,
-    title: "Custom Counters & Islands",
-    body: "Kitchen worktops, breakfast islands, pantry tops — large-format slabs joined invisibly to your DWG dimensions.",
+    title: "Countertops and islands",
+    body: "Worktops and islands cut to your layout; a superjumbo slab covers most islands without a joint.",
+    image: "/projects/islands/artemis-kitchen.webp",
+    alt: "A kitchen with a quartz island and matching wall cabinets",
+    href: "/applications/kitchen-islands",
   },
   {
-    icon: Boxes,
-    title: "Furniture & Tabletops",
-    body: "Dining tables, conference tops, console desks. Edge profiles, cutouts for cable management, and concealed support brackets.",
+    title: "Tables and furniture",
+    body: "Dining tables, desks and console tops, with edge profiles and cut-outs to your drawing.",
+    image: "/images/spaces/hotels/dining-table.jpg",
+    alt: "A white quartz dining table in a hotel lounge",
+    href: "/applications/dining-and-furniture",
   },
   {
-    icon: Bolt,
-    title: "Reception & Bar Tops",
-    body: "Sculpted reception desks, hospitality bar fronts, lift-lobby counters — fabricated in sections and bolted on site.",
+    title: "Bar and reception counters",
+    body: "Counters for bars, lobbies and restaurants, made in sections and assembled on site.",
+    image: "/images/spaces/hotels/lobby-bar.jpg",
+    alt: "A hotel bar counter clad in stone with two guests",
+    href: "/applications/bar-counters",
   },
   {
-    icon: Wrench,
-    title: "Facade & Wall Cladding",
-    body: "Ventilated facade panels and feature-wall slabs cut to architect's setting-out drawings, drilled for anchor systems.",
-  },
-];
-
-const workflow = [
-  {
-    n: "01",
-    title: "Brief",
-    body: "Tell us what you're making. Programme, materials, finish, deadline — a five-minute call is usually enough to start.",
+    title: "Wall cladding",
+    body: "Feature walls and cladding cut to the setting-out drawings, so the veining runs across the wall.",
+    image: "/projects/cladding/horizon-veil.webp",
+    alt: "A living room wall clad in large marble-look slabs",
+    href: "/applications/wall-cladding",
   },
   {
-    n: "02",
-    title: "DWG In",
-    body: "Send drawings in DWG, PDF, or hand-sketch. Our tech team translates them into fabrication-ready cut files.",
+    title: "Shower walls",
+    body: "Full-height shower walls and trays with no grout lines, cut around fittings and niches.",
+    image: "/images/spaces/bathrooms/shower-wall.jpg",
+    alt: "A shower wall in large-format stone with a hand shower",
+    href: "/applications/shower-walls-and-trays",
   },
   {
-    n: "03",
-    title: "Quote & Approval",
-    body: "Itemised quote with materials, labour, lead time, and finish options. Approve once, no surprise add-ons.",
-  },
-  {
-    n: "04",
-    title: "Cut & Fabricate",
-    body: "CNC and water-jet cutting on calibrated slabs. Edge profiling, cutouts, sink openings, drillings — all in-house.",
-  },
-  {
-    n: "05",
-    title: "Bond & Finish",
-    body: "Industrial-grade adhesives, hand-polished joints, finish to spec (polished, honed, leather, brushed). Boltable connections engineered in where structure demands it.",
-  },
-  {
-    n: "06",
-    title: "Pack & Ship",
-    body: "Custom crating, dispatch tracking, and on-site QA the day it lands. White-glove install support available.",
+    title: "Window sills and thresholds",
+    body: "Granite and quartz sills and thresholds in popular or custom sizes, crated for export.",
+    image: "/images/thresholds-and-sills/hero-charcoal-sill.webp",
+    alt: "A charcoal granite window sill above the sea",
+    href: "/products/pacific-european-window-sill-threshold-collection",
   },
 ];
 
-const engineeringDetails = [
+const STEPS = [
+  { title: "Brief", body: "Tell us what you are making, in which material and finish, and when it is needed on site." },
   {
-    icon: Sparkles,
-    title: "Industrial-grade adhesives",
-    body: "Two-part epoxy and methyl methacrylate (MMA) systems rated for structural load and water immersion. Tested to outlast the slab itself.",
+    title: "Drawings",
+    body: "Send DWG or PDF drawings, or a hand sketch. Our team turns them into cutting files and checks every dimension with you.",
+  },
+  { title: "Quote", body: "An itemised quote for material, fabrication, finish and delivery, approved before any cutting starts." },
+  {
+    title: "Cut",
+    body: "Pieces are cut from calibrated slabs on CNC and water-jet machines, with edge profiles, cut-outs and sink openings made in-house.",
   },
   {
-    icon: Bolt,
-    title: "Boltable construction",
-    body: "Every cut-to-size assembly is engineered with concealed mechanical fixings — through-bolts, threaded inserts, or hidden brackets — so installations stay secure under real load.",
+    title: "Finish",
+    body: "Joints are bonded and hand-finished, and every face is finished as specified: polished, honed or leather.",
   },
-  {
-    icon: Ruler,
-    title: "Tight tolerances",
-    body: "Cut accuracy to ±0.5 mm on CNC, ±0.2 mm on water-jet. Joint lines hand-finished to disappear under a fingernail.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Certified & warrantied",
-    body: "NSF 51 for food-contact surfaces, Greenguard Gold for indoor air, and a lifetime warranty on engineered quartz pieces we fabricate.",
-  },
+  { title: "Crate and ship", body: "Each piece is checked, crated for the journey and shipped to site, in India or abroad." },
 ];
 
-const capabilityStats = [
+const FAQS = [
   {
-    value: "24 hrs",
-    label: "Quote turnaround",
-    note: "Send a drawing today, get a costed quote tomorrow.",
+    q: "What can Fab Creations make?",
+    a: "Vanity tops, integrated sinks, kitchen countertops and islands, tables and furniture, bar and reception counters, wall cladding, shower walls, and window sills and thresholds. If it is cut from a slab, send the drawing and we will tell you how it can be made.",
   },
   {
-    value: "± 0.5 mm",
-    label: "Cut tolerance",
-    note: "CNC-precise, hand-finished where it matters.",
+    q: "What drawings do you need?",
+    a: "DWG or PDF drawings, or a clear hand sketch with dimensions. Our team turns them into cutting files and confirms every dimension with you before the quote is approved.",
   },
   {
-    value: "3.2 × 1.6 m",
-    label: "Max single piece",
-    note: "Largest format we can mill, ship, and install.",
+    q: "Which materials and thicknesses can be fabricated?",
+    a: "Pacific Surfaces quartz in 12, 20 and 30 mm, Eclipse inlayered design quartz, and granite. Each design's page lists its finishes and the thicknesses it comes in.",
   },
   {
-    value: "10–14 days",
-    label: "Standard lead time",
-    note: "Fabrication, finish, and dispatch — door to door.",
+    q: "How large can one piece be?",
+    a: "Up to the size of the slab. Pacific Surfaces quartz is made in a superjumbo format of up to 3,480 × 2,007 mm, so most islands and long counters need no joint. Longer runs are joined and the joints hand-finished.",
   },
   {
-    value: "273+",
-    label: "Surface SKUs",
-    note: "The full Pacific catalogue, available cut-to-size.",
+    q: "Do you supply projects outside India?",
+    a: "Yes. Pacific Surfaces ships to more than 45 countries, and finished pieces are crated for export. Dedicated contacts look after Europe and the Middle East.",
   },
   {
-    value: "25+ yrs",
-    label: "On the job",
-    note: "A quarter-century of stone, quartz, and bespoke fab.",
-  },
-];
-
-const supportingServices = [
-  {
-    icon: ClipboardList,
-    title: "Specification & Sampling",
-    body: "Spec-language for your drawings, physical samples to your studio, certifications on file — everything your set needs.",
-  },
-  {
-    icon: Compass,
-    title: "On-site Consultation",
-    body: "Senior project leads on the ground for templating, layout reviews, and design-critical installs.",
-  },
-  {
-    icon: Truck,
-    title: "Logistics & Delivery",
-    body: "Lead-time visibility, holds for staged projects, coordinated dispatch — single piece to full container loads.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Aftercare & Warranty",
-    body: "Lifetime warranty on engineered pieces, documented care guides, and a direct contact for the years that follow.",
-  },
-];
-
-const capabilities = [
-  {
-    icon: FileText,
-    title: "DWG in",
-    body: "Send your file. We work to spec.",
-  },
-  {
-    icon: Scissors,
-    title: "Cut to size",
-    body: "CNC-precise, every edge engineered.",
-  },
-  {
-    icon: Sparkles,
-    title: "Bonded & boltable",
-    body: "High-grade adhesives, hardware-ready.",
-  },
-  {
-    icon: Truck,
-    title: "Finished & shipped",
-    body: "Polished, packed, dispatched.",
+    q: "Can I see the material before ordering?",
+    a: "Ask for samples with your enquiry, or visit the factory and experience centre, Monday to Saturday, 9 am to 8 pm.",
   },
 ];
 
 export default function ServicesPage() {
   return (
-    <main data-light-page className="bg-[#0a1620] text-pacific-light">
-      {/* 1. Hero */}
-      <section className="relative min-h-[80vh] flex items-end bg-pacific-dark overflow-hidden">
-        <Image
-          src="/images/professions/services.jpg"
-          alt="Pacific Surfaces Fab Creations cut-to-size service"
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark via-pacific-dark/55 to-pacific-dark/15" />
-        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pb-16 sm:pb-20 lg:pb-28 w-full">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-pacific-mid/80 font-medium">
-              Professionals · Services · Fab Creations
-            </span>
-            <h1 className="mt-5 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.05] max-w-4xl">
-              We don&apos;t just sell slabs —{" "}
-              <em className="italic font-light">
-                we engineer them to your drawing.
-              </em>
-            </h1>
-            <p className="mt-6 max-w-2xl text-base sm:text-lg font-light text-pacific-light/85 leading-relaxed">
-              Fab Creations is Pacific&apos;s flagship cut-to-size service. Send
-              a DWG file; we deliver the finished piece — fabricated, bonded,
-              polished, and dispatched from a single facility. Every step under
-              one roof.
-            </p>
-          </AnimatedSection>
-        </div>
-      </section>
+    <main data-light-page className="bg-white text-[#14140f]">
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Fabrication services", url: "/professionals/services" },
+        ]}
+      />
 
-      {/* 2. Fab Creations USP band */}
-      <section className="relative bg-pacific-dark overflow-hidden border-y border-white/10">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/professions/services.jpg"
-            alt=""
-            fill
-            className="object-cover opacity-25"
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-pacific-dark/85 via-pacific-dark/95 to-pacific-dark" />
-        </div>
-        <div
-          data-over-media
-          className="relative mx-auto max-w-6xl px-6 lg:px-8 py-24 sm:py-32 lg:py-40 text-center"
-        >
-          <AnimatedSection animation="fadeUp">
-            <span className="inline-block text-[10px] sm:text-xs tracking-[0.4em] uppercase text-pacific-light/70 font-medium border border-white/15 rounded-full px-4 py-1.5">
-              Fab Creations · Cut-to-size
-            </span>
-            <h2 className="mt-8 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-tight text-white leading-[0.95]">
-              Your specification.
-              <br />
-              Our design.
-              <br />
-              <em className="italic font-light text-pacific-light">
-                All under one roof.
-              </em>
-            </h2>
-            <p className="mt-10 max-w-3xl mx-auto text-xl sm:text-2xl font-light text-pacific-light/90 leading-relaxed">
-              Send a DWG file. We deliver the finished piece — designed,
-              fabricated, polished, and dispatched from a single facility.{" "}
-              <span className="text-white font-medium">
-                The only end-to-end cut-to-size solution in the industry.
-              </span>
-            </p>
-            <p className="mt-6 max-w-3xl mx-auto text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-              Vanities, sinks, custom counters, bespoke worktops — every piece
-              joined with industrial-grade adhesives and engineered to be{" "}
-              <span className="text-white font-medium">boltable</span>, so
-              installations stay secure under real-world load.
-            </p>
-          </AnimatedSection>
+      <ProHero
+        eyebrow="Professionals · Fabrication services"
+        title="Cut-to-size quartz and stone fabrication"
+        lead="Fab Creations is the fabrication service of Pacific Surfaces. Send a drawing, and the piece is cut, finished, crated and shipped from one facility, in quartz, Eclipse or granite."
+        image="/videos/origin-poster.jpg"
+        video="/videos/origin.mp4"
+        alt="Inside the Pacific Surfaces plant"
+        ctas={[
+          { label: "Send a drawing", href: "/contact#enquiry" },
+          { label: "Fab Creations designs", href: "/products/fab-creations" },
+        ]}
+        facts={[
+          { value: "3,480 × 2,007 mm", label: "Largest slab, superjumbo" },
+          { value: "12 · 20 · 30 mm", label: "Quartz thicknesses" },
+          { value: "45+", label: "Countries supplied" },
+          { value: "Since 2000", label: "Working in stone" },
+        ]}
+      />
+      <ProNav current="services" />
 
-          <StaggerContainer className="mt-16 lg:mt-20 flex flex-wrap justify-center gap-4 lg:gap-6 max-w-5xl mx-auto">
-            {capabilities.map((cap) => {
-              const Icon = cap.icon;
-              return (
-                <StaggerItem
-                  key={cap.title}
-                  className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-1.125rem)]"
-                >
-                  <div className="h-full bg-white/[0.04] border border-white/10 rounded-2xl p-5 sm:p-6 text-left">
-                    <div className="p-2.5 bg-white/10 rounded-lg w-fit">
-                      <Icon className="w-5 h-5 text-pacific-light" />
-                    </div>
-                    <div className="mt-4 text-base font-medium text-white tracking-tight">
-                      {cap.title}
-                    </div>
-                    <p className="mt-1.5 text-sm font-light text-pacific-mid leading-relaxed">
-                      {cap.body}
-                    </p>
-                  </div>
-                </StaggerItem>
-              );
-            })}
-          </StaggerContainer>
+      <ProIntro
+        eyebrow="Fab Creations"
+        title="From a single vanity top to a full feature wall"
+        body={[
+          "Fab Creations turns Pacific Surfaces slabs into finished pieces: vanity tops and integrated sinks, kitchen countertops and islands, tables, bar and reception counters, wall cladding, shower walls, and window sills and thresholds.",
+          "Work starts from your drawing. Every piece is cut to it, finished, checked and crated for the journey, whether it goes to a site in India or to one of the 45+ countries Pacific Surfaces supplies.",
+        ]}
+        specs={[
+          { label: "Materials", value: "Quartz, Eclipse and granite" },
+          { label: "Slab format", value: "Up to 3,480 × 2,007 mm (137 × 79 in)" },
+          { label: "Quartz thicknesses", value: "12, 20 and 30 mm" },
+          { label: "Drawings", value: "DWG, PDF or a hand sketch" },
+          { label: "Finishes", value: "Polished, honed or leather, by design" },
+        ]}
+      />
 
-          <div className="mt-12 lg:mt-16 flex flex-col sm:flex-row gap-4 justify-center">
-            <MagneticButton href="/contact" variant="primary" size="lg">
-              Send a DWG file
-            </MagneticButton>
-            <Link
-              href="/products"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-medium tracking-[0.1em] uppercase text-white/80 hover:text-white transition-colors"
-            >
-              See available surfaces
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <ProCards
+        eyebrow="What we fabricate"
+        title="Pieces made to your drawing"
+        lead="Each piece is cut from the same slabs shown in the catalogue, so the colour you specify is the colour that arrives."
+        items={MAKE}
+        columns={4}
+        tone="stone"
+      />
 
-      {/* 3. What we cut */}
-      <section className="bg-[#0a1620]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              What we cut
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
-              From a single vanity top to a hundred-metre facade.
-            </h2>
-            <p className="mt-5 max-w-2xl text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-              If it can be drawn, we can usually cut it. A short list of the
-              pieces we ship most often:
-            </p>
-          </AnimatedSection>
-          <StaggerContainer className="mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {cutToSizeUses.map((u) => {
-              const Icon = u.icon;
-              return (
-                <StaggerItem key={u.title} className="h-full">
-                  <div className="h-full bg-white/5 border border-white/10 rounded-2xl p-7 sm:p-8 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-500 flex flex-col">
-                    <div className="p-3 bg-white/10 rounded-xl w-fit">
-                      <Icon className="w-5 h-5 text-pacific-light" />
-                    </div>
-                    <h3 className="mt-6 text-lg font-medium text-white tracking-tight">
-                      {u.title}
-                    </h3>
-                    <p className="mt-3 text-sm sm:text-base font-light text-pacific-mid leading-relaxed">
-                      {u.body}
-                    </p>
-                  </div>
-                </StaggerItem>
-              );
-            })}
-          </StaggerContainer>
-        </div>
-      </section>
+      <ProSteps
+        eyebrow="How it works"
+        title="From your file to the finished piece"
+        lead="Six steps, with one team from the first call to delivery."
+        steps={STEPS}
+        tone="white"
+      />
 
-      {/* 4. Workflow */}
-      <section className="bg-[#112732] border-y border-white/5">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              The workflow
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
-              From your file to finished piece, in six steps.
-            </h2>
-          </AnimatedSection>
-          <div className="mt-14 lg:mt-20 relative">
-            <div
-              aria-hidden="true"
-              className="hidden lg:block absolute left-[7.5rem] top-2 bottom-2 w-px bg-white/10"
-            />
-            <ol className="space-y-12 lg:space-y-16">
-              {workflow.map((step) => (
-                <AnimatedSection
-                  key={step.n}
-                  animation="fadeUp"
-                  className="grid grid-cols-1 lg:grid-cols-[8rem_1fr] gap-4 lg:gap-12 items-start relative"
-                >
-                  <div className="flex items-baseline gap-3 lg:gap-0 lg:flex-col">
-                    <span className="text-3xl sm:text-4xl lg:text-5xl font-light text-white/90 tracking-tight">
-                      {step.n}
-                    </span>
-                    <span
-                      aria-hidden="true"
-                      className="hidden lg:block absolute left-[7.3rem] top-2.5 w-2 h-2 rounded-full bg-pacific-light"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-light tracking-tight text-white">
-                      {step.title}
-                    </h3>
-                    <p className="mt-3 max-w-2xl text-base font-light text-pacific-mid leading-relaxed">
-                      {step.body}
-                    </p>
-                  </div>
-                </AnimatedSection>
-              ))}
-            </ol>
-          </div>
-        </div>
-      </section>
+      <ProSplit
+        eyebrow="Slab and piece from one source"
+        title="Made at our own plant"
+        body={[
+          "Pacific Surfaces makes its quartz at a state-of-the-art Bretonstone plant with fully automated manufacturing. Fab Creations cuts and finishes those slabs under the same roof.",
+          "One source for the slab and the piece means one point of contact, and one standard from the raw mix to the crate.",
+        ]}
+        points={[
+          "Quartz in 12, 20 and 30 mm",
+          "Superjumbo slabs up to 3,480 × 2,007 mm, for fewer joints",
+          "Up to 12 million sq ft of quartz a year",
+          "Certificates on file: NSF/ANSI 51, CE, ISO 9001:2015, Kosher, EPD",
+        ]}
+        image="/images/india-home/bretonstone-robot.webp"
+        alt="A Breton robot over the quartz mix on the Bretonstone line"
+        cta={{ label: "Visit the factory", href: "/contact#factory" }}
+        tone="stone"
+      />
 
-      {/* 5. Engineering details */}
-      <section className="bg-[#0a1620]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              Under the hood
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
-              Built to outlast the building it lives in.
-            </h2>
-            <p className="mt-5 max-w-2xl text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-              Cut-to-size only works if the engineering behind it works. Four
-              standards every Fab Creations piece is built to:
-            </p>
-          </AnimatedSection>
-          <StaggerContainer className="mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
-            {engineeringDetails.map((d) => {
-              const Icon = d.icon;
-              return (
-                <StaggerItem key={d.title} className="h-full">
-                  <div className="h-full bg-white/[0.04] border border-white/10 rounded-2xl p-8 lg:p-10 hover:border-white/20 transition-all duration-500 flex">
-                    <div className="p-3 bg-white/10 rounded-xl w-fit h-fit flex-shrink-0">
-                      <Icon className="w-6 h-6 text-pacific-light" />
-                    </div>
-                    <div className="ml-5 lg:ml-6">
-                      <h3 className="text-xl font-light text-white tracking-tight">
-                        {d.title}
-                      </h3>
-                      <p className="mt-3 text-base font-light text-pacific-mid leading-relaxed">
-                        {d.body}
-                      </p>
-                    </div>
-                  </div>
-                </StaggerItem>
-              );
-            })}
-          </StaggerContainer>
-        </div>
-      </section>
+      <ProCertificates />
 
-      {/* 6. Materials */}
-      <section className="bg-[#112732] border-y border-white/5">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <AnimatedSection animation="fadeUp">
-            <div className="max-w-3xl">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-                By the numbers
-              </span>
-              <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
-                A quarter-century of cut-to-size, in six figures.
-              </h2>
-              <p className="mt-5 text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-                A quick snapshot of what Fab Creations runs at — turnaround,
-                tolerance, scale, and the experience behind it.
-              </p>
-            </div>
-          </AnimatedSection>
+      <ProFaq title="Fabrication questions" items={FAQS} />
 
-          <StaggerContainer className="mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-            {capabilityStats.map((stat) => (
-              <StaggerItem key={stat.label} className="h-full">
-                <div className="h-full bg-white/[0.04] border border-white/10 rounded-2xl p-7 lg:p-8 hover:border-white/20 transition-all duration-500">
-                  <div className="text-4xl sm:text-5xl lg:text-6xl font-light text-white tracking-tight leading-none">
-                    {stat.value}
-                  </div>
-                  <div className="mt-5 text-[10px] sm:text-xs tracking-[0.25em] uppercase text-pacific-light/80 font-medium">
-                    {stat.label}
-                  </div>
-                  <p className="mt-3 text-sm font-light text-pacific-mid leading-relaxed">
-                    {stat.note}
-                  </p>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-
-          <div className="mt-10 lg:mt-12">
-            <MagneticButton href="/products" variant="outline-dark" size="md">
-              Browse the catalogue
-            </MagneticButton>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Supporting services */}
-      <section className="bg-[#0a1620]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              Beyond the cut
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
-              Everything else the project needs.
-            </h2>
-            <p className="mt-5 max-w-2xl text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-              Cut-to-size is the headline. The supporting services keep the
-              project on rails from first brief to handover.
-            </p>
-          </AnimatedSection>
-          <StaggerContainer className="mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {supportingServices.map((s) => {
-              const Icon = s.icon;
-              return (
-                <StaggerItem key={s.title} className="h-full">
-                  <div className="h-full bg-white/5 border border-white/10 rounded-2xl p-7 sm:p-8 hover:border-white/20 transition-all duration-500 flex flex-col">
-                    <div className="p-3 bg-white/10 rounded-xl w-fit">
-                      <Icon className="w-5 h-5 text-pacific-light" />
-                    </div>
-                    <h3 className="mt-6 text-lg font-medium text-white tracking-tight">
-                      {s.title}
-                    </h3>
-                    <p className="mt-3 text-sm font-light text-pacific-mid leading-relaxed">
-                      {s.body}
-                    </p>
-                  </div>
-                </StaggerItem>
-              );
-            })}
-          </StaggerContainer>
-        </div>
-      </section>
-
-      {/* 8. CTA closer */}
-      <section className="bg-[#112732] border-t border-white/10">
-        <div className="mx-auto max-w-4xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32 text-center">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              Ready to cut?
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
-              Send a drawing. We&apos;ll send a quote .
-            </h2>
-            <p className="mt-5 max-w-2xl mx-auto text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-              CAD, DWG, PDF, or a hand-sketch — whatever you have, we can work
-              from it. A senior Pacific fabricator will respond within one
-              working day.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-              <MagneticButton href="/contact" variant=
-"primary" size="lg">Send a DWG file</MagneticButton>
-              <Link
-                href="/professionals/applications"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-medium tracking-[0.1em] uppercase text-white/80 hover:text-white transition-colors"
-              >
-                See application areas
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
+      <ProClose
+        title="Send a drawing, get a quote"
+        body={`Attach your DWG, PDF or sketch to an enquiry, or call ${SALES_PHONE.display}. Every quote is itemised before cutting starts.`}
+        ctas={[
+          { label: "Send an enquiry", href: "/contact#enquiry" },
+          { label: `Call ${SALES_PHONE.display}`, href: SALES_PHONE.href },
+        ]}
+        image="/images/spaces/hotels/cafe-counter-orenda.jpg"
+      />
     </main>
   );
 }

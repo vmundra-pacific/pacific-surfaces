@@ -35,12 +35,16 @@ interface ProfessionalsVideoGridProps {
   title?: string;
   /** Optional intro paragraph. */
   body?: string;
+  /** Only the grid of films, square-cornered, for a page that sets its
+   *  own section and heading (the Professionals pages). */
+  bare?: boolean;
 }
 
 export function ProfessionalsVideoGrid({
   eyebrow = "In motion",
   title = "See how Pacific shows up on a project.",
   body,
+  bare = false,
 }: ProfessionalsVideoGridProps) {
   // Track which card is currently playing so we can hide its overlay
   // and pause others on a new click. `null` = nothing playing.
@@ -62,24 +66,14 @@ export function ProfessionalsVideoGrid({
     }
   };
 
-  return (
-    <section className="bg-[#0a1620] border-y border-white/5">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-        <AnimatedSection animation="fadeUp">
-          <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-            {eyebrow}
-          </span>
-          <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
-            {title}
-          </h2>
-          {body && (
-            <p className="mt-5 max-w-2xl text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-              {body}
-            </p>
-          )}
-        </AnimatedSection>
-
-        <div className="mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
+  const grid = (
+        <div
+          className={
+            bare
+              ? "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 lg:gap-5"
+              : "mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5"
+          }
+        >
           {VIDEOS.map((src, i) => {
             const isPlaying = playing === i;
             return (
@@ -88,7 +82,7 @@ export function ProfessionalsVideoGrid({
                 type="button"
                 onClick={() => toggle(i)}
                 aria-label={isPlaying ? "Pause video" : "Play video"}
-                className="group relative block rounded-xl overflow-hidden border border-white/10 bg-pacific-dark aspect-[3/4] focus:outline-none focus:ring-2 focus:ring-white/40"
+                className={`group relative block overflow-hidden border border-white/10 bg-pacific-dark aspect-[3/4] focus:outline-none focus:ring-2 focus:ring-white/40 ${bare ? "" : "rounded-xl"}`}
               >
                 <video
                   ref={(el) => {
@@ -141,6 +135,27 @@ export function ProfessionalsVideoGrid({
             );
           })}
         </div>
+  );
+
+  if (bare) return grid;
+
+  return (
+    <section className="bg-[#0a1620] border-y border-white/5">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
+        <AnimatedSection animation="fadeUp">
+          <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
+            {eyebrow}
+          </span>
+          <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
+            {title}
+          </h2>
+          {body && (
+            <p className="mt-5 max-w-2xl text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
+              {body}
+            </p>
+          )}
+        </AnimatedSection>
+        {grid}
       </div>
     </section>
   );

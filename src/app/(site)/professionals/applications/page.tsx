@@ -1,245 +1,266 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
+import { BreadcrumbList } from "@/components/global/JsonLd";
+import { MaterialTests } from "@/components/sections/sills/TechnicalSpecs";
+import { ProCertificates } from "@/components/sections/professionals/ProCertificates";
 import {
-  AnimatedSection,
-  StaggerContainer,
-  StaggerItem,
-} from "@/components/ui/animated-section";
-import { MagneticButton } from "@/components/ui/magnetic-button";
-import { ArrowRight, Check } from "lucide-react";
+  Container,
+  LABEL,
+  LIGHT,
+  ProCards,
+  ProClose,
+  ProFaq,
+  ProHero,
+  ProIndex,
+  ProIntro,
+  ProNav,
+  ProTable,
+} from "@/components/sections/professionals/ProKit";
+
+/**
+ * /professionals/applications: a specifier's guide to where each Pacific
+ * Surfaces material goes, rebuilt 2026-10-08 (owner: the section looked
+ * "cheap"). It links every application page, says which material suits
+ * which use, and carries the owner's own test results (the tables already
+ * on the window sill page) and the certificates on file. The old cards
+ * that repeated one photograph under two names are gone.
+ */
 
 export const metadata: Metadata = {
-  title: "Applications — Pacific Surfaces",
+  title: "Where to Use Quartz & Stone: Applications | Pacific Surfaces",
   description:
-    "Where Pacific surfaces install best — kitchens, bathrooms, facades, hospitality, and commercial interiors, with performance specs by use case.",
+    "Kitchens, bathrooms, cladding, facades and flooring: where Pacific Surfaces quartz, granite and panels are specified, with test data and certificates.",
   alternates: { canonical: "/professionals/applications" },
 };
 
-/**
- * /professionals/applications
- *
- * Use-case landing for Pacific surfaces. Each application card pairs
- * a room/sector image with a short brief on what Pacific does well
- * in that context. Sections:
- *
- *   1. Hero
- *   2. Application grid (kitchens, bathrooms, facades, commercial, hospitality, healthcare)
- *   3. Performance band (4 spec callouts)
- *   4. CTA
- *
- * No competitor product names. Brand palette only.
- */
-
-const applications = [
+const FEATURED = [
   {
-    slug: "kitchens",
-    name: "Kitchens",
-    image: "/images/spaces/kitchens.png",
-    body: "Worktops, islands, and splashbacks engineered for daily use — heat-resistant, hygienic, and seamlessly joined for large spans.",
-    href: "/spaces/kitchens",
+    title: "Kitchen countertops",
+    body: "Quartz worktops: 2 cm for a supported run, 3 cm where the counter overhangs.",
+    image: "/projects/islands/orenda-application.webp",
+    alt: "A kitchen with a stone island and a matching wall",
+    href: "/applications/kitchen-countertops",
+    linkLabel: "Countertops",
   },
   {
-    slug: "bathrooms",
-    name: "Bathrooms",
-    image: "/images/spaces/bathrooms.jpg",
-    body: "Vanities, shower walls, and full-height cladding in non-porous quartz and natural stone — moisture-stable, low-maintenance, designed to last.",
-    href: "/spaces/bathrooms",
+    title: "Vanity tops",
+    body: "Tops cut for the basins you choose, or with an Integra basin in the same quartz.",
+    image: "/images/spaces/bathrooms/basin-and-bath.jpg",
+    alt: "A bathroom with a stone vanity counter, a basin and a bath",
+    href: "/applications/bathroom-vanity-tops",
+    linkLabel: "Vanity tops",
   },
   {
-    slug: "facades",
-    name: "Facades & Cladding",
-    image: "/images/spaces/architecture.png",
-    body: "Large-format external and internal cladding, ventilated facades, and feature walls in Beyond Stone and natural-stone formats.",
-    href: "/spaces/architecture",
+    title: "Wall cladding",
+    body: "Whole walls in superjumbo slabs, so the veining runs on without a grout line.",
+    image: "/images/spaces/hotels/spa-wall.jpg",
+    alt: "A wall clad in white marble-look slabs",
+    href: "/applications/wall-cladding",
+    linkLabel: "Wall cladding",
   },
   {
-    slug: "commercial",
-    name: "Commercial Interiors",
-    image: "/images/spaces/commercial.jpg",
-    body: "Reception desks, partition systems, lift lobbies, and workstations — surfaces specified for high-traffic, brand-critical environments.",
-    href: "/spaces/commercial",
+    title: "Flooring",
+    body: "Granite floors, paving and steps, inside and out, in a range of finishes.",
+    image: "/images/flooring/card-courtyard.webp",
+    alt: "A courtyard paved in New Viscont White granite",
+    href: "/applications/flooring",
+    linkLabel: "Flooring",
   },
   {
-    slug: "hospitality",
-    name: "Hospitality",
-    image: "/images/spaces/commercial.jpg",
-    body: "Bar tops, restaurant counters, hotel bathrooms, and signature feature walls — material identity that holds up to a full service week.",
-    href: "/spaces/hospitality",
+    title: "Backlit features",
+    body: "Translucent and semi-precious stone lit from behind, for bars, walls and counters.",
+    image: "/images/spaces/hotels/backlit-bar-latte-luxe.jpg",
+    alt: "A hotel bar with a backlit stone counter",
+    href: "/applications/backlit-features",
+    linkLabel: "Backlit features",
   },
   {
-    slug: "outdoor",
-    name: "Outdoor & Wet Areas",
-    image: "/images/spaces/architecture.png",
-    body: "Pool surrounds, terrace counters, and outdoor kitchens — UV-stable, freeze-thaw rated, and built for the elements.",
-    href: "/spaces/outdoor",
+    title: "Hospitality interiors",
+    body: "Restaurants, lobbies and spas, where surfaces must look new for years.",
+    image: "/projects/cladding/tiffany.webp",
+    alt: "A restaurant with a green stone feature wall",
+    href: "/applications/hospitality-interiors",
+    linkLabel: "Hospitality",
   },
 ];
 
-const specs = [
+const GROUPS = [
   {
-    label: "Hygiene",
-    value: "NSF 51",
-    body: "Certified safe for direct food contact across our engineered range.",
+    title: "Kitchen",
+    links: [
+      { label: "Kitchen countertops", href: "/applications/kitchen-countertops", note: "Worktops for kitchens and pantries" },
+      { label: "Kitchen islands", href: "/applications/kitchen-islands", note: "Islands, often from a single superjumbo slab" },
+      { label: "Waterfall islands", href: "/applications/waterfall-islands", note: "Mitred sides that carry the top to the floor" },
+      { label: "Backsplashes", href: "/applications/backsplashes", note: "The wall behind the hob and the sink" },
+      { label: "Outdoor kitchens", href: "/applications/outdoor-kitchens", note: "Counters for terraces and gardens" },
+    ],
   },
   {
-    label: "Indoor air",
-    value: "Greenguard Gold",
-    body: "Low-VOC emissions verified for schools, healthcare, and homes.",
+    title: "Bathroom",
+    links: [
+      { label: "Vanity tops", href: "/applications/bathroom-vanity-tops", note: "Tops with cut-outs or integrated basins" },
+      { label: "Shower walls", href: "/applications/shower-walls-and-trays", note: "Large panels in place of tiles and grout" },
+      { label: "Washbasins", href: "/applications/washbasins", note: "Integra basins in the same material as the top" },
+    ],
   },
   {
-    label: "Quality system",
-    value: "ISO 9001:2015",
-    body: "Manufacturing and dispatch operating to an audited quality system.",
+    title: "Walls and facades",
+    links: [
+      { label: "Wall cladding", href: "/applications/wall-cladding", note: "Interior walls clad in large slabs" },
+      { label: "Feature walls", href: "/applications/feature-walls", note: "Lobbies, headboards and walls behind a bar" },
+      { label: "Backlit features", href: "/applications/backlit-features", note: "Translucent and semi-precious stone, lit from behind" },
+      { label: "Fireplace surrounds", href: "/applications/fireplace-surrounds", note: "Hearths and surrounds" },
+      { label: "Facades", href: "/applications/facades", note: "Exterior cladding in large-format panels" },
+    ],
   },
   {
-    label: "External use",
-    value: "CE Marked",
-    body: "Conformity for use as a construction product across the EU.",
+    title: "Floors and stairs",
+    links: [
+      { label: "Flooring", href: "/applications/flooring", note: "Granite floors and paving, inside and out" },
+      { label: "Staircases", href: "/applications/staircases", note: "Treads, risers and landings" },
+    ],
+  },
+  {
+    title: "Commercial and hospitality",
+    links: [
+      { label: "Bar counters", href: "/applications/bar-counters", note: "Bars in hotels and restaurants" },
+      { label: "Reception desks", href: "/applications/reception-desks", note: "Desks for lobbies and offices" },
+      { label: "Dining and furniture", href: "/applications/dining-and-furniture", note: "Tables, consoles and desks" },
+      { label: "Hospitality interiors", href: "/applications/hospitality-interiors", note: "Hotels, restaurants and spas" },
+      { label: "Retail interiors", href: "/applications/retail-interiors", note: "Display plinths, cash desks and wall linings" },
+    ],
+  },
+];
+
+const MATERIALS = [
+  {
+    cells: ["Quartz", "Countertops, islands, vanity tops, shower walls, cladding, furniture", "Interiors", "12, 20 and 30 mm; slabs up to 3,480 × 2,007 mm"],
+    href: "/products/quartz",
+  },
+  {
+    cells: ["Eclipse", "Feature walls, islands and counters with an inlayered design", "Interiors", "Inlayered design quartz"],
+    href: "/products/quartz/chromia",
+  },
+  {
+    cells: ["Granite", "Floors, paving, steps, countertops, window sills", "Interiors and exteriors", "Natural stone; finishes vary by stone"],
+    href: "/products/granites",
+  },
+  { cells: ["Beyond Stone", "Facades and large-format cladding", "Exteriors and interiors", "Large-format facade panels"], href: "/products/facades-and-finishes" },
+  { cells: ["Translucent", "Backlit walls, bars and counters", "Interiors", "Stone that glows"], href: "/products/translucent" },
+  { cells: ["Semi-precious", "Feature pieces, bar fronts, backlit panels", "Interiors", "Hand-selected gemstone"], href: "/products/semi-precious" },
+];
+
+const FAQS = [
+  {
+    q: "Can quartz be used outdoors?",
+    a: "Pacific Surfaces quartz is specified for interiors. For terraces, paving, steps and exterior sills, specify granite; for facades, Beyond Stone large-format panels.",
+  },
+  {
+    q: "Which thickness should a kitchen countertop be?",
+    a: "2 cm suits a supported counter run. Use 3 cm where the counter carries an unsupported overhang, or mitre a 2 cm edge where a heavier look is wanted.",
+  },
+  {
+    q: "Is Pacific Surfaces quartz certified for food contact?",
+    a: "Its NSF/ANSI 51 certificate, the standard for food-contact materials, is on file and opens in full on this page.",
+  },
+  {
+    q: "How large is a single slab?",
+    a: "Pacific Surfaces quartz is made in a superjumbo format of up to 3,480 × 2,007 mm (137 × 79 in), so most islands and many walls need no joint.",
+  },
+  {
+    q: "Where can I see the materials installed?",
+    a: "The Inspiration Gallery shows projects room by room, and the factory's experience centre shows full slabs, Monday to Saturday, 9 am to 8 pm.",
   },
 ];
 
 export default function ApplicationsPage() {
   return (
-    <main data-light-page className="bg-[#0a1620] text-pacific-light">
-      {/* ── 1. Hero ── */}
-      <section className="relative min-h-[80vh] flex items-end bg-pacific-dark overflow-hidden">
-        <Image
-          src="/images/professions/applications.jpg"
-          alt="Pacific Surfaces applications"
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark via-pacific-dark/55 to-pacific-dark/15" />
-        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pb-16 sm:pb-20 lg:pb-28 w-full">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-pacific-mid/80 font-medium">
-              Professionals · Applications
-            </span>
-            <h1 className="mt-5 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.05] max-w-4xl">
-              Engineered for <em className="italic font-light">every brief.</em>
-            </h1>
-            <p className="mt-6 max-w-2xl text-base sm:text-lg font-light text-pacific-light/85 leading-relaxed">
-              From a single kitchen island to a hundred-metre ventilated facade
-              — Pacific surfaces are specified, fabricated, and installed across
-              the full range of residential, commercial, and architectural
-              applications.
-            </p>
-          </AnimatedSection>
-        </div>
-      </section>
+    <main data-light-page className="bg-white text-[#14140f]">
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Applications for professionals", url: "/professionals/applications" },
+        ]}
+      />
 
-      {/* ── 2. Application grid ── */}
-      <section className="bg-[#0a1620]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              Where they install
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-2xl">
-              Six contexts, one material library.
-            </h2>
-          </AnimatedSection>
+      <ProHero
+        eyebrow="Professionals · Applications"
+        title="Where each surface performs"
+        lead="A guide for specifiers: which Pacific Surfaces material suits which part of a project, with the test results and certificates behind it."
+        image="/images/india-home/taj-vein-kitchen.webp"
+        alt="A kitchen island in Taj Vein quartz"
+        ctas={[
+          { label: "Ask for a recommendation", href: "/contact#enquiry" },
+          { label: "All surfaces", href: "/products" },
+        ]}
+        facts={[
+          { value: "20", label: "Application guides" },
+          { value: "6", label: "Material families" },
+          { value: "12 · 20 · 30 mm", label: "Quartz thicknesses" },
+          { value: "5", label: "Certificates on file" },
+        ]}
+      />
+      <ProNav current="applications" />
 
-          <StaggerContainer className="mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {applications.map((app) => (
-              <StaggerItem key={app.slug} className="h-full">
-                <Link
-                  href={app.href}
-                  className="group block h-full rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:border-white/20 transition-all duration-500"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <Image
-                      src={app.image}
-                      alt={app.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                    <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between text-white">
-                      <h3 className="text-xl sm:text-2xl font-light tracking-tight">
-                        {app.name}
-                      </h3>
-                      <ArrowRight className="w-5 h-5 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-                    </div>
-                  </div>
-                  <div className="p-6 sm:p-7">
-                    <p className="text-sm sm:text-base font-light text-pacific-mid leading-relaxed">
-                      {app.body}
-                    </p>
-                  </div>
-                </Link>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </div>
-      </section>
+      <ProIntro
+        eyebrow="Specifying Pacific Surfaces"
+        title="The right material for each part of the building"
+        body={[
+          "Quartz is engineered for interiors: countertops, islands, vanity tops, shower walls and cladding, in 12, 20 and 30 mm and in slabs up to 3,480 × 2,007 mm. Granite takes the floors, paving, steps and sills, inside and out. Beyond Stone panels clad facades, and translucent and semi-precious stone become a light source.",
+          "Each application below has its own guide, with the materials to use, the thicknesses that suit it and the details that matter on site.",
+        ]}
+      />
 
-      {/* ── 3. Performance specs ── */}
-      <section className="bg-[#112732] border-y border-white/5">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              Performance, certified
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-2xl">
-              Specified once, holds up forever.
-            </h2>
-          </AnimatedSection>
+      <ProCards
+        eyebrow="Applications"
+        title="Where Pacific Surfaces is specified"
+        items={FEATURED}
+        columns={3}
+        tone="stone"
+      />
 
-          <StaggerContainer className="mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {specs.map((s) => (
-              <StaggerItem key={s.value} className="h-full">
-                <div className="h-full bg-white/[0.04] border border-white/10 rounded-2xl p-7 sm:p-8 flex flex-col">
-                  <div className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-                    <Check className="w-3.5 h-3.5 text-pacific-light" />
-                    {s.label}
-                  </div>
-                  <div className="mt-4 text-2xl sm:text-3xl font-light text-white tracking-tight">
-                    {s.value}
-                  </div>
-                  <p className="mt-3 text-sm font-light text-pacific-mid leading-relaxed">
-                    {s.body}
-                  </p>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </div>
-      </section>
+      <ProIndex eyebrow="Every application" title="All twenty application guides" groups={GROUPS} />
 
-      {/* ── 4. CTA closer ── */}
-      <section className="bg-[#0a1620]">
-        <div className="mx-auto max-w-4xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32 text-center">
-          <AnimatedSection animation="fadeUp">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
-              Match material to brief
-            </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
-              Not sure which surface fits the application?
-            </h2>
-            <p className="mt-5 max-w-2xl mx-auto text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
-              Tell us where it&apos;s going — the room, the loads, the look.
-              We&apos;ll shortlist three slabs that work and explain why.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-              <MagneticButton href="/contact" variant="primary" size="lg">
-                Ask for a recommendation
-              </MagneticButton>
-              <Link
-                href="/products"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-medium tracking-[0.1em] uppercase text-white/80 hover:text-white transition-colors"
-              >
-                Browse all surfaces
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+      <ProTable
+        eyebrow="Material guide"
+        title="Which material where"
+        lead="Start from the use, then choose the design. Each material links to its full range."
+        columns={["Material", "Best for", "Where", "Format"]}
+        rows={MATERIALS}
+        tone="stone"
+      />
+
+      <section className="bg-white">
+        <Container className="py-16 lg:py-24">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
+            <div>
+              <p className={LABEL}>Test results</p>
+              <h2 style={LIGHT} className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]">
+                Tested performance
+              </h2>
             </div>
-          </AnimatedSection>
-        </div>
+            <p className="max-w-xl text-[17px] font-light leading-relaxed">
+              Laboratory results for Pacific Surfaces quartz, 2 cm, across the quartz range, and for Warangal Black granite.
+            </p>
+          </div>
+          <div className="mt-12">
+            <MaterialTests />
+          </div>
+        </Container>
       </section>
+
+      <ProCertificates />
+
+      <ProFaq title="Specification questions" items={FAQS} />
+
+      <ProClose
+        title="Not sure which surface fits?"
+        body="Tell us where it is going, the room, the loads and the look, and we will suggest the materials and send samples."
+        ctas={[
+          { label: "Ask for a recommendation", href: "/contact#enquiry" },
+          { label: "Fabrication services", href: "/professionals/services" },
+        ]}
+        image="/images/spaces/hotels/pool-terrace.jpg"
+      />
     </main>
   );
 }
