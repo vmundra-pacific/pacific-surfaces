@@ -57,6 +57,7 @@ interface IncomingLine {
   height?: string;
   basins?: string;
   finish?: string;
+  faucet?: string;
   quantity?: number;
 }
 
@@ -156,7 +157,7 @@ export async function POST(req: NextRequest) {
       );
       return [
         {
-          _key: `${clampField(line.id, 64) || "line"}-${clampField(line.length, 16)}x${clampField(line.width, 16)}x${clampField(line.height, 16)}-${clampField(line.basins, 8)}-${clampField(line.finish, 32)}`.replace(
+          _key: `${clampField(line.id, 64) || "line"}-${clampField(line.length, 16)}x${clampField(line.width, 16)}x${clampField(line.height, 16)}-${clampField(line.basins, 8)}-${clampField(line.finish, 32)}-${clampField(line.faucet, 24)}`.replace(
             /[^a-zA-Z0-9_-]/g,
             "-"
           ),
@@ -172,6 +173,7 @@ export async function POST(req: NextRequest) {
           height: clampField(line.height, 24) || undefined,
           basins: clampField(line.basins, 8) || undefined,
           finish: clampField(line.finish, 32) || undefined,
+          faucet: clampField(line.faucet, 64) || undefined,
           quantity,
         },
       ];
@@ -216,7 +218,7 @@ export async function POST(req: NextRequest) {
           <td>${escapeHtml(
             [i.length, i.width, i.height].filter(Boolean).join(" × ") || "—"
           )}</td>
-          <td>${escapeHtml(i.basins ?? "—")}</td>
+          <td>${escapeHtml([i.basins, i.faucet && `faucet: ${i.faucet}`].filter(Boolean).join(" · ") || "—")}</td>
           <td>${escapeHtml(i.finish ?? "—")}</td>
           <td align="right">${i.quantity}</td>
         </tr>`

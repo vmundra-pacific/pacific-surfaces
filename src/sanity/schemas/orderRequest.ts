@@ -126,6 +126,7 @@ export default defineType({
             { name: "height", title: "Height (in)", type: "string" },
             { name: "basins", title: "Number of basins", type: "string" },
             { name: "finish", title: "Finish", type: "string" },
+            { name: "faucet", title: "Faucet holes", type: "string" },
             { name: "quantity", title: "Quantity", type: "number" },
           ],
           preview: {

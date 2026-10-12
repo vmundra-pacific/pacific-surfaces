@@ -55,8 +55,8 @@ type Filters = Record<FacetKey, Set<string>>;
 type SortKey = "featured" | "az" | "za";
 
 const PAGE = 24;
-const BASIN_WORD = ["", "Single", "Double", "Triple"];
-const WIDTH_TILES = ["30", "36", "48", "60", "72"];
+const BASIN_WORD = ["", "Single", "Double"];
+const WIDTH_TILES = ["25", "31", "37", "49", "61", "73"];
 const SORTS: { key: SortKey; label: string }[] = [
   { key: "featured", label: "Featured" },
   { key: "az", label: "Name, A to Z" },
@@ -350,9 +350,8 @@ export function VanityTopsListing({
             {[
               { label: "Single basin vanity tops", href: "/shop/vanity-tops?basins=1" },
               { label: "Double basin vanity tops", href: "/shop/vanity-tops?basins=2" },
-              { label: "Triple basin vanity tops", href: "/shop/vanity-tops?basins=3" },
-              { label: "48-inch vanity tops", href: "/shop/vanity-tops?width=48" },
-              { label: "72-inch vanity tops", href: "/shop/vanity-tops?width=72" },
+              { label: "49-inch vanity tops", href: "/shop/vanity-tops?width=49" },
+              { label: "73-inch vanity tops", href: "/shop/vanity-tops?width=73" },
               { label: "Integrated quartz sinks", href: "/shop" },
               { label: "Vanity tops guide", href: "/applications/bathroom-vanity-tops" },
               { label: "All quartz designs", href: "/products/quartz" },

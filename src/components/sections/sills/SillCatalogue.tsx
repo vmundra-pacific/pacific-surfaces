@@ -10,6 +10,7 @@ import {
   FINISHES,
   PRODUCT_GROUPS,
   SILL_COLOURS,
+  SILL_PRODUCTS,
   flatSection,
   m2,
   sillPieces,
@@ -25,7 +26,8 @@ import { cn } from "@/lib/utils";
  * proportions, named on one line with its size spelt out under it (length,
  * width, thickness: the boss's note), and a View button that opens it with
  * its figures. 25 at a time. No article numbers: the collection has none,
- * and none are made up.
+ * and none are made up. Every product is in it (owner, 2026-10-10), each
+ * in its own sizes; one with no sizes on record is listed made to order.
  */
 
 const PIECES = sillPieces();
@@ -49,20 +51,22 @@ const FACETS: { key: Key; title: string; of: (p: SillPiece) => string[] }[] = [
   { key: "colour", title: "Colour", of: (p) => [p.colour.name] },
   { key: "material", title: "Material", of: (p) => [p.material] },
   { key: "finish", title: "Finish", of: (p) => p.finishes },
-  { key: "thickness", title: "Thickness", of: (p) => [`${p.size.thickness} cm`] },
-  { key: "length", title: "Length", of: (p) => [`${p.size.length} cm`] },
+  { key: "thickness", title: "Thickness", of: (p) => (p.size ? [`${p.size.thickness} cm`] : []) },
+  { key: "length", title: "Length", of: (p) => (p.size ? [`${p.size.length} cm`] : []) },
 ];
+
+const SIZED = PIECES.flatMap((p) => (p.size ? [p.size] : []));
 
 const numbers = (v: number[]) => Array.from(new Set(v)).sort((a, b) => a - b);
 
 /** Each filter's options, in the order the page gives them. */
 const OPTIONS: Record<Key, string[]> = {
-  product: Array.from(new Set(PIECES.map((p) => p.product.name))),
+  product: SILL_PRODUCTS.map((p) => p.name),
   colour: SILL_COLOURS.flatMap((g) => g.colours.map((c) => c.name)),
   material: SILL_COLOURS.map((g) => g.material),
   finish: FINISHES.map((f) => f.name),
-  thickness: numbers(PIECES.map((p) => p.size.thickness)).map((v) => `${v} cm`),
-  length: numbers(PIECES.map((p) => p.size.length)).map((v) => `${v} cm`),
+  thickness: numbers(SIZED.map((s) => s.thickness)).map((v) => `${v} cm`),
+  length: numbers(SIZED.map((s) => s.length)).map((v) => `${v} cm`),
 };
 
 const NONE: Chosen = { product: [], colour: [], material: [], finish: [], thickness: [], length: [] };
@@ -70,16 +74,16 @@ const NONE: Chosen = { product: [], colour: [], material: [], finish: [], thickn
 const SWATCH: Record<string, string> = Object.fromEntries(SILL_COLOURS.flatMap((g) => g.colours.map((c) => [c.name, c.image])));
 const GROUP: Record<string, string> = Object.fromEntries(PRODUCT_GROUPS.map((g) => [g.id, g.title]));
 
+/** Length, width and thickness, made-to-order pieces last either way. */
+const bySize = (dir: 1 | -1) => (a: SillPiece, b: SillPiece) => {
+  if (!a.size || !b.size) return (a.size ? 0 : 1) - (b.size ? 0 : 1);
+  return dir * (a.size.length - b.size.length || a.size.width - b.size.width || a.size.thickness - b.size.thickness);
+};
+
 const SORTS = {
   product: { label: "Product", by: null },
-  "size-up": {
-    label: "Size, small to large",
-    by: (a: SillPiece, b: SillPiece) => a.size.length - b.size.length || a.size.width - b.size.width || a.size.thickness - b.size.thickness,
-  },
-  "size-down": {
-    label: "Size, large to small",
-    by: (a: SillPiece, b: SillPiece) => b.size.length - a.size.length || b.size.width - a.size.width || b.size.thickness - a.size.thickness,
-  },
+  "size-up": { label: "Size, small to large", by: bySize(1) },
+  "size-down": { label: "Size, large to small", by: bySize(-1) },
 } as const;
 type Sort = keyof typeof SORTS;
 
@@ -89,7 +93,9 @@ function passes(p: SillPiece, chosen: Chosen, skip?: Key) {
 }
 
 const nameOf = (p: SillPiece) => `${p.product.name} ${p.material} ${p.colour.name}`;
-const sizeOf = (p: SillPiece) => `Length ${p.size.length} cm · Width ${p.size.width} cm · Thickness ${p.size.thickness} cm`;
+const heightOf = (s: NonNullable<SillPiece["size"]>) => (s.front ? `Height ${s.thickness} / ${s.front} cm` : `Thickness ${s.thickness} cm`);
+const sizeOf = (p: SillPiece) =>
+  p.size ? `Length ${p.size.length} cm · Width ${p.size.width} cm · ${heightOf(p.size)}` : "Made to order: cut to your length, width and thickness";
 const finishesOf = (p: SillPiece) => {
   const text = p.finishes.join(", ").toLowerCase();
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -111,16 +117,23 @@ function PieceDrawing({
   line?: number;
   className?: string;
 }) {
-  const { size } = piece;
-  const profile = flatSection(`${piece.id}-section`, piece.product.name, size.width, size.thickness);
-  const ratio = Math.min(7, Math.max(2, size.length / size.width));
+  const { size, product } = piece;
+  // The flat pieces drawn in the proportions of their size; the profiled
+  // ones in their own section.
+  const flat = size && (product.slug === "window-sill" || product.slug === "threshold");
+  const profile = flat && size ? flatSection(`${piece.id}-section`, product.name, size.width, size.thickness) : product.sections[0];
+  const ratio = size ? Math.min(7, Math.max(2, size.length / size.width)) : product.drawLength;
   return (
     <SillIsoDrawing
       profile={profile}
       length={ratio * 1000}
       texture={piece.colour.image}
       dims={marks}
-      values={marks ? { length: `${size.length} cm`, width: `${size.width} cm`, thickness: `${size.thickness} cm` } : undefined}
+      values={
+        marks && size
+          ? { length: `${size.length} cm`, width: `${size.width} cm`, thickness: size.front ? `${size.thickness} / ${size.front} cm` : `${size.thickness} cm` }
+          : undefined
+      }
       frame={frame}
       font={font}
       line={line}
@@ -280,11 +293,17 @@ export function SillCatalogue() {
                 </span>
                 <p className="mt-3 text-sm leading-snug">{nameOf(p)}</p>
                 <p className="mt-1 flex-1 text-xs font-light leading-relaxed opacity-60">
-                  Length {p.size.length} cm
-                  <br />
-                  Width {p.size.width} cm
-                  <br />
-                  Thickness {p.size.thickness} cm
+                  {p.size ? (
+                    <>
+                      Length {p.size.length} cm
+                      <br />
+                      Width {p.size.width} cm
+                      <br />
+                      {heightOf(p.size)}
+                    </>
+                  ) : (
+                    "Made to order"
+                  )}
                 </p>
                 <button
                   type="button"
@@ -332,7 +351,9 @@ function FilterGroup({
   const [open, setOpen] = useState(true);
   const [all, setAll] = useState(false);
   const options = OPTIONS[facet.key];
-  const list = all ? options : options.slice(0, SHORT);
+  // Every product is listed outright, so none is hidden behind "Show all".
+  const short = facet.key === "product" ? options.length : SHORT;
+  const list = all ? options : options.slice(0, short);
   return (
     <div className="border-b border-[#14140f]/12 py-5 first:pt-0">
       <button
@@ -375,7 +396,7 @@ function FilterGroup({
               </li>
             );
           })}
-          {options.length > SHORT && (
+          {options.length > short && (
             <li>
               <button type="button" onClick={() => setAll((a) => !a)} className="pt-1 text-sm font-light underline underline-offset-4">
                 {all ? "Show fewer" : "Show all…"}
@@ -406,12 +427,16 @@ function PieceDialog({ piece, onClose }: { piece: SillPiece; onClose: () => void
     ],
     ["Material", piece.material],
     ["Finishes", finishesOf(piece)],
-    ["Length", `${size.length} cm`],
-    ["Width", `${size.width} cm`],
-    ["Thickness", `${size.thickness} cm`],
-    ["Per crate", `${size.pieces} ${size.pieces === 1 ? "piece" : "pieces"}`],
-    ["Crate weight", `Approx. ${size.kg.toLocaleString("en-GB")} kg net stone`],
-    ["Crate area", `Approx. ${m2(size.m2)} m²`],
+    ...((size
+      ? [
+          ["Length", `${size.length} cm`],
+          ["Width", `${size.width} cm`],
+          size.front ? ["Height", `${size.thickness} cm at the back, ${size.front} cm at the front`] : ["Thickness", `${size.thickness} cm`],
+          ["Per crate", size.pieces ? `${size.pieces} ${size.pieces === 1 ? "piece" : "pieces"}` : "To suit the order"],
+          ...(size.kg ? [["Crate weight", `Approx. ${size.kg.toLocaleString("en-GB")} kg net stone`]] : []),
+          ...(size.m2 ? [["Crate area", `Approx. ${m2(size.m2)} m²`]] : []),
+        ]
+      : [["Size", "Made to order: send us the length, width and thickness, or your drawing"]]) as [string, React.ReactNode][]),
   ];
 
   return (
@@ -447,7 +472,7 @@ function PieceDialog({ piece, onClose }: { piece: SillPiece; onClose: () => void
               </div>
             ))}
           </dl>
-          <p className="mt-3 text-xs font-light leading-relaxed opacity-60">Crate weights vary with colour and material.</p>
+          {size?.kg ? <p className="mt-3 text-xs font-light leading-relaxed opacity-60">Crate weights vary with colour and material.</p> : null}
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/contact#enquiry" className={cn(DARK, "h-11 px-6 text-[13px]")} data-over-media>
               Get a quote

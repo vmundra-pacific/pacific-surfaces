@@ -85,6 +85,7 @@ export function CartClient({
             height: i.height,
             basins: i.basins,
             finish: i.finish,
+            faucet: i.faucet,
             quantity: i.quantity,
           })),
         }),
@@ -396,6 +397,12 @@ function CartLine({
             list={options?.finishes}
             onOption={onOption}
           />
+          {item.faucet ? (
+            <span className="rounded-full border border-pacific-dark/15 px-3 py-1.5 text-xs font-light text-pacific-dark">
+              <span className="mr-1.5 text-[10px] font-medium uppercase tracking-[0.15em] text-pacific-dark/45">Faucet</span>
+              {item.faucet}
+            </span>
+          ) : null}
 
           <div className="ml-auto flex items-center gap-1 rounded-full border border-pacific-dark/15">
             <button

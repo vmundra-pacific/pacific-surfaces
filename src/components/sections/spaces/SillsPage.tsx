@@ -20,20 +20,25 @@ import { SillCatalogue } from "@/components/sections/sills/SillCatalogue";
 import { SizeChartButton } from "@/components/sections/sills/SizeChart";
 import { TechSpecsButtons } from "@/components/sections/sills/TechSpecsDialog";
 import {
+  BARCODES,
   CARE,
   CERTIFICATES,
+  CONTROL_PHOTOS,
   CRATE_DRAWING,
   FINISHES,
+  HS_CODES,
   MATERIALS,
+  MONTHLY_CAPACITY,
   MOQ,
   PACKING,
+  PRIVATE_LABEL,
+  QC_STEPS,
   SILLS_PAGE,
   SILL_COLOURS,
   SILL_PHOTOS,
-  SILL_SIZES,
-  THRESHOLD_SIZES,
+  SILL_PRODUCTS,
   VARIATION,
-  type CrateRow,
+  type SizeRow,
 } from "@/data/thresholds-and-sills";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +70,7 @@ export default function SillsPage() {
       <Browse />
       <ColoursAndFinishes />
       <Specifications />
+      <QuarryToCrate />
       <Split {...s.plan} />
       <SpaceGallery heading={s.gallery.heading} tags={s.gallery.tags} shots={GALLERY} />
       <CareNotes />
@@ -114,12 +120,13 @@ function SizesAtAGlance() {
           <Heading>Popular sizes</Heading>
           <div className="lg:col-span-2 lg:pt-2">
             <p className="text-base font-light leading-relaxed">
-              Window sills and thresholds in popular sizes, crated for export, and in custom sizes cut to your drawings. The
-              size chart lists the popular sizes.
+              Each product in the sizes it is made in, crated for export, and in custom sizes cut to your drawings. Open a
+              product above for its own size table; the size chart lists the crate sizes of sills and thresholds.
             </p>
             <dl className="mt-6 border-t border-[#14140f]/15">
-              <SizeRange title="Window sills" rows={SILL_SIZES} />
-              <SizeRange title="Thresholds" rows={THRESHOLD_SIZES} />
+              {SILL_PRODUCTS.map((p) => (
+                <SizeRange key={p.slug} title={p.name} rows={p.sizes} />
+              ))}
             </dl>
             <div className="mt-8">
               <SizeChartButton />
@@ -131,13 +138,22 @@ function SizesAtAGlance() {
   );
 }
 
-function SizeRange({ title, rows }: { title: string; rows: CrateRow[] }) {
+function SizeRange({ title, rows }: { title: string; rows?: SizeRow[] }) {
+  const front = rows?.find((r) => r.front)?.front;
   return (
-    <div className="grid gap-1 border-b border-[#14140f]/15 py-3.5 sm:grid-cols-[9rem_1fr] sm:items-baseline sm:gap-6">
+    <div className="grid gap-1 border-b border-[#14140f]/15 py-3.5 sm:grid-cols-[13rem_1fr] sm:items-baseline sm:gap-6">
       <dt className="text-sm uppercase tracking-[0.12em]">{title}</dt>
       <dd className="text-sm font-light">
-        Length {span(rows.map((r) => r.length))} cm · Width {span(rows.map((r) => r.width))} cm · Thickness{" "}
-        {span(rows.map((r) => r.thickness))} cm
+        {rows ? (
+          <>
+            Length {span(rows.map((r) => r.length))} cm · Width {span(rows.map((r) => r.width))} cm ·{" "}
+            {front
+              ? `Height ${span(rows.map((r) => r.thickness))} cm at the back, ${front} cm at the front`
+              : `Thickness ${span(rows.map((r) => r.thickness))} cm`}
+          </>
+        ) : (
+          <span className="opacity-70">Made to order, cut to your drawings</span>
+        )}
       </dd>
     </div>
   );
@@ -153,8 +169,8 @@ function Browse() {
         <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
           <Heading>Browse the collection</Heading>
           <p className="text-base font-light leading-relaxed lg:col-span-2 lg:pt-2">
-            Every popular size in every colour. Use the filters to narrow the list, and open a piece for its figures.
-            Custom sizes are cut to your drawings.
+            Every product in its sizes and every colour, the profiled thresholds and the door sill included. Use the
+            filters to narrow the list, and open a piece for its figures. Custom sizes are cut to your drawings.
           </p>
         </div>
         <SillCatalogue />
@@ -164,8 +180,8 @@ function Browse() {
 }
 
 /* The two materials, their colours and finishes: the palette of the
-   European Program catalogue (owner, 2026-10-06: three granites and four
-   quartz), its swatches beside the list. */
+   European Program catalogue (owner, 2026-10-06; Viscon White and the
+   suede finish added 2026-10-10: four granites and four quartz), its swatches beside the list. */
 function ColoursAndFinishes() {
   return (
     <section id="colours" className="scroll-mt-28 bg-white py-20 lg:py-28">
@@ -265,6 +281,15 @@ function Specifications() {
               <dl className="mt-6 border-t border-[#14140f]/15">
                 <Fact label="Packing">{PACKING}</Fact>
                 <Fact label="Minimum order">{MOQ}</Fact>
+                <Fact label="Monthly capacity">{MONTHLY_CAPACITY}</Fact>
+                <Fact label="Private label">{PRIVATE_LABEL}</Fact>
+                <Fact label="HS codes">
+                  {HS_CODES.map((h) => (
+                    <span key={h.code} className="block">
+                      {h.code} · {h.material}
+                    </span>
+                  ))}
+                </Fact>
               </dl>
               <div className="mt-8">
                 <TechSpecsButtons />
@@ -283,6 +308,66 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
       <dt className="text-[11px] uppercase tracking-[0.15em] opacity-60 sm:pt-0.5">{label}</dt>
       <dd className="text-sm font-light leading-relaxed">{children}</dd>
     </div>
+  );
+}
+
+/* From the updated catalogue (2026-10-10, owner: "include the crate data
+   and the quality steps"): the twelve quality control steps, the four
+   photographs from quarry to crate, ending in the crates in the container,
+   and the barcodes every crate and piece carries. */
+function QuarryToCrate() {
+  return (
+    <section id="quality" className={cn(PANEL, "scroll-mt-28 py-20 lg:py-28")}>
+      <Container>
+        <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
+          <Heading>Quarry to crate</Heading>
+          <p className="text-base font-light leading-relaxed lg:col-span-2 lg:pt-2">
+            Every piece passes twelve checks between the raw block and the container: its size, thickness, finish, edges,
+            squareness and flatness, then the count, the barcode and the crate.
+          </p>
+        </div>
+
+        <ol className="mt-12 grid grid-cols-2 gap-px border border-[#14140f]/15 bg-[#14140f]/15 sm:grid-cols-3 lg:grid-cols-6">
+          {QC_STEPS.map((step, i) => (
+            <li key={step} className="flex flex-col gap-3 bg-white p-4 lg:p-5">
+              <span className="text-[11px] tabular-nums tracking-[0.15em] opacity-50">{String(i + 1).padStart(2, "0")}</span>
+              <span className="text-sm font-light leading-snug">{step}</span>
+            </li>
+          ))}
+        </ol>
+
+        <ul className="mt-12 grid gap-3 sm:grid-cols-2">
+          {CONTROL_PHOTOS.map((p) => (
+            <li key={p.src}>
+              <div className="relative aspect-[2.2/1] w-full overflow-hidden bg-white">
+                <Image src={p.src} alt={p.alt} fill unoptimized sizes="(min-width: 640px) 50vw, 100vw" className="object-cover" />
+              </div>
+              <p className="mt-2 text-[11px] uppercase tracking-[0.15em] opacity-60">{p.caption}</p>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-12 grid items-center gap-8 bg-white md:grid-cols-2">
+          <div className="relative aspect-[6400/3550] w-full">
+            <Image
+              src={BARCODES.image.src}
+              alt="A labelled export crate and a labelled stone piece, each with its barcode"
+              fill
+              unoptimized
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-contain"
+            />
+          </div>
+          <div className="p-8 md:pl-0 lg:p-12 lg:pl-0">
+            <h3 className="text-sm uppercase tracking-[0.12em]">Barcodes for traceability</h3>
+            <dl className="mt-4 border-t border-[#14140f]/15">
+              <Fact label="Each crate">{BARCODES.crate.join(", ")}</Fact>
+              <Fact label="Each piece">{BARCODES.piece.join(", ")}</Fact>
+            </dl>
+          </div>
+        </div>
+      </Container>
+    </section>
   );
 }
 

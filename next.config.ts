@@ -176,6 +176,12 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        // The triple basin top is off the range (owner, 2026-10-10).
+        source: "/shop/triple-basin-quartz-vanity-top",
+        destination: "/shop/vanity-tops",
+        permanent: true,
+      },
+      {
         // Old /collections/<slug> links bounce to /products/quartz/<slug>.
         // The first segment is just URL aesthetic — the page only
         // looks up the collection by the second segment, so this works

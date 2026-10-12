@@ -80,7 +80,7 @@ export function isInStore(input: {
  * ---------------------------------------------------------------------- */
 const UNLISTED_SLUGS = new Set<string>([
   // Taken off the Vanity Tops shelf at the owner's request, 2026-09-30,
-  // ahead of the single / double / triple basin range.
+  // ahead of the single and double basin range.
   "quartz-vanity", // Eterna Blush Quartz Vanity
   "luna-elite-quartz-vanity", // Luna Elite Quartz Vanity
 ]);
@@ -93,13 +93,10 @@ export function isListedInStore(slug: string): boolean {
 /* ---- vanity-top layouts -----------------------------------------------
  * How many basins are cut into a top: the first thing a customer knows
  * about the room they are fitting. One made-to-order top per layout (see
- * VANITY_TOP_PRODUCTS below).
+ * VANITY_TOP_PRODUCTS below). Single and double only (owner, 2026-10-10:
+ * the triple basin is off the range).
  * ---------------------------------------------------------------------- */
-export const VANITY_TOP_LAYOUTS = [
-  "Single Basin",
-  "Double Basin",
-  "Triple Basin",
-] as const;
+export const VANITY_TOP_LAYOUTS = ["Single Basin", "Double Basin"] as const;
 
 export type VanityTopLayout = (typeof VANITY_TOP_LAYOUTS)[number];
 
@@ -147,9 +144,10 @@ const OPTIONS_BY_SECTION: Record<StoreSection, StoreOptions> = {
     basins: ["1", "2"],
     finishes: FINISHES,
   },
+  // Depths 20, 22 and 24 in and custom (owner, 2026-10-10: 18 dropped).
   "Vanity Tops": {
-    lengths: ["36", "48", "60", "72", CUSTOM_SIZE],
-    widths: ["18", "20", "22", "24", CUSTOM_SIZE],
+    lengths: ["37", "49", "61", "73", CUSTOM_SIZE],
+    widths: ["20", "22", "24", CUSTOM_SIZE],
     heights: ["4", "5", "6", CUSTOM_SIZE],
     basins: [],
     finishes: FINISHES,
@@ -284,8 +282,10 @@ export function basinLayers(slug: string): BasinLayers | null {
  *
  * A top with layers gets the visualizer treatment on its page: choosing
  * a colour recomposites the stone into the scene (BasinPreview). The
- * lengths are a working range agreed with the owner on 2026-09-30, to be
- * replaced with Pacific's own figures. Custom stays on every list.
+ * lengths are the standard vanity-top widths of the US market the owner
+ * pointed to (Home Depot, 2026-10-10: single tops 25, 31, 37 and 49 in,
+ * double 61 and 73 in, all 22 in deep), with 48 in kept on the double.
+ * Custom stays on every list.
  * ---------------------------------------------------------------------- */
 
 export interface MadeToOrderTop {
@@ -301,10 +301,23 @@ export interface MadeToOrderTop {
 }
 
 const VANITY_TOP_LENGTHS: Record<VanityTopLayout, string[]> = {
-  "Single Basin": ["24", "30", "36", "48"],
-  "Double Basin": ["48", "60", "72"],
-  "Triple Basin": ["72", "84", "96"],
+  "Single Basin": ["25", "31", "37", "49"],
+  "Double Basin": ["48", "61", "73"],
 };
+
+/** The standard depth, the one the size chips pair each length with. */
+export const VANITY_TOP_DEPTH = "22";
+
+/** Faucet holes drilled in the top behind each basin (owner, 2026-10-10:
+ *  "give the faucet size, or say faucet size custom"). The spacings are
+ *  the standard faucet types; Custom takes the customer's own. */
+export const FAUCET_DRILLINGS = [
+  "4 in centerset (3 holes)",
+  "8 in widespread (3 holes)",
+  "Single hole",
+  "No faucet holes",
+  CUSTOM_SIZE,
+];
 
 export const VANITY_TOP_PRODUCTS: MadeToOrderTop[] = [
   {
@@ -337,21 +350,6 @@ export const VANITY_TOP_PRODUCTS: MadeToOrderTop[] = [
       highlights: "/store-basins/double-basin-scene/highlights.webp",
     },
   },
-  {
-    id: "vanity-top-triple-basin",
-    slug: "triple-basin-quartz-vanity-top",
-    name: "Triple Basin Quartz Vanity Top",
-    layout: "Triple Basin",
-    image: "/store-basins/triple-basin-scene/base.webp",
-    description: "Three basins cut into one long quartz top, made to your size. Pick a colour to see it on the top.",
-    // The owner's four-layer scene (scene, stone mask, shadows, highlights).
-    layers: {
-      base: "/store-basins/triple-basin-scene/base.webp",
-      mask: "/store-basins/triple-basin-scene/mask.webp",
-      shadows: "/store-basins/triple-basin-scene/shadows.webp",
-      highlights: "/store-basins/triple-basin-scene/highlights.webp",
-    },
-  },
 ];
 
 export function vanityTopBySlug(slug: string): MadeToOrderTop | null {
@@ -364,7 +362,7 @@ export function vanityTopOptions(layout: VanityTopLayout): StoreOptions {
   return {
     ...defaults,
     lengths: [...VANITY_TOP_LENGTHS[layout], CUSTOM_SIZE],
-    // Shown and ordered as a word ("Single", "Double", "Triple").
+    // Shown and ordered as a word ("Single", "Double").
     basins: [layout.split(" ")[0]],
   };
 }

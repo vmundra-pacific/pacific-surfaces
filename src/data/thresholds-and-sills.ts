@@ -5,7 +5,7 @@
  *
  * The products are the team's product list ("Windowsills - Threshold",
  * 2026-10-06), shown as drawings (owner: not the photographs). They are made in
- * three granites and four quartz colours: the palette of the owner's
+ * four granites and four quartz colours: the palette of the owner's
  * European Program catalogue ("Pacific Surfaces - Windowsills and
  * Thresholds.pdf", 2026-10-06), in SILL_COLOURS. The rest comes from what
  * the owner sent on 2026-10-05, and nothing is added to it:
@@ -33,6 +33,10 @@ export interface SillProfile {
   joint?: [[number, number], [number, number]];
   /** Which version of the product it is, where there are two. */
   variant?: string;
+  /** Measured figures to dimension the section with, only where they are
+   *  known: its width across, its height at the back, at the front and at
+   *  the middle (the crest of a rounded top). */
+  dims?: { width?: string; back?: string; front?: string; middle?: string };
 }
 
 /** A flat piece t units thick with every edge bevelled by c, top and bottom. */
@@ -61,6 +65,7 @@ export const SECTIONS = {
     name: "Window sill",
     points: flat(100, 14),
     labels: [{ text: "Bevelled edges", at: [700, 230], to: [993, 93], anchor: "middle" }],
+    dims: { width: "15–40 cm", back: "2 or 3 cm" },
   },
   /** The photograph's block: 8 cm high at the back (the upstand), 5 cm at
    *  the front, 16 cm deep (the dealer's dimensioned view), a drip groove
@@ -86,6 +91,7 @@ export const SECTIONS = {
       { text: "Sloped top", at: [640, 470], to: [600, 360], anchor: "middle" },
       { text: "Drip groove", at: [850, -62], to: [887, 20], anchor: "end" },
     ],
+    dims: { width: "16 or 21 cm", back: "8 cm", front: "5 cm" },
   },
   /** A plain bar, 2 cm on 7 cm, as in the photograph. */
   threshold: {
@@ -93,6 +99,7 @@ export const SECTIONS = {
     name: "Threshold",
     points: flat(286, 20),
     labels: [{ text: "Bevelled edges", at: [700, 400], to: [990, 276], anchor: "middle" }],
+    dims: { width: "3–15 cm", back: "2–6 cm" },
   },
   /** As in the photograph: level over most of the width, one bevel along
    *  the front edge; 2 cm on 7 cm. */
@@ -104,6 +111,7 @@ export const SECTIONS = {
       { text: "Level", at: [320, 380], to: [320, 286], anchor: "middle" },
       { text: "Bevel", at: [880, 340], to: [820, 193], anchor: "middle" },
     ],
+    dims: { width: "7 cm", back: "2 cm" },
   },
   /** The same bevel on both long edges, level in the middle. */
   doubleBevel: {
@@ -122,100 +130,26 @@ export const SECTIONS = {
     name: "Wheelchair threshold",
     points: [[0, 0], [1000, 0], [1000, 45.0], [950, 68.2], [900, 88.9], [850, 107.2], [800, 123.1], [750, 136.5], [700, 147.5], [650, 156.0], [600, 162.1], [550, 165.8], [500, 167.0], [450, 165.8], [400, 162.1], [350, 156.0], [300, 147.5], [250, 136.5], [200, 123.1], [150, 107.2], [100, 88.9], [50, 68.2], [0, 45.0]],
     labels: [{ text: "Rounded top", at: [500, 270], to: [500, 167], anchor: "middle" }],
+    dims: { width: "12 cm", middle: "2 cm" },
+  },
+  /** As the catalogue draws it (2026-10-10): a low tread with a raised
+   *  step along the back. Not dimensioned: no sizes are on record. */
+  doorSill: {
+    slug: "section-door-sill",
+    name: "Door sill",
+    points: [[0, 0], [1000, 0], [1000, 170], [190, 170], [190, 320], [0, 320]],
+    labels: [
+      { text: "Step", at: [300, 420], to: [95, 320], anchor: "start" },
+      { text: "Tread", at: [650, 280], to: [650, 170], anchor: "middle" },
+    ],
   },
 } satisfies Record<string, SillProfile>;
-
-export type ProductGroup = "window" | "door";
-
-export interface SillProduct {
-  slug: string;
-  name: string;
-  group: ProductGroup;
-  /** The piece in a sentence. */
-  description: string;
-  /** An option on it, as the team's list names it. */
-  option?: string;
-  /** Its section, or one for each top it comes with. */
-  sections: SillProfile[];
-  /** How long its 3D drawing runs, in widths of its section: shortened, not
-   *  to scale, but long enough that a sill reads as a board and a threshold
-   *  as a bar. */
-  drawLength: number;
-  /** The popular sizes it comes in, where the crate sheet lists them. */
-  sizes?: "sills" | "thresholds";
-}
-
-export const SILL_PRODUCTS: SillProduct[] = [
-  {
-    slug: "window-sill",
-    name: "Window sill",
-    group: "window",
-    description: "A flat sill, cut to size, with its edges bevelled.",
-    option: "Double bevelled available",
-    sections: [SECTIONS.windowSill],
-    drawLength: 3.2,
-    sizes: "sills",
-  },
-  {
-    slug: "window-threshold",
-    name: "Window threshold",
-    group: "window",
-    description: "An upstand at the back and a drip groove under the front edge, with a straight or a sloped top.",
-    option: "Straight or sloped top",
-    sections: [SECTIONS.windowThresholdStraight, SECTIONS.windowThresholdSloped],
-    drawLength: 2.6,
-  },
-  {
-    slug: "threshold",
-    name: "Threshold",
-    group: "door",
-    description: "A flat threshold for the door line, cut to size, with its edges bevelled.",
-    sections: [SECTIONS.threshold],
-    drawLength: 6,
-    sizes: "thresholds",
-  },
-  {
-    slug: "single-bevelled-threshold",
-    name: "Single bevelled threshold",
-    group: "door",
-    description: "Level along the back, with one long edge bevelled down to the front.",
-    sections: [SECTIONS.singleBevel],
-    drawLength: 5,
-  },
-  {
-    slug: "double-bevelled-threshold",
-    name: "Double bevelled threshold",
-    group: "door",
-    description: "Level in the middle, with both long edges bevelled.",
-    sections: [SECTIONS.doubleBevel],
-    drawLength: 5,
-  },
-  {
-    slug: "wheelchair-threshold",
-    name: "Wheelchair threshold",
-    group: "door",
-    description: "A low top, rounded across its width, for step-free access between floors.",
-    sections: [SECTIONS.wheelchair],
-    drawLength: 4.5,
-  },
-];
-
-export const PRODUCT_GROUPS: { id: ProductGroup; title: string; lead: string }[] = [
-  {
-    id: "window",
-    title: "For the window",
-    lead: "A flat window sill, and a window threshold with an upstand and a drip groove.",
-  },
-  {
-    id: "door",
-    title: "For the door line",
-    lead: "Flat, single bevelled and double bevelled thresholds, and a wheelchair threshold for step-free access.",
-  },
-];
 
 /* ---- crate sheet ----------------------------------------------------------
  * Exactly as supplied: size (length x width, cm), thickness (cm), pieces per
  * crate, approximate net stone weight per crate (kg) and area per crate (m²).
+ * The 220 × 30 and 220 × 40 sills are as the updated catalogue gives them
+ * (2026-10-10: 35 to a crate, where the first sheet had one).
  * ---------------------------------------------------------------------- */
 
 export interface CrateRow {
@@ -270,8 +204,8 @@ export const SILL_SIZES: CrateRow[] = [
   row(220, 15, 2, 35, 739, 11.55),
   row(220, 20, 2, 35, 986, 15.4),
   row(220, 25, 2, 35, 938, 19.25),
-  row(220, 30, 3, 1, 63, 0.66),
-  row(220, 40, 2, 1, 56, 0.88),
+  row(220, 30, 3, 35, 2205, 23.1),
+  row(220, 40, 2, 35, 1960, 30.8),
 ];
 
 /** The sheet's notes, both tabs. */
@@ -282,21 +216,146 @@ export const CRATE_NOTES = [
   "Every piece is finished, cut to size and edge-bevelled.",
 ];
 
+/** One size of a product: length and width (depth) in cm, its thickness
+ *  (the height at the back where the top slopes, with `front` the height at
+ *  the front), and the crate figures where the crate sheet has them. */
+export interface SizeRow {
+  length: number;
+  width: number;
+  thickness: number;
+  front?: number;
+  pieces?: number;
+  kg?: number;
+  m2?: number;
+}
+
+const made = (lengths: number[], widths: number[], thickness: number, front?: number): SizeRow[] =>
+  widths.flatMap((width) => lengths.map((length) => ({ length, width, thickness, ...(front ? { front } : {}) })));
+
+export type ProductGroup = "window" | "door";
+
+export interface SillProduct {
+  slug: string;
+  name: string;
+  group: ProductGroup;
+  /** The piece in a sentence. */
+  description: string;
+  /** An option on it, as the team's list names it. */
+  option?: string;
+  /** Its section, or one for each top it comes with. */
+  sections: SillProfile[];
+  /** How long its 3D drawing runs, in widths of its section: shortened, not
+   *  to scale, but long enough that a sill reads as a board and a threshold
+   *  as a bar. */
+  drawLength: number;
+  /** The sizes it is made in (owner, 2026-10-10: each product shows only
+   *  its own sizes): the crate sheet for the flat sill and threshold, and
+   *  for the profiled pieces the sizes Pacific makes for its Dutch dealer
+   *  (kerasom.nl, Fine Basalt). None on record: made to order only. */
+  sizes?: SizeRow[];
+  /** Which of its tops the sizes are for, where it has two. */
+  sizesFor?: string;
+}
+
+export const SILL_PRODUCTS: SillProduct[] = [
+  {
+    slug: "window-sill",
+    name: "Window sill",
+    group: "window",
+    description: "A flat sill, cut to size, with its edges bevelled.",
+    option: "Double bevelled available",
+    sections: [SECTIONS.windowSill],
+    drawLength: 3.2,
+    sizes: SILL_SIZES,
+  },
+  {
+    slug: "window-threshold",
+    name: "Window threshold",
+    group: "window",
+    description: "An upstand at the back and a drip groove under the front edge, with a straight or a sloped top.",
+    option: "Straight or sloped top",
+    sections: [SECTIONS.windowThresholdSloped, SECTIONS.windowThresholdStraight],
+    drawLength: 2.6,
+    sizes: made([120, 160, 220], [16, 21], 8, 5),
+    sizesFor: "Sloped top",
+  },
+  {
+    slug: "threshold",
+    name: "Threshold",
+    group: "door",
+    description: "A flat threshold for the door line, cut to size, with its edges bevelled.",
+    sections: [SECTIONS.threshold],
+    drawLength: 6,
+    sizes: THRESHOLD_SIZES,
+  },
+  {
+    slug: "single-bevelled-threshold",
+    name: "Single bevelled threshold",
+    group: "door",
+    description: "Level along the back, with one long edge bevelled down to the front for water runoff.",
+    sections: [SECTIONS.singleBevel],
+    drawLength: 5,
+    sizes: made([120], [7], 2),
+  },
+  {
+    slug: "double-bevelled-threshold",
+    name: "Double bevelled threshold",
+    group: "door",
+    description: "Level in the middle, with both long edges bevelled for balanced drainage.",
+    sections: [SECTIONS.doubleBevel],
+    drawLength: 5,
+  },
+  {
+    slug: "wheelchair-threshold",
+    name: "Wheelchair threshold",
+    group: "door",
+    description: "A low top, rounded across its width, for step-free access between floors.",
+    sections: [SECTIONS.wheelchair],
+    drawLength: 4.5,
+    sizes: made([103, 120], [12], 2),
+  },
+  {
+    slug: "door-sill",
+    name: "Door sill",
+    group: "door",
+    description: "A sill for the doorway: a tread with a raised step along the back.",
+    sections: [SECTIONS.doorSill],
+    drawLength: 4,
+  },
+];
+
+export const PRODUCT_GROUPS: { id: ProductGroup; title: string; lead: string }[] = [
+  {
+    id: "window",
+    title: "For the window",
+    lead: "A flat window sill, and a window threshold with an upstand and a drip groove.",
+  },
+  {
+    id: "door",
+    title: "For the door line",
+    lead: "Flat, single bevelled and double bevelled thresholds, a wheelchair threshold for step-free access, and a door sill.",
+  },
+];
+
 /* ---- the catalogue brief -------------------------------------------------- */
 
 /** What the pieces are cut from, by name; SILL_COLOURS has the swatches. */
 export const MATERIALS = [
-  { name: "Granite", note: "Warangal Black, Steel Grey and G20, polished or leather, for interiors and exteriors." },
-  { name: "Quartz", note: "Super White, Arva White, Desert Silk and Cappuccino, polished, honed or leather, for interiors only." },
+  { name: "Granite", note: "Warangal Black, Steel Grey, G20 and Viscon White, polished, honed or leather, for interiors and exteriors." },
+  { name: "Quartz", note: "Super White, Arva White, Desert Silk and Cappuccino, polished, suede or leather, 2 and 3 cm thick, for interiors only." },
 ];
 
+/** The four finishes of the updated catalogue (2026-10-10). */
 export const FINISHES = [
-  { name: "Polished", note: "A mirror gloss that deepens the colour." },
-  { name: "Honed", note: "Ground smooth to a flat, matt face. Quartz only." },
-  { name: "Leather", note: "Brushed to a soft, tactile texture with a low sheen." },
+  { name: "Polished", note: "A mirror gloss that deepens the colour. Granite and quartz." },
+  { name: "Honed", note: "Ground smooth to a flat, matt face. Granite." },
+  { name: "Leather", note: "Brushed to a soft, tactile texture with a low sheen. Granite and quartz." },
+  { name: "Suede", note: "A soft matt face, smooth to the touch. Quartz." },
 ];
 
-export const PACKING = "Wooden crate packing. Cut to size and custom lengths available.";
+export const PACKING = "Wooden crate packing. Cut to size, with custom lengths available. Pieces per crate adjusted to order.";
+export const PRIVATE_LABEL = "Your brand, our production.";
+export const MONTHLY_CAPACITY = "30 containers a month.";
 
 /* ---- material test results ------------------------------------------------
  * The owner's test tables (2026-10-07): values and methods exactly as given;
@@ -373,6 +432,38 @@ export const CERTIFICATES = ["ISO 9001:2015", "CE", "NSF/ANSI 51", "Kosher", "EP
 /** The crate drawing sent with the brief. */
 export const CRATE_DRAWING = { src: "/images/thresholds-and-sills/crate-drawing.webp", width: 1536, height: 1024 };
 
+/** Every crate and piece is labelled (the updated catalogue, 2026-10-10). */
+export const BARCODES = {
+  image: { src: "/images/thresholds-and-sills/crate-barcodes.jpg", width: 6400, height: 3550 },
+  crate: ["Crate ID", "Pieces", "Packing date"],
+  piece: ["Product code", "Size", "Batch"],
+};
+
+/** The quality control steps, in order, as the updated catalogue lists them. */
+export const QC_STEPS = [
+  "Raw material inspection",
+  "Cutting and dimensional check",
+  "Thickness check",
+  "Surface and finish inspection",
+  "Edge and bevel inspection",
+  "Squareness and flatness check",
+  "Visual defect inspection",
+  "Size and quantity verification",
+  "Final cleaning and inspection",
+  "Barcode verification",
+  "Packing and crate inspection",
+  "Final QC approval and dispatch",
+];
+
+/** Quarry to crate: the catalogue's four photographs, taken out of the PDF
+ *  as they are embedded, without re-encoding. */
+export const CONTROL_PHOTOS = [
+  { src: `/images/thresholds-and-sills/control-block-yard.jpg`, width: 5472, height: 2486, alt: "The block yard from above, granite blocks in rows beside the factory", caption: "Block yard" },
+  { src: `/images/thresholds-and-sills/control-block-saw.jpg`, width: 6000, height: 2726, alt: "A bridge saw cutting a slab under water spray", caption: "Cutting" },
+  { src: `/images/thresholds-and-sills/control-wire-saw.jpg`, width: 5759, height: 2617, alt: "A multi-wire saw slicing a granite block into slabs", caption: "Block to slab" },
+  { src: `/images/thresholds-and-sills/control-crates-in-container.jpg`, width: 3750, height: 1705, alt: "Wooden crates of sills strapped inside a shipping container", caption: "Crated and loaded" },
+];
+
 /**
  * Photographs of window sills, sent by the owner on 2026-10-05: one in
  * quartz (filed as "Brooklyn", which is not a design in the catalogue, so
@@ -394,12 +485,9 @@ export interface SillPhoto {
 const PHOTO = "/images/thresholds-and-sills";
 
 export const SILL_PHOTOS: SillPhoto[] = [
-  { src: `${PHOTO}/granite-sill-kitchen.jpg`, alt: "A black and white granite sill along a kitchen window", width: 1536, height: 2048, material: "Granite", kind: "fitted" },
-  { src: `${PHOTO}/granite-sill-black-bullnose.jpg`, alt: "A black granite sill with a rounded front edge above a radiator", width: 1500, height: 1000, material: "Granite", kind: "fitted" },
   { src: `${PHOTO}/granite-sill-exterior.jpg`, alt: "A granite sill outside, under a brown window frame", width: 2400, height: 1600, material: "Granite", kind: "fitted" },
-  { src: `${PHOTO}/granite-sill-black-white-corner.jpg`, alt: "A black and white granite sill turning a corner of the room", width: 1024, height: 768, material: "Granite", kind: "fitted" },
-  { src: `${PHOTO}/granite-sill-rose.jpg`, alt: "A pink and grey granite sill above a radiator", width: 600, height: 450, material: "Granite", kind: "fitted" },
   { src: `${PHOTO}/quartz-sill-brooklyn.jpg`, alt: "A white and grey quartz window sill in a high-rise window", width: 3948, height: 3584, material: "Quartz", kind: "fitted" },
+  { src: `${PHOTO}/granite-sill-kitchen.jpg`, alt: "A black and white granite sill along a kitchen window", width: 1536, height: 2048, material: "Granite", kind: "fitted" },
 ];
 
 export interface SillColour {
@@ -407,24 +495,26 @@ export interface SillColour {
   image: string;
 }
 
-/** The colour palette of the European Program catalogue (owner, 2026-10-06:
- *  "only 3 colors in granites and 4 in quartz"), with the finishes each
- *  material comes in there. The swatches are the catalogue's own images,
+/** The colour palette of the European Program catalogue (owner, 2026-10-06;
+ *  Viscon White granite and the suede finish for quartz added in the
+ *  updated catalogue, 2026-10-10), with the finishes each material comes
+ *  in there. The swatches are the catalogue's own images,
  *  taken out of the PDF without re-encoding. */
 export const SILL_COLOURS: { material: string; finishes: string[]; note?: string; colours: SillColour[] }[] = [
   {
     material: "Granite",
-    finishes: ["Polished", "Leather"],
+    finishes: ["Polished", "Honed", "Leather"],
     note: "Natural stone: each block is unique. Shade, grain and veining vary from piece to piece and batch to batch.",
     colours: [
       { name: "Warangal Black", image: `${PHOTO}/colours/warangal-black.jpg` },
       { name: "Steel Grey", image: `${PHOTO}/colours/steel-grey.jpg` },
       { name: "G20", image: `${PHOTO}/colours/g20.jpg` },
+      { name: "Viscon White", image: `${PHOTO}/colours/viscon-white.jpg` },
     ],
   },
   {
     material: "Quartz",
-    finishes: ["Polished", "Honed", "Leather"],
+    finishes: ["Polished", "Suede", "Leather"],
     colours: [
       { name: "Super White", image: `${PHOTO}/colours/super-white.png` },
       { name: "Arva White", image: `${PHOTO}/colours/arva-white.jpg` },
@@ -440,7 +530,8 @@ export interface SillPiece {
   colour: SillColour;
   material: string;
   finishes: string[];
-  size: CrateRow;
+  /** One of the product's sizes, or null where it is made to order only. */
+  size: SizeRow | null;
 }
 
 /** Quartz is made 2 and 3 cm thick (the European Program catalogue). */
@@ -448,19 +539,19 @@ const QUARTZ_MAX_CM = 3;
 
 const slugOf = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
-/** Every popular size of each product that has them, in each colour it can
- *  be cut in: the rows of the collection list (after the dealer catalogue
- *  the owner liked, 2026-10-06). */
+/** Every size of every product, in each colour it can be cut in: the rows
+ *  of the collection list (after the dealer catalogue the owner liked,
+ *  2026-10-06). A product with no sizes on record is listed once per colour,
+ *  made to order (owner, 2026-10-10: every product findable in the list). */
 export function sillPieces(): SillPiece[] {
   const pieces: SillPiece[] = [];
   for (const product of SILL_PRODUCTS) {
-    if (!product.sizes) continue;
-    for (const size of product.sizes === "sills" ? SILL_SIZES : THRESHOLD_SIZES) {
+    for (const size of product.sizes ?? [null]) {
       for (const g of SILL_COLOURS) {
-        if (g.material === "Quartz" && size.thickness > QUARTZ_MAX_CM) continue;
+        if (g.material === "Quartz" && size && size.thickness > QUARTZ_MAX_CM) continue;
         for (const colour of g.colours) {
           pieces.push({
-            id: `${product.slug}-${slugOf(colour.name)}-${size.length}x${size.width}x${size.thickness}`,
+            id: `${product.slug}-${slugOf(colour.name)}-${size ? `${size.length}x${size.width}x${size.thickness}` : "custom"}`,
             product,
             colour,
             material: g.material,
@@ -476,7 +567,7 @@ export function sillPieces(): SillPiece[] {
 
 /** The popular sizes as they are ordered: each length, shortest first,
  *  with the sizes (width and thickness) it comes in, narrowest first. */
-export function sizesByLength(rows: CrateRow[]) {
+export function sizesByLength<R extends SizeRow>(rows: R[]) {
   const lengths = Array.from(new Set(rows.map((r) => r.length))).sort((a, b) => a - b);
   return lengths.map((length) => ({
     length,
@@ -510,7 +601,7 @@ export const SILLS_PAGE = {
       label: "Granite and quartz",
       heading: "Cut from Pacific granite and quartz",
       body: [
-        "Three granites, Warangal Black, Steel Grey and G20, inside or out, and four quartz colours for interiors: Super White, Arva White, Desert Silk and Cappuccino.",
+        "Four granites, Warangal Black, Steel Grey, G20 and Viscon White, inside or out, and four quartz colours for interiors: Super White, Arva White, Desert Silk and Cappuccino.",
         "The same slabs are cut for floors, worktops and walls, so a sill or a threshold can match the stone around it.",
       ],
       image: `${PHOTO}/granite-sill-kitchen.jpg`,
@@ -521,7 +612,7 @@ export const SILLS_PAGE = {
       heading: "From the window to the door",
       body: [
         "For the window: a flat window sill, double bevelled on request, and a window threshold with an upstand and a drip groove, its top straight or sloped.",
-        "For the door line: a flat threshold, a single or a double bevelled threshold, and a wheelchair threshold for step-free access.",
+        "For the door line: a flat threshold, a single or a double bevelled threshold, a wheelchair threshold for step-free access, and a door sill.",
       ],
       image: `${PHOTO}/products-drawings.png`,
       alt: "The products drawn in 3D: window sill, window threshold, threshold, single and double bevelled thresholds, and wheelchair threshold",
@@ -532,7 +623,7 @@ export const SILLS_PAGE = {
       heading: "Sills from 88 to 220 cm",
       body: [
         "Window sills in six lengths from 88 to 220 cm, 15 to 40 cm deep and 2 cm thick, with 220 × 30 cm in 3 cm.",
-        "Thresholds and door sills at 103 cm, 3 to 15 cm wide, and at 120 cm, 3 to 6 cm wide, from 2 to 6 cm thick. Custom sizes are cut to your drawings.",
+        "Thresholds at 103 cm, 3 to 15 cm wide, and at 120 cm, 3 to 6 cm wide, from 2 to 6 cm thick; window thresholds at 120, 160 and 220 cm, 16 or 21 cm deep. Custom sizes are cut to your drawings.",
       ],
       image: `${PHOTO}/granite-sill-black-white-corner.jpg`,
       alt: "A granite sill cut to turn the corner of a bay window",
@@ -541,7 +632,7 @@ export const SILLS_PAGE = {
       label: "Crated for export",
       heading: "Packed in wooden crates",
       body: [
-        "Every size has its crate: 35 sills to a crate for most sill sizes, up to 250 thresholds for the narrowest.",
+        "Every size has its crate: 35 sills to a crate, up to 250 thresholds for the narrowest. Every crate and piece carries a barcode for traceability.",
         "The minimum order is one container load, about 21 to 26.5 tonnes net, and sizes can be mixed in it.",
       ],
       image: CRATE_DRAWING.src,
@@ -577,17 +668,17 @@ export const SILLS_PAGE = {
     {
       question: "Which products are in the collection?",
       answer:
-        "Two for the window, a flat window sill (double bevelled on request) and a window threshold with an upstand and a drip groove, its top straight or sloped; and four for the door line: a flat threshold, a single and a double bevelled threshold, and a wheelchair threshold.",
+        "Two for the window, a flat window sill (double bevelled on request) and a window threshold with an upstand and a drip groove, its top straight or sloped; and five for the door line: a flat threshold, a single and a double bevelled threshold, a wheelchair threshold and a door sill.",
     },
     {
       question: "What are the popular sizes?",
       answer:
-        "Window sills in 88, 101, 126, 151, 176 and 220 cm lengths, 15 to 40 cm deep. Thresholds and door sills at 103 cm (3 to 15 cm wide) and 120 cm (3 to 6 cm wide). Thicknesses run from 2 to 6 cm by size, and custom sizes are cut to your drawings.",
+        "Window sills in 88, 101, 126, 151, 176 and 220 cm lengths, 15 to 40 cm deep. Thresholds at 103 cm (3 to 15 cm wide) and 120 cm (3 to 6 cm wide). Window thresholds at 120, 160 and 220 cm, 16 or 21 cm deep, 8 cm high at the upstand and 5 cm at the front. Wheelchair thresholds at 103 and 120 cm, 12 cm wide. Thicknesses run from 2 to 6 cm by size, and custom sizes are cut to your drawings.",
     },
     {
       question: "Which materials and finishes are available?",
       answer:
-        "Granite in Warangal Black, Steel Grey and G20, polished or leather, and quartz in Super White, Arva White, Desert Silk and Cappuccino, polished, honed or leather. Quartz is for interior use only.",
+        "Granite in Warangal Black, Steel Grey, G20 and Viscon White, polished, honed or leather, and quartz in Super White, Arva White, Desert Silk and Cappuccino, polished, suede or leather. Quartz is for interior use only.",
     },
     {
       question: "How are they packed, and what is the minimum order?",

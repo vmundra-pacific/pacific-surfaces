@@ -6,10 +6,11 @@ import Link from "next/link";
 import { Check, Download, FileText, Minus, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
-import { CUSTOM_SIZE, dimensionLabel, type StoreOptions } from "@/data/store";
+import { CUSTOM_SIZE, FAUCET_DRILLINGS, VANITY_TOP_DEPTH, dimensionLabel, type StoreOptions } from "@/data/store";
 import { isDrawing, servedAsIs, type ShopColour } from "@/components/shop/ShopClient";
-import { BasinPreview } from "@/components/shop/BasinPreview";
+import { BasinPreview, prefetchSlab } from "@/components/shop/BasinPreview";
 import { VanityTopRender } from "@/components/shop/VanityTopRender";
+import { VanityTopDrawing } from "@/components/shop/VanityTopDrawing";
 import {
   VanityGlance,
   VanitySections,
@@ -24,6 +25,8 @@ const GUIDES: Record<string, { href: string; label: string }> = {
 
 /** The gallery frame that shows a vanity top drawn to its chosen size. */
 const SCALE = "to-scale";
+/** The gallery frame that shows a vanity top as a dimensioned drawing. */
+const DRAWING = "drawing";
 import type { BasinLayers } from "@/data/store";
 
 /**
@@ -113,10 +116,15 @@ export function ShopProductClient({
   const [active, setActive] = useState(0);
   const [colour, setColour] = useState(colours[0]?.name ?? "");
   const [length, setLength] = useState(options.lengths[0] ?? "");
-  const [width, setWidth] = useState(options.widths[0] ?? "");
+  // A vanity top opens at the standard 22 in depth, the one the size
+  // chips name.
+  const [width, setWidth] = useState(
+    details && options.widths.includes(VANITY_TOP_DEPTH) ? VANITY_TOP_DEPTH : (options.widths[0] ?? "")
+  );
   const [height, setHeight] = useState(options.heights[0] ?? "");
   const [basins, setBasins] = useState(options.basins[0] ?? "");
   const [finish, setFinish] = useState(options.finishes[0] ?? "");
+  const [faucet, setFaucet] = useState(FAUCET_DRILLINGS[0]);
   const [typed, setTyped] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [picking, setPicking] = useState(false);
@@ -127,6 +135,7 @@ export function ShopProductClient({
       ["length", length],
       ["width", width],
       ["height", height],
+      ...(details ? [["faucet", faucet]] : []),
     ] as [string, string][]
   ).filter(([, v]) => v === CUSTOM_SIZE);
 
@@ -147,8 +156,9 @@ export function ShopProductClient({
 
   // A vanity top with a scene gets a second frame drawn to its chosen size,
   // since the photograph cannot change size.
+  // A vanity top also gets its technical drawing.
   const frames = layers
-    ? [product.images[0] ?? "scene", SCALE, ...product.images.slice(1)]
+    ? [product.images[0] ?? "scene", SCALE, ...(details ? [DRAWING] : []), ...product.images.slice(1)]
     : product.images;
   const scaleIndex = frames.indexOf(SCALE);
   /** A new size shows the to-scale view, where a size can be seen. */
@@ -158,9 +168,19 @@ export function ShopProductClient({
       set(value);
       if (scaleIndex >= 0) setActive(scaleIndex);
     };
+  const renderDrawing = (className: string) => (
+    <VanityTopDrawing
+      basins={Math.max(1, ["Single", "Double"].indexOf(basins) + 1)}
+      length={resolve("length", length)}
+      width={resolve("width", width)}
+      height={resolve("height", height)}
+      faucet={resolve("faucet", faucet)}
+      className={className}
+    />
+  );
   const renderTop = (label: string, showSize = true) => (
     <VanityTopRender
-      basins={Math.max(1, ["Single", "Double", "Triple"].indexOf(basins) + 1)}
+      basins={Math.max(1, ["Single", "Double"].indexOf(basins) + 1)}
       length={resolve("length", length)}
       width={resolve("width", width)}
       height={resolve("height", height)}
@@ -193,7 +213,7 @@ export function ShopProductClient({
   const selection: VanitySelection | null = details
     ? {
         layout: product.name.replace(/\s*Quartz Vanity Top$/, ""),
-        basins: Math.max(1, ["Single", "Double", "Triple"].indexOf(basins) + 1),
+        basins: Math.max(1, ["Single", "Double"].indexOf(basins) + 1),
         colour,
         length: resolve("length", length),
         width: resolve("width", width),
@@ -220,6 +240,7 @@ export function ShopProductClient({
         height: resolve("height", height),
         basins,
         finish,
+        ...(details ? { faucet: resolve("faucet", faucet) } : {}),
       },
       quantity
     );
@@ -238,7 +259,7 @@ export function ShopProductClient({
               // A layered scene is shot wide (the double-basin top is
               // ~2.1:1); give it its own frame rather than crop it to 4:3.
               // The to-scale view keeps that frame, so the page doesn't jump.
-              layers && (active === 0 || frames[active] === SCALE) ? "aspect-[21/10]" : "aspect-[4/3]"
+              layers && (active === 0 || frames[active] === SCALE || frames[active] === DRAWING) ? "aspect-[21/10]" : "aspect-[4/3]"
             )}
           >
             {/* The live preview replaces the photograph only on the first
@@ -252,6 +273,8 @@ export function ShopProductClient({
               />
             ) : frames[active] === SCALE ? (
               renderTop(`${product.name} in ${colour}, to scale`)
+            ) : frames[active] === DRAWING ? (
+              <div className="absolute inset-0 bg-white p-4 sm:p-6">{renderDrawing("h-full w-full")}</div>
             ) : frames[active] ? (
               <Image
                 src={frames[active]}
@@ -287,7 +310,7 @@ export function ShopProductClient({
                   key={src}
                   type="button"
                   onClick={() => setActive(i)}
-                  aria-label={`View image ${i + 1}`}
+                  aria-label={src === DRAWING ? "View the technical drawing" : `View image ${i + 1}`}
                   aria-current={i === active}
                   className={cn(
                     "relative h-20 w-24 shrink-0 overflow-hidden rounded-md bg-pacific-dark/5 transition-opacity",
@@ -298,6 +321,8 @@ export function ShopProductClient({
                 >
                   {src === SCALE ? (
                     renderTop("", false)
+                  ) : src === DRAWING ? (
+                    <span className="absolute inset-0 bg-white p-1">{renderDrawing("h-full w-full")}</span>
                   ) : (
                     <Image
                       src={src}
@@ -378,7 +403,15 @@ export function ShopProductClient({
               {basinChoices.length > 0 && (
                 <Pills label="Basins" value={basins} options={basinChoices} onChange={changeBasins} />
               )}
-              <Pills label="Common width (in)" value={length} options={options.lengths} onChange={resized(setLength)} />
+              {/* Each length with the depth chosen, as the category names its
+                  sizes ("31 in. x 22 in."). */}
+              <Pills
+                label="Size (W x D)"
+                value={length}
+                options={options.lengths}
+                onChange={resized(setLength)}
+                format={(o) => (o === CUSTOM_SIZE ? CUSTOM_SIZE : `${o} in. x ${width === CUSTOM_SIZE ? "custom" : `${width} in.`}`)}
+              />
             </div>
           )}
 
@@ -454,20 +487,41 @@ export function ShopProductClient({
                 label={`Finish for ${product.name}`}
               />
             </Field>
+            {details && (
+              <Field label="Faucet holes">
+                <Select
+                  value={faucet}
+                  options={FAUCET_DRILLINGS}
+                  onChange={(v) => {
+                    setFaucet(v);
+                    const at = frames.indexOf(DRAWING);
+                    if (at >= 0) setActive(at);
+                  }}
+                  label={`Faucet holes for ${product.name}`}
+                />
+              </Field>
+            )}
           </div>
 
           {custom.length > 0 && (
             <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
               {custom.map(([field]) => (
-                <Field key={field} label={`${dimensionLabel(options, field as "length" | "width" | "height")} in inches`}>
+                <Field
+                  key={field}
+                  label={
+                    field === "faucet"
+                      ? "Faucet hole spacing"
+                      : `${dimensionLabel(options, field as "length" | "width" | "height")} in inches`
+                  }
+                >
                   <input
                     type="text"
-                    inputMode="decimal"
                     value={typed[field] ?? ""}
                     onChange={(e) =>
                       setTyped((t) => ({ ...t, [field]: e.target.value }))
                     }
-                    placeholder="e.g. 54"
+                    inputMode={field === "faucet" ? "text" : "decimal"}
+                    placeholder={field === "faucet" ? "e.g. 6 in, 3 holes" : "e.g. 54"}
                     className="w-full rounded-md border border-pacific-dark/20 px-2.5 py-2 text-sm font-light text-pacific-dark placeholder-pacific-dark/35 focus:border-pacific-dark focus:outline-none"
                   />
                 </Field>
@@ -635,16 +689,19 @@ function Pills({
   value,
   options,
   onChange,
+  format = (o) => o,
 }: {
   label: string;
   value: string;
   options: string[];
   onChange: (value: string) => void;
+  /** How an option reads, e.g. "31" as "31 in. x 22 in.". */
+  format?: (option: string) => string;
 }) {
   return (
     <div>
       <p className="text-sm font-light text-pacific-dark">
-        {label}: <span className="font-medium">{value}</span>
+        {label}: <span className="font-medium">{format(value)}</span>
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
         {options.map((o) => (
@@ -661,7 +718,7 @@ function Pills({
                 : "border-[#14140f]/25 text-[#14140f] hover:border-[#14140f]"
             )}
           >
-            {o}
+            {format(o)}
           </button>
         ))}
       </div>
@@ -796,6 +853,7 @@ function ColourPanel({
               <button
                 type="button"
                 onClick={() => onPick(c.name)}
+                onPointerEnter={() => prefetchSlab(c.image)}
                 className={cn(
                   "flex w-full items-center gap-4 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-pacific-light",
                   c.name === current && "bg-pacific-light"
@@ -871,6 +929,9 @@ function SlabStrip({
                 key={c.name}
                 type="button"
                 onClick={() => onPick(c.name)}
+                // Fetch the slab while the pointer is on its way to a click.
+                onPointerEnter={() => prefetchSlab(c.image)}
+                onFocus={() => prefetchSlab(c.image)}
                 aria-pressed={on}
                 aria-label={c.name}
                 title={c.name}

@@ -201,7 +201,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
       {
         heading: "Inlayered design",
         content:
-          "Eclipse slabs are built up in layers during the engineered quartz manufacturing process. Pigments and aggregates are placed in specific patterns through the slab's depth — so when the slab is cut, profiled, or mitred, the design continues across the cut face.",
+          "Eclipse slabs are built up in layers during the engineered quartz manufacturing process. Pigments and aggregates are placed in specific patterns through the slab's depth — so when the slab is cut or mitred, the design continues across the cut face. Eclipse is finished with a mitred edge only; no other edge profile is cut on it.",
         imageLabel: "Inlayered cross-section",
       },
       {

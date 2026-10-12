@@ -55,12 +55,17 @@ export default function WorktopDetailTabs({
   thicknesses,
   finishes,
   size,
+  mitredOnly = false,
 }: {
   productName: string;
   thicknesses: string[];
   finishes: string[];
   size: string;
+  /** Eclipse: a mitred edge is the only one offered, so no other profile
+   *  is shown (owner, 2026-10-12). */
+  mitredOnly?: boolean;
 }) {
+  const edges = mitredOnly ? EDGE_PROFILES.filter((e) => e.name === "Mitred") : EDGE_PROFILES;
   const [active, setActive] = useState<TabKey>("formats");
 
   // Read the thickness list back as prose ("12, 20 and 30 mm") so the
@@ -158,11 +163,19 @@ export default function WorktopDetailTabs({
                     of detail
                   </>
                 }
-                left={`${productName} carries its pattern through the full thickness of the slab, so an edge profile cuts into continuous material rather than breaking a printed surface. Any profile can be worked without losing the pattern.`}
-                right="Rounded, half-round, ogee, bevelled and mitred are the profiles we cut most often. Edge work is done by the fabricator against your template — talk to a certified installer before committing."
+                left={
+                  mitredOnly
+                    ? `${productName} is finished with a mitred edge only: two pieces joined at 45 degrees, so the face and its pattern turn the corner and carry on down the edge.`
+                    : `${productName} carries its pattern through the full thickness of the slab, so an edge profile cuts into continuous material rather than breaking a printed surface. Any profile can be worked without losing the pattern.`
+                }
+                right={
+                  mitredOnly
+                    ? "No other edge profile is cut on the Eclipse series. The mitre is made by the fabricator against your template — talk to a certified installer before committing."
+                    : "Rounded, half-round, ogee, bevelled and mitred are the profiles we cut most often. Edge work is done by the fabricator against your template — talk to a certified installer before committing."
+                }
               >
                 <dl className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
-                  {EDGE_PROFILES.map((edge) => (
+                  {edges.map((edge) => (
                     <div key={edge.name}>
                       <dt className="text-sm font-medium uppercase tracking-wide text-pacific-dark">
                         {edge.name}

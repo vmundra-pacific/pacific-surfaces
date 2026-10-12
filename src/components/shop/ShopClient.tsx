@@ -8,13 +8,17 @@ import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
 import {
   CUSTOM_SIZE,
+  FAUCET_DRILLINGS,
   STORE_SECTIONS,
+  VANITY_TOP_DEPTH,
   dimensionLabel,
   storeOptions,
+  vanityTopBySlug,
   vanityTopOptions,
   type StoreSection,
   type VanityTopLayout,
 } from "@/data/store";
+import { BasinPreview } from "@/components/shop/BasinPreview";
 
 /**
  * The storefront grid.
@@ -39,6 +43,7 @@ interface SelectedOptions {
   height: string;
   basins: string;
   finish: string;
+  faucet?: string;
 }
 
 export interface ShopProduct {
@@ -195,7 +200,15 @@ export function ShopClient({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {/* The vanity tops are two wide cards, each showing its whole
+                wide scene (owner, 2026-10-10), where the others are four to
+                a row. */}
+            <div
+              className={cn(
+                "grid gap-4",
+                list.every((p) => p.layout) ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 lg:grid-cols-4"
+              )}
+            >
               {list.map((p) => (
                 <ProductCard
                   key={p.id}
@@ -413,9 +426,15 @@ function ProductCard({
         slug: product.slug,
       });
 
+  // A vanity top's scene takes the colour live, as on its own page.
+  const layers = product.layout ? (vanityTopBySlug(product.slug)?.layers ?? null) : null;
+
   const [colour, setColour] = useState(colours[0]?.name ?? "");
   const [length, setLength] = useState(options.lengths[0] ?? "");
-  const [width, setWidth] = useState(options.widths[0] ?? "");
+  const [width, setWidth] = useState(
+    product.layout && options.widths.includes(VANITY_TOP_DEPTH) ? VANITY_TOP_DEPTH : (options.widths[0] ?? "")
+  );
+  const [faucet, setFaucet] = useState(FAUCET_DRILLINGS[0]);
   const [height, setHeight] = useState(options.heights[0] ?? "");
   const [basins, setBasins] = useState(options.basins[0] ?? "");
   const [finish, setFinish] = useState(options.finishes[0] ?? "");
@@ -426,6 +445,7 @@ function ProductCard({
     ["length", length],
     ["width", width],
     ["height", height],
+    ...(product.layout ? [["faucet", faucet]] : []),
   ].filter(([, v]) => v === CUSTOM_SIZE) as [string, string][];
 
   const resolve = (field: string, value: string) =>
@@ -441,9 +461,20 @@ function ProductCard({
     <article className="group flex flex-col overflow-hidden rounded-xl border border-pacific-dark/10 bg-white">
       <Link
         href={`/shop/${product.slug}`}
-        className="relative block aspect-square overflow-hidden bg-pacific-dark/5"
+        className={cn(
+          "relative block overflow-hidden bg-pacific-dark/5",
+          layers ? "aspect-[21/10]" : "aspect-square"
+        )}
       >
-        {product.image ? (
+        {layers ? (
+          <BasinPreview
+            assets={layers}
+            colourName={colour}
+            colourImage={colours.find((c) => c.name === colour)?.image ?? null}
+            alt={product.name}
+            maxWidth={1472}
+          />
+        ) : product.image ? (
           <Image
             src={product.image}
             alt={product.name}
@@ -474,9 +505,9 @@ function ProductCard({
         {/* Length, width, height, basin count and finish — the way this
             category is configured everywhere else. No thickness: these are
             finished pieces cut to a size, not slabs sold by the millimetre. */}
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className={cn("mt-3 grid grid-cols-2 gap-2", layers && "sm:grid-cols-3")}>
           {colours.length > 0 && (
-            <div className="col-span-2">
+            <div className={cn("col-span-2", layers && "sm:col-span-3")}>
               <span className="mb-1 block text-[9px] font-medium uppercase tracking-[0.2em] text-pacific-dark/45">
                 Colour
               </span>
@@ -542,7 +573,7 @@ function ProductCard({
               onChange={setBasins}
             />
           )}
-          <div className="col-span-2">
+          <div className={layers ? undefined : "col-span-2"}>
             <CardOption
               caption="Finish"
               label={`Finish for ${product.name}`}
@@ -551,6 +582,17 @@ function ProductCard({
               onChange={setFinish}
             />
           </div>
+          {layers && (
+            <div className="col-span-2 sm:col-span-1">
+              <CardOption
+                caption="Faucet holes"
+                label={`Faucet holes for ${product.name}`}
+                value={faucet}
+                options={FAUCET_DRILLINGS}
+                onChange={setFaucet}
+              />
+            </div>
+          )}
         </div>
 
         {custom.length > 0 && (
@@ -562,12 +604,16 @@ function ProductCard({
                 </span>
                 <input
                   type="text"
-                  inputMode="decimal"
+                  inputMode={field === "faucet" ? "text" : "decimal"}
                   value={typed[field] ?? ""}
                   onChange={(e) =>
                     setTyped((t) => ({ ...t, [field]: e.target.value }))
                   }
-                  placeholder={`${dimensionLabel(options, field as "length" | "width" | "height").toLowerCase()} in inches`}
+                  placeholder={
+                    field === "faucet"
+                      ? "faucet hole spacing"
+                      : `${dimensionLabel(options, field as "length" | "width" | "height").toLowerCase()} in inches`
+                  }
                   className="w-full rounded-md border border-pacific-dark/15 px-2.5 py-1.5 text-xs font-light text-pacific-dark placeholder-pacific-dark/35 focus:border-pacific-dark focus:outline-none"
                 />
               </label>
@@ -586,6 +632,7 @@ function ProductCard({
               height: resolve("height", height),
               basins,
               finish,
+              ...(layers ? { faucet: resolve("faucet", faucet) } : {}),
             })
           }
           aria-label={`Add ${product.name} to cart`}

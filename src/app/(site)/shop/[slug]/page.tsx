@@ -298,7 +298,7 @@ function MadeToOrderTopPage({
   details?: VanityDetails;
 }) {
   // All three tops, so the Basins field can move between them in place
-  // (Single / Double / Triple) without losing the chosen colour.
+  // (Single / Double) without losing the chosen colour.
   const variants: BasinVariant[] = VANITY_TOP_PRODUCTS.map((t) => {
     const options = vanityTopOptions(t.layout);
     return {

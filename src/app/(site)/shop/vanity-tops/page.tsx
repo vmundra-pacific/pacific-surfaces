@@ -28,7 +28,7 @@ import {
 export const metadata: Metadata = {
   title: "Quartz Vanity Tops | Pacific Store",
   description:
-    "Quartz vanity tops in single, double and triple basin layouts, in 125+ Pacific designs, made to your size. Preview any colour on the top, add it to your cart, and our team confirms price and freight.",
+    "Quartz vanity tops in single and double basin layouts, in 125+ Pacific designs, made to your size. Preview any colour on the top, add it to your cart, and our team confirms price and freight.",
   alternates: { canonical: "/shop/vanity-tops" },
 };
 
@@ -65,7 +65,7 @@ export default async function VanityTopsPage() {
       slug: t.slug,
       name: t.name,
       layout: t.layout,
-      basins: ["Single Basin", "Double Basin", "Triple Basin"].indexOf(t.layout) + 1,
+      basins: ["Single Basin", "Double Basin"].indexOf(t.layout) + 1,
       widths: options.lengths.filter((l) => l !== CUSTOM_SIZE),
       layers: t.layers,
       image: t.image,

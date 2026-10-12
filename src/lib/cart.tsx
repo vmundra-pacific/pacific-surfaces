@@ -55,6 +55,9 @@ export interface CartItem {
   height: string;
   basins: string;
   finish: string;
+  /** Faucet holes drilled in a vanity top: a standard spacing or the
+   *  customer's own. Absent on every other piece. */
+  faucet?: string;
   quantity: number;
 }
 
@@ -62,7 +65,7 @@ export interface CartItem {
 export function lineKey(
   item: Pick<
     CartItem,
-    "id" | "colour" | "length" | "width" | "height" | "basins" | "finish"
+    "id" | "colour" | "length" | "width" | "height" | "basins" | "finish" | "faucet"
   >
 ): string {
   return [
@@ -73,6 +76,8 @@ export function lineKey(
     item.height,
     item.basins,
     item.finish,
+    // Only where there is one, so lines stored before it keep their keys.
+    ...(item.faucet ? [item.faucet] : []),
   ].join("::");
 }
 

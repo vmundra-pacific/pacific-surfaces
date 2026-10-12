@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 const MAKE = [
   {
     title: "Vanity tops",
-    body: "Single, double and triple basin tops, cut for the basins and taps you specify.",
+    body: "Single and double basin tops, cut for the basins and taps you specify.",
     image: "/images/spaces/bathrooms/double-vanity.jpg",
     alt: "Two stone vanity units with marble-look quartz tops",
     href: "/applications/bathroom-vanity-tops",

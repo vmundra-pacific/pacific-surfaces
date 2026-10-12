@@ -43,6 +43,7 @@ import { finishDescription } from "@/lib/finish-copy";
 import { allowedApplications, materialFamily } from "@/lib/application-rules";
 import WorktopDetailTabs from "@/components/sections/WorktopDetailTabs";
 import { formatCollection } from "@/components/catalogue/labels";
+import { REFILE } from "@/data/catalogue-refile";
 import { collectionPath } from "@/lib/collection-route";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -251,6 +252,11 @@ export function ProductDetail({ product }: { product: Product }) {
   // "Stone Finishes" → "Beyond Stone") applies to the eyebrow
   // above the product title. Sanity data stays untouched; only
   // the display string changes.
+  // Eclipse is finished with a mitred edge only (owner, 2026-10-12): its
+  // page lists no other profile. Sanity may still file it as "Vision".
+  const mitredOnly =
+    formatCollection(product.collection?.name ?? "") === "Eclipse" ||
+    REFILE[product.slug.current]?.collection === "Eclipse";
   const categoryLabel =
     product.category?.name ||
     (product.collection?.name
@@ -1420,8 +1426,8 @@ export function ProductDetail({ product }: { product: Product }) {
                         />
                       )}
                       <SpecRow
-                        label="Edge Profiles"
-                        value="Straight, Eased, Bevel, Bullnose, Ogee"
+                        label={mitredOnly ? "Edge Profile" : "Edge Profiles"}
+                        value={mitredOnly ? "Mitred only" : "Straight, Eased, Bevel, Bullnose, Ogee"}
                       />
                       {/* Water absorption + Mohs hardness vary by
                           category — quartz is engineered and far
@@ -1511,6 +1517,7 @@ export function ProductDetail({ product }: { product: Product }) {
         thicknesses={thicknesses}
         finishes={finishes}
         size={size}
+        mitredOnly={mitredOnly}
       />
 
       {/* Care & Maintenance section removed — redundant with specs strip resources */}
