@@ -41,7 +41,7 @@ export function VanityTopDrawing({
   faucet: string;
   className?: string;
 }) {
-  const L = inches(length, 37);
+  const L = inches(length, 36);
   const D = inches(width, 22);
   const H = inches(height, 4);
   const holes = holesFor(faucet);

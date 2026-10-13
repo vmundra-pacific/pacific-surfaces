@@ -9,8 +9,8 @@ import { useCart } from "@/lib/cart";
 import { CUSTOM_SIZE, FAUCET_DRILLINGS, VANITY_TOP_DEPTH, dimensionLabel, type StoreOptions } from "@/data/store";
 import { isDrawing, servedAsIs, type ShopColour } from "@/components/shop/ShopClient";
 import { BasinPreview, prefetchSlab } from "@/components/shop/BasinPreview";
-import { VanityTopRender } from "@/components/shop/VanityTopRender";
 import { VanityTopDrawing } from "@/components/shop/VanityTopDrawing";
+import { APP_FRAMES, AppPanel, BASIN_TILE } from "@/components/shop/VanityApplications";
 import {
   VanityGlance,
   VanitySections,
@@ -23,10 +23,10 @@ const GUIDES: Record<string, { href: string; label: string }> = {
   "Integrated Quartz Sinks": { href: "/applications/washbasins", label: "washbasins guide" },
 };
 
-/** The gallery frame that shows a vanity top drawn to its chosen size. */
-const SCALE = "to-scale";
 /** The gallery frame that shows a vanity top as a dimensioned drawing. */
 const DRAWING = "drawing";
+
+const APP = "app:";
 import type { BasinLayers } from "@/data/store";
 
 /**
@@ -154,19 +154,27 @@ export function ShopProductClient({
     if (wanted && colours.some((c) => c.name === wanted)) setColour(wanted);
   }, [colours]);
 
-  // A vanity top with a scene gets a second frame drawn to its chosen size,
-  // since the photograph cannot change size.
-  // A vanity top also gets its technical drawing.
+  // A vanity top's gallery: the live scene, its application photographs
+  // with their lines, then its technical drawing, which redraws to the
+  // chosen size (owner, 2026-10-13: the to-scale 3D render is gone).
+  const basinCount = Math.max(1, ["Single", "Double"].indexOf(basins) + 1);
+  const appFrames = details ? (APP_FRAMES[basinCount] ?? []) : [];
   const frames = layers
-    ? [product.images[0] ?? "scene", SCALE, ...(details ? [DRAWING] : []), ...product.images.slice(1)]
+    ? [
+        product.images[0] ?? "scene",
+        ...appFrames.map((_, i) => `${APP}${i}`),
+        ...(details ? [DRAWING] : []),
+        ...product.images.slice(1),
+      ]
     : product.images;
-  const scaleIndex = frames.indexOf(SCALE);
-  /** A new size shows the to-scale view, where a size can be seen. */
+  const appOf = (src: string) => (src.startsWith(APP) ? appFrames[Number(src.slice(APP.length))] : undefined);
+  const drawingIndex = frames.indexOf(DRAWING);
+  /** A new size shows the drawing, where the size can be read. */
   const resized =
     (set: (value: string) => void) =>
     (value: string) => {
       set(value);
-      if (scaleIndex >= 0) setActive(scaleIndex);
+      if (drawingIndex >= 0) setActive(drawingIndex);
     };
   const renderDrawing = (className: string) => (
     <VanityTopDrawing
@@ -176,18 +184,6 @@ export function ShopProductClient({
       height={resolve("height", height)}
       faucet={resolve("faucet", faucet)}
       className={className}
-    />
-  );
-  const renderTop = (label: string, showSize = true) => (
-    <VanityTopRender
-      basins={Math.max(1, ["Single", "Double"].indexOf(basins) + 1)}
-      length={resolve("length", length)}
-      width={resolve("width", width)}
-      height={resolve("height", height)}
-      colourImage={selectedColour?.image ?? null}
-      finish={finish}
-      label={label}
-      showSize={showSize}
     />
   );
 
@@ -259,7 +255,7 @@ export function ShopProductClient({
               // A layered scene is shot wide (the double-basin top is
               // ~2.1:1); give it its own frame rather than crop it to 4:3.
               // The to-scale view keeps that frame, so the page doesn't jump.
-              layers && (active === 0 || frames[active] === SCALE || frames[active] === DRAWING) ? "aspect-[21/10]" : "aspect-[4/3]"
+              layers && (active === 0 || frames[active] === DRAWING || appOf(frames[active] ?? "")) ? "aspect-[21/10]" : "aspect-[4/3]"
             )}
           >
             {/* The live preview replaces the photograph only on the first
@@ -271,10 +267,10 @@ export function ShopProductClient({
                 colourImage={selectedColour?.image ?? null}
                 alt={product.name}
               />
-            ) : frames[active] === SCALE ? (
-              renderTop(`${product.name} in ${colour}, to scale`)
             ) : frames[active] === DRAWING ? (
               <div className="absolute inset-0 bg-white p-4 sm:p-6">{renderDrawing("h-full w-full")}</div>
+            ) : appOf(frames[active]) ? (
+              <AppPanel frame={appOf(frames[active])!} />
             ) : frames[active] ? (
               <Image
                 src={frames[active]}
@@ -289,28 +285,16 @@ export function ShopProductClient({
             ) : null}
           </div>
 
-          {/* The visualizer's slab dock, under a live preview: one tap on a
-              slab lays it into the scene. Same list, and the same choice, as
-              the Colours field on the right. */}
-          {layers && colours.length > 0 && (
-            <SlabStrip
-              colours={colours}
-              current={colour}
-              onPick={(name) => {
-                setColour(name);
-                setActive(0);
-              }}
-            />
-          )}
-
           {frames.length > 1 && (
             <div className="mt-3 flex flex-wrap gap-3">
-              {frames.slice(0, 7).map((src, i) => (
+              {frames.slice(0, 12).map((src, i) => (
                 <button
                   key={src}
                   type="button"
                   onClick={() => setActive(i)}
-                  aria-label={src === DRAWING ? "View the technical drawing" : `View image ${i + 1}`}
+                  aria-label={
+                    src === DRAWING ? "View the technical drawing" : appOf(src) ? `View: ${appOf(src)!.title}` : `View image ${i + 1}`
+                  }
                   aria-current={i === active}
                   className={cn(
                     "relative h-20 w-24 shrink-0 overflow-hidden rounded-md bg-pacific-dark/5 transition-opacity",
@@ -319,10 +303,17 @@ export function ShopProductClient({
                       : "opacity-70 hover:opacity-100"
                   )}
                 >
-                  {src === SCALE ? (
-                    renderTop("", false)
-                  ) : src === DRAWING ? (
+                  {src === DRAWING ? (
                     <span className="absolute inset-0 bg-white p-1">{renderDrawing("h-full w-full")}</span>
+                  ) : appOf(src) ? (
+                    <Image
+                      src={appOf(src)!.src}
+                      alt=""
+                      fill
+                      unoptimized
+                      sizes="96px"
+                      className={appOf(src)!.onWhite ? "bg-white object-contain" : "object-cover"}
+                    />
                   ) : (
                     <Image
                       src={src}
@@ -400,11 +391,22 @@ export function ShopProductClient({
               category shows its common sizes. */}
           {details && (
             <div className="mt-8 space-y-5">
+              {colours.length > 0 && (
+                <ColourChips
+                  colours={colours}
+                  current={colour}
+                  onPick={(name) => {
+                    setColour(name);
+                    setActive(0);
+                  }}
+                  onAll={() => setPicking(true)}
+                />
+              )}
               {basinChoices.length > 0 && (
-                <Pills label="Basins" value={basins} options={basinChoices} onChange={changeBasins} />
+                <BasinTiles value={basins} options={basinChoices} onChange={changeBasins} />
               )}
               {/* Each length with the depth chosen, as the category names its
-                  sizes ("31 in. x 22 in."). */}
+                  sizes ("36 in. x 22 in."). */}
               <Pills
                 label="Size (W x D)"
                 value={length}
@@ -416,7 +418,7 @@ export function ShopProductClient({
           )}
 
           <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-5 sm:grid-cols-3">
-            {colours.length > 0 && (
+            {!details && colours.length > 0 && (
               <Field label="Colours">
                 <button
                   type="button"
@@ -683,6 +685,99 @@ export function ShopProductClient({
   );
 }
 
+/* The colour as a row of round chips, the chosen one ringed, and the
+   whole range a click away in the colour panel (owner, 2026-10-13: an
+   option to choose your colour in place of the slab dock). The chosen
+   colour always shows among the chips. */
+const CHIPS = 9;
+function ColourChips({
+  colours,
+  current,
+  onPick,
+  onAll,
+}: {
+  colours: ShopColour[];
+  current: string;
+  onPick: (name: string) => void;
+  onAll: () => void;
+}) {
+  const first = colours.slice(0, CHIPS);
+  const chosen = colours.find((c) => c.name === current);
+  const chips = chosen && !first.includes(chosen) ? [chosen, ...first.slice(0, CHIPS - 1)] : first;
+  return (
+    <div>
+      <p className="text-sm font-light text-pacific-dark">
+        Colour: <span className="font-medium">{current || "Choose a colour"}</span>
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {chips.map((c) => {
+          const on = c.name === current;
+          return (
+            <button
+              key={c.name}
+              type="button"
+              onClick={() => onPick(c.name)}
+              // Fetch the slab while the pointer is on its way to a click.
+              onPointerEnter={() => prefetchSlab(c.image)}
+              onFocus={() => prefetchSlab(c.image)}
+              aria-pressed={on}
+              aria-label={c.name}
+              title={c.name}
+              className={cn(
+                "relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-pacific-dark/5 ring-offset-2 transition-shadow",
+                on ? "ring-2 ring-pacific-dark" : "ring-1 ring-pacific-dark/15 hover:ring-pacific-dark/50"
+              )}
+            >
+              {c.image ? <Image src={c.image} alt="" fill sizes="44px" className="object-cover" /> : null}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={onAll}
+          className="ml-1 inline-flex h-11 items-center rounded-full border border-[#14140f]/25 px-4 text-sm font-light text-pacific-dark hover:border-[#14140f]"
+        >
+          All {colours.length} colours
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* The number of basins as picture tiles, the way the category shows it. */
+function BasinTiles({ value, options, onChange }: { value: string; options: string[]; onChange: (value: string) => void }) {
+  return (
+    <div>
+      <p className="text-sm font-light text-pacific-dark">
+        Number of basins: <span className="font-medium">{value}</span>
+      </p>
+      <div className="mt-2 flex flex-wrap gap-3">
+        {options.map((o) => (
+          <button
+            key={o}
+            type="button"
+            aria-pressed={o === value}
+            onClick={() => onChange(o)}
+            className={cn(
+              "flex w-[132px] flex-col overflow-hidden rounded-lg border bg-white text-left transition-colors",
+              o === value ? "border-[#14140f] ring-1 ring-[#14140f]" : "border-[#14140f]/15 hover:border-[#14140f]/50"
+            )}
+          >
+            <span className="relative block aspect-[4/3] w-full">
+              {BASIN_TILE[o] ? (
+                <Image src={BASIN_TILE[o]} alt="" fill unoptimized sizes="132px" className="object-contain p-1" />
+              ) : null}
+            </span>
+            <span className="px-3 pb-2.5 text-[13px] font-light text-pacific-dark">
+              {o} basin
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** A choice shown as a row of pills, the chosen one filled. */
 function Pills({
   label,
@@ -695,7 +790,7 @@ function Pills({
   value: string;
   options: string[];
   onChange: (value: string) => void;
-  /** How an option reads, e.g. "31" as "31 in. x 22 in.". */
+  /** How an option reads, e.g. "36" as "36 in. x 22 in.". */
   format?: (option: string) => string;
 }) {
   return (
@@ -890,75 +985,3 @@ function ColourPanel({
   );
 }
 
-/**
- * A horizontal dock of slab swatches, after the visualizer's SlabPicker:
- * each design as a small portrait tile of its slab with its name across
- * the foot, the chosen one ringed and ticked. The vertical wheel scrolls
- * it sideways, as the visualizer's dock does.
- */
-function SlabStrip({
-  colours,
-  current,
-  onPick,
-}: {
-  colours: ShopColour[];
-  current: string;
-  onPick: (name: string) => void;
-}) {
-  return (
-    <div className="mt-4">
-      <div className="mb-2 flex items-baseline justify-between gap-3">
-        <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-pacific-dark/55">
-          Choose a slab
-        </span>
-        <span className="truncate text-sm font-light text-pacific-dark">{current}</span>
-      </div>
-      <div
-        className="-mx-1 overflow-x-auto pb-2 [scrollbar-width:thin]"
-        onWheel={(e) => {
-          const el = e.currentTarget;
-          const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-          if (el.scrollWidth > el.clientWidth) el.scrollLeft += delta;
-        }}
-      >
-        <div className="flex gap-2 px-1">
-          {colours.map((c) => {
-            const on = c.name === current;
-            return (
-              <button
-                key={c.name}
-                type="button"
-                onClick={() => onPick(c.name)}
-                // Fetch the slab while the pointer is on its way to a click.
-                onPointerEnter={() => prefetchSlab(c.image)}
-                onFocus={() => prefetchSlab(c.image)}
-                aria-pressed={on}
-                aria-label={c.name}
-                title={c.name}
-                className={cn(
-                  "relative h-[88px] w-[72px] shrink-0 overflow-hidden rounded-lg bg-pacific-dark/5 ring-1 transition-all",
-                  on ? "ring-2 ring-pacific-dark" : "ring-pacific-dark/10 hover:ring-pacific-dark/40"
-                )}
-              >
-                {c.image ? (
-                  <Image src={c.image} alt="" fill sizes="72px" className="object-cover" />
-                ) : null}
-                <span
-                  data-over-media
-                  className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-1.5 text-left text-[9px] uppercase leading-tight tracking-[0.06em] text-white"
-                >
-                  <span className="line-clamp-2">{c.name}</span>
-                </span>
-                {on && (
-                  <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white">
-                    <Check className="h-3 w-3 text-pacific-dark" aria-hidden="true" />
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}

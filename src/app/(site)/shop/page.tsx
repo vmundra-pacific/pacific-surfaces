@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/ui/page-header";
+import { StoreHero } from "@/components/shop/StoreHero";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import { ShopClient, type ShopProduct } from "@/components/shop/ShopClient";
 import { client } from "@/sanity/lib/client";
@@ -101,10 +101,14 @@ export default async function ShopPage() {
           { name: "Store", url: "/shop" },
         ]}
       />
-      <PageHeader
-        badge="Pacific Store"
+      {/* The store's hero (owner, 2026-10-13): full width, words on the left. */}
+      <StoreHero
+        image="/store-basins/aisle/store-hero.png"
+        alt="White quartz vanity tops, a quartz basin and a white vanity with a quartz top, in warm afternoon light"
+        eyebrow="Pacific Store"
         title="Vanities, tops and sinks."
-        description="Our vanity range: vanities, vanity tops and integrated quartz sinks. Add what you need to the cart and place the order — no payment online. Our team confirms quantities, freight and price before anything ships."
+        body="Quartz vanity tops, vanities and integrated quartz sinks, made to order. No payment online: our team confirms quantities, freight and price before anything ships."
+        cta={{ label: "Shop vanity tops", href: "/shop/vanity-tops" }}
       />
       <ShopClient products={products} colours={colours} />
     </>

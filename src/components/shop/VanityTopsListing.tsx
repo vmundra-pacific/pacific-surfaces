@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import { BasinPreview } from "@/components/shop/BasinPreview";
+import { StoreBanner } from "@/components/shop/StoreBanner";
 import { sanityImageProxyUrl, sanityImg } from "@/lib/sanity-img";
 import { cn } from "@/lib/utils";
 import type { BasinLayers, VanityTopLayout } from "@/data/store";
@@ -56,7 +57,7 @@ type SortKey = "featured" | "az" | "za";
 
 const PAGE = 24;
 const BASIN_WORD = ["", "Single", "Double"];
-const WIDTH_TILES = ["25", "31", "37", "49", "61", "73"];
+const WIDTH_TILES = ["30", "36", "42", "48", "60", "72"];
 const SORTS: { key: SortKey; label: string }[] = [
   { key: "featured", label: "Featured" },
   { key: "az", label: "Name, A to Z" },
@@ -193,6 +194,18 @@ export function VanityTopsListing({
           <span className="mx-2 opacity-40">/</span>
           <span>Vanity Tops</span>
         </nav>
+
+        <StoreBanner
+          className="mt-6"
+          image="/store-basins/aisle/banner.png"
+          alt="A double vanity with a plain white quartz top and two undermount basins in a bright bathroom"
+          eyebrow="Pacific Surfaces quartz"
+          title="Vanity tops, made to your size"
+          body="One piece of quartz with the basins cut in and the faucet holes drilled, in any colour of the range, for a single or a double vanity."
+          cta={{ label: "Shop vanity tops", href: "#results" }}
+        />
+
+        <span id="results" className="block scroll-mt-28" />
 
         {/* Shop by sink count and width, as tiles */}
         <div className="mt-6 flex flex-wrap gap-3">
@@ -350,8 +363,8 @@ export function VanityTopsListing({
             {[
               { label: "Single basin vanity tops", href: "/shop/vanity-tops?basins=1" },
               { label: "Double basin vanity tops", href: "/shop/vanity-tops?basins=2" },
-              { label: "49-inch vanity tops", href: "/shop/vanity-tops?width=49" },
-              { label: "73-inch vanity tops", href: "/shop/vanity-tops?width=73" },
+              { label: "48-inch vanity tops", href: "/shop/vanity-tops?width=48" },
+              { label: "72-inch vanity tops", href: "/shop/vanity-tops?width=72" },
               { label: "Integrated quartz sinks", href: "/shop" },
               { label: "Vanity tops guide", href: "/applications/bathroom-vanity-tops" },
               { label: "All quartz designs", href: "/products/quartz" },

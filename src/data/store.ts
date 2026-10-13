@@ -146,7 +146,7 @@ const OPTIONS_BY_SECTION: Record<StoreSection, StoreOptions> = {
   },
   // Depths 20, 22 and 24 in and custom (owner, 2026-10-10: 18 dropped).
   "Vanity Tops": {
-    lengths: ["37", "49", "61", "73", CUSTOM_SIZE],
+    lengths: ["30", "36", "42", "48", "60", "72", CUSTOM_SIZE],
     widths: ["20", "22", "24", CUSTOM_SIZE],
     heights: ["4", "5", "6", CUSTOM_SIZE],
     basins: [],
@@ -282,10 +282,9 @@ export function basinLayers(slug: string): BasinLayers | null {
  *
  * A top with layers gets the visualizer treatment on its page: choosing
  * a colour recomposites the stone into the scene (BasinPreview). The
- * lengths are the standard vanity-top widths of the US market the owner
- * pointed to (Home Depot, 2026-10-10: single tops 25, 31, 37 and 49 in,
- * double 61 and 73 in, all 22 in deep), with 48 in kept on the double.
- * Custom stays on every list.
+ * lengths are the standard vanity widths the owner gave on 2026-10-13
+ * (30, 36, 42, 48, 60 and 72 in, from a vanity catalogue): single tops 30
+ * to 72 in, double tops 60 and 72 in. Custom stays on every list.
  * ---------------------------------------------------------------------- */
 
 export interface MadeToOrderTop {
@@ -301,8 +300,8 @@ export interface MadeToOrderTop {
 }
 
 const VANITY_TOP_LENGTHS: Record<VanityTopLayout, string[]> = {
-  "Single Basin": ["25", "31", "37", "49"],
-  "Double Basin": ["48", "61", "73"],
+  "Single Basin": ["30", "36", "42", "48", "60", "72"],
+  "Double Basin": ["60", "72"],
 };
 
 /** The standard depth, the one the size chips pair each length with. */
