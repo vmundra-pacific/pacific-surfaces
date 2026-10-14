@@ -43,7 +43,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "Where is your quartz manufactured?",
-      a: "Every Pacific quartz slab is engineered at our 378,000 sq ft facility in India, using Italian production technology. We produce up to 12 million sq ft of quartz annually and ship to more than 45 countries.",
+      a: "Every Pacific quartz slab is engineered at our 470,000 sq ft facility in India, using Italian production technology. We produce up to 12 million sq ft of quartz annually and ship to more than 45 countries.",
     },
   ],
   granites: [
@@ -217,7 +217,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
   about: [
     {
       q: "Where are Pacific Surfaces manufactured?",
-      a: "All Pacific products are engineered at our 378,000 sq ft facility in India. The facility uses Italian-engineered presses and runs end-to-end manufacturing — from raw quartz processing to slab finishing — under one roof.",
+      a: "All Pacific products are engineered at our 470,000 sq ft facility in India. The facility uses Italian-engineered presses and runs end-to-end manufacturing — from raw quartz processing to slab finishing — under one roof.",
     },
     {
       q: "How long has Pacific been operating?",

@@ -21,7 +21,8 @@ import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
 const items = [
   // Production / capacity stats (annual numbers)
   "12 Million sq ft Quartz Produced Annually",
-  "378,000 sq ft Quartz Facility",
+  // 470,000 sq ft per the owner (2026-09-26); the site said 378,000.
+  "470,000 sq ft Facility",
   "4.8 Million sq ft Granite Produced Annually",
   // Catalogue stats — sourced from AboutContent / CatalogueClient
   "273+ Unique Designs",
@@ -112,6 +113,10 @@ export function HeritageSection() {
   return (
     <section
       ref={sectionRef}
+      // A dark plate: the site skin (app/bw-temp.css) turns text black
+      // unless the ground declares itself as one, and the stamps vanished
+      // into the black (owner, 2026-10-14).
+      data-over-media
       className="relative bg-black border-y border-white/10 overflow-hidden"
       id="heritage"
       aria-label="Pacific Surfaces — capacity and catalogue stamps"
@@ -126,10 +131,16 @@ export function HeritageSection() {
       >
         {looped.map((label, i) => (
           <div key={i} className="flex items-center shrink-0">
-            <span className="text-[11px] sm:text-xs tracking-[0.28em] uppercase font-medium text-white px-4 sm:px-5">
+            <span
+              data-over-media
+              style={{ color: "#ffffff" }}
+              className="text-[11px] sm:text-xs tracking-[0.28em] uppercase font-medium text-white px-4 sm:px-5"
+            >
               {label}
             </span>
-            <span className="text-pacific-mid/60 text-xl leading-none">•</span>
+            <span data-over-media style={{ color: "rgba(255,255,255,0.45)" }} className="text-xl leading-none">
+              •
+            </span>
           </div>
         ))}
       </motion.div>
