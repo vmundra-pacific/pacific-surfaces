@@ -1,37 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { client } from "@/sanity/lib/client";
 import { groq } from "next-sanity";
+import { searchPages, searchWords } from "@/data/site-search";
 
 /**
- * GET /api/search?q=super+white
+ * GET /api/search?q=vanity+top
  *
- * Searches products AND blog posts by name/title (case-insensitive
- * match via Sanity's `match` operator). Returns lightweight results
- * for the search overlay, tagged with `_type` so the client can route
- * each result to the right URL shape (/products/<slug> vs /blog/<slug>).
+ * The site search: Sanity products and blog posts, and the site's own
+ * pages (data/site-search: the store and its vanity tops, the sills
+ * collection, every application, space and category page, and so on).
  *
- * Per the 2026 UX audit, the search bar should act as a "universal"
- * search rather than products-only. Static singleton pages (About,
- * Sustainability, Careers, etc.) don't carry slugs in Sanity the way
- * products/posts do, so they can't be folded into this GROQ query —
- * those are handled client-side in search-overlay.tsx via a small
- * static page index instead.
+ * A query matches word by word, each word as a word start, so "vanity
+ * top", "window sills" or a half-typed "vani" all find their pages (owner,
+ * 2026-10-14: searches for things on the site were finding nothing,
+ * because the whole query had to match one product name).
  */
 export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get("q")?.trim();
+  const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
+  const words = searchWords(q);
 
-  if (!q || q.length < 1) {
-    return NextResponse.json({ results: [] });
+  if (words.length === 0) {
+    return NextResponse.json({ results: [], pages: [] });
   }
+
+  const pages = searchPages(q);
+  const terms = words.map((w) => `${w}*`);
 
   const results = await client.fetch(
     groq`
       *[
-        (_type == "product" && (
-          name match $term ||
-          collection->name match $term
-        )) ||
-        (_type == "blogPost" && title match $term)
+        !(_id in path("drafts.**")) && (
+          (_type == "product" && (
+            (name + " " + coalesce(collection->name, "") + " " + coalesce(category->name, "")) match $terms
+          )) ||
+          (_type == "blogPost" && title match $terms)
+        )
       ] | order(coalesce(name, title) asc) [0...20] {
         _type,
         _id,
@@ -41,8 +44,8 @@ export async function GET(req: NextRequest) {
         "collectionName": collection->name
       }
     `,
-    { term: `${q}*` }
+    { terms }
   );
 
-  return NextResponse.json({ results });
+  return NextResponse.json({ results, pages });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { X, Search, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,54 +21,13 @@ interface SearchResult {
   collectionName?: string | null;
 }
 
-// Static index of key site pages/sections that don't have a Sanity
-// document (so they can't be reached by the /api/search GROQ query).
-// Filtered client-side against the query so the search bar behaves
-// like a real sitewide search per the 2026 UX audit, not just a
-// products-only search. Keep this list to genuinely useful
-// destinations — it's meant to supplement product/blog results, not
-// duplicate the header nav.
-const SITE_PAGES = [
-  { name: "About Us", href: "/about", keywords: "about company story" },
-  {
-    name: "Visualizer",
-    href: "/visualize",
-    keywords: "visualize room design ai",
-  },
-  { name: "Catalogue", href: "/catalogue", keywords: "catalogue browse slabs" },
-  {
-    name: "Sustainability",
-    href: "/sustainability",
-    keywords: "sustainability eco green certifications",
-  },
-  { name: "Careers", href: "/careers", keywords: "careers jobs work hiring" },
-  {
-    name: "Resources",
-    href: "/resources",
-    keywords: "resources downloads guides",
-  },
-  {
-    name: "Professionals",
-    href: "/professionals/services",
-    keywords: "professionals architects designers trade",
-  },
-  {
-    name: "Spaces",
-    href: "/spaces",
-    keywords: "spaces kitchens bathrooms outdoor commercial hospitality",
-  },
-  {
-    name: "Inspirations",
-    href: "/inspirations/inspiration-gallery",
-    keywords: "inspirations gallery projects",
-  },
-  { name: "Blog", href: "/blog", keywords: "blog articles news" },
-  {
-    name: "Contact",
-    href: "/contact",
-    keywords: "contact reach dealers offices",
-  },
-] as const;
+/** A page of the site the search found (data/site-search, matched on
+ *  the server so the index never ships to the browser). */
+interface PageResult {
+  name: string;
+  href: string;
+  group: string;
+}
 
 const quickLinks = [
   { name: "Products", href: "/products" },
@@ -86,6 +45,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [matchedPages, setMatchedPages] = useState<PageResult[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -93,6 +53,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
       inputRef.current?.focus();
       setQuery("");
       setResults([]);
+      setMatchedPages([]);
     }
   }, [isOpen]);
 
@@ -119,6 +80,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
+      setMatchedPages([]);
       return;
     }
 
@@ -133,6 +95,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
         if (res.ok) {
           const data = await res.json();
           setResults(data.results ?? []);
+          setMatchedPages(data.pages ?? []);
         }
       } catch {
         // aborted or network error — ignore
@@ -153,18 +116,6 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     []
   );
 
-  // Client-side match against the static site-page index — cheap
-  // substring test, no network round-trip. Runs alongside the async
-  // product/blog fetch so a query like "sustainability" surfaces the
-  // page even though it has no Sanity document to search.
-  const matchedPages = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
-    return SITE_PAGES.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.keywords.includes(q)
-    ).slice(0, 4);
-  }, [query]);
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -173,7 +124,8 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[60] bg-[#112732]/98 backdrop-blur-xl"
+          data-light-page
+          className="fixed inset-0 z-[60] overflow-y-auto bg-[#f6f2ec]/[0.98] backdrop-blur-xl"
           role="dialog"
           aria-modal="true"
           aria-label="Search"
@@ -190,7 +142,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             {/* Close button */}
             <button
               onClick={onClose}
-              className="absolute top-8 right-8 p-2 text-pacific-mid hover:text-white transition-colors"
+              className="absolute top-8 right-8 p-2 text-[#14140f]/55 hover:text-[#14140f] transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -203,14 +155,14 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 transition={{ duration: 0.4, delay: 0.2 }}
                 className="relative"
               >
-                <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-7 h-7 text-pacific-mid" />
+                <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-7 h-7 text-[#14140f]/55" />
                 <input
                   ref={inputRef}
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search surfaces, collections…"
-                  className="w-full bg-transparent text-3xl font-light tracking-wide text-white placeholder-pacific-mid/50 border-b-2 border-white/15 pb-4 pl-10 outline-none transition-all duration-300 focus:border-white/40"
+                  placeholder="Search surfaces, vanity tops, sills…"
+                  className="w-full bg-transparent text-3xl font-light tracking-wide text-[#14140f] placeholder-[#14140f]/35 border-b-2 border-[#14140f]/20 pb-4 pl-10 outline-none transition-all duration-300 focus:border-[#14140f]/60"
                 />
                 {query && (
                   <button
@@ -218,7 +170,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                       setQuery("");
                       inputRef.current?.focus();
                     }}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 text-pacific-mid hover:text-white transition-colors"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 text-[#14140f]/55 hover:text-[#14140f] transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -230,7 +182,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             {query.trim() && (
               <div className="w-full max-w-2xl mb-12">
                 {loading && (
-                  <div className="text-pacific-mid text-sm animate-pulse">
+                  <div className="text-[#14140f]/55 text-sm animate-pulse">
                     Searching…
                   </div>
                 )}
@@ -238,10 +190,34 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 {!loading &&
                   (results.length > 0 || matchedPages.length > 0) && (
                     <div className="flex flex-col gap-1">
-                      <div className="text-[11px] uppercase tracking-[0.2em] text-pacific-mid mb-3">
+                      <div className="text-[11px] uppercase tracking-[0.2em] text-[#14140f]/55 mb-3">
                         {results.length + matchedPages.length} result
                         {results.length + matchedPages.length !== 1 ? "s" : ""}
                       </div>
+                      {matchedPages.length > 0 && (
+                        <div className="mb-4 border-b border-[#14140f]/10 pb-4">
+                          <div className="text-[11px] uppercase tracking-[0.2em] text-[#14140f]/55 mb-2">
+                            Pages
+                          </div>
+                          {matchedPages.map((p) => (
+                            <Link
+                              key={p.href}
+                              href={p.href}
+                              onClick={onClose}
+                              className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-[#14140f]/[0.05]"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="text-[#14140f] font-medium text-base group-hover:text-[#14140f] truncate">
+                                  {p.name}
+                                </div>
+                                <div className="text-xs text-[#14140f]/55 mt-0.5">{p.group}</div>
+                              </div>
+                              <ArrowRight className="w-4 h-4 text-[#14140f]/55 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+
                       {results.slice(0, 8).map((r) => (
                         <Link
                           key={r._id}
@@ -251,10 +227,10 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                               : `/products/${slugStr(r.slug)}`
                           }
                           onClick={onClose}
-                          className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-white/5"
+                          className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-[#14140f]/[0.05]"
                         >
                           {r.mainImage ? (
-                            <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
+                            <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#14140f]/[0.06] flex-shrink-0">
                               <Image
                                 src={
                                   sanityImg(r.mainImage, { w: 120 }) ??
@@ -267,50 +243,29 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                               />
                             </div>
                           ) : (
-                            <div className="w-14 h-14 rounded-lg bg-white/5 flex-shrink-0" />
+                            <div className="w-14 h-14 rounded-lg bg-[#14140f]/[0.06] flex-shrink-0" />
                           )}
                           <div className="flex-1 min-w-0">
-                            <div className="text-white font-medium text-base group-hover:text-white truncate">
+                            <div className="text-[#14140f] font-medium text-base group-hover:text-[#14140f] truncate">
                               {r.name}
                             </div>
                             {(r.collectionName || r._type === "blogPost") && (
-                              <div className="text-xs text-pacific-mid mt-0.5">
+                              <div className="text-xs text-[#14140f]/55 mt-0.5">
                                 {r._type === "blogPost"
                                   ? "Blog Post"
                                   : r.collectionName}
                               </div>
                             )}
                           </div>
-                          <ArrowRight className="w-4 h-4 text-pacific-mid opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
+                          <ArrowRight className="w-4 h-4 text-[#14140f]/55 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
                         </Link>
                       ))}
-
-                      {matchedPages.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-white/10">
-                          <div className="text-[11px] uppercase tracking-[0.2em] text-pacific-mid mb-2">
-                            Pages
-                          </div>
-                          {matchedPages.map((p) => (
-                            <Link
-                              key={p.href}
-                              href={p.href}
-                              onClick={onClose}
-                              className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-white/5"
-                            >
-                              <div className="flex-1 min-w-0 text-white font-medium text-base group-hover:text-white truncate">
-                                {p.name}
-                              </div>
-                              <ArrowRight className="w-4 h-4 text-pacific-mid opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
-                            </Link>
-                          ))}
-                        </div>
-                      )}
 
                       {results.length > 8 && (
                         <Link
                           href={`/products?q=${encodeURIComponent(query.trim())}`}
                           onClick={onClose}
-                          className="mt-2 text-sm text-pacific-mid hover:text-white transition-colors text-center"
+                          className="mt-2 text-sm text-[#14140f]/55 hover:text-[#14140f] transition-colors text-center"
                         >
                           View all {results.length} results →
                         </Link>
@@ -323,13 +278,13 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   matchedPages.length === 0 &&
                   query.trim().length > 1 && (
                     <div className="text-center py-8">
-                      <div className="text-pacific-mid text-sm">
-                        No surfaces found for &ldquo;{query.trim()}&rdquo;
+                      <div className="text-[#14140f]/55 text-sm">
+                        Nothing found for &ldquo;{query.trim()}&rdquo;
                       </div>
                       <Link
                         href="/products"
                         onClick={onClose}
-                        className="mt-3 inline-block text-sm text-white/70 hover:text-white transition-colors"
+                        className="mt-3 inline-block text-sm text-[#14140f]/70 hover:text-[#14140f] transition-colors"
                       >
                         Browse all products →
                       </Link>
@@ -356,10 +311,10 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     <Link
                       href={link.href}
                       onClick={onClose}
-                      className="relative text-pacific-mid hover:text-white transition-colors duration-300 group text-sm font-light tracking-wide uppercase"
+                      className="relative text-[#14140f]/55 hover:text-[#14140f] transition-colors duration-300 group text-sm font-light tracking-wide uppercase"
                     >
                       {link.name}
-                      <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-white transition-all duration-300 group-hover:w-full" />
+                      <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-[#14140f] transition-all duration-300 group-hover:w-full" />
                     </Link>
                   </motion.div>
                 ))}
