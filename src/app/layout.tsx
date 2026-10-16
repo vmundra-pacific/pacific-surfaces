@@ -22,6 +22,9 @@ import { siteGraph } from "@/data/business";
  */
 const GA_MEASUREMENT_ID = "G-7PXLT12ML9";
 
+/** Google Tag Manager container. Public token, like the GA ID above. */
+const GTM_ID = "GTM-NLNM2VJS";
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -73,6 +76,20 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         {/*
+          Google Tag Manager — as high in <head> as possible, per
+          Google's install instructions. A plain inline script (not
+          next/script) so it is in the server HTML of every page.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${GTM_ID}');`,
+          }}
+        />
+        {/*
           Resource hints. Tell the browser to start DNS + TLS
           handshakes to the asset CDNs *before* it sees the first
           <img src=...sanity.io...> in the body. Saves 100-300ms on
@@ -100,6 +117,15 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} font-sans antialiased`}
       >
+        {/* Google Tag Manager (noscript) — immediately after <body>. */}
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
         <AuthProvider>{children}</AuthProvider>
         <BwTempSections />
         <GlobalDustMount />
