@@ -111,6 +111,26 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    // Save first: the Sanity document is the record of the enquiry, so
+    // a mail failure (bad SMTP login, quota) must never lose the lead.
+    let doc = null;
+    if (sanityClient) {
+      doc = await sanityClient.create({
+        _type: "contactSubmission",
+        submittedAt: new Date().toISOString(),
+        name,
+        email,
+        phone: phone || undefined,
+        address: address || undefined,
+        role: role || undefined,
+        application: application || undefined,
+        message: message || undefined,
+        source: source || undefined,
+        status: "new",
+      });
+    }
+
+    try {
     await transporter.sendMail({
   from: `"Pacific Website" <${process.env.SMTP_USER}>`,
   to: process.env.COMPANY_EMAIL,
@@ -177,24 +197,12 @@ export async function POST(req: NextRequest) {
     </div>
   `,
 });
-
-    let doc = null;
-
-  if (sanityClient) {
-  doc = await sanityClient.create({
-    _type: "contactSubmission",
-    submittedAt: new Date().toISOString(),
-    name,
-    email,
-    phone: phone || undefined,
-    address: address || undefined,
-    role: role || undefined,
-    application: application || undefined,
-    message: message || undefined,
-    source: source || undefined,
-    status: "new",
-  });
-}
+    } catch (mailError) {
+      // Saved in Studio, so the visitor still gets a success; staff
+      // just miss the email. Without a saved copy the lead is gone.
+      console.error("[contact/submit] email failed:", mailError);
+      if (!doc) throw mailError;
+    }
 
     return NextResponse.json({ success: true, id: doc?._id });
   } catch (error) {
