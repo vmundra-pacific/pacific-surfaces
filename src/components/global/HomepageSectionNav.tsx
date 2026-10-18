@@ -41,7 +41,7 @@ import { useEffect, useRef, useState } from "react";
  *    Visualize were dropped from the rail per the editorial mock —
  *    they still exist on the page, just not pinned to the side nav.
  *
- * Hidden below `lg` (1024px) — phone/tablet users get the regular
+ * Hidden below `xl` (1280px) — phone/tablet users get the regular
  * scroll experience without an extra UI band overlapping content.
  */
 
@@ -151,7 +151,9 @@ export function HomepageSectionNav() {
   // rAF loop, so polling scrollY in our own rAF stays in step with it
   // without needing a Lenis instance; we only re-measure when the
   // position actually changed, so an idle page costs one comparison
-  // per frame.
+  // per frame. The loop only runs while the rail can show (xl, 80rem,
+  // the same query as its `xl:block`); below that it is display:none
+  // and there is nothing to measure.
   useEffect(() => {
     let raf = 0;
     let lastY = -1;
@@ -186,11 +188,24 @@ export function HomepageSectionNav() {
       raf = requestAnimationFrame(tick);
     };
 
-    measure();
-    raf = requestAnimationFrame(tick);
+    const start = () => {
+      if (raf) return;
+      measure();
+      raf = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    const mq = window.matchMedia("(min-width: 80rem)");
+    const onMq = () => (mq.matches ? start() : stop());
+
+    onMq();
+    mq.addEventListener("change", onMq);
     window.addEventListener("resize", measure);
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      mq.removeEventListener("change", onMq);
       window.removeEventListener("resize", measure);
     };
   }, []);
@@ -220,7 +235,7 @@ export function HomepageSectionNav() {
       ref={navRef}
       // Pinned to the left edge, vertically centred. z-30 sits above
       // page content but below the fixed header (z-50). Hidden on
-      // mobile / tablet — only shows lg+ where there's room.
+      // mobile / tablet — only shows xl+ where there's room.
       //
       // Earlier versions tried `mix-blend: difference` for auto-
       // inversion, but on bright marble heroes the active pill's

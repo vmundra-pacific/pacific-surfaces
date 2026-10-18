@@ -699,10 +699,16 @@ function TeamSection() {
                     href={member.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`${member.name} on LinkedIn`}
+                    // No aria-label: the card's own text (name, role)
+                    // names the link, so voice control can use what is
+                    // on screen (WCAG 2.5.3).
                     className="block h-full focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/60 focus:ring-offset-2 focus:ring-offset-pacific-dark rounded-2xl"
                   >
                     {cardInner}
+                    <span className="sr-only">
+                      {" "}
+                      (LinkedIn profile, opens in a new tab)
+                    </span>
                   </a>
                 ) : (
                   cardInner

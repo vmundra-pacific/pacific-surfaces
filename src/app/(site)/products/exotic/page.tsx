@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { preload as reactPreload } from "react-dom";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
-import { resolveCategoryPage } from "../_lib/category";
+import { heroPosterSrc, resolveCategoryPage } from "../_lib/category";
 import { BreadcrumbList } from "@/components/global/JsonLd";
+import { clipAtWord, plainText } from "@/lib/portable-text";
 
 /**
  * Static route for /products/exotic.
@@ -18,13 +20,20 @@ import { BreadcrumbList } from "@/components/global/JsonLd";
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await resolveCategoryPage("exotic");
-  if (!data) return { title: "Exotic Collection — Pacific Surfaces", alternates: { canonical: "/products/exotic" } };
+  if (!data)
+    return {
+      title: "Exotic Collection — Pacific Surfaces",
+      alternates: { canonical: "/products/exotic" },
+    };
+  // A Sanity collection's description is Portable Text: flatten it, or
+  // the meta tag would carry block objects (as in ../[slug]/page.tsx).
+  const ownDescription = plainText(data.collection.description);
   return {
     title:
       data.collection.seoTitle || `${data.collection.name} — Pacific Surfaces`,
     description:
       data.collection.seoDescription ||
-      data.collection.description ||
+      (ownDescription ? clipAtWord(ownDescription, 155) : null) ||
       "Premium exotic stone surfaces with rare patterns and bold veining.",
     alternates: { canonical: "/products/exotic" },
   };
@@ -33,6 +42,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ExoticPage() {
   const data = await resolveCategoryPage("exotic");
   if (!data) notFound();
+  // LCP: preload the hero video's poster at high priority, as the
+  // [slug] dispatcher does for every other category hero.
+  const heroPoster = heroPosterSrc(data.config.hero);
+  if (heroPoster) {
+    reactPreload(heroPoster, { as: "image", fetchPriority: "high" });
+  }
   return (
     <>
       <BreadcrumbList

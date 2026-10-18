@@ -69,7 +69,9 @@ interface Picking {
 }
 
 /** Where a shelf leads: its own aisle. */
-const SHELF_LINKS: Partial<Record<StoreSection, { href: string; label: string }>> = {
+const SHELF_LINKS: Partial<
+  Record<StoreSection, { href: string; label: string }>
+> = {
   "Vanity Tops": { href: "/shop/vanity-tops", label: "Shop all vanity tops" },
 };
 
@@ -206,7 +208,9 @@ export function ShopClient({
             <div
               className={cn(
                 "grid gap-4",
-                list.every((p) => p.layout) ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 lg:grid-cols-4"
+                list.every((p) => p.layout)
+                  ? "grid-cols-1 md:grid-cols-2"
+                  : "grid-cols-2 lg:grid-cols-4"
               )}
             >
               {list.map((p) => (
@@ -427,12 +431,16 @@ function ProductCard({
       });
 
   // A vanity top's scene takes the colour live, as on its own page.
-  const layers = product.layout ? (vanityTopBySlug(product.slug)?.layers ?? null) : null;
+  const layers = product.layout
+    ? (vanityTopBySlug(product.slug)?.layers ?? null)
+    : null;
 
   const [colour, setColour] = useState(colours[0]?.name ?? "");
   const [length, setLength] = useState(options.lengths[0] ?? "");
   const [width, setWidth] = useState(
-    product.layout && options.widths.includes(VANITY_TOP_DEPTH) ? VANITY_TOP_DEPTH : (options.widths[0] ?? "")
+    product.layout && options.widths.includes(VANITY_TOP_DEPTH)
+      ? VANITY_TOP_DEPTH
+      : (options.widths[0] ?? "")
   );
   const [faucet, setFaucet] = useState(FAUCET_DRILLINGS[0]);
   const [height, setHeight] = useState(options.heights[0] ?? "");
@@ -473,6 +481,10 @@ function ProductCard({
             colourImage={colours.find((c) => c.name === colour)?.image ?? null}
             alt={product.name}
             maxWidth={1472}
+            // Composite only once the card nears the screen: with every
+            // section shown, eager tiles pulled megabytes of scene layers
+            // in alongside the hero.
+            lazy
           />
         ) : product.image ? (
           <Image
@@ -486,7 +498,9 @@ function ProductCard({
             sizes="(max-width: 640px) 50vw, 25vw"
             className={cn(
               "transition-transform duration-700 group-hover:scale-[1.04]",
-              isDrawing(product.image) ? "bg-white object-contain p-3" : "object-cover"
+              isDrawing(product.image)
+                ? "bg-white object-contain p-3"
+                : "object-cover"
             )}
           />
         ) : (
@@ -505,7 +519,12 @@ function ProductCard({
         {/* Length, width, height, basin count and finish — the way this
             category is configured everywhere else. No thickness: these are
             finished pieces cut to a size, not slabs sold by the millimetre. */}
-        <div className={cn("mt-3 grid grid-cols-2 gap-2", layers && "sm:grid-cols-3")}>
+        <div
+          className={cn(
+            "mt-3 grid grid-cols-2 gap-2",
+            layers && "sm:grid-cols-3"
+          )}
+        >
           {colours.length > 0 && (
             <div className={cn("col-span-2", layers && "sm:col-span-3")}>
               <span className="mb-1 block text-[9px] font-medium uppercase tracking-[0.2em] text-pacific-dark/45">
@@ -635,7 +654,9 @@ function ProductCard({
               ...(layers ? { faucet: resolve("faucet", faucet) } : {}),
             })
           }
-          aria-label={`Add ${product.name} to cart`}
+          // Starts with the words on the button, so the name follows its
+          // state and voice control can say what it reads.
+          aria-label={`${added ? "Added" : canAdd ? "Add to cart" : "Enter dimensions"}: ${product.name}`}
           className={cn(
             "mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.15em] transition-colors",
             added

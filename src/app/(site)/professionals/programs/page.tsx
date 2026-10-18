@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import { BreadcrumbList } from "@/components/global/JsonLd";
-import { ProClose, ProFaq, ProHero, ProIntro, ProNav, ProSplit, ProSteps } from "@/components/sections/professionals/ProKit";
+import {
+  ProClose,
+  ProFaq,
+  ProHero,
+  ProIntro,
+  ProNav,
+  ProSplit,
+  ProSteps,
+} from "@/components/sections/professionals/ProKit";
 
 /**
  * /professionals/programs: the trade programs, rebuilt 2026-10-08 (owner:
@@ -47,9 +55,18 @@ const BENEFITS = [
 ];
 
 const JOIN = [
-  { title: "Apply", body: "Send a short brief: who you are, the work you do and the volume you typically move." },
-  { title: "Meet", body: "A 30-minute call with a Pacific Surfaces lead to agree scope, fit and the program that matches." },
-  { title: "Onboard", body: "Welcome kit, certifications and a dedicated account contact. You are ready to specify." },
+  {
+    title: "Apply",
+    body: "Send a short brief: who you are, the work you do and the volume you typically move.",
+  },
+  {
+    title: "Meet",
+    body: "A 30-minute call with a Pacific Surfaces lead to agree scope, fit and the program that matches.",
+  },
+  {
+    title: "Onboard",
+    body: "Welcome kit, certifications and a dedicated account contact. You are ready to specify.",
+  },
 ];
 
 const FAQS = [
@@ -69,7 +86,7 @@ const FAQS = [
 
 export default function ProgramsPage() {
   return (
-    <main data-light-page className="bg-white text-[#14140f]">
+    <div data-light-page className="bg-white text-[#14140f]">
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },
@@ -84,7 +101,10 @@ export default function ProgramsPage() {
         image="/images/india-home/collection-eclipse.webp"
         alt="A long bar counter in Eclipse quartz"
         ctas={[
-          { label: "Apply to a program", href: "/contact?type=distributor#enquiry" },
+          {
+            label: "Apply to a program",
+            href: "/contact?type=distributor#enquiry",
+          },
           { label: "Working with us", href: "/professionals/collaboration" },
         ]}
         facts={[
@@ -104,18 +124,30 @@ export default function ProgramsPage() {
         ]}
       />
 
-      <ProSteps eyebrow="The programs" title="Four ways to grow with Pacific Surfaces" steps={PROGRAMS} tone="stone" />
+      <ProSteps
+        eyebrow="The programs"
+        title="Four ways to grow with Pacific Surfaces"
+        steps={PROGRAMS}
+        tone="stone"
+      />
 
       <ProSplit
         eyebrow="What members get"
         title="Designed to compound"
-        body={["Every program member gets the foundations below. The longer you build with Pacific Surfaces, the deeper the partnership runs."]}
+        body={[
+          "Every program member gets the foundations below. The longer you build with Pacific Surfaces, the deeper the partnership runs.",
+        ]}
         points={BENEFITS}
         image="/videos/origin-poster.jpg"
         alt="Inside the Pacific Surfaces plant"
       />
 
-      <ProSteps eyebrow="How to join" title="A simple, deliberate intake" steps={JOIN} tone="stone" />
+      <ProSteps
+        eyebrow="How to join"
+        title="A simple, deliberate intake"
+        steps={JOIN}
+        tone="stone"
+      />
 
       <ProFaq title="Program questions" items={FAQS} />
 
@@ -123,11 +155,14 @@ export default function ProgramsPage() {
         title="Ready to build with Pacific Surfaces?"
         body="Applications are reviewed weekly. Tell us who you are and the work you do, and the right program follows."
         ctas={[
-          { label: "Apply to a program", href: "/contact?type=distributor#enquiry" },
+          {
+            label: "Apply to a program",
+            href: "/contact?type=distributor#enquiry",
+          },
           { label: "Fabrication services", href: "/professionals/services" },
         ]}
         image="/images/spaces/hotels/backlit-bar-latte-luxe-2.jpg"
       />
-    </main>
+    </div>
   );
 }

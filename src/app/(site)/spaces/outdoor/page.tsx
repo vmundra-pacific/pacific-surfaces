@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { SpaceFeatureSection } from "@/components/sections/SpaceFeatureSection";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 import { freshClient } from "@/sanity/lib/client";
 import { spacePageBySlugQuery } from "@/sanity/lib/queries";
 
@@ -72,6 +73,13 @@ export default async function OutdoorSpacePage() {
 
   return (
     <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Spaces", url: "/spaces" },
+          { name: "Outdoor & Wet Areas", url: "/spaces/outdoor" },
+        ]}
+      />
       <PageHeader
         badge="Spaces · Outdoor & Wet Areas"
         title="Surfaces built for the elements."

@@ -6,11 +6,25 @@ import Link from "next/link";
 import { Check, Download, FileText, Minus, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
-import { CUSTOM_SIZE, FAUCET_DRILLINGS, VANITY_TOP_DEPTH, dimensionLabel, type StoreOptions } from "@/data/store";
-import { isDrawing, servedAsIs, type ShopColour } from "@/components/shop/ShopClient";
+import {
+  CUSTOM_SIZE,
+  FAUCET_DRILLINGS,
+  VANITY_TOP_DEPTH,
+  dimensionLabel,
+  type StoreOptions,
+} from "@/data/store";
+import {
+  isDrawing,
+  servedAsIs,
+  type ShopColour,
+} from "@/components/shop/ShopClient";
 import { BasinPreview, prefetchSlab } from "@/components/shop/BasinPreview";
 import { VanityTopDrawing } from "@/components/shop/VanityTopDrawing";
-import { APP_FRAMES, AppPanel, BASIN_TILE } from "@/components/shop/VanityApplications";
+import {
+  APP_FRAMES,
+  AppPanel,
+  BASIN_TILE,
+} from "@/components/shop/VanityApplications";
 import {
   VanityGlance,
   VanitySections,
@@ -20,7 +34,10 @@ import {
 
 /** The guide each shelf points to under the order button. */
 const GUIDES: Record<string, { href: string; label: string }> = {
-  "Integrated Quartz Sinks": { href: "/applications/washbasins", label: "washbasins guide" },
+  "Integrated Quartz Sinks": {
+    href: "/applications/washbasins",
+    label: "washbasins guide",
+  },
 };
 
 /** The gallery frame that shows a vanity top as a dimensioned drawing. */
@@ -105,7 +122,10 @@ export function ShopProductClient({
   // its lengths and its neighbours without leaving the page, so the
   // chosen colour is laid straight into the new scene.
   const [variantIndex, setVariantIndex] = useState(() =>
-    Math.max(0, variants?.findIndex((v) => v.product.slug === productProp.slug) ?? 0)
+    Math.max(
+      0,
+      variants?.findIndex((v) => v.product.slug === productProp.slug) ?? 0
+    )
   );
   const variant = variants?.[variantIndex];
   const product = variant?.product ?? productProp;
@@ -119,7 +139,9 @@ export function ShopProductClient({
   // A vanity top opens at the standard 22 in depth, the one the size
   // chips name.
   const [width, setWidth] = useState(
-    details && options.widths.includes(VANITY_TOP_DEPTH) ? VANITY_TOP_DEPTH : (options.widths[0] ?? "")
+    details && options.widths.includes(VANITY_TOP_DEPTH)
+      ? VANITY_TOP_DEPTH
+      : (options.widths[0] ?? "")
   );
   const [height, setHeight] = useState(options.heights[0] ?? "");
   const [basins, setBasins] = useState(options.basins[0] ?? "");
@@ -167,15 +189,14 @@ export function ShopProductClient({
         ...product.images.slice(1),
       ]
     : product.images;
-  const appOf = (src: string) => (src.startsWith(APP) ? appFrames[Number(src.slice(APP.length))] : undefined);
+  const appOf = (src: string) =>
+    src.startsWith(APP) ? appFrames[Number(src.slice(APP.length))] : undefined;
   const drawingIndex = frames.indexOf(DRAWING);
   /** A new size shows the drawing, where the size can be read. */
-  const resized =
-    (set: (value: string) => void) =>
-    (value: string) => {
-      set(value);
-      if (drawingIndex >= 0) setActive(drawingIndex);
-    };
+  const resized = (set: (value: string) => void) => (value: string) => {
+    set(value);
+    if (drawingIndex >= 0) setActive(drawingIndex);
+  };
   const renderDrawing = (className: string) => (
     <VanityTopDrawing
       basins={Math.max(1, ["Single", "Double"].indexOf(basins) + 1)}
@@ -190,7 +211,9 @@ export function ShopProductClient({
   // With a family, the basin choices are the family's; picking one moves
   // to that variant, keeps colour, width, height and finish, and keeps the
   // length where the new layout offers it.
-  const basinChoices = variants ? variants.map((v) => v.basins) : options.basins;
+  const basinChoices = variants
+    ? variants.map((v) => v.basins)
+    : options.basins;
   const changeBasins = (value: string) => {
     setBasins(value);
     if (!variants) return;
@@ -202,7 +225,11 @@ export function ShopProductClient({
     setActive(0);
     // Keep the address honest without a navigation, which would reset the
     // page and lose the choices.
-    window.history.replaceState(null, "", `/shop/${variants[next].product.slug}`);
+    window.history.replaceState(
+      null,
+      "",
+      `/shop/${variants[next].product.slug}`
+    );
     document.title = `${variants[next].product.name} — Pacific Store`;
   };
 
@@ -255,7 +282,12 @@ export function ShopProductClient({
               // A layered scene is shot wide (the double-basin top is
               // ~2.1:1); give it its own frame rather than crop it to 4:3.
               // The to-scale view keeps that frame, so the page doesn't jump.
-              layers && (active === 0 || frames[active] === DRAWING || appOf(frames[active] ?? "")) ? "aspect-[21/10]" : "aspect-[4/3]"
+              layers &&
+                (active === 0 ||
+                  frames[active] === DRAWING ||
+                  appOf(frames[active] ?? ""))
+                ? "aspect-[21/10]"
+                : "aspect-[4/3]"
             )}
           >
             {/* The live preview replaces the photograph only on the first
@@ -268,7 +300,9 @@ export function ShopProductClient({
                 alt={product.name}
               />
             ) : frames[active] === DRAWING ? (
-              <div className="absolute inset-0 bg-white p-4 sm:p-6">{renderDrawing("h-full w-full")}</div>
+              <div className="absolute inset-0 bg-white p-4 sm:p-6">
+                {renderDrawing("h-full w-full")}
+              </div>
             ) : appOf(frames[active]) ? (
               <AppPanel frame={appOf(frames[active])!} />
             ) : frames[active] ? (
@@ -279,7 +313,11 @@ export function ShopProductClient({
                 // Our own photographs and drawings are served as they are.
                 unoptimized={servedAsIs(frames[active])}
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className={isDrawing(frames[active]) ? "bg-white object-contain p-6" : "object-cover"}
+                className={
+                  isDrawing(frames[active])
+                    ? "bg-white object-contain p-6"
+                    : "object-cover"
+                }
                 priority
               />
             ) : null}
@@ -293,7 +331,11 @@ export function ShopProductClient({
                   type="button"
                   onClick={() => setActive(i)}
                   aria-label={
-                    src === DRAWING ? "View the technical drawing" : appOf(src) ? `View: ${appOf(src)!.title}` : `View image ${i + 1}`
+                    src === DRAWING
+                      ? "View the technical drawing"
+                      : appOf(src)
+                        ? `View: ${appOf(src)!.title}`
+                        : `View image ${i + 1}`
                   }
                   aria-current={i === active}
                   className={cn(
@@ -304,7 +346,9 @@ export function ShopProductClient({
                   )}
                 >
                   {src === DRAWING ? (
-                    <span className="absolute inset-0 bg-white p-1">{renderDrawing("h-full w-full")}</span>
+                    <span className="absolute inset-0 bg-white p-1">
+                      {renderDrawing("h-full w-full")}
+                    </span>
                   ) : appOf(src) ? (
                     <Image
                       src={appOf(src)!.src}
@@ -312,7 +356,11 @@ export function ShopProductClient({
                       fill
                       unoptimized
                       sizes="96px"
-                      className={appOf(src)!.onWhite ? "bg-white object-contain" : "object-cover"}
+                      className={
+                        appOf(src)!.onWhite
+                          ? "bg-white object-contain"
+                          : "object-cover"
+                      }
                     />
                   ) : (
                     <Image
@@ -321,7 +369,11 @@ export function ShopProductClient({
                       fill
                       unoptimized={servedAsIs(src)}
                       sizes="96px"
-                      className={isDrawing(src) ? "bg-white object-contain p-1" : "object-cover"}
+                      className={
+                        isDrawing(src)
+                          ? "bg-white object-contain p-1"
+                          : "object-cover"
+                      }
                     />
                   )}
                 </button>
@@ -403,7 +455,11 @@ export function ShopProductClient({
                 />
               )}
               {basinChoices.length > 0 && (
-                <BasinTiles value={basins} options={basinChoices} onChange={changeBasins} />
+                <BasinTiles
+                  value={basins}
+                  options={basinChoices}
+                  onChange={changeBasins}
+                />
               )}
               {/* Each length with the depth chosen, as the category names its
                   sizes ("36 in. x 22 in."). */}
@@ -412,7 +468,11 @@ export function ShopProductClient({
                 value={length}
                 options={options.lengths}
                 onChange={resized(setLength)}
-                format={(o) => (o === CUSTOM_SIZE ? CUSTOM_SIZE : `${o} in. x ${width === CUSTOM_SIZE ? "custom" : `${width} in.`}`)}
+                format={(o) =>
+                  o === CUSTOM_SIZE
+                    ? CUSTOM_SIZE
+                    : `${o} in. x ${width === CUSTOM_SIZE ? "custom" : `${width} in.`}`
+                }
               />
             </div>
           )}
@@ -444,24 +504,24 @@ export function ShopProductClient({
             )}
 
             {!details && (
-            <Field label={`${dimensionLabel(options, "length")} (in)`}>
-              <Select
-                value={length}
-                options={options.lengths}
-                onChange={setLength}
-                label={`${dimensionLabel(options, "length")} for ${product.name}`}
-              />
-            </Field>
+              <Field label={`${dimensionLabel(options, "length")} (in)`}>
+                <Select
+                  value={length}
+                  options={options.lengths}
+                  onChange={setLength}
+                  label={`${dimensionLabel(options, "length")} for ${product.name}`}
+                />
+              </Field>
             )}
             {options.widths.length > 0 && (
-            <Field label={`${dimensionLabel(options, "width")} (in)`}>
-              <Select
-                value={width}
-                options={options.widths}
-                onChange={resized(setWidth)}
-                label={`${dimensionLabel(options, "width")} for ${product.name}`}
-              />
-            </Field>
+              <Field label={`${dimensionLabel(options, "width")} (in)`}>
+                <Select
+                  value={width}
+                  options={options.widths}
+                  onChange={resized(setWidth)}
+                  label={`${dimensionLabel(options, "width")} for ${product.name}`}
+                />
+              </Field>
             )}
             <Field label={`${dimensionLabel(options, "height")} (in)`}>
               <Select
@@ -523,7 +583,9 @@ export function ShopProductClient({
                       setTyped((t) => ({ ...t, [field]: e.target.value }))
                     }
                     inputMode={field === "faucet" ? "text" : "decimal"}
-                    placeholder={field === "faucet" ? "e.g. 6 in, 3 holes" : "e.g. 54"}
+                    placeholder={
+                      field === "faucet" ? "e.g. 6 in, 3 holes" : "e.g. 54"
+                    }
                     className="w-full rounded-md border border-pacific-dark/20 px-2.5 py-2 text-sm font-light text-pacific-dark placeholder-pacific-dark/35 focus:border-pacific-dark focus:outline-none"
                   />
                 </Field>
@@ -600,7 +662,10 @@ export function ShopProductClient({
                   this page to it for search as well as for readers. */}
               * New to these? Read the{" "}
               <Link
-                href={GUIDES[product.section]?.href ?? "/applications/bathroom-vanity-tops"}
+                href={
+                  GUIDES[product.section]?.href ??
+                  "/applications/bathroom-vanity-tops"
+                }
                 className="underline"
               >
                 {GUIDES[product.section]?.label ?? "vanity tops guide"}
@@ -627,7 +692,9 @@ export function ShopProductClient({
         </div>
       </div>
 
-      {details && selection && <VanitySections details={details} sel={selection} />}
+      {details && selection && (
+        <VanitySections details={details} sel={selection} />
+      )}
 
       {similar.length > 0 && (
         <div className="mx-auto mt-20 max-w-7xl border-t border-pacific-dark/10 pt-12">
@@ -649,13 +716,16 @@ export function ShopProductClient({
                   {s.image ? (
                     <Image
                       src={s.image}
-                      alt={s.name}
+                      // The name is printed beneath, inside the same link.
+                      alt=""
                       fill
                       unoptimized={servedAsIs(s.image)}
                       sizes="(max-width: 1024px) 50vw, 25vw"
                       className={cn(
                         "transition-transform duration-700 group-hover:scale-[1.04]",
-                        isDrawing(s.image) ? "bg-white object-contain p-3" : "object-cover"
+                        isDrawing(s.image)
+                          ? "bg-white object-contain p-3"
+                          : "object-cover"
                       )}
                     />
                   ) : null}
@@ -703,11 +773,15 @@ function ColourChips({
 }) {
   const first = colours.slice(0, CHIPS);
   const chosen = colours.find((c) => c.name === current);
-  const chips = chosen && !first.includes(chosen) ? [chosen, ...first.slice(0, CHIPS - 1)] : first;
+  const chips =
+    chosen && !first.includes(chosen)
+      ? [chosen, ...first.slice(0, CHIPS - 1)]
+      : first;
   return (
     <div>
       <p className="text-sm font-light text-pacific-dark">
-        Colour: <span className="font-medium">{current || "Choose a colour"}</span>
+        Colour:{" "}
+        <span className="font-medium">{current || "Choose a colour"}</span>
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {chips.map((c) => {
@@ -725,10 +799,20 @@ function ColourChips({
               title={c.name}
               className={cn(
                 "relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-pacific-dark/5 ring-offset-2 transition-shadow",
-                on ? "ring-2 ring-pacific-dark" : "ring-1 ring-pacific-dark/15 hover:ring-pacific-dark/50"
+                on
+                  ? "ring-2 ring-pacific-dark"
+                  : "ring-1 ring-pacific-dark/15 hover:ring-pacific-dark/50"
               )}
             >
-              {c.image ? <Image src={c.image} alt="" fill sizes="44px" className="object-cover" /> : null}
+              {c.image ? (
+                <Image
+                  src={c.image}
+                  alt=""
+                  fill
+                  sizes="44px"
+                  className="object-cover"
+                />
+              ) : null}
             </button>
           );
         })}
@@ -745,7 +829,15 @@ function ColourChips({
 }
 
 /* The number of basins as picture tiles, the way the category shows it. */
-function BasinTiles({ value, options, onChange }: { value: string; options: string[]; onChange: (value: string) => void }) {
+function BasinTiles({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
   return (
     <div>
       <p className="text-sm font-light text-pacific-dark">
@@ -760,12 +852,21 @@ function BasinTiles({ value, options, onChange }: { value: string; options: stri
             onClick={() => onChange(o)}
             className={cn(
               "flex w-[132px] flex-col overflow-hidden rounded-lg border bg-white text-left transition-colors",
-              o === value ? "border-[#14140f] ring-1 ring-[#14140f]" : "border-[#14140f]/15 hover:border-[#14140f]/50"
+              o === value
+                ? "border-[#14140f] ring-1 ring-[#14140f]"
+                : "border-[#14140f]/15 hover:border-[#14140f]/50"
             )}
           >
             <span className="relative block aspect-[4/3] w-full">
               {BASIN_TILE[o] ? (
-                <Image src={BASIN_TILE[o]} alt="" fill unoptimized sizes="132px" className="object-contain p-1" />
+                <Image
+                  src={BASIN_TILE[o]}
+                  alt=""
+                  fill
+                  unoptimized
+                  sizes="132px"
+                  className="object-contain p-1"
+                />
               ) : null}
             </span>
             <span className="px-3 pb-2.5 text-[13px] font-light text-pacific-dark">
@@ -984,4 +1085,3 @@ function ColourPanel({
     </div>
   );
 }
-

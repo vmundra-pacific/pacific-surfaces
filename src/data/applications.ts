@@ -18,6 +18,8 @@
  * replace when real photography lands.
  */
 
+import { APPLICATION_NAMES } from "@/data/application-names";
+
 export interface ApplicationSection {
   eyebrow: string;
   headline: string;
@@ -30,7 +32,8 @@ export interface ApplicationSection {
 
 export interface Application {
   slug: string;
-  /** Menu label — matches the Products mega exactly. */
+  /** Menu label — matches the Products mega exactly (both read
+   *  application-names.ts). */
   name: string;
   /** Breadcrumb / badge, e.g. "Applications · Kitchen". */
   badge: string;
@@ -100,7 +103,7 @@ const C = {
 export const APPLICATIONS: Application[] = [
   {
     slug: "kitchen-countertops",
-    name: "Kitchen Countertops",
+    name: APPLICATION_NAMES["kitchen-countertops"],
     badge: "Applications · Kitchen",
     title: "Countertops built for the way India cooks.",
     description:
@@ -131,7 +134,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "kitchen-islands",
-    name: "Kitchen Islands",
+    name: APPLICATION_NAMES["kitchen-islands"],
     badge: "Applications · Kitchen",
     title: "The island is the room's one uninterrupted gesture.",
     description:
@@ -162,7 +165,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "backsplashes",
-    name: "Backsplashes",
+    name: APPLICATION_NAMES["backsplashes"],
     badge: "Applications · Kitchen",
     title: "Stone up the wall, and not a grout line in sight.",
     description:
@@ -193,7 +196,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "outdoor-kitchens",
-    name: "Outdoor Kitchens",
+    name: APPLICATION_NAMES["outdoor-kitchens"],
     badge: "Applications · Outdoor",
     title: "A counter that lives outside all year.",
     description:
@@ -224,7 +227,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "bathroom-vanity-tops",
-    name: "Vanity Tops",
+    name: APPLICATION_NAMES["bathroom-vanity-tops"],
     badge: "Applications · Bath",
     title: "Quartz vanity tops, cut to your basin.",
     description:
@@ -318,7 +321,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "shower-walls-and-trays",
-    name: "Shower Walls",
+    name: APPLICATION_NAMES["shower-walls-and-trays"],
     badge: "Applications · Bath",
     title: "The wet room, without the tile grid.",
     description:
@@ -349,7 +352,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "washbasins",
-    name: "Washbasins",
+    name: APPLICATION_NAMES["washbasins"],
     badge: "Applications · Bath",
     title: "A basin with no rim, no seal, no seam.",
     description:
@@ -384,7 +387,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "wall-cladding",
-    name: "Wall Cladding",
+    name: APPLICATION_NAMES["wall-cladding"],
     badge: "Applications · Architecture",
     title: "Clad a feature wall in one piece of stone.",
     description:
@@ -422,7 +425,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "facades",
-    name: "Facades",
+    name: APPLICATION_NAMES["facades"],
     badge: "Applications · Architecture",
     title: "The face of the building, in stone that stays.",
     description:
@@ -453,7 +456,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "flooring",
-    name: "Flooring",
+    name: APPLICATION_NAMES["flooring"],
     badge: "Applications · Architecture",
     title: "Floors that take the traffic and keep the pattern.",
     description:
@@ -484,7 +487,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "staircases",
-    name: "Staircases",
+    name: APPLICATION_NAMES["staircases"],
     badge: "Applications · Architecture",
     title: "Treads, risers and stringers from one stone.",
     description:
@@ -515,7 +518,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "dining-and-furniture",
-    name: "Dining & Furniture",
+    name: APPLICATION_NAMES["dining-and-furniture"],
     badge: "Applications · Furniture",
     title: "Stone as a piece of furniture, not a building material.",
     description:
@@ -546,7 +549,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "bar-counters",
-    name: "Bar Counters",
+    name: APPLICATION_NAMES["bar-counters"],
     badge: "Applications · Commercial",
     title: "The counter that takes everything that stains.",
     description:
@@ -577,7 +580,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "reception-desks",
-    name: "Reception Desks",
+    name: APPLICATION_NAMES["reception-desks"],
     badge: "Applications · Commercial",
     title: "The first surface a visitor touches.",
     description:
@@ -608,7 +611,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "waterfall-islands",
-    name: "Waterfall Islands",
+    name: APPLICATION_NAMES["waterfall-islands"],
     badge: "Applications · Kitchen",
     title: "Carry the stone over the edge and down to the floor.",
     description:
@@ -639,7 +642,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "feature-walls",
-    name: "Feature Walls",
+    name: APPLICATION_NAMES["feature-walls"],
     badge: "Applications · Interiors",
     title: "One wall doing all the talking.",
     description:
@@ -677,7 +680,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "backlit-features",
-    name: "Backlit Features",
+    name: APPLICATION_NAMES["backlit-features"],
     badge: "Applications · Interiors",
     title: "Stone lit from behind, not in front.",
     description:
@@ -708,7 +711,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "retail-interiors",
-    name: "Retail Interiors",
+    name: APPLICATION_NAMES["retail-interiors"],
     badge: "Applications · Commercial",
     title: "Surfaces that sell the thing standing on them.",
     description:
@@ -739,7 +742,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "hospitality-interiors",
-    name: "Hospitality Interiors",
+    name: APPLICATION_NAMES["hospitality-interiors"],
     badge: "Applications · Commercial",
     title: "Specified across hotels, QSR, hospitals and airports.",
     description:
@@ -770,7 +773,7 @@ export const APPLICATIONS: Application[] = [
   },
   {
     slug: "fireplace-surrounds",
-    name: "Fireplace Surrounds",
+    name: APPLICATION_NAMES["fireplace-surrounds"],
     badge: "Applications · Interiors",
     title: "The one surface in the room that meets fire.",
     description:

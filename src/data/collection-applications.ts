@@ -1,4 +1,4 @@
-import { APPLICATIONS, type Application } from "@/data/applications";
+import { APPLICATION_NAMES } from "@/data/application-names";
 
 /**
  * Which applications each product collection is shown for.
@@ -8,7 +8,9 @@ import { APPLICATIONS, type Application } from "@/data/applications";
  * backlit panels as for granite. Each collection now gets its own
  * list, in its own order, drawn from the canonical applications in
  * applications.ts — so every label in the menu is the title of the
- * page it opens.
+ * page it opens. The names are read from application-names.ts, not
+ * applications.ts, so the header bundle doesn't carry every page's
+ * copy.
  *
  * The lists come from Pacific's own application sheets. Wording was
  * harmonised where the sheets said the same thing differently: "Bar
@@ -186,8 +188,15 @@ const COLLECTION_MENU_IMAGE: Record<string, Record<string, string>> = {
 };
 
 /** The Products-mega preview for one application of one collection. */
-export function menuImageFor(categorySlug: string, applicationSlug: string): string | null {
-  return COLLECTION_MENU_IMAGE[categorySlug]?.[applicationSlug] ?? MENU_IMAGE[applicationSlug] ?? null;
+export function menuImageFor(
+  categorySlug: string,
+  applicationSlug: string
+): string | null {
+  return (
+    COLLECTION_MENU_IMAGE[categorySlug]?.[applicationSlug] ??
+    MENU_IMAGE[applicationSlug] ??
+    null
+  );
 }
 
 /** Shown when a category has no list of its own. */
@@ -200,17 +209,27 @@ const FALLBACK = [
   "bar-counters",
 ];
 
-const BY_SLUG = new Map(APPLICATIONS.map((a) => [a.slug, a]));
+const NAME_BY_SLUG: ReadonlyMap<string, string> = new Map(
+  Object.entries(APPLICATION_NAMES)
+);
+
+/** One application row in the Products mega. */
+export interface MenuApplication {
+  slug: string;
+  name: string;
+}
 
 /**
- * The applications to list for a product category, resolved to full
- * records. Unknown slugs are dropped rather than rendered as broken
+ * The applications to list for a product category, resolved to their
+ * names. Unknown slugs are dropped rather than rendered as broken
  * links, so a typo here can never ship a 404 into the menu.
  */
-export function applicationsForCollection(categorySlug: string): Application[] {
+export function applicationsForCollection(
+  categorySlug: string
+): MenuApplication[] {
   const slugs = COLLECTION_APPLICATIONS[categorySlug] ?? FALLBACK;
   return slugs.flatMap((slug) => {
-    const app = BY_SLUG.get(slug);
-    return app ? [app] : [];
+    const name = NAME_BY_SLUG.get(slug);
+    return name ? [{ slug, name }] : [];
   });
 }

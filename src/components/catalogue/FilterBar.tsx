@@ -114,6 +114,7 @@ export function FilterBar({
               type="text"
               value={api.query}
               onChange={(e) => api.setQuery(e.target.value)}
+              aria-label="Search designs"
               placeholder="Search designs..."
               className={[
                 "w-44 rounded-full py-2 pl-9 pr-8 text-sm",
@@ -125,6 +126,7 @@ export function FilterBar({
             {api.query && (
               <button
                 onClick={() => api.setQuery("")}
+                aria-label="Clear search"
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-pacific-mid hover:text-white transition-colors"
               >
                 <X className="h-3 w-3" />

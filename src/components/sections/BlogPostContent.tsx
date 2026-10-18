@@ -44,6 +44,30 @@ interface BlogPost {
   author?: string;
 }
 
+/** The post column is max-w-3xl: full width on a phone, 768px at most. */
+const BODY_SIZES = "(max-width: 768px) 100vw, 768px";
+const BODY_WIDTHS = [640, 960, 1400];
+
+/**
+ * The size Sanity will serve for an inline image, so its box is
+ * reserved before it loads. Asset refs carry the original's size
+ * (`image-<id>-<W>x<H>-<ext>`); an editor's crop trims that.
+ */
+function inlineImageSize(
+  value: SanityImage
+): { width: number; height: number } | undefined {
+  const m = value.asset?._ref?.match(/-(\d+)x(\d+)-[a-z0-9]+$/i);
+  if (!m) return undefined;
+  const c = value.crop;
+  const width = Math.round(
+    Number(m[1]) * (1 - (c?.left ?? 0) - (c?.right ?? 0))
+  );
+  const height = Math.round(
+    Number(m[2]) * (1 - (c?.top ?? 0) - (c?.bottom ?? 0))
+  );
+  return width > 0 && height > 0 ? { width, height } : undefined;
+}
+
 /**
  * Custom PortableText renderer overrides. The default renderer
  * already handles `block` types (paragraphs, headings, marks);
@@ -64,11 +88,19 @@ const portableTextComponents: PortableTextComponents = {
     }) => {
       if (!value?.asset) return null;
       const url = urlForImage(value).width(1400).url();
+      const srcSet = BODY_WIDTHS.map(
+        (w) => `${urlForImage(value).width(w).url()} ${w}w`
+      ).join(", ");
+      const size = inlineImageSize(value);
       return (
         <figure className="my-12">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={url}
+            srcSet={srcSet}
+            sizes={BODY_SIZES}
+            width={size?.width}
+            height={size?.height}
             alt={value.alt ?? ""}
             loading="lazy"
             decoding="async"
@@ -183,6 +215,7 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
                 alt={post.title}
                 width={1400}
                 height={787}
+                sizes={BODY_SIZES}
                 className="h-full w-full object-cover"
                 priority
               />

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 import { ArrowRight } from "lucide-react";
 
 /**
@@ -10,7 +11,7 @@ import { ArrowRight } from "lucide-react";
  * overlap).
  */
 export const metadata: Metadata = {
-  title: "Spaces — Pacific Surfaces",
+  title: "Spaces: Kitchens, Bathrooms, Hotels & More | Pacific Surfaces",
   description:
     "Where Pacific surfaces live: kitchens, bathrooms, architecture, commercial, hospitality and outdoor spaces around the world.",
   alternates: { canonical: "/spaces" },
@@ -70,6 +71,12 @@ const SPACES = [
 export default function SpacesPage() {
   return (
     <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Spaces", url: "/spaces" },
+        ]}
+      />
       <PageHeader
         badge="Spaces"
         title="Where stone belongs."

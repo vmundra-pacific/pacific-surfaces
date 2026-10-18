@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { SpaceFeatureSection } from "@/components/sections/SpaceFeatureSection";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 import { freshClient } from "@/sanity/lib/client";
 import { spacePageBySlugQuery } from "@/sanity/lib/queries";
 
@@ -12,7 +13,7 @@ interface SpacePageImages {
 }
 
 export const metadata: Metadata = {
-  title: "Architecture — Pacific Surfaces",
+  title: "Architecture: Facades & Cladding | Pacific Surfaces",
   description:
     "Façades, large-format cladding, feature walls, and floor panels — Pacific surfaces engineered for the building skin and the spaces inside it.",
   alternates: { canonical: "/spaces/architecture" },
@@ -72,6 +73,13 @@ export default async function ArchitectureSpacePage() {
 
   return (
     <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Spaces", url: "/spaces" },
+          { name: "Architecture", url: "/spaces/architecture" },
+        ]}
+      />
       <PageHeader
         badge="Spaces · Architecture"
         title="Architecture-grade surfaces."

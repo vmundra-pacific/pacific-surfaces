@@ -4,27 +4,18 @@ import { client } from "@/sanity/lib/client";
 import { blogPostBySlugQuery } from "@/sanity/lib/queries";
 import { BlogPostContent } from "@/components/sections/BlogPostContent";
 import { BreadcrumbList, ArticleSchema } from "@/components/global/JsonLd";
+import { clipAtWord, plainText, type PortableBlock } from "@/lib/portable-text";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-type Block = { _type?: string; children?: { text?: string }[] };
-
 /** The post's own opening words, for a post with no SEO description or
  *  excerpt in Sanity: about 155 characters, cut at a word. */
 function openingWords(body: unknown, max = 155): string | undefined {
   if (!Array.isArray(body)) return undefined;
-  const text = (body as Block[])
-    .filter((b) => b?._type === "block")
-    .map((b) => (b.children ?? []).map((c) => c.text ?? "").join(""))
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (!text) return undefined;
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max);
-  return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:.\s]+$/, "")}…`;
+  const text = plainText(body as PortableBlock[]);
+  return text ? clipAtWord(text, max) : undefined;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -54,12 +45,19 @@ export default async function BlogPostPage({ params }: Props) {
           { name: post.title, url: `/blog/${slug}` },
         ]}
       />
+      {/* author is a plain string in Sanity (schemas/blogPost.ts), the
+          same byline BlogPostContent prints. */}
       <ArticleSchema
+        type="BlogPosting"
         headline={post.title}
         image={post.mainImage}
         datePublished={post.publishedAt}
         dateModified={post._updatedAt ?? post.publishedAt}
-        authorName={post.author?.name ?? undefined}
+        authorName={
+          typeof post.author === "string"
+            ? post.author.trim() || undefined
+            : undefined
+        }
         url={`/blog/${slug}`}
         description={post.seoDescription || post.excerpt}
       />

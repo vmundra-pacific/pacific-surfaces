@@ -204,8 +204,9 @@ export const DEMO_ROOMS: DemoRoom[] = [
         id: "surface",
         label: "Surface",
         maskUrl: "/demo-rooms/wc-03/mask.png",
-        shadowUrl: "/demo-rooms/wc-03/shadow.png",
-        highlightsUrl: "/demo-rooms/wc-03/highlight.png",
+        // No shadow or highlight pass: there is no shadow.png, and the
+        // highlight file on disk is Highlight.png, so both paths only
+        // ever 404'd and the room has always rendered without them.
       },
     ],
   },

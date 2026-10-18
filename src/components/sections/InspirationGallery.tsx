@@ -44,6 +44,9 @@ interface Project {
   category: Exclude<Category, "all">;
   surface: string;
   image: string;
+  /** The file's own pixel size, so its card is sized before it loads. */
+  width: number;
+  height: number;
 }
 
 const PROJECTS: Project[] = [
@@ -56,6 +59,8 @@ const PROJECTS: Project[] = [
     category: "kitchens",
     surface: "Quartz · Travertine",
     image: "/images/spaces/kitchens.png",
+    width: 640,
+    height: 361,
   },
   {
     id: "b01",
@@ -63,6 +68,8 @@ const PROJECTS: Project[] = [
     category: "bathrooms",
     surface: "Quartz · Travertine Honed",
     image: "/images/spaces/bathrooms.jpg",
+    width: 1200,
+    height: 1419,
   },
   {
     id: "c01",
@@ -70,6 +77,8 @@ const PROJECTS: Project[] = [
     category: "commercial",
     surface: "Beyond Stone · Stoneface",
     image: "/images/spaces/commercial.jpg",
+    width: 640,
+    height: 505,
   },
   {
     id: "a01",
@@ -77,6 +86,8 @@ const PROJECTS: Project[] = [
     category: "living",
     surface: "Quartz · Ruskin",
     image: "/images/spaces/architecture.png",
+    width: 476,
+    height: 640,
   },
   {
     id: "b02",
@@ -84,6 +95,8 @@ const PROJECTS: Project[] = [
     category: "bathrooms",
     surface: "Eclipse · Pietra Light",
     image: "/images/products/quartz.jpg",
+    width: 1200,
+    height: 1500,
   },
   {
     id: "k02",
@@ -91,6 +104,8 @@ const PROJECTS: Project[] = [
     category: "kitchens",
     surface: "Exotic · Cristallo, Backlit",
     image: "/images/products/semi-precious.png",
+    width: 357,
+    height: 640,
   },
   {
     id: "l01",
@@ -98,6 +113,8 @@ const PROJECTS: Project[] = [
     category: "living",
     surface: "Eclipse · Taj Vein",
     image: "/images/products/vision.png",
+    width: 640,
+    height: 640,
   },
   {
     id: "k03",
@@ -105,6 +122,8 @@ const PROJECTS: Project[] = [
     category: "kitchens",
     surface: "Granite · Saffron",
     image: "/images/products/granites.png",
+    width: 640,
+    height: 321,
   },
   {
     id: "o01",
@@ -112,6 +131,8 @@ const PROJECTS: Project[] = [
     category: "outdoor",
     surface: "Beyond Stone · Carbon",
     image: "/images/products/facades.png",
+    width: 640,
+    height: 349,
   },
 ];
 
@@ -134,7 +155,7 @@ export function InspirationGallery() {
   }, [filter]);
 
   return (
-    <main data-light-page className="bg-[#0a1620] text-pacific-light">
+    <div data-light-page className="bg-[#0a1620] text-pacific-light">
       {/* ── 1. Hero ── */}
       <section className="relative min-h-[78vh] flex items-end bg-pacific-dark overflow-hidden">
         <Image
@@ -219,11 +240,15 @@ export function InspirationGallery() {
                         height is whatever the image's intrinsic
                         aspect dictates — no cropping. next/image needs
                         an explicit width+height OR a sized parent, both
-                        of which would defeat the masonry layout. */}
+                        of which would defeat the masonry layout. The
+                        width/height attributes only reserve that aspect
+                        before the file arrives; CSS still sets the size. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={p.image}
                       alt={p.title}
+                      width={p.width}
+                      height={p.height}
                       loading="lazy"
                       decoding="async"
                       className="block w-full h-auto transition-transform duration-700 group-hover:scale-[1.04]"
@@ -237,9 +262,9 @@ export function InspirationGallery() {
                         <div className="text-[10px] tracking-[0.25em] uppercase text-white/70 font-medium">
                           {p.surface}
                         </div>
-                        <h3 className="mt-2 text-lg sm:text-xl font-light tracking-tight">
+                        <h2 className="mt-2 text-lg sm:text-xl font-light tracking-tight">
                           {p.title}
-                        </h3>
+                        </h2>
                       </div>
                       <ArrowRight className="w-4 h-4 text-white/80 group-hover:translate-x-0.5 transition-transform" />
                     </div>
@@ -366,6 +391,6 @@ export function InspirationGallery() {
           </AnimatedSection>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

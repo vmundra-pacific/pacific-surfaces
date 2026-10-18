@@ -130,6 +130,20 @@ const nextConfig: NextConfig = {
     const immutableCache = [
       { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
     ];
+    /* 30-day cache for the rest of the site's static media (photography,
+       store scenes, badges, logos, the Hubot Sans files). These names are
+       not content-hashed and a file can be replaced in place, so no
+       `immutable`: a swapped file reaches returning visitors within 30
+       days, and stale-while-revalidate refreshes it in the background.
+       Without a rule they are revalidated on every visit. PDFs
+       (/catalogues, /downloads) are left out on purpose: spec sheets get
+       revised in place and must not be served stale. */
+    const mediaCache = [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=2592000, stale-while-revalidate=86400",
+      },
+    ];
     return [
       {
         source: "/:path*",
@@ -140,6 +154,12 @@ const nextConfig: NextConfig = {
       { source: "/projects/:path*", headers: immutableCache },
       { source: "/team/:path*", headers: immutableCache },
       { source: "/demo-rooms/:path*", headers: immutableCache },
+      { source: "/images/:path*", headers: mediaCache },
+      { source: "/fonts/:path*", headers: mediaCache },
+      { source: "/store-basins/:path*", headers: mediaCache },
+      { source: "/benefits/:path*", headers: mediaCache },
+      { source: "/logos/:path*", headers: mediaCache },
+      { source: "/certifications/:path*", headers: mediaCache },
     ];
   },
   // Allow LAN origins to fetch /_next/* dev assets when accessing the

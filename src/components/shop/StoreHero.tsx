@@ -24,21 +24,37 @@ export function StoreHero({
 }) {
   return (
     <section className="relative h-[clamp(520px,78vh,780px)] w-full overflow-hidden bg-[#e9e0d4]">
-      <Image src={image} alt={alt} fill priority unoptimized sizes="100vw" className="object-cover object-[72%_60%]" />
+      <Image
+        src={image}
+        alt={alt}
+        fill
+        priority
+        fetchPriority="high"
+        unoptimized
+        sizes="100vw"
+        className="object-cover object-[72%_60%]"
+      />
       {/* A light wash behind the words, fading out before the products. */}
       <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-[#f4efe8]/80 via-[#f4efe8]/30 to-transparent md:w-[40%]" />
       {/* Pinned to the left edge of the screen, inside the plain wall (the
           products begin about a third of the way across the photograph). */}
       <div className="relative flex h-full flex-col justify-center px-6 pt-20 text-[#14140f] sm:px-10 lg:px-14 xl:px-20">
         <div className="max-w-[min(380px,21vw)] max-md:max-w-[440px]">
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] opacity-60">{eyebrow}</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] opacity-60">
+            {eyebrow}
+          </p>
           <h1
             className="mt-4 text-[38px] leading-[1.02] sm:text-[48px] xl:text-[60px]"
-            style={{ fontVariationSettings: "'wght' 300, 'wdth' 100", letterSpacing: "-0.025em" }}
+            style={{
+              fontVariationSettings: "'wght' 300, 'wdth' 100",
+              letterSpacing: "-0.025em",
+            }}
           >
             {title}
           </h1>
-          <p className="mt-5 text-[14px] font-light leading-relaxed opacity-80 xl:text-[15px]">{body}</p>
+          <p className="mt-5 text-[14px] font-light leading-relaxed opacity-80 xl:text-[15px]">
+            {body}
+          </p>
           <a
             href={cta.href}
             data-over-media

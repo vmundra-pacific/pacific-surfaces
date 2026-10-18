@@ -75,7 +75,7 @@ const FAQS = [
 
 export default function AboutPage() {
   return (
-    <main data-light-page className="bg-white text-[#14140f]">
+    <div data-light-page className="bg-white text-[#14140f]">
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },
@@ -112,14 +112,25 @@ export default function AboutPage() {
         ]}
         specs={[
           { label: "Founded", value: "2000, as Pacific Granites" },
-          { label: "Plant", value: "State-of-the-art Bretonstone plant, fully automated" },
-          { label: "Capacity", value: "Up to 12M sq ft quartz and 4.8M sq ft granite a year" },
+          {
+            label: "Plant",
+            value: "State-of-the-art Bretonstone plant, fully automated",
+          },
+          {
+            label: "Capacity",
+            value: "Up to 12M sq ft quartz and 4.8M sq ft granite a year",
+          },
           { label: "Reach", value: "45+ countries; warehouse in Poland" },
           { label: "Energy", value: "2 MW solar and an on-site wind turbine" },
         ]}
       />
 
-      <ProTimeline eyebrow="Milestones" title="How Pacific grew" items={MILESTONES} tone="stone" />
+      <ProTimeline
+        eyebrow="Milestones"
+        title="How Pacific grew"
+        items={MILESTONES}
+        tone="stone"
+      />
 
       <ProSplit
         eyebrow="The plant"
@@ -140,7 +151,12 @@ export default function AboutPage() {
         people={TEAM}
       />
 
-      <ProSteps eyebrow="What we stand for" title="Four things to hold us to" steps={VALUES} tone="stone" />
+      <ProSteps
+        eyebrow="What we stand for"
+        title="Four things to hold us to"
+        steps={VALUES}
+        tone="stone"
+      />
 
       <ProCertificates />
 
@@ -155,6 +171,6 @@ export default function AboutPage() {
         ]}
         image="/videos/team-section-poster.jpg"
       />
-    </main>
+    </div>
   );
 }

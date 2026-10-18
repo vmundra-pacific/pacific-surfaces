@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
-import { preload as reactPreload } from "react-dom";
 import { client } from "@/sanity/lib/client";
+import { sanityProxyUrl } from "@/lib/sanity-img";
 import {
   homepageCollectionsQuery,
   signatureProjectsQuery,
@@ -97,19 +97,13 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  // LCP optimisation — emit <link rel="preload"> hints during SSR for the
-  // first parallax frame so the browser starts fetching it in parallel
-  // with the JS bundle, instead of waiting for hydration. Drops mobile
-  // LCP from ~3.2s to ~1.5s on 4G. AVIF + JPG fallback so the right
-  // format wins for whichever browser the user is on.
-  // Only preload AVIF — modern browsers (~95% support) will use it,
-  // and the JPG fallback inside HeroScrollCanvas's loader handles the
-  // rare browser without AVIF. Preloading both means the JPG downloads
-  // and never paints, triggering "preloaded but not used" warnings.
-  reactPreload("/hero-frames/frame-0001.avif", {
-    as: "image",
-    fetchPriority: "high",
-  });
+  // LCP: the first parallax frame is not preloaded from here. The hero
+  // poster in HeroScrollCanvas is a <picture> (AVIF, JPG fallback) in the
+  // server HTML with fetchPriority="high", so the preload scanner starts
+  // it in parallel with the JS bundle, and the canvas loader reuses that
+  // same file. A preload() called here was also written into this page's
+  // RSC payload, so every page that prefetched "/" (the header logo link)
+  // downloaded the frame without showing it.
 
   // Fetch all homepage data from Sanity in parallel.
   // (featuredDealersQuery removed temporarily — DealerLocator section
@@ -132,9 +126,15 @@ export default async function HomePage() {
   // Currently the only multi-clip section that surfaces editor-supplied
   // videos is signature projects; extend this array as more
   // video-driven sections come online.
+  // Each URL must be exactly the one the visible <video> plays, or the
+  // cache never matches: SignatureProjects plays clips through
+  // sanityProxyUrl (/api/cdn/files/..., no Sanity cookie), so the
+  // prefetch goes through it too.
   const prefetchVideoUrls: string[] = [
     ...(projects ?? [])
-      .map((p: { videoUrl?: string | null }) => p.videoUrl)
+      .map((p: { videoUrl?: string | null }) =>
+        p.videoUrl ? sanityProxyUrl(p.videoUrl) : p.videoUrl
+      )
       .filter((u: string | null | undefined): u is string => !!u),
   ];
 
@@ -149,7 +149,7 @@ export default async function HomePage() {
       {/* Pinned left-middle section nav. Stays visible for the entire
           homepage scroll, highlights whichever section is centred in
           viewport, and lets the user click any chapter number to jump
-          straight there. Hidden below 1024px wide. */}
+          straight there. Hidden below 1280px wide (xl). */}
       <HomepageSectionNav />
       <HeroScrollCanvas />
       {/* StatementSection moved up to sit immediately after the

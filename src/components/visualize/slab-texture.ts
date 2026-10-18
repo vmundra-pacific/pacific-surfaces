@@ -98,8 +98,11 @@ export async function renderSlabTile(
  *
  * Non-Sanity URLs (data: URLs from SVG fallback, blob: URLs, demo-room
  * paths) pass through unchanged.
+ *
+ * Exported so the inspector's slab preview can ask for the very same
+ * address, and the browser downloads the master once, not twice.
  */
-function rewriteToProxy(src: string): string {
+export function rewriteToProxy(src: string): string {
   return src.replace(/^https?:\/\/cdn\.sanity\.io\//, "/api/cdn/");
 }
 

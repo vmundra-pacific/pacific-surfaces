@@ -7,7 +7,15 @@ import {
   CERTIFICATION_LINKS,
   type CertificationLink,
 } from "@/data/certifications";
-import { CertificateViewer } from "@/components/certificates/CertificateViewer";
+// The certificate viewer renders nothing until a badge is clicked, so
+// its code is split out of the homepage bundle. It is fetched once the
+// page is idle, or sooner when a badge is hovered, focused or touched,
+// so it opens on the click exactly as before.
+import {
+  LazyCertificateViewer,
+  useWarmCertificateViewerWhenIdle,
+  warmCertificateViewer,
+} from "@/components/certificates/LazyCertificateViewer";
 
 /* Certification badges. Each entry references an image file under
  * /public/certifications/. Drop the relevant PNG/SVG at the listed
@@ -106,8 +114,9 @@ function BadgeTile({
 
 export function TrustStrip() {
   const [openCert, setOpenCert] = useState<CertificationLink["id"] | null>(
-    null,
+    null
   );
+  useWarmCertificateViewerWhenIdle();
 
   return (
     <motion.div
@@ -162,10 +171,15 @@ export function TrustStrip() {
                 key={b.title}
                 type="button"
                 onClick={() => setOpenCert(b.cert)}
-                aria-label={`${b.title} — ${link.label}`}
+                onPointerEnter={warmCertificateViewer}
+                onFocus={warmCertificateViewer}
                 className="flex flex-col items-center transition-opacity duration-300 hover:opacity-75 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#9AA8B6]"
               >
                 {body}
+                {/* No aria-label: the badge's own text names the button
+                    (so voice control can say what is on screen), and
+                    this hidden suffix says what pressing it does. */}
+                <span className="sr-only"> — {link.label}</span>
               </button>
             );
           })}
@@ -173,7 +187,10 @@ export function TrustStrip() {
       </div>
 
       {openCert && (
-        <CertificateViewer cert={openCert} onClose={() => setOpenCert(null)} />
+        <LazyCertificateViewer
+          cert={openCert}
+          onClose={() => setOpenCert(null)}
+        />
       )}
     </motion.div>
   );

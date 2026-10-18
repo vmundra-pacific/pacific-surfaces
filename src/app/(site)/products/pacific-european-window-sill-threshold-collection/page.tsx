@@ -18,14 +18,28 @@ const DESCRIPTION =
   "Granite and quartz window sills, window thresholds and door thresholds, cut to size and edge-bevelled. Popular sizes, crate weights and areas, colours, finishes, packing, MOQ and HS codes.";
 
 export const metadata: Metadata = {
-  title: `${COLLECTION} | Pacific Surfaces`,
+  // The collection's name less its leading "Pacific", so the search
+  // result fits without cutting the brand; the page's H1 is unchanged.
+  title: `${COLLECTION.replace(/^Pacific /, "")} | Pacific Surfaces`,
   description: DESCRIPTION,
   alternates: { canonical: PATH },
+  // A page-level openGraph replaces the root layout's wholesale, so the
+  // type, site name and locale set there are repeated here.
   openGraph: {
+    type: "website",
+    siteName: "Pacific Surfaces",
+    locale: "en_IN",
     title: `${COLLECTION} | Pacific Surfaces`,
     description: DESCRIPTION,
     url: PATH,
-    images: [{ url: SILLS_PAGE.hero.image, width: 1536, height: 1024, alt: SILLS_PAGE.hero.alt }],
+    images: [
+      {
+        url: SILLS_PAGE.hero.image,
+        width: 1536,
+        height: 1024,
+        alt: SILLS_PAGE.hero.alt,
+      },
+    ],
   },
 };
 

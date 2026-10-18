@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useId, useState } from "react";
+import { motion } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
 import { TextReveal } from "@/components/ui/text-reveal";
 import { safeJsonLd } from "@/lib/escape";
@@ -16,7 +16,9 @@ import { safeJsonLd } from "@/lib/escape";
  *
  * Visual: editorial accordion. Question is always visible; answer
  * unfolds on click with a smooth height animation. Plus/minus icon
- * indicator. Brand-consistent typography.
+ * indicator. Brand-consistent typography. Every answer stays mounted
+ * (a closed one folds to zero height), so all of them are in the
+ * page's HTML, matching the schema.
  */
 export interface FAQItem {
   q: string;
@@ -34,6 +36,9 @@ interface FAQProps {
   theme?: "light" | "dark";
   /** Section id for scroll anchors. */
   id?: string;
+  /** Emit the FAQPage JSON-LD. Turn off where another page already
+   *  carries the same questions as FAQPage. Default on. */
+  schema?: boolean;
 }
 
 export function FAQ({
@@ -42,8 +47,10 @@ export function FAQ({
   heading = "Frequently Asked Questions",
   theme = "light",
   id,
+  schema = true,
 }: FAQProps) {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
+  const uid = useId();
 
   if (!questions || questions.length === 0) return null;
 
@@ -82,15 +89,13 @@ export function FAQ({
           {questions.map((item, i) => {
             const isOpen = openIdx === i;
             return (
-              <div
-                key={i}
-                className={`border-b ${dividerColor}`}
-              >
+              <div key={i} className={`border-b ${dividerColor}`}>
                 <button
                   type="button"
                   onClick={() => setOpenIdx(isOpen ? null : i)}
                   className="w-full flex items-start justify-between gap-6 py-5 sm:py-6 text-left group"
                   aria-expanded={isOpen}
+                  aria-controls={`${uid}-faq-${i}`}
                 >
                   <span
                     className={`text-base sm:text-lg font-medium leading-snug ${questionColor}`}
@@ -110,24 +115,24 @@ export function FAQ({
                     )}
                   </span>
                 </button>
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      key="content"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      className="overflow-hidden"
-                    >
-                      <p
-                        className={`pb-5 sm:pb-7 pr-10 text-sm sm:text-base font-light leading-relaxed ${answerColor}`}
-                      >
-                        {item.a}
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <motion.div
+                  id={`${uid}-faq-${i}`}
+                  initial={false}
+                  animate={{
+                    height: isOpen ? "auto" : 0,
+                    opacity: isOpen ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  className="overflow-hidden"
+                  aria-hidden={!isOpen}
+                  inert={!isOpen}
+                >
+                  <p
+                    className={`pb-5 sm:pb-7 pr-10 text-sm sm:text-base font-light leading-relaxed ${answerColor}`}
+                  >
+                    {item.a}
+                  </p>
+                </motion.div>
               </div>
             );
           })}
@@ -135,23 +140,25 @@ export function FAQ({
       </div>
 
       {/* JSON-LD FAQPage schema for Google rich results */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: safeJsonLd({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: questions.map((q) => ({
-              "@type": "Question",
-              name: q.q,
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: q.a,
-              },
-            })),
-          }),
-        }}
-      />
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: safeJsonLd({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: questions.map((q) => ({
+                "@type": "Question",
+                name: q.q,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: q.a,
+                },
+              })),
+            }),
+          }}
+        />
+      )}
     </section>
   );
 }

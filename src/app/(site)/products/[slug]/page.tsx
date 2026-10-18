@@ -14,9 +14,14 @@ import { FAQ } from "@/components/sections/FAQ";
 import { getFaqs, type FaqPageKey } from "@/lib/faqs";
 import { zoomImageUrl } from "@/lib/zoom-image";
 import { collectionPath } from "@/lib/collection-route";
+import { clipAtWord, plainText, type PortableBlock } from "@/lib/portable-text";
 import { BreadcrumbList, ProductSchema } from "@/components/global/JsonLd";
+import { formatCollection } from "@/components/catalogue/labels";
+import { REFILE } from "@/data/catalogue-refile";
+import { isOfferedThickness, normalizeThickness } from "@/data/sanityToSlab";
 import {
   CATEGORY_PAGES,
+  heroPosterSrc,
   isCategorySlug,
   resolveCategoryPage,
 } from "../_lib/category";
@@ -173,6 +178,103 @@ const getProduct = cache((slug: string) =>
   client.fetch(productBySlugQuery, { slug })
 );
 
+/** The product fields the metadata and the JSON-LD read. */
+interface ProductFacts {
+  name: string;
+  /** Portable Text in Sanity (schemas/product.ts), not a string. */
+  description?: string | PortableBlock[] | null;
+  productType?: string | null;
+  category?: { name?: string; slug?: { current?: string } } | null;
+  collection?: { name?: string; slug?: { current?: string } } | null;
+}
+
+// Material classification for the Product schema and the metadata
+// fallbacks: a generic stone-industry term Google understands. Keyed
+// first by the product's category (or collection) slug, then by its
+// Sanity productType.
+const MATERIAL_BY_SLUG: Record<string, string> = {
+  quartz: "Engineered Quartz",
+  granites: "Granite",
+  granite: "Granite",
+  "semi-precious": "Semi-Precious Stones",
+  exotic: "Exotic Stone",
+  integra: "Engineered Quartz",
+  "centrepiece-couture": "Engineered Quartz",
+  "facades-and-finishes": "Natural Stone",
+};
+const MATERIAL_BY_TYPE: Record<string, string> = {
+  "quartz-slab": "Engineered Quartz",
+  "granite-slab": "Granite",
+  "semi-precious": "Semi-Precious Stones",
+  "quartz-sink": "Engineered Quartz",
+  "granite-finish": "Natural Stone",
+};
+
+/**
+ * Material and collection label for a product. Products the site
+ * re-files (data/catalogue-refile) use the owner's filing, as the
+ * catalogue does; the collection goes through formatCollection so the
+ * label matches the page ("Vision" reads "Eclipse"). Falls back to the
+ * literal category name when no mapping fits.
+ */
+function productFacts(product: ProductFacts, slug: string) {
+  const refile = REFILE[slug];
+  const slugKey = (
+    product.category?.slug?.current ??
+    product.collection?.slug?.current ??
+    ""
+  ).toLowerCase();
+  const material =
+    (refile?.productType ? MATERIAL_BY_TYPE[refile.productType] : undefined) ??
+    MATERIAL_BY_SLUG[slugKey] ??
+    (product.productType ? MATERIAL_BY_TYPE[product.productType] : undefined) ??
+    product.category?.name ??
+    undefined;
+  const collectionName = refile?.collection ?? product.collection?.name;
+  const collectionLabel = collectionName
+    ? formatCollection(collectionName)
+    : undefined;
+  return { material, collectionLabel };
+}
+
+/** "Absolute Black Granite", unless the name already says the material
+ *  ("White Quartz" stays as it is). Reads in the singular: "Blue Agate
+ *  Semi-Precious Stone". */
+function nameWithMaterial(name: string, material?: string): string {
+  const key = material?.split(" ").pop()?.toLowerCase().replace(/s$/, "");
+  return material && key && !name.toLowerCase().includes(key)
+    ? `${name} ${material.replace(/(stone|surface)s$/i, "$1")}`
+    : name;
+}
+
+/** Fallback <title> for a product with no seoTitle: name and material,
+ *  then the brand while it fits in about 60 characters. */
+function productTitle(product: ProductFacts, slug: string): string {
+  const { material } = productFacts(product, slug);
+  const named = nameWithMaterial(product.name, material);
+  const options = [`${named} — Pacific Surfaces`, named];
+  return (
+    options.find((t) => t.length <= 60) ?? `${product.name} — Pacific Surfaces`
+  );
+}
+
+/** Fallback meta description for a product with no seoDescription: the
+ *  product's own description, else one built from its material and
+ *  collection. Never the same boilerplate on every product. */
+function productDescription(product: ProductFacts, slug: string): string {
+  const own = plainText(product.description);
+  if (own) return clipAtWord(own, 155);
+  const { material, collectionLabel } = productFacts(product, slug);
+  const named = nameWithMaterial(product.name, material?.toLowerCase());
+  const from = collectionLabel
+    ? `, from the ${collectionLabel} collection`
+    : "";
+  // "specifications", not "slab format": basins, sinks and vanity
+  // pieces use this fallback too, and every product page has the specs
+  // strip and both CTAs.
+  return `${named} by Pacific Surfaces${from}. See its specifications, then order a sample or find a dealer.`;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
@@ -182,11 +284,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!data) return { title: "Collection Not Found" };
     const { collection, config } = data;
     const label = config.displayName ?? collection.name;
+    // A Sanity collection's description is Portable Text: flatten it,
+    // or the meta tag would carry block objects.
+    const ownDescription = plainText(collection.description);
     return {
       title: collection.seoTitle || `${label} — Pacific Surfaces`,
       description:
         collection.seoDescription ||
-        collection.description ||
+        (ownDescription ? clipAtWord(ownDescription, 155) : null) ||
         `Browse the ${label} collection from Pacific Surfaces.`,
       alternates: { canonical: `/products/${slug}` },
     };
@@ -196,10 +301,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProduct(slug);
   if (!product) return { title: "Product Not Found" };
   return {
-    title: product.seoTitle || `${product.name} — Pacific Surfaces`,
-    description:
-      product.seoDescription ||
-      `Discover ${product.name} from Pacific Surfaces. Premium quartz and granite surfaces for modern spaces.`,
+    title: product.seoTitle || productTitle(product, slug),
+    description: product.seoDescription || productDescription(product, slug),
     keywords: product.seoKeywords,
     alternates: { canonical: `/products/${slug}` },
   };
@@ -225,15 +328,14 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     const data = await getCategoryPage(slug);
     if (!data) notFound();
 
-    // LCP: when the category hero ships an explicit poster still
-    // (posterOnly heroes like Ecosurfaces / Vanity), emit a
-    // high-priority <link rel="preload" as="image"> during SSR —
-    // same pattern as the PDP slab preload below.
-    if (data.config.hero?.posterSrc) {
-      reactPreload(data.config.hero.posterSrc, {
-        as: "image",
-        fetchPriority: "high",
-      });
+    // LCP: the hero's still — the poster of a video hero, or the
+    // image of a posterOnly one (Ecosurfaces / Vanity) — is the first
+    // large paint, so emit a high-priority <link rel="preload"
+    // as="image"> for it during SSR, same pattern as the PDP slab
+    // preload below. Heroes with no still (posterSrc "") get none.
+    const heroPoster = heroPosterSrc(data.config.hero);
+    if (heroPoster) {
+      reactPreload(heroPoster, { as: "image", fetchPriority: "high" });
     }
     // Map known category slugs to FAQ page keys. If a category
     // doesn't have FAQs yet we just don't render the section. We
@@ -307,39 +409,55 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     });
   }
 
-  const categoryName =
-    product.collection?.name ?? product.category?.name ?? "Products";
-  // Collection slugs are not routes (the quartz series live under
-  // /products/quartz/<series>); collectionPath maps them so the
-  // breadcrumb and its JSON-LD don't 404.
-  const rawCrumbSlug =
-    product.collection?.slug?.current ??
-    product.category?.slug?.current ??
-    slug;
-  const categoryPathForCrumb = product.collection?.slug?.current
-    ? collectionPath(rawCrumbSlug)
-    : `/products/${rawCrumbSlug}`;
+  const { material, collectionLabel } = productFacts(product, slug);
 
-  // Material classification for Product schema. Maps the product's
-  // category to a generic stone-industry term Google understands. Falls
-  // back to the literal category name if we don't have a mapping.
-  const materialMap: Record<string, string> = {
-    quartz: "Engineered Quartz",
-    granites: "Granite",
-    granite: "Granite",
-    "semi-precious": "Semi-Precious Stones",
-    exotic: "Exotic Stone",
-    integra: "Engineered Quartz",
-    "centrepiece-couture": "Engineered Quartz",
-    "facades-and-finishes": "Natural Stone",
-  };
-  const categorySlugLower = (
-    product.category?.slug?.current ??
-    product.collection?.slug?.current ??
-    ""
-  ).toLowerCase();
-  const material =
-    materialMap[categorySlugLower] ?? product.category?.name ?? undefined;
+  // BreadcrumbList mirrors the visible breadcrumb in ProductDetail: the
+  // collection crumb only when the product has a collection, labelled
+  // with formatCollection and linked through collectionPath (collection
+  // slugs are not routes: the quartz series live under
+  // /products/quartz/<series>). A collection with no page of its own
+  // maps to /products, already crumb 2, so it is left out here.
+  const collectionCrumbPath = product.collection?.slug?.current
+    ? collectionPath(product.collection.slug.current)
+    : null;
+  const collectionCrumb =
+    product.collection?.name &&
+    collectionCrumbPath &&
+    collectionCrumbPath !== "/products"
+      ? {
+          name: formatCollection(product.collection.name),
+          url: collectionCrumbPath,
+        }
+      : null;
+
+  // Description as text: Sanity's is Portable Text, which JSON-LD can't
+  // carry. An empty seoDescription falls through.
+  const ownDescription = plainText(product.description);
+  const schemaDescription =
+    product.seoDescription?.trim() ||
+    (ownDescription ? clipAtWord(ownDescription, 500) : null) ||
+    `${product.name} from Pacific Surfaces — premium ${material ?? "stone"} surface.`;
+
+  // Spec lines from what Sanity holds and the page shows (Format,
+  // Thicknesses, Finishes Available). Never ProductDetail's display
+  // fallbacks for an empty field.
+  const thicknesses = [
+    ...new Set(
+      ((product.thickness ?? []) as string[])
+        .map(normalizeThickness)
+        .filter(isOfferedThickness)
+    ),
+  ];
+  const specs = [
+    ...(product.size?.trim()
+      ? [{ name: "Format", value: product.size.trim() }]
+      : []),
+    ...thicknesses.map((value) => ({ name: "Thickness", value })),
+    ...((product.finishes ?? []) as string[]).map((value) => ({
+      name: "Finish",
+      value,
+    })),
+  ];
 
   return (
     <>
@@ -347,7 +465,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
         items={[
           { name: "Home", url: "/" },
           { name: "Products", url: "/products" },
-          { name: categoryName, url: categoryPathForCrumb },
+          ...(collectionCrumb ? [collectionCrumb] : []),
           { name: product.name, url: `/products/${slug}` },
         ]}
       />
@@ -356,14 +474,11 @@ export default async function ProductOrCategoryPage({ params }: Props) {
         url={`/products/${slug}`}
         image={product.mainImage}
         additionalImages={product.gallery}
-        description={
-          product.seoDescription ??
-          product.description ??
-          `${product.name} from Pacific Surfaces — premium ${material ?? "stone"} surface.`
-        }
+        description={schemaDescription}
         material={material}
-        category={categoryName}
+        category={collectionLabel ?? product.category?.name}
         sku={slug}
+        properties={specs}
       />
       <ProductDetail product={product} />
     </>

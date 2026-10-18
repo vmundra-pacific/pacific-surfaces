@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface TextRevealProps {
@@ -22,23 +22,30 @@ export function TextReveal({
 
   const words = children.split(" ");
 
+  // A real space between the word spans keeps the heading's text
+  // reading as words ("Frequently Asked Questions") for crawlers and
+  // copy-paste. The Tag is a flex container, which does not render
+  // whitespace between its items, so the gap is still the margin alone.
   return (
     <Tag ref={ref} className={cn("flex flex-wrap", className)}>
       {words.map((word, i) => (
-        <span key={i} className="overflow-hidden inline-block mr-[0.3em]">
-          <motion.span
-            className="inline-block"
-            initial={{ y: "110%" }}
-            animate={isInView ? { y: "0%" } : { y: "110%" }}
-            transition={{
-              duration: 0.55,
-              ease: [0.25, 0.4, 0.25, 1],
-              delay: delay + i * 0.04,
-            }}
-          >
-            {word}
-          </motion.span>
-        </span>
+        <Fragment key={i}>
+          <span className="overflow-hidden inline-block mr-[0.3em]">
+            <motion.span
+              className="inline-block"
+              initial={{ y: "110%" }}
+              animate={isInView ? { y: "0%" } : { y: "110%" }}
+              transition={{
+                duration: 0.55,
+                ease: [0.25, 0.4, 0.25, 1],
+                delay: delay + i * 0.04,
+              }}
+            >
+              {word}
+            </motion.span>
+          </span>
+          {i < words.length - 1 && " "}
+        </Fragment>
       ))}
     </Tag>
   );
@@ -50,7 +57,11 @@ interface LineRevealProps {
   delay?: number;
 }
 
-export function LineReveal({ children, className, delay = 0 }: LineRevealProps) {
+export function LineReveal({
+  children,
+  className,
+  delay = 0,
+}: LineRevealProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-40px" });
 

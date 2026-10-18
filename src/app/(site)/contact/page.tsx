@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ContactContent } from "@/components/sections/ContactContent";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 import { freshClient } from "@/sanity/lib/client";
 import { allDealersQuery } from "@/sanity/lib/queries";
 
@@ -33,5 +34,15 @@ export default async function ContactPage() {
   // No Suspense here: ContactContent keeps its one useSearchParams in a
   // boundary of its own, so the page's copy, H1 and factory address are
   // in the server HTML.
-  return <ContactContent dealers={dealers} />;
+  return (
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Contact", url: "/contact" },
+        ]}
+      />
+      <ContactContent dealers={dealers} />
+    </>
+  );
 }

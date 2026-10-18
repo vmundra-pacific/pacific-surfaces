@@ -4,7 +4,11 @@ import { BreadcrumbList } from "@/components/global/JsonLd";
 import { ShopClient, type ShopProduct } from "@/components/shop/ShopClient";
 import { client } from "@/sanity/lib/client";
 import { catalogueProductsQuery } from "@/sanity/lib/queries";
-import { VANITY_TOP_PRODUCTS, isListedInStore, storeSection } from "@/data/store";
+import {
+  VANITY_TOP_PRODUCTS,
+  isListedInStore,
+  storeSection,
+} from "@/data/store";
 
 /**
  * /shop — the store.
@@ -16,9 +20,9 @@ import { VANITY_TOP_PRODUCTS, isListedInStore, storeSection } from "@/data/store
  */
 
 export const metadata: Metadata = {
-  title: "Store — Pacific Surfaces",
+  title: "Vanities, Vanity Tops & Quartz Sinks | Pacific Store",
   description:
-    "Order Pacific vanity tops, vanities and integrated quartz sinks. Add to your cart, place the order, and our team will contact you to confirm quantities, freight and price.",
+    "Order Pacific vanity tops, vanities and integrated quartz sinks. Place the order and our team contacts you to confirm quantities, freight and price.",
   alternates: { canonical: "/shop" },
 };
 

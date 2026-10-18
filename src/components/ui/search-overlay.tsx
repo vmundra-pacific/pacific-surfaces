@@ -142,6 +142,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             {/* Close button */}
             <button
               onClick={onClose}
+              aria-label="Close search"
               className="absolute top-8 right-8 p-2 text-[#14140f]/55 hover:text-[#14140f] transition-colors"
             >
               <X className="w-6 h-6" />
@@ -161,6 +162,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  aria-label="Search"
                   placeholder="Search surfaces, vanity tops, sills…"
                   className="w-full bg-transparent text-3xl font-light tracking-wide text-[#14140f] placeholder-[#14140f]/35 border-b-2 border-[#14140f]/20 pb-4 pl-10 outline-none transition-all duration-300 focus:border-[#14140f]/60"
                 />
@@ -170,6 +172,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                       setQuery("");
                       inputRef.current?.focus();
                     }}
+                    aria-label="Clear search"
                     className="absolute right-0 top-1/2 -translate-y-1/2 text-[#14140f]/55 hover:text-[#14140f] transition-colors"
                   >
                     <X className="w-5 h-5" />
@@ -210,7 +213,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                                 <div className="text-[#14140f] font-medium text-base group-hover:text-[#14140f] truncate">
                                   {p.name}
                                 </div>
-                                <div className="text-xs text-[#14140f]/55 mt-0.5">{p.group}</div>
+                                <div className="text-xs text-[#14140f]/55 mt-0.5">
+                                  {p.group}
+                                </div>
                               </div>
                               <ArrowRight className="w-4 h-4 text-[#14140f]/55 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
                             </Link>

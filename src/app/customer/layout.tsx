@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CustomerSidebar from "@/components/customer/CustomerSidebar";
+import AuthProvider from "@/components/providers/AuthProvider";
 import { auth } from "@/auth";
 
 /**
@@ -37,20 +38,26 @@ export default async function CustomerLayout({
 }) {
   const session = await auth();
 
+  // The next-auth SessionProvider lives here rather than in the root
+  // layout: the portal is the only part of the site that uses auth
+  // (signIn in LoginForm, signOut in CustomerSidebar), so public pages
+  // no longer fetch /api/auth/session. Both branches below are wrapped,
+  // so the login form keeps the same session sync as the portal.
+
   // Signed out, the only thing rendered here is the login page, which
   // draws its own photograph and white card — so it stays outside the
   // portal's dark theme (data-portal-dark would turn the card's type white).
   if (!session?.user) {
-    return <>{children}</>;
+    return <AuthProvider>{children}</AuthProvider>;
   }
 
   return (
-    <div data-portal-dark className="flex min-h-screen bg-black text-white">
-      <CustomerSidebar />
+    <AuthProvider>
+      <div data-portal-dark className="flex min-h-screen bg-black text-white">
+        <CustomerSidebar />
 
-      <main className="flex-1 p-8 lg:p-12">
-        {children}
-      </main>
-    </div>
+        <main className="flex-1 p-8 lg:p-12">{children}</main>
+      </div>
+    </AuthProvider>
   );
 }

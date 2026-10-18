@@ -103,7 +103,11 @@ export const SOCIAL_PROFILES = {
   youtube: "https://www.youtube.com/channel/UCWeTO3mX6zInSev42K9h5Fw",
 } as const;
 
-const LOGO_URL = `${SITE_URL}/logos/pacific-surfaces-logo-black.png`;
+export const LOGO_URL = `${SITE_URL}/logos/pacific-surfaces-logo-black.png`;
+
+/** The year Pacific began, in granite, as the About page and
+ *  data/our-story print it. */
+export const FOUNDING_YEAR = "2000";
 
 /**
  * The site-wide JSON-LD: one graph of the brand, the factory and the
@@ -132,6 +136,9 @@ export function siteGraph() {
         image: { "@id": LOGO_ID },
         description:
           "Engineered quartz and granite surfaces for kitchens, bathrooms and architecture, made in India and shipped to 45+ countries.",
+        foundingDate: FOUNDING_YEAR,
+        // The factory below is a LocalBusiness, which is also a Place.
+        location: { "@id": FACTORY_ID },
         email: EMAIL,
         telephone: SALES_PHONE.intl,
         contactPoint: [
@@ -151,7 +158,8 @@ export function siteGraph() {
         name: FACTORY.name,
         legalName: FACTORY.name,
         alternateName: ALTERNATE_NAME,
-        description: "The quartz factory and experience centre of Pacific Surfaces.",
+        description:
+          "The quartz factory and experience centre of Pacific Surfaces.",
         url: `${SITE_URL}/contact`,
         image: `${SITE_URL}/images/india-home/bretonstone-robot.webp`,
         logo: { "@id": LOGO_ID },

@@ -1,6 +1,10 @@
 export const metadata = {
   title: "Pacific Surfaces — Studio",
   description: "Content management for Pacific Surfaces",
+  // robots.txt disallows /studio/ but not the bare /studio, so the CMS
+  // shell says noindex itself. Leave robots.txt as it is until Search
+  // Console shows /studio gone: a blocked URL's noindex is never read.
+  robots: { index: false, follow: false },
 };
 
 /**

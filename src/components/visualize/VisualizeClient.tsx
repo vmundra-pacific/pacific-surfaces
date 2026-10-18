@@ -19,6 +19,7 @@ import { DemoRoomStrip } from "./DemoRoomStrip";
 import { RoomCanvas, type RoomCanvasHandle } from "./RoomCanvas";
 import { SlabPicker } from "./SlabPicker";
 import { FavoriteDesignsPanel, useFavoriteSlabs } from "./FavoriteDesignsPanel";
+import { rewriteToProxy } from "./slab-texture";
 import type { SurfaceCandidate } from "./surface-detection";
 import type { DemoRoom, DemoSurface } from "./demo-rooms";
 import { useDepth, useSegment } from "./use-segment";
@@ -420,7 +421,10 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
   // -------------------- Intake screen --------------------
   if (!imageSrc) {
     return (
-      <main data-over-media className="min-h-screen bg-[#0a1620] text-pacific-light">
+      <main
+        data-over-media
+        className="min-h-screen bg-[#0a1620] text-pacific-light"
+      >
         <div
           className="pointer-events-none fixed inset-0 opacity-60"
           style={{
@@ -572,12 +576,18 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
 
   // -------------------- Workspace screen --------------------
   return (
-    <main data-over-media className="min-h-screen lg:h-screen w-screen lg:overflow-hidden bg-[#0a1620] text-pacific-light flex flex-col">
+    <main
+      data-over-media
+      className="min-h-screen lg:h-screen w-screen lg:overflow-hidden bg-[#0a1620] text-pacific-light flex flex-col"
+    >
       {/* Top bar */}
       <header className="shrink-0 h-14 px-4 md:px-6 flex items-center justify-between border-b border-white/8 bg-pacific-dark/60 backdrop-blur-xl">
         <div className="flex items-center gap-5">
+          {/* aria-labels here and on Manual surface / Export: their words
+              are hidden below sm, which left icon-only buttons. */}
           <button
             onClick={handleReset}
+            aria-label="New scene"
             className="inline-flex items-center gap-2 text-pacific-mid hover:text-pacific-light transition-colors text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -605,6 +615,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
           <button
             onClick={() => setPendingManualTap({ x: 0.5, y: 0.5 })}
             disabled={!imageSrc || !!pendingManualTap}
+            aria-label="Manual surface"
             className="inline-flex items-center gap-1.5 text-pacific-mid hover:text-pacific-light text-[10px] tracking-[.2em] uppercase px-3 py-1.5 border border-white/10 rounded-full hover:border-white/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Box className="w-3 h-3" />
@@ -620,6 +631,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
           <button
             onClick={handleExport}
             disabled={!activeRegion || !focusedSlab}
+            aria-label="Export image"
             className="inline-flex items-center gap-1.5 bg-pacific-light text-pacific-dark text-[10px] tracking-[.2em] uppercase px-3 py-1.5 rounded-full hover:bg-white disabled:opacity-40 disabled:hover:bg-pacific-light transition-colors"
           >
             <Download className="w-3 h-3" />
@@ -1035,9 +1047,11 @@ function InspectorContents({
           <>
             <div className="relative rounded-xl overflow-hidden aspect-[4/3] ring-1 ring-white/10 mb-4">
               {slab.photoUrl ? (
+                // The same address the canvas loads the slab from
+                // (slab-texture.ts), so the master is downloaded once.
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={slab.photoUrl}
+                  src={rewriteToProxy(slab.photoUrl)}
                   alt={`${slab.name} slab preview — Pacific Surfaces`}
                   className="absolute inset-0 w-full h-full object-cover"
                 />

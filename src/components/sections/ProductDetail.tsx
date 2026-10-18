@@ -9,7 +9,6 @@ import {
   CERTIFICATION_LINKS,
   type CertificationLink,
 } from "@/data/certifications";
-import { CertificateViewer } from "@/components/certificates/CertificateViewer";
 import { preload } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -45,6 +44,16 @@ import WorktopDetailTabs from "@/components/sections/WorktopDetailTabs";
 import { formatCollection } from "@/components/catalogue/labels";
 import { REFILE } from "@/data/catalogue-refile";
 import { collectionPath } from "@/lib/collection-route";
+
+// The certificate viewer renders nothing until a certification tile is
+// clicked, so its code is split out of the page bundle. It is fetched
+// once the page is idle, or sooner when a tile is hovered, focused or
+// touched, so it opens on the click exactly as before.
+import {
+  LazyCertificateViewer,
+  useWarmCertificateViewerWhenIdle,
+  warmCertificateViewer,
+} from "@/components/certificates/LazyCertificateViewer";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PortableTextBlock = any;
@@ -153,35 +162,14 @@ export function ProductDetail({ product }: { product: Product }) {
 
   // ---- Image sets ----
   const slabImage = product.mainImage || "";
-  const galleryImages = product.gallery?.length ? product.gallery : [];
   const sceneImages = product.roomScenes?.length ? product.roomScenes : [];
 
-  // Preload the high-priority hero variants on mount so the browser
-  // starts fetching them at first paint — without these the slab
-  // would only begin downloading when Next/Image resolves the
-  // <Image> JSX a tick later, which is the lag the PDP was showing
-  // ("zoom square loads quickly, main slab/thumbs load slow"). The
-  // <link rel="preload"> tags carry fetchPriority="high" so they win
-  // bandwidth against below-the-fold images.
-  //
-  // Done at module-eval / first-render time. React DOM's `preload`
-  // is idempotent and safe to call on every render (no useEffect
-  // needed) — see https://react.dev/reference/react-dom/preload.
-  if (slabImage) {
-    const heroSrc = sanityImg(slabImage, { w: 1600 }) ?? slabImage;
-    preload(heroSrc, { as: "image", fetchPriority: "high" });
-    // The thumbnail variant is small enough to piggyback in parallel.
-    const thumbSrc = sanityImg(slabImage, { w: 280 }) ?? slabImage;
-    preload(thumbSrc, { as: "image", fetchPriority: "high" });
-  }
-  if (galleryImages[0]) {
-    const closeup = sanityImg(galleryImages[0], { w: 280 }) ?? galleryImages[0];
-    preload(closeup, { as: "image", fetchPriority: "high" });
-  }
-  if (sceneImages[0]) {
-    const scene = sanityImg(sceneImages[0], { w: 280 }) ?? sceneImages[0];
-    preload(scene, { as: "image", fetchPriority: "high" });
-  }
+  // No render-time preload() of the hero or thumbnails here. The
+  // hero <Image priority> already emits the right
+  // <link rel="preload" imageSrcSet>; hand-built preloads of
+  // sanityImg(..., { w: 1600 / 280 }) never matched what the image
+  // loader actually requests (it rewrites w and q), so they were four
+  // extra high-priority downloads racing the real slab.
 
   // Build thumbnail list (MSI-style: Slab → Close Up → Vignettes → Room Scenes)
   // Memoised so the array identity is stable across the per-mousemove
@@ -972,6 +960,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <button
                 onClick={() => setRoomScenesOpen(false)}
                 className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                aria-label="Close room scenes"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1427,7 +1416,11 @@ export function ProductDetail({ product }: { product: Product }) {
                       )}
                       <SpecRow
                         label={mitredOnly ? "Edge Profile" : "Edge Profiles"}
-                        value={mitredOnly ? "Mitred only" : "Straight, Eased, Bevel, Bullnose, Ogee"}
+                        value={
+                          mitredOnly
+                            ? "Mitred only"
+                            : "Straight, Eased, Bevel, Bullnose, Ogee"
+                        }
                       />
                       {/* Water absorption + Mohs hardness vary by
                           category — quartz is engineered and far
@@ -1885,6 +1878,7 @@ function CertBadge({
   cert?: CertificationLink["id"];
 }) {
   const [open, setOpen] = useState(false);
+  useWarmCertificateViewerWhenIdle();
   const body = (
     <>
       <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center p-3 shadow-[0_2px_12px_rgba(0,0,0,.25)]">
@@ -1907,12 +1901,16 @@ function CertBadge({
       <button
         type="button"
         onClick={() => setOpen(true)}
+        onPointerEnter={warmCertificateViewer}
+        onFocus={warmCertificateViewer}
         aria-label={`${name} — ${link.label}`}
         className="flex flex-col items-center gap-3 transition-opacity duration-300 hover:opacity-75 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
       >
         {body}
       </button>
-      {open && <CertificateViewer cert={cert} onClose={() => setOpen(false)} />}
+      {open && (
+        <LazyCertificateViewer cert={cert} onClose={() => setOpen(false)} />
+      )}
     </>
   );
 }
@@ -2468,6 +2466,7 @@ function CompareSliderSection({
                 <button
                   onClick={() => setPickerOpen(false)}
                   className="w-9 h-9 rounded-full hover:bg-pacific-light flex items-center justify-center transition-colors"
+                  aria-label="Close colour picker"
                 >
                   <X className="w-4 h-4 text-pacific-mid" />
                 </button>

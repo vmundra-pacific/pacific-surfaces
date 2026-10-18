@@ -25,11 +25,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import {
-  ContactShadows,
-  Environment,
-  Html,
-} from "@react-three/drei";
+import { ContactShadows, Environment, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -67,7 +63,12 @@ async function loadSlabTexture(slab: Slab): Promise<THREE.Texture> {
     let tex: THREE.Texture;
     if (slab.photoUrl) {
       tex = await new Promise<THREE.Texture>((resolve, reject) => {
-        new THREE.TextureLoader().load(slab.photoUrl!, resolve, undefined, reject);
+        new THREE.TextureLoader().load(
+          slab.photoUrl!,
+          resolve,
+          undefined,
+          reject
+        );
       });
     } else {
       const canvas = await renderSlabTile(slab, 1024, 1024);
@@ -125,34 +126,70 @@ function StandingSlab({
   return (
     <group position={display.position} rotation={[0, display.rotationY, 0]}>
       {/* Heavy plinth base */}
-      <mesh position={[0, -h / 2 - GALLERY.plinthHeight / 2, 0]} castShadow receiveShadow>
+      <mesh
+        position={[0, -h / 2 - GALLERY.plinthHeight / 2, 0]}
+        castShadow
+        receiveShadow
+      >
         <boxGeometry
-          args={[GALLERY.plinthWidth * (isHero ? 1.25 : 1), GALLERY.plinthHeight, GALLERY.plinthDepth]}
+          args={[
+            GALLERY.plinthWidth * (isHero ? 1.25 : 1),
+            GALLERY.plinthHeight,
+            GALLERY.plinthDepth,
+          ]}
         />
-        <meshStandardMaterial color="#0f1821" roughness={0.5} metalness={0.15} />
+        <meshStandardMaterial
+          color="#0f1821"
+          roughness={0.5}
+          metalness={0.15}
+        />
       </mesh>
       {/* Plinth top accent strip */}
       <mesh position={[0, -h / 2 - 0.01, 0]} castShadow>
         <boxGeometry
-          args={[GALLERY.plinthWidth * (isHero ? 1.25 : 1) - 0.05, 0.015, GALLERY.plinthDepth - 0.04]}
+          args={[
+            GALLERY.plinthWidth * (isHero ? 1.25 : 1) - 0.05,
+            0.015,
+            GALLERY.plinthDepth - 0.04,
+          ]}
         />
-        <meshStandardMaterial color="#9aa8b6" roughness={0.25} metalness={0.55} />
+        <meshStandardMaterial
+          color="#9aa8b6"
+          roughness={0.25}
+          metalness={0.55}
+        />
       </mesh>
 
       {/* Frame — four bars around the slab (top, bottom, left, right) */}
       {[
         // top
-        { pos: [0, h / 2 + ft / 2, 0] as [number, number, number], size: [w + ft * 2, ft, fd] as [number, number, number] },
+        {
+          pos: [0, h / 2 + ft / 2, 0] as [number, number, number],
+          size: [w + ft * 2, ft, fd] as [number, number, number],
+        },
         // bottom
-        { pos: [0, -h / 2 - ft / 2, 0] as [number, number, number], size: [w + ft * 2, ft, fd] as [number, number, number] },
+        {
+          pos: [0, -h / 2 - ft / 2, 0] as [number, number, number],
+          size: [w + ft * 2, ft, fd] as [number, number, number],
+        },
         // left
-        { pos: [-w / 2 - ft / 2, 0, 0] as [number, number, number], size: [ft, h, fd] as [number, number, number] },
+        {
+          pos: [-w / 2 - ft / 2, 0, 0] as [number, number, number],
+          size: [ft, h, fd] as [number, number, number],
+        },
         // right
-        { pos: [w / 2 + ft / 2, 0, 0] as [number, number, number], size: [ft, h, fd] as [number, number, number] },
+        {
+          pos: [w / 2 + ft / 2, 0, 0] as [number, number, number],
+          size: [ft, h, fd] as [number, number, number],
+        },
       ].map((bar, i) => (
         <mesh key={i} position={bar.pos} castShadow receiveShadow>
           <boxGeometry args={bar.size} />
-          <meshStandardMaterial color="#12181d" roughness={0.38} metalness={0.6} />
+          <meshStandardMaterial
+            color="#12181d"
+            roughness={0.38}
+            metalness={0.6}
+          />
         </mesh>
       ))}
 
@@ -194,7 +231,11 @@ function StandingSlab({
 
       {/* Plaque — slab name + collection at the base */}
       <Html
-        position={[0, -h / 2 - GALLERY.plinthHeight + 0.02, GALLERY.plinthDepth / 2 + 0.01]}
+        position={[
+          0,
+          -h / 2 - GALLERY.plinthHeight + 0.02,
+          GALLERY.plinthDepth / 2 + 0.01,
+        ]}
         center
         distanceFactor={7}
         zIndexRange={[50, 0]}
@@ -222,7 +263,14 @@ function StandingSlab({
  * ================================================================ */
 
 function PlazaArchitecture() {
-  const { plazaSize, wingWidth, wingDepth, ceilingHeight, wallThickness, archwayWidth } = GALLERY;
+  const {
+    plazaSize,
+    wingWidth,
+    wingDepth,
+    ceilingHeight,
+    wallThickness,
+    archwayWidth,
+  } = GALLERY;
   const halfP = plazaSize / 2;
   const halfW = wingWidth / 2;
 
@@ -272,7 +320,7 @@ function PlazaArchitecture() {
           pos={[-off, h / 2, z]}
           size={[segLen, h, t]}
           color={wingPalette}
-        />,
+        />
       );
       segs.push(
         <Wall
@@ -280,7 +328,7 @@ function PlazaArchitecture() {
           pos={[off, h / 2, z]}
           size={[segLen, h, t]}
           color={wingPalette}
-        />,
+        />
       );
       // Lintel above archway (top 0.6m)
       segs.push(
@@ -289,7 +337,7 @@ function PlazaArchitecture() {
           pos={[0, h - 0.3, z]}
           size={[gap, 0.6, t]}
           color={wingPalette}
-        />,
+        />
       );
     } else {
       const x = dir === "east" ? halfP : -halfP;
@@ -299,7 +347,7 @@ function PlazaArchitecture() {
           pos={[x, h / 2, -off]}
           size={[t, h, segLen]}
           color={wingPalette}
-        />,
+        />
       );
       segs.push(
         <Wall
@@ -307,7 +355,7 @@ function PlazaArchitecture() {
           pos={[x, h / 2, off]}
           size={[t, h, segLen]}
           color={wingPalette}
-        />,
+        />
       );
       segs.push(
         <Wall
@@ -315,7 +363,7 @@ function PlazaArchitecture() {
           pos={[x, h - 0.3, 0]}
           size={[t, 0.6, gap]}
           color={wingPalette}
-        />,
+        />
       );
     }
     return segs;
@@ -325,14 +373,24 @@ function PlazaArchitecture() {
     <group>
       {/* Ceiling (single dark slab over the whole footprint) */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, ceilingHeight, 0]}>
-        <planeGeometry args={[plazaSize + wingDepth * 2 + 2, plazaSize + wingDepth * 2 + 2]} />
+        <planeGeometry
+          args={[plazaSize + wingDepth * 2 + 2, plazaSize + wingDepth * 2 + 2]}
+        />
         <meshStandardMaterial color="#0c151c" roughness={0.95} />
       </mesh>
 
       {/* Plaza floor — polished */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]} receiveShadow>
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0.001, 0]}
+        receiveShadow
+      >
         <planeGeometry args={[plazaSize, plazaSize]} />
-        <meshStandardMaterial color="#1e2a34" roughness={0.22} metalness={0.2} />
+        <meshStandardMaterial
+          color="#1e2a34"
+          roughness={0.22}
+          metalness={0.2}
+        />
       </mesh>
 
       {/* Per-wing floors — slightly differentiated tones */}
@@ -360,7 +418,11 @@ function PlazaArchitecture() {
             receiveShadow
           >
             <planeGeometry args={[sizeX, sizeZ]} />
-            <meshStandardMaterial color={wing.palette.floor} roughness={0.28} metalness={0.15} />
+            <meshStandardMaterial
+              color={wing.palette.floor}
+              roughness={0.28}
+              metalness={0.15}
+            />
           </mesh>
         );
       })}
@@ -426,9 +488,7 @@ function PlazaArchitecture() {
         if (wid === "north" || wid === "south") {
           // long walls run along Z
           const zCentre =
-            wid === "north"
-              ? -halfP - wingDepth / 2
-              : halfP + wingDepth / 2;
+            wid === "north" ? -halfP - wingDepth / 2 : halfP + wingDepth / 2;
           const zLen = wingDepth;
           out.push(
             <Wall
@@ -436,7 +496,7 @@ function PlazaArchitecture() {
               pos={[-halfW, h / 2, zCentre]}
               size={[t, h, zLen]}
               color={wing.palette.wall}
-            />,
+            />
           );
           out.push(
             <Wall
@@ -444,14 +504,12 @@ function PlazaArchitecture() {
               pos={[halfW, h / 2, zCentre]}
               size={[t, h, zLen]}
               color={wing.palette.wall}
-            />,
+            />
           );
         } else {
           // long walls run along X
           const xCentre =
-            wid === "east"
-              ? halfP + wingDepth / 2
-              : -halfP - wingDepth / 2;
+            wid === "east" ? halfP + wingDepth / 2 : -halfP - wingDepth / 2;
           const xLen = wingDepth;
           out.push(
             <Wall
@@ -459,7 +517,7 @@ function PlazaArchitecture() {
               pos={[xCentre, h / 2, -halfW]}
               size={[xLen, h, t]}
               color={wing.palette.wall}
-            />,
+            />
           );
           out.push(
             <Wall
@@ -467,7 +525,7 @@ function PlazaArchitecture() {
               pos={[xCentre, h / 2, halfW]}
               size={[xLen, h, t]}
               color={wing.palette.wall}
-            />,
+            />
           );
         }
         return out;
@@ -519,7 +577,11 @@ function PlazaArchitecture() {
       {/* Plaza rug — subtle ring highlighting the hero plinth */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
         <ringGeometry args={[2.3, 2.5, 64]} />
-        <meshStandardMaterial color="#9aa8b6" roughness={0.35} metalness={0.35} />
+        <meshStandardMaterial
+          color="#9aa8b6"
+          roughness={0.35}
+          metalness={0.35}
+        />
       </mesh>
     </group>
   );
@@ -540,7 +602,7 @@ function GalleryLighting() {
     color = "#fff4e0",
     intensity = 14,
     angle = 0.65,
-    distance = 9,
+    distance = 9
   ) => (
     <spotLight
       position={position}
@@ -586,7 +648,7 @@ function GalleryLighting() {
         spots.push(
           <group key={`${wid}-spot-${i}`}>
             {spot([px, hYo, pz], [px, 1.5, pz], wing.palette.accent, 12)}
-          </group>,
+          </group>
         );
       });
     });
@@ -596,11 +658,22 @@ function GalleryLighting() {
   return (
     <group>
       <ambientLight intensity={0.22} color="#b8c4d0" />
-      <directionalLight position={[4, 10, -2]} intensity={0.4} color="#fff4dc" />
+      <directionalLight
+        position={[4, 10, -2]}
+        intensity={0.4}
+        color="#fff4dc"
+      />
 
       {/* Plaza — 4 downlights + 1 hero spot */}
       {spot([0, ceilingHeight - 0.25, 0], [0, 1.6, 0], "#fff1d0", 26, 0.55, 10)}
-      {spot([-4, ceilingHeight - 0.25, -4], [-4, 0.5, -4], "#d4dce4", 6, 0.8, 8)}
+      {spot(
+        [-4, ceilingHeight - 0.25, -4],
+        [-4, 0.5, -4],
+        "#d4dce4",
+        6,
+        0.8,
+        8
+      )}
       {spot([4, ceilingHeight - 0.25, -4], [4, 0.5, -4], "#d4dce4", 6, 0.8, 8)}
       {spot([-4, ceilingHeight - 0.25, 4], [-4, 0.5, 4], "#d4dce4", 6, 0.8, 8)}
       {spot([4, ceilingHeight - 0.25, 4], [4, 0.5, 4], "#d4dce4", 6, 0.8, 8)}
@@ -638,7 +711,7 @@ function GroundArrow({
   const dir = new THREE.Vector3(
     toPos[0] - fromPos[0],
     0,
-    toPos[2] - fromPos[2],
+    toPos[2] - fromPos[2]
   ).normalize();
   const arrowPos: [number, number, number] = [
     fromPos[0] + dir.x * 1.8,
@@ -683,7 +756,11 @@ function GroundArrow({
       {/* Inner arrow triangle */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
         <shapeGeometry args={[arrowShape]} />
-        <meshBasicMaterial color={hovered ? "#112732" : "#FFFFFF"} transparent opacity={hovered ? 1 : 0.85} />
+        <meshBasicMaterial
+          color={hovered ? "#112732" : "#FFFFFF"}
+          transparent
+          opacity={hovered ? 1 : 0.85}
+        />
       </mesh>
       {/* HTML label above the arrow */}
       <Html
@@ -789,7 +866,7 @@ function CameraRig({
       euler.current.x -= dy * 0.003;
       euler.current.x = Math.max(
         -Math.PI / 2 + 0.1,
-        Math.min(Math.PI / 2 - 0.1, euler.current.x),
+        Math.min(Math.PI / 2 - 0.1, euler.current.x)
       );
       camera.quaternion.setFromEuler(euler.current);
     };
@@ -931,9 +1008,13 @@ function clampToGallery(p: THREE.Vector3) {
   const halfW = GALLERY.wingWidth / 2 - 0.8;
   const inPlaza = Math.abs(p.x) <= halfP - 0.8 && Math.abs(p.z) <= halfP - 0.8;
   const inNS =
-    Math.abs(p.x) <= halfW && Math.abs(p.z) <= wingExtent && (p.z < -halfP || p.z > halfP);
+    Math.abs(p.x) <= halfW &&
+    Math.abs(p.z) <= wingExtent &&
+    (p.z < -halfP || p.z > halfP);
   const inEW =
-    Math.abs(p.z) <= halfW && Math.abs(p.x) <= wingExtent && (p.x < -halfP || p.x > halfP);
+    Math.abs(p.z) <= halfW &&
+    Math.abs(p.x) <= wingExtent &&
+    (p.x < -halfP || p.x > halfP);
   if (inPlaza || inNS || inEW) return; // valid
   // Otherwise snap back to the plaza
   p.x = THREE.MathUtils.clamp(p.x, -halfP + 0.8, halfP - 0.8);
@@ -1041,18 +1122,18 @@ export function Showroom() {
     const forward = new THREE.Vector3(
       Math.sin(d.rotationY),
       0,
-      Math.cos(d.rotationY),
+      Math.cos(d.rotationY)
     );
     const camOffset = forward.clone().multiplyScalar(1.45);
     const cameraPos = new THREE.Vector3(
       d.position[0] + camOffset.x,
       GALLERY.eyeHeight,
-      d.position[2] + camOffset.z,
+      d.position[2] + camOffset.z
     );
     const lookAt = new THREE.Vector3(
       d.position[0],
       GALLERY.eyeHeight + 0.05,
-      d.position[2],
+      d.position[2]
     );
     return { display: d, cameraPos, lookAt };
   }, []);
@@ -1061,7 +1142,7 @@ export function Showroom() {
     (d: SlabDisplay) => {
       setZoomTarget(makeZoomPose(d));
     },
-    [makeZoomPose],
+    [makeZoomPose]
   );
 
   const exitZoom = useCallback(() => setZoomTarget(null), []);
@@ -1082,6 +1163,8 @@ export function Showroom() {
         <div className="flex items-center gap-5 pointer-events-auto">
           <Link
             href="/visualize"
+            // The words are hidden below sm, which left an icon-only link.
+            aria-label="Back to visualiser"
             className="inline-flex items-center gap-2 text-[#9AA8B6] hover:text-[#DAE1E8] transition-colors text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -1160,7 +1243,9 @@ export function Showroom() {
             <div className="text-[#DAE1E8] text-sm flex items-center gap-2">
               {hoveredSlab.name}
               <MousePointerClick className="w-3 h-3 text-[#9AA8B6]" />
-              <span className="text-[10px] text-[#9AA8B6]">Click to inspect</span>
+              <span className="text-[10px] text-[#9AA8B6]">
+                Click to inspect
+              </span>
             </div>
           </motion.div>
         )}
@@ -1241,8 +1326,11 @@ export function Showroom() {
                 </div>
 
                 <div className="rounded-xl border border-white/10 p-4 text-xs text-[#9AA8B6]">
-                  Press <kbd className="px-1 border border-white/20 rounded text-[10px] text-[#DAE1E8]">Esc</kbd> or
-                  tap <b>Exit</b> to return to the walk.
+                  Press{" "}
+                  <kbd className="px-1 border border-white/20 rounded text-[10px] text-[#DAE1E8]">
+                    Esc
+                  </kbd>{" "}
+                  or tap <b>Exit</b> to return to the walk.
                 </div>
               </div>
             </div>
@@ -1274,7 +1362,9 @@ export function Showroom() {
               <li className="flex justify-between">
                 <span className="text-[#9AA8B6]">Free walk</span>
                 <span>
-                  <kbd className="px-1.5 border border-white/20 rounded text-[10px]">W A S D</kbd>
+                  <kbd className="px-1.5 border border-white/20 rounded text-[10px]">
+                    W A S D
+                  </kbd>
                 </span>
               </li>
               <li className="flex justify-between">
@@ -1284,7 +1374,9 @@ export function Showroom() {
               <li className="flex justify-between">
                 <span className="text-[#9AA8B6]">Exit zoom</span>
                 <span>
-                  <kbd className="px-1.5 border border-white/20 rounded text-[10px]">Esc</kbd>
+                  <kbd className="px-1.5 border border-white/20 rounded text-[10px]">
+                    Esc
+                  </kbd>
                 </span>
               </li>
             </ul>

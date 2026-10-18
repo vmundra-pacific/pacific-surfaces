@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import type { Slab } from "@/data/slabs";
+import { sanityImg } from "@/lib/sanity-img";
 
 interface SlabPickerProps {
   slabs: Slab[];
@@ -99,9 +100,16 @@ export function SlabPicker({
                       />
                     )}
                     {s.photoUrl && (
+                      // Cropped to the tile's 72x88 frame at 3x and full
+                      // quality, not the 2-4 MB master.
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={s.photoUrl}
+                        src={sanityImg(s.photoUrl, {
+                          w: 216,
+                          h: 264,
+                          fit: "crop",
+                          q: 100,
+                        })}
                         alt={`${s.name} slab swatch`}
                         loading="lazy"
                         decoding="async"

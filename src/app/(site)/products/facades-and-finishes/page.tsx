@@ -8,7 +8,7 @@ import { FacadesAndFinishesContent } from "@/components/sections/FacadesAndFinis
 import { BreadcrumbList } from "@/components/global/JsonLd";
 
 export const metadata: Metadata = {
-  title: "Beyond Stone — Pacific Surfaces",
+  title: "Beyond Stone: Stone Finishes & Textures | Pacific Surfaces",
   description:
     "Polished, honed, leathered, brushed — explore the full palette of finishes available across Pacific's quartz and granite collections.",
   alternates: { canonical: "/products/facades-and-finishes" },

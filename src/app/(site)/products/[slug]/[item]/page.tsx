@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { preload as reactPreload } from "react-dom";
 import { client } from "@/sanity/lib/client";
 import {
   collectionBySlugQuery,
@@ -9,10 +10,12 @@ import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVideo";
-import { CATEGORY_PAGES } from "../../_lib/category";
+import { CATEGORY_PAGES, heroPosterSrc } from "../../_lib/category";
 import { FAQ } from "@/components/sections/FAQ";
 import { getFaqs, type FaqPageKey } from "@/lib/faqs";
 import { formatCollection } from "@/components/catalogue/labels";
+import { collectionPath } from "@/lib/collection-route";
+import { clipAtWord, plainText } from "@/lib/portable-text";
 
 /**
  * Maps a "category-level" collection slug to the product `productType`
@@ -58,6 +61,17 @@ const COLLECTION_HERO: Record<string, QuartzHeroVideoProps> = {
   },
 };
 
+/** What the fallback meta description calls a collection's material,
+ *  by the [slug] (category) segment. Anything else is quartz. */
+const CATEGORY_MATERIAL: Record<string, string> = {
+  granites: "granite",
+  granite: "granite",
+  "semi-precious": "semi-precious stone",
+  exotic: "exotic stone",
+  integra: "quartz sinks",
+  "facades-and-finishes": "natural stone",
+};
+
 /**
  * Collection detail page — canonical URL is /products/[slug]/[item].
  *
@@ -89,7 +103,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const collection = await client.fetch(collectionBySlugQuery, { slug: item });
   if (!collection) return { title: "Collection Not Found" };
   const seriesName = formatCollection(collection.name);
-  const seriesLabel = /series$/i.test(seriesName) ? seriesName : `${seriesName} series`;
+  const seriesLabel = /series$/i.test(seriesName)
+    ? seriesName
+    : `${seriesName} series`;
+  const material = CATEGORY_MATERIAL[slug.toLowerCase()] ?? "engineered quartz";
+  // Sanity's collection description is Portable Text: flatten it, or
+  // the meta tag would carry block objects.
+  const ownDescription = plainText(collection.description);
+
+  // The page renders whatever [slug] says, so canonical to where the
+  // site files the collection (the same mapping the product
+  // breadcrumbs use): /products/granites/chromia and
+  // /products/quartz/chromia both point at /products/quartz/chromia.
+  // Collections with no mapping keep the requested URL.
+  const mapped = collectionPath(item);
+  const canonical =
+    mapped !== "/products" ? mapped : `/products/${slug}/${item}`;
 
   return {
     title:
@@ -99,9 +128,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // none: every page in the sitemap carries a description.
     description:
       collection.seoDescription ||
-      collection.description ||
-      `The ${seriesLabel} of engineered quartz by Pacific Surfaces. Browse every design in the series, then ask for samples or a quote.`,
-    alternates: { canonical: `/products/${slug}/${item}` },
+      (ownDescription ? clipAtWord(ownDescription, 155) : null) ||
+      `The ${seriesLabel} of ${material} by Pacific Surfaces. Browse every design in the series, then ask for samples or a quote.`,
+    alternates: { canonical },
   };
 }
 
@@ -135,6 +164,14 @@ export default async function CollectionPage({ params }: Props) {
   const hero =
     COLLECTION_HERO[item.toLowerCase()] ??
     CATEGORY_PAGES[slug.toLowerCase()]?.hero;
+
+  // LCP: preload the hero's still (the video's poster) at high
+  // priority, as the category landing does. None for a hero with no
+  // still, or for CatalogueClient's built-in default.
+  const heroPoster = heroPosterSrc(hero);
+  if (heroPoster) {
+    reactPreload(heroPoster, { as: "image", fetchPriority: "high" });
+  }
 
   // Sub-collection pages reuse the parent category's FAQ. /products/
   // semi-precious/exotic-collection (etc) inherits the semi-precious
@@ -176,11 +213,15 @@ export default async function CollectionPage({ params }: Props) {
         ]}
       />
       <CatalogueClient slabs={slabs} hero={hero} />
+      {/* schema off: the category landing (/products/<slug>) already
+          marks up these same questions as FAQPage, and Google wants
+          repeated FAQ content marked up once. The visible FAQ stays. */}
       {faqs.length > 0 && (
         <FAQ
           questions={faqs}
           theme="dark"
           heading="Frequently Asked Questions"
+          schema={false}
         />
       )}
     </>

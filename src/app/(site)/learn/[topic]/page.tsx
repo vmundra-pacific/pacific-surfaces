@@ -3,6 +3,9 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { LearnTextSection } from "@/components/sections/LearnTextSection";
+import { BreadcrumbList } from "@/components/global/JsonLd";
+import { ORG_ID, SITE_URL, WEBSITE_ID } from "@/data/business";
+import { safeJsonLd } from "@/lib/escape";
 
 // Per-product CTA destinations. Used by deriveCta() to resolve where
 // a what-is / maintenance / warranty page's "Browse" button routes.
@@ -62,6 +65,48 @@ function deriveCta(topic: string): { href: string; label: string } {
 }
 
 /**
+ * The product line a what-is / maintenance / warranty guide belongs to,
+ * named as its "Browse" button names it, for the breadcrumb and the
+ * Article's `about`. Null for every other topic.
+ */
+function guideProduct(topic: string): { name: string; url: string } | null {
+  for (const prefix of ["what-is-", "maintenance-", "warranty-"]) {
+    if (topic.startsWith(prefix)) {
+      const cta = PRODUCT_CTA[topic.slice(prefix.length)];
+      if (cta)
+        return { name: cta.label.replace(/^Browse /, ""), url: cta.href };
+    }
+  }
+  return null;
+}
+
+/**
+ * When each complete guide's own copy last changed (git history), for its
+ * Article dateModified. The sitemap lists the same dates (sitemap.ts,
+ * STATIC_PAGES): change both together, and only for a change to the
+ * guide's copy, not for a sitewide one.
+ */
+const GUIDE_UPDATED: Record<string, string> = {
+  "what-is-quartz": "2026-10-14",
+  "what-is-granites": "2026-09-12",
+  "what-is-semi-precious": "2026-09-12",
+  "what-is-vision": "2026-10-12",
+  "what-is-facades-and-finishes": "2026-09-12",
+  "what-is-centrepiece-couture": "2026-09-12",
+  "what-is-exotic": "2026-09-12",
+  "what-is-vanity": "2026-09-12",
+  "maintenance-quartz": "2026-09-12",
+  "maintenance-granites": "2026-09-12",
+  "maintenance-semi-precious": "2026-09-12",
+  "maintenance-vision": "2026-09-12",
+  "maintenance-facades-and-finishes": "2026-09-12",
+  "maintenance-centrepiece-couture": "2026-09-12",
+  "maintenance-exotic": "2026-09-12",
+  "maintenance-vanity": "2026-09-12",
+  "warranty-quartz": "2026-09-12",
+};
+
+/**
  * /learn/[topic] — long-form topic content.
  *
  * Topics covered:
@@ -75,7 +120,9 @@ function deriveCta(topic: string): { href: string; label: string } {
  * Each entry can carry an optional `body` array of content sections;
  * the page renders those as alternating left/right blocks with image
  * placeholders. Topics without `body` fall back to the short
- * placeholder card so unknown URLs never 404.
+ * placeholder card so unknown URLs never 404; they are noindex (follow)
+ * until their copy is written, and only the complete guides carry
+ * breadcrumb and Article JSON-LD.
  */
 
 interface Params {
@@ -92,6 +139,9 @@ interface TopicCopy {
   title: string;
   eyebrow: string;
   description: string;
+  /** A shorter meta description, where `description` (the page's lead)
+   *  runs past what a search result shows. */
+  metaDescription?: string;
   body?: TopicSection[];
 }
 
@@ -137,6 +187,8 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
     eyebrow: "Material 101 · Granite",
     description:
       "Granite is an igneous stone formed deep underground over millions of years. Each slab is one-of-a-kind, with naturally occurring patterns of feldspar, mica, and quartz. Granite is heat-, scratch- and stain-resistant when properly sealed.",
+    metaDescription:
+      "Granite is an igneous stone formed over millions of years. Each slab is one-of-a-kind, and heat-, scratch- and stain-resistant when properly sealed.",
     body: [
       {
         heading: "Geological origin",
@@ -170,6 +222,8 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
     eyebrow: "Material 101 · Semi-Precious Stones",
     description:
       "Semi-Precious Stones surfaces are composed of carefully selected gemstone fragments — agate, amethyst, malachite, tiger's eye — bound into translucent slabs that backlight beautifully and behave like a featured gallery piece.",
+    metaDescription:
+      "Semi-Precious Stones surfaces: selected gemstone fragments — agate, amethyst, malachite, tiger's eye — bound into translucent slabs that backlight beautifully.",
     body: [
       {
         heading: "Composition",
@@ -197,6 +251,8 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
     eyebrow: "Material 101 · Eclipse",
     description:
       "Eclipse is Pacific's inlayered design quartz line — patterns and motifs engineered into the surface itself, so the design lives all the way through the slab rather than sitting only on top. Available within the Chromia collection.",
+    metaDescription:
+      "Eclipse is Pacific's inlayered design quartz line — patterns and motifs engineered into the surface itself, so the design lives all the way through the slab.",
     body: [
       {
         heading: "Inlayered design",
@@ -698,14 +754,21 @@ export async function generateMetadata({
   const { topic } = await params;
   const known = topic in TOPIC_COPY;
   const copy = TOPIC_COPY[topic] ?? FALLBACK;
+  const complete = Boolean(copy.body?.length);
   return {
     title: `${copy.title} — Pacific Surfaces`,
-    description: copy.description,
+    description: copy.metaDescription ?? copy.description,
     alternates: { canonical: `/learn/${topic}` },
     // Unknown topics render the "Coming soon" fallback — a soft-404.
     // Without noindex, any arbitrary /learn/<garbage> URL gets a
-    // self-canonical and ends up in Google's index.
-    ...(known ? {} : { robots: { index: false, follow: false } }),
+    // self-canonical and ends up in Google's index. Known topics with
+    // no body yet show only the placeholder card: noindex too, but their
+    // links are still followed.
+    ...(!known
+      ? { robots: { index: false, follow: false } }
+      : !complete
+        ? { robots: { index: false, follow: true } }
+        : {}),
   };
 }
 
@@ -718,8 +781,59 @@ export default async function LearnTopicPage({
   const copy = TOPIC_COPY[topic] ?? FALLBACK;
   const cta = deriveCta(topic);
 
+  // Breadcrumb and Article JSON-LD for the complete guides only; the
+  // noindexed stubs and the fallback carry none.
+  const complete = Boolean(copy.body?.length);
+  const product = guideProduct(topic);
+  const path = `/learn/${topic}`;
+  const updated = GUIDE_UPDATED[topic];
+  // The site graph's Organization (app/layout), by reference.
+  const org = {
+    "@type": "Organization",
+    "@id": ORG_ID,
+    name: "Pacific Surfaces",
+  };
+  const article = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: copy.title,
+    description: copy.metaDescription ?? copy.description,
+    ...(product
+      ? {
+          about: {
+            "@type": "Thing",
+            name: product.name,
+            url: `${SITE_URL}${product.url}`,
+          },
+        }
+      : {}),
+    ...(updated ? { dateModified: updated } : {}),
+    author: org,
+    publisher: org,
+    isPartOf: { "@id": WEBSITE_ID },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${path}` },
+    url: `${SITE_URL}${path}`,
+    inLanguage: "en",
+  };
+
   return (
     <>
+      {complete && (
+        <>
+          <BreadcrumbList
+            items={[
+              { name: "Home", url: "/" },
+              { name: "Products", url: "/products" },
+              ...(product ? [product] : []),
+              { name: copy.title, url: path },
+            ]}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: safeJsonLd(article) }}
+          />
+        </>
+      )}
       <PageHeader
         badge={copy.eyebrow}
         title={copy.title}

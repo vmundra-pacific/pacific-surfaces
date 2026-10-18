@@ -87,66 +87,185 @@ const GROUPS = [
   {
     title: "Kitchen",
     links: [
-      { label: "Kitchen countertops", href: "/applications/kitchen-countertops", note: "Worktops for kitchens and pantries" },
-      { label: "Kitchen islands", href: "/applications/kitchen-islands", note: "Islands, often from a single superjumbo slab" },
-      { label: "Waterfall islands", href: "/applications/waterfall-islands", note: "Mitred sides that carry the top to the floor" },
-      { label: "Backsplashes", href: "/applications/backsplashes", note: "The wall behind the hob and the sink" },
-      { label: "Outdoor kitchens", href: "/applications/outdoor-kitchens", note: "Counters for terraces and gardens" },
+      {
+        label: "Kitchen countertops",
+        href: "/applications/kitchen-countertops",
+        note: "Worktops for kitchens and pantries",
+      },
+      {
+        label: "Kitchen islands",
+        href: "/applications/kitchen-islands",
+        note: "Islands, often from a single superjumbo slab",
+      },
+      {
+        label: "Waterfall islands",
+        href: "/applications/waterfall-islands",
+        note: "Mitred sides that carry the top to the floor",
+      },
+      {
+        label: "Backsplashes",
+        href: "/applications/backsplashes",
+        note: "The wall behind the hob and the sink",
+      },
+      {
+        label: "Outdoor kitchens",
+        href: "/applications/outdoor-kitchens",
+        note: "Counters for terraces and gardens",
+      },
     ],
   },
   {
     title: "Bathroom",
     links: [
-      { label: "Vanity tops", href: "/applications/bathroom-vanity-tops", note: "Tops with cut-outs or integrated basins" },
-      { label: "Shower walls", href: "/applications/shower-walls-and-trays", note: "Large panels in place of tiles and grout" },
-      { label: "Washbasins", href: "/applications/washbasins", note: "Integra basins in the same material as the top" },
+      {
+        label: "Vanity tops",
+        href: "/applications/bathroom-vanity-tops",
+        note: "Tops with cut-outs or integrated basins",
+      },
+      {
+        label: "Shower walls",
+        href: "/applications/shower-walls-and-trays",
+        note: "Large panels in place of tiles and grout",
+      },
+      {
+        label: "Washbasins",
+        href: "/applications/washbasins",
+        note: "Integra basins in the same material as the top",
+      },
     ],
   },
   {
     title: "Walls and facades",
     links: [
-      { label: "Wall cladding", href: "/applications/wall-cladding", note: "Interior walls clad in large slabs" },
-      { label: "Feature walls", href: "/applications/feature-walls", note: "Lobbies, headboards and walls behind a bar" },
-      { label: "Backlit features", href: "/applications/backlit-features", note: "Translucent and semi-precious stone, lit from behind" },
-      { label: "Fireplace surrounds", href: "/applications/fireplace-surrounds", note: "Hearths and surrounds" },
-      { label: "Facades", href: "/applications/facades", note: "Exterior cladding in large-format panels" },
+      {
+        label: "Wall cladding",
+        href: "/applications/wall-cladding",
+        note: "Interior walls clad in large slabs",
+      },
+      {
+        label: "Feature walls",
+        href: "/applications/feature-walls",
+        note: "Lobbies, headboards and walls behind a bar",
+      },
+      {
+        label: "Backlit features",
+        href: "/applications/backlit-features",
+        note: "Translucent and semi-precious stone, lit from behind",
+      },
+      {
+        label: "Fireplace surrounds",
+        href: "/applications/fireplace-surrounds",
+        note: "Hearths and surrounds",
+      },
+      {
+        label: "Facades",
+        href: "/applications/facades",
+        note: "Exterior cladding in large-format panels",
+      },
     ],
   },
   {
     title: "Floors and stairs",
     links: [
-      { label: "Flooring", href: "/applications/flooring", note: "Granite floors and paving, inside and out" },
-      { label: "Staircases", href: "/applications/staircases", note: "Treads, risers and landings" },
+      {
+        label: "Flooring",
+        href: "/applications/flooring",
+        note: "Granite floors and paving, inside and out",
+      },
+      {
+        label: "Staircases",
+        href: "/applications/staircases",
+        note: "Treads, risers and landings",
+      },
     ],
   },
   {
     title: "Commercial and hospitality",
     links: [
-      { label: "Bar counters", href: "/applications/bar-counters", note: "Bars in hotels and restaurants" },
-      { label: "Reception desks", href: "/applications/reception-desks", note: "Desks for lobbies and offices" },
-      { label: "Dining and furniture", href: "/applications/dining-and-furniture", note: "Tables, consoles and desks" },
-      { label: "Hospitality interiors", href: "/applications/hospitality-interiors", note: "Hotels, restaurants and spas" },
-      { label: "Retail interiors", href: "/applications/retail-interiors", note: "Display plinths, cash desks and wall linings" },
+      {
+        label: "Bar counters",
+        href: "/applications/bar-counters",
+        note: "Bars in hotels and restaurants",
+      },
+      {
+        label: "Reception desks",
+        href: "/applications/reception-desks",
+        note: "Desks for lobbies and offices",
+      },
+      {
+        label: "Dining and furniture",
+        href: "/applications/dining-and-furniture",
+        note: "Tables, consoles and desks",
+      },
+      {
+        label: "Hospitality interiors",
+        href: "/applications/hospitality-interiors",
+        note: "Hotels, restaurants and spas",
+      },
+      {
+        label: "Retail interiors",
+        href: "/applications/retail-interiors",
+        note: "Display plinths, cash desks and wall linings",
+      },
     ],
   },
 ];
 
 const MATERIALS = [
   {
-    cells: ["Quartz", "Countertops, islands, vanity tops, shower walls, cladding, furniture", "Interiors", "12, 20 and 30 mm; slabs up to 3,480 × 2,007 mm"],
+    cells: [
+      "Quartz",
+      "Countertops, islands, vanity tops, shower walls, cladding, furniture",
+      "Interiors",
+      "12, 20 and 30 mm; slabs up to 3,480 × 2,007 mm",
+    ],
     href: "/products/quartz",
   },
   {
-    cells: ["Eclipse", "Feature walls, islands and counters with an inlayered design", "Interiors", "Inlayered design quartz"],
+    cells: [
+      "Eclipse",
+      "Feature walls, islands and counters with an inlayered design",
+      "Interiors",
+      "Inlayered design quartz",
+    ],
     href: "/products/quartz/chromia",
   },
   {
-    cells: ["Granite", "Floors, paving, steps, countertops, window sills", "Interiors and exteriors", "Natural stone; finishes vary by stone"],
+    cells: [
+      "Granite",
+      "Floors, paving, steps, countertops, window sills",
+      "Interiors and exteriors",
+      "Natural stone; finishes vary by stone",
+    ],
     href: "/products/granites",
   },
-  { cells: ["Beyond Stone", "Facades and large-format cladding", "Exteriors and interiors", "Large-format facade panels"], href: "/products/facades-and-finishes" },
-  { cells: ["Translucent", "Backlit walls, bars and counters", "Interiors", "Stone that glows"], href: "/products/translucent" },
-  { cells: ["Semi-precious", "Feature pieces, bar fronts, backlit panels", "Interiors", "Hand-selected gemstone"], href: "/products/semi-precious" },
+  {
+    cells: [
+      "Beyond Stone",
+      "Facades and large-format cladding",
+      "Exteriors and interiors",
+      "Large-format facade panels",
+    ],
+    href: "/products/facades-and-finishes",
+  },
+  {
+    cells: [
+      "Translucent",
+      "Backlit walls, bars and counters",
+      "Interiors",
+      "Stone that glows",
+    ],
+    href: "/products/translucent",
+  },
+  {
+    cells: [
+      "Semi-precious",
+      "Feature pieces, bar fronts, backlit panels",
+      "Interiors",
+      "Hand-selected gemstone",
+    ],
+    href: "/products/semi-precious",
+  },
 ];
 
 const FAQS = [
@@ -174,11 +293,14 @@ const FAQS = [
 
 export default function ApplicationsPage() {
   return (
-    <main data-light-page className="bg-white text-[#14140f]">
+    <div data-light-page className="bg-white text-[#14140f]">
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },
-          { name: "Applications for professionals", url: "/professionals/applications" },
+          {
+            name: "Applications for professionals",
+            url: "/professionals/applications",
+          },
         ]}
       />
 
@@ -218,7 +340,11 @@ export default function ApplicationsPage() {
         tone="stone"
       />
 
-      <ProIndex eyebrow="Every application" title="All twenty application guides" groups={GROUPS} />
+      <ProIndex
+        eyebrow="Every application"
+        title="All twenty application guides"
+        groups={GROUPS}
+      />
 
       <ProTable
         eyebrow="Material guide"
@@ -234,12 +360,16 @@ export default function ApplicationsPage() {
           <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
             <div>
               <p className={LABEL}>Test results</p>
-              <h2 style={LIGHT} className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]">
+              <h2
+                style={LIGHT}
+                className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]"
+              >
                 Tested performance
               </h2>
             </div>
             <p className="max-w-xl text-[17px] font-light leading-relaxed">
-              Laboratory results for Pacific Surfaces quartz, 2 cm, across the quartz range, and for Warangal Black granite.
+              Laboratory results for Pacific Surfaces quartz, 2 cm, across the
+              quartz range, and for Warangal Black granite.
             </p>
           </div>
           <div className="mt-12">
@@ -261,6 +391,6 @@ export default function ApplicationsPage() {
         ]}
         image="/images/spaces/hotels/pool-terrace.jpg"
       />
-    </main>
+    </div>
   );
 }

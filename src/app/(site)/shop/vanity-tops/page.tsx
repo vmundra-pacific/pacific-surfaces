@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import { client } from "@/sanity/lib/client";
 import { catalogueProductsQuery } from "@/sanity/lib/queries";
-import { CUSTOM_SIZE, VANITY_TOP_PRODUCTS, vanityTopOptions } from "@/data/store";
+import {
+  CUSTOM_SIZE,
+  VANITY_TOP_PRODUCTS,
+  vanityTopOptions,
+} from "@/data/store";
 import { applicationBySlug } from "@/data/applications";
 import {
   VanityTopsListing,
@@ -28,7 +32,7 @@ import {
 export const metadata: Metadata = {
   title: "Quartz Vanity Tops | Pacific Store",
   description:
-    "Quartz vanity tops in single and double basin layouts, in 125+ Pacific designs, made to your size. Preview any colour on the top, add it to your cart, and our team confirms price and freight.",
+    "Quartz vanity tops in single and double basin layouts, made to size. Preview any colour on the top, add it to your cart and our team confirms price and freight.",
   alternates: { canonical: "/shop/vanity-tops" },
 };
 
@@ -49,13 +53,24 @@ export default async function VanityTopsPage() {
 
   const seen = new Set<string>();
   const colours: ListingColour[] = (rows ?? [])
-    .filter((r) => r.visible !== false && r.productType === "quartz-slab" && r.mainImage)
+    .filter(
+      (r) =>
+        r.visible !== false && r.productType === "quartz-slab" && r.mainImage
+    )
     .flatMap((r) => {
       const name = r.name?.trim();
       if (!name || seen.has(name)) return [];
       seen.add(name);
-      const slug = (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? "";
-      return [{ name, slug, image: r.mainImage ?? null, series: r.collectionName?.trim() || "Pacific Quartz" }];
+      const slug =
+        (typeof r.slug === "string" ? r.slug : r.slug?.current) ?? "";
+      return [
+        {
+          name,
+          slug,
+          image: r.mainImage ?? null,
+          series: r.collectionName?.trim() || "Pacific Quartz",
+        },
+      ];
     })
     .sort((a, b) => a.name.localeCompare(b.name));
 

@@ -33,15 +33,30 @@ export default function FlooringPage({ colours }: { colours: SpaceColour[] }) {
     <>
       <Hero />
       <SpaceCrumbs label="Flooring" />
-      <SpaceTabs tabs={f.tabs} label="Why Pacific granite for floors" idPrefix="flooring" />
+      <SpaceTabs
+        tabs={f.tabs}
+        label="Why Pacific granite for floors"
+        idPrefix="flooring"
+      />
       <Finishes />
       <SpaceDesign {...f.design} />
       <Formats />
-      <SpaceGallery heading={f.gallery.heading} tags={f.gallery.tags} shots={f.gallery.shots} />
-      <SpaceColours heading={f.colours.heading} cta={f.colours.cta} colours={colours} />
+      <SpaceGallery
+        heading={f.gallery.heading}
+        tags={f.gallery.tags}
+        shots={f.gallery.shots}
+      />
+      <SpaceColours
+        heading={f.colours.heading}
+        cta={f.colours.cta}
+        colours={colours}
+      />
       <Technical />
       <Split {...f.plan} />
-      <SpaceFaqs heading="Frequently asked questions about granite floors" faqs={f.faqs} />
+      <SpaceFaqs
+        heading="Frequently asked questions about granite floors"
+        faqs={f.faqs}
+      />
       <SpaceOthers {...f.spaces} />
     </>
   );
@@ -52,20 +67,49 @@ export default function FlooringPage({ colours }: { colours: SpaceColour[] }) {
 function Hero() {
   const c = FLOORING_PAGE.hero;
   return (
-    <section data-over-media className="relative isolate flex h-[78vh] min-h-[520px] items-end overflow-hidden bg-[#14140f] text-white">
+    <section
+      data-over-media
+      className="relative isolate flex h-[78vh] min-h-[520px] items-end overflow-hidden bg-[#14140f] text-white"
+    >
       <div className="absolute inset-0 -z-10 grid grid-cols-1 gap-1 md:grid-cols-3">
+        {/* Only the first is priority: a priority preload ignores
+            display:none, so phones would fetch the two hidden ones too.
+            The other two stay lazy, and a lazy image under display:none
+            is never fetched. */}
         {c.images.map((im, i) => (
-          <div key={im.src} className={cn("relative h-full overflow-hidden", i > 0 && "hidden md:block")}>
-            <Image src={im.src} alt={im.alt} fill priority sizes="(min-width: 768px) 34vw, 100vw" className="object-cover" />
+          <div
+            key={im.src}
+            className={cn(
+              "relative h-full overflow-hidden",
+              i > 0 && "hidden md:block"
+            )}
+          >
+            <Image
+              src={im.src}
+              alt={im.alt}
+              fill
+              priority={i === 0}
+              fetchPriority={i === 0 ? "high" : undefined}
+              sizes="(min-width: 768px) 34vw, 100vw"
+              className="object-cover"
+            />
           </div>
         ))}
       </div>
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/25 to-black/10" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/25 to-black/10"
+      />
       <Container className="pb-14 lg:pb-20">
-        <h1 style={LIGHT} className="text-5xl uppercase leading-none tracking-[-0.03em] sm:text-6xl lg:text-[96px]">
+        <h1
+          style={LIGHT}
+          className="text-5xl uppercase leading-none tracking-[-0.03em] sm:text-6xl lg:text-[96px]"
+        >
           {c.title}
         </h1>
-        <p className="mt-5 max-w-xl text-lg font-light leading-snug lg:text-xl">{c.lead}</p>
+        <p className="mt-5 max-w-xl text-lg font-light leading-snug lg:text-xl">
+          {c.lead}
+        </p>
       </Container>
     </section>
   );
@@ -78,19 +122,29 @@ function Finishes() {
         <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
           <Heading>Six finishes</Heading>
           <p className="text-base font-light leading-relaxed lg:col-span-2 lg:pt-2">
-            Every granite in the Landscape Edition comes in Polished, Leather, Lapotura, River, Antik, and Flamed &amp;
-            Waterjet. The samples are from the catalogue, on the granite named under each.
+            Every granite in the Landscape Edition comes in Polished, Leather,
+            Lapotura, River, Antik, and Flamed &amp; Waterjet. The samples are
+            from the catalogue, on the granite named under each.
           </p>
         </div>
         <ul className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {FLOORING_PAGE.finishes.map((fin) => (
             <li key={fin.image}>
               <div className="relative aspect-[1/3] w-full overflow-hidden bg-[#EFEDE9]">
-                <Image src={fin.image} alt={`${fin.name} finish on ${fin.shownOn}`} fill unoptimized sizes="(min-width: 1024px) 16vw, 50vw" className="object-cover" />
+                <Image
+                  src={fin.image}
+                  alt={`${fin.name} finish on ${fin.shownOn}`}
+                  fill
+                  unoptimized
+                  sizes="(min-width: 1024px) 16vw, 50vw"
+                  className="object-cover"
+                />
               </div>
               <p className="mt-3 text-sm">{fin.name}</p>
               <p className="text-xs font-light opacity-60">On {fin.shownOn}</p>
-              <p className="mt-2 text-sm font-light leading-relaxed opacity-80">{fin.note}</p>
+              <p className="mt-2 text-sm font-light leading-relaxed opacity-80">
+                {fin.note}
+              </p>
             </li>
           ))}
         </ul>
@@ -107,10 +161,18 @@ function Formats() {
         <div>
           <Heading>Paver formats</Heading>
           <p className="mt-6 max-w-md text-base font-light leading-relaxed">
-            Nine formats, each in 3 cm and 5 cm thicknesses. Larger floors and steps are cut to your plan.
+            Nine formats, each in 3 cm and 5 cm thicknesses. Larger floors and
+            steps are cut to your plan.
           </p>
           <div className="relative mt-8 aspect-[925/226] w-full max-w-lg">
-            <Image src="/images/flooring/paver-5cm.webp" alt="A 20 × 10 × 5 cm paver" fill unoptimized sizes="512px" className="object-contain" />
+            <Image
+              src="/images/flooring/paver-5cm.webp"
+              alt="A 20 × 10 × 5 cm paver"
+              fill
+              unoptimized
+              sizes="512px"
+              className="object-contain"
+            />
           </div>
         </div>
         <table className="w-full border-collapse text-left text-[15px]">
@@ -150,7 +212,8 @@ function Technical() {
       <Container>
         <Heading>Technical data</Heading>
         <p className="mt-4 max-w-2xl text-base font-light leading-relaxed">
-          From the Landscape Edition technical sheets. Country of origin for every granite: India.
+          From the Landscape Edition technical sheets. Country of origin for
+          every granite: India.
         </p>
         <div className="mt-10 overflow-x-auto">
           <table className="w-full min-w-[720px] border-collapse text-left text-[15px]">

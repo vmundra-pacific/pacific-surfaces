@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import KitchensPage, { type KitchenColour } from "@/components/sections/spaces/KitchensPage";
+import KitchensPage, {
+  type KitchenColour,
+} from "@/components/sections/spaces/KitchensPage";
 import { BreadcrumbList, FaqSchema } from "@/components/global/JsonLd";
 import { client } from "@/sanity/lib/client";
 import { KITCHENS_PAGE } from "@/data/kitchens-page";
@@ -13,7 +15,7 @@ import { KITCHENS_PAGE } from "@/data/kitchens-page";
  */
 
 export const metadata: Metadata = {
-  title: "Kitchens by Pacific Surfaces — Quartz Worktops, Islands and Backsplashes",
+  title: "Quartz Kitchen Worktops & Islands | Pacific Surfaces",
   description:
     "Quartz and Eclipse worktops, islands, backsplashes and integrated sinks: Superjumbo slabs, heat, stain and scratch resistant, with a lifetime warranty.",
   alternates: { canonical: "/spaces/kitchens" },
@@ -23,17 +25,21 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function KitchensSpacePage() {
-  const rows = await client.fetch<{ name: string; slug: string; image: string | null }[]>(
+  const rows = await client.fetch<
+    { name: string; slug: string; image: string | null }[]
+  >(
     `*[_type == "product" && slug.current in $slugs && visible != false]{
       name, "slug": slug.current, "image": mainImage.asset->url
     }`,
     { slugs: KITCHENS_PAGE.colours.slugs }
   );
   // Keep the order the page lists them in.
-  const colours: KitchenColour[] = KITCHENS_PAGE.colours.slugs.flatMap((slug) => {
-    const r = rows?.find((x) => x.slug === slug);
-    return r ? [{ name: r.name, slug: r.slug, image: r.image }] : [];
-  });
+  const colours: KitchenColour[] = KITCHENS_PAGE.colours.slugs.flatMap(
+    (slug) => {
+      const r = rows?.find((x) => x.slug === slug);
+      return r ? [{ name: r.name, slug: r.slug, image: r.image }] : [];
+    }
+  );
 
   return (
     <>

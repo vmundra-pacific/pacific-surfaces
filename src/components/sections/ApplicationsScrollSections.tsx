@@ -61,13 +61,15 @@ import { sanityProxyUrl, sanityImageProxyUrl } from "@/lib/sanity-img";
  * to strip the third-party `sanitySession` cookie, AND appends a
  * width/quality transform so the 3×3 tile grid below doesn't pull a
  * 2.7 MB master JPG just to slice into a decorative scatter. Skipped
- * for non-Sanity URLs.
+ * for non-Sanity URLs. `fm=webp` rather than `auto=format`: the proxy
+ * fetches server-side without the browser's Accept header, so
+ * auto=format would hand back the original JPEG/PNG.
  */
 const SANITY_HOST_LITERAL = "cdn.sanity.io";
 function tileBackgroundUrl(url: string): string {
   if (!url.includes(SANITY_HOST_LITERAL)) return url;
   const sep = url.includes("?") ? "&" : "?";
-  const transformed = `${url}${sep}w=1200&fit=max&q=70&auto=format`;
+  const transformed = `${url}${sep}w=1200&fit=max&q=70&fm=webp`;
   return sanityImageProxyUrl(transformed);
 }
 
@@ -369,9 +371,17 @@ function Eyebrow({
 function PlayOnceVideo({
   src,
   className,
+  hasStill = false,
 }: {
   src: string;
   className?: string;
+  /**
+   * True when MediaSlot paints an <Image> still underneath. The clip
+   * then needs nothing up front (play() fetches it on intersection),
+   * so it takes preload="none"; a video-only card keeps "metadata" so
+   * its first frame is decoded before the section arrives.
+   */
+  hasStill?: boolean;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   const opacity = useMotionValue(1);
@@ -445,7 +455,7 @@ function PlayOnceVideo({
       src={src}
       muted
       playsInline
-      preload="metadata"
+      preload={hasStill ? "none" : "metadata"}
       aria-hidden="true"
       style={{ opacity }}
     />
@@ -462,7 +472,8 @@ function PlayOnceVideo({
  * on every browser without a user gesture and survives mobile
  * autoplay restrictions. NO loop — the clip plays once and freezes
  * on its last frame, treating the video as a one-shot reveal rather
- * than a continuous distraction. preload="metadata" because the
+ * than a continuous distraction. preload="none" when the Image still
+ * sits underneath, "metadata" for a video-only card, because the
  * section may not be in view yet; we don't want to eagerly download
  * every video on the homepage.
  *
@@ -487,7 +498,7 @@ function MediaSlot({
 }) {
   if (media.videoUrl) {
     // Layered render: <Image> (poster) underneath, <PlayOnceVideo> on
-    // top. While the video has only fetched metadata, the <video>
+    // top. Until the video has a decoded frame, the <video>
     // element is transparent — the Image shows through. Once the
     // first frame decodes, the video naturally covers the image (same
     // visual content) and we get smooth playback. No opacity wiring
@@ -511,6 +522,7 @@ function MediaSlot({
         <PlayOnceVideo
           src={media.videoUrl}
           className="absolute inset-0 w-full h-full object-cover"
+          hasStill={!!media.imageUrl}
         />
       </>
     );
@@ -1148,7 +1160,7 @@ function CommercialFrameSlot({
       {frame.videoUrl ? (
         // Same layered pattern as MediaSlot above — Image (still)
         // paints underneath and shows through while the video is
-        // preloading metadata. Once the video has frames it covers
+        // still loading. Once the video has frames it covers
         // the image. Mobile path doesn't see this branch because
         // skipVideos already nulled videoUrl in the resolver, so it
         // falls into the standalone Image branch below.
@@ -1167,6 +1179,7 @@ function CommercialFrameSlot({
             src={frame.videoUrl}
             activity={opacity}
             className="absolute inset-0 w-full h-full object-cover"
+            hasStill={!!frame.imageUrl}
           />
         </>
       ) : frame.imageUrl ? (
@@ -1230,13 +1243,17 @@ function OpacityGatedVideo({
   src,
   activity,
   className,
+  hasStill = false,
 }: {
   src: string;
   activity: MotionValue<number>;
   className?: string;
+  /** True when the slot paints an <Image> still underneath. */
+  hasStill?: boolean;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   const playingRef = useRef(false);
+  const isLocal = src.startsWith("/videos/");
 
   useMotionValueEvent(activity, "change", (latest) => {
     const el = ref.current;
@@ -1257,14 +1274,13 @@ function OpacityGatedVideo({
       key={src}
       className={className}
       src={src}
-      poster={
-        src.startsWith("/videos/")
-          ? src.replace(/\.mp4$/, "-poster.jpg")
-          : undefined
-      }
+      poster={isLocal ? src.replace(/\.mp4$/, "-poster.jpg") : undefined}
       muted
       playsInline
-      preload="metadata"
+      // Nothing up front when a still (the Image underneath, or the
+      // local poster) covers the slot: play() fetches the clip on
+      // activation. Video-only frames keep "metadata" for a first frame.
+      preload={hasStill || isLocal ? "none" : "metadata"}
       aria-hidden="true"
     />
   );
@@ -1324,8 +1340,15 @@ export function ApplicationsScrollSections({
   // without the network hit. Initial value is `false` so SSR renders
   // the desktop tree; the effect re-evaluates client-side once we
   // can read window/navigator.
+  //
+  // `hydrated` keeps every <video> out of the server HTML (stills
+  // only), so phones don't start fetching clips before the gate above
+  // runs. It feeds the media resolver only: CommercialSection keeps
+  // `skipVideos` alone, so desktop SSR still renders the desktop layout.
   const [skipVideos, setSkipVideos] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
+    setHydrated(true);
     if (typeof window === "undefined") return;
     let isPhone = false;
     try {
@@ -1344,7 +1367,9 @@ export function ApplicationsScrollSections({
     setSkipVideos(isPhone || slowNet);
   }, []);
 
-  const resolveMedia = buildMediaResolver(applications, { skipVideos });
+  const resolveMedia = buildMediaResolver(applications, {
+    skipVideos: skipVideos || !hydrated,
+  });
 
   return (
     <>

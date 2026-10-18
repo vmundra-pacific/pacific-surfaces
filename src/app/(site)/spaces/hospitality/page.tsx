@@ -12,9 +12,9 @@ import { spaceColours } from "@/lib/space-colours";
  */
 
 export const metadata: Metadata = {
-  title: "Hotels by Pacific Surfaces — Lobbies, Bars, Restaurants, Spas and Rooms",
+  title: "Quartz Surfaces for Hotels & Restaurants | Pacific Surfaces",
   description:
-    "Quartz and Eclipse surfaces for hotels: reception desks, bar counters, restaurants, spa and wellness, rooms and bathrooms, from the Pacific Hospitality Collection.",
+    "Quartz and Eclipse for hotels: reception desks, bar counters, restaurants, spa and wellness, rooms and bathrooms, from the Pacific Hospitality Collection.",
   alternates: { canonical: "/spaces/hospitality" },
 };
 

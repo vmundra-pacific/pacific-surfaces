@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { preload as reactPreload } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,9 +19,18 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
-import { SearchOverlay } from "@/components/ui/search-overlay";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
 import { ProductsMega } from "@/components/layout/ProductsMega";
+
+// The search overlay renders nothing until it is opened, so its code is
+// split out of the header bundle every page loads. Header mounts it
+// (closed) once the page is idle, or sooner if the search button is
+// pointed at or focused, which fetches the chunk, so it is loaded and
+// mounted by the click and opens exactly as before.
+const SearchOverlay = dynamic(
+  () => import("@/components/ui/search-overlay").then((m) => m.SearchOverlay),
+  { ssr: false }
+);
 
 // PRODUCTS_CATEGORIES drives the Products mega-menu — five cards
 // matching the Sidharth UI/UX deck exactly:
@@ -313,7 +323,10 @@ const navigation = [
         href: "/products/facades-and-finishes",
       },
       { name: "Vanity", href: "/products/vanity" },
-      { name: "Window Sills & Thresholds", href: "/products/pacific-european-window-sill-threshold-collection" },
+      {
+        name: "Window Sills & Thresholds",
+        href: "/products/pacific-european-window-sill-threshold-collection",
+      },
       { name: "All Products", href: "/products" },
     ],
   },
@@ -507,6 +520,10 @@ export default function Header() {
   // section's cards. Reset to null whenever the drawer closes.
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  // Set once the page is idle or the search button is hovered, focused
+  // or pressed; from then on the (code-split) overlay stays mounted, so
+  // its exit animation and every later open behave as they always have.
+  const [searchUsed, setSearchUsed] = useState(false);
   // Which Pacific Applications row the cursor is on. Drives the
   // preview image beside the list; defaults to 0 so the panel is never
   // empty on open, and is reset whenever a different category card is
@@ -581,6 +598,19 @@ export default function Header() {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Mount the closed search overlay once the page is idle. A tap on a
+  // phone has no hover before it, so without this the first tap would
+  // wait on the overlay's chunk (and React's Suspense reveal) to open.
+  useEffect(() => {
+    const mount = () => setSearchUsed(true);
+    if (typeof window.requestIdleCallback === "function") {
+      const idleId = window.requestIdleCallback(mount, { timeout: 3000 });
+      return () => window.cancelIdleCallback(idleId);
+    }
+    const timeoutId = setTimeout(mount, 1500);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   // Close the Coming Soon modal on Escape.
@@ -722,7 +752,8 @@ export default function Header() {
     pathname.startsWith("/shop/") ||
     pathname === "/cart" ||
     pathname === "/favorites" ||
-    pathname === "/products/pacific-european-window-sill-threshold-collection" ||
+    pathname ===
+      "/products/pacific-european-window-sill-threshold-collection" ||
     pathname === "/privacy" ||
     pathname === "/search" ||
     (pathname.startsWith("/products/") && pathname.endsWith("/about")) ||
@@ -747,8 +778,7 @@ export default function Header() {
   /* Only the transparent-over-hero state still wants white ink. Both
      settled states (scrolled/hover, and mega-open) are now light grounds,
      so they share the dark ink. */
-  const navInk =
-    navTheme === "regular" ? NAV.inkOnDark : NAV.inkOnLight;
+  const navInk = navTheme === "regular" ? NAV.inkOnDark : NAV.inkOnLight;
 
   /* Primary CTA pills (Visualizer, Get a Quote) - `.menu-btn.is-primary`
      in the reference. Translucent glass at rest, solid in both settled
@@ -764,7 +794,8 @@ export default function Header() {
        dark one. Keyed off the pill colour, not the bar. */
     color: navTheme === "light" ? NAV.inkOnLight : NAV.inkOnDark,
     backdropFilter: navTheme === "regular" ? "blur(6px)" : undefined,
-    transition: "background-color " + NAV.fast + " ease, color " + NAV.fast + " ease",
+    transition:
+      "background-color " + NAV.fast + " ease, color " + NAV.fast + " ease",
   };
 
   // Logo is always white now, everywhere, no color switching — per
@@ -777,7 +808,12 @@ export default function Header() {
 
   return (
     <>
-      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      {searchUsed && (
+        <SearchOverlay
+          isOpen={searchOpen}
+          onClose={() => setSearchOpen(false)}
+        />
+      )}
 
       {/* Coming Soon modal — centred overlay shown when a comingSoon
           mega card is clicked (currently 3D Showroom). The label
@@ -795,6 +831,7 @@ export default function Header() {
             className="fixed inset-0 z-[300] bg-black/70 backdrop-blur-md flex items-center justify-center px-6"
             role="dialog"
             aria-modal="true"
+            aria-labelledby="coming-soon-title"
           >
             <motion.div
               initial={{ scale: 0.94, opacity: 0 }}
@@ -815,7 +852,10 @@ export default function Header() {
               <div className="text-[11px] tracking-[0.3em] uppercase text-pacific-mid mb-3">
                 Coming soon
               </div>
-              <h3 className="text-2xl sm:text-3xl font-light tracking-tight text-white mb-3">
+              <h3
+                id="coming-soon-title"
+                className="text-2xl sm:text-3xl font-light tracking-tight text-white mb-3"
+              >
                 {comingSoonLabel}
               </h3>
               <p className="text-sm font-light text-pacific-light leading-relaxed">
@@ -931,7 +971,10 @@ export default function Header() {
                 stays legible over the bright homepage marble hero
                 without reintroducing the flat background tile that
                 used to sit behind it. */}
-            <Link href="/" className="col-start-1 justify-self-start flex items-center group">
+            <Link
+              href="/"
+              className="col-start-1 justify-self-start flex items-center group"
+            >
               {/* The Pacific Surfaces lockup (mark + PACIFIC +
                   SURFACES) as one graphic from the official artwork,
                   rather than an icon plus HTML text. Same size at every
@@ -987,11 +1030,11 @@ export default function Header() {
                   meant to flow through the four space cards in the
                   dropdown rather than a top-level /spaces overview
                   page. Render as a <span> so there's no link target
-                  and no default browser behaviour to suppress. */}
+                  and no default browser behaviour to suppress. No
+                  aria-haspopup / aria-expanded: they are not allowed
+                  on a plain span, and it can't open anything itself. */}
                     {item.name === "Spaces" ? (
                       <span
-                        aria-haspopup="true"
-                        aria-expanded={openMegaItem === item.name}
                         className={cn(
                           "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2 cursor-default select-none",
                           // No per-item hover colour, by design - the
@@ -1136,163 +1179,172 @@ export default function Header() {
                                 style={{ backgroundColor: NAV.bgMega }}
                                 className="shadow-[0_18px_48px_rgba(0,0,0,0.16)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain"
                               >
-                              <div
-                                /* Full-bleed, like the bar above it. The
+                                <div
+                                  /* Full-bleed, like the bar above it. The
                                    1400px cap left the seven cards huddled
                                    in the middle of a 1920 screen while the
                                    nav ran edge to edge, so the panel read
                                    as a smaller, separate thing. Padding
                                    matches the header row exactly. */
-                                className={cn(
-                                  "w-full px-8",
-                                  item.name === "Products"
-                                    ? "pb-8 pt-7"
-                                    : "py-5 lg:py-6"
-                                )}
-                              >
-                                {/* Products has its own panel: seven
+                                  className={cn(
+                                    "w-full px-8",
+                                    item.name === "Products"
+                                      ? "pb-8 pt-7"
+                                      : "py-5 lg:py-6"
+                                  )}
+                                >
+                                  {/* Products has its own panel: seven
                               collection plates on one grid with the
                               detail row, colour on the plate under
                               the cursor. See ProductsMega. */}
-                                {item.name === "Products" ? (
-                                  <ProductsMega
-                                    categories={PRODUCTS_CATEGORIES}
-                                    active={activeMega}
-                                    onToggle={(slug) => {
-                                      setActiveMega(
-                                        activeMega === slug ? null : slug
-                                      );
-                                      setHoveredApp(0);
-                                    }}
-                                    hoveredApp={hoveredApp}
-                                    onHoverApp={setHoveredApp}
-                                  />
-                                ) : (
-                                /* Cards row for the other megas. Each
+                                  {item.name === "Products" ? (
+                                    <ProductsMega
+                                      categories={PRODUCTS_CATEGORIES}
+                                      active={activeMega}
+                                      onToggle={(slug) => {
+                                        setActiveMega(
+                                          activeMega === slug ? null : slug
+                                        );
+                                        setHoveredApp(0);
+                                      }}
+                                      hoveredApp={hoveredApp}
+                                      onHoverApp={setHoveredApp}
+                                    />
+                                  ) : (
+                                    /* Cards row for the other megas. Each
                               card is a direct Link — click =
                               navigate, no sub-panel, no toggle.
                               Spaces and Professionals: 4 cards;
                               Corporate and Inspirations: 3. */
-                                <div
-                                  className={`grid gap-3 ${
-                                    item.name === "Corporate" ||
-                                    item.name === "Inspirations"
-                                      ? "grid-cols-3"
-                                      : "grid-cols-4"
-                                  }`}
-                                >
-                                  {(item.name === "Spaces"
-                                    ? SPACES_CATEGORIES
-                                    : item.name === "Corporate"
-                                      ? CORPORATE_CATEGORIES
-                                      : item.name === "Professionals"
-                                        ? PROFESSIONS_CATEGORIES
-                                        : INSPIRATIONS_CATEGORIES
-                                  ).map((cat) => {
-                                    // Spaces / Corporate / Professions /
-                                    // Inspirations all use the same
-                                    // direct-Link card layout (each card
-                                    // is a destination, no sub-panel).
-                                    // Products has its own panel above.
-                                      // comingSoon cards render as a
-                                      // button that triggers the modal
-                                      // instead of navigating. Same
-                                      // visual treatment as the Link
-                                      // variant otherwise.
-                                      if (cat.comingSoon) {
+                                    <div
+                                      className={`grid gap-3 ${
+                                        item.name === "Corporate" ||
+                                        item.name === "Inspirations"
+                                          ? "grid-cols-3"
+                                          : "grid-cols-4"
+                                      }`}
+                                    >
+                                      {(item.name === "Spaces"
+                                        ? SPACES_CATEGORIES
+                                        : item.name === "Corporate"
+                                          ? CORPORATE_CATEGORIES
+                                          : item.name === "Professionals"
+                                            ? PROFESSIONS_CATEGORIES
+                                            : INSPIRATIONS_CATEGORIES
+                                      ).map((cat) => {
+                                        // Spaces / Corporate / Professions /
+                                        // Inspirations all use the same
+                                        // direct-Link card layout (each card
+                                        // is a destination, no sub-panel).
+                                        // Products has its own panel above.
+                                        // comingSoon cards render as a
+                                        // button that triggers the modal
+                                        // instead of navigating. Same
+                                        // visual treatment as the Link
+                                        // variant otherwise.
+                                        if (cat.comingSoon) {
+                                          return (
+                                            <button
+                                              key={cat.slug}
+                                              type="button"
+                                              onClick={() =>
+                                                setComingSoonLabel(cat.name)
+                                              }
+                                              className="group block w-full text-left transition-transform hover:scale-[1.02]"
+                                            >
+                                              <div
+                                                data-over-media
+                                                className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-pacific-light via-white to-pacific-mid"
+                                              >
+                                                {cat.imageUrl ? (
+                                                  <Image
+                                                    src={cat.imageUrl}
+                                                    alt={cat.name}
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="(min-width: 1024px) 25vw, 50vw"
+                                                    priority={false}
+                                                    unoptimized
+                                                  />
+                                                ) : null}
+                                                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center px-3 text-center gap-2">
+                                                  <span className="rounded-full bg-white/15 backdrop-blur px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-white border border-white/25">
+                                                    Coming soon
+                                                  </span>
+                                                  <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
+                                                    {cat.name}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                              <p className="mt-2.5 px-1 text-xs font-light tracking-wide text-[#3C3C3B]/70 leading-snug">
+                                                {cat.tagline}
+                                              </p>
+                                            </button>
+                                          );
+                                        }
                                         return (
-                                          <button
+                                          <Link
                                             key={cat.slug}
-                                            type="button"
-                                            onClick={() =>
-                                              setComingSoonLabel(cat.name)
+                                            href={
+                                              cat.coloursHref ??
+                                              `/products/${cat.slug}`
                                             }
-                                            className="group block w-full text-left transition-transform hover:scale-[1.02]"
+                                            className="group block transition-transform hover:scale-[1.02]"
                                           >
-                                            <div data-over-media className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
+                                            <div
+                                              data-over-media
+                                              className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-pacific-light via-white to-pacific-mid"
+                                            >
                                               {cat.imageUrl ? (
+                                                // Spaces cards keep their
+                                                // thumbnail visible at
+                                                // rest — only Products
+                                                // cards use the hover-to-
+                                                // reveal treatment.
                                                 <Image
                                                   src={cat.imageUrl}
                                                   alt={cat.name}
                                                   fill
                                                   className="object-cover"
+                                                  style={
+                                                    cat.imagePosition
+                                                      ? {
+                                                          objectPosition:
+                                                            cat.imagePosition,
+                                                        }
+                                                      : undefined
+                                                  }
                                                   sizes="(min-width: 1024px) 25vw, 50vw"
                                                   priority={false}
                                                   unoptimized
                                                 />
                                               ) : null}
+                                              {/* Dark scrim so the
+                                              centered name stays
+                                              legible over any photo. */}
                                               <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
-                                              <div className="absolute inset-0 flex flex-col items-center justify-center px-3 text-center gap-2">
-                                                <span className="rounded-full bg-white/15 backdrop-blur px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-white border border-white/25">
-                                                  Coming soon
-                                                </span>
+                                              {/* Centered, full-width name
+                                              overlay. */}
+                                              <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
                                                 <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
                                                   {cat.name}
                                                 </span>
                                               </div>
                                             </div>
+                                            {/* Subscript tagline — sits
+                                            below the card, kept from
+                                            the pre-overlay layout. */}
                                             <p className="mt-2.5 px-1 text-xs font-light tracking-wide text-[#3C3C3B]/70 leading-snug">
                                               {cat.tagline}
                                             </p>
-                                          </button>
+                                          </Link>
                                         );
-                                      }
-                                      return (
-                                        <Link
-                                          key={cat.slug}
-                                          href={
-                                            cat.coloursHref ??
-                                            `/products/${cat.slug}`
-                                          }
-                                          className="group block transition-transform hover:scale-[1.02]"
-                                        >
-                                          <div data-over-media className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-pacific-light via-white to-pacific-mid">
-                                            {cat.imageUrl ? (
-                                              // Spaces cards keep their
-                                              // thumbnail visible at
-                                              // rest — only Products
-                                              // cards use the hover-to-
-                                              // reveal treatment.
-                                              <Image
-                                                src={cat.imageUrl}
-                                                alt={cat.name}
-                                                fill
-                                                className="object-cover"
-                                                style={
-                                                  cat.imagePosition
-                                                    ? { objectPosition: cat.imagePosition }
-                                                    : undefined
-                                                }
-                                                sizes="(min-width: 1024px) 25vw, 50vw"
-                                                priority={false}
-                                                unoptimized
-                                              />
-                                            ) : null}
-                                            {/* Dark scrim so the
-                                              centered name stays
-                                              legible over any photo. */}
-                                            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
-                                            {/* Centered, full-width name
-                                              overlay. */}
-                                            <div className="absolute inset-0 flex items-center justify-center px-3 text-center">
-                                              <span className="text-sm lg:text-base font-medium text-white tracking-tight leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
-                                                {cat.name}
-                                              </span>
-                                            </div>
-                                          </div>
-                                          {/* Subscript tagline — sits
-                                            below the card, kept from
-                                            the pre-overlay layout. */}
-                                          <p className="mt-2.5 px-1 text-xs font-light tracking-wide text-[#3C3C3B]/70 leading-snug">
-                                            {cat.tagline}
-                                          </p>
-                                        </Link>
-                                      );
-                                  })}
+                                      })}
+                                    </div>
+                                  )}
                                 </div>
-                                )}
-                              </div>
-                              {/* Footer strip — Products-only. Only
+                                {/* Footer strip — Products-only. Only
                             surfaces the "All Products" CTA, right-
                             aligned. Earlier versions also listed
                             Exotic / Integra Sinks / Vanity on the
@@ -1305,19 +1357,19 @@ export default function Header() {
                             Inspirations don't get it because the
                             "All ..." link wouldn't make sense in
                             those contexts. */}
-                              {item.name === "Products" && (
-                                <div className="border-t border-[#3C3C3B]/12 bg-[#F4F4F3]">
-                                  <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-end py-3">
-                                    <Link
-                                      href="/products"
-                                      className="text-[12px] font-medium tracking-[0.2em] uppercase text-[#3C3C3B] inline-flex items-center gap-1.5 hover:gap-2 transition-all"
-                                    >
-                                      All Products
-                                      <ArrowRight className="w-3.5 h-3.5" />
-                                    </Link>
+                                {item.name === "Products" && (
+                                  <div className="border-t border-[#3C3C3B]/12 bg-[#F4F4F3]">
+                                    <div className="mx-auto max-w-[1400px] px-6 lg:px-8 flex items-center justify-end py-3">
+                                      <Link
+                                        href="/products"
+                                        className="text-[12px] font-medium tracking-[0.2em] uppercase text-[#3C3C3B] inline-flex items-center gap-1.5 hover:gap-2 transition-all"
+                                      >
+                                        All Products
+                                        <ArrowRight className="w-3.5 h-3.5" />
+                                      </Link>
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
                               </motion.div>
                             </div>
                           </motion.div>
@@ -1348,7 +1400,14 @@ export default function Header() {
             {/* CTA + Search + Mobile toggle */}
             <div className="col-start-3 justify-self-end flex items-center gap-1 min-[1700px]:gap-0.5 min-[1700px]:pl-8 shrink-0">
               <button
-                onClick={() => setSearchOpen(true)}
+                onClick={() => {
+                  setSearchUsed(true);
+                  setSearchOpen(true);
+                }}
+                // Mount the overlay on intent so its chunk is fetched
+                // before the click (see SearchOverlay at the top).
+                onPointerEnter={() => setSearchUsed(true)}
+                onFocus={() => setSearchUsed(true)}
                 aria-label="Open search"
                 className={cn(
                   // Visible at every breakpoint — on mobile this is

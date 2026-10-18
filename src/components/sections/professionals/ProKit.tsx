@@ -10,8 +10,9 @@ import { safeJsonLd } from "@/lib/escape";
  * Quartz page's: light uppercase headings, hairline grids, real
  * photographs at full width, black bands for the opening and the close.
  *
- * Written for the live skin (app/bw-temp.css): the page's <main> carries
- * `data-light-page`; dark plates are divs with `data-over-media` (a dark
+ * Written for the live skin (app/bw-temp.css): the page's wrapper <div>
+ * carries `data-light-page` (not a <main>: the site layout supplies the
+ * one <main>); dark plates are divs with `data-over-media` (a dark
  * <section> is painted white); heading weights are set inline; links on
  * light grounds avoid `bg-[#1…` hover classes.
  *
@@ -22,10 +23,23 @@ import { safeJsonLd } from "@/lib/escape";
 
 export const LIGHT = { fontVariationSettings: "'wght' 250, 'wdth' 100" };
 export const LABEL = "text-[11px] uppercase tracking-[0.16em] opacity-60";
-const H2 = "text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]";
+const H2 =
+  "text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]";
 
-export function Container({ className = "", children }: { className?: string; children: React.ReactNode }) {
-  return <div className={`mx-auto w-full max-w-[1760px] px-5 sm:px-8 lg:px-12 ${className}`}>{children}</div>;
+export function Container({
+  className = "",
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`mx-auto w-full max-w-[1760px] px-5 sm:px-8 lg:px-12 ${className}`}
+    >
+      {children}
+    </div>
+  );
 }
 
 type Cta = { label: string; href: string };
@@ -69,39 +83,67 @@ export function ProHero({
   eyebrow: string;
   title: string;
   lead: string;
-  /** Full-bleed photograph; also the poster when `video` is set. */
+  /** Full-bleed photograph; also the still under `video` until it plays. */
   image: string;
   alt: string;
-  /** A muted loop over the photograph, from md up (phones keep the still). */
+  /**
+   * A muted loop over the photograph, from md up (phones keep the still).
+   * The source carries the md media query, so phones never fetch the clip
+   * (CSS hiding alone does not stop an autoplay download). No poster: the
+   * <Image> beneath already paints the still, and a poster would fetch it
+   * a second time at a different URL.
+   */
   video?: string;
   ctas: Cta[];
   /** Up to four verified figures along the foot of the hero. */
   facts?: { value: string; label: string }[];
 }) {
   return (
-    <div data-over-media className="relative isolate flex min-h-[92svh] flex-col justify-end overflow-hidden bg-[#14140f]">
-      <Image src={image} alt={alt} fill priority sizes="100vw" className="-z-20 object-cover" />
+    <div
+      data-over-media
+      className="relative isolate flex min-h-[92svh] flex-col justify-end overflow-hidden bg-[#14140f]"
+    >
+      <Image
+        src={image}
+        alt={alt}
+        fill
+        priority
+        fetchPriority="high"
+        sizes="100vw"
+        className="-z-20 object-cover"
+      />
       {video && (
         <video
           className="absolute inset-0 -z-20 hidden h-full w-full object-cover md:block"
-          src={video}
-          poster={image}
           autoPlay
           muted
           loop
           playsInline
           preload="metadata"
           aria-hidden="true"
-        />
+        >
+          <source src={video} type="video/mp4" media="(min-width: 768px)" />
+        </video>
       )}
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-black/55 via-black/20 to-black/80" />
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-black/55 via-black/15 to-transparent" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-black/55 via-black/20 to-black/80"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-gradient-to-r from-black/55 via-black/15 to-transparent"
+      />
       <Container className="pb-10 pt-40 lg:pb-14">
         <p className={LABEL}>{eyebrow}</p>
-        <h1 style={LIGHT} className="mt-5 max-w-5xl text-[42px] uppercase leading-[0.98] tracking-[-0.03em] sm:text-6xl lg:text-[88px]">
+        <h1
+          style={LIGHT}
+          className="mt-5 max-w-5xl text-[42px] uppercase leading-[0.98] tracking-[-0.03em] sm:text-6xl lg:text-[88px]"
+        >
           {title}
         </h1>
-        <p className="mt-6 max-w-2xl text-lg font-light leading-snug lg:text-xl">{lead}</p>
+        <p className="mt-6 max-w-2xl text-lg font-light leading-snug lg:text-xl">
+          {lead}
+        </p>
         <div className="mt-9">
           <DarkCtas ctas={ctas} />
         </div>
@@ -110,11 +152,19 @@ export function ProHero({
         {facts.length > 0 && (
           <div className="mt-14 grid grid-cols-2 border-t border-white/25 lg:grid-cols-4">
             {facts.map((f) => (
-              <div key={f.label} className="border-white/25 py-5 pr-4 [&:nth-child(n+3)]:border-t lg:border-l lg:pl-6 lg:[&:first-child]:border-l-0 lg:[&:first-child]:pl-0 lg:[&:nth-child(n+3)]:border-t-0">
-                <p style={LIGHT} className="text-[20px] leading-tight tracking-[-0.01em] sm:text-[24px] lg:text-[32px]">
+              <div
+                key={f.label}
+                className="border-white/25 py-5 pr-4 [&:nth-child(n+3)]:border-t lg:border-l lg:pl-6 lg:[&:first-child]:border-l-0 lg:[&:first-child]:pl-0 lg:[&:nth-child(n+3)]:border-t-0"
+              >
+                <p
+                  style={LIGHT}
+                  className="text-[20px] leading-tight tracking-[-0.01em] sm:text-[24px] lg:text-[32px]"
+                >
                   {f.value}
                 </p>
-                <p className="mt-1 text-[13px] font-light text-white/75">{f.label}</p>
+                <p className="mt-1 text-[13px] font-light text-white/75">
+                  {f.label}
+                </p>
               </div>
             ))}
           </div>
@@ -125,10 +175,26 @@ export function ProHero({
 }
 
 const PAGES = [
-  { slug: "services", label: "Fabrication services", href: "/professionals/services" },
-  { slug: "collaboration", label: "Working with us", href: "/professionals/collaboration" },
-  { slug: "applications", label: "Applications", href: "/professionals/applications" },
-  { slug: "programs", label: "Trade programs", href: "/professionals/programs" },
+  {
+    slug: "services",
+    label: "Fabrication services",
+    href: "/professionals/services",
+  },
+  {
+    slug: "collaboration",
+    label: "Working with us",
+    href: "/professionals/collaboration",
+  },
+  {
+    slug: "applications",
+    label: "Applications",
+    href: "/professionals/applications",
+  },
+  {
+    slug: "programs",
+    label: "Trade programs",
+    href: "/professionals/programs",
+  },
 ] as const;
 
 export type ProSlug = (typeof PAGES)[number]["slug"];
@@ -180,7 +246,11 @@ const COMPANY = [
 ] as const;
 
 /** Our Story and the Corporate pages, one after another. */
-export function CompanyNav({ current }: { current: (typeof COMPANY)[number]["slug"] }) {
+export function CompanyNav({
+  current,
+}: {
+  current: (typeof COMPANY)[number]["slug"];
+}) {
   return <SectionNav label="Company" pages={COMPANY} current={current} />;
 }
 
@@ -217,8 +287,13 @@ export function ProIntro({
         {specs.length > 0 && (
           <dl className="self-end border-t border-[#14140f]/15">
             {specs.map((s) => (
-              <div key={s.label} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 border-b border-[#14140f]/15 py-4">
-                <dt className="text-[12px] uppercase tracking-[0.12em] opacity-60">{s.label}</dt>
+              <div
+                key={s.label}
+                className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 border-b border-[#14140f]/15 py-4"
+              >
+                <dt className="text-[12px] uppercase tracking-[0.12em] opacity-60">
+                  {s.label}
+                </dt>
                 <dd className="text-[16px] font-light">{s.value}</dd>
               </div>
             ))}
@@ -229,7 +304,14 @@ export function ProIntro({
   );
 }
 
-export type ProCard = { title: string; body: string; image: string; alt: string; href?: string; linkLabel?: string };
+export type ProCard = {
+  title: string;
+  body: string;
+  image: string;
+  alt: string;
+  href?: string;
+  linkLabel?: string;
+};
 
 /** Photograph cards, each with a line or two and a way on. */
 export function ProCards({
@@ -249,7 +331,11 @@ export function ProCards({
   tone?: "white" | "stone";
   id?: string;
 }) {
-  const grid = { 2: "sm:grid-cols-2", 3: "sm:grid-cols-2 lg:grid-cols-3", 4: "sm:grid-cols-2 lg:grid-cols-4" }[columns];
+  const grid = {
+    2: "sm:grid-cols-2",
+    3: "sm:grid-cols-2 lg:grid-cols-3",
+    4: "sm:grid-cols-2 lg:grid-cols-4",
+  }[columns];
   return (
     <section id={id} className={tone === "stone" ? "bg-[#EFEDE9]" : "bg-white"}>
       <Container className="py-16 lg:py-24">
@@ -260,7 +346,11 @@ export function ProCards({
               {title}
             </h2>
           </div>
-          {lead && <p className="max-w-xl text-[17px] font-light leading-relaxed">{lead}</p>}
+          {lead && (
+            <p className="max-w-xl text-[17px] font-light leading-relaxed">
+              {lead}
+            </p>
+          )}
         </div>
         <ul className={`mt-12 grid gap-x-6 gap-y-12 ${grid}`}>
           {items.map((c) => {
@@ -275,8 +365,12 @@ export function ProCards({
                     className="object-cover transition-transform duration-700 group-hover/card:scale-[1.03]"
                   />
                 </div>
-                <h3 className="mt-5 text-[15px] uppercase tracking-[0.1em]">{c.title}</h3>
-                <p className="mt-2 text-[15px] font-light leading-relaxed opacity-80">{c.body}</p>
+                <h3 className="mt-5 text-[15px] uppercase tracking-[0.1em]">
+                  {c.title}
+                </h3>
+                <p className="mt-2 text-[15px] font-light leading-relaxed opacity-80">
+                  {c.body}
+                </p>
                 {c.href && (
                   <span className="mt-4 inline-flex items-center gap-2 border-b border-[#14140f] pb-0.5 text-[12px] uppercase tracking-[0.12em]">
                     {c.linkLabel ?? "Learn more"}
@@ -328,8 +422,16 @@ export function ProSplit({
   return (
     <section className={tone === "stone" ? "bg-[#EFEDE9]" : "bg-white"}>
       <Container className="grid items-center gap-10 py-16 lg:grid-cols-2 lg:gap-20 lg:py-24">
-        <div className={`relative aspect-[4/3] w-full overflow-hidden bg-[#E4E1DB] ${reverse ? "lg:order-2" : ""}`}>
-          <Image src={image} alt={alt} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+        <div
+          className={`relative aspect-[4/3] w-full overflow-hidden bg-[#E4E1DB] ${reverse ? "lg:order-2" : ""}`}
+        >
+          <Image
+            src={image}
+            alt={alt}
+            fill
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="object-cover"
+          />
         </div>
         <div>
           <p className={LABEL}>{eyebrow}</p>
@@ -344,8 +446,14 @@ export function ProSplit({
           {points.length > 0 && (
             <ul className="mt-7 border-t border-[#14140f]/15">
               {points.map((p) => (
-                <li key={p} className="flex gap-4 border-b border-[#14140f]/15 py-3.5 text-[15px] font-light">
-                  <span aria-hidden="true" className="mt-[9px] h-px w-4 shrink-0 bg-[#14140f]" />
+                <li
+                  key={p}
+                  className="flex gap-4 border-b border-[#14140f]/15 py-3.5 text-[15px] font-light"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="mt-[9px] h-px w-4 shrink-0 bg-[#14140f]"
+                  />
                   {p}
                 </li>
               ))}
@@ -391,16 +499,29 @@ export function ProSteps({
               {title}
             </h2>
           </div>
-          {lead && <p className="max-w-xl text-[17px] font-light leading-relaxed">{lead}</p>}
+          {lead && (
+            <p className="max-w-xl text-[17px] font-light leading-relaxed">
+              {lead}
+            </p>
+          )}
         </div>
-        <ol className={`mt-12 grid gap-px border border-[#14140f]/10 bg-[#14140f]/10 sm:grid-cols-2 ${cols}`}>
+        <ol
+          className={`mt-12 grid gap-px border border-[#14140f]/10 bg-[#14140f]/10 sm:grid-cols-2 ${cols}`}
+        >
           {steps.map((s, i) => (
             <li key={s.title} className="bg-white p-6 lg:p-8">
-              <span style={LIGHT} className="text-[34px] leading-none tabular-nums">
+              <span
+                style={LIGHT}
+                className="text-[34px] leading-none tabular-nums"
+              >
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="mt-6 text-[15px] uppercase tracking-[0.1em]">{s.title}</h3>
-              <p className="mt-3 text-[15px] font-light leading-relaxed opacity-80">{s.body}</p>
+              <h3 className="mt-6 text-[15px] uppercase tracking-[0.1em]">
+                {s.title}
+              </h3>
+              <p className="mt-3 text-[15px] font-light leading-relaxed opacity-80">
+                {s.body}
+              </p>
             </li>
           ))}
         </ol>
@@ -418,7 +539,10 @@ export function ProIndex({
 }: {
   eyebrow: string;
   title: string;
-  groups: { title: string; links: { label: string; href: string; note?: string }[] }[];
+  groups: {
+    title: string;
+    links: { label: string; href: string; note?: string }[];
+  }[];
   tone?: "white" | "stone";
 }) {
   return (
@@ -431,16 +555,30 @@ export function ProIndex({
         <div className="mt-12 grid gap-x-12 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((g) => (
             <div key={g.title}>
-              <h3 className="border-b border-[#14140f] pb-3 text-[13px] uppercase tracking-[0.14em]">{g.title}</h3>
+              <h3 className="border-b border-[#14140f] pb-3 text-[13px] uppercase tracking-[0.14em]">
+                {g.title}
+              </h3>
               <ul>
                 {g.links.map((l) => (
                   <li key={l.href} className="border-b border-[#14140f]/12">
-                    <Link href={l.href} className="group/link flex items-start justify-between gap-4 py-4">
+                    <Link
+                      href={l.href}
+                      className="group/link flex items-start justify-between gap-4 py-4"
+                    >
                       <span>
-                        <span className="block text-[16px] group-hover/link:underline group-hover/link:underline-offset-4">{l.label}</span>
-                        {l.note && <span className="mt-1 block text-[14px] font-light leading-snug opacity-70">{l.note}</span>}
+                        <span className="block text-[16px] group-hover/link:underline group-hover/link:underline-offset-4">
+                          {l.label}
+                        </span>
+                        {l.note && (
+                          <span className="mt-1 block text-[14px] font-light leading-snug opacity-70">
+                            {l.note}
+                          </span>
+                        )}
                       </span>
-                      <ArrowRight className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" />
+                      <ArrowRight
+                        className="mt-1 h-4 w-4 shrink-0"
+                        aria-hidden="true"
+                      />
                     </Link>
                   </li>
                 ))}
@@ -479,13 +617,21 @@ export function ProTable({
               {title}
             </h2>
           </div>
-          {lead && <p className="max-w-xl text-[17px] font-light leading-relaxed">{lead}</p>}
+          {lead && (
+            <p className="max-w-xl text-[17px] font-light leading-relaxed">
+              {lead}
+            </p>
+          )}
         </div>
         <table className="mt-12 w-full border-collapse text-left">
           <thead className="hidden md:table-header-group">
             <tr className="border-b border-[#14140f]">
               {columns.map((c) => (
-                <th key={c} scope="col" className="pb-3 pr-6 text-[12px] font-normal uppercase tracking-[0.12em]">
+                <th
+                  key={c}
+                  scope="col"
+                  className="pb-3 pr-6 text-[12px] font-normal uppercase tracking-[0.12em]"
+                >
                   {c}
                 </th>
               ))}
@@ -493,12 +639,23 @@ export function ProTable({
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.cells[0]} className="block border-b border-[#14140f]/15 py-4 md:table-row md:py-0">
+              <tr
+                key={r.cells[0]}
+                className="block border-b border-[#14140f]/15 py-4 md:table-row md:py-0"
+              >
                 {r.cells.map((cell, i) => (
-                  <td key={columns[i]} className={`block py-1 md:table-cell md:py-5 md:pr-6 md:align-top ${i === 0 ? "text-[17px]" : "text-[15px] font-light"}`}>
-                    <span className="mr-2 text-[11px] uppercase tracking-[0.12em] opacity-60 md:hidden">{i > 0 ? columns[i] : ""}</span>
+                  <td
+                    key={columns[i]}
+                    className={`block py-1 md:table-cell md:py-5 md:pr-6 md:align-top ${i === 0 ? "text-[17px]" : "text-[15px] font-light"}`}
+                  >
+                    <span className="mr-2 text-[11px] uppercase tracking-[0.12em] opacity-60 md:hidden">
+                      {i > 0 ? columns[i] : ""}
+                    </span>
                     {i === 0 && r.href ? (
-                      <Link href={r.href} className="underline-offset-4 hover:underline">
+                      <Link
+                        href={r.href}
+                        className="underline-offset-4 hover:underline"
+                      >
                         {cell}
                       </Link>
                     ) : (
@@ -536,13 +693,26 @@ export function ProTimeline({
         </h2>
         <ol className="mt-12 grid border-t border-[#14140f] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {items.map((m) => (
-            <li key={m.year + m.title} className="relative border-b border-[#14140f]/15 py-7 pr-6 xl:border-b-0">
-              <span aria-hidden="true" className="absolute -top-[5px] left-0 h-[9px] w-[9px] rounded-full bg-[#14140f]" />
-              <p style={LIGHT} className="text-[40px] leading-none tracking-[-0.02em] lg:text-[48px]">
+            <li
+              key={m.year + m.title}
+              className="relative border-b border-[#14140f]/15 py-7 pr-6 xl:border-b-0"
+            >
+              <span
+                aria-hidden="true"
+                className="absolute -top-[5px] left-0 h-[9px] w-[9px] rounded-full bg-[#14140f]"
+              />
+              <p
+                style={LIGHT}
+                className="text-[40px] leading-none tracking-[-0.02em] lg:text-[48px]"
+              >
                 {m.year}
               </p>
-              <h3 className="mt-5 text-[14px] uppercase tracking-[0.1em]">{m.title}</h3>
-              <p className="mt-3 text-[15px] font-light leading-relaxed opacity-80">{m.body}</p>
+              <h3 className="mt-5 text-[14px] uppercase tracking-[0.1em]">
+                {m.title}
+              </h3>
+              <p className="mt-3 text-[15px] font-light leading-relaxed opacity-80">
+                {m.body}
+              </p>
             </li>
           ))}
         </ol>
@@ -573,7 +743,11 @@ export function ProTeam({
               {title}
             </h2>
           </div>
-          {lead && <p className="max-w-xl text-[17px] font-light leading-relaxed">{lead}</p>}
+          {lead && (
+            <p className="max-w-xl text-[17px] font-light leading-relaxed">
+              {lead}
+            </p>
+          )}
         </div>
         <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-6">
           {people.map((p) => {
@@ -588,15 +762,30 @@ export function ProTeam({
                     className="object-cover grayscale transition duration-500 group-hover/person:grayscale-0"
                   />
                 </div>
-                <p className="mt-4 text-[15px] uppercase tracking-[0.08em]">{p.name}</p>
-                <p className="mt-1 text-[14px] font-light leading-snug opacity-70">{p.role}</p>
+                <p className="mt-4 text-[15px] uppercase tracking-[0.08em]">
+                  {p.name}
+                </p>
+                <p className="mt-1 text-[14px] font-light leading-snug opacity-70">
+                  {p.role}
+                </p>
               </>
             );
             return (
               <li key={p.name}>
                 {p.linkedin ? (
-                  <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="group/person block" aria-label={`${p.name} on LinkedIn`}>
+                  // No aria-label: the card's own text names the link, so
+                  // voice control can use what is on screen (WCAG 2.5.3).
+                  <a
+                    href={p.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/person block"
+                  >
                     {body}
+                    <span className="sr-only">
+                      {" "}
+                      (LinkedIn profile, opens in a new tab)
+                    </span>
                   </a>
                 ) : (
                   <div className="group/person">{body}</div>
@@ -627,14 +816,28 @@ export function ProFigures({
         <h2 style={LIGHT} className={`mt-4 max-w-4xl ${H2}`}>
           {title}
         </h2>
-        <div className={`mt-12 grid border-t border-white/25 sm:grid-cols-2 ${items.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
+        <div
+          className={`mt-12 grid border-t border-white/25 sm:grid-cols-2 ${items.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}
+        >
           {items.map((f) => (
-            <div key={f.label} className="border-b border-white/15 py-8 pr-6 lg:border-b-0 lg:border-r lg:pl-6 lg:[&:first-child]:pl-0 lg:[&:last-child]:border-r-0">
-              <p style={LIGHT} className="text-[48px] leading-none tracking-[-0.03em] lg:text-[64px]">
+            <div
+              key={f.label}
+              className="border-b border-white/15 py-8 pr-6 lg:border-b-0 lg:border-r lg:pl-6 lg:[&:first-child]:pl-0 lg:[&:last-child]:border-r-0"
+            >
+              <p
+                style={LIGHT}
+                className="text-[48px] leading-none tracking-[-0.03em] lg:text-[64px]"
+              >
                 {f.value}
               </p>
-              <p className="mt-4 text-[14px] uppercase tracking-[0.1em]">{f.label}</p>
-              {f.note && <p className="mt-2 text-[15px] font-light leading-relaxed text-white/75">{f.note}</p>}
+              <p className="mt-4 text-[14px] uppercase tracking-[0.1em]">
+                {f.label}
+              </p>
+              {f.note && (
+                <p className="mt-2 text-[15px] font-light leading-relaxed text-white/75">
+                  {f.note}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -644,7 +847,13 @@ export function ProFigures({
 }
 
 /** Questions and answers, open without JavaScript, with FAQPage data. */
-export function ProFaq({ title = "Questions", items }: { title?: string; items: { q: string; a: string }[] }) {
+export function ProFaq({
+  title = "Questions",
+  items,
+}: {
+  title?: string;
+  items: { q: string; a: string }[];
+}) {
   return (
     <section className="bg-white">
       <Container className="grid gap-10 py-16 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20 lg:py-24">
@@ -656,14 +865,23 @@ export function ProFaq({ title = "Questions", items }: { title?: string; items: 
         </div>
         <div className="border-t border-[#14140f]/15">
           {items.map((f, i) => (
-            <details key={f.q} open={i === 0} className="group border-b border-[#14140f]/15">
+            <details
+              key={f.q}
+              open={i === 0}
+              className="group border-b border-[#14140f]/15"
+            >
               <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-[17px] [&::-webkit-details-marker]:hidden">
                 <span>{f.q}</span>
-                <span aria-hidden="true" className="mt-1 text-xl leading-none transition-transform group-open:rotate-45">
+                <span
+                  aria-hidden="true"
+                  className="mt-1 text-xl leading-none transition-transform group-open:rotate-45"
+                >
                   +
                 </span>
               </summary>
-              <p className="max-w-3xl pb-7 text-[16px] font-light leading-relaxed opacity-80">{f.a}</p>
+              <p className="max-w-3xl pb-7 text-[16px] font-light leading-relaxed opacity-80">
+                {f.a}
+              </p>
             </details>
           ))}
         </div>
@@ -674,7 +892,11 @@ export function ProFaq({ title = "Questions", items }: { title?: string; items: 
           __html: safeJsonLd({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: items.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+            mainEntity: items.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
           }),
         }}
       />
@@ -683,13 +905,35 @@ export function ProFaq({ title = "Questions", items }: { title?: string; items: 
 }
 
 /** The closing band: a photograph under a dark wash, a line, two ways on. */
-export function ProClose({ title, body, ctas, image }: { title: string; body: string; ctas: Cta[]; image: string }) {
+export function ProClose({
+  title,
+  body,
+  ctas,
+  image,
+}: {
+  title: string;
+  body: string;
+  ctas: Cta[];
+  image: string;
+}) {
   return (
-    <div data-over-media className="relative isolate overflow-hidden bg-[#14140f]">
-      <Image src={image} alt="" fill sizes="100vw" className="-z-20 object-cover" />
+    <div
+      data-over-media
+      className="relative isolate overflow-hidden bg-[#14140f]"
+    >
+      <Image
+        src={image}
+        alt=""
+        fill
+        sizes="100vw"
+        className="-z-20 object-cover"
+      />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/65" />
       <Container className="py-20 lg:py-32">
-        <h2 style={LIGHT} className="max-w-4xl text-[34px] uppercase leading-[1.02] tracking-[-0.03em] sm:text-5xl lg:text-[68px]">
+        <h2
+          style={LIGHT}
+          className="max-w-4xl text-[34px] uppercase leading-[1.02] tracking-[-0.03em] sm:text-5xl lg:text-[68px]"
+        >
           {title}
         </h2>
         <p className="mt-6 max-w-2xl text-lg font-light leading-snug">{body}</p>

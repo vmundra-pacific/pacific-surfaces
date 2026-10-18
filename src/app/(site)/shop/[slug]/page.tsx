@@ -25,6 +25,7 @@ import {
 } from "@/data/store";
 import { applicationBySlug } from "@/data/applications";
 import type { VanityDetails } from "@/components/shop/VanityTopDetails";
+import { plainText, type PortableBlock } from "@/lib/portable-text";
 
 /**
  * /shop/<slug> — the store's product page.
@@ -39,14 +40,10 @@ export const revalidate = 3600;
 /** The window sills, thresholds and bath pieces the store sold for a day
  *  (2026-10-05) before they became their own category under Products:
  *  their old store addresses lead there now. */
-const RETIRED_PIECE = /^(quartz|granite)-(threshold-1-bevel|threshold-2-bevels|threshold-hollywood|window-sill|shower-jamb|corner-shelf|corner-seat|shower-bench)$/;
-const SILLS_PAGE = "/products/pacific-european-window-sill-threshold-collection";
-
-/** A Portable Text block, as far as this page needs to understand one. */
-interface PortableBlock {
-  _type?: string;
-  children?: { text?: string }[];
-}
+const RETIRED_PIECE =
+  /^(quartz|granite)-(threshold-1-bevel|threshold-2-bevels|threshold-hollywood|window-sill|shower-jamb|corner-shelf|corner-seat|shower-bench)$/;
+const SILLS_PAGE =
+  "/products/pacific-european-window-sill-threshold-collection";
 
 interface ProductDoc {
   _id: string;
@@ -73,22 +70,9 @@ interface CatalogueRow {
   visible?: boolean;
 }
 
-/**
- * Flatten Sanity's Portable Text to a plain paragraph. The store page shows
- * a short intro, not formatted copy, and rendering the blocks straight into
- * JSX throws — they are objects, not strings.
- */
-function plainText(value: string | PortableBlock[] | undefined): string | null {
-  if (!value) return null;
-  if (typeof value === "string") return value.trim() || null;
-  const text = value
-    .filter((b) => b?._type === "block")
-    .map((b) => (b.children ?? []).map((c) => c.text ?? "").join(""))
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return text || null;
-}
+// The description is flattened with plainText (lib/portable-text): the
+// store page shows a short intro, not formatted copy, and rendering the
+// blocks straight into JSX throws — they are objects, not strings.
 
 export async function generateMetadata({
   params,
@@ -128,7 +112,13 @@ export default async function ShopProductPage({
   const top = vanityTopBySlug(slug);
   if (top) {
     const rows = await client.fetch<CatalogueRow[]>(catalogueProductsQuery);
-    return <MadeToOrderTopPage top={top} colours={rangeColours(rows)} details={vanityDetails(rows)} />;
+    return (
+      <MadeToOrderTopPage
+        top={top}
+        colours={rangeColours(rows)}
+        details={vanityDetails(rows)}
+      />
+    );
   }
 
   if (RETIRED_PIECE.test(slug)) permanentRedirect(SILLS_PAGE);
@@ -217,7 +207,12 @@ export default async function ShopProductPage({
 
       <ShopProductClient
         product={product}
-        options={storeOptions({ section, finishes: doc.finishes, name: doc.name, slug })}
+        options={storeOptions({
+          section,
+          finishes: doc.finishes,
+          name: doc.name,
+          slug,
+        })}
         colours={colours}
         similar={similar}
         layers={basinLayers(slug)}
@@ -272,13 +267,16 @@ function vanityDetails(rows: CatalogueRow[] | null): VanityDetails | undefined {
   const series: Record<string, string> = {};
   for (const r of rows ?? []) {
     const name = r.name?.trim();
-    if (name && r.productType === "quartz-slab" && r.collectionName) series[name] = r.collectionName;
+    if (name && r.productType === "quartz-slab" && r.collectionName)
+      series[name] = r.collectionName;
   }
   return {
     intro: guide.intro,
     // Benefits exist only where the guide has them; the store page shows
     // what the guide says and nothing more.
-    benefits: ((guide as { benefits?: { title: string; body: string }[] }).benefits ?? []).map((x) => ({
+    benefits: (
+      (guide as { benefits?: { title: string; body: string }[] }).benefits ?? []
+    ).map((x) => ({
       title: x.title,
       body: x.body,
     })),
@@ -306,11 +304,13 @@ function MadeToOrderTopPage({
       product: topDetail(t),
       options,
       layers: t.layers,
-      similar: VANITY_TOP_PRODUCTS.filter((o) => o.slug !== t.slug).map((o) => ({
-        name: o.name,
-        slug: o.slug,
-        image: o.image,
-      })),
+      similar: VANITY_TOP_PRODUCTS.filter((o) => o.slug !== t.slug).map(
+        (o) => ({
+          name: o.name,
+          slug: o.slug,
+          image: o.image,
+        })
+      ),
     };
   });
   const current = variants.find((v) => v.product.slug === top.slug)!;

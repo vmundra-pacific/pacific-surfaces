@@ -71,7 +71,7 @@ const FAQS = [
 
 export default function SustainabilityPage() {
   return (
-    <main data-light-page className="bg-white text-[#14140f]">
+    <div data-light-page className="bg-white text-[#14140f]">
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },
@@ -109,8 +109,14 @@ export default function SustainabilityPage() {
         specs={[
           { label: "Solar", value: "2 MW installation at the plant" },
           { label: "Wind", value: "An on-site Siemens Gamesa wind turbine" },
-          { label: "Raw material", value: "Quartz grit from Pacific Mintek, since 2020" },
-          { label: "Documentation", value: "Environmental Product Declaration (EPD)" },
+          {
+            label: "Raw material",
+            value: "Quartz grit from Pacific Mintek, since 2020",
+          },
+          {
+            label: "Documentation",
+            value: "Environmental Product Declaration (EPD)",
+          },
         ]}
       />
 
@@ -118,9 +124,21 @@ export default function SustainabilityPage() {
         eyebrow="Energy and materials"
         title="What the plant runs on"
         items={[
-          { value: "2 MW", label: "Solar", note: "A 2 MW solar installation at the plant." },
-          { value: "Wind", label: "On-site turbine", note: "A Siemens Gamesa wind turbine on the site." },
-          { value: "2020", label: "Raw material in-house", note: "Quartz grit from the group's own Pacific Mintek factory." },
+          {
+            value: "2 MW",
+            label: "Solar",
+            note: "A 2 MW solar installation at the plant.",
+          },
+          {
+            value: "Wind",
+            label: "On-site turbine",
+            note: "A Siemens Gamesa wind turbine on the site.",
+          },
+          {
+            value: "2020",
+            label: "Raw material in-house",
+            note: "Quartz grit from the group's own Pacific Mintek factory.",
+          },
         ]}
       />
 
@@ -131,7 +149,10 @@ export default function SustainabilityPage() {
           "Ecosurfaces is the Pacific Surfaces range with low and zero crystalline silica.",
           "Its Environmental Product Declaration is on file and opens in full below.",
         ]}
-        points={["Documented in an Environmental Product Declaration", "Colours, finishes and sizes on the Ecosurfaces page"]}
+        points={[
+          "Documented in an Environmental Product Declaration",
+          "Colours, finishes and sizes on the Ecosurfaces page",
+        ]}
         image="/eco-surfaces-hero.jpg"
         alt="Ecosurfaces by Pacific Surfaces"
         cta={{ label: "Explore Ecosurfaces", href: "/products/ecosurfaces" }}
@@ -159,6 +180,6 @@ export default function SustainabilityPage() {
         ]}
         image="/images/flooring/new-viscont-white-courtyard.webp"
       />
-    </main>
+    </div>
   );
 }

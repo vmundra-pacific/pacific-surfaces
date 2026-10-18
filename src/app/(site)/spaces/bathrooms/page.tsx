@@ -12,7 +12,7 @@ import { spaceColours } from "@/lib/space-colours";
  */
 
 export const metadata: Metadata = {
-  title: "Bathrooms by Pacific Surfaces — Vanity Tops, Basins, Shower Trays and Walls",
+  title: "Bathrooms: Vanity Tops, Basins & Walls | Pacific Surfaces",
   description:
     "Quartz and Eclipse for the bathroom: vanity tops with Integra washbasins, one-piece shower trays, and shower and feature walls in Superjumbo slabs.",
   alternates: { canonical: "/spaces/bathrooms" },

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { VisualizeClient } from "@/components/visualize/VisualizeClient";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 import { client } from "@/sanity/lib/client";
 import { catalogueProductsQuery } from "@/sanity/lib/queries";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 
 export const metadata: Metadata = {
-  title: "Visualizer — See Pacific Slabs in Your Space",
+  title: "Visualizer: See Slabs in Your Space | Pacific Surfaces",
   description:
     "Upload a photo or pick a demo room. Apply any Pacific quartz, granite, or semi-precious surface. Compare finishes side-by-side and request a sample instantly.",
   alternates: { canonical: "/visualize" },
@@ -20,5 +21,15 @@ export default async function VisualizePage() {
   // always mirrors what's published.
   const products = await client.fetch(catalogueProductsQuery);
   const sanitySlabs = mapSanityToCatalogue(products);
-  return <VisualizeClient sanitySlabs={sanitySlabs} />;
+  return (
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Visualizer", url: "/visualize" },
+        ]}
+      />
+      <VisualizeClient sanitySlabs={sanitySlabs} />
+    </>
+  );
 }

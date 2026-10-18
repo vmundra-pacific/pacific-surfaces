@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
@@ -157,7 +156,10 @@ export function HeroScrollCanvas() {
         const done = () => {
           if (!cancelled) {
             count++;
-            setLoaded(count);
+            // `loaded` only drives the loading bar, which reads the
+            // first INITIAL_BATCH frames. Later loads (up to 500 more,
+            // many while scrubbing) would each re-render the hero.
+            if (count <= INITIAL_BATCH) setLoaded(count);
           }
           resolve();
         };
@@ -230,9 +232,11 @@ export function HeroScrollCanvas() {
         const FAST_STRIDES = [40, 20];
         const ON_SCROLL_STRIDES = [10, 5];
         const SLOW_STRIDES = [2, 1];
-        const conn = (navigator as Navigator & {
-          connection?: { saveData?: boolean; effectiveType?: string };
-        }).connection;
+        const conn = (
+          navigator as Navigator & {
+            connection?: { saveData?: boolean; effectiveType?: string };
+          }
+        ).connection;
         const lightOnly =
           !!conn?.saveData || /(^|-)(2g|3g)$/.test(conn?.effectiveType ?? "");
 
@@ -539,8 +543,11 @@ export function HeroScrollCanvas() {
 
   return (
     <>
-      {/* Loading screen */}
+      {/* Loading screen. Once ready it only fades out and stays
+          mounted, so it is also hidden from assistive tech then
+          (otherwise its logo and "100%" stay in the a11y tree). */}
       <div
+        aria-hidden={ready || undefined}
         className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#112732] transition-opacity duration-500 ${
           ready ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
@@ -573,16 +580,25 @@ export function HeroScrollCanvas() {
               image is visible on cold load even before the canvas paints
               (on some mobile cold loads the canvas isn't laid out until
               the first scroll). The canvas draws over this the moment it
-              starts scrubbing, so there's no visible transition. */}
-          <Image
-            src="/hero-frames/frame-0001.jpg"
-            alt=""
-            aria-hidden
-            fill
-            priority
-            sizes="(max-width: 820px) 828px, 100vw"
-            className="object-cover"
-          />
+              starts scrubbing, so there's no visible transition.
+              A <picture>, not next/image: browsers with AVIF take the
+              72 KB frame-0001.avif, the same file the canvas loader
+              probes and draws as frame 1 (one download for all three);
+              the rest fall back to the 563 KB JPG, also the exact URL the
+              loader asks for. It is in the server HTML with high fetch
+              priority, so the preload scanner finds this LCP image
+              without a separate preload. */}
+          <picture>
+            <source type="image/avif" srcSet="/hero-frames/frame-0001.avif" />
+            <img
+              src="/hero-frames/frame-0001.jpg"
+              alt=""
+              aria-hidden="true"
+              fetchPriority="high"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </picture>
           {/* Canvas */}
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
@@ -602,10 +618,16 @@ export function HeroScrollCanvas() {
               is also searched under, linked to its page (owner,
               2026-10-07: the homepage names Pacific Quartz and links to
               it). */}
-          <div data-over-media className="absolute bottom-32 left-5 right-5 z-20 md:bottom-8 md:left-8 md:right-auto">
+          <div
+            data-over-media
+            className="absolute bottom-32 left-5 right-5 z-20 md:bottom-8 md:left-8 md:right-auto"
+          >
             <h1
               className="text-[11px] uppercase leading-relaxed text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
-              style={{ letterSpacing: "0.2em", fontVariationSettings: "'wght' 500, 'wdth' 100" }}
+              style={{
+                letterSpacing: "0.2em",
+                fontVariationSettings: "'wght' 500, 'wdth' 100",
+              }}
             >
               {HOME_H1}
             </h1>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Heart, Check } from "lucide-react";
 import type { Slab } from "@/data/slabs";
+import { sanityImg } from "@/lib/sanity-img";
 
 /**
  * Favorites live in localStorage only (key `ps_favorites_v1`, toggled
@@ -100,9 +101,17 @@ export function FavoriteDesignsPanel({
               }`}
             >
               {slab.photoUrl ? (
+                // The square object-cover shows anyway, cropped at full
+                // quality and enough for 3x on the widest (~340px) tile,
+                // not the 2-4 MB master.
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={slab.photoUrl}
+                  src={sanityImg(slab.photoUrl, {
+                    w: 1024,
+                    h: 1024,
+                    fit: "crop",
+                    q: 100,
+                  })}
                   alt={slab.name}
                   className="absolute inset-0 w-full h-full object-cover"
                 />

@@ -8,7 +8,6 @@ import "./bw-temp.css";
 import BwTempSections from "./bw-temp-sections";
 import GlobalDustMount from "@/components/global/GlobalDustMount";
 import MetaPixel from "@/components/global/MetaPixel";
-import AuthProvider from "@/components/providers/AuthProvider";
 import { safeJsonLd } from "@/lib/escape";
 import { siteGraph } from "@/data/business";
 
@@ -25,9 +24,13 @@ const GA_MEASUREMENT_ID = "G-7PXLT12ML9";
 /** Google Tag Manager container. Public token, like the GA ID above. */
 const GTM_ID = "GTM-NLNM2VJS";
 
+// preload: false while bw-temp.css forces Hubot Sans on every element:
+// Inter never renders, so preloading it only spent bandwidth at High
+// priority inside the LCP window. Restore the preload with the brand test.
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  preload: false,
 });
 
 // `viewportFit: "cover"` lets the page render edge-to-edge on
@@ -64,6 +67,15 @@ export const metadata: Metadata = {
   // indexing, and view search performance / coverage data.
   verification: {
     google: "H28JjFgJyLzNlXvq40-cdWNqnbA5w512rxUsvekw2ok",
+  },
+  // Lets search show large image previews and full snippets for this
+  // image-led catalogue. No index/follow here: a route that sets its own
+  // `robots` (the noindex pages, /privacy) replaces this object outright
+  // rather than merging with it, so their directives are untouched.
+  robots: {
+    "max-image-preview": "large",
+    "max-snippet": -1,
+    "max-video-preview": -1,
   },
 };
 
@@ -126,7 +138,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
-        <AuthProvider>{children}</AuthProvider>
+        {/* No next-auth SessionProvider here: only the customer portal
+            uses auth, so it is mounted in app/customer/layout.tsx and
+            public pages skip the /api/auth/session request. */}
+        {children}
         <BwTempSections />
         <GlobalDustMount />
         {/*

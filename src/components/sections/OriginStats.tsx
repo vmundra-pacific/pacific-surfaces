@@ -9,9 +9,12 @@ export function OriginStats() {
   // visit and contributing to the 100+ MB total page weight Lighthouse
   // was logging. On phone (and on Save-Data / 2g/3g) we render the
   // poster JPG as a static <img> instead. Same composition, no video
-  // bytes. Falls back to the desktop branch on first SSR paint and
-  // re-evaluates client-side once we can read window/navigator.
-  const [skipVideo, setSkipVideo] = useState(false);
+  // bytes. SSR takes the poster branch, so no <video autoPlay> reaches
+  // the server HTML (autoplay would start the download before
+  // hydration); the effect below swaps desktop to the video once we can
+  // read window/navigator. The section sits below the fold on both
+  // pages that use it (/, and /products under its full-screen hero).
+  const [skipVideo, setSkipVideo] = useState(true);
   useEffect(() => {
     if (typeof window === "undefined") return;
     let isPhone = false;

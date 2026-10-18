@@ -298,6 +298,7 @@ export function FacadesAndFinishesContent({
                   alt={introSubheading}
                   width={1400}
                   height={1700}
+                  sizes="(min-width: 1024px) 58vw, 100vw"
                   className="w-full aspect-[4/5] object-cover"
                 />
               ) : (
@@ -348,6 +349,7 @@ export function FacadesAndFinishesContent({
                     alt={introSubheading}
                     width={1200}
                     height={800}
+                    sizes="(min-width: 1024px) 42vw, 100vw"
                     className="w-full aspect-[3/2] object-cover"
                   />
                 ) : introRightImageUrl ? (

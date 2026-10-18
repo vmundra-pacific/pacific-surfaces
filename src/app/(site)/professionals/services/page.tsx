@@ -88,12 +88,18 @@ const MAKE = [
 ];
 
 const STEPS = [
-  { title: "Brief", body: "Tell us what you are making, in which material and finish, and when it is needed on site." },
+  {
+    title: "Brief",
+    body: "Tell us what you are making, in which material and finish, and when it is needed on site.",
+  },
   {
     title: "Drawings",
     body: "Send DWG or PDF drawings, or a hand sketch. Our team turns them into cutting files and checks every dimension with you.",
   },
-  { title: "Quote", body: "An itemised quote for material, fabrication, finish and delivery, approved before any cutting starts." },
+  {
+    title: "Quote",
+    body: "An itemised quote for material, fabrication, finish and delivery, approved before any cutting starts.",
+  },
   {
     title: "Cut",
     body: "Pieces are cut from calibrated slabs on CNC and water-jet machines, with edge profiles, cut-outs and sink openings made in-house.",
@@ -102,7 +108,10 @@ const STEPS = [
     title: "Finish",
     body: "Joints are bonded and hand-finished, and every face is finished as specified: polished, honed or leather.",
   },
-  { title: "Crate and ship", body: "Each piece is checked, crated for the journey and shipped to site, in India or abroad." },
+  {
+    title: "Crate and ship",
+    body: "Each piece is checked, crated for the journey and shipped to site, in India or abroad.",
+  },
 ];
 
 const FAQS = [
@@ -134,7 +143,7 @@ const FAQS = [
 
 export default function ServicesPage() {
   return (
-    <main data-light-page className="bg-white text-[#14140f]">
+    <div data-light-page className="bg-white text-[#14140f]">
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },
@@ -171,7 +180,10 @@ export default function ServicesPage() {
         ]}
         specs={[
           { label: "Materials", value: "Quartz, Eclipse and granite" },
-          { label: "Slab format", value: "Up to 3,480 × 2,007 mm (137 × 79 in)" },
+          {
+            label: "Slab format",
+            value: "Up to 3,480 × 2,007 mm (137 × 79 in)",
+          },
           { label: "Quartz thicknesses", value: "12, 20 and 30 mm" },
           { label: "Drawings", value: "DWG, PDF or a hand sketch" },
           { label: "Finishes", value: "Polished, honed or leather, by design" },
@@ -227,6 +239,6 @@ export default function ServicesPage() {
         ]}
         image="/images/spaces/hotels/cafe-counter-orenda.jpg"
       />
-    </main>
+    </div>
   );
 }

@@ -68,13 +68,22 @@ const TRADES = [
 ];
 
 const STEPS = [
-  { title: "Specify", body: "Samples, finishes, sizes, test results and certificates for the drawings and the specification." },
+  {
+    title: "Specify",
+    body: "Samples, finishes, sizes, test results and certificates for the drawings and the specification.",
+  },
   {
     title: "Detail",
     body: "Cut-to-size pieces drawn from your set by Fab Creations, our fabrication service, and agreed before cutting.",
   },
-  { title: "Supply", body: "Slabs or finished pieces, crated and shipped to site in India or to any of 45+ countries." },
-  { title: "Support", body: "One team from the first sample to the last delivery, with contacts for India, Europe and the Middle East." },
+  {
+    title: "Supply",
+    body: "Slabs or finished pieces, crated and shipped to site in India or to any of 45+ countries.",
+  },
+  {
+    title: "Support",
+    body: "One team from the first sample to the last delivery, with contacts for India, Europe and the Middle East.",
+  },
 ];
 
 const FAQS = [
@@ -102,11 +111,14 @@ const FAQS = [
 
 export default function CollaborationPage() {
   return (
-    <main data-light-page className="bg-white text-[#14140f]">
+    <div data-light-page className="bg-white text-[#14140f]">
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },
-          { name: "Working with Pacific Surfaces", url: "/professionals/collaboration" },
+          {
+            name: "Working with Pacific Surfaces",
+            url: "/professionals/collaboration",
+          },
         ]}
       />
 
@@ -137,11 +149,20 @@ export default function CollaborationPage() {
           "Every colour comes with its finishes, sizes and test data, and the certificates on file can be read in full online. The slabs are made at a state-of-the-art Bretonstone plant with fully automated manufacturing, so what is specified is what is delivered.",
         ]}
         specs={[
-          { label: "Materials", value: "Quartz, Eclipse, granite, Beyond Stone panels" },
+          {
+            label: "Materials",
+            value: "Quartz, Eclipse, granite, Beyond Stone panels",
+          },
           { label: "Slab format", value: "Up to 3,480 × 2,007 mm" },
           { label: "Quartz thicknesses", value: "12, 20 and 30 mm" },
-          { label: "Certificates", value: "NSF/ANSI 51, CE, ISO 9001:2015, Kosher, EPD" },
-          { label: "Contacts", value: "India, Poland, Germany, Croatia, Middle East" },
+          {
+            label: "Certificates",
+            value: "NSF/ANSI 51, CE, ISO 9001:2015, Kosher, EPD",
+          },
+          {
+            label: "Contacts",
+            value: "India, Poland, Germany, Croatia, Middle East",
+          },
         ]}
       />
 
@@ -153,19 +174,28 @@ export default function CollaborationPage() {
         tone="stone"
       />
 
-      <ProSteps eyebrow="How a project runs" title="From the first sample to the last crate" steps={STEPS} tone="white" />
+      <ProSteps
+        eyebrow="How a project runs"
+        title="From the first sample to the last crate"
+        steps={STEPS}
+        tone="white"
+      />
 
       <section className="bg-white">
         <Container className="py-16 lg:py-24">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
             <div>
               <p className={LABEL}>In their words</p>
-              <h2 style={LIGHT} className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]">
+              <h2
+                style={LIGHT}
+                className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]"
+              >
                 Design professionals on Pacific Surfaces
               </h2>
             </div>
             <p className="max-w-xl text-[17px] font-light leading-relaxed">
-              Short films recorded in front of Pacific Surfaces slabs. Tap a film to play it with sound.
+              Short films recorded in front of Pacific Surfaces slabs. Tap a
+              film to play it with sound.
             </p>
           </div>
           <div className="mt-12">
@@ -197,10 +227,13 @@ export default function CollaborationPage() {
         body="Tell us about the project, the colours you are considering and the date it is needed. Samples, data and a contact follow."
         ctas={[
           { label: "Start a project", href: "/contact#enquiry" },
-          { label: "See the applications", href: "/professionals/applications" },
+          {
+            label: "See the applications",
+            href: "/professionals/applications",
+          },
         ]}
         image="/images/spaces/hotels/spa-pool.jpg"
       />
-    </main>
+    </div>
   );
 }

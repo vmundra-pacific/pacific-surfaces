@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
@@ -44,19 +44,52 @@ export interface SpaceShot {
   tags: string[];
 }
 
-export function Container({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <div className={cn("mx-auto w-full max-w-[1760px] px-5 sm:px-8 lg:px-12", className)}>{children}</div>;
+export function Container({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "mx-auto w-full max-w-[1760px] px-5 sm:px-8 lg:px-12",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
-export function Heading({ className, children }: { className?: string; children: React.ReactNode }) {
+export function Heading({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <h2 style={LIGHT} className={cn("text-pretty text-[26px] uppercase leading-[1.15] tracking-[-0.02em] sm:text-4xl lg:text-[42px]", className)}>
+    <h2
+      style={LIGHT}
+      className={cn(
+        "text-pretty text-[26px] uppercase leading-[1.15] tracking-[-0.02em] sm:text-4xl lg:text-[42px]",
+        className
+      )}
+    >
       {children}
     </h2>
   );
 }
 
-export function DarkButton({ href, children }: { href: string; children: React.ReactNode }) {
+export function DarkButton({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
   return (
     <Link
       href={href}
@@ -85,14 +118,36 @@ export function SpaceHero({
   titleClassName?: string;
 }) {
   return (
-    <section data-over-media className="relative isolate flex h-[78vh] min-h-[520px] items-end overflow-hidden bg-[#14140f] text-white">
-      <Image src={image} alt={alt} fill priority sizes="100vw" className="-z-10 object-cover" />
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+    <section
+      data-over-media
+      className="relative isolate flex h-[78vh] min-h-[520px] items-end overflow-hidden bg-[#14140f] text-white"
+    >
+      <Image
+        src={image}
+        alt={alt}
+        fill
+        priority
+        fetchPriority="high"
+        sizes="100vw"
+        className="-z-10 object-cover"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-gradient-to-t from-black/70 via-black/20 to-black/10"
+      />
       <Container className="pb-14 lg:pb-20">
-        <h1 style={LIGHT} className={cn("text-5xl uppercase leading-none tracking-[-0.03em] sm:text-6xl lg:text-[96px]", titleClassName)}>
+        <h1
+          style={LIGHT}
+          className={cn(
+            "text-5xl uppercase leading-none tracking-[-0.03em] sm:text-6xl lg:text-[96px]",
+            titleClassName
+          )}
+        >
           {title}
         </h1>
-        <p className="mt-5 max-w-xl text-lg font-light leading-snug lg:text-xl">{lead}</p>
+        <p className="mt-5 max-w-xl text-lg font-light leading-snug lg:text-xl">
+          {lead}
+        </p>
       </Container>
     </section>
   );
@@ -109,9 +164,13 @@ export function SpaceCrumbs({
   return (
     <nav aria-label="Breadcrumb" className={PANEL}>
       <Container className="flex gap-2 py-4 text-xs font-light">
-        <Link href="/" className="hover:opacity-70">Home</Link>
+        <Link href="/" className="hover:opacity-70">
+          Home
+        </Link>
         <span aria-hidden="true">›</span>
-        <Link href={parent.href} className="hover:opacity-70">{parent.label}</Link>
+        <Link href={parent.href} className="hover:opacity-70">
+          {parent.label}
+        </Link>
         <span aria-hidden="true">›</span>
         <span>{label}</span>
       </Container>
@@ -119,14 +178,27 @@ export function SpaceCrumbs({
   );
 }
 
-/** Reasons, one tab at a time. */
-export function SpaceTabs({ tabs, label, idPrefix }: { tabs: SpaceTab[]; label: string; idPrefix: string }) {
+/** Reasons, one tab at a time. Every panel's copy is in the page, the
+ *  inactive ones hidden, so it reads without a click; only the active
+ *  panel carries its photograph, so hidden ones cost no requests. */
+export function SpaceTabs({
+  tabs,
+  label,
+  idPrefix,
+}: {
+  tabs: SpaceTab[];
+  label: string;
+  idPrefix: string;
+}) {
   const [active, setActive] = useState(0);
-  const t = tabs[active];
   return (
     <section className="bg-white pt-12 lg:pt-16">
       <Container>
-        <div role="tablist" aria-label={label} className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        <div
+          role="tablist"
+          aria-label={label}
+          className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5"
+        >
           {tabs.map((tab, i) => (
             <button
               key={tab.label}
@@ -134,48 +206,69 @@ export function SpaceTabs({ tabs, label, idPrefix }: { tabs: SpaceTab[]; label: 
               role="tab"
               id={`${idPrefix}-tab-${i}`}
               aria-selected={i === active}
-              aria-controls={`${idPrefix}-tab-panel`}
+              aria-controls={`${idPrefix}-tab-panel-${i}`}
               onClick={() => setActive(i)}
               className={cn(
                 "flex min-h-[96px] flex-col justify-between border px-5 py-4 text-left transition-colors",
-                i === active ? cn(PANEL, "border-transparent") : "border-[#14140f]/10 hover:border-[#14140f]/30"
+                i === active
+                  ? cn(PANEL, "border-transparent")
+                  : "border-[#14140f]/10 hover:border-[#14140f]/30"
               )}
             >
-              <span className="text-xs font-light">{String(i + 1).padStart(2, "0")}</span>
-              <span className="mt-3 text-sm uppercase leading-snug tracking-[0.04em]">{tab.label}</span>
+              <span className="text-xs font-light">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="mt-3 text-sm uppercase leading-snug tracking-[0.04em]">
+                {tab.label}
+              </span>
             </button>
           ))}
         </div>
       </Container>
       <div className={cn(PANEL, "mt-2")}>
         <Container>
-          <div
-            id={`${idPrefix}-tab-panel`}
-            role="tabpanel"
-            aria-labelledby={`${idPrefix}-tab-${active}`}
-            className="grid items-center gap-10 py-12 md:grid-cols-2 lg:gap-16 lg:py-16"
-          >
-            <div>
-              <Heading>{t.heading}</Heading>
-              <div className="mt-10 grid gap-6 sm:grid-cols-2">
-                {t.body.map((para) => (
-                  <p key={para.slice(0, 24)} className="text-base font-light leading-relaxed">
-                    {para}
-                  </p>
-                ))}
+          {tabs.map((t, i) => (
+            <div
+              key={t.label}
+              id={`${idPrefix}-tab-panel-${i}`}
+              role="tabpanel"
+              aria-labelledby={`${idPrefix}-tab-${i}`}
+              hidden={i !== active}
+              className="grid items-center gap-10 py-12 md:grid-cols-2 lg:gap-16 lg:py-16"
+            >
+              <div>
+                <Heading>{t.heading}</Heading>
+                <div className="mt-10 grid gap-6 sm:grid-cols-2">
+                  {t.body.map((para) => (
+                    <p
+                      key={para.slice(0, 24)}
+                      className="text-base font-light leading-relaxed"
+                    >
+                      {para}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <div
+                className={cn(
+                  "relative aspect-[4/3] w-full overflow-hidden",
+                  t.contain && "bg-white"
+                )}
+              >
+                {i === active && (
+                  <Image
+                    src={t.image}
+                    alt={t.alt}
+                    fill
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    className={
+                      t.contain ? "object-contain p-4" : "object-cover"
+                    }
+                  />
+                )}
               </div>
             </div>
-            <div className={cn("relative aspect-[4/3] w-full overflow-hidden", t.contain && "bg-white")}>
-              <Image
-                key={t.image}
-                src={t.image}
-                alt={t.alt}
-                fill
-                sizes="(min-width: 768px) 50vw, 100vw"
-                className={t.contain ? "object-contain p-4" : "object-cover"}
-              />
-            </div>
-          </div>
+          ))}
         </Container>
       </div>
     </section>
@@ -183,25 +276,47 @@ export function SpaceTabs({ tabs, label, idPrefix }: { tabs: SpaceTab[]; label: 
 }
 
 /** A sliding row of photograph cards. */
-function CardRow({ cards, tall = false }: { cards: SpaceCard[]; tall?: boolean }) {
+function CardRow({
+  cards,
+  tall = false,
+}: {
+  cards: SpaceCard[];
+  tall?: boolean;
+}) {
   const row = useRef<HTMLDivElement>(null);
   const nudge = (dir: 1 | -1) => {
     const el = row.current;
     if (!el) return;
     const card = el.firstElementChild as HTMLElement | null;
-    el.scrollBy({ left: dir * ((card?.offsetWidth ?? 320) + 16), behavior: "smooth" });
+    el.scrollBy({
+      left: dir * ((card?.offsetWidth ?? 320) + 16),
+      behavior: "smooth",
+    });
   };
   return (
     <>
       <div className="mb-4 flex justify-end gap-2">
-        <button type="button" onClick={() => nudge(-1)} aria-label="Previous" className="p-2 hover:opacity-60">
+        <button
+          type="button"
+          onClick={() => nudge(-1)}
+          aria-label="Previous"
+          className="p-2 hover:opacity-60"
+        >
           <ArrowLeft className="h-5 w-5" strokeWidth={1.25} />
         </button>
-        <button type="button" onClick={() => nudge(1)} aria-label="Next" className="p-2 hover:opacity-60">
+        <button
+          type="button"
+          onClick={() => nudge(1)}
+          aria-label="Next"
+          className="p-2 hover:opacity-60"
+        >
           <ArrowRight className="h-5 w-5" strokeWidth={1.25} />
         </button>
       </div>
-      <div ref={row} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        ref={row}
+        className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         {cards.map((card) => (
           <Link
             key={`${card.href} ${card.title}`}
@@ -211,10 +326,29 @@ function CardRow({ cards, tall = false }: { cards: SpaceCard[]; tall?: boolean }
               tall ? "aspect-[3/4]" : "aspect-[4/5]"
             )}
           >
-            <Image src={card.image} alt={card.alt} fill sizes="(min-width: 1024px) 33vw, 80vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
-            <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/45" />
-            <span data-over-media className="absolute left-6 top-6 text-lg font-light text-white">{card.title}</span>
-            <ArrowRight data-over-media className="absolute bottom-6 left-6 h-5 w-5 text-white" strokeWidth={1.25} aria-hidden="true" />
+            <Image
+              src={card.image}
+              alt={card.alt}
+              fill
+              sizes="(min-width: 1024px) 33vw, 80vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/45"
+            />
+            <span
+              data-over-media
+              className="absolute left-6 top-6 text-lg font-light text-white"
+            >
+              {card.title}
+            </span>
+            <ArrowRight
+              data-over-media
+              className="absolute bottom-6 left-6 h-5 w-5 text-white"
+              strokeWidth={1.25}
+              aria-hidden="true"
+            />
           </Link>
         ))}
       </div>
@@ -240,17 +374,30 @@ export function Split({
     <section className="bg-white pb-20 lg:pb-28">
       <Container>
         <div className="grid md:grid-cols-2">
-          <div className={cn(PANEL, "flex flex-col justify-between gap-10 p-8 lg:p-12")}>
+          <div
+            className={cn(
+              PANEL,
+              "flex flex-col justify-between gap-10 p-8 lg:p-12"
+            )}
+          >
             <Heading className="lg:text-[36px]">{heading}</Heading>
             <div>
-              <p className="max-w-md text-base font-light leading-relaxed">{body}</p>
+              <p className="max-w-md text-base font-light leading-relaxed">
+                {body}
+              </p>
               <div className="mt-6">
                 <DarkButton href={cta.href}>{cta.label}</DarkButton>
               </div>
             </div>
           </div>
           <div className="relative aspect-[4/3] w-full overflow-hidden md:aspect-auto md:min-h-[420px]">
-            <Image src={image} alt={alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+            <Image
+              src={image}
+              alt={alt}
+              fill
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover"
+            />
           </div>
         </div>
       </Container>
@@ -259,7 +406,15 @@ export function Split({
 }
 
 /** Photographs, filtered by tag. */
-export function SpaceGallery({ heading, tags, shots }: { heading: string; tags: string[]; shots: SpaceShot[] }) {
+export function SpaceGallery({
+  heading,
+  tags,
+  shots,
+}: {
+  heading: string;
+  tags: string[];
+  shots: SpaceShot[];
+}) {
   const [tag, setTag] = useState(tags[0]);
   const shown = shots.filter((s) => s.tags.includes(tag));
   return (
@@ -267,34 +422,48 @@ export function SpaceGallery({ heading, tags, shots }: { heading: string; tags: 
       <Container>
         <Heading>{heading}</Heading>
         {tags.length > 1 && (
-        <div role="tablist" aria-label="Filter the gallery" className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
-          {tags.map((t) => (
-            <button
-              key={t}
-              type="button"
-              role="tab"
-              aria-selected={t === tag}
-              onClick={() => setTag(t)}
-              className={cn(
-                "border-b pb-1 text-sm font-light transition-colors",
-                t === tag ? "border-[#14140f]" : "border-transparent hover:border-[#14140f]/30"
-              )}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
+          <div
+            role="tablist"
+            aria-label="Filter the gallery"
+            className="mt-8 flex flex-wrap gap-x-6 gap-y-2"
+          >
+            {tags.map((t) => (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={t === tag}
+                onClick={() => setTag(t)}
+                className={cn(
+                  "border-b pb-1 text-sm font-light transition-colors",
+                  t === tag
+                    ? "border-[#14140f]"
+                    : "border-transparent hover:border-[#14140f]/30"
+                )}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
         )}
         {/* Rows of three when that fills them and rows of four would not. */}
         <div
           className={cn(
             "mt-8 grid grid-cols-2 gap-3",
-            shown.length % 3 === 0 && shown.length % 4 !== 0 ? "md:grid-cols-3" : "md:grid-cols-4"
+            shown.length % 3 === 0 && shown.length % 4 !== 0
+              ? "md:grid-cols-3"
+              : "md:grid-cols-4"
           )}
         >
           {shown.map((s) => (
             <div key={s.src} className="relative aspect-square overflow-hidden">
-              <Image src={s.src} alt={s.alt} fill sizes="(min-width: 768px) 25vw, 50vw" className="object-cover" />
+              <Image
+                src={s.src}
+                alt={s.alt}
+                fill
+                sizes="(min-width: 768px) 25vw, 50vw"
+                className="object-cover"
+              />
             </div>
           ))}
         </div>
@@ -303,8 +472,17 @@ export function SpaceGallery({ heading, tags, shots }: { heading: string; tags: 
   );
 }
 
-export function SpaceFaqs({ heading, faqs }: { heading: string; faqs: { question: string; answer: string }[] }) {
+/** Answers stay in the page while closed (hidden), so the text the
+ *  page's FAQPage schema describes is in its HTML. */
+export function SpaceFaqs({
+  heading,
+  faqs,
+}: {
+  heading: string;
+  faqs: { question: string; answer: string }[];
+}) {
   const [open, setOpen] = useState<number | null>(null);
+  const uid = useId();
   return (
     <section className="bg-white pb-20 lg:pb-28">
       <Container>
@@ -317,14 +495,32 @@ export function SpaceFaqs({ heading, faqs }: { heading: string; faqs: { question
                 <button
                   type="button"
                   aria-expanded={isOpen}
+                  aria-controls={`${uid}-faq-${i}`}
                   onClick={() => setOpen(isOpen ? null : i)}
                   className="flex w-full items-center gap-6 py-5 text-left"
                 >
-                  <span className="w-6 shrink-0 text-xs font-light">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="flex-1 text-base font-light">{f.question}</span>
-                  <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform", isOpen && "rotate-180")} strokeWidth={1.25} aria-hidden="true" />
+                  <span className="w-6 shrink-0 text-xs font-light">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="flex-1 text-base font-light">
+                    {f.question}
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 shrink-0 transition-transform",
+                      isOpen && "rotate-180"
+                    )}
+                    strokeWidth={1.25}
+                    aria-hidden="true"
+                  />
                 </button>
-                {isOpen && <p className="max-w-3xl pb-6 pl-12 text-base font-light leading-relaxed">{f.answer}</p>}
+                <p
+                  id={`${uid}-faq-${i}`}
+                  hidden={!isOpen}
+                  className="max-w-3xl pb-6 pl-12 text-base font-light leading-relaxed"
+                >
+                  {f.answer}
+                </p>
               </li>
             );
           })}
@@ -335,7 +531,13 @@ export function SpaceFaqs({ heading, faqs }: { heading: string; faqs: { question
 }
 
 /** The other spaces, as tall cards. */
-export function SpaceOthers({ heading, cards }: { heading: string; cards: SpaceCard[] }) {
+export function SpaceOthers({
+  heading,
+  cards,
+}: {
+  heading: string;
+  cards: SpaceCard[];
+}) {
   return (
     <section className="bg-white pb-24 lg:pb-32">
       <Container>

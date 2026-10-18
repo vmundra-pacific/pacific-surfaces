@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -62,6 +62,10 @@ export function OrderSampleModal({
   mode = "sample",
 }: OrderSampleModalProps) {
   const isSample = mode === "sample";
+  // Names the dialog after whichever heading is showing (only one of
+  // the three renders at a time), and ties the notes label to its field.
+  const titleId = useId();
+  const notesId = useId();
   const [projectType, setProjectType] = useState("");
   const [submitted, setSubmitted] = useState(false);
   /**
@@ -187,6 +191,9 @@ export function OrderSampleModal({
             transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
             className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
           >
             <button
               aria-label="Close"
@@ -199,7 +206,10 @@ export function OrderSampleModal({
             {submitted ? (
               <div className="px-10 py-12 text-center">
                 <CheckCircle className="w-12 h-12 mx-auto text-pacific-dark mb-4" />
-                <h3 className="text-2xl font-light tracking-tight text-pacific-dark mb-2">
+                <h3
+                  id={titleId}
+                  className="text-2xl font-light tracking-tight text-pacific-dark mb-2"
+                >
                   {isSample ? "Request Sent" : "Enquiry Sent"}
                 </h3>
                 <p className="text-sm text-pacific-dark/70 font-light leading-relaxed max-w-sm mx-auto">
@@ -221,7 +231,10 @@ export function OrderSampleModal({
                  to the submission so the team can route the lead. */
               <div className="px-8 py-8">
                 <div className="text-center">
-                  <h3 className="text-2xl font-light tracking-tight text-pacific-dark">
+                  <h3
+                    id={titleId}
+                    className="text-2xl font-light tracking-tight text-pacific-dark"
+                  >
                     Sample Request
                   </h3>
                   <p className="mt-1 text-sm font-light text-pacific-dark/60">
@@ -281,7 +294,10 @@ export function OrderSampleModal({
                 <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-2">
                   {isSample ? "Request a Sample" : "Enquire about this product"}
                 </div>
-                <h3 className="text-2xl font-light tracking-tight text-pacific-dark mb-1">
+                <h3
+                  id={titleId}
+                  className="text-2xl font-light tracking-tight text-pacific-dark mb-1"
+                >
                   {productName}
                 </h3>
                 {productCategory && (
@@ -293,6 +309,7 @@ export function OrderSampleModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field
                     label="Full Name"
+                    autoComplete="name"
                     value={form.name}
                     onChange={(v) => setForm({ ...form, name: v })}
                     required
@@ -300,6 +317,7 @@ export function OrderSampleModal({
                   <Field
                     label="Email"
                     type="email"
+                    autoComplete="email"
                     value={form.email}
                     onChange={(v) => setForm({ ...form, email: v })}
                     required
@@ -307,11 +325,13 @@ export function OrderSampleModal({
                   <Field
                     label="Phone"
                     type="tel"
+                    autoComplete="tel"
                     value={form.phone}
                     onChange={(v) => setForm({ ...form, phone: v })}
                     required
                   />
                   <select
+                    aria-label="Project type"
                     value={projectType}
                     onChange={(e) => {
                       setProjectType(e.target.value);
@@ -332,6 +352,7 @@ export function OrderSampleModal({
                   {projectType === "Other" && (
                     <input
                       type="text"
+                      aria-label="Project type (other)"
                       value={form.project}
                       onChange={(e) =>
                         setForm({ ...form, project: e.target.value })
@@ -345,6 +366,7 @@ export function OrderSampleModal({
                 {isSample && (
                   <Field
                     label="Shipping Address"
+                    autoComplete="street-address"
                     value={form.address}
                     onChange={(v) => setForm({ ...form, address: v })}
                     className="mt-4"
@@ -352,13 +374,17 @@ export function OrderSampleModal({
                   />
                 )}
                 <div className="mt-4">
-                  <label className="block text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-1.5">
+                  <label
+                    htmlFor={notesId}
+                    className="block text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-1.5"
+                  >
                     {isSample ? "Notes" : "Your Question"}
                     {!isSample && (
                       <span className="text-pacific-dark ml-1">*</span>
                     )}
                   </label>
                   <textarea
+                    id={notesId}
                     rows={isSample ? 3 : 5}
                     value={form.notes}
                     required={!isSample}
@@ -410,6 +436,7 @@ function Field({
   required,
   type = "text",
   placeholder,
+  autoComplete,
   className = "",
 }: {
   label: string;
@@ -418,16 +445,25 @@ function Field({
   required?: boolean;
   type?: string;
   placeholder?: string;
+  autoComplete?: string;
   className?: string;
 }) {
+  // The label names the input; without the pairing these fields had no
+  // accessible name at all, since most have no placeholder.
+  const id = useId();
   return (
     <div className={className}>
-      <label className="block text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-1.5">
+      <label
+        htmlFor={id}
+        className="block text-[10px] font-medium tracking-[0.25em] uppercase text-pacific-mid mb-1.5"
+      >
         {label}
         {required && <span className="text-pacific-dark ml-1">*</span>}
       </label>
       <input
+        id={id}
         type={type}
+        autoComplete={autoComplete}
         required={required}
         value={value}
         placeholder={placeholder}

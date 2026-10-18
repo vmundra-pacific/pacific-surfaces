@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { client } from "@/sanity/lib/client";
 import { groq } from "next-sanity";
 import { APPLICATIONS } from "@/data/applications";
+import { VANITY_TOP_PRODUCTS } from "@/data/store";
 
 // Apex (no www) is the canonical hostname per the Vercel domains
 // config — www 307-redirects here, so emitting apex URLs in the
@@ -44,7 +45,8 @@ type ContentKey =
  *
  * Legacy /sinks, /granites, /semi-precious and /ecosurfaces are left out
  * (they 301 to /products/<category>), and so is /catalogue (it canonicals
- * to /products).
+ * to /products). So are the noindexed placeholders: the Learn topics with
+ * no body yet and the /products/<category>/about pages other than quartz.
  */
 const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
   { path: "", since: "2026-10-07", content: "home" },
@@ -55,30 +57,81 @@ const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
   { path: "/products/quartz", since: "2026-10-08", content: "catalogue" },
   { path: "/products/quartz/about", since: "2026-10-07" },
   { path: "/products/granites", since: "2026-10-05", content: "catalogue" },
-  { path: "/products/semi-precious", since: "2026-09-12", content: "catalogue" },
+  {
+    path: "/products/semi-precious",
+    since: "2026-09-12",
+    content: "catalogue",
+  },
   { path: "/products/exotic", since: "2026-07-06", content: "catalogue" },
-  { path: "/products/centrepiece-couture", since: "2026-09-12", content: "catalogue" },
+  {
+    path: "/products/centrepiece-couture",
+    since: "2026-09-12",
+    content: "catalogue",
+  },
   { path: "/products/integra", since: "2026-09-12", content: "catalogue" },
-  { path: "/products/facades-and-finishes", since: "2026-09-12", content: "facades" },
+  {
+    path: "/products/facades-and-finishes",
+    since: "2026-09-12",
+    content: "facades",
+  },
   { path: "/products/vanity", since: "2026-09-12", content: "catalogue" },
   { path: "/products/ecosurfaces", since: "2026-09-12", content: "catalogue" },
-  { path: "/products/fab-creations", since: "2026-10-05", content: "catalogue" },
+  {
+    path: "/products/fab-creations",
+    since: "2026-10-05",
+    content: "catalogue",
+  },
   // Cut pieces: the Pacific European Window Sill & Threshold Collection,
   // built in code.
-  { path: "/products/pacific-european-window-sill-threshold-collection", since: "2026-10-07" },
+  {
+    path: "/products/pacific-european-window-sill-threshold-collection",
+    since: "2026-10-07",
+  },
   { path: "/products/translucent", since: "2026-09-12", content: "catalogue" },
   // Quartz series landings, via /products/[slug]/[item].
-  { path: "/products/quartz/chromia", since: "2026-10-05", content: "catalogue" },
-  { path: "/products/quartz/aurora", since: "2026-10-05", content: "catalogue" },
-  { path: "/products/quartz/celestia", since: "2026-07-06", content: "catalogue" },
-  { path: "/products/quartz/kosmic", since: "2026-10-05", content: "catalogue" },
-  { path: "/products/quartz/luminara", since: "2026-07-06", content: "catalogue" },
-  { path: "/products/quartz/nebula", since: "2026-07-06", content: "catalogue" },
+  {
+    path: "/products/quartz/chromia",
+    since: "2026-10-05",
+    content: "catalogue",
+  },
+  {
+    path: "/products/quartz/aurora",
+    since: "2026-10-05",
+    content: "catalogue",
+  },
+  {
+    path: "/products/quartz/celestia",
+    since: "2026-07-06",
+    content: "catalogue",
+  },
+  {
+    path: "/products/quartz/kosmic",
+    since: "2026-10-05",
+    content: "catalogue",
+  },
+  {
+    path: "/products/quartz/luminara",
+    since: "2026-07-06",
+    content: "catalogue",
+  },
+  {
+    path: "/products/quartz/nebula",
+    since: "2026-07-06",
+    content: "catalogue",
+  },
   { path: "/spaces", since: "2026-10-05" },
   { path: "/spaces/kitchens", since: "2026-10-05" },
   { path: "/spaces/bathrooms", since: "2026-10-05" },
-  { path: "/spaces/architecture", since: "2026-09-12", content: "space:architecture" },
-  { path: "/spaces/commercial", since: "2026-07-06", content: "space:commercial" },
+  {
+    path: "/spaces/architecture",
+    since: "2026-09-12",
+    content: "space:architecture",
+  },
+  {
+    path: "/spaces/commercial",
+    since: "2026-07-06",
+    content: "space:commercial",
+  },
   { path: "/spaces/hospitality", since: "2026-10-05" },
   { path: "/spaces/outdoor", since: "2026-09-12", content: "space:outdoor" },
   { path: "/inspirations/inspiration-gallery", since: "2026-09-29" },
@@ -86,14 +139,34 @@ const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
   { path: "/professionals/collaboration", since: "2026-10-08" },
   { path: "/professionals/applications", since: "2026-10-08" },
   { path: "/professionals/programs", since: "2026-10-08" },
-  // Learn topics share one route file, learn/[topic]/page.tsx.
-  { path: "/learn/what-is-quartz", since: "2026-10-08" },
+  // Learn topics share one route file, learn/[topic]/page.tsx; each date
+  // is the last change to that topic's own copy. Only the complete guides
+  // (topics with a body) are listed. The same dates are the dateModified
+  // in each guide's Article JSON-LD (GUIDE_UPDATED in that file): change
+  // both together.
+  { path: "/learn/what-is-quartz", since: "2026-10-14" },
   { path: "/learn/what-is-granites", since: "2026-09-12" },
   { path: "/learn/what-is-semi-precious", since: "2026-09-12" },
+  { path: "/learn/what-is-vision", since: "2026-10-12" },
+  { path: "/learn/what-is-facades-and-finishes", since: "2026-09-12" },
+  { path: "/learn/what-is-centrepiece-couture", since: "2026-09-12" },
+  { path: "/learn/what-is-exotic", since: "2026-09-12" },
+  { path: "/learn/what-is-vanity", since: "2026-09-12" },
   { path: "/learn/maintenance-quartz", since: "2026-09-12" },
   { path: "/learn/maintenance-granites", since: "2026-09-12" },
   { path: "/learn/maintenance-semi-precious", since: "2026-09-12" },
+  { path: "/learn/maintenance-vision", since: "2026-09-12" },
+  { path: "/learn/maintenance-facades-and-finishes", since: "2026-09-12" },
+  { path: "/learn/maintenance-centrepiece-couture", since: "2026-09-12" },
+  { path: "/learn/maintenance-exotic", since: "2026-09-12" },
+  { path: "/learn/maintenance-vanity", since: "2026-09-12" },
   { path: "/learn/warranty-quartz", since: "2026-09-12" },
+  // The applications hub; the pages under it are listed below.
+  { path: "/applications", since: "2026-09-12" },
+  // The store. Which products it shelves is set in data/store.ts, so
+  // these carry no content key.
+  { path: "/shop", since: "2026-10-13" },
+  { path: "/shop/vanity-tops", since: "2026-10-13" },
   { path: "/blog", since: "2026-10-08", content: "blog" },
   { path: "/resources", since: "2026-07-07", content: "resources" },
   { path: "/sustainability", since: "2026-10-08" },
@@ -108,11 +181,17 @@ const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
 const APPLICATIONS_SINCE = "2026-09-12";
 const APPLICATION_SINCE: Record<string, string> = { flooring: "2026-10-05" };
 
+/** The made-to-order vanity tops' store pages, /shop/<slug>, defined in
+ *  data/store.ts. The Sanity products' /shop/<slug> pages are left out:
+ *  they repeat /products/<slug>. */
+const VANITY_TOPS_SINCE = "2026-10-13";
+
 /** The space pages still built from their Sanity space page. */
 const SPACES = ["architecture", "commercial", "outdoor"];
 
 /** The newest `_updatedAt` among the documents a filter matches. */
-const newest = (filter: string) => `*[${filter}] | order(_updatedAt desc)[0]._updatedAt`;
+const newest = (filter: string) =>
+  `*[${filter}] | order(_updatedAt desc)[0]._updatedAt`;
 
 const contentDatesQuery = groq`{
   "home": ${newest('_type in ["collection", "signatureProject", "applicationCard", "inspirationImage"]')},
@@ -130,26 +209,29 @@ const contentDatesQuery = groq`{
 function later(since: string, content?: string | null): string {
   if (!content) return since;
   const edited = new Date(content).getTime();
-  return Number.isNaN(edited) || edited < new Date(`${since}T00:00:00Z`).getTime() ? since : content;
+  return Number.isNaN(edited) ||
+    edited < new Date(`${since}T00:00:00Z`).getTime()
+    ? since
+    : content;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Pull dynamic slugs and the content dates from Sanity in parallel.
+  // The product and post lists are allowed to throw: if Sanity fails
+  // during an hourly regeneration, the last good sitemap keeps being
+  // served, rather than one without every product and post URL. Only
+  // the dates fall back softly (to the code dates).
   const [products, blogPosts, contentDates] = await Promise.all([
-    client
-      .fetch<{ slug: string; updatedAt: string | null }[]>(
-        groq`*[_type == "product" && defined(slug.current) && visible != false]{
-          "slug": slug.current, "updatedAt": _updatedAt
-        }`
-      )
-      .catch(() => []),
-    client
-      .fetch<{ slug: string; updatedAt: string | null }[]>(
-        groq`*[_type == "blogPost" && defined(slug.current)]{
-          "slug": slug.current, "updatedAt": _updatedAt
-        }`
-      )
-      .catch(() => []),
+    client.fetch<{ slug: string; updatedAt: string | null }[]>(
+      groq`*[_type == "product" && defined(slug.current) && visible != false]{
+        "slug": slug.current, "updatedAt": _updatedAt
+      }`
+    ),
+    client.fetch<{ slug: string; updatedAt: string | null }[]>(
+      groq`*[_type == "blogPost" && defined(slug.current)]{
+        "slug": slug.current, "updatedAt": _updatedAt
+      }`
+    ),
     client
       .fetch<Partial<Record<ContentKey, string | null>>>(contentDatesQuery)
       .catch((): Partial<Record<ContentKey, string | null>> => ({})),
@@ -170,6 +252,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "monthly",
     priority: a.seo ? 0.9 : 0.7,
   }));
+
+  const vanityTopEntries: MetadataRoute.Sitemap = VANITY_TOP_PRODUCTS.map(
+    (t) => ({
+      url: `${SITE_URL}/shop/${t.slug}`,
+      lastModified: VANITY_TOPS_SINCE,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    })
+  );
 
   // Sanity catalogue uses `/products/[category]/[item]` — we don't
   // know the category from the slug query alone, so list every
@@ -198,6 +289,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticEntries,
     ...applicationEntries,
+    ...vanityTopEntries,
     ...productEntries,
     ...blogEntries,
   ];

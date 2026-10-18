@@ -112,10 +112,14 @@ export default async function SearchPage({
                           // narrows the input to string but TS can't carry
                           // that through. Fall back to the raw URL so the
                           // src prop is always string.
-                          src={sanityImg(r.mainImage, { w: 720, q: 75 }) ?? r.mainImage}
+                          src={
+                            sanityImg(r.mainImage, { w: 720, q: 75 }) ??
+                            r.mainImage
+                          }
                           alt={r.name}
                           width={720}
                           height={900}
+                          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                       )}

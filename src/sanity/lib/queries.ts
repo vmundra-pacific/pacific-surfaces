@@ -228,6 +228,7 @@ export const blogPostBySlugQuery = groq`
     excerpt,
     "mainImage": mainImage.asset->url,
     publishedAt,
+    _updatedAt,
     minutesToRead,
     author,
     categories,

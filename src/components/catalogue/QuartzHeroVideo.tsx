@@ -108,18 +108,41 @@ export function QuartzHeroVideo(props: QuartzHeroVideoProps = {}) {
           />
         ) : null
       ) : (
-        <video
-          key={videoSrc}
-          className="absolute inset-0 w-full h-full object-cover"
-          src={videoSrc}
-          poster={posterSrc}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-        />
+        <>
+          {/* The same still as the video's poster, painted underneath
+              it. A <video> poster is not reliably reported as Largest
+              Contentful Paint, and the caption fades in from opacity 0,
+              so without this a video hero can leave the page with no
+              LCP at all. Same URL as the poster (and the server
+              preload), so it downloads once; the video covers it as
+              soon as it has a frame. Keyed like the video so a
+              client-side switch to another hero never shows the
+              previous still. */}
+          {posterSrc && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={posterSrc}
+              src={posterSrc}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover"
+              fetchPriority="high"
+              decoding="async"
+            />
+          )}
+          <video
+            key={videoSrc}
+            className="absolute inset-0 w-full h-full object-cover"
+            src={videoSrc}
+            poster={posterSrc}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+          />
+        </>
       )}
 
       {/* Soft scrim — keeps the caption readable regardless of which
@@ -163,8 +186,10 @@ export function QuartzHeroVideo(props: QuartzHeroVideoProps = {}) {
             textShadow: "0 2px 6px rgba(0,0,0,.9), 0 6px 32px rgba(0,0,0,.8)",
           }}
         >
-          {headline}
-          <br />
+          {/* The space keeps the two lines apart in the page's text
+              (crawlers read "stone, crafted", not "stone,crafted"); a
+              space before a line break is never drawn. */}
+          {headline} <br />
           <em className="italic font-extralight text-white/90">
             {headlineItalic}
           </em>

@@ -39,9 +39,10 @@ export function DemoRoomStrip({ activeId, onPick }: DemoRoomStripProps) {
         return (
           <section key={label}>
             <div className="flex items-baseline justify-between mb-3">
-              <h3 className="text-[11px] tracking-[.28em] uppercase text-pacific-light font-medium">
+              {/* h2, not h3: it sits directly under the page's h1. */}
+              <h2 className="text-[11px] tracking-[.28em] uppercase text-pacific-light font-medium">
                 {label}
-              </h3>
+              </h2>
               <span className="text-[10px] text-pacific-mid/60 tabular-nums">
                 {rooms.length === 0
                   ? "Coming soon"
@@ -78,10 +79,12 @@ export function DemoRoomStrip({ activeId, onPick }: DemoRoomStripProps) {
                           : "ring-white/10 hover:ring-white/40"
                       }`}
                     >
+                      {/* Empty alt: the label band below already names the
+                          room, and it names the button. */}
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={r.thumb}
-                        alt={r.label}
+                        alt=""
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />

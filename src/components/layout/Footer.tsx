@@ -7,7 +7,13 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Mail, Phone, MapPin, Send } from "lucide-react";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
-import { EMAIL, FACTORY, FACTORY_ADDRESS, SALES_PHONE, SOCIAL_PROFILES } from "@/data/business";
+import {
+  EMAIL,
+  FACTORY,
+  FACTORY_ADDRESS,
+  SALES_PHONE,
+  SOCIAL_PROFILES,
+} from "@/data/business";
 
 /* ------------------------------------------------------------------ *
  * Social-platform icons — inline SVGs.
@@ -111,7 +117,10 @@ const footerLinks = {
     // Vanity is a top-level category; previously missing from the
     // footer even though the header dropdown surfaces it.
     { name: "Vanity", href: "/products/vanity" },
-    { name: "Window Sills & Thresholds", href: "/products/pacific-european-window-sill-threshold-collection" },
+    {
+      name: "Window Sills & Thresholds",
+      href: "/products/pacific-european-window-sill-threshold-collection",
+    },
     // Ecosurfaces + Sinks remain absent from the footer per editorial
     // direction — users reach them through the header dropdown +
     // All Surfaces.
@@ -246,9 +255,9 @@ export default function Footer() {
           <p className="text-[10px] sm:text-xs font-medium tracking-[0.3em] uppercase text-pacific-mid mb-3">
             Stay ahead of every trend in stone
           </p>
-          <h3 className="text-2xl lg:text-3xl font-light tracking-tight text-white mb-3">
+          <h2 className="text-2xl lg:text-3xl font-light tracking-tight text-white mb-3">
             Good taste should land in your inbox too.
-          </h3>
+          </h2>
           <p className="text-pacific-mid font-light mb-8">
             Discover new collections, design inspiration, industry trends and
             exclusive product launches — straight to your inbox.
@@ -270,6 +279,8 @@ export default function Footer() {
               <div className="flex-1">
                 <input
                   type="text"
+                  aria-label="First name"
+                  autoComplete="given-name"
                   placeholder="First name"
                   value={newsletter.firstName}
                   onChange={(e) =>
@@ -281,6 +292,8 @@ export default function Footer() {
               <div className="flex-1">
                 <input
                   type="email"
+                  aria-label="Email address"
+                  autoComplete="email"
                   placeholder="Email address"
                   value={newsletter.email}
                   onChange={(e) =>
@@ -382,9 +395,19 @@ export default function Footer() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay }}
               >
-                <h4 className="text-[11px] font-medium tracking-[0.25em] uppercase text-white/85 mb-5 sm:mb-6">
+                {/* h3 under the newsletter h2, so the outline has no
+                    gap. The inline style keeps the h4 look: the skin's
+                    unlayered h3 rule (bw-temp.css) would otherwise beat
+                    tracking-[0.25em] and font-medium. */}
+                <h3
+                  className="text-[11px] font-medium tracking-[0.25em] uppercase text-white/85 mb-5 sm:mb-6"
+                  style={{
+                    letterSpacing: "0.25em",
+                    fontVariationSettings: "normal",
+                  }}
+                >
                   {heading}
-                </h4>
+                </h3>
                 <ul className="space-y-3">
                   {links.map((link) => (
                     <li key={link.name}>

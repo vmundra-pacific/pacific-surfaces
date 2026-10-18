@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { CATEGORY_PAGES } from "../../_lib/category";
 import { PageHeader } from "@/components/ui/page-header";
 import { PacificQuartz } from "@/components/sections/PacificQuartz";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 
 /**
  * /products/[slug]/about — category overview / "ss2" page.
@@ -54,6 +55,10 @@ export async function generateMetadata({
     title: `${pretty} — Pacific Surfaces`,
     description: `Learn about Pacific Surfaces ${pretty.toLowerCase()} — colours, maintenance, warranty, and applications.`,
     alternates: { canonical: `/products/${slug}/about` },
+    // The same six placeholder cards for every category other than
+    // quartz, most of them leading to "Coming soon" Learn pages: kept out
+    // of the index (and the sitemap) until each has copy of its own.
+    robots: { index: false, follow: true },
   };
 }
 
@@ -115,6 +120,14 @@ export default async function CategoryAboutPage({
 
   return (
     <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Products", url: "/products" },
+          { name: label, url: `/products/${slug}` },
+          { name: label, url: `/products/${slug}/about` },
+        ]}
+      />
       <PageHeader
         badge={`Pacific Surfaces · ${label}`}
         title={label}

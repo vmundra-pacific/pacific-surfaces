@@ -146,8 +146,11 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   // even if the file doesn't exist yet — so categories never silently
   // fall back to /videos/quartz-hero.mp4 (the QuartzHeroVideo default).
   // Drop a real clip into /public/videos/<filename>.mp4 to wire each
-  // category up; until then the section renders the scrim + copy
-  // over an empty <video> element.
+  // category up. Until then the hero is `posterOnly` with an empty
+  // `posterSrc` (see Fab Creations, Translucent): the section renders
+  // the scrim + copy over the plain background, with no request for
+  // the missing clip or its poster. Remove both fields once the clip
+  // and its -poster.jpg are in place.
   //
   // Vision is intentionally NOT a CATEGORY_PAGES entry — the Vision
   // landing is the existing Chromia page at /products/quartz/chromia,
@@ -196,6 +199,9 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
     ],
     hero: {
       videoSrc: "/videos/fab-creations.mp4",
+      // No clip or poster in /public/videos yet: render neither.
+      posterOnly: true,
+      posterSrc: "",
       eyebrow: "Pacific Surfaces · Fab Creations",
       headline: "Patterned by hand,",
       headlineItalic: "produced at scale.",
@@ -216,6 +222,9 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
     // happens; the page just starts resolving.
     hero: {
       videoSrc: "/videos/translucent.mp4",
+      // No clip or poster in /public/videos yet: render neither.
+      posterOnly: true,
+      posterSrc: "",
       eyebrow: "Pacific Surfaces · Translucent",
       headline: "Stone that glows",
       headlineItalic: "from within.",
@@ -478,4 +487,22 @@ export async function resolveCategoryPage(
 
 export function isCategorySlug(slug: string): boolean {
   return slug in CATEGORY_PAGES;
+}
+
+/**
+ * The still a hero paints first, and so the likely LCP image: its
+ * explicit `posterSrc`, else the -poster.jpg beside a /videos/ clip.
+ * Mirrors the derivation in QuartzHeroVideo, which is a client module
+ * the server can't call into; keep the two in step. Undefined when the
+ * hero has no still (no hero, or `posterSrc: ""`), so nothing is
+ * preloaded for a file that doesn't exist.
+ */
+export function heroPosterSrc(
+  hero: QuartzHeroVideoProps | undefined
+): string | undefined {
+  if (!hero) return undefined;
+  if (hero.posterSrc !== undefined) return hero.posterSrc || undefined;
+  return hero.videoSrc?.startsWith("/videos/")
+    ? hero.videoSrc.replace(/\.mp4$/, "-poster.jpg")
+    : undefined;
 }

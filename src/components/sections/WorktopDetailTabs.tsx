@@ -65,7 +65,9 @@ export default function WorktopDetailTabs({
    *  is shown (owner, 2026-10-12). */
   mitredOnly?: boolean;
 }) {
-  const edges = mitredOnly ? EDGE_PROFILES.filter((e) => e.name === "Mitred") : EDGE_PROFILES;
+  const edges = mitredOnly
+    ? EDGE_PROFILES.filter((e) => e.name === "Mitred")
+    : EDGE_PROFILES;
   const [active, setActive] = useState<TabKey>("formats");
 
   // Read the thickness list back as prose ("12, 20 and 30 mm") so the
@@ -75,6 +77,88 @@ export default function WorktopDetailTabs({
     thicknesses.length > 1
       ? `${thicknesses.slice(0, -1).join(", ")} and ${thicknesses[thicknesses.length - 1]}`
       : (thicknesses[0] ?? "");
+
+  const bodies: Record<TabKey, React.ReactNode> = {
+    formats: (
+      <TabBody
+        headline={
+          <>
+            Available thicknesses
+            <br />
+            for countertops
+          </>
+        }
+        left={`${productName} is supplied in the standard slab format of ${size}, which covers the great majority of kitchen and vanity runs without a joint. Larger or non-standard layouts are cut to your template.`}
+        right={
+          thicknessProse
+            ? `Available in ${thicknessProse}. Thinner slabs keep a lighter line on furniture, cladding and fronts; thicker ones carry an island or a long unsupported run. A mitred edge can make any of them read heavier.`
+            : "Thickness options are confirmed at quotation for this product. Thinner slabs keep a lighter line on furniture and cladding; thicker ones carry an island or a long unsupported run."
+        }
+      />
+    ),
+    finishes: (
+      <TabBody
+        headline={
+          <>
+            Countertops designed
+            <br />
+            for tactile enjoyment
+          </>
+        }
+        left={`Every finish we offer on ${productName} keeps the same technical performance — stain, scratch and heat resistance are a property of the material, not the surface treatment. What changes is how the colour reads and how the slab feels underhand.`}
+        right="Choose a polish for depth and reflection, a honed or matte surface for calm and no glare, or a textured finish where touch matters as much as looks."
+      >
+        {finishes.length > 0 && (
+          <dl className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+            {finishes.map((f) => (
+              <div key={f}>
+                <dt className="text-sm font-medium uppercase tracking-wide text-pacific-dark">
+                  {f}
+                </dt>
+                <dd className="mt-1.5 text-sm font-light leading-relaxed text-pacific-dark/65">
+                  {finishDescription(f) ?? "Premium surface finish."}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </TabBody>
+    ),
+    edges: (
+      <TabBody
+        headline={
+          <>
+            The versatility
+            <br />
+            of detail
+          </>
+        }
+        left={
+          mitredOnly
+            ? `${productName} is finished with a mitred edge only: two pieces joined at 45 degrees, so the face and its pattern turn the corner and carry on down the edge.`
+            : `${productName} carries its pattern through the full thickness of the slab, so an edge profile cuts into continuous material rather than breaking a printed surface. Any profile can be worked without losing the pattern.`
+        }
+        right={
+          mitredOnly
+            ? "No other edge profile is cut on the Eclipse series. The mitre is made by the fabricator against your template — talk to a certified installer before committing."
+            : "Rounded, half-round, ogee, bevelled and mitred are the profiles we cut most often. Edge work is done by the fabricator against your template — talk to a certified installer before committing."
+        }
+      >
+        <dl className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+          {edges.map((edge) => (
+            <div key={edge.name}>
+              <dt className="text-sm font-medium uppercase tracking-wide text-pacific-dark">
+                {edge.name}
+              </dt>
+              <dd className="mt-1.5 text-sm font-light leading-relaxed text-pacific-dark/65">
+                {edge.body}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </TabBody>
+    ),
+  };
 
   return (
     <section className="bg-white border-b border-pacific-mid/15">
@@ -107,89 +191,18 @@ export default function WorktopDetailTabs({
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25 }}
           >
-            {active === "formats" && (
-              <TabBody
-                headline={
-                  <>
-                    Available thicknesses
-                    <br />
-                    for countertops
-                  </>
-                }
-                left={`${productName} is supplied in the standard slab format of ${size}, which covers the great majority of kitchen and vanity runs without a joint. Larger or non-standard layouts are cut to your template.`}
-                right={
-                  thicknessProse
-                    ? `Available in ${thicknessProse}. Thinner slabs keep a lighter line on furniture, cladding and fronts; thicker ones carry an island or a long unsupported run. A mitred edge can make any of them read heavier.`
-                    : "Thickness options are confirmed at quotation for this product. Thinner slabs keep a lighter line on furniture and cladding; thicker ones carry an island or a long unsupported run."
-                }
-              />
-            )}
-
-            {active === "finishes" && (
-              <TabBody
-                headline={
-                  <>
-                    Countertops designed
-                    <br />
-                    for tactile enjoyment
-                  </>
-                }
-                left={`Every finish we offer on ${productName} keeps the same technical performance — stain, scratch and heat resistance are a property of the material, not the surface treatment. What changes is how the colour reads and how the slab feels underhand.`}
-                right="Choose a polish for depth and reflection, a honed or matte surface for calm and no glare, or a textured finish where touch matters as much as looks."
-              >
-                {finishes.length > 0 && (
-                  <dl className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
-                    {finishes.map((f) => (
-                      <div key={f}>
-                        <dt className="text-sm font-medium uppercase tracking-wide text-pacific-dark">
-                          {f}
-                        </dt>
-                        <dd className="mt-1.5 text-sm font-light leading-relaxed text-pacific-dark/65">
-                          {finishDescription(f) ?? "Premium surface finish."}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
-              </TabBody>
-            )}
-
-            {active === "edges" && (
-              <TabBody
-                headline={
-                  <>
-                    The versatility
-                    <br />
-                    of detail
-                  </>
-                }
-                left={
-                  mitredOnly
-                    ? `${productName} is finished with a mitred edge only: two pieces joined at 45 degrees, so the face and its pattern turn the corner and carry on down the edge.`
-                    : `${productName} carries its pattern through the full thickness of the slab, so an edge profile cuts into continuous material rather than breaking a printed surface. Any profile can be worked without losing the pattern.`
-                }
-                right={
-                  mitredOnly
-                    ? "No other edge profile is cut on the Eclipse series. The mitre is made by the fabricator against your template — talk to a certified installer before committing."
-                    : "Rounded, half-round, ogee, bevelled and mitred are the profiles we cut most often. Edge work is done by the fabricator against your template — talk to a certified installer before committing."
-                }
-              >
-                <dl className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
-                  {edges.map((edge) => (
-                    <div key={edge.name}>
-                      <dt className="text-sm font-medium uppercase tracking-wide text-pacific-dark">
-                        {edge.name}
-                      </dt>
-                      <dd className="mt-1.5 text-sm font-light leading-relaxed text-pacific-dark/65">
-                        {edge.body}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </TabBody>
-            )}
+            {bodies[active]}
           </motion.div>
         </AnimatePresence>
+
+        {/* The other two tabs, hidden, so their copy is in the page's
+            HTML without a click. Outside AnimatePresence, so the
+            crossfade above is untouched. */}
+        {TABS.filter((tab) => tab.key !== active).map((tab) => (
+          <div key={tab.key} hidden>
+            {bodies[tab.key]}
+          </div>
+        ))}
       </div>
     </section>
   );

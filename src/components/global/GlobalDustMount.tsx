@@ -30,6 +30,25 @@ import { useEffect, useState } from "react";
 
 const GlobalDust = dynamic(() => import("./GlobalDust"), { ssr: false });
 
+/**
+ * Can this browser give Three.js the context it needs? Three (r163+) asks
+ * for WebGL2 only, so that is what we probe. Where it fails (GPU
+ * blocklisted, hardware acceleration off), the dust is skipped instead of
+ * throwing "Error creating WebGL context" — the layer is invisible there
+ * either way. The probe context is released straight away so it doesn't
+ * count toward the browser's limit on live WebGL contexts.
+ */
+function hasWebGL2(): boolean {
+  try {
+    const gl = document.createElement("canvas").getContext("webgl2");
+    if (!gl) return false;
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export default function GlobalDustMount() {
   const pathname = usePathname();
   const [enabled, setEnabled] = useState(false);
@@ -48,8 +67,13 @@ export default function GlobalDustMount() {
     }
 
     let cancelled = false;
+    // Probed on the first trigger, not on load, so pages never pay for a
+    // WebGL context before the dust is actually wanted.
+    let webglOk: boolean | undefined;
     const turnOn = () => {
-      if (!cancelled) setEnabled(true);
+      if (cancelled) return;
+      webglOk ??= hasWebGL2();
+      if (webglOk) setEnabled(true);
     };
 
     // First user gesture — pointer move / scroll / keydown / touchstart —

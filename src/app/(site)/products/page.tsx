@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { cache } from "react";
+import { preload as reactPreload } from "react-dom";
 import { client } from "@/sanity/lib/client";
 import { catalogueProductsQuery } from "@/sanity/lib/queries";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
@@ -7,6 +8,11 @@ import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { QuartzHeroVideo } from "@/components/catalogue/QuartzHeroVideo";
 import { OriginStats } from "@/components/sections/OriginStats";
 import { StatementSection } from "@/components/sections/StatementSection";
+import { BreadcrumbList } from "@/components/global/JsonLd";
+import { heroPosterSrc } from "./_lib/category";
+
+/** The hero clip; its -poster.jpg is the first large paint. */
+const HERO_VIDEO = "/videos/all-products.mp4";
 
 /**
  * Metadata is computed dynamically so the description reports the
@@ -66,8 +72,22 @@ export default async function AllProductsPage() {
   // the calc rather than carrying a dead variable; restore from git
   // history if the copy ever needs the count back.)
 
+  // LCP: preload the hero's poster at high priority during SSR, as the
+  // category landings do, so it doesn't queue behind the video bytes.
+  const heroPoster = heroPosterSrc({ videoSrc: HERO_VIDEO });
+  if (heroPoster) {
+    reactPreload(heroPoster, { as: "image", fetchPriority: "high" });
+  }
+
   return (
     <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Products", url: "/products" },
+        ]}
+      />
+
       {/* 1. Video hero. Drop a clip at /public/videos/all-products.mp4
           to swap the visual; the QuartzHeroVideo component handles
           autoplay/loop/scrim. Headline + paragraph below are tuned
@@ -76,7 +96,7 @@ export default async function AllProductsPage() {
           collection counts are derived from the live catalogue so
           this copy never drifts out of sync. */}
       <QuartzHeroVideo
-        videoSrc="/videos/all-products.mp4"
+        videoSrc={HERO_VIDEO}
         eyebrow="Pacific Surfaces"
         headline="The full collection,"
         headlineItalic="in one place."

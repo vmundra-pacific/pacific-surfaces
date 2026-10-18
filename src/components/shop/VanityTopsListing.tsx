@@ -3,7 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, ChevronDown, SlidersHorizontal, X } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  ChevronDown,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 import { BasinPreview } from "@/components/shop/BasinPreview";
 import { StoreBanner } from "@/components/shop/StoreBanner";
 import { sanityImageProxyUrl, sanityImg } from "@/lib/sanity-img";
@@ -64,19 +70,42 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: "za", label: "Name, Z to A" },
 ];
 
-const emptyFilters = (): Filters => ({ basins: new Set(), width: new Set(), series: new Set() });
+const emptyFilters = (): Filters => ({
+  basins: new Set(),
+  width: new Set(),
+  series: new Set(),
+});
 
 /** Does an item pass every filter except `skip` (for counting a facet). */
 function passes(item: Item, f: Filters, skip?: FacetKey): boolean {
-  if (skip !== "basins" && f.basins.size && !f.basins.has(String(item.top.basins))) return false;
-  if (skip !== "width" && f.width.size && !item.top.widths.some((w) => f.width.has(w))) return false;
-  if (skip !== "series" && f.series.size && !f.series.has(item.colour.series)) return false;
+  if (
+    skip !== "basins" &&
+    f.basins.size &&
+    !f.basins.has(String(item.top.basins))
+  )
+    return false;
+  if (
+    skip !== "width" &&
+    f.width.size &&
+    !item.top.widths.some((w) => f.width.has(w))
+  )
+    return false;
+  if (skip !== "series" && f.series.size && !f.series.has(item.colour.series))
+    return false;
   return true;
 }
 
-/** A design's slab photograph as a small swatch, same-origin. */
+/** A design's slab photograph as a small swatch, same-origin. `fm=webp`
+ *  rather than sanityImg's `auto=format`: the proxy fetches server-side
+ *  without the browser's Accept header, so auto=format would hand back
+ *  the original JPEG. */
 const swatchUrl = (image: string | null) =>
-  image ? sanityImageProxyUrl(sanityImg(image, { w: 120 }) ?? image) : undefined;
+  image
+    ? sanityImageProxyUrl(
+        sanityImg(image, { w: 120 })?.replace(/auto=format$/, "fm=webp") ??
+          image
+      )
+    : undefined;
 
 export function VanityTopsListing({
   tops,
@@ -96,7 +125,12 @@ export function VanityTopsListing({
     for (let pass = 0; pass < tops.length; pass++) {
       colours.forEach((colour, i) => {
         const top = tops[(i + pass) % tops.length];
-        out.push({ key: `${top.slug}:${colour.slug || colour.name}`, top, colour, order: out.length });
+        out.push({
+          key: `${top.slug}:${colour.slug || colour.name}`,
+          top,
+          colour,
+          order: out.length,
+        });
       });
     }
     return out;
@@ -113,9 +147,18 @@ export function VanityTopsListing({
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const f = emptyFilters();
-    q.get("basins")?.split(",").filter(Boolean).forEach((v) => f.basins.add(v));
-    q.get("width")?.split(",").filter(Boolean).forEach((v) => f.width.add(v));
-    q.get("series")?.split(",").filter(Boolean).forEach((v) => f.series.add(v));
+    q.get("basins")
+      ?.split(",")
+      .filter(Boolean)
+      .forEach((v) => f.basins.add(v));
+    q.get("width")
+      ?.split(",")
+      .filter(Boolean)
+      .forEach((v) => f.width.add(v));
+    q.get("series")
+      ?.split(",")
+      .filter(Boolean)
+      .forEach((v) => f.series.add(v));
     if (f.basins.size || f.width.size || f.series.size) setFilters(f);
   }, []);
 
@@ -126,14 +169,19 @@ export function VanityTopsListing({
     if (filters.width.size) q.set("width", [...filters.width].join(","));
     if (filters.series.size) q.set("series", [...filters.series].join(","));
     const qs = q.toString();
-    window.history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}`);
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${qs ? `?${qs}` : ""}`
+    );
     setShown(PAGE);
   }, [filters]);
 
   // Close a menu on an outside click.
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
-      if (barRef.current && !barRef.current.contains(e.target as Node)) setOpen(null);
+      if (barRef.current && !barRef.current.contains(e.target as Node))
+        setOpen(null);
     };
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
@@ -143,25 +191,46 @@ export function VanityTopsListing({
     const list = items.filter((it) => passes(it, filters));
     const title = (it: Item) => `${it.colour.name} ${it.top.name}`;
     if (sort === "az") list.sort((a, b) => title(a).localeCompare(title(b)));
-    else if (sort === "za") list.sort((a, b) => title(b).localeCompare(title(a)));
+    else if (sort === "za")
+      list.sort((a, b) => title(b).localeCompare(title(a)));
     return list;
   }, [items, filters, sort]);
 
   const facets = useMemo(() => {
     const count = (key: FacetKey, value: string) =>
-      items.filter((it) => passes(it, filters, key) && matchValue(it, key, value)).length;
-    const widths = Array.from(new Set(tops.flatMap((t) => t.widths))).sort((a, b) => Number(a) - Number(b));
+      items.filter(
+        (it) => passes(it, filters, key) && matchValue(it, key, value)
+      ).length;
+    const widths = Array.from(new Set(tops.flatMap((t) => t.widths))).sort(
+      (a, b) => Number(a) - Number(b)
+    );
     const series = Array.from(new Set(colours.map((c) => c.series))).sort();
     return {
-      basins: tops.map((t) => ({ value: String(t.basins), label: `${BASIN_WORD[t.basins]} basin`, count: count("basins", String(t.basins)) })),
-      width: widths.map((w) => ({ value: w, label: `${w} in`, count: count("width", w) })),
-      series: series.map((s) => ({ value: s, label: s, count: count("series", s) })),
+      basins: tops.map((t) => ({
+        value: String(t.basins),
+        label: `${BASIN_WORD[t.basins]} basin`,
+        count: count("basins", String(t.basins)),
+      })),
+      width: widths.map((w) => ({
+        value: w,
+        label: `${w} in`,
+        count: count("width", w),
+      })),
+      series: series.map((s) => ({
+        value: s,
+        label: s,
+        count: count("series", s),
+      })),
     };
   }, [items, filters, tops, colours]);
 
   const toggle = (key: FacetKey, value: string, only = false) =>
     setFilters((f) => {
-      const next: Filters = { basins: new Set(f.basins), width: new Set(f.width), series: new Set(f.series) };
+      const next: Filters = {
+        basins: new Set(f.basins),
+        width: new Set(f.width),
+        series: new Set(f.series),
+      };
       if (only) {
         const was = next[key].has(value) && next[key].size === 1;
         next[key] = new Set(was ? [] : [value]);
@@ -172,12 +241,28 @@ export function VanityTopsListing({
 
   const clearAll = () => setFilters(emptyFilters());
   const active = [
-    ...[...filters.basins].map((v) => ({ key: "basins" as const, value: v, label: `${BASIN_WORD[Number(v)]} basin` })),
-    ...[...filters.width].map((v) => ({ key: "width" as const, value: v, label: `${v} in wide` })),
-    ...[...filters.series].map((v) => ({ key: "series" as const, value: v, label: v })),
+    ...[...filters.basins].map((v) => ({
+      key: "basins" as const,
+      value: v,
+      label: `${BASIN_WORD[Number(v)]} basin`,
+    })),
+    ...[...filters.width].map((v) => ({
+      key: "width" as const,
+      value: v,
+      label: `${v} in wide`,
+    })),
+    ...[...filters.series].map((v) => ({
+      key: "series" as const,
+      value: v,
+      label: v,
+    })),
   ];
 
-  const facetMenus: { key: FacetKey; label: string; options: { value: string; label: string; count: number }[] }[] = [
+  const facetMenus: {
+    key: FacetKey;
+    label: string;
+    options: { value: string; label: string; count: number }[];
+  }[] = [
     { key: "basins", label: "Number of Basins", options: facets.basins },
     { key: "width", label: "Vanity Width (In)", options: facets.width },
     { key: "series", label: "Collection", options: facets.series },
@@ -188,9 +273,13 @@ export function VanityTopsListing({
       <div className="mx-auto max-w-[1440px] px-5 pb-20 pt-28 sm:px-8 lg:pt-32">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="text-[13px] font-light">
-          <Link href="/" className="underline-offset-4 hover:underline">Home</Link>
+          <Link href="/" className="underline-offset-4 hover:underline">
+            Home
+          </Link>
           <span className="mx-2 opacity-40">/</span>
-          <Link href="/shop" className="underline-offset-4 hover:underline">Store</Link>
+          <Link href="/shop" className="underline-offset-4 hover:underline">
+            Store
+          </Link>
           <span className="mx-2 opacity-40">/</span>
           <span>Vanity Tops</span>
         </nav>
@@ -214,7 +303,10 @@ export function VanityTopsListing({
               <NavTile
                 key={t.slug}
                 label={`${BASIN_WORD[t.basins]} basin`}
-                selected={filters.basins.has(String(t.basins)) && filters.basins.size === 1}
+                selected={
+                  filters.basins.has(String(t.basins)) &&
+                  filters.basins.size === 1
+                }
                 onClick={() => toggle("basins", String(t.basins), true)}
               >
                 <BasinIcon basins={t.basins} />
@@ -237,7 +329,10 @@ export function VanityTopsListing({
 
         <h1
           className="mt-10 text-[28px] uppercase leading-tight sm:text-[34px]"
-          style={{ fontVariationSettings: "'wght' 300, 'wdth' 100", letterSpacing: "-0.02em" }}
+          style={{
+            fontVariationSettings: "'wght' 300, 'wdth' 100",
+            letterSpacing: "-0.02em",
+          }}
         >
           Quartz Vanity Tops
         </h1>
@@ -263,16 +358,30 @@ export function VanityTopsListing({
                 onClick={() => setOpen(open === m.key ? null : m.key)}
                 className={cn(
                   "inline-flex h-10 items-center gap-1.5 rounded-full border px-4 text-[13px]",
-                  filters[m.key].size ? "border-[#14140f]" : "border-[#14140f]/25 hover:border-[#14140f]"
+                  filters[m.key].size
+                    ? "border-[#14140f]"
+                    : "border-[#14140f]/25 hover:border-[#14140f]"
                 )}
               >
                 {m.label}
-                {filters[m.key].size > 0 && <span className="opacity-60">({filters[m.key].size})</span>}
-                <ChevronDown className={cn("h-4 w-4 transition-transform", open === m.key && "rotate-180")} aria-hidden="true" />
+                {filters[m.key].size > 0 && (
+                  <span className="opacity-60">({filters[m.key].size})</span>
+                )}
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    open === m.key && "rotate-180"
+                  )}
+                  aria-hidden="true"
+                />
               </button>
               {open === m.key && (
                 <div className="absolute left-0 top-12 z-30 w-64 rounded-lg border border-[#14140f]/10 bg-white p-2 shadow-xl">
-                  <CheckList options={m.options} selected={filters[m.key]} onToggle={(v) => toggle(m.key, v)} />
+                  <CheckList
+                    options={m.options}
+                    selected={filters[m.key]}
+                    onToggle={(v) => toggle(m.key, v)}
+                  />
                 </div>
               )}
             </div>
@@ -300,7 +409,9 @@ export function VanityTopsListing({
                     className="flex w-full items-center justify-between rounded px-3 py-2 text-left text-[14px] font-light hover:bg-[#f5f5f3]"
                   >
                     {s.label}
-                    {s.key === sort && <Check className="h-4 w-4" aria-hidden="true" />}
+                    {s.key === sort && (
+                      <Check className="h-4 w-4" aria-hidden="true" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -321,7 +432,11 @@ export function VanityTopsListing({
                 <X className="h-3.5 w-3.5" aria-label={`Remove ${a.label}`} />
               </button>
             ))}
-            <button type="button" onClick={clearAll} className="text-[13px] underline underline-offset-4">
+            <button
+              type="button"
+              onClick={clearAll}
+              className="text-[13px] underline underline-offset-4"
+            >
               Clear all
             </button>
           </div>
@@ -329,7 +444,9 @@ export function VanityTopsListing({
 
         {/* The grid */}
         {results.length === 0 ? (
-          <p className="py-24 text-center font-light opacity-70">No vanity tops match. Clear a filter to see more.</p>
+          <p className="py-24 text-center font-light opacity-70">
+            No vanity tops match. Clear a filter to see more.
+          </p>
         ) : (
           <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 xl:grid-cols-4">
             {results.slice(0, shown).map((it) => (
@@ -355,18 +472,39 @@ export function VanityTopsListing({
         )}
 
         {/* Related searches */}
-        <section aria-labelledby="related-heading" className="mt-20 border-t border-[#14140f]/10 pt-10">
-          <h2 id="related-heading" className="text-[12px] uppercase tracking-[0.18em] opacity-60">
+        <section
+          aria-labelledby="related-heading"
+          className="mt-20 border-t border-[#14140f]/10 pt-10"
+        >
+          <h2
+            id="related-heading"
+            className="text-[12px] uppercase tracking-[0.18em] opacity-60"
+          >
             Related searches
           </h2>
           <ul className="mt-4 flex flex-wrap gap-2">
             {[
-              { label: "Single basin vanity tops", href: "/shop/vanity-tops?basins=1" },
-              { label: "Double basin vanity tops", href: "/shop/vanity-tops?basins=2" },
-              { label: "48-inch vanity tops", href: "/shop/vanity-tops?width=48" },
-              { label: "72-inch vanity tops", href: "/shop/vanity-tops?width=72" },
+              {
+                label: "Single basin vanity tops",
+                href: "/shop/vanity-tops?basins=1",
+              },
+              {
+                label: "Double basin vanity tops",
+                href: "/shop/vanity-tops?basins=2",
+              },
+              {
+                label: "48-inch vanity tops",
+                href: "/shop/vanity-tops?width=48",
+              },
+              {
+                label: "72-inch vanity tops",
+                href: "/shop/vanity-tops?width=72",
+              },
               { label: "Integrated quartz sinks", href: "/shop" },
-              { label: "Vanity tops guide", href: "/applications/bathroom-vanity-tops" },
+              {
+                label: "Vanity tops guide",
+                href: "/applications/bathroom-vanity-tops",
+              },
               { label: "All quartz designs", href: "/products/quartz" },
             ].map((l) => (
               <li key={l.href}>
@@ -383,12 +521,18 @@ export function VanityTopsListing({
 
         {/* The guide, and its questions */}
         {intro.length > 0 && (
-          <section aria-labelledby="guide-heading" className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+          <section
+            aria-labelledby="guide-heading"
+            className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16"
+          >
             <div>
               <h2
                 id="guide-heading"
                 className="text-[24px] uppercase leading-tight sm:text-[30px]"
-                style={{ fontVariationSettings: "'wght' 300, 'wdth' 100", letterSpacing: "-0.02em" }}
+                style={{
+                  fontVariationSettings: "'wght' 300, 'wdth' 100",
+                  letterSpacing: "-0.02em",
+                }}
               >
                 Quartz vanity tops, cut to your basin
               </h2>
@@ -407,16 +551,23 @@ export function VanityTopsListing({
             </div>
             {faqs.length > 0 && (
               <div>
-                <h2 className="text-[12px] uppercase tracking-[0.18em] opacity-60">Frequently asked questions</h2>
+                <h2 className="text-[12px] uppercase tracking-[0.18em] opacity-60">
+                  Frequently asked questions
+                </h2>
                 <ul className="mt-3 divide-y divide-[#14140f]/10 border-y border-[#14140f]/10">
                   {faqs.map((f) => (
                     <li key={f.question}>
                       <details className="group py-4">
                         <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px]">
                           {f.question}
-                          <ChevronDown className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+                          <ChevronDown
+                            className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
+                            aria-hidden="true"
+                          />
                         </summary>
-                        <p className="mt-3 text-[14px] font-light leading-relaxed opacity-80">{f.answer}</p>
+                        <p className="mt-3 text-[14px] font-light leading-relaxed opacity-80">
+                          {f.answer}
+                        </p>
                       </details>
                     </li>
                   ))}
@@ -430,24 +581,52 @@ export function VanityTopsListing({
       {/* All filters, as a panel */}
       {drawer && (
         <div className="fixed inset-0 z-[120] flex justify-end">
-          <button type="button" aria-label="Close filters" onClick={() => setDrawer(false)} className="absolute inset-0 bg-black/40" />
-          <aside role="dialog" aria-label="All filters" className="relative flex h-full w-full max-w-sm flex-col bg-white text-[#14140f] shadow-2xl">
+          <button
+            type="button"
+            aria-label="Close filters"
+            onClick={() => setDrawer(false)}
+            className="absolute inset-0 bg-black/40"
+          />
+          <aside
+            role="dialog"
+            aria-label="All filters"
+            className="relative flex h-full w-full max-w-sm flex-col bg-white text-[#14140f] shadow-2xl"
+          >
             <div className="flex items-center justify-between border-b border-[#14140f]/10 px-5 py-4">
               <h2 className="text-[18px] font-light">All Filters</h2>
-              <button type="button" onClick={() => setDrawer(false)} aria-label="Close" className="rounded-full p-2 hover:bg-[#f5f5f3]">
+              <button
+                type="button"
+                onClick={() => setDrawer(false)}
+                aria-label="Close"
+                className="rounded-full p-2 hover:bg-[#f5f5f3]"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-3 py-2">
               {facetMenus.map((m) => (
-                <details key={m.key} open className="border-b border-[#14140f]/10 py-2">
-                  <summary className="cursor-pointer list-none px-2 py-2 text-[14px] uppercase tracking-[0.12em]">{m.label}</summary>
-                  <CheckList options={m.options} selected={filters[m.key]} onToggle={(v) => toggle(m.key, v)} />
+                <details
+                  key={m.key}
+                  open
+                  className="border-b border-[#14140f]/10 py-2"
+                >
+                  <summary className="cursor-pointer list-none px-2 py-2 text-[14px] uppercase tracking-[0.12em]">
+                    {m.label}
+                  </summary>
+                  <CheckList
+                    options={m.options}
+                    selected={filters[m.key]}
+                    onToggle={(v) => toggle(m.key, v)}
+                  />
                 </details>
               ))}
             </div>
             <div className="flex gap-3 border-t border-[#14140f]/10 p-4">
-              <button type="button" onClick={clearAll} className="h-11 flex-1 rounded-full border border-[#14140f]/25 text-[13px] uppercase tracking-[0.12em]">
+              <button
+                type="button"
+                onClick={clearAll}
+                className="h-11 flex-1 rounded-full border border-[#14140f]/25 text-[13px] uppercase tracking-[0.12em]"
+              >
                 Clear all
               </button>
               <button
@@ -501,7 +680,9 @@ function CheckList({
                 data-over-media={on ? "" : undefined}
                 className={cn(
                   "flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border",
-                  on ? "border-[#14140f] bg-[#14140f] text-white" : "border-[#14140f]/40"
+                  on
+                    ? "border-[#14140f] bg-[#14140f] text-white"
+                    : "border-[#14140f]/40"
                 )}
               >
                 {on && <Check className="h-3 w-3" aria-hidden="true" />}
@@ -534,7 +715,9 @@ function NavTile({
       onClick={onClick}
       className={cn(
         "flex w-[88px] flex-col items-center gap-2 rounded-md border bg-white px-2 pb-3 pt-4 text-[12px] font-light transition-colors sm:w-24",
-        selected ? "border-[#14140f]" : "border-transparent hover:border-[#14140f]/30"
+        selected
+          ? "border-[#14140f]"
+          : "border-transparent hover:border-[#14140f]/30"
       )}
     >
       {children}
@@ -548,7 +731,14 @@ function BasinIcon({ basins }: { basins: number }) {
   const w = 52;
   const each = (w - 8) / basins;
   return (
-    <svg viewBox="0 0 56 30" className="h-8 w-14" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+    <svg
+      viewBox="0 0 56 30"
+      className="h-8 w-14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      aria-hidden="true"
+    >
       <rect x="2" y="4" width={w} height="22" rx="1.5" />
       {Array.from({ length: basins }, (_, i) => {
         const cx = 6 + each * i + each / 2;
@@ -567,11 +757,25 @@ function BasinIcon({ basins }: { basins: number }) {
 /** A top with its width dimensioned. */
 function WidthIcon({ width }: { width: string }) {
   return (
-    <svg viewBox="0 0 56 30" className="h-8 w-14" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+    <svg
+      viewBox="0 0 56 30"
+      className="h-8 w-14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      aria-hidden="true"
+    >
       <rect x="4" y="3" width="48" height="15" rx="1.5" />
       <rect x="20" y="7" width="16" height="8" rx="2.5" />
       <path d="M4 24h48M4 21.5v5M52 21.5v5" />
-      <text x="28" y="29.5" textAnchor="middle" fontSize="5" stroke="none" fill="currentColor">
+      <text
+        x="28"
+        y="29.5"
+        textAnchor="middle"
+        fontSize="5"
+        stroke="none"
+        fill="currentColor"
+      >
         {width} in
       </text>
     </svg>
@@ -582,10 +786,14 @@ function TopCard({ item, colours }: { item: Item; colours: ListingColour[] }) {
   const [colour, setColour] = useState(item.colour);
   // This design, then four more from its collection.
   const swatches = useMemo(() => {
-    const same = colours.filter((c) => c.series === item.colour.series && c.name !== item.colour.name);
+    const same = colours.filter(
+      (c) => c.series === item.colour.series && c.name !== item.colour.name
+    );
     return [item.colour, ...same.slice(0, 4)];
   }, [colours, item.colour]);
-  const more = colours.filter((c) => c.series === item.colour.series).length - swatches.length;
+  const more =
+    colours.filter((c) => c.series === item.colour.series).length -
+    swatches.length;
 
   const href = `/shop/${item.top.slug}?colour=${encodeURIComponent(colour.name)}`;
   const title = `${item.top.layout} Quartz Vanity Top in ${colour.name.replace(/\s*\([^)]*\)\s*$/, "")}`;
@@ -605,7 +813,14 @@ function TopCard({ item, colours }: { item: Item; colours: ListingColour[] }) {
               lazy
             />
           ) : (
-            <Image src={item.top.image} alt={title} fill unoptimized sizes="25vw" className="object-cover" />
+            <Image
+              src={item.top.image}
+              alt={title}
+              fill
+              unoptimized
+              sizes="25vw"
+              className="object-cover"
+            />
           )}
         </div>
       </Link>
@@ -621,25 +836,41 @@ function TopCard({ item, colours }: { item: Item; colours: ListingColour[] }) {
             onClick={() => setColour(c)}
             className={cn(
               "h-7 w-7 rounded-[3px] border bg-[#e8e6e2] bg-cover bg-center p-0",
-              c.name === colour.name ? "border-[#14140f] ring-1 ring-[#14140f] ring-offset-1" : "border-[#14140f]/20"
+              c.name === colour.name
+                ? "border-[#14140f] ring-1 ring-[#14140f] ring-offset-1"
+                : "border-[#14140f]/20"
             )}
-            style={swatchUrl(c.image) ? { backgroundImage: `url(${swatchUrl(c.image)})` } : undefined}
+            style={
+              swatchUrl(c.image)
+                ? { backgroundImage: `url(${swatchUrl(c.image)})` }
+                : undefined
+            }
           />
         ))}
-        {more > 0 && <span className="ml-1 text-[12px] font-light opacity-60">+{more}</span>}
+        {more > 0 && (
+          <span className="ml-1 text-[12px] font-light opacity-60">
+            +{more}
+          </span>
+        )}
       </div>
       <p className="mt-1.5 text-[12px] font-light opacity-70">
         Colour: <span className="opacity-100">{colour.name}</span>
       </p>
 
       <p className="mt-2 text-[13px] font-medium">Pacific Surfaces</p>
-      <Link href={href} className="text-[14px] font-light leading-snug underline-offset-4 hover:underline">
+      <Link
+        href={href}
+        className="text-[14px] font-light leading-snug underline-offset-4 hover:underline"
+      >
         <span className="line-clamp-2">{title}</span>
       </Link>
       <p className="mt-1.5 text-[12px] font-light opacity-60">
-        {item.colour.series} · {widths[0]} to {widths[widths.length - 1]} in wide, or your size
+        {item.colour.series} · {widths[0]} to {widths[widths.length - 1]} in
+        wide, or your size
       </p>
-      <p className="mt-2 text-[13px] font-light">Made to order. Price confirmed with your order.</p>
+      <p className="mt-2 text-[13px] font-light">
+        Made to order. Price confirmed with your order.
+      </p>
       <Link
         href={href}
         className="mt-3 inline-flex h-10 items-center justify-center rounded-full border border-[#14140f] text-[12px] uppercase tracking-[0.12em] hover:bg-black/5"

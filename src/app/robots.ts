@@ -7,7 +7,13 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        // /api/cdn/ is the same-origin proxy for Sanity media: files
+        // (sanity/lib/client.ts rewrites cdn.sanity.io/files/ to it, so
+        // the spec sheets and brochures on /resources live there) and the
+        // images a few sections load outside next/image (lib/sanity-img).
+        // The longest matching rule wins, so these Allows beat the /api/
+        // Disallow for that media and nothing else.
+        allow: ["/", "/api/cdn/files/", "/api/cdn/images/"],
         // Studio is the Sanity admin UI — never useful in search.
         // /api routes shouldn't be crawled either. /_archive is
         // the legacy collection routes kept around for git history.

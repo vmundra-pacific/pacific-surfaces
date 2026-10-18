@@ -66,6 +66,11 @@ export function isProductUrl(pathname: string | null): boolean {
 function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
   const [sampleOpen, setSampleOpen] = useState(false);
   const [enquireOpen, setEnquireOpen] = useState(false);
+  // Each modal mounts on its first open, not with every card: a closed
+  // modal renders nothing, and the grid can hold hundreds of cards. It
+  // then stays mounted, so closing still plays its exit animation.
+  const [sampleUsed, setSampleUsed] = useState(false);
+  const [enquireUsed, setEnquireUsed] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [tappedOpen, setTappedOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -251,6 +256,7 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  setSampleUsed(true);
                   setSampleOpen(true);
                 }}
                 className="rounded-full border border-white/40 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-white transition-colors hover:bg-white/10"
@@ -262,6 +268,7 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                setEnquireUsed(true);
                 setEnquireOpen(true);
               }}
               className="rounded-full border border-white/40 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-white transition-colors hover:bg-white/10"
@@ -285,20 +292,24 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
         </div>
       </div>
 
-      <OrderSampleModal
-        open={sampleOpen}
-        onClose={() => setSampleOpen(false)}
-        productName={slab.name}
-        productCategory={slab.collection ?? undefined}
-        mode="sample"
-      />
-      <OrderSampleModal
-        open={enquireOpen}
-        onClose={() => setEnquireOpen(false)}
-        productName={slab.name}
-        productCategory={slab.collection ?? undefined}
-        mode="enquire"
-      />
+      {sampleUsed && (
+        <OrderSampleModal
+          open={sampleOpen}
+          onClose={() => setSampleOpen(false)}
+          productName={slab.name}
+          productCategory={slab.collection ?? undefined}
+          mode="sample"
+        />
+      )}
+      {enquireUsed && (
+        <OrderSampleModal
+          open={enquireOpen}
+          onClose={() => setEnquireOpen(false)}
+          productName={slab.name}
+          productCategory={slab.collection ?? undefined}
+          mode="enquire"
+        />
+      )}
 
       <AnimatePresence>
         {lightboxOpen && lightboxImage && (

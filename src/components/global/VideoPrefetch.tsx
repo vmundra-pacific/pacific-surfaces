@@ -12,7 +12,10 @@ import { useEffect, useState } from "react";
  * on screen (e.g. inside SignatureProjects' card grid) keep their
  * `preload="none"` so they don't double-fetch; when their
  * IntersectionObserver later calls play(), the browser pulls from
- * its HTTP cache instead of doing a fresh network round-trip.
+ * its HTTP cache instead of doing a fresh network round-trip. That
+ * only works if each URL is exactly the visible player's `src`: the
+ * homepage passes the same sanityProxyUrl() (/api/cdn/files/...)
+ * URLs SignatureProjects plays, not the raw cdn.sanity.io ones.
  *
  * Phone gate: on touch devices with narrow viewports we render
  * NOTHING. Mobile shouldn't be downloading 30-50 MB of project
@@ -45,8 +48,7 @@ export function VideoPrefetch({ urls }: { urls: string[] }) {
     // Also bail on Save-Data / 2g/3g — even desktop on a tethered
     // phone shouldn't pre-fetch tens of MB of video.
     type NavConn = { saveData?: boolean; effectiveType?: string };
-    const conn = (navigator as unknown as { connection?: NavConn })
-      .connection;
+    const conn = (navigator as unknown as { connection?: NavConn }).connection;
     const slowNet =
       conn?.saveData === true ||
       (conn?.effectiveType !== undefined &&

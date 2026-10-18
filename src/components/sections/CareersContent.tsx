@@ -2,7 +2,14 @@
 
 import { useMemo, useRef, useState } from "react";
 import { ArrowRight, ChevronDown, Send } from "lucide-react";
-import { CompanyNav, LABEL, LIGHT, ProClose, ProHero, ProSteps } from "@/components/sections/professionals/ProKit";
+import {
+  CompanyNav,
+  LABEL,
+  LIGHT,
+  ProClose,
+  ProHero,
+  ProSteps,
+} from "@/components/sections/professionals/ProKit";
 
 /* ------------------------------------------------------------------ *
  * Sanity data shapes                                                  *
@@ -235,8 +242,7 @@ export function CareersContent({ pageData, openings }: Props) {
       // Location filter passes if ANY of the role's open cities
       // matches the selection — multi-city roles surface for every
       // city they're open in.
-      if (locationFilter && !g.locations.includes(locationFilter))
-        return false;
+      if (locationFilter && !g.locations.includes(locationFilter)) return false;
       return true;
     });
   }, [openings, titleQuery, locationFilter]);
@@ -443,7 +449,7 @@ export function CareersContent({ pageData, openings }: Props) {
   const roleCount = new Set(openings.map((o) => o.title)).size;
 
   return (
-    <main data-light-page className="bg-white text-[#14140f]">
+    <div data-light-page className="bg-white text-[#14140f]">
       {/* Rebuilt 2026-10-08 in the Professionals pages' language (owner:
           the Corporate section to get the same upgrade). The team film
           opens the page; roles are collapsed rows that open to the full
@@ -461,8 +467,14 @@ export function CareersContent({ pageData, openings }: Props) {
           { label: "Send your CV", href: "#apply" },
         ]}
         facts={[
-          { value: String(roleCount), label: roleCount === 1 ? "Open role" : "Open roles" },
-          { value: String(locationOptions.length), label: locationOptions.length === 1 ? "City" : "Cities" },
+          {
+            value: String(roleCount),
+            label: roleCount === 1 ? "Open role" : "Open roles",
+          },
+          {
+            value: String(locationOptions.length),
+            label: locationOptions.length === 1 ? "City" : "Cities",
+          },
           { value: "45+", label: "Countries supplied" },
           { value: "Since 2000", label: "Working in stone" },
         ]}
@@ -478,15 +490,23 @@ export function CareersContent({ pageData, openings }: Props) {
 
       {/* Open roles: search, then one row per role. */}
       <section id="roles" className="scroll-mt-24 bg-[#EFEDE9]">
-        <div ref={resultsRef} className="mx-auto w-full max-w-[1760px] px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
+        <div
+          ref={resultsRef}
+          className="mx-auto w-full max-w-[1760px] px-5 py-16 sm:px-8 lg:px-12 lg:py-24"
+        >
           <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
             <div>
               <p className={LABEL}>Open roles</p>
-              <h2 style={LIGHT} className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]">
+              <h2
+                style={LIGHT}
+                className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]"
+              >
                 {openPositionsHeading}
               </h2>
             </div>
-            <p className="max-w-xl text-[17px] font-light leading-relaxed">{openPositionsDescription}</p>
+            <p className="max-w-xl text-[17px] font-light leading-relaxed">
+              {openPositionsDescription}
+            </p>
           </div>
 
           <div className="mt-10 grid grid-cols-1 items-end gap-4 border border-[#14140f]/15 bg-white p-5 sm:p-6 md:grid-cols-12">
@@ -546,8 +566,9 @@ export function CareersContent({ pageData, openings }: Props) {
 
           {filteredOpenings.length === 0 ? (
             <p className="mt-6 max-w-2xl border border-[#14140f]/15 bg-white p-8 text-[16px] font-light leading-relaxed">
-              No roles match these filters right now. Try a wider search, or send your CV with the form below and we
-              will keep it for future openings.
+              No roles match these filters right now. Try a wider search, or
+              send your CV with the form below and we will keep it for future
+              openings.
             </p>
           ) : (
             <ul className="mt-6 border-t border-[#14140f]">
@@ -555,31 +576,51 @@ export function CareersContent({ pageData, openings }: Props) {
                 <li key={job._id} className="border-b border-[#14140f]/20">
                   <details className="group">
                     <summary className="grid cursor-pointer list-none gap-2 py-6 md:grid-cols-[minmax(0,5fr)_minmax(0,3fr)_minmax(0,3fr)_auto] md:items-center md:gap-6 [&::-webkit-details-marker]:hidden">
-                      <span className="text-[19px] leading-snug">{job.title}</span>
-                      <span className="text-[14px] font-light opacity-80">{job.locations.join(" · ")}</span>
-                      <span className="text-[14px] font-light opacity-80">
-                        {[job.department, job.experience].filter(Boolean).join(" · ")}
+                      <span className="text-[19px] leading-snug">
+                        {job.title}
                       </span>
-                      <span aria-hidden="true" className="hidden text-2xl leading-none transition-transform group-open:rotate-45 md:block">
+                      <span className="text-[14px] font-light opacity-80">
+                        {job.locations.join(" · ")}
+                      </span>
+                      <span className="text-[14px] font-light opacity-80">
+                        {[job.department, job.experience]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className="hidden text-2xl leading-none transition-transform group-open:rotate-45 md:block"
+                      >
                         +
                       </span>
                     </summary>
                     <div className="grid gap-8 pb-10 md:grid-cols-[minmax(0,8fr)_minmax(0,4fr)]">
                       <div>
-                        <p className="max-w-3xl text-[16px] font-light leading-relaxed">{job.description}</p>
-                        {job.responsibilities && job.responsibilities.length > 0 && (
-                          <>
-                            <p className={`mt-7 ${LABEL}`}>Key responsibilities</p>
-                            <ul className="mt-3 max-w-3xl border-t border-[#14140f]/15">
-                              {job.responsibilities.map((r, i) => (
-                                <li key={i} className="flex gap-4 border-b border-[#14140f]/15 py-3 text-[15px] font-light leading-relaxed">
-                                  <span aria-hidden="true" className="mt-[11px] h-px w-4 shrink-0 bg-[#14140f]" />
-                                  {r}
-                                </li>
-                              ))}
-                            </ul>
-                          </>
-                        )}
+                        <p className="max-w-3xl text-[16px] font-light leading-relaxed">
+                          {job.description}
+                        </p>
+                        {job.responsibilities &&
+                          job.responsibilities.length > 0 && (
+                            <>
+                              <p className={`mt-7 ${LABEL}`}>
+                                Key responsibilities
+                              </p>
+                              <ul className="mt-3 max-w-3xl border-t border-[#14140f]/15">
+                                {job.responsibilities.map((r, i) => (
+                                  <li
+                                    key={i}
+                                    className="flex gap-4 border-b border-[#14140f]/15 py-3 text-[15px] font-light leading-relaxed"
+                                  >
+                                    <span
+                                      aria-hidden="true"
+                                      className="mt-[11px] h-px w-4 shrink-0 bg-[#14140f]"
+                                    />
+                                    {r}
+                                  </li>
+                                ))}
+                              </ul>
+                            </>
+                          )}
                       </div>
                       <div>
                         <button
@@ -609,13 +650,19 @@ export function CareersContent({ pageData, openings }: Props) {
         >
           <div>
             <p className={LABEL}>Apply</p>
-            <h2 style={LIGHT} className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]">
+            <h2
+              style={LIGHT}
+              className="mt-4 text-[30px] uppercase leading-[1.05] tracking-[-0.02em] sm:text-4xl lg:text-[48px]"
+            >
               {applyHeading}
             </h2>
-            <p className="mt-6 max-w-md text-[17px] font-light leading-relaxed">{applyDescription}</p>
+            <p className="mt-6 max-w-md text-[17px] font-light leading-relaxed">
+              {applyDescription}
+            </p>
             {appliedRole && (
               <p className="mt-6 text-[15px] font-light">
-                Applying for: <strong className="font-normal">{appliedRole}</strong>
+                Applying for:{" "}
+                <strong className="font-normal">{appliedRole}</strong>
                 <button
                   type="button"
                   onClick={() => {
@@ -630,16 +677,56 @@ export function CareersContent({ pageData, openings }: Props) {
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6 border border-[#14140f]/15 bg-white p-6 sm:p-8">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6 border border-[#14140f]/15 bg-white p-6 sm:p-8"
+          >
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <FormInput label="First name" name="firstName" value={formData.firstName} onChange={handleInputChange} required />
-              <FormInput label="Last name" name="lastName" value={formData.lastName} onChange={handleInputChange} required />
+              <FormInput
+                label="First name"
+                name="firstName"
+                autoComplete="given-name"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                required
+              />
+              <FormInput
+                label="Last name"
+                name="lastName"
+                autoComplete="family-name"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                required
+              />
             </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <FormInput label="Email" name="email" type="email" value={formData.email} onChange={handleInputChange} required />
-              <FormInput label="Phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} required />
+              <FormInput
+                label="Email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+              />
+              <FormInput
+                label="Phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                value={formData.phone}
+                onChange={handleInputChange}
+                required
+              />
             </div>
-            <FormInput label="Address" name="address" value={formData.address} onChange={handleInputChange} required />
+            <FormInput
+              label="Address"
+              name="address"
+              autoComplete="street-address"
+              value={formData.address}
+              onChange={handleInputChange}
+              required
+            />
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <FormInput
                 label="Current location"
@@ -649,7 +736,14 @@ export function CareersContent({ pageData, openings }: Props) {
                 placeholder="e.g. Bangalore, Karnataka"
                 required
               />
-              <FormInput label="Age" name="age" type="number" value={formData.age} onChange={handleInputChange} required />
+              <FormInput
+                label="Age"
+                name="age"
+                type="number"
+                value={formData.age}
+                onChange={handleInputChange}
+                required
+              />
             </div>
             <FormInput
               label="Total experience"
@@ -682,7 +776,10 @@ export function CareersContent({ pageData, openings }: Props) {
                   <option value="hr">Human Resources</option>
                   <option value="other">Other</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" aria-hidden="true" />
+                <ChevronDown
+                  className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                  aria-hidden="true"
+                />
               </div>
             </div>
 
@@ -700,8 +797,14 @@ export function CareersContent({ pageData, openings }: Props) {
                 className={`${FIELD} file:mr-4 file:border-0 file:bg-[#EFEDE9] file:px-4 file:py-2 file:font-light`}
               />
               {/* The 8 MB cap is enforced in /api/careers/apply. */}
-              <p className="mt-2 text-[13px] font-light opacity-70">PDF, DOC or DOCX, up to 8 MB.</p>
-              {resumeFile && <p className="mt-1 text-[13px] font-light">Selected: {resumeFile.name}</p>}
+              <p className="mt-2 text-[13px] font-light opacity-70">
+                PDF, DOC or DOCX, up to 8 MB.
+              </p>
+              {resumeFile && (
+                <p className="mt-1 text-[13px] font-light">
+                  Selected: {resumeFile.name}
+                </p>
+              )}
             </div>
 
             {/* Only for roles with requiresPortfolio set in Sanity; a link
@@ -715,13 +818,15 @@ export function CareersContent({ pageData, openings }: Props) {
                   id="portfolioUrl"
                   type="url"
                   name="portfolioUrl"
+                  autoComplete="url"
                   value={formData.portfolioUrl}
                   onChange={handleInputChange}
                   placeholder="https://behance.net/yourname or a Drive or Dropbox link"
                   className={FIELD}
                 />
                 <p className="mt-2 text-[13px] font-light opacity-70">
-                  Or upload a file instead: PDF, PPT/PPTX, JPG or PNG, up to 20 MB.
+                  Or upload a file instead: PDF, PPT/PPTX, JPG or PNG, up to 20
+                  MB.
                 </p>
                 <input
                   id="portfolio"
@@ -731,7 +836,11 @@ export function CareersContent({ pageData, openings }: Props) {
                   onChange={handlePortfolioFileChange}
                   className={`mt-2 ${FIELD} file:mr-4 file:border-0 file:bg-[#EFEDE9] file:px-4 file:py-2 file:font-light`}
                 />
-                {portfolioFile && <p className="mt-1 text-[13px] font-light">Selected: {portfolioFile.name}</p>}
+                {portfolioFile && (
+                  <p className="mt-1 text-[13px] font-light">
+                    Selected: {portfolioFile.name}
+                  </p>
+                )}
               </div>
             )}
 
@@ -763,17 +872,24 @@ export function CareersContent({ pageData, openings }: Props) {
                     ? "Application sent"
                     : "Submit application"}
               </span>
-              {submitStatus !== "submitting" && <Send className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />}
+              {submitStatus !== "submitting" && (
+                <Send
+                  className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
+              )}
             </button>
 
             {submitStatus === "success" && (
               <p className="border border-[#14140f]/20 bg-[#EFEDE9] p-4 text-[15px] font-light">
-                Thank you for your application. We will review it and get back to you.
+                Thank you for your application. We will review it and get back
+                to you.
               </p>
             )}
             {submitStatus === "error" && (
               <p className="border border-[#14140f]/40 p-4 text-[15px] font-light">
-                {submitError || "There was an error submitting your application. Please try again."}
+                {submitError ||
+                  "There was an error submitting your application. Please try again."}
               </p>
             )}
           </form>
@@ -789,7 +905,7 @@ export function CareersContent({ pageData, openings }: Props) {
         ]}
         image="/videos/origin-poster.jpg"
       />
-    </main>
+    </div>
   );
 }
 
@@ -797,7 +913,8 @@ export function CareersContent({ pageData, openings }: Props) {
  * Small reusable form bits                                            *
  * ------------------------------------------------------------------ */
 
-const FIELD_LABEL = "mb-2 block text-[11px] uppercase tracking-[0.14em] opacity-70";
+const FIELD_LABEL =
+  "mb-2 block text-[11px] uppercase tracking-[0.14em] opacity-70";
 const FIELD =
   "w-full border border-[#14140f]/25 bg-white px-4 py-3 text-[15px] font-light text-[#14140f] placeholder:text-[#14140f]/40 focus:border-[#14140f] focus:outline-none";
 
@@ -809,6 +926,7 @@ function FormInput({
   onChange,
   placeholder,
   required,
+  autoComplete,
 }: {
   label: string;
   name: string;
@@ -817,13 +935,25 @@ function FormInput({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   required?: boolean;
+  /** WCAG 1.3.5: an HTML autofill token where the field has one. */
+  autoComplete?: string;
 }) {
   return (
     <div>
       <label htmlFor={name} className={FIELD_LABEL}>
         {label}
       </label>
-      <input id={name} type={type} name={name} value={value} onChange={onChange} required={required} placeholder={placeholder} className={FIELD} />
+      <input
+        id={name}
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        className={FIELD}
+      />
     </div>
   );
 }
@@ -849,7 +979,12 @@ function DropdownField({
         {label}
       </label>
       <div className="relative">
-        <select id={`dropdown-${label}`} value={value} onChange={(e) => onChange(e.target.value)} className={`${FIELD} appearance-none pr-10`}>
+        <select
+          id={`dropdown-${label}`}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`${FIELD} appearance-none pr-10`}
+        >
           <option value="">{placeholder}</option>
           {options.map((opt) => (
             <option key={opt} value={opt}>
@@ -857,7 +992,10 @@ function DropdownField({
             </option>
           ))}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" aria-hidden="true" />
+        <ChevronDown
+          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
+          aria-hidden="true"
+        />
       </div>
     </div>
   );

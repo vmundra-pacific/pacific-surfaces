@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { SpaceFeatureSection } from "@/components/sections/SpaceFeatureSection";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 import { freshClient } from "@/sanity/lib/client";
 import { spacePageBySlugQuery } from "@/sanity/lib/queries";
 
@@ -12,9 +13,9 @@ interface SpacePageImages {
 }
 
 export const metadata: Metadata = {
-  title: "Commercial — Pacific Surfaces",
+  title: "Commercial Quartz & Granite Surfaces | Pacific Surfaces",
   description:
-    "Reception desks, bar tops, hospitality surfaces, and commercial counters — Pacific specified for high-traffic environments where appearance and durability both have to last.",
+    "Reception desks, bar tops and commercial counters: Pacific surfaces specified for high-traffic environments where appearance and durability both have to last.",
   alternates: { canonical: "/spaces/commercial" },
 };
 
@@ -72,6 +73,13 @@ export default async function CommercialSpacePage() {
 
   return (
     <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Spaces", url: "/spaces" },
+          { name: "Commercial", url: "/spaces/commercial" },
+        ]}
+      />
       <PageHeader
         badge="Spaces · Commercial"
         title="Commercial surfaces, specified to last."

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { InspirationGallery } from "@/components/sections/InspirationGallery";
+import { BreadcrumbList } from "@/components/global/JsonLd";
 
 export const metadata: Metadata = {
   title: "Inspiration Gallery — Pacific Surfaces",
@@ -20,5 +21,18 @@ export const metadata: Metadata = {
  * touching this route.
  */
 export default function InspirationGalleryPage() {
-  return <InspirationGallery />;
+  return (
+    <>
+      <BreadcrumbList
+        items={[
+          { name: "Home", url: "/" },
+          {
+            name: "Inspiration Gallery",
+            url: "/inspirations/inspiration-gallery",
+          },
+        ]}
+      />
+      <InspirationGallery />
+    </>
+  );
 }
