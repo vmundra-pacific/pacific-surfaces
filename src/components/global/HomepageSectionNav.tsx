@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Building2, Eye, Factory, Layers, Leaf, LayoutGrid, Users, type LucideIcon } from "lucide-react";
 
 /**
- * HomepageSectionNav — a bar of the homepage's sections under the fixed
- * header (owner, 2026-10-20: the left rail overlapped the page, and a
- * hover-only icon would be missed). It appears once the hero has been
- * scrolled past, underlines the section in view, and on phones becomes
- * a row you swipe. It sits under the header, so it never covers content.
+ * HomepageSectionNav — the homepage's sections, from the end of the hero on.
+ *  - Desktop (lg+): a slim black dock on the right edge, one icon per
+ *    section (owner, 2026-10-20, after an icon dock on another site); the
+ *    section in view is highlighted and hovering an icon slides its name
+ *    out to the left.
+ *  - Phones and tablets: a bar under the fixed header that you swipe, the
+ *    section in view underlined and kept in view.
+ * Neither covers the page's text: the dock sits in the edge margin.
  *
  * Clicks scroll with scrollIntoView, which Lenis (the site's smooth
  * scroll) honours; a plain #anchor jump can fight it over the tall
@@ -16,14 +20,14 @@ import { useEffect, useRef, useState } from "react";
  * InspirationGrid.
  */
 
-const SECTIONS: { id: string; label: string }[] = [
-  { id: "sec-sustainability", label: "Sustainability" },
-  { id: "sec-collections", label: "Collections" },
-  { id: "sec-applications", label: "Applications" },
-  { id: "sec-origin", label: "Origin" },
-  { id: "sec-architects", label: "Community" },
-  { id: "sec-projects", label: "Signature Projects" },
-  { id: "sec-visualize", label: "Visualize" },
+const SECTIONS: { id: string; label: string; icon: LucideIcon }[] = [
+  { id: "sec-sustainability", label: "Sustainability", icon: Leaf },
+  { id: "sec-collections", label: "Collections", icon: Layers },
+  { id: "sec-applications", label: "Applications", icon: LayoutGrid },
+  { id: "sec-origin", label: "Origin", icon: Factory },
+  { id: "sec-architects", label: "Community", icon: Users },
+  { id: "sec-projects", label: "Signature Projects", icon: Building2 },
+  { id: "sec-visualize", label: "Visualize", icon: Eye },
 ];
 
 export function HomepageSectionNav() {
@@ -107,8 +111,8 @@ export function HomepageSectionNav() {
     const el = document.getElementById(id);
     if (!el) return;
     setActive(id);
-    // Land below the header (80 px) and this bar (about 48 px).
-    el.style.scrollMarginTop = "128px";
+    // Land below the header (80 px), and below the bar on phones (48 px).
+    el.style.scrollMarginTop = window.matchMedia("(min-width: 1024px)").matches ? "88px" : "128px";
     el.scrollIntoView({ behavior: "smooth", block: "start" });
     // Update the URL hash without forcing the browser to do its own
     // jump — keeps shareable links functional.
@@ -116,15 +120,57 @@ export function HomepageSectionNav() {
   };
 
   return (
+    <>
+    {/* desktop: icon dock on the right edge */}
+    <nav
+      aria-label="Homepage sections"
+      aria-hidden={!shown}
+      className={`fixed right-0 top-1/2 z-40 hidden -translate-y-1/2 transition-all duration-300 lg:block ${
+        shown ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-4 opacity-0"
+      }`}
+    >
+      <ul className="flex flex-col gap-1 rounded-l-xl bg-[#14140f]/90 px-1.5 py-2 shadow-[0_8px_30px_rgba(0,0,0,0.25)] backdrop-blur-md">
+        {SECTIONS.map((s) => {
+          const isActive = active === s.id;
+          const Icon = s.icon;
+          return (
+            <li key={s.id} className="group/dock relative">
+              <a
+                href={`#${s.id}`}
+                tabIndex={shown ? 0 : -1}
+                onClick={(e) => handleClick(e, s.id)}
+                aria-label={s.label}
+                aria-current={isActive ? "true" : undefined}
+                // Inline colours: the bw-temp skin rewrites colour utilities.
+                style={{ color: isActive ? "#14140f" : "#ffffff", background: isActive ? "#ffffff" : "transparent" }}
+                className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+                  isActive ? "" : "opacity-75 hover:bg-white/10 hover:opacity-100"
+                }`}
+              >
+                <Icon className="h-[18px] w-[18px]" strokeWidth={1.6} aria-hidden="true" />
+              </a>
+              <span
+                aria-hidden="true"
+                style={{ color: "#ffffff" }}
+                className="pointer-events-none absolute right-full top-1/2 mr-3 -translate-y-1/2 translate-x-1 whitespace-nowrap rounded-md bg-[#14140f]/90 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] opacity-0 transition-all duration-200 group-hover/dock:translate-x-0 group-hover/dock:opacity-100 group-focus-within/dock:translate-x-0 group-focus-within/dock:opacity-100"
+              >
+                {s.label}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+    {/* phones and tablets: the swipeable bar under the header */}
     <nav
       ref={navRef}
       aria-label="Homepage sections"
       aria-hidden={!shown}
-      className={`fixed inset-x-0 top-20 z-40 border-b border-black/10 bg-white/90 backdrop-blur-md transition-all duration-300 ${
+      className={`fixed inset-x-0 top-20 z-40 border-b border-black/10 bg-white/90 backdrop-blur-md transition-all duration-300 lg:hidden ${
         shown ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-2 opacity-0"
       }`}
     >
-      <ul className="mx-auto flex max-w-[1440px] items-center gap-1 overflow-x-auto px-4 [scrollbar-width:none] sm:px-10 lg:justify-center lg:gap-2 [&::-webkit-scrollbar]:hidden">
+      <ul className="mx-auto flex max-w-[1440px] items-center gap-1 overflow-x-auto px-4 [scrollbar-width:none] sm:px-10 [&::-webkit-scrollbar]:hidden">
         {SECTIONS.map((s) => {
           const isActive = active === s.id;
           return (
@@ -156,5 +202,6 @@ export function HomepageSectionNav() {
         })}
       </ul>
     </nav>
+    </>
   );
 }
