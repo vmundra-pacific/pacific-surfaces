@@ -205,6 +205,20 @@ export const collectionBySlugQuery = groq`
 `;
 
 // Blog
+// The posts chosen for the Recent articles row above the homepage footer
+// ($slugs, in the order given; see RecentArticles).
+export const recentBlogPostsQuery = groq`
+  *[_type == "blogPost" && slug.current in $slugs] {
+    _id,
+    title,
+    slug,
+    excerpt,
+    "mainImage": mainImage.asset->url,
+    publishedAt,
+    minutesToRead
+  }
+`;
+
 export const allBlogPostsQuery = groq`
   *[_type == "blogPost"] | order(publishedAt desc) {
     _id,

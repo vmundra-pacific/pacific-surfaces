@@ -7,9 +7,12 @@ import {
   signatureProjectsQuery,
   applicationCardsQuery,
   inspirationImagesQuery,
+  recentBlogPostsQuery,
   // featuredDealersQuery, // disabled — DealerLocator section hidden below
 } from "@/sanity/lib/queries";
 import { HeroScrollCanvas } from "@/components/sections/HeroScrollCanvas";
+import { RecentArticles } from "@/components/sections/RecentArticles";
+import type { BlogPost } from "@/components/sections/BlogGrid";
 import { TrustStrip } from "@/components/sections/TrustStrip";
 import { CollectionsShowcaseGrid } from "@/components/sections/CollectionsShowcaseGrid";
 import { StatementSection } from "@/components/sections/StatementSection";
@@ -96,6 +99,14 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
+/** The articles shown above the footer, in this order (owner, 2026-10-20:
+ *  posts whose photographs carry no headline text). */
+const HOME_ARTICLES = [
+  "the-ultimate-beginner-s-guide-to-choosing-the-perfect-surface",
+  "pacific-at-the-big-5-dubai-a-week-that-redefined-possibilities",
+  "12mm-quartz-slabs-the-next-big-revolution-in-modern-surfaces",
+];
+
 export default async function HomePage() {
   // LCP: the first parallax frame is not preloaded from here. The hero
   // poster in HeroScrollCanvas is a <picture> (AVIF, JPG fallback) in the
@@ -109,12 +120,16 @@ export default async function HomePage() {
   // (featuredDealersQuery removed temporarily — DealerLocator section
   //  is hidden below. Restore the fetch + the destructured `dealers`
   //  slot when the section is re-enabled.)
-  const [collections, projects, applications, inspirations] = await Promise.all(
+  const [collections, projects, applications, inspirations, recentPosts] = await Promise.all(
     [
       client.fetch(homepageCollectionsQuery),
       client.fetch(signatureProjectsQuery),
       client.fetch(applicationCardsQuery),
       client.fetch(inspirationImagesQuery),
+      client
+        .fetch<BlogPost[]>(recentBlogPostsQuery, { slugs: HOME_ARTICLES })
+        .then((posts) => HOME_ARTICLES.flatMap((s) => posts.filter((p) => p.slug.current === s)))
+        .catch((): BlogPost[] => []),
     ]
   );
 
@@ -196,6 +211,8 @@ export default async function HomePage() {
       <VisualizerStrip />
       <PartnerWithUs />
       <ClosingCTA />
+      {/* The four newest journal articles, just above the footer. */}
+      <RecentArticles posts={recentPosts} />
     </>
   );
 }
