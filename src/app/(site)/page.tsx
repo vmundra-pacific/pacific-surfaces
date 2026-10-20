@@ -161,10 +161,8 @@ export default async function HomePage() {
           loading window; the visible <video> elements later pull
           from cache instead of re-fetching. */}
       <VideoPrefetch urls={prefetchVideoUrls} />
-      {/* Pinned left-middle section nav. Stays visible for the entire
-          homepage scroll, highlights whichever section is centred in
-          viewport, and lets the user click any chapter number to jump
-          straight there. Hidden below 1280px wide (xl). */}
+      {/* A bar of the page's sections under the header, from the end of
+          the hero on: underlines the one in view, click to jump. */}
       <HomepageSectionNav />
       <HeroScrollCanvas />
       {/* StatementSection moved up to sit immediately after the

@@ -3,46 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * HomepageSectionNav — pinned left-middle vertical nav, six labelled
- * pill tabs in scroll order.
+ * HomepageSectionNav — a bar of the homepage's sections under the fixed
+ * header (owner, 2026-10-20: the left rail overlapped the page, and a
+ * hover-only icon would be missed). It appears once the hero has been
+ * scrolled past, underlines the section in view, and on phones becomes
+ * a row you swipe. It sits under the header, so it never covers content.
  *
- * Three things to know:
- *
- * 1. CLICK = programmatic scrollIntoView. The site uses Lenis for
- *    smooth-scroll, which intercepts wheel/keyboard scroll. Native
- *    `href="#id"` anchor clicks don't always behave predictably under
- *    Lenis — especially over very tall scroll-pinned sections like
- *    the homepage hero. Calling `scrollIntoView({ behavior: "smooth" })`
- *    on the target element triggers a programmatic scroll that Lenis
- *    respects, so the jump always works.
- *
- * 2. CONTRAST is measured, not blended. This used to ride on
- *    `mix-blend-mode: difference`, which stopped working the moment
- *    the nav gained `z-30`: a positioned element with a z-index makes
- *    its own stacking context, and a blend group only sees the
- *    backdrop inside its own context — here, nothing. The labels
- *    blended against emptiness and just rendered their own colour.
- *
- *    Instead the rail samples what is actually behind it on scroll
- *    (`document.elementsFromPoint` at three points down its height),
- *    and picks a tone from that:
- *      - a photo, canvas or video behind it  → white + a drop shadow
- *      - a light background                  → black
- *      - a dark background                   → white
- *    Photography reads as "dark" for contrast purposes even when the
- *    image is pale — a marble kitchen is bright but busy, and black
- *    text disappears into the veining. White with a shadow survives
- *    both.
- *
- * 3. Sustainability points at the EcosurfacesSection (low-silica
- *    feature block under TrustStrip). Community = SignatureProjects
- *    (community endorsement section). Signature Projects =
- *    InspirationGrid (the project-photo gallery). Voices and
- *    Visualize were dropped from the rail per the editorial mock —
- *    they still exist on the page, just not pinned to the side nav.
- *
- * Hidden below `xl` (1280px) — phone/tablet users get the regular
- * scroll experience without an extra UI band overlapping content.
+ * Clicks scroll with scrollIntoView, which Lenis (the site's smooth
+ * scroll) honours; a plain #anchor jump can fight it over the tall
+ * scroll-pinned hero. Sustainability points at the EcosurfacesSection,
+ * Community at SignatureProjects and Signature Projects at the
+ * InspirationGrid.
  */
 
 const SECTIONS: { id: string; label: string }[] = [
@@ -55,62 +26,9 @@ const SECTIONS: { id: string; label: string }[] = [
   { id: "sec-visualize", label: "Visualize" },
 ];
 
-/** How the rail should paint itself against whatever is behind it. */
-type Tone = "light" | "dark";
-
-/** Relative luminance, 0 (black) to 1 (white). */
-function luminance(r: number, g: number, b: number) {
-  const f = (v: number) => {
-    const c = v / 255;
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  };
-  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
-}
-
-/**
- * Read the backdrop at one point. Returns "light" only for a solid,
- * genuinely pale background — everything else (photography, video,
- * canvas, a background-image, a dark fill) counts as "dark" so the
- * label stays white.
- */
-function toneAt(x: number, y: number, skip: Element | null): Tone {
-  const stack = document.elementsFromPoint(x, y);
-  const el = stack.find((e) => !skip || !skip.contains(e));
-  if (!el) return "light"; // off the page: the document ground is white
-
-  const MEDIA = new Set(["IMG", "CANVAS", "VIDEO", "PICTURE", "SVG"]);
-  let node: Element | null = el;
-  while (node && node !== document.documentElement) {
-    if (MEDIA.has(node.tagName)) return "dark";
-    const cs = getComputedStyle(node);
-    if (cs.backgroundImage && cs.backgroundImage !== "none") return "dark";
-    const m = cs.backgroundColor.match(
-      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/
-    );
-    if (m) {
-      const alpha = m[4] === undefined ? 1 : parseFloat(m[4]);
-      // Anything close to transparent isn't the real ground — keep
-      // walking up to whatever is actually painting behind it.
-      if (alpha > 0.5) {
-        const l = luminance(+m[1], +m[2], +m[3]);
-        return l > 0.6 ? "light" : "dark";
-      }
-    }
-    node = node.parentElement;
-  }
-  return "light";
-}
-
 export function HomepageSectionNav() {
   const [active, setActive] = useState<string | null>(null);
-  // One tone per item, not one for the rail. The rail is ~230px tall
-  // and regularly straddles a section boundary — measuring it as a
-  // single unit put black labels on the dark half and lost them.
-  const [tones, setTones] = useState<Tone[]>(() =>
-    SECTIONS.map(() => "dark" as Tone)
-  );
   const navRef = useRef<HTMLElement>(null);
-  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   // Set of section ids currently inside the active band. Active pill
   // is recomputed on every observer fire as the topmost intersecting
   // section in SECTIONS order. When the set is empty (parallax hero,
@@ -119,6 +37,34 @@ export function HomepageSectionNav() {
   // through Collections, Collections doesn't bleed into Applications,
   // etc.
   const intersectingRef = useRef<Set<string>>(new Set());
+  // Shown once the first section reaches the header, hidden over the hero.
+  const [shown, setShown] = useState(false);
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+
+  useEffect(() => {
+    let raf = 0;
+    const check = () => {
+      raf = 0;
+      const first = document.getElementById(SECTIONS[0].id);
+      setShown(!!first && first.getBoundingClientRect().top < 140);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(check);
+    };
+    check();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  // On a phone the row scrolls sideways: keep the current tab in view.
+  useEffect(() => {
+    if (active) linkRefs.current[active]?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+  }, [active]);
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
@@ -147,69 +93,6 @@ export function HomepageSectionNav() {
     return () => observers.forEach((o) => o.disconnect());
   }, []);
 
-  // Sample the backdrop as the page moves. Lenis animates scroll in a
-  // rAF loop, so polling scrollY in our own rAF stays in step with it
-  // without needing a Lenis instance; we only re-measure when the
-  // position actually changed, so an idle page costs one comparison
-  // per frame. The loop only runs while the rail can show (xl, 80rem,
-  // the same query as its `xl:block`); below that it is display:none
-  // and there is nothing to measure.
-  useEffect(() => {
-    let raf = 0;
-    let lastY = -1;
-
-    const measure = () => {
-      const nav = navRef.current;
-      if (!nav || nav.getBoundingClientRect().width === 0) return;
-      const next = SECTIONS.map((_, i) => {
-        const a = itemRefs.current[i];
-        if (!a) return "dark" as Tone;
-        const r = a.getBoundingClientRect();
-        const y = r.top + r.height / 2;
-        if (y < 0 || y > window.innerHeight) return "dark" as Tone;
-        const x = Math.min(window.innerWidth - 1, r.left + r.width / 2);
-        return toneAt(x, y, nav);
-      });
-      // Only re-render when something actually flipped; this runs off a
-      // rAF loop and setState every frame would be wasteful.
-      setTones((prev) =>
-        prev.length === next.length && prev.every((t, i) => t === next[i])
-          ? prev
-          : next
-      );
-    };
-
-    const tick = () => {
-      const y = window.scrollY;
-      if (y !== lastY) {
-        lastY = y;
-        measure();
-      }
-      raf = requestAnimationFrame(tick);
-    };
-
-    const start = () => {
-      if (raf) return;
-      measure();
-      raf = requestAnimationFrame(tick);
-    };
-    const stop = () => {
-      cancelAnimationFrame(raf);
-      raf = 0;
-    };
-    const mq = window.matchMedia("(min-width: 80rem)");
-    const onMq = () => (mq.matches ? start() : stop());
-
-    onMq();
-    mq.addEventListener("change", onMq);
-    window.addEventListener("resize", measure);
-    return () => {
-      stop();
-      mq.removeEventListener("change", onMq);
-      window.removeEventListener("resize", measure);
-    };
-  }, []);
-
   // Click handler — programmatic scroll via scrollIntoView so Lenis
   // routes through its own animation pipeline rather than the native
   // anchor jump (which can drop or fight Lenis under load). We also
@@ -224,6 +107,8 @@ export function HomepageSectionNav() {
     const el = document.getElementById(id);
     if (!el) return;
     setActive(id);
+    // Land below the header (80 px) and this bar (about 48 px).
+    el.style.scrollMarginTop = "128px";
     el.scrollIntoView({ behavior: "smooth", block: "start" });
     // Update the URL hash without forcing the browser to do its own
     // jump — keeps shareable links functional.
@@ -233,68 +118,38 @@ export function HomepageSectionNav() {
   return (
     <nav
       ref={navRef}
-      // Pinned to the left edge, vertically centred. z-30 sits above
-      // page content but below the fixed header (z-50). Hidden on
-      // mobile / tablet — only shows xl+ where there's room.
-      //
-      // Earlier versions tried `mix-blend: difference` for auto-
-      // inversion, but on bright marble heroes the active pill's
-      // dark label blended into the marble veins and read as muddy.
-      // The pills now carry their own contrast layers — see the
-      // per-pill className below.
-      // Below xl (≤1279px) there isn't enough room next to centred
-      // section content for the rail without it overlapping text — at
-      // lg the DNV/SGS cards' inner copy starts ~80px from the viewport
-      // edge and the rail's longest pill ("Signature Projects") is wider
-      // than that. Hide entirely on lg+down.
-      // - xl (1280–1535): compact rail, tight padding + small font.
-      // - 2xl+ (≥1536):    original full-size rail.
-      className="fixed left-2 2xl:left-6 top-1/2 -translate-y-1/2 z-30 hidden xl:block"
-      aria-label="Homepage section navigation"
+      aria-label="Homepage sections"
+      aria-hidden={!shown}
+      className={`fixed inset-x-0 top-20 z-40 border-b border-black/10 bg-white/90 backdrop-blur-md transition-all duration-300 ${
+        shown ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-2 opacity-0"
+      }`}
     >
-      <ul className="flex flex-col gap-2.5 2xl:gap-3">
-        {SECTIONS.map((s, i) => {
+      <ul className="mx-auto flex max-w-[1440px] items-center gap-1 overflow-x-auto px-4 [scrollbar-width:none] sm:px-10 lg:justify-center lg:gap-2 [&::-webkit-scrollbar]:hidden">
+        {SECTIONS.map((s) => {
           const isActive = active === s.id;
-          const tone = tones[i] ?? "dark";
-          // Colour is set inline rather than through a `text-white`
-          // utility on purpose: bw-temp.css forces every .text-white to
-          // black with !important, which is what made this rail black
-          // over the hero in the first place. An inline colour also
-          // beats any later utility collision.
-          const colour = tone === "light" ? "#000000" : "#ffffff";
           return (
-            <li key={s.id}>
+            <li key={s.id} className="shrink-0">
               <a
                 ref={(el) => {
-                  itemRefs.current[i] = el;
+                  linkRefs.current[s.id] = el;
                 }}
                 href={`#${s.id}`}
+                tabIndex={shown ? 0 : -1}
                 onClick={(e) => handleClick(e, s.id)}
-                style={{ color: colour }}
-                // Bulleted nav: a small dot + label. No outline, no
-                // pill background. Active item = filled dot + brighter
-                // label; inactive = hollow ring + dimmer label. Group
-                // hover swells the dot slightly so the click target
-                // feels alive without bringing back a rectangle.
-                //
-                // The shadow only rides along on the white treatment —
-                // white sits over photography as often as over navy,
-                // and marble veining eats an unshadowed label.
-                className={`group inline-flex items-center gap-2.5 2xl:gap-3 px-1 py-0.5 text-[9px] tracking-[0.18em] 2xl:text-[10.5px] 2xl:tracking-[0.22em] uppercase font-semibold transition-colors duration-300 whitespace-nowrap ${
-                  tone === "dark"
-                    ? "drop-shadow-[0_1px_4px_rgba(0,0,0,0.55)]"
-                    : ""
-                } ${isActive ? "opacity-100" : "opacity-70 hover:opacity-100"}`}
+                aria-current={isActive ? "true" : undefined}
+                // Inline colour: the bw-temp skin rewrites colour utilities.
+                style={{ color: "#14140f" }}
+                className={`relative block whitespace-nowrap px-3 py-3.5 text-[11px] font-medium uppercase tracking-[0.16em] transition-opacity ${
+                  isActive ? "opacity-100" : "opacity-55 hover:opacity-100"
+                }`}
               >
-                <span
-                  className={`inline-block rounded-full transition-all duration-300 ${
-                    isActive
-                      ? "w-2 h-2 2xl:w-2.5 2xl:h-2.5 bg-current"
-                      : "w-1.5 h-1.5 2xl:w-2 2xl:h-2 border border-current bg-transparent group-hover:bg-current"
-                  }`}
-                  aria-hidden="true"
-                />
                 {s.label}
+                <span
+                  aria-hidden="true"
+                  className={`absolute inset-x-3 bottom-0 h-[2px] origin-left bg-[#14140f] transition-transform duration-300 ${
+                    isActive ? "scale-x-100" : "scale-x-0"
+                  }`}
+                />
               </a>
             </li>
           );
