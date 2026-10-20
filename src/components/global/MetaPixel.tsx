@@ -2,8 +2,9 @@
 
 import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { META_PIXEL_ID, trackMetaEvent } from "@/lib/meta-pixel";
+import { CONSENT_EVENT, readConsent, type Consent } from "@/lib/consent";
 
 /**
  * Meta (Facebook) Pixel.
@@ -27,6 +28,16 @@ import { META_PIXEL_ID, trackMetaEvent } from "@/lib/meta-pixel";
  */
 export default function MetaPixel() {
   const pathname = usePathname();
+  // Loaded only once the visitor accepts advertising cookies (lib/consent,
+  // owner 2026-10-20): before that it would set Meta's third-party `fr`
+  // cookie without consent, which also failed Lighthouse Best Practices.
+  const [allowed, setAllowed] = useState(false);
+  useEffect(() => {
+    if (readConsent() === "granted") setAllowed(true);
+    const onChoice = (e: Event) => setAllowed((e as CustomEvent<Consent>).detail === "granted");
+    window.addEventListener(CONSENT_EVENT, onChoice);
+    return () => window.removeEventListener(CONSENT_EVENT, onChoice);
+  }, []);
   // The inline snippet already tracks the landing PageView, so the
   // effect has to sit out the entry route or it double-counts. Holding
   // the last path (rather than a "has run" flag) also makes React's
@@ -34,6 +45,7 @@ export default function MetaPixel() {
   const lastPath = useRef<string | null>(null);
 
   useEffect(() => {
+    if (!allowed) return;
     if (lastPath.current === pathname) return;
     const isFirstRender = lastPath.current === null;
     lastPath.current = pathname;
@@ -41,7 +53,9 @@ export default function MetaPixel() {
     // Via the helper so a throw inside fbq can't escape the effect and
     // take out the page through the nearest error boundary.
     trackMetaEvent("PageView");
-  }, [pathname]);
+  }, [pathname, allowed]);
+
+  if (!allowed) return null;
 
   return (
     <>

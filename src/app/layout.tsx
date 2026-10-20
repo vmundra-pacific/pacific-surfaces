@@ -8,6 +8,8 @@ import "./bw-temp.css";
 import BwTempSections from "./bw-temp-sections";
 import GlobalDustMount from "@/components/global/GlobalDustMount";
 import MetaPixel from "@/components/global/MetaPixel";
+import { ConsentBanner } from "@/components/global/ConsentBanner";
+import { CONSENT_DEFAULTS_SCRIPT } from "@/lib/consent";
 import { safeJsonLd } from "@/lib/escape";
 import { siteGraph } from "@/data/business";
 
@@ -87,6 +89,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/*
+          Consent Mode defaults, before Tag Manager so every Google tag
+          starts with them: advertising storage denied until the visitor
+          accepts (lib/consent, ConsentBanner), analytics on.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: CONSENT_DEFAULTS_SCRIPT }} />
         {/*
           Google Tag Manager — as high in <head> as possible, per
           Google's install instructions. A plain inline script (not
@@ -180,6 +188,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           PageView on App Router soft navigations — see MetaPixel.tsx.
         */}
         <MetaPixel />
+        <ConsentBanner />
       </body>
     </html>
   );
