@@ -5,7 +5,7 @@ import { Building2, Eye, Factory, Layers, Leaf, LayoutGrid, Users, type LucideIc
 
 /**
  * HomepageSectionNav — the homepage's sections, from the end of the hero on.
- *  - Desktop (lg+): a slim black dock on the right edge, one icon per
+ *  - Desktop (lg+): a slim liquid-glass dock on the right edge, one icon per
  *    section (owner, 2026-10-20, after an icon dock on another site); the
  *    section in view is highlighted and hovering an icon slides its name
  *    out to the left.
@@ -29,6 +29,16 @@ const SECTIONS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: "sec-projects", label: "Signature Projects", icon: Building2 },
   { id: "sec-visualize", label: "Visualize", icon: Eye },
 ];
+
+/** Inline: the bw-temp skin rewrites colour utilities. */
+const GLASS: React.CSSProperties = {
+  background: "linear-gradient(160deg, rgba(255,255,255,0.55), rgba(255,255,255,0.28))",
+  backdropFilter: "blur(18px) saturate(180%)",
+  WebkitBackdropFilter: "blur(18px) saturate(180%)",
+  border: "1px solid rgba(255,255,255,0.6)",
+  boxShadow:
+    "inset 0 1px 0 rgba(255,255,255,0.85), inset 0 -1px 0 rgba(255,255,255,0.25), 0 10px 30px rgba(0,0,0,0.16)",
+};
 
 export function HomepageSectionNav() {
   const [active, setActive] = useState<string | null>(null);
@@ -129,7 +139,12 @@ export function HomepageSectionNav() {
         shown ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-4 opacity-0"
       }`}
     >
-      <ul className="flex flex-col gap-1 rounded-l-xl bg-[#14140f]/90 px-1.5 py-2 shadow-[0_8px_30px_rgba(0,0,0,0.25)] backdrop-blur-md">
+      {/* Liquid glass (owner, 2026-10-20): a light, saturated frost with a
+          bright rim and inner highlight, so the page shows through. */}
+      <ul
+        style={GLASS}
+        className="mr-2 flex flex-col gap-1 rounded-2xl px-1.5 py-2"
+      >
         {SECTIONS.map((s) => {
           const isActive = active === s.id;
           const Icon = s.icon;
@@ -142,17 +157,21 @@ export function HomepageSectionNav() {
                 aria-label={s.label}
                 aria-current={isActive ? "true" : undefined}
                 // Inline colours: the bw-temp skin rewrites colour utilities.
-                style={{ color: isActive ? "#14140f" : "#ffffff", background: isActive ? "#ffffff" : "transparent" }}
-                className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
-                  isActive ? "" : "opacity-75 hover:bg-white/10 hover:opacity-100"
+                style={{
+                  color: isActive ? "#ffffff" : "#14140f",
+                  background: isActive ? "rgba(20,20,15,0.88)" : undefined,
+                  boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.18)" : undefined,
+                }}
+                className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
+                  isActive ? "" : "opacity-80 hover:bg-white/50 hover:opacity-100"
                 }`}
               >
                 <Icon className="h-[18px] w-[18px]" strokeWidth={1.6} aria-hidden="true" />
               </a>
               <span
                 aria-hidden="true"
-                style={{ color: "#ffffff" }}
-                className="pointer-events-none absolute right-full top-1/2 mr-3 -translate-y-1/2 translate-x-1 whitespace-nowrap rounded-md bg-[#14140f]/90 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] opacity-0 transition-all duration-200 group-hover/dock:translate-x-0 group-hover/dock:opacity-100 group-focus-within/dock:translate-x-0 group-focus-within/dock:opacity-100"
+                style={{ ...GLASS, color: "#14140f" }}
+                className="pointer-events-none absolute right-full top-1/2 mr-3 -translate-y-1/2 translate-x-1 whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] opacity-0 transition-all duration-200 group-hover/dock:translate-x-0 group-hover/dock:opacity-100 group-focus-within/dock:translate-x-0 group-focus-within/dock:opacity-100"
               >
                 {s.label}
               </span>
