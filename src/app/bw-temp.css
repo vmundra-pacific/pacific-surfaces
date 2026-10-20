@@ -55,6 +55,41 @@
   font-display: swap;
 }
 
+/* Numerals in Poppins (owner, 2026-10-20: "change the font to Poppins for
+   the numbers alone"). Each file holds only the digits 0-9 (1.4 KB, cut
+   from the Google Fonts release, SIL Open Font License in
+   /fonts/Poppins-OFL.txt), and unicode-range keeps every other character
+   in Hubot Sans. Poppins has static weights, so each covers a band of the
+   site's font-weight values. */
+@font-face {
+  font-family: "Pacific Numerals";
+  src: url("/fonts/PoppinsDigits-Light.woff2") format("woff2");
+  font-weight: 100 350;
+  unicode-range: U+0030-0039;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pacific Numerals";
+  src: url("/fonts/PoppinsDigits-Regular.woff2") format("woff2");
+  font-weight: 351 450;
+  unicode-range: U+0030-0039;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pacific Numerals";
+  src: url("/fonts/PoppinsDigits-Medium.woff2") format("woff2");
+  font-weight: 451 550;
+  unicode-range: U+0030-0039;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pacific Numerals";
+  src: url("/fonts/PoppinsDigits-SemiBold.woff2") format("woff2");
+  font-weight: 551 900;
+  unicode-range: U+0030-0039;
+  font-display: swap;
+}
+
 /* ---- ground ------------------------------------------------------------ */
 :root,
 html body {
@@ -77,7 +112,7 @@ html body {
 html body,
 html body * {
   font-family:
-    "Hubot Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    "Pacific Numerals", "Hubot Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
 /* Hubot is a variable face, so the width axis has to be stated or it
