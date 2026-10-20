@@ -29,8 +29,10 @@
    Photography stays in colour, and the WhatsApp mark keeps its green.
    ========================================================================== */
 
-/* WOFF2 first: the same font losslessly re-wrapped (glyphs, axes and
-   metrics unchanged) at under half the TTF's size. The TTF stays as the
+/* WOFF2 first: the same font with its width axis fixed at 100, the only
+   width the site sets (glyphs, the 200-900 weight axis and metrics
+   otherwise unchanged; 154 KB to 83 KB, 2026-10-20, checked line for line
+   on seven pages at desktop and phone width). The TTF stays as the full
    fallback for any browser that skips the WOFF2. */
 @font-face {
   font-family: "Hubot Sans";

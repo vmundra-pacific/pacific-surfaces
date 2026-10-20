@@ -6,7 +6,8 @@ import { ArrowRight } from "lucide-react";
  * perfect"): a wide room photograph, washed light on the left under an
  * eyebrow, a headline, a line and one way in. Used on /shop and on the
  * vanity tops aisle. The photographs are Kling's, a plain white quartz top,
- * served as they are.
+ * served through the loader as the ready-made copy that fits the screen
+ * (lib/image-variants), not as the 6 MB original.
  */
 export function StoreBanner({
   image,
@@ -36,7 +37,6 @@ export function StoreBanner({
           alt={alt}
           fill
           priority
-          unoptimized
           sizes="(min-width: 1440px) 1380px, 100vw"
           className="object-cover object-[50%_70%]"
         />

@@ -1,3 +1,5 @@
+import { localVariant } from "./image-variants";
+
 /**
  * Site-wide image loader: no recompression, by the owner's instruction
  * (2026-09-30: "do not compress any image"; the optimizer's quality-75
@@ -6,6 +8,10 @@
  *  - Our own files under /public are served exactly as they are. The
  *    width Next asks for is added as a query string only so each size has
  *    its own URL; the static server ignores it.
+ *  - Except where a file has ready-made copies (lib/image-variants, WebP
+ *    at quality 95 or lossless): then the smallest copy that covers the
+ *    width is served, so a 96 px thumbnail is not a 2 MB original
+ *    (Lighthouse, 2026-10-20).
  *  - Sanity photographs are resized by Sanity's own CDN to the width the
  *    layout needs, at quality 100, so a thumbnail is never a
  *    full-resolution original but is never lossy-recompressed either.
@@ -23,7 +29,7 @@ export default function imageLoader({ src, width }: { src: string; width: number
     return url.toString();
   }
   if (src.startsWith("/")) {
-    return `${src}${src.includes("?") ? "&" : "?"}w=${width}`;
+    return localVariant(src, width) ?? `${src}${src.includes("?") ? "&" : "?"}w=${width}`;
   }
   return src;
 }

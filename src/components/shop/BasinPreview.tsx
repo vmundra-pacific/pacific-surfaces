@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { applySlabToRegion } from "@/components/visualize/slab-texture";
+import { localVariant, variantWidth } from "@/lib/image-variants";
 
 /**
  * Live basin preview — the visualizer's compositing pipeline, applied to a
@@ -25,6 +26,12 @@ import { applySlabToRegion } from "@/components/visualize/slab-texture";
  * hovered (prefetchSlab); and the new composite is built off screen and
  * swapped in whole, so the old colour stays up until the new one is ready
  * instead of the bare photograph flashing between them.
+ *
+ * Built at the size it is shown (Lighthouse, 2026-10-20: a phone was
+ * downloading 4.5 MB of 2,944 px layers and a 2,944 px slab, and
+ * compositing 4 MP, for a frame about 1,000 px wide): the frame's width
+ * times the screen's pixel ratio, never more than the photograph, with
+ * the layers taken from their ready-made copies (lib/image-variants).
  */
 
 export interface BasinAssets {
@@ -62,6 +69,14 @@ function cachedImage(src: string): Promise<HTMLImageElement> {
 /** The scenes are drawn at most this wide on the product page. */
 const PAGE_WIDTH = 2944;
 
+/** The width the last preview was composited at, so a slab fetched ahead
+ *  on hover is the same address the swap will ask for. */
+let lastWidth: number | null = null;
+
+/** A layer at (at least) the width it will be drawn: its ready-made copy
+ *  when it has one, else the original. */
+const layerAt = (src: string, width: number) => localVariant(src, width) ?? src;
+
 /** A slab photograph as the compositor draws it: through our own proxy
  *  (first-party, CORS-clean), resized by Sanity to the canvas width at full
  *  quality. Local files are used as they are. */
@@ -79,7 +94,7 @@ function slabUrl(src: string, width: number): string {
 
 /** Fetch a colour's slab ahead of a click (hover, focus), so the swap
  *  only has to composite. */
-export function prefetchSlab(src: string | null | undefined, width = PAGE_WIDTH) {
+export function prefetchSlab(src: string | null | undefined, width = lastWidth ?? PAGE_WIDTH) {
   if (src) void cachedImage(slabUrl(src, width)).catch(() => undefined);
 }
 
@@ -153,16 +168,25 @@ export function BasinPreview({
       if (!canvas) return;
 
       try {
+        // The frame's width in device pixels (the frame is laid out before
+        // this runs; 1,440 if it somehow is not), capped by maxWidth.
+        const shown = Math.ceil(
+          (canvas.getBoundingClientRect().width || 1440) * (window.devicePixelRatio || 1)
+        );
+        const target = Math.min(shown, maxWidth ?? Infinity);
+        // Every layer from the same copy width, so they stay in register.
+        const copy = variantWidth(assets.base, target) ?? target;
         const [base, shadows, highlights] = await Promise.all([
-          cachedImage(assets.base),
-          assets.shadows ? cachedImage(assets.shadows) : Promise.resolve(null),
-          assets.highlights ? cachedImage(assets.highlights) : Promise.resolve(null),
+          cachedImage(layerAt(assets.base, copy)),
+          assets.shadows ? cachedImage(layerAt(assets.shadows, copy)) : Promise.resolve(null),
+          assets.highlights ? cachedImage(layerAt(assets.highlights, copy)) : Promise.resolve(null),
         ]);
         if (cancelled) return;
 
-        const scale = maxWidth ? Math.min(1, maxWidth / base.naturalWidth) : 1;
+        const scale = Math.min(1, target / base.naturalWidth);
         const w = Math.round(base.naturalWidth * scale);
         const h = Math.round(base.naturalHeight * scale);
+        lastWidth = w;
 
         // No colour picked yet, or the design has no photograph: leave the
         // basin as shot rather than compositing nothing over it.
@@ -174,7 +198,10 @@ export function BasinPreview({
           return;
         }
 
-        const [mask, slab] = await Promise.all([cachedMask(assets.mask, w, h), cachedImage(slabUrl(colourImage, w))]);
+        const [mask, slab] = await Promise.all([
+          cachedMask(layerAt(assets.mask, copy), w, h),
+          cachedImage(slabUrl(colourImage, w)),
+        ]);
         if (cancelled) return;
 
         // The slab cover-fitted to the frame, as the visualizer's tile.
@@ -226,9 +253,9 @@ export function BasinPreview({
   }, [assets, colourImage, colourName, inView, maxWidth]);
 
   if (failed) {
-    // eslint-disable-next-line @next/next/no-img-element
     return (
-      <img src={assets.base} alt={alt} className="h-full w-full object-cover" />
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={layerAt(assets.base, 1920)} alt={alt} className="h-full w-full object-cover" />
     );
   }
 

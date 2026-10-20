@@ -124,11 +124,12 @@ export function AppPanel({ frame }: { frame: AppFrame }) {
         <p className="mt-3 text-[10px] font-light text-pacific-dark/50">Shown in plain white quartz</p>
       </div>
       <div className={`relative flex-1 overflow-hidden ${frame.onWhite ? "" : "rounded-l-md"}`}>
+        {/* Through the loader, which serves the ready-made copy that fits
+            (lib/image-variants), not the full-size original. */}
         <Image
           src={frame.src}
           alt={frame.alt}
           fill
-          unoptimized
           sizes="(max-width: 1024px) 62vw, 31vw"
           className={frame.onWhite ? "object-contain p-3" : "object-cover"}
         />

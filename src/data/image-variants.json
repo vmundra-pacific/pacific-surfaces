@@ -1,0 +1,179 @@
+{
+ "/store-basins/aisle/banner.png": {
+  "256": "/store-basins/_w/aisle/banner-256.webp",
+  "640": "/store-basins/_w/aisle/banner-640.webp",
+  "1080": "/store-basins/_w/aisle/banner-1080.webp",
+  "1920": "/store-basins/_w/aisle/banner-1920.webp",
+  "3136": "/store-basins/_w/aisle/banner-3136.webp"
+ },
+ "/store-basins/aisle/quartz-top-above.jpg": {
+  "256": "/store-basins/_w/aisle/quartz-top-above-256.webp",
+  "640": "/store-basins/_w/aisle/quartz-top-above-640.webp",
+  "1080": "/store-basins/_w/aisle/quartz-top-above-1080.webp",
+  "1536": "/store-basins/_w/aisle/quartz-top-above-1536.webp"
+ },
+ "/store-basins/aisle/quartz-top-front.jpg": {
+  "256": "/store-basins/_w/aisle/quartz-top-front-256.webp",
+  "640": "/store-basins/_w/aisle/quartz-top-front-640.webp",
+  "1080": "/store-basins/_w/aisle/quartz-top-front-1080.webp",
+  "1536": "/store-basins/_w/aisle/quartz-top-front-1536.webp"
+ },
+ "/store-basins/aisle/store-hero.png": {
+  "256": "/store-basins/_w/aisle/store-hero-256.webp",
+  "640": "/store-basins/_w/aisle/store-hero-640.webp",
+  "1080": "/store-basins/_w/aisle/store-hero-1080.webp",
+  "1774": "/store-basins/_w/aisle/store-hero-1774.webp"
+ },
+ "/store-basins/double-basin/base.png": {
+  "256": "/store-basins/_w/double-basin/base-256.webp",
+  "640": "/store-basins/_w/double-basin/base-640.webp",
+  "1080": "/store-basins/_w/double-basin/base-1080.webp",
+  "1920": "/store-basins/_w/double-basin/base-1920.webp",
+  "3256": "/store-basins/_w/double-basin/base-3256.webp"
+ },
+ "/store-basins/double-basin/highlights.png": {
+  "256": "/store-basins/_w/double-basin/highlights-256.webp",
+  "640": "/store-basins/_w/double-basin/highlights-640.webp",
+  "1080": "/store-basins/_w/double-basin/highlights-1080.webp",
+  "1920": "/store-basins/_w/double-basin/highlights-1920.webp",
+  "3256": "/store-basins/_w/double-basin/highlights-3256.webp"
+ },
+ "/store-basins/double-basin/mask.png": {
+  "256": "/store-basins/_w/double-basin/mask-256.webp",
+  "640": "/store-basins/_w/double-basin/mask-640.webp",
+  "1080": "/store-basins/_w/double-basin/mask-1080.webp",
+  "1920": "/store-basins/_w/double-basin/mask-1920.webp",
+  "3256": "/store-basins/_w/double-basin/mask-3256.webp"
+ },
+ "/store-basins/double-basin/shadows.png": {
+  "256": "/store-basins/_w/double-basin/shadows-256.webp",
+  "640": "/store-basins/_w/double-basin/shadows-640.webp",
+  "1080": "/store-basins/_w/double-basin/shadows-1080.webp",
+  "1920": "/store-basins/_w/double-basin/shadows-1920.webp",
+  "3256": "/store-basins/_w/double-basin/shadows-3256.webp"
+ },
+ "/store-basins/double-basin-renders/01-angled.png": {
+  "256": "/store-basins/_w/double-basin-renders/01-angled-256.webp",
+  "640": "/store-basins/_w/double-basin-renders/01-angled-640.webp",
+  "1080": "/store-basins/_w/double-basin-renders/01-angled-1080.webp",
+  "1774": "/store-basins/_w/double-basin-renders/01-angled-1774.webp"
+ },
+ "/store-basins/double-basin-renders/02-top.png": {
+  "256": "/store-basins/_w/double-basin-renders/02-top-256.webp",
+  "640": "/store-basins/_w/double-basin-renders/02-top-640.webp",
+  "1080": "/store-basins/_w/double-basin-renders/02-top-1080.webp",
+  "1774": "/store-basins/_w/double-basin-renders/02-top-1774.webp"
+ },
+ "/store-basins/double-basin-renders/03-side.png": {
+  "256": "/store-basins/_w/double-basin-renders/03-side-256.webp",
+  "640": "/store-basins/_w/double-basin-renders/03-side-640.webp",
+  "1080": "/store-basins/_w/double-basin-renders/03-side-1080.webp",
+  "1774": "/store-basins/_w/double-basin-renders/03-side-1774.webp"
+ },
+ "/store-basins/double-basin-renders/04-residential.png": {
+  "256": "/store-basins/_w/double-basin-renders/04-residential-256.webp",
+  "640": "/store-basins/_w/double-basin-renders/04-residential-640.webp",
+  "1080": "/store-basins/_w/double-basin-renders/04-residential-1080.webp",
+  "1536": "/store-basins/_w/double-basin-renders/04-residential-1536.webp"
+ },
+ "/store-basins/double-basin-renders/05-hotel.png": {
+  "256": "/store-basins/_w/double-basin-renders/05-hotel-256.webp",
+  "640": "/store-basins/_w/double-basin-renders/05-hotel-640.webp",
+  "1080": "/store-basins/_w/double-basin-renders/05-hotel-1080.webp",
+  "1536": "/store-basins/_w/double-basin-renders/05-hotel-1536.webp"
+ },
+ "/store-basins/double-basin-renders/06-office.png": {
+  "256": "/store-basins/_w/double-basin-renders/06-office-256.webp",
+  "640": "/store-basins/_w/double-basin-renders/06-office-640.webp",
+  "1080": "/store-basins/_w/double-basin-renders/06-office-1080.webp",
+  "1536": "/store-basins/_w/double-basin-renders/06-office-1536.webp"
+ },
+ "/store-basins/double-basin-scene/base.webp": {
+  "256": "/store-basins/_w/double-basin-scene/base-256.webp",
+  "640": "/store-basins/_w/double-basin-scene/base-640.webp",
+  "1080": "/store-basins/_w/double-basin-scene/base-1080.webp",
+  "1812": "/store-basins/double-basin-scene/base.webp"
+ },
+ "/store-basins/double-basin-scene/highlights.webp": {
+  "256": "/store-basins/_w/double-basin-scene/highlights-256.webp",
+  "640": "/store-basins/_w/double-basin-scene/highlights-640.webp",
+  "1080": "/store-basins/_w/double-basin-scene/highlights-1080.webp",
+  "1812": "/store-basins/double-basin-scene/highlights.webp"
+ },
+ "/store-basins/double-basin-scene/mask.webp": {
+  "256": "/store-basins/_w/double-basin-scene/mask-256.webp",
+  "640": "/store-basins/_w/double-basin-scene/mask-640.webp",
+  "1080": "/store-basins/_w/double-basin-scene/mask-1080.webp",
+  "1812": "/store-basins/double-basin-scene/mask.webp"
+ },
+ "/store-basins/double-basin-scene/shadows.webp": {
+  "256": "/store-basins/_w/double-basin-scene/shadows-256.webp",
+  "640": "/store-basins/_w/double-basin-scene/shadows-640.webp",
+  "1080": "/store-basins/_w/double-basin-scene/shadows-1080.webp",
+  "1812": "/store-basins/double-basin-scene/shadows.webp"
+ },
+ "/store-basins/single-basin-renders/01-angled.png": {
+  "256": "/store-basins/_w/single-basin-renders/01-angled-256.webp",
+  "640": "/store-basins/_w/single-basin-renders/01-angled-640.webp",
+  "1080": "/store-basins/_w/single-basin-renders/01-angled-1080.webp",
+  "1536": "/store-basins/_w/single-basin-renders/01-angled-1536.webp"
+ },
+ "/store-basins/single-basin-renders/02-top.png": {
+  "256": "/store-basins/_w/single-basin-renders/02-top-256.webp",
+  "640": "/store-basins/_w/single-basin-renders/02-top-640.webp",
+  "1080": "/store-basins/_w/single-basin-renders/02-top-1080.webp",
+  "1536": "/store-basins/_w/single-basin-renders/02-top-1536.webp"
+ },
+ "/store-basins/single-basin-renders/03-side.png": {
+  "256": "/store-basins/_w/single-basin-renders/03-side-256.webp",
+  "640": "/store-basins/_w/single-basin-renders/03-side-640.webp",
+  "1080": "/store-basins/_w/single-basin-renders/03-side-1080.webp",
+  "1536": "/store-basins/_w/single-basin-renders/03-side-1536.webp"
+ },
+ "/store-basins/single-basin-renders/04-residential.png": {
+  "256": "/store-basins/_w/single-basin-renders/04-residential-256.webp",
+  "640": "/store-basins/_w/single-basin-renders/04-residential-640.webp",
+  "1080": "/store-basins/_w/single-basin-renders/04-residential-1080.webp",
+  "1536": "/store-basins/_w/single-basin-renders/04-residential-1536.webp"
+ },
+ "/store-basins/single-basin-renders/05-hotel.png": {
+  "256": "/store-basins/_w/single-basin-renders/05-hotel-256.webp",
+  "640": "/store-basins/_w/single-basin-renders/05-hotel-640.webp",
+  "1080": "/store-basins/_w/single-basin-renders/05-hotel-1080.webp",
+  "1536": "/store-basins/_w/single-basin-renders/05-hotel-1536.webp"
+ },
+ "/store-basins/single-basin-renders/06-office.png": {
+  "256": "/store-basins/_w/single-basin-renders/06-office-256.webp",
+  "640": "/store-basins/_w/single-basin-renders/06-office-640.webp",
+  "1080": "/store-basins/_w/single-basin-renders/06-office-1080.webp",
+  "1536": "/store-basins/_w/single-basin-renders/06-office-1536.webp"
+ },
+ "/store-basins/single-basin-scene/base.webp": {
+  "256": "/store-basins/_w/single-basin-scene/base-256.webp",
+  "640": "/store-basins/_w/single-basin-scene/base-640.webp",
+  "1080": "/store-basins/_w/single-basin-scene/base-1080.webp",
+  "1920": "/store-basins/_w/single-basin-scene/base-1920.webp",
+  "2944": "/store-basins/single-basin-scene/base.webp"
+ },
+ "/store-basins/single-basin-scene/highlights.webp": {
+  "256": "/store-basins/_w/single-basin-scene/highlights-256.webp",
+  "640": "/store-basins/_w/single-basin-scene/highlights-640.webp",
+  "1080": "/store-basins/_w/single-basin-scene/highlights-1080.webp",
+  "1920": "/store-basins/_w/single-basin-scene/highlights-1920.webp",
+  "2944": "/store-basins/single-basin-scene/highlights.webp"
+ },
+ "/store-basins/single-basin-scene/mask.webp": {
+  "256": "/store-basins/_w/single-basin-scene/mask-256.webp",
+  "640": "/store-basins/_w/single-basin-scene/mask-640.webp",
+  "1080": "/store-basins/_w/single-basin-scene/mask-1080.webp",
+  "1920": "/store-basins/_w/single-basin-scene/mask-1920.webp",
+  "2944": "/store-basins/single-basin-scene/mask.webp"
+ },
+ "/store-basins/single-basin-scene/shadows.webp": {
+  "256": "/store-basins/_w/single-basin-scene/shadows-256.webp",
+  "640": "/store-basins/_w/single-basin-scene/shadows-640.webp",
+  "1080": "/store-basins/_w/single-basin-scene/shadows-1080.webp",
+  "1920": "/store-basins/_w/single-basin-scene/shadows-1920.webp",
+  "2944": "/store-basins/single-basin-scene/shadows.webp"
+ }
+}

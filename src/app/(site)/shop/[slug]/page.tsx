@@ -37,6 +37,17 @@ import { plainText, type PortableBlock } from "@/lib/portable-text";
 
 export const revalidate = 3600;
 
+/**
+ * Without this the route was rendered afresh on every visit (Next 15 treats
+ * a dynamic segment with no generateStaticParams as dynamic), so the hour
+ * above never applied and each page view waited on the server (Lighthouse,
+ * 2026-10-20). The vanity tops are built ahead; any other store address is
+ * rendered on its first visit and then cached for the hour like these.
+ */
+export function generateStaticParams() {
+  return VANITY_TOP_PRODUCTS.map((t) => ({ slug: t.slug }));
+}
+
 /** The window sills, thresholds and bath pieces the store sold for a day
  *  (2026-10-05) before they became their own category under Products:
  *  their old store addresses lead there now. */

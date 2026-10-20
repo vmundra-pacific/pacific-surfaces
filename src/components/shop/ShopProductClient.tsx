@@ -354,7 +354,6 @@ export function ShopProductClient({
                       src={appOf(src)!.src}
                       alt=""
                       fill
-                      unoptimized
                       sizes="96px"
                       className={
                         appOf(src)!.onWhite
@@ -863,7 +862,6 @@ function BasinTiles({
                   src={BASIN_TILE[o]}
                   alt=""
                   fill
-                  unoptimized
                   sizes="132px"
                   className="object-contain p-1"
                 />

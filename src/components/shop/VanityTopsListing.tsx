@@ -817,7 +817,6 @@ function TopCard({ item, colours }: { item: Item; colours: ListingColour[] }) {
               src={item.top.image}
               alt={title}
               fill
-              unoptimized
               sizes="25vw"
               className="object-cover"
             />

@@ -5,7 +5,8 @@ import { ArrowRight } from "lucide-react";
  * The store's hero (owner, 2026-10-13): the owner's photograph of vanity
  * tops, a basin and a vanity, across the full width of the screen, with
  * the words on the left over the plain wall. The photograph runs up under
- * the fixed header; the words sit below it. Served as it is.
+ * the fixed header; the words sit below it. Served through the loader,
+ * which picks the ready-made copy that fits the screen (lib/image-variants).
  */
 export function StoreHero({
   image,
@@ -30,7 +31,6 @@ export function StoreHero({
         fill
         priority
         fetchPriority="high"
-        unoptimized
         sizes="100vw"
         className="object-cover object-[72%_60%]"
       />

@@ -19,6 +19,7 @@ import {
   type VanityTopLayout,
 } from "@/data/store";
 import { BasinPreview } from "@/components/shop/BasinPreview";
+import { hasVariants } from "@/lib/image-variants";
 
 /**
  * The storefront grid.
@@ -78,8 +79,10 @@ const SHELF_LINKS: Partial<
 /** Drawings are shown whole on white; photographs fill the frame. */
 export const isDrawing = (src: string) => src.endsWith(".svg");
 
-/** Our own files served as they are, not recompressed (see store.ts). */
-export const servedAsIs = (src: string) => src.startsWith("/store-basins/");
+/** Our own files served as they are, not recompressed (see store.ts),
+ *  unless they have ready-made smaller copies: those go through the image
+ *  loader, which picks the copy that fits (lib/image-variants). */
+export const servedAsIs = (src: string) => src.startsWith("/store-basins/") && !hasVariants(src);
 
 export function ShopClient({
   products,
