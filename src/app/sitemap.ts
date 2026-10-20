@@ -37,7 +37,9 @@ type ContentKey =
  * `since` was seeded on 2026-10-05 from git history: the last commit
  * touching the page's own route and section files (brought up to date on
  * 2026-10-07 for the pages changed since, the catalogue re-filing among
- * them). Kitchens, Bathrooms and Hospitality are built in code now, not
+ * them; on 2026-10-20 to 2026-10-18 for every page whose route changed in
+ * 920c616: titles, descriptions, structured data and FAQ answers now in
+ * the server HTML). Kitchens, Bathrooms and Hospitality are built in code now, not
  * from their Sanity space pages, so they carry no content key. Bump it when you
  * change a page's content; leave it alone for sitewide header, footer or
  * JSON-LD changes. Never stamp the build time: that would tell Google
@@ -49,96 +51,96 @@ type ContentKey =
  * no body yet and the /products/<category>/about pages other than quartz.
  */
 const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
-  { path: "", since: "2026-10-07", content: "home" },
-  { path: "/about", since: "2026-10-08" },
-  { path: "/products", since: "2026-10-05", content: "catalogue" },
+  { path: "", since: "2026-10-18", content: "home" },
+  { path: "/about", since: "2026-10-18" },
+  { path: "/products", since: "2026-10-18", content: "catalogue" },
   // Category landings, resolved by /products/[slug] through
   // CATEGORY_PAGES (products/_lib/category.ts).
-  { path: "/products/quartz", since: "2026-10-08", content: "catalogue" },
-  { path: "/products/quartz/about", since: "2026-10-07" },
-  { path: "/products/granites", since: "2026-10-05", content: "catalogue" },
+  { path: "/products/quartz", since: "2026-10-18", content: "catalogue" },
+  { path: "/products/quartz/about", since: "2026-10-18" },
+  { path: "/products/granites", since: "2026-10-18", content: "catalogue" },
   {
     path: "/products/semi-precious",
-    since: "2026-09-12",
+    since: "2026-10-18",
     content: "catalogue",
   },
-  { path: "/products/exotic", since: "2026-07-06", content: "catalogue" },
+  { path: "/products/exotic", since: "2026-10-18", content: "catalogue" },
   {
     path: "/products/centrepiece-couture",
-    since: "2026-09-12",
+    since: "2026-10-18",
     content: "catalogue",
   },
-  { path: "/products/integra", since: "2026-09-12", content: "catalogue" },
+  { path: "/products/integra", since: "2026-10-18", content: "catalogue" },
   {
     path: "/products/facades-and-finishes",
-    since: "2026-09-12",
+    since: "2026-10-18",
     content: "facades",
   },
-  { path: "/products/vanity", since: "2026-09-12", content: "catalogue" },
-  { path: "/products/ecosurfaces", since: "2026-09-12", content: "catalogue" },
+  { path: "/products/vanity", since: "2026-10-18", content: "catalogue" },
+  { path: "/products/ecosurfaces", since: "2026-10-18", content: "catalogue" },
   {
     path: "/products/fab-creations",
-    since: "2026-10-05",
+    since: "2026-10-18",
     content: "catalogue",
   },
   // Cut pieces: the Pacific European Window Sill & Threshold Collection,
   // built in code.
   {
     path: "/products/pacific-european-window-sill-threshold-collection",
-    since: "2026-10-07",
+    since: "2026-10-18",
   },
-  { path: "/products/translucent", since: "2026-09-12", content: "catalogue" },
+  { path: "/products/translucent", since: "2026-10-18", content: "catalogue" },
   // Quartz series landings, via /products/[slug]/[item].
   {
     path: "/products/quartz/chromia",
-    since: "2026-10-05",
+    since: "2026-10-18",
     content: "catalogue",
   },
   {
     path: "/products/quartz/aurora",
-    since: "2026-10-05",
+    since: "2026-10-18",
     content: "catalogue",
   },
   {
     path: "/products/quartz/celestia",
-    since: "2026-07-06",
+    since: "2026-10-18",
     content: "catalogue",
   },
   {
     path: "/products/quartz/kosmic",
-    since: "2026-10-05",
+    since: "2026-10-18",
     content: "catalogue",
   },
   {
     path: "/products/quartz/luminara",
-    since: "2026-07-06",
+    since: "2026-10-18",
     content: "catalogue",
   },
   {
     path: "/products/quartz/nebula",
-    since: "2026-07-06",
+    since: "2026-10-18",
     content: "catalogue",
   },
-  { path: "/spaces", since: "2026-10-05" },
-  { path: "/spaces/kitchens", since: "2026-10-05" },
-  { path: "/spaces/bathrooms", since: "2026-10-05" },
+  { path: "/spaces", since: "2026-10-18" },
+  { path: "/spaces/kitchens", since: "2026-10-18" },
+  { path: "/spaces/bathrooms", since: "2026-10-18" },
   {
     path: "/spaces/architecture",
-    since: "2026-09-12",
+    since: "2026-10-18",
     content: "space:architecture",
   },
   {
     path: "/spaces/commercial",
-    since: "2026-07-06",
+    since: "2026-10-18",
     content: "space:commercial",
   },
-  { path: "/spaces/hospitality", since: "2026-10-05" },
-  { path: "/spaces/outdoor", since: "2026-09-12", content: "space:outdoor" },
-  { path: "/inspirations/inspiration-gallery", since: "2026-09-29" },
-  { path: "/professionals/services", since: "2026-10-08" },
-  { path: "/professionals/collaboration", since: "2026-10-08" },
-  { path: "/professionals/applications", since: "2026-10-08" },
-  { path: "/professionals/programs", since: "2026-10-08" },
+  { path: "/spaces/hospitality", since: "2026-10-18" },
+  { path: "/spaces/outdoor", since: "2026-10-18", content: "space:outdoor" },
+  { path: "/inspirations/inspiration-gallery", since: "2026-10-18" },
+  { path: "/professionals/services", since: "2026-10-18" },
+  { path: "/professionals/collaboration", since: "2026-10-18" },
+  { path: "/professionals/applications", since: "2026-10-18" },
+  { path: "/professionals/programs", since: "2026-10-18" },
   // Learn topics share one route file, learn/[topic]/page.tsx; each date
   // is the last change to that topic's own copy. Only the complete guides
   // (topics with a body) are listed. The same dates are the dateModified
@@ -165,15 +167,15 @@ const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
   { path: "/applications", since: "2026-09-12" },
   // The store. Which products it shelves is set in data/store.ts, so
   // these carry no content key.
-  { path: "/shop", since: "2026-10-13" },
-  { path: "/shop/vanity-tops", since: "2026-10-13" },
-  { path: "/blog", since: "2026-10-08", content: "blog" },
-  { path: "/resources", since: "2026-07-07", content: "resources" },
-  { path: "/sustainability", since: "2026-10-08" },
+  { path: "/shop", since: "2026-10-18" },
+  { path: "/shop/vanity-tops", since: "2026-10-18" },
+  { path: "/blog", since: "2026-10-18", content: "blog" },
+  { path: "/resources", since: "2026-10-18", content: "resources" },
+  { path: "/sustainability", since: "2026-10-18" },
   { path: "/careers", since: "2026-10-08", content: "careers" },
-  { path: "/contact", since: "2026-10-07" },
-  { path: "/visualize", since: "2026-07-06", content: "catalogue" },
-  { path: "/privacy", since: "2026-07-06" },
+  { path: "/contact", since: "2026-10-18" },
+  { path: "/visualize", since: "2026-10-18", content: "catalogue" },
+  { path: "/privacy", since: "2026-10-18" },
 ];
 
 /** The /applications/<slug> pages, built from data/applications.ts;
@@ -184,7 +186,14 @@ const APPLICATION_SINCE: Record<string, string> = { flooring: "2026-10-05" };
 /** The made-to-order vanity tops' store pages, /shop/<slug>, defined in
  *  data/store.ts. The Sanity products' /shop/<slug> pages are left out:
  *  they repeat /products/<slug>. */
-const VANITY_TOPS_SINCE = "2026-10-13";
+const VANITY_TOPS_SINCE = "2026-10-18";
+
+/** When the product and blog-post page templates last changed what the page
+ *  says (920c616: Product and Article structured data, titles and
+ *  descriptions). Each page's date is the later of this and its Sanity
+ *  `_updatedAt`. */
+const PRODUCT_PAGES_SINCE = "2026-10-18";
+const BLOG_POSTS_SINCE = "2026-10-18";
 
 /** The space pages still built from their Sanity space page. */
 const SPACES = ["architecture", "commercial", "outdoor"];
@@ -270,14 +279,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // than stamped with the build time.
   const productEntries: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${SITE_URL}/products/${p.slug}`,
-    ...(p.updatedAt ? { lastModified: new Date(p.updatedAt) } : {}),
+    lastModified: later(PRODUCT_PAGES_SINCE, p.updatedAt),
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
   const blogEntries: MetadataRoute.Sitemap = blogPosts.map((b) => ({
     url: `${SITE_URL}/blog/${b.slug}`,
-    ...(b.updatedAt ? { lastModified: new Date(b.updatedAt) } : {}),
+    lastModified: later(BLOG_POSTS_SINCE, b.updatedAt),
     changeFrequency: "monthly",
     priority: 0.6,
   }));
