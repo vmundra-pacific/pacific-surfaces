@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
-import { preload as reactPreload } from "react-dom";
+import { PreloadImage } from "@/components/global/PreloadImage";
 import { client } from "@/sanity/lib/client";
 import { productBySlugQuery } from "@/sanity/lib/queries";
 import { ProductDetail } from "@/components/sections/ProductDetail";
@@ -333,9 +333,6 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     // as="image"> for it during SSR, same pattern as the PDP slab
     // preload below. Heroes with no still (posterSrc "") get none.
     const heroPoster = heroPosterSrc(data.config.hero);
-    if (heroPoster) {
-      reactPreload(heroPoster, { as: "image", fetchPriority: "high" });
-    }
     // Map known category slugs to FAQ page keys. If a category
     // doesn't have FAQs yet we just don't render the section. We
     // use a Set<string> for the lookup so the typecheck doesn't
@@ -365,6 +362,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     const learnLinks = LEARN_LINKS_BY_CATEGORY[slug];
     return (
       <>
+        <PreloadImage href={heroPoster} />
         <BreadcrumbList
           items={[
             { name: "Home", url: "/" },
@@ -401,12 +399,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
   // hits — in parallel with the JS bundle. By the time React
   // hydrates and the user can hover, the slab is in cache.
   // Other images (close-ups, room scenes) lazy-load on demand.
-  if (product.mainImage) {
-    reactPreload(zoomImageUrl(product.mainImage), {
-      as: "image",
-      fetchPriority: "high",
-    });
-  }
+  const zoomPreload = product.mainImage ? zoomImageUrl(product.mainImage) : null;
 
   const { material, collectionLabel } = productFacts(product, slug);
 
@@ -460,6 +453,9 @@ export default async function ProductOrCategoryPage({ params }: Props) {
 
   return (
     <>
+      {/* Desktop with a mouse only: phones have no magnifier, and there
+          the full-size slab competed with the photo they do show. */}
+      <PreloadImage href={zoomPreload} media="(hover: hover) and (min-width: 1024px)" />
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },

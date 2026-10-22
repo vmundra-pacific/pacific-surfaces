@@ -95,8 +95,9 @@ export function SignatureProjects({
     if (typeof window === "undefined") return;
     try {
       setIsPhone(
-        window.matchMedia("(pointer: coarse)").matches &&
-          window.innerWidth < 1024
+        window.innerWidth < 768 ||
+          (window.matchMedia("(pointer: coarse)").matches &&
+            window.innerWidth < 1024)
       );
     } catch {
       /* ignore */
@@ -455,8 +456,9 @@ function ProjectVideo({
     let isPhone = false;
     try {
       isPhone =
-        window.matchMedia("(pointer: coarse)").matches &&
-        window.innerWidth < 1024;
+        window.innerWidth < 768 ||
+        (window.matchMedia("(pointer: coarse)").matches &&
+          window.innerWidth < 1024);
     } catch {
       /* ignore — older browsers */
     }

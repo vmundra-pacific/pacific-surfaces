@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cache } from "react";
-import { preload as reactPreload } from "react-dom";
+import { PreloadImage } from "@/components/global/PreloadImage";
 import { client } from "@/sanity/lib/client";
 import { catalogueProductsQuery } from "@/sanity/lib/queries";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
@@ -75,12 +75,10 @@ export default async function AllProductsPage() {
   // LCP: preload the hero's poster at high priority during SSR, as the
   // category landings do, so it doesn't queue behind the video bytes.
   const heroPoster = heroPosterSrc({ videoSrc: HERO_VIDEO });
-  if (heroPoster) {
-    reactPreload(heroPoster, { as: "image", fetchPriority: "high" });
-  }
 
   return (
     <>
+      <PreloadImage href={heroPoster} />
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },

@@ -52,4 +52,5 @@ export function saveConsent(value: Consent) {
 export const CONSENT_DEFAULTS_SCRIPT = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 var pc=null;try{pc=localStorage.getItem('${CONSENT_KEY}')}catch(e){}
 var pg=pc==='granted'?'granted':'denied';
-gtag('consent','default',{ad_storage:pg,ad_user_data:pg,ad_personalization:pg,analytics_storage:'granted'});`;
+gtag('consent','default',{ad_storage:pg,ad_user_data:pg,ad_personalization:pg,analytics_storage:'granted'});
+if(pc==='granted'||pc==='denied')document.documentElement.setAttribute('data-consent',pc);`;

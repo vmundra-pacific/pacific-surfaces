@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { preload as reactPreload } from "react-dom";
+import { PreloadImage } from "@/components/global/PreloadImage";
 import { client } from "@/sanity/lib/client";
 import {
   collectionBySlugQuery,
@@ -177,9 +177,6 @@ export default async function CollectionPage({ params }: Props) {
   // priority, as the category landing does. None for a hero with no
   // still, or for CatalogueClient's built-in default.
   const heroPoster = heroPosterSrc(hero);
-  if (heroPoster) {
-    reactPreload(heroPoster, { as: "image", fetchPriority: "high" });
-  }
 
   // Sub-collection pages reuse the parent category's FAQ. /products/
   // semi-precious/exotic-collection (etc) inherits the semi-precious
@@ -209,6 +206,7 @@ export default async function CollectionPage({ params }: Props) {
 
   return (
     <>
+      <PreloadImage href={heroPoster} />
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },

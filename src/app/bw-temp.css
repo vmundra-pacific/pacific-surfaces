@@ -34,6 +34,19 @@
    otherwise unchanged; 154 KB to 83 KB, 2026-10-20, checked line for line
    on seven pages at desktop and phone width). The TTF stays as the full
    fallback for any browser that skips the WOFF2. */
+/* Split in two by unicode-range (2026-10-22, phone performance): the
+   Latin file (59 KB) carries everything the site's English text uses; the
+   full file is fetched only for a page with other characters (accented
+   Latin, maths signs, fractions). */
+@font-face {
+  font-family: "Hubot Sans";
+  src: url("/fonts/HubotSans-latin.woff2") format("woff2");
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+20B9,U+2122,U+2190-2199,U+2212,U+2215,U+FEFF,U+FFFD;
+}
 @font-face {
   font-family: "Hubot Sans";
   src:
@@ -43,7 +56,14 @@
   font-stretch: 75% 125%;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0100-0130,U+0132-0137,U+0139-0148,U+014A-014D,U+0150-0151,U+0154-017E,U+0192,U+01A0-01A1,U+01AF-01B0,U+01E6-01E7,U+0218-021B,U+0237,U+02C7,U+02D8-02D9,U+02DB,U+02DD,U+0300-0303,U+0306-0307,U+0309-030C,U+0312,U+031B,U+0323,U+0326-0328,U+0335-0338,U+03BC,U+03C0,U+1E80-1E85,U+1E9E,U+1EA0-1EF9,U+2070,U+2074-2079,U+2080-2089,U+20AA,U+20BA,U+20BF,U+2113,U+2116-2117,U+212E,U+215B-215E,U+2205,U+220F,U+2211,U+221A,U+221E,U+222B,U+2248,U+2260,U+2264-2265,U+2460-2468,U+24EA,U+24FF,U+25CB-25CC,U+25CF,U+2639-263A,U+2713,U+2776-277E,U+F8FF,U+FB01-FB02;
 }
+/* The cookie banner is in every page's HTML; a visitor who has already
+   chosen never sees it (components/global/ConsentBanner.tsx). */
+html[data-consent] [data-consent-banner] {
+  display: none !important;
+}
+
 /* The italic is not declared here: app/layout.tsx adds it once the page
    has loaded (ITALIC_FONT_SCRIPT). No first screen sets italic, yet any
    italic text further down made every page fetch it ahead of the first

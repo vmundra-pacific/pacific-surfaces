@@ -1362,8 +1362,9 @@ export function ApplicationsScrollSections({
     let isPhone = false;
     try {
       isPhone =
-        window.matchMedia("(pointer: coarse)").matches &&
-        window.innerWidth < 1024;
+        window.innerWidth < 768 ||
+        (window.matchMedia("(pointer: coarse)").matches &&
+          window.innerWidth < 1024);
     } catch {
       /* ignore */
     }

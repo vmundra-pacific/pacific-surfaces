@@ -40,8 +40,9 @@ export function VideoPrefetch({ urls }: { urls: string[] }) {
     let isPhone = false;
     try {
       isPhone =
-        window.matchMedia("(pointer: coarse)").matches &&
-        window.innerWidth < 1024;
+        window.innerWidth < 768 ||
+        (window.matchMedia("(pointer: coarse)").matches &&
+          window.innerWidth < 1024);
     } catch {
       /* ignore — older browsers without matchMedia */
     }

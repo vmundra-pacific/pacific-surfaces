@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { preload as reactPreload } from "react-dom";
+import { PreloadImage } from "@/components/global/PreloadImage";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { heroPosterSrc, resolveCategoryPage } from "../_lib/category";
 import { BreadcrumbList } from "@/components/global/JsonLd";
@@ -45,11 +45,9 @@ export default async function ExoticPage() {
   // LCP: preload the hero video's poster at high priority, as the
   // [slug] dispatcher does for every other category hero.
   const heroPoster = heroPosterSrc(data.config.hero);
-  if (heroPoster) {
-    reactPreload(heroPoster, { as: "image", fetchPriority: "high" });
-  }
   return (
     <>
+      <PreloadImage href={heroPoster} />
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },
