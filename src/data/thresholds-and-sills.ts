@@ -594,6 +594,10 @@ export const SILLS_PAGE = {
     lead: "Window sills, window thresholds and door thresholds in granite and quartz, in popular sizes or custom sizes, edge-bevelled and crated for export.",
     image: `${PHOTO}/hero-charcoal-sill.webp`,
     alt: "A charcoal granite window sill running the length of a window above the sea",
+    // The button ads land on (owner, 2026-10-22): the contact form, "Looking
+    // for" set to sills and thresholds, the ad's tags carried (LeadLink).
+    cta: { label: "Get a quote", href: "/contact?interest=window-sills-thresholds#enquiry" },
+    secondary: { label: "See the products", href: "#products" },
   },
 
   tabs: [
@@ -654,7 +658,7 @@ export const SILLS_PAGE = {
   plan: {
     heading: "Planning a project?",
     body: "Send us the window and door schedule with the profiles, lengths and depths. We reply with a quote and a crate plan for the container.",
-    cta: { label: "Get a quote", href: "/contact#enquiry" },
+    cta: { label: "Get a quote", href: "/contact?interest=window-sills-thresholds#enquiry" },
     image: `${PHOTO}/granite-sill-black-bullnose.jpg`,
     alt: "A black granite sill with a rounded front edge above a radiator",
   },

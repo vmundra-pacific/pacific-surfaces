@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useEffect, useRef } from "react";
+import { Suspense, useCallback, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -109,6 +109,7 @@ const LOOKING_FOR = [
   { value: "wall-cladding", label: "Wall cladding" },
   { value: "exterior-cladding", label: "Facades and exterior cladding" },
   { value: "staircases", label: "Staircases" },
+  { value: "window-sills-thresholds", label: "Window sills and thresholds" },
   { value: "commercial", label: "Commercial project" },
   { value: "samples", label: "Samples" },
   { value: "partnership", label: "Becoming a Pacific partner" },
@@ -241,6 +242,23 @@ function TypeParam({ onChange }: { onChange: (type: string | null) => void }) {
   return null;
 }
 
+/** The ad tags a lead arrives with (carried by LeadLink). */
+const TRACKING_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "fbclid"];
+
+/**
+ * Reports `?interest=` (a product page's quote button, e.g. the sills page
+ * ads land on) and the ad tags to the page.
+ */
+function LeadParams({ onChange }: { onChange: (interest: string | null, tags: string) => void }) {
+  const params = useSearchParams();
+  const interest = params.get("interest");
+  const tags = TRACKING_KEYS.flatMap((k) => (params.get(k) ? [`${k}=${params.get(k)}`] : [])).join(" ");
+  useEffect(() => {
+    onChange(interest, tags);
+  }, [interest, tags, onChange]);
+  return null;
+}
+
 /** An address that wraps only after the @, never mid-word. */
 function EmailText({ email }: { email: string }) {
   const at = email.indexOf("@");
@@ -319,6 +337,12 @@ const LABEL = "mb-2 block text-[11px] uppercase tracking-[0.16em]";
 
 export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
   const [typeParam, setTypeParam] = useState<string | null>(null);
+  const [interest, setInterest] = useState<string | null>(null);
+  const [adTags, setAdTags] = useState("");
+  const onLeadParams = useCallback((i: string | null, t: string) => {
+    setInterest(i);
+    setAdTags(t);
+  }, []);
   const [formState, setFormState] = useState<"idle" | "sending" | "sent">(
     "idle"
   );
@@ -409,6 +433,14 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
     }
   }, [typeParam]);
 
+  // Pre-fill "Looking for" from ?interest=<x> (a product page's quote
+  // button), when it is one of the options.
+  useEffect(() => {
+    if (!interest || !LOOKING_FOR.some((o) => o.value === interest)) return;
+    setWhat(interest);
+    setFormData((prev) => ({ ...prev, application: interest }));
+  }, [interest]);
+
   // Success-panel auto-reset, kept in a ref so "Send another enquiry"
   // can cancel it before it wipes fresh input; cleared on unmount.
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -427,9 +459,15 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          // Provenance for triage: a PartnerWithUs card click, or the
-          // hero search.
-          source: typeParam || (searchCount > 0 ? "where-to-buy" : undefined),
+          // Provenance for triage: a PartnerWithUs card click, a product
+          // page's quote button, or the hero search; then any ad tags.
+          source:
+            [
+              typeParam || (interest ? `quote:${interest}` : searchCount > 0 ? "where-to-buy" : ""),
+              adTags,
+            ]
+              .filter(Boolean)
+              .join(" | ") || undefined,
         }),
       });
       if (!res.ok) throw new Error("Submission failed");
@@ -437,7 +475,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
       // Fired only once the API confirms, so a failed POST never counts.
       trackMetaEvent("Lead", {
         content_name: "Contact Form",
-        content_category: typeParam || "contact",
+        content_category: typeParam || interest || "contact",
       });
       resetTimerRef.current = setTimeout(() => {
         setFormState("idle");
@@ -465,6 +503,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
     <>
       <Suspense fallback={null}>
         <TypeParam onChange={setTypeParam} />
+        <LeadParams onChange={onLeadParams} />
       </Suspense>
 
       {/* 1 · Where to buy ------------------------------------------------ */}

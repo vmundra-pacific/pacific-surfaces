@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LeadLink } from "@/components/ui/lead-link";
 
 /**
  * The blocks the window sill and threshold collection was published with
@@ -110,12 +111,19 @@ export function SpaceHero({
   image,
   alt,
   titleClassName,
+  cta,
+  secondary,
 }: {
   title: string;
   lead: string;
   image: string;
   alt: string;
   titleClassName?: string;
+  /** The page's call to action, the button ads land people on (owner,
+   *  2026-10-22). Goes to the contact form with the ad's tags carried. */
+  cta?: { label: string; href: string };
+  /** A quieter second way in, e.g. down the page. */
+  secondary?: { label: string; href: string };
 }) {
   return (
     <section
@@ -148,6 +156,31 @@ export function SpaceHero({
         <p className="mt-5 max-w-xl text-lg font-light leading-snug lg:text-xl">
           {lead}
         </p>
+        {(cta || secondary) && (
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            {cta && (
+              <LeadLink
+                href={cta.href}
+                data-over-media
+                style={{ color: "#14140f" }}
+                className="inline-flex h-[52px] items-center gap-3 bg-white px-8 text-[13px] uppercase tracking-[0.14em] transition-opacity hover:opacity-90"
+              >
+                {cta.label}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </LeadLink>
+            )}
+            {secondary && (
+              <a
+                href={secondary.href}
+                data-over-media
+                style={{ color: "#ffffff" }}
+                className="inline-flex h-[52px] items-center gap-2 border border-white/70 px-7 text-[13px] uppercase tracking-[0.14em] transition-colors hover:bg-white/10"
+              >
+                {secondary.label}
+              </a>
+            )}
+          </div>
+        )}
       </Container>
     </section>
   );
