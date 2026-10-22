@@ -965,7 +965,11 @@ export default function Header() {
               flow into the middle one. The CTAs' pl-8 is the least room
               the nav keeps from the search icon when it has to give way
               (1700-1900px). */}
-          <div className="grid h-20 min-w-0 grid-cols-[1fr_auto_1fr] items-center gap-x-4">
+          {/* 1200-1699px (most laptops, owner 2026-10-22: "a visible top
+              menu like Cosentino"): the outer columns take only their
+              content, so the nav fits between them instead of falling
+              back to the hamburger; from 1700px the centred thirds. */}
+          <div className="grid h-20 min-w-0 grid-cols-[1fr_auto_1fr] min-[1200px]:max-[1699px]:grid-cols-[auto_1fr_auto] items-center gap-x-4">
             {/* Logo — one PacificLogoMark graphic, always white. The
                 drop-shadow is a soft glow (not a hard box) so the mark
                 stays legible over the bright homepage marble hero
@@ -1008,7 +1012,7 @@ export default function Header() {
                 over after the logo and CTAs, IT scrolls internally —
                 the Get-a-Quote pill (a sibling, not inside this div)
                 can never be pushed off-screen and clipped by it. */}
-            <div className="col-start-2 hidden min-[1700px]:flex items-center justify-center gap-x-4">
+            <div className="col-start-2 hidden min-[1200px]:flex items-center justify-center gap-x-3.5 min-[1440px]:gap-x-4">
               {desktopNavigation.map((item: NavItem) => {
                 return (
                   <div
@@ -1036,7 +1040,7 @@ export default function Header() {
                     {item.name === "Spaces" ? (
                       <span
                         className={cn(
-                          "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2 cursor-default select-none",
+                          "relative text-[11.5px] min-[1440px]:text-[12.5px] min-[1700px]:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2 cursor-default select-none",
                           // No per-item hover colour, by design - the
                           // whole bar flips instead. Ink is inherited
                           // from the header wrapper.
@@ -1056,7 +1060,7 @@ export default function Header() {
                           item.mega ? openMegaItem === item.name : undefined
                         }
                         className={cn(
-                          "relative text-[11px] lg:text-[12px] xl:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
+                          "relative text-[11.5px] min-[1440px]:text-[12.5px] min-[1700px]:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2",
                           // Same colour treatment in both states now —
                           // header bg is dark in both cases.
                           // No per-item hover colour, by design - the
@@ -1398,7 +1402,7 @@ export default function Header() {
             </div>
 
             {/* CTA + Search + Mobile toggle */}
-            <div className="col-start-3 justify-self-end flex items-center gap-1 min-[1700px]:gap-0.5 min-[1700px]:pl-8 shrink-0">
+            <div className="col-start-3 justify-self-end flex items-center gap-1 min-[1200px]:gap-0.5 min-[1200px]:pl-3 min-[1700px]:pl-8 shrink-0">
               <button
                 onClick={() => {
                   setSearchUsed(true);
@@ -1414,7 +1418,7 @@ export default function Header() {
                   // the only entry point to search (the hamburger menu
                   // doesn't carry one), and the row has room since the
                   // Quote/Visualizer pills are hidden below sm/2xl.
-                  "flex items-center justify-center w-9 h-9 min-[1700px]:w-8 min-[1700px]:h-8 rounded-full transition-all duration-300 shrink-0",
+                  "flex items-center justify-center w-9 h-9 min-[1200px]:w-8 min-[1200px]:h-8 rounded-full transition-all duration-300 shrink-0",
                   // Dark in both states — same hover treatment.
                   // Inherits the bar's ink; the hover wash is struck
                   // from that same colour so it works on both grounds.
@@ -1515,10 +1519,10 @@ export default function Header() {
               <Link
                 href="/visualize"
                 style={primaryPill}
-                className="hidden xl:inline-flex ml-2 items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.1em] uppercase whitespace-nowrap border border-transparent"
+                className="hidden min-[1500px]:inline-flex ml-2 items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.1em] uppercase whitespace-nowrap border border-transparent"
               >
                 Visualizer
-                <ArrowRight className="w-3 h-3 min-[1700px]:hidden" />
+                <ArrowRight className="w-3 h-3 min-[1200px]:hidden" />
               </Link>
 
               <Link
@@ -1527,7 +1531,7 @@ export default function Header() {
                 className="hidden sm:inline-flex ml-1.5 items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.1em] uppercase whitespace-nowrap border border-transparent"
               >
                 Get a Quote
-                <ArrowRight className="w-3 h-3 min-[1700px]:hidden" />
+                <ArrowRight className="w-3 h-3 min-[1200px]:hidden" />
               </Link>
               <button
                 onClick={() => {
@@ -1542,7 +1546,7 @@ export default function Header() {
                   // Symmetric with the desktop nav's xl: breakpoint
                   // above — hamburger shows exactly while the full
                   // nav row is hidden, no gap where neither is visible.
-                  "min-[1700px]:hidden p-2 rounded-lg transition-colors",
+                  "min-[1200px]:hidden p-2 rounded-lg transition-colors",
                   // Inherits the bar's ink like everything else.
                   "text-current"
                 )}
@@ -1566,7 +1570,7 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[60] bg-pacific-dark/95 backdrop-blur-xl min-[1700px]:hidden overflow-y-auto overscroll-contain"
+            className="fixed inset-0 z-[60] bg-pacific-dark/95 backdrop-blur-xl min-[1200px]:hidden overflow-y-auto overscroll-contain"
             onClick={() => setMobileOpen(false)}
           >
             <button

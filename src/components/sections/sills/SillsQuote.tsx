@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ArrowRight, CheckCircle, FileText } from "lucide-react";
+import { ArrowRight, CheckCircle } from "lucide-react";
 import { SillDialog } from "@/components/sections/sills/SillDialog";
 import { SILL_PRODUCTS } from "@/data/thresholds-and-sills";
 import { trackMetaEvent } from "@/lib/meta-pixel";
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
  * 2026-10-22: the page the ads run to gets its own form, and the quote
  * button floats on the page). Every quote button on the page opens it:
  * any link to "#quote" (its `data-quote-from` names the button), the
- * floating button, and a visit to the page's address with "#quote" on the
+ * site's support panel (its Enquire, here), and a visit to the page's address with "#quote" on the
  * end, so an ad can land straight on the form. Submissions go to
  * /api/sills-enquiry with the button that opened it and the ad's tags.
  */
@@ -57,7 +57,6 @@ declare global {
 export function SillsQuote() {
   const [open, setOpen] = useState(false);
   const [from, setFrom] = useState("direct");
-  const [showFloat, setShowFloat] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [products, setProducts] = useState<string[]>([]);
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -90,14 +89,6 @@ export function SillsQuote() {
       removeEventListener("hashchange", onHash);
     };
   }, [openForm]);
-
-  // The floating button appears once the hero's own button has scrolled away.
-  useEffect(() => {
-    const onScroll = () => setShowFloat(scrollY > innerHeight * 0.6);
-    onScroll();
-    addEventListener("scroll", onScroll, { passive: true });
-    return () => removeEventListener("scroll", onScroll);
-  }, []);
 
   const set =
     (k: keyof typeof EMPTY) =>
@@ -138,24 +129,6 @@ export function SillsQuote() {
 
   return (
     <>
-      {/* The floating quote button, beside the WhatsApp button. */}
-      <button
-        type="button"
-        onClick={() => openForm("floating")}
-        aria-hidden={!showFloat}
-        tabIndex={showFloat ? 0 : -1}
-        data-over-media
-        style={{ color: "#ffffff" }}
-        className={cn(
-          "fixed bottom-6 right-[92px] z-[90] inline-flex h-14 items-center gap-2.5 rounded-full bg-[#14140f] pl-5 pr-6 text-[13px] uppercase tracking-[0.14em] shadow-[0_8px_30px_rgba(0,0,0,0.28)] transition-all duration-300 hover:opacity-90",
-          "max-sm:right-auto max-sm:left-4 max-sm:bottom-5",
-          showFloat && !open ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
-        )}
-      >
-        <FileText className="h-4 w-4" aria-hidden="true" />
-        Get a quote
-      </button>
-
       {open && (
         <SillDialog title="Get a quote · Window sills & thresholds" onClose={close} fit>
           {state === "sent" ? (

@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/animated-section";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { sanityImg } from "@/lib/sanity-img";
+import { LazyVideo } from "@/components/ui/lazy-video";
 
 /* ------------------------------------------------------------------ *
  * Sanity data shape                                                   *
@@ -146,7 +147,7 @@ function MediaSlot({
       ? videoUrl.replace(/\.mp4$/, "-poster.jpg")
       : undefined;
     return (
-      <video
+      <LazyVideo
         key={videoUrl}
         src={videoUrl}
         poster={posterUrl}

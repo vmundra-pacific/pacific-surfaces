@@ -13,6 +13,10 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
     let cancelled = false;
 
     async function initLenis() {
+      // Touch-only screens scroll natively (Lenis leaves touch alone by
+      // default), so on phones its per-frame loop and its download are
+      // pure cost (owner, 2026-10-22: phone performance).
+      if (window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(any-pointer: fine)").matches) return;
       try {
         const { default: Lenis } = await import("lenis");
 

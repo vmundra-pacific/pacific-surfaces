@@ -9,6 +9,18 @@ import { ALTERNATE_NAME, ALTERNATE_NAME_PAGE, HOME_H1 } from "@/data/business";
 const TOTAL_FRAMES = 520;
 const pad = (n: number) => String(n).padStart(4, "0");
 
+/* Portrait phones get their own frames (owner, 2026-10-22: "performance
+   is very low in phone"). A phone shows only the centre strip of a
+   1920 x 1080 frame, so /hero-frames-m/ holds that strip, 648 x 1080 at
+   full resolution, from every second frame: 260 JPEGs of ~85 KB (JPEG
+   decodes fastest on phones) in place of 520 frames of ~200 KB. */
+const PHONE_QUERY = "(max-aspect-ratio: 3/5)";
+type FramePlan = { dir: string; total: number; initial: number; step: number; phone: boolean };
+const framePlan = (): FramePlan =>
+  window.matchMedia(PHONE_QUERY).matches
+    ? { dir: "/hero-frames-m", total: 260, initial: 10, step: 2, phone: true }
+    : { dir: "/hero-frames", total: TOTAL_FRAMES, initial: 20, step: 1, phone: false };
+
 /* The lump sequence (a 206-frame slab cross-section reveal that used
    to play after the kitchen scrub) was removed. The kitchen frames
    now scrub through the entire scroll length end to end. If the
@@ -105,6 +117,8 @@ export function HeroScrollCanvas() {
   const [showScrollHint, setShowScrollHint] = useState(true);
   const [loaded, setLoaded] = useState(0);
   const [ready, setReady] = useState(false);
+  // Which frame set this screen uses; fixed at mount.
+  const planRef = useRef<FramePlan>({ dir: "/hero-frames", total: TOTAL_FRAMES, initial: 20, step: 1, phone: false });
 
   // Progressive frame preloading:
   // Phase 1: the first INITIAL_BATCH frames → dismiss loading.
@@ -114,11 +128,14 @@ export function HeroScrollCanvas() {
   //          Save-Data or 2G/3G connections. Loading all 520 frames up
   //          front cost every visitor about 77 MB (site audit, 2026-10-01).
   useEffect(() => {
-    const INITIAL_BATCH = 20; // the opening frames, ~3 MB
+    const plan = framePlan();
+    planRef.current = plan;
+    const TOTAL = plan.total;
+    const INITIAL_BATCH = plan.initial; // the opening frames, ~1-3 MB
     let count = 0;
     let cancelled = false;
     let cleanupScroll = () => {};
-    const imgs: HTMLImageElement[] = new Array(TOTAL_FRAMES);
+    const imgs: HTMLImageElement[] = new Array(TOTAL);
     imagesRef.current = imgs;
 
     // One-shot AVIF feature detection. Probes a single AVIF — if it
@@ -129,6 +146,8 @@ export function HeroScrollCanvas() {
     // try-AVIF-then-retry-JPG approach we had before.
     const detectExt = (): Promise<"avif" | "jpg"> =>
       new Promise((resolve) => {
+        // The phone frames are JPEG only.
+        if (plan.phone) return resolve("jpg");
         const probe = new window.Image();
         const t = setTimeout(() => resolve("jpg"), 1500);
         probe.onload = () => {
@@ -175,7 +194,7 @@ export function HeroScrollCanvas() {
         // `complete === true`, and drawImage on it throws inside the
         // rAF tick, permanently killing the hero loop.
         img.onerror = done;
-        img.src = `/hero-frames/frame-${pad(i + 1)}.${ext}`;
+        img.src = `${plan.dir}/frame-${pad(i + 1)}.${ext}`;
       });
 
     // Hard safety timeout — if any frame stalls (network blip, CDN
@@ -229,9 +248,14 @@ export function HeroScrollCanvas() {
         // assets. Total bytes loaded = same 520 frames, smarter order.
         const FAST_BATCH = 20;
         const SLOW_BATCH = 8;
-        const FAST_STRIDES = [40, 20];
-        const ON_SCROLL_STRIDES = [10, 5];
-        const SLOW_STRIDES = [2, 1];
+        // Strides in desktop frames; the phone set is every second one.
+        const s = (strides: number[]) => strides.map((n) => Math.max(1, Math.round(n / plan.step)));
+        const FAST_STRIDES = s([40, 20]);
+        // Phones stop at every second phone frame (130 in all, ~11 MB):
+        // the lerp hides the gaps on a small screen, the bytes do not.
+        // Their strides are all even, so none adds frames past that.
+        const ON_SCROLL_STRIDES = plan.phone ? [4] : s([10, 5]);
+        const SLOW_STRIDES = plan.phone ? [2] : s([2, 1]);
         const conn = (
           navigator as Navigator & {
             connection?: { saveData?: boolean; effectiveType?: string };
@@ -246,7 +270,7 @@ export function HeroScrollCanvas() {
         const buildQueue = (strides: number[]) => {
           const q: number[] = [];
           for (const stride of strides) {
-            for (let i = 0; i < TOTAL_FRAMES; i += stride) {
+            for (let i = 0; i < TOTAL; i += stride) {
               if (!loadedSet.has(i)) {
                 loadedSet.add(i);
                 q.push(i);
@@ -260,14 +284,25 @@ export function HeroScrollCanvas() {
         const scrollQueue = buildQueue(ON_SCROLL_STRIDES);
         const slowQueue = buildQueue(SLOW_STRIDES);
 
+        // Once the visitor is a screen past the hero, frames wait until
+        // they come back, so the rest of the page loads unhindered.
+        const heroNear = () => (trackRef.current?.getBoundingClientRect().bottom ?? 0) > -window.innerHeight;
+        const whenNear = (): Promise<void> =>
+          new Promise((resolve) => {
+            const check = () => (cancelled || heroNear() ? resolve() : setTimeout(check, 1000));
+            check();
+          });
+
         const drain = (queue: number[], qIdx: number): Promise<void> => {
           if (cancelled || qIdx >= queue.length) return Promise.resolve();
           const upTo = Math.min(qIdx + FAST_BATCH, queue.length);
-          const batch: Promise<void>[] = [];
-          for (let i = qIdx; i < upTo; i++) {
-            batch.push(loadFrame(queue[i], ext));
-          }
-          return Promise.all(batch).then(() => drain(queue, upTo));
+          return whenNear().then(() => {
+            const batch: Promise<void>[] = [];
+            for (let i = qIdx; i < upTo; i++) {
+              batch.push(loadFrame(queue[i], ext));
+            }
+            return Promise.all(batch).then(() => drain(queue, upTo));
+          });
         };
 
         const idle = (cb: () => void) => {
@@ -287,11 +322,13 @@ export function HeroScrollCanvas() {
         const drainSlow = (qIdx: number) => {
           if (cancelled || qIdx >= slowQueue.length) return;
           const upTo = Math.min(qIdx + SLOW_BATCH, slowQueue.length);
-          const batch: Promise<void>[] = [];
-          for (let i = qIdx; i < upTo; i++) {
-            batch.push(loadFrame(slowQueue[i], ext));
-          }
-          Promise.all(batch).then(() => idle(() => drainSlow(upTo)));
+          whenNear().then(() => {
+            const batch: Promise<void>[] = [];
+            for (let i = qIdx; i < upTo; i++) {
+              batch.push(loadFrame(slowQueue[i], ext));
+            }
+            Promise.all(batch).then(() => idle(() => drainSlow(upTo)));
+          });
         };
 
         drain(fastQueue, 0).then(() => {
@@ -322,7 +359,9 @@ export function HeroScrollCanvas() {
   const sizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Never more canvas pixels than the frames have (1080 tall): past
+    // that a phone only fills and composites upscaled pixels.
+    const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2, 1080 / (canvas.clientHeight || 1080)));
     canvas.width = canvas.clientWidth * dpr;
     canvas.height = canvas.clientHeight * dpr;
     const ctx = canvas.getContext("2d", { alpha: false });
@@ -462,7 +501,8 @@ export function HeroScrollCanvas() {
       // phase + crossfade were removed). Map progress directly to a
       // frame index and only redraw when the index actually advances.
       if (ready) {
-        const idx = Math.min(TOTAL_FRAMES - 1, Math.floor(p * TOTAL_FRAMES));
+        const total = planRef.current.total;
+        const idx = Math.min(total - 1, Math.floor(p * total));
         if (idx !== lastIdxRef.current) {
           drawFrame(idx);
           lastIdxRef.current = idx;
@@ -532,7 +572,7 @@ export function HeroScrollCanvas() {
 
   // Loading screen shows progress of the initial batch (the opening frames),
   // not all 520 — so it dismisses quickly while the rest loads in background
-  const INITIAL_BATCH = 20; // keep in step with the loader above
+  const INITIAL_BATCH = planRef.current.initial;
   // Cap visible progress at 90% until `ready` (canvas drew its
   // first frame) so the bar never reads 100% while the user is
   // still staring at the loading screen waiting for paint.
@@ -589,6 +629,9 @@ export function HeroScrollCanvas() {
               priority, so the preload scanner finds this LCP image
               without a separate preload. */}
           <picture>
+            {/* Portrait phones: the phone set's first frame, the same
+                file the canvas loader asks for there. */}
+            <source media={PHONE_QUERY} srcSet="/hero-frames-m/frame-0001.jpg" />
             <source type="image/avif" srcSet="/hero-frames/frame-0001.avif" />
             <img
               src="/hero-frames/frame-0001.jpg"

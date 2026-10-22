@@ -6,7 +6,8 @@ import { readConsent, saveConsent } from "@/lib/consent";
 
 /**
  * The cookie choice, shown once until the visitor answers (lib/consent).
- * Bottom-left, clear of the WhatsApp button, fixed so it never shifts the
+ * Bottom-left, clear of the support panel (and above the phone support
+ * bar), fixed so it never shifts the
  * page. Rendered only after mount, so the server HTML and the first paint
  * are the same for everyone.
  */
@@ -28,7 +29,7 @@ export function ConsentBanner() {
     <div
       role="dialog"
       aria-label="Cookie choice"
-      className="fixed bottom-4 left-4 right-24 z-[60] max-w-[420px] rounded-lg border border-[#14140f]/15 bg-white p-5 text-[#14140f] shadow-[0_8px_30px_rgba(0,0,0,0.12)] sm:right-auto"
+      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-4 right-4 z-[85] max-w-[420px] sm:bottom-4 rounded-lg border border-[#14140f]/15 bg-white p-5 text-[#14140f] shadow-[0_8px_30px_rgba(0,0,0,0.12)] sm:right-auto"
     >
       <p className="text-[13px] font-light leading-relaxed">
         We use cookies to see how the site is used and, if you agree, to measure our advertising on Google and

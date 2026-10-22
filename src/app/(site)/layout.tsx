@@ -1,6 +1,6 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { WhatsAppFAB } from "@/components/ui/whatsapp-fab";
+import { SupportDock } from "@/components/global/SupportDock";
 import SmoothScrollProvider from "@/components/providers/SmoothScroll";
 import { CartProvider } from "@/lib/cart";
 
@@ -23,7 +23,9 @@ export default function SiteLayout({
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />
-        <WhatsAppFAB />
+        {/* WhatsApp, call, email and a quick enquiry on every page (owner,
+            2026-10-22), in place of the lone WhatsApp button. */}
+        <SupportDock />
       </SmoothScrollProvider>
     </CartProvider>
   );

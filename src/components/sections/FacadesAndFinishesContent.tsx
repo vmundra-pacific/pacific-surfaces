@@ -35,6 +35,7 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 import { OrderSampleModal } from "@/components/ui/order-sample-modal";
 import { sanityImg } from "@/lib/sanity-img";
 import { finishDescription } from "@/lib/finish-copy";
+import { LazyVideo } from "@/components/ui/lazy-video";
 
 /* ---------- types ----------------------------------------------- */
 
@@ -276,7 +277,7 @@ export function FacadesAndFinishesContent({
               className="lg:col-span-7"
             >
               {introLeftVideoUrl ? (
-                <video
+                <LazyVideo
                   key={introLeftVideoUrl}
                   src={introLeftVideoUrl}
                   poster={
@@ -327,7 +328,7 @@ export function FacadesAndFinishesContent({
                     lives in the repo and there's no need to upload
                     it to Sanity. */}
                 {introRightVideoUrl ? (
-                  <video
+                  <LazyVideo
                     key={introRightVideoUrl}
                     src={introRightVideoUrl}
                     poster={

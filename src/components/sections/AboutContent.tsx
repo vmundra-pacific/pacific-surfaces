@@ -26,6 +26,7 @@ import {
   StaggerItem,
 } from "@/components/ui/animated-section";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { LazyVideo } from "@/components/ui/lazy-video";
 
 const stats = [
   { value: "273+", label: "Unique Designs" },
@@ -300,7 +301,7 @@ export function AboutContent() {
             autoplays without a user gesture; the poster is the frame
             ffmpeg pulled at t=1.5s. */}
         <div className="relative aspect-video w-full overflow-hidden">
-          <video
+          <LazyVideo
             src="/videos/team-section.mp4"
             poster="/videos/team-section-poster.jpg"
             autoPlay
@@ -509,7 +510,7 @@ function TimelineSection() {
     // overlay tints it down so white text stays legible.
     <section className="relative isolate overflow-hidden bg-[#112732]">
       {/* Background video — silent, looping, full-bleed cover */}
-      <video
+      <LazyVideo
         className="absolute inset-0 w-full h-full object-cover -z-10"
         src="/videos/milestones-growth.mp4"
         poster="/videos/milestones-growth-poster.jpg"
