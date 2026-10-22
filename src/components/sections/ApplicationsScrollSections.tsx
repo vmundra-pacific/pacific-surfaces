@@ -49,6 +49,7 @@ import {
   motion,
   useMotionValue,
   useMotionValueEvent,
+  useInView,
   useScroll,
   useTransform,
   type MotionValue,
@@ -866,12 +867,20 @@ function ArchitectureTile({
   const col = index % 3;
   const bgPos = `${col * 50}% ${row * 50}%`;
 
+  // A CSS background downloads as soon as the tile is in the page,
+  // wherever it is, so the photo is only set once the grid is within a
+  // few screens (2026-10-22: it was among the first requests on a phone
+  // and counted against the homepage's largest paint).
+  const tileRef = useRef<HTMLDivElement>(null);
+  const near = useInView(tileRef, { once: true, margin: "1500px 0px" });
+
   return (
     <motion.div
+      ref={tileRef}
       style={{ x, y, rotate, opacity }}
       className="relative overflow-hidden bg-pacific-dark/40"
     >
-      {imageUrl ? (
+      {imageUrl && near ? (
         <div
           className="absolute inset-0"
           style={{

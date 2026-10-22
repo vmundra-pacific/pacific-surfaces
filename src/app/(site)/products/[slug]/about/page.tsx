@@ -40,6 +40,14 @@ interface Params {
   slug: string;
 }
 
+// Cached on first visit and rebuilt at most once a minute (2026-10-22:
+// without these the route rendered afresh on every visit, ~1.3 s on a
+// phone). No pages are listed up front; each is built when first asked for.
+export const revalidate = 60;
+export async function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({
   params,
 }: {

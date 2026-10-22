@@ -44,16 +44,12 @@
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: "Hubot Sans";
-  src:
-    url("/fonts/HubotSans-Italic.woff2") format("woff2"),
-    url("/fonts/HubotSans-Italic.ttf") format("truetype-variations");
-  font-weight: 200 900;
-  font-stretch: 75% 125%;
-  font-style: italic;
-  font-display: swap;
-}
+/* The italic is not declared here: app/layout.tsx adds it once the page
+   has loaded (ITALIC_FONT_SCRIPT). No first screen sets italic, yet any
+   italic text further down made every page fetch it ahead of the first
+   paint (2026-10-22, owner: Lighthouse performance above 90). It is pinned
+   to width 100 like the upright, 168 KB to 89 KB. Until it arrives the
+   browser slants the upright. */
 
 /* Numerals in Poppins (owner, 2026-10-20: "change the font to Poppins for
    the numbers alone"). Each file holds only the digits 0-9 (1.4 KB, cut

@@ -54,10 +54,10 @@ const SECTIONS = [
   },
 ];
 
-// Render dynamically so published Sanity edits to this space's
-// images appear on the next request instead of only after a
-// redeploy (editor-managed content). Mirrors /ecosurfaces.
-export const revalidate = 0;
+// Served from the cache and rebuilt at most once a minute, so Sanity
+// edits show within 60 s (2026-10-22: with revalidate = 0 every visit
+// waited ~1.3 s for a fresh render, failing the phone Core Web Vitals).
+export const revalidate = 60;
 
 export default async function OutdoorSpacePage() {
   const images =

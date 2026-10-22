@@ -10,9 +10,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/ecosurfaces" },
 };
 
-// Bypass Next's data cache so toggling the Eco Surface ribbon in Sanity
-// reflects on the page on the next request rather than after a deploy.
-export const revalidate = 0;
+// Served from the cache and rebuilt at most once a minute, so Sanity
+// edits show within 60 s (2026-10-22: with revalidate = 0 every visit
+// waited ~1.3 s for a fresh render, failing the phone Core Web Vitals).
+export const revalidate = 60;
 
 interface Product {
   _id: string;

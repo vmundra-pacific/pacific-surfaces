@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
 import { ALTERNATE_NAME, ALTERNATE_NAME_PAGE, HOME_H1 } from "@/data/business";
 
 const TOTAL_FRAMES = 520;
@@ -115,13 +114,12 @@ export function HeroScrollCanvas() {
   const [activeHeadline, setActiveHeadline] = useState(-1);
   const [showCta, setShowCta] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(true);
-  const [loaded, setLoaded] = useState(0);
   const [ready, setReady] = useState(false);
   // Which frame set this screen uses; fixed at mount.
   const planRef = useRef<FramePlan>({ dir: "/hero-frames", total: TOTAL_FRAMES, initial: 20, step: 1, phone: false });
 
   // Progressive frame preloading:
-  // Phase 1: the first INITIAL_BATCH frames → dismiss loading.
+  // Phase 1: the first INITIAL_BATCH frames → the canvas takes over.
   // Phase 2: a sparse spread over the whole range, so any scroll position
   //          has a nearby frame (about 6 MB in all before any scroll).
   // Phase 3: the dense fill, only once the visitor scrolls, and never on
@@ -132,7 +130,6 @@ export function HeroScrollCanvas() {
     planRef.current = plan;
     const TOTAL = plan.total;
     const INITIAL_BATCH = plan.initial; // the opening frames, ~1-3 MB
-    let count = 0;
     let cancelled = false;
     let cleanupScroll = () => {};
     const imgs: HTMLImageElement[] = new Array(TOTAL);
@@ -173,13 +170,6 @@ export function HeroScrollCanvas() {
           img.decoding = "async";
         }
         const done = () => {
-          if (!cancelled) {
-            count++;
-            // `loaded` only drives the loading bar, which reads the
-            // first INITIAL_BATCH frames. Later loads (up to 500 more,
-            // many while scrubbing) would each re-render the hero.
-            if (count <= INITIAL_BATCH) setLoaded(count);
-          }
           resolve();
         };
         img.onload = () => {
@@ -198,7 +188,7 @@ export function HeroScrollCanvas() {
       });
 
     // Hard safety timeout — if any frame stalls (network blip, CDN
-    // miss), the user shouldn't sit on the loading screen forever.
+    // miss), the canvas still takes over from the poster.
     // 8s is long enough for any reasonable connection to load the
     // opening frames (~150 KB each at AVIF).
     const safety = setTimeout(() => {
@@ -509,7 +499,11 @@ export function HeroScrollCanvas() {
         }
       }
 
-      if (running) raf = requestAnimationFrame(tick);
+      // Settled (the lerp has caught up with the scroll): the loop sleeps
+      // until the next scroll, leaving the main thread free for taps
+      // (2026-10-22: phone INP was 238 ms against a 200 ms limit).
+      if (running && p !== targetProgressRef.current) raf = requestAnimationFrame(tick);
+      else running = false;
     };
 
     const startLoop = () => {
@@ -523,19 +517,25 @@ export function HeroScrollCanvas() {
     };
 
     measureTrack();
-    // Start immediately (matches the old unconditional rAF); the
-    // observer below pauses the loop once the track is confirmed
-    // fully offscreen and restarts it (200px early, before any pixel
-    // is visible) on approach. On restart, everything recomputes from
-    // the live scroll position, so nothing visible ever stalls.
+    // Start immediately; the loop runs while the scrub is catching up
+    // and sleeps once it has. A scroll wakes it, but only while the track
+    // is within 200px of the screen (the observer below), so nothing
+    // runs for the rest of the page. On each wake everything recomputes
+    // from the live scroll position, so nothing visible ever stalls.
+    let near = true;
     startLoop();
+    const onScroll = () => {
+      if (near) startLoop();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     let io: IntersectionObserver | null = null;
     if (trackRef.current && typeof IntersectionObserver !== "undefined") {
       io = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
-            if (entry.isIntersecting) startLoop();
+            near = entry.isIntersecting;
+            if (near) startLoop();
             else stopLoop();
           }
         },
@@ -554,6 +554,7 @@ export function HeroScrollCanvas() {
     return () => {
       stopLoop();
       io?.disconnect();
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", handleResize);
     };
   }, [ready, drawFrame]);
@@ -570,40 +571,14 @@ export function HeroScrollCanvas() {
   // land in state only when they change; continuous values are
   // written straight to the DOM via refs.
 
-  // Loading screen shows progress of the initial batch (the opening frames),
-  // not all 520 — so it dismisses quickly while the rest loads in background
-  const INITIAL_BATCH = planRef.current.initial;
-  // Cap visible progress at 90% until `ready` (canvas drew its
-  // first frame) so the bar never reads 100% while the user is
-  // still staring at the loading screen waiting for paint.
-  const rawPct = Math.round(
-    (Math.min(loaded, INITIAL_BATCH) / INITIAL_BATCH) * 100
-  );
-  const loadPct = ready ? 100 : Math.min(rawPct, 90);
-
+  // No loading screen (2026-10-22, owner: Lighthouse performance above
+  // 90): a full-screen loader held the whole hero, headline included,
+  // until the opening frames arrived, which made it the page's largest
+  // paint at ~4.6 s on a phone. The poster below is frame 1 in the
+  // server HTML, so the hero shows at once and the canvas takes over
+  // when its frames are in.
   return (
     <>
-      {/* Loading screen. Once ready it only fades out and stays
-          mounted, so it is also hidden from assistive tech then
-          (otherwise its logo and "100%" stay in the a11y tree). */}
-      <div
-        aria-hidden={ready || undefined}
-        className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#112732] transition-opacity duration-500 ${
-          ready ? "opacity-0 pointer-events-none" : "opacity-100"
-        }`}
-      >
-        <PacificLogoMark className="mb-8 h-12 w-auto text-white" />
-        <div className="w-48 h-[2px] bg-white/20 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-white transition-all duration-200"
-            style={{ width: `${loadPct}%` }}
-          />
-        </div>
-        <div className="mt-3 text-[10px] font-mono tracking-[0.2em] text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]">
-          {loadPct}%
-        </div>
-      </div>
-
       {/* Scroll track — 700vh of kitchen scrub end-to-end.
           id="sec-hero" lets HomepageSectionNav detect "user is inside
           the parallax" and clear the active pill while the hero is

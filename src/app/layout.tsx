@@ -26,6 +26,11 @@ const GA_MEASUREMENT_ID = "G-7PXLT12ML9";
 /** Google Tag Manager container. Public token, like the GA ID above. */
 const GTM_ID = "GTM-NLNM2VJS";
 
+/** Adds the Hubot Sans italic once the page has loaded (bw-temp.css says why). */
+const ITALIC_FONT_SCRIPT = `addEventListener("load",function(){if(!window.FontFace)return;
+new FontFace("Hubot Sans",'url("/fonts/HubotSans-Italic.woff2") format("woff2")',{style:"italic",weight:"200 900",display:"swap"})
+.load().then(function(f){document.fonts.add(f)}).catch(function(){})},{once:true});`;
+
 // preload: false while bw-temp.css forces Hubot Sans on every element:
 // Inter never renders, so preloading it only spent bandwidth at High
 // priority inside the LCP window. Restore the preload with the brand test.
@@ -95,17 +100,26 @@ export default function RootLayout({
           accepts (lib/consent, ConsentBanner), analytics on.
         */}
         <script dangerouslySetInnerHTML={{ __html: CONSENT_DEFAULTS_SCRIPT }} />
+        {/* Hubot Sans italic, added after load (see bw-temp.css). */}
+        <script dangerouslySetInnerHTML={{ __html: ITALIC_FONT_SCRIPT }} />
         {/*
-          Google Tag Manager — as high in <head> as possible, per
-          Google's install instructions. A plain inline script (not
-          next/script) so it is in the server HTML of every page.
+          Google Tag Manager — Google's snippet, high in <head> and in the
+          server HTML of every page, except that gtm.js (157 KB) is fetched
+          once the page has loaded, at the next idle moment (2026-10-22,
+          owner: Lighthouse performance above 90). Fetched at once it was
+          the largest request ahead of the homepage's first paint on a
+          phone. The gtm.start timestamp is still taken here, so Tag
+          Manager's timings are unchanged; the tags fire about a second
+          later.
         */}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+new Date().getTime(),event:'gtm.js'});function go(){var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);}
+function later(){(w.requestIdleCallback||function(c){setTimeout(c,1)})(go,{timeout:2000});}
+if(d.readyState==='complete')later();else w.addEventListener('load',later,{once:true});
 })(window,document,'script','dataLayer','${GTM_ID}');`,
           }}
         />

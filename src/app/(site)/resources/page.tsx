@@ -14,9 +14,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/resources" },
 };
 
-// Render dynamically so newly published/updated resources appear on the
-// next request instead of only after a redeploy (editor-managed content).
-export const revalidate = 0;
+// Served from the cache and rebuilt at most once a minute, so Sanity
+// edits show within 60 s (2026-10-22: with revalidate = 0 every visit
+// waited ~1.3 s for a fresh render, failing the phone Core Web Vitals).
+export const revalidate = 60;
 
 export default async function ResourcesPage() {
   // Fetch all visible resources from Sanity. Returns [] when none have

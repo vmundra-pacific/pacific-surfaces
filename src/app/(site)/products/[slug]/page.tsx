@@ -163,11 +163,10 @@ const LEARN_LINKS_BY_CATEGORY: Record<string, LearnLink[]> = {
   ],
 };
 
-// Bypass Next's data cache so ribbon-driven category pages
-// (Ecosurfaces) reflect Sanity edits on the next request rather than
-// only on a fresh deploy. Other category pages benefit too — toggling
-// a product's collection or visibility now propagates immediately.
-export const revalidate = 0;
+// Served from the cache and rebuilt at most once a minute, so Sanity
+// edits show within 60 s (2026-10-22: with revalidate = 0 every visit
+// waited ~1.3 s for a fresh render, failing the phone Core Web Vitals).
+export const revalidate = 60;
 
 // Per-request dedupe — generateMetadata and the page body both need
 // the same category / product data, which previously meant two
