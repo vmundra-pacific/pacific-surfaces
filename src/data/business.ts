@@ -101,6 +101,7 @@ export const SOCIAL_PROFILES = {
   facebook: "https://www.facebook.com/thepacificstone/",
   linkedin: "https://www.linkedin.com/company/pacific-granites-india-pvt-ltd/",
   youtube: "https://www.youtube.com/channel/UCWeTO3mX6zInSev42K9h5Fw",
+  pinterest: "https://in.pinterest.com/pacific_surfaces/",
 } as const;
 
 export const LOGO_URL = `${SITE_URL}/logos/pacific-surfaces-logo-black.png`;

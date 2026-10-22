@@ -186,6 +186,11 @@ const socialLinks: {
     href: SOCIAL_PROFILES.youtube,
     Icon: YoutubeIcon,
   },
+  {
+    name: "Pinterest",
+    href: SOCIAL_PROFILES.pinterest,
+    Icon: PinterestIcon,
+  },
 ];
 
 export default function Footer() {
