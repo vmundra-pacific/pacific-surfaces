@@ -13,6 +13,7 @@ import jobOpening from "./jobOpening";
 import careersPage from "./careersPage";
 import jobApplication from "./jobApplication";
 import contactSubmission from "./contactSubmission";
+import sillsEnquiry from "./sillsEnquiry";
 import sampleRequest from "./sampleRequest";
 import orderRequest from "./orderRequest";
 import newsletterSubscriber from "./newsletterSubscriber";
@@ -40,6 +41,7 @@ export const schemaTypes = [
   careersPage,
   jobApplication,
   contactSubmission,
+  sillsEnquiry,
   sampleRequest,
   orderRequest,
   newsletterSubscriber,

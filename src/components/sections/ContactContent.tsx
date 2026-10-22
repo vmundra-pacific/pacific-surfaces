@@ -242,7 +242,7 @@ function TypeParam({ onChange }: { onChange: (type: string | null) => void }) {
   return null;
 }
 
-/** The ad tags a lead arrives with (carried by LeadLink). */
+/** The ad tags a lead arrives with, when its link carries them. */
 const TRACKING_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "fbclid"];
 
 /**

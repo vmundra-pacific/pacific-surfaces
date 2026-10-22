@@ -16,6 +16,7 @@ import {
   type SpaceShot,
 } from "@/components/sections/sills/SillsBlocks";
 import { ProductLineUp } from "@/components/sections/sills/ProductLineUp";
+import { SillsQuote } from "@/components/sections/sills/SillsQuote";
 import { SillCatalogue } from "@/components/sections/sills/SillCatalogue";
 import { SizeChartButton } from "@/components/sections/sills/SizeChart";
 import { TechSpecsButtons } from "@/components/sections/sills/TechSpecsDialog";
@@ -76,6 +77,7 @@ export default function SillsPage() {
       <CareNotes />
       <SpaceFaqs heading="Frequently asked questions about sills and thresholds" faqs={s.faqs} />
       <SpaceOthers {...s.spaces} />
+      <SillsQuote />
     </>
   );
 }
