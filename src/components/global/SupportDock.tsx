@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ArrowRight, CheckCircle, Mail, MessageSquareText, Phone } from "lucide-react";
+import { ArrowRight, CheckCircle, Mail, MessageSquareText, Phone, X } from "lucide-react";
 import { LIQUID_GLASS } from "@/components/global/liquid-glass";
 import { SillDialog } from "@/components/sections/sills/SillDialog";
 import { EMAIL, SALES_PHONE } from "@/data/business";
@@ -30,6 +30,8 @@ const WHATSAPP =
 const SILLS_PAGE = "/products/pacific-european-window-sill-threshold-collection";
 /** Full-screen views where the panel would sit on the experience. */
 const HIDDEN_ON = ["/visualize/showroom/walk"];
+
+const PHONE_HIDDEN_KEY = "pacific:support-hidden";
 
 const TRACKING = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "fbclid"];
 
@@ -71,12 +73,25 @@ export function SupportDock() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  // Phones only (owner, 2026-10-22): an X hides the row for the rest of
+  // the visit, for visitors who would rather not have it.
+  const [phoneHidden, setPhoneHidden] = useState(false);
 
   // A moment after load, so it never competes with the page's first paint.
   useEffect(() => {
+    try {
+      if (sessionStorage.getItem(PHONE_HIDDEN_KEY)) setPhoneHidden(true);
+    } catch {}
     const t = setTimeout(() => setMounted(true), 1200);
     return () => clearTimeout(t);
   }, []);
+
+  const hidePhone = () => {
+    setPhoneHidden(true);
+    try {
+      sessionStorage.setItem(PHONE_HIDDEN_KEY, "1");
+    } catch {}
+  };
 
   const onSills = pathname.startsWith(SILLS_PAGE);
   const close = useCallback(() => setOpen(false), []);
@@ -184,6 +199,8 @@ export function SupportDock() {
       </ul>
 
       {/* Phones: the same glass, a row at the bottom right, and room for it at the foot of the page */}
+      {!phoneHidden && (
+      <>
       <div
         style={LIQUID_GLASS}
         className={cn(
@@ -211,8 +228,19 @@ export function SupportDock() {
             {l.glyph}
           </a>
         ))}
+        <button
+          type="button"
+          onClick={hidePhone}
+          aria-label="Hide quick support"
+          style={{ color: "#14140f" }}
+          className="flex h-11 w-8 items-center justify-center border-l border-black/10 opacity-60"
+        >
+          <X className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
+        </button>
       </div>
       <div aria-hidden="true" className="h-16 sm:hidden" />
+      </>
+      )}
 
       {open && (
         <SillDialog title="Quick enquiry" onClose={close} fit>
