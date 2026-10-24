@@ -370,8 +370,10 @@ export function resolvePattern(
  * ------------------------------------------------------------------ */
 function deriveRibbon(ribbons?: string[] | null): Ribbon {
   if (!ribbons || ribbons.length === 0) return null;
-  const lower = ribbons.map((r) => r.toLowerCase());
-  if (lower.includes("new")) return "new";
+  const lower = ribbons.map((r) => r.trim().toLowerCase());
+  // Sanity's value is "New Arrival"; matching only "new" meant no product
+  // was ever new, so "New arrivals" sorted nothing first (2026-10-24).
+  if (lower.some((r) => r === "new" || r === "new arrival" || r === "new arrivals")) return "new";
   if (lower.includes("featured") || lower.includes("top color"))
     return "featured";
   return null;

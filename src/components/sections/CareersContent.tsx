@@ -475,7 +475,7 @@ export function CareersContent({ pageData, openings }: Props) {
             value: String(locationOptions.length),
             label: locationOptions.length === 1 ? "City" : "Cities",
           },
-          { value: "45+", label: "Countries supplied" },
+          { value: "45+", label: "Countries we export to" },
           { value: "Since 2000", label: "Working in stone" },
         ]}
       />

@@ -174,7 +174,7 @@ export default async function HomePage() {
       <StatementSection
         id="sec-sustainability"
         statement="Pacific Surfaces is a low-silica mineral-infused engineered surfaces brand composed of premium and recycled minerals and materials."
-        subStatement="A leading brand for over 25+ years that inspires designs for kitchens, bathrooms, and home surfaces."
+        subStatement="A leading brand for over 25 years that inspires designs for kitchens, bathrooms, and home surfaces."
         theme="light"
         withImagePlaceholder
       />

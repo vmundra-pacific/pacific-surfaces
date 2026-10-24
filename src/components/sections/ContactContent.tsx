@@ -150,7 +150,7 @@ const departmentContacts: {
       {
         name: "Marcin",
         phone: "+48 537 819 991",
-        email: "marcin@pacificsurfaces.pl",
+        email: "marcin@thepacific.group", // owner, 2026-10-24 (the .pl domain is parked, no mail server)
       },
     ],
   },
@@ -1221,8 +1221,8 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
               Bring your plan. We bring the stone.
             </h2>
             <p className="mt-5 max-w-xl text-lg font-light leading-snug">
-              Superjumbo slabs, zero crystalline silica, a lifetime warranty,
-              and a team that answers within a day.
+              Superjumbo slabs, low silica surfaces, and a team that answers
+              within a day.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <a

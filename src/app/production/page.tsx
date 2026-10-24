@@ -8,13 +8,37 @@
  * Configure the dashboard URL with the env var:
  *   NEXT_PUBLIC_PRODUCTION_DASHBOARD_URL=https://your-dashboard.vercel.app
  *
- * Defaults to http://localhost:3000 for local development.
+ * With the variable unset the page says the dashboard is not available.
+ * It used to fall back to http://localhost:3000, which on the live site
+ * framed whatever ran on the visitor's own machine. Robots noindex is
+ * set in ./layout.tsx.
  */
 
-const DASHBOARD_URL =
-  process.env.NEXT_PUBLIC_PRODUCTION_DASHBOARD_URL || "http://localhost:3000";
+const DASHBOARD_URL = process.env.NEXT_PUBLIC_PRODUCTION_DASHBOARD_URL;
 
 export default function ProductionPage() {
+  if (!DASHBOARD_URL) {
+    return (
+      <main
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px",
+          background: "#fafafa",
+          color: "#14140f",
+          fontFamily: "system-ui, sans-serif",
+          textAlign: "center",
+        }}
+      >
+        <p style={{ fontSize: "16px", fontWeight: 300, maxWidth: "28rem" }}>
+          The production dashboard is not available.
+        </p>
+      </main>
+    );
+  }
+
   return (
     <iframe
       src={DASHBOARD_URL}

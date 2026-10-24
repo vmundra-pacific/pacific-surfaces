@@ -262,6 +262,9 @@ export function BasinPreview({
   return (
     <canvas
       ref={canvasRef}
+      // role="img" so the label is announced: a bare canvas's aria-label
+      // is ignored by most screen readers.
+      role="img"
       aria-label={`${alt} in ${colourName}`}
       className="h-full w-full object-cover"
       style={{ opacity: ready ? 1 : 0, transition: "opacity .35s ease" }}

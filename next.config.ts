@@ -29,7 +29,8 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+    // geolocation for this site only: Where to Buy's "Use my location"
+    value: "camera=(), microphone=(), geolocation=(self), interest-cohort=()",
   },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
 ];

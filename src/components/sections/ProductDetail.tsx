@@ -136,6 +136,81 @@ const SECTION_IDS = [
   { id: "sec-compare", label: "Compare Colors" },
 ];
 
+/** The quartz series made in the superjumbo slab (display names, after
+ *  formatCollection; "vision" is Eclipse's Sanity name). */
+const SUPERJUMBO_SERIES = [
+  "aurora",
+  "nebula",
+  "kosmic",
+  "celestia",
+  "luminara",
+  "eclipse",
+  "vision",
+  "solid",
+];
+const SUPERJUMBO_SIZE = "3,480 × 2,007 mm (137 × 79 in)";
+
+/** What a product is made of, for the copy that depends on it. */
+type ProductKind =
+  | "quartz"
+  | "granite"
+  | "beyond-stone"
+  | "semi-precious"
+  | "sink"
+  | "exotic"
+  | "other";
+
+function productKind(input: {
+  name: string;
+  productType: string;
+  collectionName: string;
+  categorySlug?: string | null;
+  categoryName?: string | null;
+}): ProductKind {
+  const type = input.productType.toLowerCase();
+  const context =
+    `${input.categorySlug ?? ""} ${input.categoryName ?? ""} ${input.collectionName}`.toLowerCase();
+  if (
+    type === "quartz-sink" ||
+    context.includes("integra") ||
+    context.includes("sink")
+  )
+    return "sink";
+  if (type === "semi-precious" || context.includes("semi"))
+    return "semi-precious";
+  if (
+    type === "granite-finish" ||
+    context.includes("stone finish") ||
+    context.includes("beyond stone")
+  )
+    return "beyond-stone";
+  if (
+    type === "granite-slab" ||
+    context.includes("granite") ||
+    /granite/i.test(input.name)
+  )
+    return "granite";
+  if (context.includes("exotic")) return "exotic";
+  if (context.includes("fab creations")) return "other";
+  return "quartz";
+}
+
+/** The "Why you should choose …" intro, by material. Kinds without a
+ *  line show the benefits grid with no intro. */
+const WHY_CHOOSE: Partial<Record<ProductKind, string>> = {
+  quartz:
+    "Pacific Surfaces quartz is engineered with cutting-edge technology, delivering lasting beauty and unmatched performance for every space.",
+  granite:
+    "Pacific Surfaces granite is natural stone, quarried, block-sawn, calibrated and polished: a dense surface formed over geological time, and the material to specify where a surface meets weather or foot traffic.",
+  "beyond-stone":
+    "Beyond Stone is natural stone, block-sawn and given an architectural surface finish, for facades, floors and feature walls.",
+  "semi-precious":
+    "Pacific Surfaces semi-precious stones are hand-selected gemstones, laid piece by piece, so no two surfaces are alike.",
+  sink: "Integra sinks are made from Pacific quartz: the same low-porosity, stain-resistant surface as a quartz worktop, formed into a basin.",
+  exotic:
+    "The Exotic Collection brings together limited-run slabs, hand-picked for unusual veining, tone and movement.",
+};
+
 export function ProductDetail({ product }: { product: Product }) {
   // ---- Similar-product ranking — single source of truth ----
   // Computed once here and reused by:
@@ -217,11 +292,9 @@ export function ProductDetail({ product }: { product: Product }) {
     ...new Set(
       (product.thickness ?? [])
         .map(normalizeThickness)
-        .filter(isOfferedThickness)
+        .filter((t) => t !== "" && isOfferedThickness(t))
     ),
   ];
-  const thicknesses =
-    offeredThicknesses.length > 0 ? offeredThicknesses : ["20 mm", "30 mm"];
   // Applications are editor-set in Sanity, so a quartz slab can be
   // tagged "Flooring" — which it cannot honestly claim (resin-bound
   // surfaces are indoor-only). Filter to what this product's material
@@ -234,7 +307,48 @@ export function ProductDetail({ product }: { product: Product }) {
       categoryName: product.category?.name,
     })
   );
-  const size = product.size || '126" x 63"';
+  // The owner's filing (data/catalogue-refile) wins over Sanity for the
+  // products it lists, as it does in the catalogue.
+  const refile = REFILE[product.slug.current];
+  const effectiveCollection =
+    refile?.collection ?? product.collection?.name ?? "";
+  const effectiveType = (
+    refile?.productType ??
+    product.productType ??
+    ""
+  ).toLowerCase();
+  const kind = productKind({
+    name: product.name,
+    productType: effectiveType,
+    collectionName: formatCollection(effectiveCollection),
+    categorySlug: product.category?.slug?.current,
+    categoryName: product.category?.name,
+  });
+  // With no thickness in Sanity, quartz falls back to 20 and 30 mm (of
+  // the 12/20/30 mm it is made in); other materials list none, and the
+  // copy says thickness is confirmed at quotation rather than borrowing
+  // quartz figures.
+  const thicknesses =
+    offeredThicknesses.length > 0
+      ? offeredThicknesses
+      : kind === "quartz"
+        ? ["20 mm", "30 mm"]
+        : [];
+  // Slab format. Sanity's size when it is a measurement; otherwise the
+  // quartz series (Aurora, Nebula, Kosmic, Celestia, Luminara, Eclipse,
+  // Vision, Solid) are made in the one superjumbo format, and anything
+  // else is confirmed on request. Never a made-up size: the old
+  // '126" x 63"' fallback printed a format Pacific does not make on
+  // every product without a size.
+  const sanitySize = (product.size ?? "").trim();
+  const isSuperjumboSeries = SUPERJUMBO_SERIES.some((series) =>
+    formatCollection(effectiveCollection).toLowerCase().includes(series)
+  );
+  const size: string | undefined = /\d/.test(sanitySize)
+    ? sanitySize
+    : isSuperjumboSeries
+      ? SUPERJUMBO_SIZE
+      : undefined;
   // Wrap the collection name through formatCollection so the
   // editorial rename map (e.g. "Vision" → "Eclipse",
   // "Stone Finishes" → "Beyond Stone") applies to the eyebrow
@@ -244,13 +358,18 @@ export function ProductDetail({ product }: { product: Product }) {
   // page lists no other profile. Sanity may still file it as "Vision".
   const mitredOnly =
     formatCollection(product.collection?.name ?? "") === "Eclipse" ||
-    REFILE[product.slug.current]?.collection === "Eclipse";
+    refile?.collection === "Eclipse";
+  // Eyebrow and sample-request label. The last resort used to be
+  // "Quartz Surfaces", which labelled the uncollected granites as
+  // quartz; it now follows the material, or stays neutral.
   const categoryLabel =
     product.category?.name ||
-    (product.collection?.name
-      ? formatCollection(product.collection.name)
-      : "") ||
-    "Quartz Surfaces";
+    (effectiveCollection ? formatCollection(effectiveCollection) : "") ||
+    (kind === "granite"
+      ? "Granite"
+      : effectiveType === "quartz-slab"
+        ? "Quartz Surfaces"
+        : "Surfaces");
 
   // Specialty products (Semi-Precious Stones / Exotic / Centrepiece Couture
   // / Integra / Beyond Stone) are NOT standard quartz slabs.
@@ -361,9 +480,14 @@ export function ProductDetail({ product }: { product: Product }) {
   // Applications, which always renders (it has an empty state).
   // Specialty products hide the Specs tab (its rows are quartz-slab
   // specific), leaving Applications as their only tab.
-  const defaultTab: "specs" | "applications" = isSpecialtyProduct
-    ? "applications"
-    : "specs";
+  // The Applications tab only renders when there is something to list:
+  // the old empty state ("No specific applications listed") read as a
+  // gap in the product. With neither tab the section is left out.
+  const showSpecsTab = !isSpecialtyProduct;
+  const showApplicationsTab = applications.length > 0;
+  const defaultTab: "specs" | "applications" = showSpecsTab
+    ? "specs"
+    : "applications";
   const [activeInfoTab, setActiveInfoTab] = useState<"specs" | "applications">(
     defaultTab
   );
@@ -1008,6 +1132,8 @@ export function ProductDetail({ product }: { product: Product }) {
                     product.allOtherProducts.length > 0)
                 );
               if (id === "sec-compare") return !hideCompareSlider;
+              if (id === "sec-product-info")
+                return showSpecsTab || showApplicationsTab;
               return true;
             }).map(({ id, label }) => (
               <button
@@ -1289,7 +1415,9 @@ export function ProductDetail({ product }: { product: Product }) {
               <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white">
                 Format
               </h4>
-              <div className="text-base text-pacific-light">{size}</div>
+              <div className="text-base text-pacific-light">
+                {size ?? "On request"}
+              </div>
             </div>
 
             {/* Professional Resources */}
@@ -1347,6 +1475,7 @@ export function ProductDetail({ product }: { product: Product }) {
       {/* Sticky section nav moved to top — see above */}
 
       {/* ===== PRODUCT INFO — Tabbed (Specs | Sizes & Finishes | Applications) ===== */}
+      {(showSpecsTab || showApplicationsTab) && (
       <section
         id="sec-product-info"
         ref={(el) => {
@@ -1364,15 +1493,15 @@ export function ProductDetail({ product }: { product: Product }) {
                   and finishes are already listed in the spec panel
                   beside the slab image, so the tab only repeated
                   them.
-                - Applications tab is always shown — it has a
-                  fallback empty-state message ("No specific
-                  applications listed…") so users always have a
-                  contact prompt. */}
+                - Applications tab only when the product lists
+                  applications (the empty state was removed). */}
           <div className="flex gap-0 border-b border-white/10 overflow-x-auto no-scrollbar">
             {(
               [
-                ...(isSpecialtyProduct ? [] : [["specs", "Specs"] as const]),
-                ["applications", "Applications"],
+                ...(showSpecsTab ? [["specs", "Specs"] as const] : []),
+                ...(showApplicationsTab
+                  ? [["applications", "Applications"] as const]
+                  : []),
               ] as const
             ).map(([key, label]) => (
               <button
@@ -1447,7 +1576,10 @@ export function ProductDetail({ product }: { product: Product }) {
                         const isSemiPrecious =
                           haystacks.includes("semi") ||
                           haystacks.includes("exotic");
-                        let waterAbsorption = "< 0.03%"; // quartz default
+                        // Quartz default: the lab figure shown on
+                        // /professionals/applications (MATERIAL_TESTS in
+                        // data/thresholds-and-sills).
+                        let waterAbsorption = "≤ 0.04% (ASTM C 97)";
                         let mohs = "7"; // quartz default
                         if (isGranite) {
                           waterAbsorption = "Avg. 0.1 – 0.6%";
@@ -1475,7 +1607,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 )}
 
                 {activeInfoTab === "applications" &&
-                  (applications.length > 0 ? (
+                  showApplicationsTab && (
                     <StaggerContainer>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-w-4xl">
                         {applications.map((a) => (
@@ -1490,17 +1622,13 @@ export function ProductDetail({ product }: { product: Product }) {
                         ))}
                       </div>
                     </StaggerContainer>
-                  ) : (
-                    <p className="text-pacific-mid font-light max-w-2xl">
-                      No specific applications listed. Get in touch for
-                      application guidance on your project.
-                    </p>
-                  ))}
+                  )}
               </motion.div>
             </AnimatePresence>
           </div>
         </div>
       </section>
+      )}
 
       {/* Formats & thicknesses / Finishes / Edges — the fabrication
           decisions that follow choosing a colour. Text-only until the
@@ -1526,11 +1654,13 @@ export function ProductDetail({ product }: { product: Product }) {
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white mb-4">
               Why you should choose {product.name}
             </h2>
-            <p className="text-lg text-pacific-mid font-light max-w-3xl mb-14">
-              Pacific Surfaces quartz is engineered with cutting-edge
-              technology, delivering lasting beauty and unmatched performance
-              for every space.
-            </p>
+            {WHY_CHOOSE[kind] ? (
+              <p className="text-lg text-pacific-mid font-light max-w-3xl mb-14">
+                {WHY_CHOOSE[kind]}
+              </p>
+            ) : (
+              <div className="mb-14" />
+            )}
           </AnimatedSection>
 
           <div className="text-xs font-semibold tracking-[0.25em] uppercase text-white mb-8">
@@ -1542,7 +1672,7 @@ export function ProductDetail({ product }: { product: Product }) {
               {[
                 {
                   title: "High Scratch Resistance",
-                  desc: "Daily use and wear will not scratch your Pacific surface.",
+                  desc: "Highly scratch-resistant in daily use.",
                   img: "/benefits/scratch-resistance.png",
                 },
                 {
@@ -1594,18 +1724,14 @@ export function ProductDetail({ product }: { product: Product }) {
       <section className="bg-pacific-dark">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12">
           <AnimatedSection animation="fadeIn">
-            <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-3 lg:grid-cols-5">
+            {/* Certificates on file only. Greenguard Gold was removed
+                (2026-10-24): no Greenguard certificate is held. */}
+            <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
               <CertBadge
                 name="NSF Certified"
                 desc="Food Equipment Materials"
                 mark={<NSFMark />}
                 cert="nsf"
-              />
-              <CertBadge
-                name="Greenguard Gold"
-                desc="Indoor Air Quality"
-                mark={<GreenguardMark />}
-                cert="greenguard"
               />
               <CertBadge
                 name="ISO 9001:2015"
@@ -1988,42 +2114,6 @@ function NSFMark() {
         letterSpacing="0.6"
       >
         CERTIFIED
-      </text>
-    </svg>
-  );
-}
-
-function GreenguardMark() {
-  // Greenguard Gold: stylised leaf in brand green over a gold "GOLD"
-  // ribbon — communicates the eco/indoor-air-quality cert at a glance.
-  return (
-    <svg viewBox="0 0 64 64" className="w-full h-full" aria-hidden="true">
-      {/* Leaf */}
-      <path
-        d="M32 10 C 18 14, 14 28, 16 40 C 28 40, 40 32, 44 18 C 40 14, 36 11, 32 10 Z"
-        fill="#1f9a4f"
-      />
-      {/* Stem */}
-      <path
-        d="M16 40 Q 22 32, 32 26"
-        stroke="#0f7a3d"
-        strokeWidth="2"
-        fill="none"
-        strokeLinecap="round"
-      />
-      {/* GOLD ribbon */}
-      <rect x="10" y="46" width="44" height="11" rx="2" fill="#c9a227" />
-      <text
-        x="32"
-        y="54.5"
-        textAnchor="middle"
-        fontFamily="Helvetica, Arial, sans-serif"
-        fontWeight="800"
-        fontSize="8"
-        fill="#fff"
-        letterSpacing="1.5"
-      >
-        GOLD
       </text>
     </svg>
   );

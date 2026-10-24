@@ -111,6 +111,11 @@ export default function RootLayout({
           phone. The gtm.start timestamp is still taken here, so Tag
           Manager's timings are unchanged; the tags fire about a second
           later.
+          2026-10-24 (owner: mobile Core Web Vitals to pass): 3.5 s after
+          load, then the next idle moment. Loaded straight after load, Tag
+          Manager and the Google tag it pulls in ran ~600 ms of long tasks
+          (on a 4x-slowed phone) just as visitors start tapping, which is
+          what pushed INP over 200 ms.
         */}
         <script
           dangerouslySetInnerHTML={{
@@ -118,7 +123,7 @@ export default function RootLayout({
 new Date().getTime(),event:'gtm.js'});function go(){var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);}
-function later(){(w.requestIdleCallback||function(c){setTimeout(c,1)})(go,{timeout:2000});}
+function later(){setTimeout(function(){(w.requestIdleCallback||function(c){setTimeout(c,1)})(go,{timeout:4000});},3500);}
 if(d.readyState==='complete')later();else w.addEventListener('load',later,{once:true});
 })(window,document,'script','dataLayer','${GTM_ID}');`,
           }}
@@ -184,7 +189,11 @@ if(d.readyState==='complete')later();else w.addEventListener('load',later,{once:
           (Google's preferred delivery), then the inline init script
           wires the page view + future custom events.
         */}
-        {/* lazyOnload: GA waits for idle — keeps gtag off the critical path. Trade-off: sub-second bounces may go uncounted. */}
+        {/* lazyOnload: GA waits for idle — keeps gtag off the critical path. Trade-off: sub-second bounces may go uncounted.
+            Note (2026-10-24): Tag Manager also loads this same Google tag
+            (gtag/js?id=G-7PXLT12ML9&cx=c&gtm=…), so GA loads twice — ~270 ms
+            of phone main-thread work and likely double page views. The owner
+            will decide whether to drop this direct copy. */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           strategy="lazyOnload"

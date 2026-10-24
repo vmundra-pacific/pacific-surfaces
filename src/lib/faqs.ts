@@ -1,7 +1,10 @@
 import type { FAQItem } from "@/components/sections/FAQ";
 
 /**
- * Hardcoded FAQ defaults per page key. Editors can override these
+ * Hardcoded FAQ defaults per page key. The "sustainability" and "about"
+ * sets were removed (2026-10-24): nothing rendered them, and they held
+ * unsourced claims (Greenguard Gold, ISO 14001, 100% water recycling,
+ * "up to 80%" recycled content, design and collection counts). Editors can override these
  * through Sanity's `faqPage` documents (see schema). The fetch
  * helper in this file prefers the Sanity doc when one exists, and
  * falls back to these defaults when it doesn't — so every page
@@ -15,15 +18,13 @@ export type FaqPageKey =
   | "integra"
   | "centrepiece-couture"
   | "facades-and-finishes"
-  | "vanity"
-  | "sustainability"
-  | "about";
+  | "vanity";
 
 export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
   quartz: [
     {
       q: "What is engineered quartz?",
-      a: "Engineered quartz is a man-made surface composed of approximately 93% natural quartz crystals bound with high-grade polymer resins and pigments. Pacific manufactures every slab in-house under Italian-engineered presses, giving you consistent colour, density, and pattern from one slab to the next — something natural stone can never guarantee.",
+      a: "Engineered quartz is a man-made surface composed of natural quartz crystals bound with high-grade polymer resins and pigments. Pacific manufactures every slab in-house with Bretonstone technology, giving you consistent colour, density, and pattern from one slab to the next — something natural stone can never guarantee.",
     },
     {
       q: "Is quartz heat-resistant?",
@@ -43,7 +44,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "Where is your quartz manufactured?",
-      a: "Every Pacific quartz slab is engineered at our 470,000 sq ft facility in India, using Italian production technology. We produce up to 12 million sq ft of quartz annually and ship to more than 45 countries.",
+      a: "Every Pacific quartz slab is engineered at our 470,000 sq ft facility in India, in a state-of-the-art Bretonstone plant. We produce up to 12 million sq ft of quartz annually and ship to more than 45 countries.",
     },
   ],
   granites: [
@@ -61,7 +62,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "What thicknesses are available?",
-      a: "Standard granite slabs ship in 18 mm and 30 mm. The thicker 30 mm option gives a more substantial visual edge profile and is preferred for islands and bar tops. Custom thicknesses are available on indent.",
+      a: "Granite thickness is confirmed per order, commonly 20 and 30 mm. The thicker 30 mm option gives a more substantial visual edge profile and is preferred for islands and bar tops.",
     },
     {
       q: "How is granite different from quartz?",
@@ -148,10 +149,6 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
       a: "Yes. Pacific Integra sinks are cast from the same engineered quartz body as the vanity top and bonded directly into the cutout. The result is a single seamless surface from worktop to bowl — no rim, no joint, no metal. Perfect for a clean, contemporary bath.",
     },
     {
-      q: "What thicknesses are available?",
-      a: "Standard 18 mm and 30 mm tops, with the 30 mm option offering a more substantial visual presence (especially for vanities with no apron or backsplash). Mitered edges to simulate even thicker profiles are available on request.",
-    },
-    {
       q: "How is the vanity cared for day-to-day?",
       a: "Warm water and mild soap for daily wipe-downs. For build-up around taps, use a pH-neutral stone cleaner. Avoid bleach, oven cleaners, and abrasive scouring pads. Pacific quartz tolerates the everyday products in a bathroom — toothpaste, shampoo, perfume, lotions — without staining or etching.",
     },
@@ -190,50 +187,6 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     {
       q: "Can the same stone be ordered in different finishes?",
       a: "Yes — most stones in our catalogue can be supplied in any of our standard finishes. Specify the finish at order time. Mixing finishes within a single project (e.g. polished countertop, honed splashback) is a popular design move.",
-    },
-  ],
-  sustainability: [
-    {
-      q: "Are Pacific Surfaces eco-friendly?",
-      a: "We've built sustainability into the manufacturing process from the ground up. Our facility recycles 100% of process water, runs partly on solar power, and uses post-industrial recycled glass and stone in our Ecosurfaces line. We're working toward zero-waste-to-landfill across the operation.",
-    },
-    {
-      q: "What sustainability certifications do you hold?",
-      a: "Pacific Surfaces is Greenguard Gold certified for low-emission indoor air quality, and our facility is ISO 14001 certified for environmental management. Specific product lines hold additional certifications — ask for the certificate pack relevant to your project.",
-    },
-    {
-      q: "Is your manufacturing water-recycled?",
-      a: "Yes — 100% of process water is captured, treated, and reused in a closed-loop system. We discharge zero industrial water to municipal systems.",
-    },
-    {
-      q: "Can Pacific products be recycled at end of life?",
-      a: "Engineered quartz is difficult to recycle in domestic municipal systems but can be returned to industrial recyclers as construction aggregate. Granite is fully reusable and recyclable. Our Ecosurfaces line is itself made from up to 80% recycled content.",
-    },
-    {
-      q: "How do you source raw materials sustainably?",
-      a: "We source quartz crystals from suppliers audited for responsible mining practices, prioritise India-quarried granite to minimise shipping miles, and partner with glass recyclers to feed our Ecosurfaces line. Annual supplier audits cover labour, environmental, and traceability standards.",
-    },
-  ],
-  about: [
-    {
-      q: "Where are Pacific Surfaces manufactured?",
-      a: "All Pacific products are engineered at our 470,000 sq ft facility in India. The facility uses Italian-engineered presses and runs end-to-end manufacturing — from raw quartz processing to slab finishing — under one roof.",
-    },
-    {
-      q: "How long has Pacific been operating?",
-      a: "Pacific Surfaces was established in 2000. Over more than 25 years we've grown from a regional Indian supplier into a global brand shipping to more than 45 countries with 273+ unique designs across 44 collections.",
-    },
-    {
-      q: "What's your annual production capacity?",
-      a: "12 million sq ft of engineered quartz and 4.8 million sq ft of granite per year, alongside our specialty lines (Integra sinks, semi-precious surfaces, Centrepiece Couture).",
-    },
-    {
-      q: "How many countries do you ship to?",
-      a: "45+ and growing. Major markets include the Middle East, Europe, North America, Australia, and Southeast Asia, in addition to our home market in India.",
-    },
-    {
-      q: "Where can I see Pacific products in person?",
-      a: "Through our authorised dealer network across India, the US, Europe, and the Middle East. Use the contact form to request your nearest dealer, or book a visit to the factory and experience centre for spec-room walkthroughs.",
     },
   ],
 };

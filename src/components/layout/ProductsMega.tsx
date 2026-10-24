@@ -18,19 +18,25 @@ import { applicationsForCollection, menuImageFor } from "@/data/collection-appli
  *    gutter, so every column edge in the open panel lines up with a plate
  *    edge. A plate with an `href` (the window sills card) goes
  *    straight to its page instead of opening a detail row.
- *  - Colour only where the cursor is. At rest every plate is its
- *    collection's photograph in black and white under a dark shade, with
- *    the name set on it like a wordmark. The plate under the cursor, and
- *    the one that is open, turn to colour; that is the reference's red
- *    Silestone plate, done with Pacific's own stone.
+ *  - Every plate is its collection's photograph in colour under a light
+ *    shade, with the name set on it like a wordmark (owner, 2026-10-24:
+ *    colour, not black and white). The plate under the cursor, and the
+ *    one that is open, lift and lighten.
  *  - The tagline and the chevron sit under the plate, not on it.
  *  - The detail row reads left to right: About, the collection's
  *    applications, and a wide preview that shows the
  *    application under the cursor (see menuImageFor for how each picture
  *    was chosen, and why some applications show a plain plate).
  *
+ * Two rows of four (owner, 2026-10-24): eight plates in one row were
+ * small strips; four across, with the plate height tied to the screen
+ * height, makes the open panel cover about half the page.
+ *
  * Open and close state lives in Header, which owns the hover timers.
  */
+
+/** Plates per row. */
+const PER_ROW = 4;
 
 export interface ProductsMegaCategory {
   slug: string;
@@ -64,18 +70,23 @@ const RULE = "rgba(60,60,59,0.14)";
 
 export function ProductsMega({ categories, active, onToggle, hoveredApp, onHoverApp }: ProductsMegaProps) {
   const open = categories.find((c) => c.slug === active && !c.href) ?? null;
-  const columns = { gridTemplateColumns: `repeat(${categories.length}, minmax(0, 1fr))` };
+  const columns = { gridTemplateColumns: `repeat(${PER_ROW}, minmax(0, 1fr))` };
 
   return (
     <>
       {/* items-start: a plate whose tagline wraps is taller, and a stretched
           button would centre its content and sit lower than its neighbours. */}
-      <div className="grid items-start gap-x-6" style={columns}>
+      <div className="grid items-start gap-x-6 gap-y-6" style={columns}>
         {categories.map((cat) => {
           const isActive = active === cat.slug;
           const plate = (
             <>
-              <div data-over-media className="relative aspect-[16/10] w-full overflow-hidden bg-[#1D1D1C]">
+              <div
+                data-over-media
+                className="relative w-full overflow-hidden bg-[#1D1D1C]"
+                // two rows of these plus their captions fill about half the screen
+                style={{ height: "clamp(140px, 18vh, 260px)" }}
+              >
                 {cat.imageUrl ? (
                   <Image
                     src={cat.imageUrl}
@@ -83,12 +94,12 @@ export function ProductsMega({ categories, active, onToggle, hoveredApp, onHover
                     fill
                     // Preloaded by exact URL in Header (preloadMegaThumbs).
                     unoptimized
-                    sizes="(min-width: 1024px) 14vw, 50vw"
+                    sizes="(min-width: 1024px) 25vw, 50vw"
                     className={cn(
                       "object-cover transition-[filter,transform] duration-500 ease-out",
-                      isActive
-                        ? "scale-[1.04] grayscale-0"
-                        : "grayscale group-hover/card:scale-[1.04] group-hover/card:grayscale-0 group-focus-visible/card:grayscale-0"
+                      // in colour at rest (owner, 2026-10-24); the plate under
+                      // the cursor still eases in
+                      isActive ? "scale-[1.04]" : "group-hover/card:scale-[1.04]"
                     )}
                   />
                 ) : null}
@@ -96,10 +107,10 @@ export function ProductsMega({ categories, active, onToggle, hoveredApp, onHover
                   aria-hidden="true"
                   className={cn(
                     "absolute inset-0 transition-colors duration-500",
-                    isActive ? "bg-black/25" : "bg-black/55 group-hover/card:bg-black/25"
+                    isActive ? "bg-black/20" : "bg-black/35 group-hover/card:bg-black/20"
                   )}
                 />
-                <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-[11px] font-light uppercase leading-snug tracking-[0.3em] text-white min-[1800px]:text-[13px]">
+                <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-[13px] font-light uppercase leading-snug tracking-[0.3em] text-white min-[1800px]:text-[15px]">
                   {cat.cardLabel ?? cat.name}
                 </span>
                 {/* The open plate carries a bar along its foot. */}
@@ -165,7 +176,7 @@ export function ProductsMega({ categories, active, onToggle, hoveredApp, onHover
           <Detail
             key="products-mega-detail"
             category={open}
-            columns={categories.length}
+            columns={PER_ROW}
             hoveredApp={hoveredApp}
             onHoverApp={onHoverApp}
           />

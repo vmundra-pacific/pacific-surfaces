@@ -30,7 +30,10 @@ export async function GET(req: NextRequest) {
     groq`
       *[
         !(_id in path("drafts.**")) && (
-          (_type == "product" && (
+          // Same gate as the product page (productBySlugQuery): hidden
+          // products (visible == false) and slugless ones have no page,
+          // so listing them sent searchers to a 404.
+          (_type == "product" && visible != false && defined(slug.current) && (
             (name + " " + coalesce(collection->name, "") + " " + coalesce(category->name, "")) match $terms
           )) ||
           (_type == "blogPost" && title match $terms)

@@ -73,7 +73,7 @@ export function EcosurfacesSection() {
             delay={0.15}
             className="mt-10 sm:mt-12 text-xs sm:text-sm font-medium tracking-[0.18em] uppercase text-white leading-[1.6] max-w-xl"
           >
-            A leading brand for over 25+ years that inspires designs for
+            A leading brand for over 25 years that inspires designs for
             kitchens, bathrooms &amp; home surfaces.
           </TextReveal>
 

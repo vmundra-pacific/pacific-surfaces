@@ -17,7 +17,7 @@ import { KITCHENS_PAGE } from "@/data/kitchens-page";
 export const metadata: Metadata = {
   title: "Quartz Kitchen Worktops & Islands | Pacific Surfaces",
   description:
-    "Quartz and Eclipse worktops, islands, backsplashes and integrated sinks: Superjumbo slabs, heat, stain and scratch resistant, with a lifetime warranty.",
+    "Quartz and Eclipse worktops, islands, backsplashes and integrated sinks: Superjumbo slabs, heat, stain and scratch resistant; a lifetime warranty on quartz, 10 years on Eclipse.",
   alternates: { canonical: "/spaces/kitchens" },
 };
 

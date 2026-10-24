@@ -24,11 +24,15 @@ const items = [
   // 470,000 sq ft per the owner (2026-09-26); the site said 378,000.
   "470,000 sq ft Facility",
   "4.8 Million sq ft Granite Produced Annually",
-  // Catalogue stats — sourced from AboutContent / CatalogueClient
-  "273+ Unique Designs",
-  "44 Collections",
+  // Product and reach facts from the site's safe-facts list (2026-10-24).
+  // The design and collection counts ("273+ Unique Designs", "44
+  // Collections") were unsourced and contradicted the homepage's
+  // "Seven signature collections. Over 200 designs.", so neither is used.
+  "Superjumbo 3,480 × 2,007 mm",
+  "Quartz in 12 · 20 · 30 mm",
+  "45+ Countries",
   // Capability stamp
-  "Italian Technology",
+  "Bretonstone Technology",
 ];
 
 // How fast the strip travels, expressed as time to cross one full

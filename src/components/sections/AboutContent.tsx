@@ -149,9 +149,9 @@ const values = [
   },
   {
     icon: Shield,
-    title: "Lifetime Warranty",
+    title: "Quality System",
     description:
-      "We stand behind every surface we create with comprehensive coverage that gives you complete peace of mind.",
+      "Every slab is inspected under an ISO 9001:2015 quality system before it ships.",
   },
   {
     icon: Users,

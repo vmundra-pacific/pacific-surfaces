@@ -138,23 +138,10 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
               setLightboxOpen(true);
               return;
             }
-            // Non-finish, touch-only fallback: tap-to-reveal the
-            // action overlay. Hover-capable devices use group-hover
-            // directly so this code path is a no-op there.
-            if (typeof window === "undefined") return;
-            const canHover = window.matchMedia("(hover: hover)").matches;
-            if (!canHover) {
-              setTappedOpen((v) => !v);
-            }
-          }}
-          onDoubleClick={() => {
-            // Double-click anywhere on the tile opens the detail view —
-            // parity with the "View Slab" button. Finishes have no PDP, so
-            // they open their lightbox; everything else goes to the PDP.
-            if (isFinish) {
-              setLightboxOpen(true);
-              return;
-            }
+            // Everything else: a click (or tap) anywhere on the slab opens
+            // its page (owner, 2026-10-24: "when I click any slab image it
+            // has to open the product page"). Sample and Enquire stop the
+            // click, so they still open their forms.
             router.push(`/products/${slab.slug}`);
           }}
           className={[
@@ -245,6 +232,7 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
             ) : (
               <Link
                 href={`/products/${slab.slug}`}
+                onClick={(e) => e.stopPropagation()}
                 className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-pacific-dark transition-transform [@media(hover:hover)]:hover:scale-[1.04]"
               >
                 {productCollection ? "View Product" : "View Slab"}

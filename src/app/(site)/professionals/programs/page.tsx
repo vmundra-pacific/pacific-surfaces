@@ -35,7 +35,7 @@ const PROGRAMS = [
   },
   {
     title: "Authorised Fabricator",
-    body: "Certified shops with direct technical lines, edge-detail libraries, and co-branded warranty coverage on every job they ship.",
+    body: "Certified shops with direct technical lines, and edge-detail libraries for every job they ship.",
   },
   {
     title: "Studio Network",
@@ -49,7 +49,7 @@ const BENEFITS = [
   "Quarterly rebates and growth incentives",
   "Direct technical support from our fabrication team",
   "Pacific-certified installer training and re-certification",
-  "Co-branded warranty on certified installs",
+  "Technical support on certified installs",
   "Featured placement in inspiration galleries and case studies",
   "Sample-room support, brochures, and digital assets",
 ];
@@ -109,7 +109,7 @@ export default function ProgramsPage() {
         ]}
         facts={[
           { value: "4", label: "Trade programs" },
-          { value: "45+", label: "Countries supplied" },
+          { value: "45+", label: "Countries we export to" },
           { value: "Since 2000", label: "Working in stone" },
         ]}
       />

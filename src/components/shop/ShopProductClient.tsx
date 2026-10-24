@@ -43,6 +43,28 @@ const GUIDES: Record<string, { href: string; label: string }> = {
 /** The gallery frame that shows a vanity top as a dimensioned drawing. */
 const DRAWING = "drawing";
 
+/** Names the view a gallery image shows, from its file name
+ *  ("…/02-top-1536.webp" → "top view"), for its alt text. */
+const VIEW_NAMES: Record<string, string> = {
+  base: "styled view",
+  angled: "angled view",
+  top: "top view",
+  side: "side view",
+  front: "front view",
+  residential: "in a home bathroom",
+  hotel: "in a hotel bathroom",
+  office: "in an office washroom",
+  "quartz-top-front": "front view",
+  "quartz-top-above": "view from above",
+};
+function viewName(src: string): string {
+  const file = (src.split("?")[0].split("/").pop() ?? "")
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/-\d{3,4}$/, "")
+    .replace(/^\d+-/, "");
+  return VIEW_NAMES[file] ?? file.replace(/[-_]+/g, " ").trim();
+}
+
 const APP = "app:";
 import type { BasinLayers } from "@/data/store";
 
@@ -335,7 +357,7 @@ export function ShopProductClient({
                       ? "View the technical drawing"
                       : appOf(src)
                         ? `View: ${appOf(src)!.title}`
-                        : `View image ${i + 1}`
+                        : `View ${product.name}, ${viewName(src) || `image ${i + 1}`}`
                   }
                   aria-current={i === active}
                   className={cn(
@@ -352,7 +374,7 @@ export function ShopProductClient({
                   ) : appOf(src) ? (
                     <Image
                       src={appOf(src)!.src}
-                      alt=""
+                      alt={appOf(src)!.alt}
                       fill
                       sizes="96px"
                       className={
@@ -364,7 +386,7 @@ export function ShopProductClient({
                   ) : (
                     <Image
                       src={src}
-                      alt=""
+                      alt={`${product.name}, ${viewName(src) || `image ${i + 1}`}`}
                       fill
                       unoptimized={servedAsIs(src)}
                       sizes="96px"

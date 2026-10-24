@@ -82,10 +82,10 @@ export const KITCHENS_PAGE = {
     },
     {
       label: "Warranty",
-      heading: "A lifetime warranty on every slab",
+      heading: "A lifetime warranty on quartz",
       body: [
-        "Pacific surfaces are made to be cooked on, leaned on and lived with for as long as the kitchen stands.",
-        "Every slab is inspected under an ISO 9001:2015 quality system before it ships, and carries a lifetime warranty.",
+        "Pacific quartz in the Aurora, Nebula, Kosmic, Celestia, Luminara, Vision and Solid series carries a lifetime warranty; Eclipse carries a 10-year warranty.",
+        "Every slab is inspected under an ISO 9001:2015 quality system before it ships.",
       ],
       image: "/projects/islands/artemis-kitchen.webp",
       alt: "A white quartz kitchen with a long island and tall units",

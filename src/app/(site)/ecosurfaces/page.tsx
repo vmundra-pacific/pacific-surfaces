@@ -6,7 +6,7 @@ import { EcosurfacesContent } from "@/components/sections/EcosurfacesContent";
 export const metadata: Metadata = {
   title: "Ecosurfaces — Safe, Sustainable & Stunning | Pacific Surfaces",
   description:
-    "Discover our revolutionary low and zero silica engineered quartz surfaces. Safe, sustainable, and beautifully crafted.",
+    "Ecosurfaces: low silica engineered surfaces from Pacific Surfaces, for safer fabrication and installation.",
   alternates: { canonical: "/ecosurfaces" },
 };
 

@@ -53,6 +53,7 @@ type ContentKey =
 const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
   { path: "", since: "2026-10-18", content: "home" },
   { path: "/about", since: "2026-10-18" },
+  { path: "/where-to-buy", since: "2026-10-24" },
   { path: "/products", since: "2026-10-18", content: "catalogue" },
   // Category landings, resolved by /products/[slug] through
   // CATEGORY_PAGES (products/_lib/category.ts).
@@ -146,15 +147,15 @@ const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
   // (topics with a body) are listed. The same dates are the dateModified
   // in each guide's Article JSON-LD (GUIDE_UPDATED in that file): change
   // both together.
-  { path: "/learn/what-is-quartz", since: "2026-10-14" },
+  { path: "/learn/what-is-quartz", since: "2026-10-24" },
   { path: "/learn/what-is-granites", since: "2026-09-12" },
   { path: "/learn/what-is-semi-precious", since: "2026-09-12" },
-  { path: "/learn/what-is-vision", since: "2026-10-12" },
+  { path: "/learn/what-is-vision", since: "2026-10-24" },
   { path: "/learn/what-is-facades-and-finishes", since: "2026-09-12" },
   { path: "/learn/what-is-centrepiece-couture", since: "2026-09-12" },
   { path: "/learn/what-is-exotic", since: "2026-09-12" },
   { path: "/learn/what-is-vanity", since: "2026-09-12" },
-  { path: "/learn/maintenance-quartz", since: "2026-09-12" },
+  { path: "/learn/maintenance-quartz", since: "2026-10-24" },
   { path: "/learn/maintenance-granites", since: "2026-09-12" },
   { path: "/learn/maintenance-semi-precious", since: "2026-09-12" },
   { path: "/learn/maintenance-vision", since: "2026-09-12" },
@@ -162,7 +163,7 @@ const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
   { path: "/learn/maintenance-centrepiece-couture", since: "2026-09-12" },
   { path: "/learn/maintenance-exotic", since: "2026-09-12" },
   { path: "/learn/maintenance-vanity", since: "2026-09-12" },
-  { path: "/learn/warranty-quartz", since: "2026-09-12" },
+  { path: "/learn/warranty-quartz", since: "2026-10-24" },
   // The applications hub; the pages under it are listed below.
   { path: "/applications", since: "2026-09-12" },
   // The store. Which products it shelves is set in data/store.ts, so

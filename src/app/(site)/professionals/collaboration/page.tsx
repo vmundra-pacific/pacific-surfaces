@@ -133,8 +133,8 @@ export default function CollaborationPage() {
           { label: "Ask for samples", href: "/contact?type=architect#enquiry" },
         ]}
         facts={[
-          { value: "45+", label: "Countries supplied" },
-          { value: "3,480 × 2,007 mm", label: "Superjumbo slabs" },
+          { value: "45+", label: "Countries we export to" },
+          { value: "3,480 × 2,007 mm", label: "Superjumbo slab size" },
           { value: "5", label: "Certificates on file" },
           { value: "Since 2000", label: "Working in stone" },
         ]}

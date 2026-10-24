@@ -85,7 +85,9 @@ export function ProCertificates({
         </div>
         <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {ON_FILE.map((c) => (
-            <li key={c.id}>
+            // every card the row's height, "View" on one line along the foot
+            // (the EPD's two-line note made its card taller, owner 2026-10-24)
+            <li key={c.id} className="flex">
               {/* No aria-label: the visible title, line and "View" name
                   the button, so voice control can say what is on screen. */}
               <button
@@ -93,7 +95,7 @@ export function ProCertificates({
                 onClick={() => setOpen(c.id)}
                 onPointerEnter={warmCertificateViewer}
                 onFocus={warmCertificateViewer}
-                className="group/cert flex w-full flex-col items-center border border-[#14140f]/12 px-4 pb-5 pt-6 text-center transition-colors hover:border-[#14140f]/40"
+                className="group/cert flex h-full w-full flex-col items-center border border-[#14140f]/12 px-4 pb-5 pt-6 text-center transition-colors hover:border-[#14140f]/40"
               >
                 <span className="relative block h-16 w-16">
                   <Image
@@ -110,7 +112,7 @@ export function ProCertificates({
                 <span className="mt-1 text-[12px] font-light opacity-70">
                   {c.sub}
                 </span>
-                <span className="mt-3 text-[11px] uppercase tracking-[0.14em] underline-offset-4 group-hover/cert:underline">
+                <span className="mt-auto pt-3 text-[11px] uppercase tracking-[0.14em] underline-offset-4 group-hover/cert:underline">
                   View
                 </span>
               </button>

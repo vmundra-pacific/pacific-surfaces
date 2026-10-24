@@ -1402,9 +1402,8 @@ export function ApplicationsScrollSections({
             </h2>
           </div>
           <p className="lg:max-w-md lg:pt-12 text-base font-light text-white/85 leading-relaxed">
-            Rated for residential and commercial use. Passes food-contact,
-            low-emission, and fire safety standards across India, the EU, and
-            North America. Lifetime warranty on every slab.
+            Rated for residential and commercial use. Food-contact safe to
+            NSF/ANSI 51, CE marked, made under ISO 9001:2015.
           </p>
         </div>
       </section>

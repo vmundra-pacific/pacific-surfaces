@@ -33,15 +33,15 @@ interface EcosurfacesContentProps {
 const features = [
   {
     icon: ShieldCheck,
-    title: "Silica-Free Solutions",
+    title: "Low Silica Surfaces",
     description:
-      "Our zero silica surfaces are crafted with cutting-edge technology, eliminating the risks associated with crystalline silica exposure.",
+      "Ecosurfaces are low crystalline silica surfaces, made to reduce the crystalline silica that fabrication releases.",
   },
   {
     icon: Shield,
-    title: "Low Silica Alternatives",
+    title: "Safer Fabrication",
     description:
-      "For projects where some silica is acceptable but needs to be minimized, we offer low silica surfaces that are well below industry safety thresholds.",
+      "Less crystalline silica in the slab means less in the dust when it is cut, edged and polished. Wet cutting and extraction remain good practice.",
   },
   {
     icon: Leaf,
@@ -59,7 +59,7 @@ const features = [
     icon: Heart,
     title: "Health & Safety Compliance",
     description:
-      "We meet or exceed all safety standards for low and zero silica content, ensuring peace of mind for installers, fabricators, and end-users alike.",
+      "Ecosurfaces are documented in an Environmental Product Declaration, on file and open to read in full.",
   },
   {
     icon: LayoutGrid,
@@ -112,7 +112,7 @@ export function EcosurfacesContent({ products }: EcosurfacesContentProps) {
             transition={{ duration: 0.7, delay: 0.35 }}
             className="mt-6 text-lg text-stone-400 max-w-2xl font-light leading-relaxed"
           >
-            Revolutionary low and zero silica surfaces designed to meet the
+            Low silica surfaces designed to meet the
             growing demand for healthier, safer, and more
             environmentally-friendly materials. Our advanced surface solutions
             are engineered to provide aesthetic beauty and unmatched durability

@@ -1,0 +1,1383 @@
+{
+ "generated": "2026-10-24",
+ "source": "OpenStreetMap Nominatim (© OpenStreetMap contributors, ODbL): PIN-code and locality centroids for Bengaluru.",
+ "pins": {
+  "560001": [
+   12.9797,
+   77.5947
+  ],
+  "560002": [
+   12.96273,
+   77.58065
+  ],
+  "560003": [
+   13.0011,
+   77.57251
+  ],
+  "560004": [
+   12.94522,
+   77.57586
+  ],
+  "560005": [
+   12.9968,
+   77.61905
+  ],
+  "560006": [
+   13.01064,
+   77.59121
+  ],
+  "560007": [
+   12.95747,
+   77.62914
+  ],
+  "560008": [
+   12.97726,
+   77.63499
+  ],
+  "560009": [
+   12.97861,
+   77.57628
+  ],
+  "560010": [
+   12.9906,
+   77.55141
+  ],
+  "560011": [
+   12.93022,
+   77.58512
+  ],
+  "560012": [
+   13.01932,
+   77.5675
+  ],
+  "560013": [
+   13.04942,
+   77.55219
+  ],
+  "560014": [
+   13.07265,
+   77.54455
+  ],
+  "560015": [
+   13.06293,
+   77.52615
+  ],
+  "560016": [
+   13.01858,
+   77.67653
+  ],
+  "560017": [
+   12.95417,
+   77.66389
+  ],
+  "560018": [
+   12.95828,
+   77.56395
+  ],
+  "560019": [
+   12.94713,
+   77.5624
+  ],
+  "560020": [
+   12.99155,
+   77.57707
+  ],
+  "560021": [
+   12.99189,
+   77.56316
+  ],
+  "560022": [
+   13.0255,
+   77.54584
+  ],
+  "560023": [
+   12.97431,
+   77.55834
+  ],
+  "560024": [
+   13.04532,
+   77.59777
+  ],
+  "560025": [
+   12.96424,
+   77.60696
+  ],
+  "560026": [
+   12.95467,
+   77.54619
+  ],
+  "560027": [
+   12.95933,
+   77.59308
+  ],
+  "560029": [
+   12.92973,
+   77.60474
+  ],
+  "560030": [
+   12.94529,
+   77.60738
+  ],
+  "560032": [
+   13.02772,
+   77.60032
+  ],
+  "560033": [
+   12.99801,
+   77.64616
+  ],
+  "560034": [
+   12.92543,
+   77.63138
+  ],
+  "560035": [
+   12.89602,
+   77.69982
+  ],
+  "560036": [
+   13.01216,
+   77.6967
+  ],
+  "560037": [
+   12.95971,
+   77.69913
+  ],
+  "560038": [
+   12.97973,
+   77.64167
+  ],
+  "560039": [
+   12.93967,
+   77.52472
+  ],
+  "560040": [
+   12.96663,
+   77.53331
+  ],
+  "560041": [
+   12.92339,
+   77.59238
+  ],
+  "560042": [
+   12.98183,
+   77.617
+  ],
+  "560043": [
+   13.02389,
+   77.64421
+  ],
+  "560045": [
+   13.03674,
+   77.62141
+  ],
+  "560046": [
+   13.00032,
+   77.60144
+  ],
+  "560047": [
+   12.95672,
+   77.61662
+  ],
+  "560048": [
+   12.99013,
+   77.71192
+  ],
+  "560049": [
+   13.06004,
+   77.73104
+  ],
+  "560050": [
+   12.9414,
+   77.5548
+  ],
+  "560051": [
+   12.98774,
+   77.60319
+  ],
+  "560052": [
+   12.99077,
+   77.59208
+  ],
+  "560053": [
+   12.96862,
+   77.57102
+  ],
+  "560054": [
+   13.03429,
+   77.55727
+  ],
+  "560055": [
+   13.00775,
+   77.55986
+  ],
+  "560056": [
+   12.94769,
+   77.49698
+  ],
+  "560057": [
+   13.04605,
+   77.51311
+  ],
+  "560058": [
+   13.02329,
+   77.51356
+  ],
+  "560059": [
+   12.92378,
+   77.49579
+  ],
+  "560060": [
+   12.90706,
+   77.45967
+  ],
+  "560061": [
+   12.90362,
+   77.53999
+  ],
+  "560062": [
+   12.86714,
+   77.5209
+  ],
+  "560063": [
+   13.13124,
+   77.61121
+  ],
+  "560064": [
+   13.14017,
+   77.57225
+  ],
+  "560065": [
+   13.08531,
+   77.5778
+  ],
+  "560066": [
+   12.9692,
+   77.74395
+  ],
+  "560067": [
+   12.95569,
+   77.81291
+  ],
+  "560068": [
+   12.89422,
+   77.64235
+  ],
+  "560069": [
+   12.9407,
+   77.58783
+  ],
+  "560070": [
+   12.92246,
+   77.56681
+  ],
+  "560071": [
+   12.95618,
+   77.6398
+  ],
+  "560072": [
+   12.96575,
+   77.51408
+  ],
+  "560073": [
+   13.04317,
+   77.48674
+  ],
+  "560074": [
+   12.88234,
+   77.42672
+  ],
+  "560075": [
+   12.9702,
+   77.65626
+  ],
+  "560076": [
+   12.88064,
+   77.60387
+  ],
+  "560077": [
+   13.06253,
+   77.65302
+  ],
+  "560078": [
+   12.8996,
+   77.58203
+  ],
+  "560079": [
+   12.98821,
+   77.53264
+  ],
+  "560080": [
+   13.01034,
+   77.57896
+  ],
+  "560081": [
+   12.79813,
+   77.71199
+  ],
+  "560082": [
+   12.82615,
+   77.46733
+  ],
+  "560083": [
+   12.82234,
+   77.5729
+  ],
+  "560084": [
+   13.01161,
+   77.62762
+  ],
+  "560085": [
+   12.92991,
+   77.54406
+  ],
+  "560086": [
+   13.00439,
+   77.53995
+  ],
+  "560087": [
+   12.92857,
+   77.73723
+  ],
+  "560088": [
+   13.12129,
+   77.49533
+  ],
+  "560089": [
+   13.17743,
+   77.50146
+  ],
+  "560090": [
+   13.08986,
+   77.51873
+  ],
+  "560091": [
+   12.99439,
+   77.48192
+  ],
+  "560092": [
+   13.06173,
+   77.59288
+  ],
+  "560093": [
+   12.98353,
+   77.66841
+  ],
+  "560094": [
+   13.04077,
+   77.57358
+  ],
+  "560095": [
+   12.93884,
+   77.62988
+  ],
+  "560096": [
+   13.01454,
+   77.5339
+  ],
+  "560097": [
+   13.07855,
+   77.55523
+  ],
+  "560098": [
+   12.91569,
+   77.51599
+  ],
+  "560099": [
+   12.83934,
+   77.70554
+  ],
+  "560100": [
+   12.84601,
+   77.66127
+  ],
+  "560102": [
+   12.91515,
+   77.65051
+  ],
+  "560103": [
+   12.92328,
+   77.67887
+  ],
+  "560104": [
+   12.96232,
+   77.53804
+  ],
+  "560105": [
+   12.78642,
+   77.63458
+  ],
+  "560107": [
+   13.08511,
+   77.48937
+  ],
+  "560108": [
+   12.85708,
+   77.55679
+  ],
+  "560109": [
+   12.86641,
+   77.52352
+  ],
+  "560110": [
+   12.95168,
+   77.47638
+  ],
+  "560111": [
+   12.90121,
+   77.56267
+  ],
+  "560112": [
+   12.97354,
+   77.45611
+  ],
+  "560113": [
+   13.02765,
+   77.65634
+  ],
+  "560114": [
+   12.87644,
+   77.63604
+  ],
+  "560115": [
+   13.03364,
+   77.77025
+  ],
+  "560116": [
+   12.77002,
+   77.5088
+  ],
+  "560117": [
+   12.9946,
+   77.82297
+  ],
+  "560300": [
+   13.19908,
+   77.7029
+  ],
+  "562106": [
+   12.71294,
+   77.66275
+  ],
+  "562107": [
+   12.77872,
+   77.74777
+  ],
+  "562110": [
+   13.24826,
+   77.6619
+  ],
+  "562114": [
+   13.08252,
+   77.84501
+  ],
+  "562123": [
+   13.11741,
+   77.38033
+  ],
+  "562125": [
+   12.87356,
+   77.78252
+  ],
+  "562129": [
+   13.18778,
+   77.79244
+  ],
+  "562130": [
+   12.95631,
+   77.38054
+  ],
+  "562149": [
+   13.13151,
+   77.68257
+  ],
+  "562157": [
+   13.17432,
+   77.61174
+  ],
+  "562162": [
+   13.05822,
+   77.43875
+  ]
+ },
+ "localities": [
+  {
+   "name": "HSR Layout",
+   "aliases": [
+    "HSR Layout",
+    "HSR",
+    "Agara",
+    "Agaram",
+    "Agram"
+   ],
+   "lat": 12.91162,
+   "lng": 77.63886
+  },
+  {
+   "name": "Indiranagar",
+   "aliases": [
+    "Indiranagar",
+    "Indira Nagar",
+    "HAL 2nd Stage",
+    "Defence Colony",
+    "Doopanahalli"
+   ],
+   "lat": 12.97329,
+   "lng": 77.64047
+  },
+  {
+   "name": "Jayanagar",
+   "aliases": [
+    "Jayanagar",
+    "Jayanagara"
+   ],
+   "lat": 12.92927,
+   "lng": 77.58242
+  },
+  {
+   "name": "J P Nagar",
+   "aliases": [
+    "J P Nagar",
+    "JP Nagar",
+    "J. P. Nagar",
+    "Jambusawari Dinne"
+   ],
+   "lat": 12.91095,
+   "lng": 77.59782
+  },
+  {
+   "name": "Basavanagudi",
+   "aliases": [
+    "Basavanagudi",
+    "Vishweshwarapura",
+    "Kariappa Rd"
+   ],
+   "lat": 12.94173,
+   "lng": 77.5755
+  },
+  {
+   "name": "Banashankari",
+   "aliases": [
+    "Banashankari",
+    "K.R.Road",
+    "K R Road"
+   ],
+   "lat": 12.92782,
+   "lng": 77.55662
+  },
+  {
+   "name": "Sarjapur Road",
+   "aliases": [
+    "Sarjapur Road",
+    "Sarjapur - Marathahalli",
+    "Sarjapur Main Road",
+    "Dommasandra",
+    "Domsandra",
+    "Kodathi",
+    "Varthur - Sarjapur",
+    "Sulikunte",
+    "Thigala Chowdadenahalli"
+   ],
+   "lat": 12.92465,
+   "lng": 77.63828
+  },
+  {
+   "name": "Rajarajeshwari Nagar",
+   "aliases": [
+    "Rajarajeshwari Nagar",
+    "RR Nagar",
+    "Ideal Homes"
+   ],
+   "lat": 12.92744,
+   "lng": 77.51552
+  },
+  {
+   "name": "Hennur",
+   "aliases": [
+    "Hennur",
+    "Kothanur",
+    "Geddalahalli"
+   ],
+   "lat": 13.03708,
+   "lng": 77.64136
+  },
+  {
+   "name": "HRBR Layout",
+   "aliases": [
+    "HRBR Layout",
+    "HBR Layout",
+    "HRBR",
+    "Kalyan Nagar"
+   ],
+   "lat": 13.01415,
+   "lng": 77.63406
+  },
+  {
+   "name": "Banaswadi",
+   "aliases": [
+    "Banaswadi",
+    "Lakshmamma Layout"
+   ],
+   "lat": 13.01416,
+   "lng": 77.65185
+  },
+  {
+   "name": "Horamavu",
+   "aliases": [
+    "Horamavu",
+    "K. Channasandra",
+    "K Channasandra",
+    "k channasandra"
+   ],
+   "lat": 13.02733,
+   "lng": 77.66015
+  },
+  {
+   "name": "Ashok Nagar",
+   "aliases": [
+    "Ashok Nagar",
+    "Castle St"
+   ],
+   "lat": 12.96944,
+   "lng": 77.60923
+  },
+  {
+   "name": "V V Puram",
+   "aliases": [
+    "VV Puram",
+    "V V Puram",
+    "RV Road",
+    "R V Road"
+   ],
+   "lat": 12.95006,
+   "lng": 77.57685
+  },
+  {
+   "name": "Bannerghatta Road",
+   "aliases": [
+    "Bannerghatta Rd",
+    "Bannerghatta Road",
+    "Koppa Gate"
+   ],
+   "lat": 12.88732,
+   "lng": 77.59701
+  },
+  {
+   "name": "Jakkur",
+   "aliases": [
+    "Jakkur",
+    "Jakkuru"
+   ],
+   "lat": 13.07847,
+   "lng": 77.60689
+  },
+  {
+   "name": "Sudhama Nagar",
+   "aliases": [
+    "Sudhama Nagar",
+    "Mission Rd",
+    "Mission Road"
+   ],
+   "lat": 12.96275,
+   "lng": 77.66103
+  },
+  {
+   "name": "Rajajinagar",
+   "aliases": [
+    "Rajajinagar"
+   ],
+   "lat": 13.00054,
+   "lng": 77.5497
+  },
+  {
+   "name": "Jigani",
+   "aliases": [
+    "Jigani"
+   ],
+   "lat": 12.78041,
+   "lng": 77.63557
+  },
+  {
+   "name": "Mysore Road",
+   "aliases": [
+    "Mysore Road",
+    "Mysuru Road"
+   ],
+   "lat": 12.94666,
+   "lng": 77.53009
+  },
+  {
+   "name": "Mahadevapura",
+   "aliases": [
+    "Mahadevapura"
+   ],
+   "lat": 12.99654,
+   "lng": 77.69272
+  },
+  {
+   "name": "Gollarahatti",
+   "aliases": [
+    "Gollarahatti"
+   ],
+   "lat": 12.9893,
+   "lng": 77.47457
+  },
+  {
+   "name": "Soladevanahalli",
+   "aliases": [
+    "Soladevanahalli"
+   ],
+   "lat": 13.09074,
+   "lng": 77.48806
+  },
+  {
+   "name": "Bagalur",
+   "aliases": [
+    "Bagaluru",
+    "Bagalur"
+   ],
+   "lat": 13.00799,
+   "lng": 77.61847
+  },
+  {
+   "name": "Bidarahalli",
+   "aliases": [
+    "Bidarahalli"
+   ],
+   "lat": 13.06198,
+   "lng": 77.71457
+  },
+  {
+   "name": "Adugodi",
+   "aliases": [
+    "Adugodi"
+   ],
+   "lat": 12.94402,
+   "lng": 77.60889
+  },
+  {
+   "name": "Whitefield",
+   "aliases": [
+    "Whitefield"
+   ],
+   "lat": 12.99574,
+   "lng": 77.75795
+  },
+  {
+   "name": "Yelahanka",
+   "aliases": [
+    "Yelahanka"
+   ],
+   "lat": 13.1007,
+   "lng": 77.59635
+  },
+  {
+   "name": "Sadashiva Nagar",
+   "aliases": [
+    "Sadashiva Nagar",
+    "Sadashivanagar"
+   ],
+   "lat": 13.01102,
+   "lng": 77.58086
+  },
+  {
+   "name": "Kamakshipalya",
+   "aliases": [
+    "Kamakshipalya"
+   ],
+   "lat": 12.98587,
+   "lng": 77.53318
+  },
+  {
+   "name": "T Dasarahalli",
+   "aliases": [
+    "T. Dasarahalli",
+    "T Dasarahalli",
+    "Dasarahalli"
+   ],
+   "lat": 13.04278,
+   "lng": 77.51296
+  },
+  {
+   "name": "Koramangala",
+   "aliases": [
+    "Koramangala"
+   ],
+   "lat": 12.93574,
+   "lng": 77.62408
+  },
+  {
+   "name": "Marathahalli",
+   "aliases": [
+    "Marathahalli"
+   ],
+   "lat": 12.95526,
+   "lng": 77.69842
+  },
+  {
+   "name": "Electronic City",
+   "aliases": [
+    "Electronic City",
+    "Electronics City"
+   ],
+   "lat": 12.84876,
+   "lng": 77.64825
+  },
+  {
+   "name": "BTM Layout",
+   "aliases": [
+    "BTM Layout",
+    "BTM"
+   ],
+   "lat": 12.914,
+   "lng": 77.61028
+  },
+  {
+   "name": "Bellandur",
+   "aliases": [
+    "Bellandur"
+   ],
+   "lat": 12.93205,
+   "lng": 77.68429
+  },
+  {
+   "name": "Hebbal",
+   "aliases": [
+    "Hebbal"
+   ],
+   "lat": 13.03822,
+   "lng": 77.5919
+  },
+  {
+   "name": "Malleshwaram",
+   "aliases": [
+    "Malleshwaram",
+    "Malleswaram"
+   ],
+   "lat": 13.00274,
+   "lng": 77.57033
+  },
+  {
+   "name": "MG Road",
+   "aliases": [
+    "MG Road",
+    "M G Road",
+    "Mahatma Gandhi Road"
+   ],
+   "lat": 12.97553,
+   "lng": 77.60679
+  },
+  {
+   "name": "Richmond Town",
+   "aliases": [
+    "Richmond Town",
+    "Richmond Road"
+   ],
+   "lat": 12.96355,
+   "lng": 77.60159
+  },
+  {
+   "name": "Frazer Town",
+   "aliases": [
+    "Frazer Town"
+   ],
+   "lat": 12.99759,
+   "lng": 77.61367
+  },
+  {
+   "name": "Yeshwanthpur",
+   "aliases": [
+    "Yeshwanthpur",
+    "Yeshwantpur"
+   ],
+   "lat": 13.01769,
+   "lng": 77.5555
+  },
+  {
+   "name": "Kengeri",
+   "aliases": [
+    "Kengeri"
+   ],
+   "lat": 12.91766,
+   "lng": 77.48376
+  },
+  {
+   "name": "Vijayanagar",
+   "aliases": [
+    "Vijayanagar",
+    "Vijaynagar"
+   ],
+   "lat": 12.97095,
+   "lng": 77.53739
+  },
+  {
+   "name": "Basaveshwaranagar",
+   "aliases": [
+    "Basaveshwaranagar",
+    "Basaveshwara Nagar"
+   ],
+   "lat": 12.99376,
+   "lng": 77.53913
+  },
+  {
+   "name": "Kanakapura Road",
+   "aliases": [
+    "Kanakapura Road"
+   ],
+   "lat": 12.8857,
+   "lng": 77.5564
+  },
+  {
+   "name": "Hosur Road",
+   "aliases": [
+    "Hosur Road"
+   ],
+   "lat": 12.92724,
+   "lng": 77.61644
+  },
+  {
+   "name": "Old Airport Road",
+   "aliases": [
+    "Old Airport Road"
+   ],
+   "lat": 12.9598,
+   "lng": 77.64925
+  },
+  {
+   "name": "Domlur",
+   "aliases": [
+    "Domlur"
+   ],
+   "lat": 12.96247,
+   "lng": 77.6382
+  },
+  {
+   "name": "KR Puram",
+   "aliases": [
+    "KR Puram",
+    "K R Puram",
+    "Krishnarajapuram"
+   ],
+   "lat": 13.00752,
+   "lng": 77.69594
+  },
+  {
+   "name": "Hoskote",
+   "aliases": [
+    "Hoskote"
+   ],
+   "lat": 13.03184,
+   "lng": 77.76188
+  },
+  {
+   "name": "Devanahalli",
+   "aliases": [
+    "Devanahalli"
+   ],
+   "lat": 13.24835,
+   "lng": 77.71344
+  },
+  {
+   "name": "Begur",
+   "aliases": [
+    "Begur"
+   ],
+   "lat": 12.86339,
+   "lng": 77.61301
+  },
+  {
+   "name": "Hulimavu",
+   "aliases": [
+    "Hulimavu"
+   ],
+   "lat": 12.87735,
+   "lng": 77.6028
+  },
+  {
+   "name": "Arekere",
+   "aliases": [
+    "Arekere"
+   ],
+   "lat": 12.88721,
+   "lng": 77.59605
+  },
+  {
+   "name": "RT Nagar",
+   "aliases": [
+    "RT Nagar",
+    "R T Nagar"
+   ],
+   "lat": 13.02272,
+   "lng": 77.59571
+  },
+  {
+   "name": "Sahakara Nagar",
+   "aliases": [
+    "Sahakara Nagar",
+    "Sahakaranagar"
+   ],
+   "lat": 13.06215,
+   "lng": 77.58006
+  },
+  {
+   "name": "Thanisandra",
+   "aliases": [
+    "Thanisandra"
+   ],
+   "lat": 13.05225,
+   "lng": 77.63162
+  },
+  {
+   "name": "Vidyaranyapura",
+   "aliases": [
+    "Vidyaranyapura"
+   ],
+   "lat": 13.07664,
+   "lng": 77.55773
+  },
+  {
+   "name": "Peenya",
+   "aliases": [
+    "Peenya"
+   ],
+   "lat": 13.03305,
+   "lng": 77.53322
+  },
+  {
+   "name": "Nagarbhavi",
+   "aliases": [
+    "Nagarbhavi"
+   ],
+   "lat": 12.95124,
+   "lng": 77.51905
+  },
+  {
+   "name": "Uttarahalli",
+   "aliases": [
+    "Uttarahalli"
+   ],
+   "lat": 12.90557,
+   "lng": 77.54554
+  },
+  {
+   "name": "Padmanabhanagar",
+   "aliases": [
+    "Padmanabhanagar"
+   ],
+   "lat": 12.9181,
+   "lng": 77.55766
+  },
+  {
+   "name": "Kumaraswamy Layout",
+   "aliases": [
+    "Kumaraswamy Layout"
+   ],
+   "lat": 12.91504,
+   "lng": 77.56789
+  },
+  {
+   "name": "Wilson Garden",
+   "aliases": [
+    "Wilson Garden"
+   ],
+   "lat": 12.94893,
+   "lng": 77.59683
+  },
+  {
+   "name": "Shanti Nagar",
+   "aliases": [
+    "Shanti Nagar",
+    "Shantinagar"
+   ],
+   "lat": 12.95554,
+   "lng": 77.59243
+  },
+  {
+   "name": "Ulsoor",
+   "aliases": [
+    "Ulsoor",
+    "Halasuru"
+   ],
+   "lat": 12.97788,
+   "lng": 77.62467
+  },
+  {
+   "name": "Cox Town",
+   "aliases": [
+    "Cox Town"
+   ],
+   "lat": 12.99349,
+   "lng": 77.62511
+  },
+  {
+   "name": "CV Raman Nagar",
+   "aliases": [
+    "CV Raman Nagar",
+    "C V Raman Nagar"
+   ],
+   "lat": 12.9851,
+   "lng": 77.66312
+  },
+  {
+   "name": "Brookefield",
+   "aliases": [
+    "Brookefield"
+   ],
+   "lat": 12.96521,
+   "lng": 77.71794
+  },
+  {
+   "name": "Varthur",
+   "aliases": [
+    "Varthur"
+   ],
+   "lat": 12.94065,
+   "lng": 77.74699
+  },
+  {
+   "name": "Panathur",
+   "aliases": [
+    "Panathur"
+   ],
+   "lat": 12.93515,
+   "lng": 77.70475
+  },
+  {
+   "name": "Kadubeesanahalli",
+   "aliases": [
+    "Kadubeesanahalli"
+   ],
+   "lat": 12.93759,
+   "lng": 77.70107
+  },
+  {
+   "name": "Harlur",
+   "aliases": [
+    "Harlur",
+    "Haralur"
+   ],
+   "lat": 12.90589,
+   "lng": 77.67547
+  },
+  {
+   "name": "Kasavanahalli",
+   "aliases": [
+    "Kasavanahalli"
+   ],
+   "lat": 12.89777,
+   "lng": 77.67451
+  },
+  {
+   "name": "Chandapura",
+   "aliases": [
+    "Chandapura"
+   ],
+   "lat": 12.8009,
+   "lng": 77.71149
+  },
+  {
+   "name": "Attibele",
+   "aliases": [
+    "Attibele"
+   ],
+   "lat": 12.77512,
+   "lng": 77.77092
+  },
+  {
+   "name": "Anekal",
+   "aliases": [
+    "Anekal"
+   ],
+   "lat": 12.88722,
+   "lng": 77.67042
+  },
+  {
+   "name": "Kudlu Gate",
+   "aliases": [
+    "Kudlu Gate"
+   ],
+   "lat": 12.88956,
+   "lng": 77.63947
+  },
+  {
+   "name": "Gottigere",
+   "aliases": [
+    "Gottigere"
+   ],
+   "lat": 12.85653,
+   "lng": 77.58772
+  },
+  {
+   "name": "Sarjapur",
+   "aliases": [
+    "Sarjapura",
+    "Sarjapur Town"
+   ],
+   "lat": 12.9694,
+   "lng": 77.58703
+  },
+  {
+   "name": "Sanjay Nagar",
+   "aliases": [
+    "Sanjay Nagar",
+    "Sanjaynagar"
+   ],
+   "lat": 12.95787,
+   "lng": 77.69587
+  },
+  {
+   "name": "Seshadripuram",
+   "aliases": [
+    "Seshadripuram"
+   ],
+   "lat": 12.99466,
+   "lng": 77.57472
+  },
+  {
+   "name": "Majestic",
+   "aliases": [
+    "Majestic",
+    "Gandhi Nagar"
+   ],
+   "lat": 12.97791,
+   "lng": 77.57239
+  },
+  {
+   "name": "Chickpet",
+   "aliases": [
+    "Chickpet"
+   ],
+   "lat": 12.95637,
+   "lng": 77.74549
+  },
+  {
+   "name": "Shivajinagar",
+   "aliases": [
+    "Shivajinagar"
+   ],
+   "lat": 12.98553,
+   "lng": 77.60545
+  },
+  {
+   "name": "Jalahalli",
+   "aliases": [
+    "Jalahalli"
+   ],
+   "lat": 13.03941,
+   "lng": 77.51974
+  },
+  {
+   "name": "Vasanth Nagar",
+   "aliases": [
+    "Vasanth Nagar",
+    "Vasanthnagar"
+   ],
+   "lat": 12.99217,
+   "lng": 77.59146
+  },
+  {
+   "name": "Ejipura",
+   "aliases": [
+    "Ejipura"
+   ],
+   "lat": 12.94524,
+   "lng": 77.62748
+  },
+  {
+   "name": "Vivek Nagar",
+   "aliases": [
+    "Vivek Nagar"
+   ],
+   "lat": 12.95292,
+   "lng": 77.62314
+  },
+  {
+   "name": "Lalbagh",
+   "aliases": [
+    "Lalbagh"
+   ],
+   "lat": 12.94653,
+   "lng": 77.58002
+  },
+  {
+   "name": "Kammanahalli",
+   "aliases": [
+    "Kammanahalli"
+   ],
+   "lat": 13.01485,
+   "lng": 77.6382
+  },
+  {
+   "name": "Hennur Road",
+   "aliases": [
+    "Hennur Road"
+   ],
+   "lat": 13.03771,
+   "lng": 77.63036
+  },
+  {
+   "name": "Nagawara",
+   "aliases": [
+    "Nagawara"
+   ],
+   "lat": 13.04228,
+   "lng": 77.62486
+  },
+  {
+   "name": "Hosa Road",
+   "aliases": [
+    "Hosa Road"
+   ],
+   "lat": 12.87049,
+   "lng": 77.65714
+  },
+  {
+   "name": "Bommanahalli",
+   "aliases": [
+    "Bommanahalli"
+   ],
+   "lat": 12.90346,
+   "lng": 77.623
+  },
+  {
+   "name": "Bommasandra",
+   "aliases": [
+    "Bommasandra"
+   ],
+   "lat": 12.81602,
+   "lng": 77.68922
+  },
+  {
+   "name": "Kadugodi",
+   "aliases": [
+    "Kadugodi"
+   ],
+   "lat": 12.99574,
+   "lng": 77.75795
+  },
+  {
+   "name": "Ramamurthy Nagar",
+   "aliases": [
+    "Ramamurthy Nagar",
+    "Ramamurthi Nagar"
+   ],
+   "lat": 13.01202,
+   "lng": 77.67778
+  },
+  {
+   "name": "Bigihalli",
+   "aliases": [
+    "Bigihalli"
+   ],
+   "lat": 12.79742,
+   "lng": 77.60965
+  },
+  {
+   "name": "Herohalli",
+   "aliases": [
+    "Herohalli"
+   ],
+   "lat": 12.9877,
+   "lng": 77.49137
+  }
+ ]
+}

@@ -68,9 +68,11 @@ const ENTRY_OFFSETS: Array<{ x: number; y: number }> = [
 
 export function TestimonialsSection() {
   return (
+    // Not on phones (owner, 2026-10-24): the five professionals' films are a
+    // desktop section; on a phone they were a long scroll of posters.
     <section
       id="sec-voices"
-      className="relative bg-[#0a1620] py-16 sm:py-20 md:py-28 px-6 scroll-mt-20 overflow-hidden"
+      className="relative hidden bg-[#0a1620] py-16 sm:py-20 md:block md:py-28 px-6 scroll-mt-20 overflow-hidden"
     >
       <div className="mx-auto max-w-7xl">
         {/* Section header */}

@@ -22,20 +22,19 @@ import {
  * path and it'll appear on the card. If the file is missing, the
  * card still renders with the dark placeholder bg + name below.
  *
- * The 25-year-warranty card was retired; that promise moves to the
- * tagline above the grid as "Lifetime warranty". */
+ * The 25-year-warranty card was retired, and the "lifetime warranty"
+ * line in the tagline went too (owner, 2026-10-24: a warranty is stated
+ * only for quartz, by series, never for "every slab").
+ *
+ * Only certificates on file in the Drive viewer are listed (NSF/ANSI 51,
+ * CE, ISO 9001:2015, Kosher, EPD). The Greenguard Gold tile was removed
+ * (2026-10-24): no Greenguard certificate is held. */
 const badges = [
   {
     title: "NSF/ANSI 51",
     cert: "nsf" as const,
     sub: "Food Contact Safe",
     src: "/certifications/nsf.png",
-  },
-  {
-    title: "Greenguard Gold",
-    cert: "greenguard" as const,
-    sub: "Low Emissions",
-    src: "/certifications/greenguard.png",
   },
   {
     title: "CE Marked",
@@ -127,18 +126,18 @@ export function TrustStrip() {
       className="relative bg-[#112732] border-y border-white/[0.06]"
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 sm:py-14">
-        {/* Tagline — now includes the Lifetime warranty promise that
-            used to live as its own card. */}
+        {/* Tagline. No warranty line: the homepage covers every
+            material, and only quartz carries a warranty (owner,
+            2026-10-24). */}
         <p className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#9AA8B6] text-center mb-8 sm:mb-10 lg:whitespace-nowrap lg:overflow-hidden lg:text-ellipsis">
-          Certified to global standards, delivering proven performance with
-          lifetime warranty, so you don&apos;t have to worry about anything.
+          Certified to global standards, delivering proven performance, so
+          you don&apos;t have to worry about anything.
         </p>
 
         {/* Badge grid. Each card is a square image tile with the cert
             name + sub-label rendered BELOW the card (not overlaid).
-            Six across on desktop; two rows of three at sm so EPD does
-            not orphan onto a row of its own. */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
+            Five across on desktop, one per certificate on file. */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
           {badges.map((b) => {
             const link = CERTIFICATION_LINKS[b.cert];
             const body = (

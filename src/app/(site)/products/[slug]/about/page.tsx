@@ -15,7 +15,9 @@ import { BreadcrumbList } from "@/components/global/JsonLd";
  *   - <Category> Colours    → /products/[slug]   (the existing catalogue)
  *   - What is <Category>    → /learn/what-is-<slug>   (stub)
  *   - Maintenance           → /learn/maintenance      (stub)
- *   - Warranty              → /learn/warranty         (stub)
+ *   (No Warranty card: quartz is the only line with a warranty, and
+ *   /products/quartz/about is the Pacific Quartz page, not this one.
+ *   The old card promised a "25-year warranty" on every category.)
  *   - Kitchen Countertops   → /learn/kitchen-countertops  (stub)
  *   - Kitchen Sinks         → /learn/kitchen-sinks    (stub)
  *
@@ -61,7 +63,7 @@ export async function generateMetadata({
   const pretty = display.charAt(0).toUpperCase() + display.slice(1);
   return {
     title: `${pretty} — Pacific Surfaces`,
-    description: `Learn about Pacific Surfaces ${pretty.toLowerCase()} — colours, maintenance, warranty, and applications.`,
+    description: `Learn about Pacific Surfaces ${pretty.toLowerCase()} — colours, maintenance and applications.`,
     alternates: { canonical: `/products/${slug}/about` },
     // The same six placeholder cards for every category other than
     // quartz, most of them leading to "Coming soon" Learn pages: kept out
@@ -86,12 +88,6 @@ const SECTIONS = (slug: string, label: string) => [
     blurb:
       "Day-to-day care, what to clean with, and what to keep away from the surface.",
     href: "/learn/maintenance",
-  },
-  {
-    title: "Warranty",
-    blurb:
-      "What's covered under the Pacific 25-year warranty and how to register your installation.",
-    href: "/learn/warranty",
   },
   {
     title: "Kitchen Countertops",

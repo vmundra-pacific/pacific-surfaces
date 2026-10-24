@@ -60,7 +60,8 @@ export default function WorktopDetailTabs({
   productName: string;
   thicknesses: string[];
   finishes: string[];
-  size: string;
+  /** Slab format; undefined when it is not known as a measurement. */
+  size?: string;
   /** Eclipse: a mitred edge is the only one offered, so no other profile
    *  is shown (owner, 2026-10-12). */
   mitredOnly?: boolean;
@@ -72,11 +73,15 @@ export default function WorktopDetailTabs({
 
   // Read the thickness list back as prose ("12, 20 and 30 mm") so the
   // copy stays true to whatever the editor set in Sanity rather than
-  // hardcoding a range that may not apply to this product.
+  // hardcoding a range that may not apply to this product. Only real
+  // measurements: Sanity also holds wording such as "As Per
+  // Requirement", which read "Available in As Per Requirement".
+  const measured = thicknesses.filter((t) => /\d/.test(t));
   const thicknessProse =
-    thicknesses.length > 1
-      ? `${thicknesses.slice(0, -1).join(", ")} and ${thicknesses[thicknesses.length - 1]}`
-      : (thicknesses[0] ?? "");
+    measured.length > 1
+      ? `${measured.slice(0, -1).join(", ")} and ${measured[measured.length - 1]}`
+      : (measured[0] ?? "");
+  const sizeKnown = !!size && /\d/.test(size);
 
   const bodies: Record<TabKey, React.ReactNode> = {
     formats: (
@@ -88,11 +93,17 @@ export default function WorktopDetailTabs({
             for countertops
           </>
         }
-        left={`${productName} is supplied in the standard slab format of ${size}, which covers the great majority of kitchen and vanity runs without a joint. Larger or non-standard layouts are cut to your template.`}
+        left={
+          sizeKnown
+            ? `${productName} is supplied in an available slab size of ${size}, which covers the great majority of kitchen and vanity runs without a joint. Larger or irregular layouts are cut to your template.`
+            : `Slab sizes and thicknesses for ${productName} are confirmed at quotation, against your project's cutting list. Every layout is cut to your template.`
+        }
         right={
           thicknessProse
             ? `Available in ${thicknessProse}. Thinner slabs keep a lighter line on furniture, cladding and fronts; thicker ones carry an island or a long unsupported run. A mitred edge can make any of them read heavier.`
-            : "Thickness options are confirmed at quotation for this product. Thinner slabs keep a lighter line on furniture and cladding; thicker ones carry an island or a long unsupported run."
+            : sizeKnown
+              ? "Thickness options are confirmed at quotation for this product. Thinner slabs keep a lighter line on furniture and cladding; thicker ones carry an island or a long unsupported run."
+              : "Thinner slabs keep a lighter line on furniture and cladding; thicker ones carry an island or a long unsupported run."
         }
       />
     ),

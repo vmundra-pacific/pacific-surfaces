@@ -15,7 +15,7 @@ interface SpacePageImages {
 export const metadata: Metadata = {
   title: "Outdoor & Wet Areas — Pacific Surfaces",
   description:
-    "Pool surrounds, terrace counters, outdoor kitchens, and wet rooms — Pacific surfaces engineered UV-stable, freeze-thaw rated, and built to last in the elements.",
+    "Pool surrounds, outdoor kitchens, terraces and wet rooms. Outdoors, Pacific Surfaces specifies natural granite and Beyond Stone; engineered quartz stays indoors.",
   alternates: { canonical: "/spaces/outdoor" },
 };
 
@@ -23,7 +23,7 @@ const SECTIONS = [
   {
     eyebrow: "Pool Surrounds & Coping",
     headline: "Surfaces that hold up around water, year after year.",
-    body: "Beyond Stone stoneface and granite coping cut to your pool's perimeter — UV-stable so the colour doesn't shift, freeze-thaw rated for cold-snap regions, and slip-resistant where it matters. Bonded with marine-grade adhesives that don't soften under chlorine or salt.",
+    body: "Beyond Stone stoneface and granite coping cut to your pool's perimeter. Natural stone has no resin binder for direct sun to yellow, and a flamed or leathered finish keeps grip where feet are wet.",
     imageLabel: "Pool surround surface",
     ctaLabel: "Explore Beyond Stone",
     ctaHref: "/products/facades-and-finishes",
@@ -31,7 +31,7 @@ const SECTIONS = [
   {
     eyebrow: "Outdoor Kitchens & BBQ Counters",
     headline: "Cooking surfaces that live outdoors.",
-    body: "Quartz and granite counters for outdoor kitchens — heat-stable around grills, stain-resistant against wine and oil, and engineered to weather the seasons without fading. Cut to size with sink openings, BBQ cut-outs, and concealed mountings ready to install.",
+    body: "Granite counters for outdoor kitchens. Granite is the surface we specify outdoors: natural stone, with no resin binder to yellow in the sun, tolerant of the heat around a grill, and sealed against wine and oil. Cut to size with sink openings and BBQ cut-outs. Engineered quartz is resin-bound, so it stays indoors.",
     imageLabel: "Outdoor kitchen counter",
     ctaLabel: "Explore Granites",
     ctaHref: "/products/granites",
@@ -39,15 +39,15 @@ const SECTIONS = [
   {
     eyebrow: "Terraces & Outdoor Cladding",
     headline: "Cladding that takes the weather seriously.",
-    body: "Large-format Beyond Stone panels and natural stone facade slabs for terraces, garden walls, and rear elevations — drilled for anchor systems, cut to architect's setting-out drawings, and graded to keep their finish through decades of sun, rain, and wind.",
+    body: "Large-format Beyond Stone panels and granite facade slabs for terraces, garden walls and rear elevations, drilled for anchor systems and cut to the architect's setting-out drawings. Flamed, leathered and brushed finishes suit exposed surfaces.",
     imageLabel: "Outdoor facade cladding",
     ctaLabel: "Explore Granite & Natural Stone",
     ctaHref: "/products/granites",
   },
   {
     eyebrow: "Wet Rooms & Spa Surfaces",
-    headline: "Non-porous surfaces, top to bottom.",
-    body: "Full-height shower walls, spa bench tops, and steam-room cladding in engineered quartz and Beyond Stone — non-porous so water can't penetrate, hygienic by design, and finished with seamless joints that won't trap moisture or grime.",
+    headline: "Low-porosity surfaces, floor to ceiling.",
+    body: "Full-height shower walls and spa bench tops in engineered quartz, for indoor wet rooms: low porosity, so water stays on the surface, and finished with tight joints that don't trap moisture or grime.",
     imageLabel: "Spa wet room surface",
     ctaLabel: "Explore Quartz",
     ctaHref: "/products/quartz",
@@ -83,7 +83,7 @@ export default async function OutdoorSpacePage() {
       <PageHeader
         badge="Spaces · Outdoor & Wet Areas"
         title="Surfaces built for the elements."
-        description="Pool surrounds, outdoor kitchens, terraces, and wet rooms — Pacific specified UV-stable, freeze-thaw rated, and non-porous for the spaces where the weather and the water never stop."
+        description="Pool surrounds, outdoor kitchens, terraces and wet rooms. Natural granite and Beyond Stone for the outdoors; engineered quartz for indoor wet rooms."
       />
       {SECTIONS.map((s, i) => (
         <SpaceFeatureSection

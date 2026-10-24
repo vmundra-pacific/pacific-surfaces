@@ -99,7 +99,9 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
     // collection winning the createdAt tiebreak made /products/quartz
     // render with the wrong page title.
     collectionSlug: "quartz",
-    displayName: "Mineral infused low silica surface",
+    // Title, H1 and breadcrumb say "Quartz"; low silica stays in the
+    // eyebrow and body copy (owner via audit, 2026-10-24).
+    displayName: "Quartz",
     productType: "quartz-slab",
     hero: {
       videoSrc: "/videos/quartz-hero.mp4",
@@ -251,7 +253,7 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
       headline: "Premium quality,",
       headlineItalic: "lower footprint.",
       description:
-        "Ecosurfaces — engineered stone with 0% crystalline silica, for safer fabrication and installation without compromising durability or beauty.",
+        "Ecosurfaces — low silica surfaces, for safer fabrication and installation without compromising durability or beauty.",
     },
   },
   granites: {

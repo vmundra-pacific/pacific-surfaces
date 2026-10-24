@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 const searchQuery = groq`
-  *[_type == "product" && (
+  *[_type == "product" && !(_id in path("drafts.**")) && visible != false && defined(slug.current) && (
     name match $term + "*" ||
     pt::text(description) match $term + "*" ||
     category->name match $term + "*"

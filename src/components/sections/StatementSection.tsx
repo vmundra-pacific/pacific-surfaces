@@ -19,7 +19,7 @@ interface StatementSectionProps {
    * Optional smaller second-line copy that renders BELOW the
    * statement + image-placeholder row, spanning the full container
    * width. Currently used on the homepage for the "A leading brand
-   * for over 25+ years…" supporting sentence so it reads as a
+   * for over 25 years…" supporting sentence so it reads as a
    * follow-up rather than as part of the headline.
    */
   subStatement?: string;

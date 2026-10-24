@@ -61,7 +61,10 @@ export function MaterialTests({ compact = false }: { compact?: boolean }) {
       {MATERIAL_TESTS.map((m) => {
         let n = 0;
         return (
-          <div key={m.title}>
+          // min-w-0: a grid item defaults to min-width:auto, so the
+          // table's min-width stretched the item past a 390 px screen
+          // and the overflow-x-auto wrapper never scrolled.
+          <div key={m.title} className="min-w-0">
             <h3 className="text-sm uppercase tracking-[0.12em]">{m.title}</h3>
             <p className="mt-1 text-sm font-light opacity-70">{m.scope}</p>
             <div className="mt-3 overflow-x-auto">
@@ -126,7 +129,7 @@ function SpecFact({ label, children }: { label: string; children: React.ReactNod
 
 export function CrateTable({ title, rows }: { title: string; rows: CrateRow[] }) {
   return (
-    <div>
+    <div className="min-w-0">
       <h3 className="text-sm uppercase tracking-[0.12em]">{title}</h3>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[520px] border-collapse text-left text-sm tabular-nums">

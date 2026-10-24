@@ -266,8 +266,8 @@ export const APPLICATIONS: Application[] = [
         "Choose from 125+ designs, in standard lengths of 36, 48, 60 and 72 inches or cut to a size of your own. Basins can be integrated — carved from the same piece — so there is no rim, no silicone seal and nothing to fail in year three.",
       ],
       specs: [
-        { label: "Standard lengths", value: '36", 48", 60", 72" — or custom' },
-        { label: "Standard widths", value: '18", 20", 22", 24" — or custom' },
+        { label: "Available lengths", value: '36", 48", 60", 72" — or custom' },
+        { label: "Available widths", value: '18", 20", 22", 24" — or custom' },
         {
           label: "Basin options",
           value: "Integrated single or double, or cut for a counter-top basin",
@@ -276,13 +276,12 @@ export const APPLICATIONS: Application[] = [
         {
           label: "Material",
           value:
-            "Engineered quartz, non-porous, 0% crystalline silica on Ecosurfaces",
+            "Engineered quartz, non-porous; Ecosurfaces are low crystalline silica surfaces",
         },
         {
           label: "Certification",
-          value: "NSF/ANSI 51, Greenguard Gold, CE, ISO 9001:2015",
+          value: "NSF/ANSI 51, CE, ISO 9001:2015",
         },
-        { label: "Warranty", value: "Lifetime warranty on every slab" },
       ],
       faqs: [
         {
@@ -443,8 +442,8 @@ export const APPLICATIONS: Application[] = [
       },
       {
         eyebrow: "Specification",
-        headline: "Fire, emissions and conformity, certified.",
-        body: "CE marked for EU conformity, Greenguard Gold for indoor air quality, ISO 9001 through the plant. The paperwork a facade consultant will ask for exists before they ask.",
+        headline: "Conformity and quality, certified.",
+        body: "CE marked for EU conformity, made under an ISO 9001:2015 quality system. The paperwork a facade consultant will ask for exists before they ask.",
         imageLabel: "Facade detail",
         ctaLabel: "Technical resources",
         ctaHref: "/resources",
@@ -752,7 +751,7 @@ export const APPLICATIONS: Application[] = [
       {
         eyebrow: "Contract specification",
         headline: "Rated for the traffic it will actually see.",
-        body: "Food-contact safe to NSF/ANSI 51, low-emission to Greenguard Gold, and CE marked. Specified in luxury hotels, QSR chains, hospitals and airports across 45+ countries.",
+        body: "Food-contact safe to NSF/ANSI 51 and CE marked. Specified in luxury hotels, QSR chains, hospitals and airports across 45+ countries.",
         imageLabel: "Hospitality interior",
         ctaLabel: "Explore Quartz",
         ctaHref: "/products/quartz",

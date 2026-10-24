@@ -87,15 +87,15 @@ function guideProduct(topic: string): { name: string; url: string } | null {
  * guide's copy, not for a sitewide one.
  */
 const GUIDE_UPDATED: Record<string, string> = {
-  "what-is-quartz": "2026-10-14",
+  "what-is-quartz": "2026-10-24",
   "what-is-granites": "2026-09-12",
   "what-is-semi-precious": "2026-09-12",
-  "what-is-vision": "2026-10-12",
+  "what-is-vision": "2026-10-24",
   "what-is-facades-and-finishes": "2026-09-12",
   "what-is-centrepiece-couture": "2026-09-12",
   "what-is-exotic": "2026-09-12",
   "what-is-vanity": "2026-09-12",
-  "maintenance-quartz": "2026-09-12",
+  "maintenance-quartz": "2026-10-24",
   "maintenance-granites": "2026-09-12",
   "maintenance-semi-precious": "2026-09-12",
   "maintenance-vision": "2026-09-12",
@@ -103,7 +103,7 @@ const GUIDE_UPDATED: Record<string, string> = {
   "maintenance-centrepiece-couture": "2026-09-12",
   "maintenance-exotic": "2026-09-12",
   "maintenance-vanity": "2026-09-12",
-  "warranty-quartz": "2026-09-12",
+  "warranty-quartz": "2026-10-24",
 };
 
 /**
@@ -112,7 +112,7 @@ const GUIDE_UPDATED: Record<string, string> = {
  * Topics covered:
  *   - what-is-<slug>          (8 — one per product line)
  *   - maintenance-<slug>      (8 — care guide per product line)
- *   - warranty-quartz         (only Pacific Quartz has the lifetime warranty)
+ *   - warranty-quartz         (quartz: lifetime; Eclipse: 10 years)
  *   - kitchens/bathrooms/architecture/commercial-inspiration/-projects
  *   - design-notes
  *   - browse-<space>
@@ -150,21 +150,21 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   // Material 101 — "What is <Product>?" pages
   // ────────────────────────────────────────────────────────────────
   "what-is-quartz": {
-    title: "What is Mineral infused low silica surface?",
-    eyebrow: "Material 101 · Mineral infused low silica surface",
+    title: "What is Quartz?",
+    eyebrow: "Material 101 · Quartz",
     description:
-      "Mineral infused low silica surface combines roughly 90% natural quartz minerals with high-performance polymer resin and pigments. The result is a non-porous, low-maintenance, durable surface that ships in larger formats than natural stone allows.",
+      "Pacific quartz is a mineral-infused, low silica surface: natural quartz minerals bound with high-performance polymer resin and pigments. The result is a non-porous, low-maintenance, durable surface that ships in larger formats than natural stone allows.",
     body: [
       {
         heading: "Material composition",
         content:
-          "Pacific quartz starts with crushed natural quartz crystals — among the hardest minerals on earth, second only to diamond on the Mohs scale. The crystals are bound with high-performance polymer resins and tinted with mineral pigments to produce slabs of consistent colour, density, and pattern. Roughly 90% of the slab by weight is natural quartz; the remaining 10% is the binding system that gives engineered quartz its non-porous, low-maintenance character.",
+          "Pacific quartz starts with crushed natural quartz crystals — a hard mineral, 7 on the Mohs scale. The crystals are bound with high-performance polymer resins and tinted with mineral pigments to produce slabs of consistent colour, density, and pattern. The resin binding system is what gives engineered quartz its non-porous, low-maintenance character.",
         imageLabel: "Quartz aggregate",
       },
       {
         heading: "Manufacturing",
         content:
-          "Every Pacific slab is engineered in-house at our 470,000 sq ft facility in India, using Italian production technology. Raw quartz is mixed with resin and pigment, vibro-compacted under vacuum to remove air pockets, cured at high temperature, then calibrated and polished to a mirror finish. The result is dimensional consistency natural stone can never guarantee — slabs that match across an entire run, ideal for kitchens with long worktops or installations spanning multiple slabs.",
+          "Every Pacific slab is engineered in-house at our 470,000 sq ft facility in India, in a state-of-the-art Bretonstone plant. Raw quartz is mixed with resin and pigment, vibro-compacted under vacuum to remove air pockets, cured at high temperature, then calibrated and polished to a mirror finish. The result is dimensional consistency natural stone can never guarantee — slabs that match across an entire run, ideal for kitchens with long worktops or installations spanning multiple slabs.",
         imageLabel: "Pacific manufacturing line",
       },
       {
@@ -176,7 +176,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
       {
         heading: "Where Pacific quartz lives",
         content:
-          "Specified for kitchen worktops and islands, vanity tops, feature walls, reception desks, bar tops, and any high-traffic surface where consistency, durability, and ease of maintenance matter. Pacific's super-jumbo formats (137″ × 65″) reduce joints on long runs, making quartz the engineered surface of choice for galley kitchens, hospitality counters, and continuous wall cladding.",
+          "Specified for kitchen worktops and islands, vanity tops, feature walls, reception desks, bar tops, and any high-traffic surface where consistency, durability, and ease of maintenance matter. Pacific's superjumbo format (137″ × 79″, 3,480 × 2,007 mm) reduce joints on long runs, making quartz the engineered surface of choice for galley kitchens, hospitality counters, and continuous wall cladding.",
         imageLabel: "Quartz kitchen install",
       },
     ],
@@ -250,7 +250,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
     title: "What is Eclipse?",
     eyebrow: "Material 101 · Eclipse",
     description:
-      "Eclipse is Pacific's inlayered design quartz line — patterns and motifs engineered into the surface itself, so the design lives all the way through the slab rather than sitting only on top. Available within the Chromia collection.",
+      "Eclipse is Pacific's inlayered design quartz line — patterns and motifs engineered into the surface itself, so the design lives all the way through the slab rather than sitting only on top.",
     metaDescription:
       "Eclipse is Pacific's inlayered design quartz line — patterns and motifs engineered into the surface itself, so the design lives all the way through the slab.",
     body: [
@@ -269,7 +269,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
       {
         heading: "Where Eclipse lives",
         content:
-          "Specified by designers when the surface should be the visual focus rather than a quiet background. Feature walls, statement islands, bookmatched panels, bar tops, and oversized vanities where the pattern can be seen at scale. Eclipse sits within the Chromia collection — Pacific's design-forward quartz line.",
+          "Specified by designers when the surface should be the visual focus rather than a quiet background. Feature walls, statement islands, bookmatched panels, bar tops, and oversized vanities where the pattern can be seen at scale. Eclipse is Pacific's design-forward quartz series.",
         imageLabel: "Eclipse install",
       },
     ],
@@ -387,10 +387,10 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   // Maintenance — one per product line
   // ────────────────────────────────────────────────────────────────
   "maintenance-quartz": {
-    title: "Maintenance · Mineral infused low silica surface",
-    eyebrow: "Care & Cleaning · Mineral infused low silica surface",
+    title: "Maintenance · Quartz",
+    eyebrow: "Care & Cleaning · Quartz",
     description:
-      "Pacific Mineral infused low silica surface is engineered to be low-maintenance. Day-to-day cleaning is mild soap and water; the surface never needs sealing.",
+      "Pacific quartz, a mineral-infused low silica surface, is engineered to be low-maintenance. Day-to-day cleaning is mild soap and water; the surface never needs sealing.",
     body: [
       {
         heading: "Daily care",
@@ -615,18 +615,20 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   },
 
   // ────────────────────────────────────────────────────────────────
-  // Warranty — only Pacific Quartz carries a lifetime warranty
+  // Warranty — quartz only (owner, 2026-10-24): a lifetime warranty on
+  // the Aurora, Nebula, Kosmic, Celestia, Luminara, Vision and Solid
+  // series, 10 years on Eclipse. Nothing else carries a warranty claim.
   // ────────────────────────────────────────────────────────────────
   "warranty-quartz": {
-    title: "Warranty · Mineral infused low silica surface",
-    eyebrow: "Coverage · Mineral infused low silica surface",
+    title: "Warranty · Quartz",
+    eyebrow: "Coverage · Quartz",
     description:
-      "Every Pacific Mineral infused low silica surface residential installation is covered by a lifetime limited warranty against manufacturing defects.",
+      "Pacific quartz residential installations are covered against manufacturing defects: a lifetime limited warranty on the Aurora, Nebula, Kosmic, Celestia, Luminara, Vision and Solid series, and a 10-year limited warranty on Eclipse.",
     body: [
       {
         heading: "What's covered",
         content:
-          "The Pacific Quartz lifetime warranty covers manufacturing defects in the slab — material flaws, structural inconsistencies, or finish issues that originate at production. Coverage applies for the full lifetime of the original residential installation, transferable to subsequent owners of the property at the time of resale. Commercial installations carry their own bespoke coverage — contact your Pacific dealer for details.",
+          "The Pacific quartz warranty covers manufacturing defects in the slab — material flaws, structural inconsistencies, or finish issues that originate at production. On the Aurora, Nebula, Kosmic, Celestia, Luminara, Vision and Solid series, coverage applies for the full lifetime of the original residential installation; on Eclipse it runs for 10 years. Coverage is transferable to subsequent owners of the property at the time of resale. Commercial installations carry their own bespoke coverage — contact your Pacific dealer for details.",
         imageLabel: "Quartz slab inspection",
       },
       {
@@ -638,7 +640,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
       {
         heading: "Registering your installation",
         content:
-          "Register your installation within 60 days of fabrication completion to activate full lifetime coverage. Registration links the slab's batch number to the property's owner of record, simplifying any future claim process. Registration is free; your Pacific-certified fabricator handles the paperwork on your behalf or you can register directly through the Pacific dealer network.",
+          "Register your installation within 60 days of fabrication completion to activate coverage. Registration links the slab's batch number to the property's owner of record, simplifying any future claim process. Registration is free; your Pacific-certified fabricator handles the paperwork on your behalf or you can register directly through the Pacific dealer network.",
         imageLabel: "Registration handover",
       },
       {

@@ -163,9 +163,9 @@ export default function ServicesPage() {
           { label: "Fab Creations designs", href: "/products/fab-creations" },
         ]}
         facts={[
-          { value: "3,480 × 2,007 mm", label: "Largest slab, superjumbo" },
+          { value: "3,480 × 2,007 mm", label: "Superjumbo slab size" },
           { value: "12 · 20 · 30 mm", label: "Quartz thicknesses" },
-          { value: "45+", label: "Countries supplied" },
+          { value: "45+", label: "Countries we export to" },
           { value: "Since 2000", label: "Working in stone" },
         ]}
       />

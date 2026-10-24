@@ -56,11 +56,6 @@ const policies = [
       "Orders may be cancelled within 12 hours of placement if they have not been dispatched. Cancellation requests after dispatch cannot be processed.",
   },
   {
-    title: "Warranty",
-    content:
-      "Our sinks come with a 10-year manufacturer warranty covering structural or manufacturing defects. Normal wear and tear or misuse are not covered.",
-  },
-  {
     title: "Privacy",
     content:
       "Customer information is used solely for order processing, delivery, communication, and legal compliance. We do not share or sell your data to third parties.",

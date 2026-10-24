@@ -57,7 +57,7 @@ const FAQS = [
   },
   {
     q: "What is Ecosurfaces?",
-    a: "Ecosurfaces is the Pacific Surfaces range with low and zero crystalline silica, documented in an Environmental Product Declaration.",
+    a: "Ecosurfaces is the Pacific Surfaces range of low silica surfaces, documented in an Environmental Product Declaration.",
   },
   {
     q: "Do you publish environmental data for your products?",
@@ -104,7 +104,7 @@ export default function SustainabilityPage() {
         title="Start at the plant, carry it into the product"
         body={[
           "Sustainability at Pacific starts where the slabs are made: renewable energy on site, a state-of-the-art Bretonstone plant with fully automated manufacturing, and quartz grit from the group's own factory, Pacific Mintek.",
-          "It continues in the product. Ecosurfaces, the range with low and zero crystalline silica, is documented in an Environmental Product Declaration that anyone can read in full.",
+          "It continues in the product. Ecosurfaces, the range of low silica surfaces, is documented in an Environmental Product Declaration that anyone can read in full.",
         ]}
         specs={[
           { label: "Solar", value: "2 MW installation at the plant" },
@@ -144,9 +144,9 @@ export default function SustainabilityPage() {
 
       <ProSplit
         eyebrow="Ecosurfaces"
-        title="Low and zero crystalline silica"
+        title="Low silica surfaces"
         body={[
-          "Ecosurfaces is the Pacific Surfaces range with low and zero crystalline silica.",
+          "Ecosurfaces is the Pacific Surfaces range of low crystalline silica surfaces.",
           "Its Environmental Product Declaration is on file and opens in full below.",
         ]}
         points={[

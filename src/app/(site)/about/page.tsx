@@ -95,10 +95,10 @@ export default function AboutPage() {
           { label: "Pacific Quartz", href: "/products/quartz/about" },
         ]}
         facts={[
-          { value: "2000", label: "Founded, in granite" },
-          { value: "45+", label: "Countries supplied" },
-          { value: "12M sq ft", label: "Quartz a year, up to" },
-          { value: "3,480 × 2,007 mm", label: "Superjumbo slabs" },
+          { value: "2000", label: "Founded as Pacific Granites" },
+          { value: "45+", label: "Countries we export to" },
+          { value: "Up to 12M sq ft", label: "Of quartz made each year" },
+          { value: "3,480 × 2,007 mm", label: "Superjumbo slab size" },
         ]}
       />
       <CompanyNav current="about" />

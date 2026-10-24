@@ -54,8 +54,9 @@ interface Props {
 
 // Learn-block configuration per category slug. The "About <Cat>"
 // section on each category page (between catalogue and FAQ) renders
-// these as link cards. Only Quartz carries a lifetime warranty, so
-// only that slug has a third Warranty link.
+// these as link cards. Only quartz carries a warranty (lifetime on the
+// quartz series, 10 years on Eclipse), so only that slug has a third
+// Warranty link.
 const LEARN_LINKS_BY_CATEGORY: Record<string, LearnLink[]> = {
   quartz: [
     {
@@ -74,7 +75,7 @@ const LEARN_LINKS_BY_CATEGORY: Record<string, LearnLink[]> = {
       label: "Warranty",
       href: "/learn/warranty-quartz",
       description:
-        "Lifetime limited warranty on every Pacific Quartz residential installation — what's covered and how to register.",
+        "Lifetime limited warranty on Pacific quartz residential installations, 10 years on Eclipse: what's covered and how to register.",
     },
   ],
   granites: [
@@ -257,6 +258,12 @@ function productTitle(product: ProductFacts, slug: string): string {
   );
 }
 
+/** "Granite" → "Granite collection", but "Exotic Collection" stays as it
+ *  is: the template used to print "the Exotic Collection collection". */
+function withCollectionWord(label: string): string {
+  return /\bcollection$/i.test(label.trim()) ? label : `${label} collection`;
+}
+
 /** Fallback meta description for a product with no seoDescription: the
  *  product's own description, else one built from its material and
  *  collection. Never the same boilerplate on every product. */
@@ -266,7 +273,7 @@ function productDescription(product: ProductFacts, slug: string): string {
   const { material, collectionLabel } = productFacts(product, slug);
   const named = nameWithMaterial(product.name, material?.toLowerCase());
   const from = collectionLabel
-    ? `, from the ${collectionLabel} collection`
+    ? `, from the ${withCollectionWord(collectionLabel)}`
     : "";
   // "specifications", not "slab format": basins, sinks and vanity
   // pieces use this fallback too, and every product page has the specs
@@ -291,7 +298,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description:
         collection.seoDescription ||
         (ownDescription ? clipAtWord(ownDescription, 155) : null) ||
-        `Browse the ${label} collection from Pacific Surfaces.`,
+        `Browse the ${withCollectionWord(label)} from Pacific Surfaces.`,
       alternates: { canonical: `/products/${slug}` },
     };
   }

@@ -90,24 +90,27 @@ export function CertificationsSection() {
               flattened under an even wash. */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/20 pointer-events-none" />
           <div className="relative flex flex-col items-start">
+            {/* Low-silica wording by the owner's decision (2026-10-24):
+                no zero / 0% claim and no certified percentage. SGS
+                tested crystalline silica content (SGS India reports,
+                May 2025), so the card says "Tested by". */}
             <span className="text-sm font-light text-white/90">
-              Certified by
+              Tested by
             </span>
             <span className="mt-3 inline-flex items-center justify-center rounded-sm bg-white px-5 py-3">
               <Image
                 unoptimized={false}
                 src="/logos/sgs.png"
-                alt="SGS certification"
+                alt="SGS"
                 width={200}
                 height={80}
                 className="h-11 w-auto object-contain"
               />
             </span>
             <p className="mt-16 max-w-xl text-lg font-light leading-relaxed text-white sm:text-xl">
-              Pacific Surfaces&apos; engineered surface technology achieved
-              independent certification from SGS for the entire portfolio of
-              Ecosurfaces to contain 0% crystalline silica — a benchmark for
-              safer fabrication and installation environments.
+              Ecosurfaces are Pacific Surfaces&apos; low silica surfaces, with
+              crystalline silica content tested by SGS, for safer fabrication
+              and installation environments.
             </p>
           </div>
         </motion.div>

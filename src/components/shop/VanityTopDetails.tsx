@@ -100,9 +100,9 @@ export function VanitySections({ details, sel }: { details: VanityDetails; sel: 
     {
       title: "Dimensions",
       rows: [
-        ["Width, side to side (in)", `${sel.length || "Custom"} (standard: ${listed(sel.lengths)}, or custom)`],
-        ["Depth, front to back (in)", `${sel.width || "Custom"} (standard: ${listed(sel.widths)}, or custom)`],
-        ["Height (in)", `${sel.height || "Custom"} (standard: ${listed(sel.heights)}, or custom)`],
+        ["Width, side to side (in)", `${sel.length || "Custom"} (available: ${listed(sel.lengths)}, or custom)`],
+        ["Depth, front to back (in)", `${sel.width || "Custom"} (available: ${listed(sel.widths)}, or custom)`],
+        ["Height (in)", `${sel.height || "Custom"} (available: ${listed(sel.heights)}, or custom)`],
         ...(spec(details, "Sizes") ? ([["Sizes", spec(details, "Sizes")!]] as [string, string][]) : []),
       ],
     },
@@ -115,7 +115,7 @@ export function VanitySections({ details, sel }: { details: VanityDetails; sel: 
       ],
     },
     {
-      title: "Certifications and warranty",
+      title: "Certifications",
       rows: [
         ...(spec(details, "Certification") ? ([["Certification", spec(details, "Certification")!]] as [string, string][]) : []),
         ...(spec(details, "Warranty") ? ([["Warranty", spec(details, "Warranty")!]] as [string, string][]) : []),

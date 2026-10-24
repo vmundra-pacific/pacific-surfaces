@@ -79,8 +79,9 @@ type MegaCategory = {
 const PRODUCTS_CATEGORIES: MegaCategory[] = [
   {
     slug: "quartz",
-    name: "Mineral infused zero silica surface",
-    cardLabel: "Zero Silica Surfaces",
+    // low silica, not zero (owner, 2026-10-24)
+    name: "Mineral infused low silica surface",
+    cardLabel: "Low Silica Surfaces",
     tagline: "Engineered everyday surfaces",
     imageUrl: "/images/products/quartz.jpg",
     brandedImageUrl: "/images/products/branded/quartz.png",
@@ -411,6 +412,9 @@ const navigation = [
       { name: "News", href: "/blog" },
     ],
   },
+  // Visualizer as a plain tab; Where to Buy took its pill on the right
+  // (owner, 2026-10-24: "swap visualiser with where to buy").
+  { name: "Visualizer", href: "/visualize" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -1017,7 +1021,9 @@ export default function Header() {
                 return (
                   <div
                     key={item.name}
-                    className="relative group shrink-0"
+                    // the Visualizer tab only where the row has room: below
+                    // 1500 px it makes way for the Where to Buy pill
+                    className={cn("relative group shrink-0", item.name === "Visualizer" && "hidden min-[1500px]:block")}
                     // Hover handlers fire for any mega item (Products
                     // or Spaces). The handler takes `item.name` so the
                     // shared mega-menu panel knows which content to
@@ -1507,7 +1513,11 @@ export default function Header() {
                 <User className="w-4 h-4" />
               </Link>
 
-              {/* Visualizer pill — now shows from xl+ (≥1280px),
+              {/* Where to Buy pill (owner, 2026-10-24: it swapped places with
+                  the Visualizer, which is now a tab). Shows from 1200 px, a
+                  little sooner than the Visualizer pill did, so laptops get
+                  it; below that it's in the phone menu.
+                  Earlier note on the Visualizer pill: now shows from xl+ (≥1280px),
                   matching the main nav's breakpoint (was 2xl/1536px,
                   which meant it never appeared on most laptops). The
                   nav row's internal scroll (see the wrapper above)
@@ -1517,11 +1527,11 @@ export default function Header() {
                   clipped. Below xl it's still reachable via the
                   mobile menu and the homepage hero. */}
               <Link
-                href="/visualize"
+                href="/where-to-buy"
                 style={primaryPill}
-                className="hidden min-[1500px]:inline-flex ml-2 items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.1em] uppercase whitespace-nowrap border border-transparent"
+                className="hidden min-[1200px]:inline-flex ml-2 items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.1em] uppercase whitespace-nowrap border border-transparent"
               >
-                Visualizer
+                Where to Buy
                 <ArrowRight className="w-3 h-3 min-[1200px]:hidden" />
               </Link>
 
@@ -1766,11 +1776,11 @@ export default function Header() {
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
-                  href="/visualize"
+                  href="/where-to-buy"
                   onClick={() => setMobileOpen(false)}
                   className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-medium tracking-wider uppercase border border-white/30 text-white hover:bg-white/10 transition-colors"
                 >
-                  Try Visualizer
+                  Where to Buy
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
