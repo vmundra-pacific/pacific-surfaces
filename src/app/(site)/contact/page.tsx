@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ContactContent } from "@/components/sections/ContactContent";
 import { BreadcrumbList } from "@/components/global/JsonLd";
+import { SHOW_FINDER } from "@/lib/contact-finder";
 import { freshClient } from "@/sanity/lib/client";
 import { allDealersQuery } from "@/sanity/lib/queries";
 
@@ -27,9 +28,11 @@ export default async function ContactPage() {
   // additions in Sanity Studio reach the page on the next
   // revalidation cycle instead of waiting for Sanity's CDN cache
   // to expire. Empty array on error so the section still renders.
-  const dealers = await freshClient
-    .fetch(allDealersQuery)
-    .catch(() => [] as never[]);
+  // While the finder is off, nothing is fetched or sent: the roster in
+  // the page's data would be readable by anyone (lib/contact-finder.ts).
+  const dealers = SHOW_FINDER
+    ? await freshClient.fetch(allDealersQuery).catch(() => [] as never[])
+    : [];
 
   // No Suspense here: ContactContent keeps its one useSearchParams in a
   // boundary of its own, so the page's copy, H1 and factory address are

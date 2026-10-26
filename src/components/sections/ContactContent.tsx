@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useCallback, useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
@@ -19,6 +18,8 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Photo } from "@/components/ui/photo";
+import { SHOW_FINDER } from "@/lib/contact-finder";
 import { EMAIL, FACTORY, OPENING_HOURS, SALES_PHONE } from "@/data/business";
 
 /**
@@ -82,9 +83,6 @@ const MEDIA = {
 const LIGHT = { fontVariationSettings: "'wght' 250, 'wdth' 100" };
 const PANEL = "bg-[#EFEDE9]";
 const INK = "#14140f";
-
-/** The where-to-buy finder in the hero; off for now (owner, 2026-10-05). */
-const SHOW_FINDER = false;
 
 const PHONE = SALES_PHONE.display;
 const PHONE_HREF = SALES_PHONE.href;
@@ -243,16 +241,30 @@ function TypeParam({ onChange }: { onChange: (type: string | null) => void }) {
 }
 
 /** The ad tags a lead arrives with, when its link carries them. */
-const TRACKING_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "fbclid"];
+const TRACKING_KEYS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "gclid",
+  "fbclid",
+];
 
 /**
  * Reports `?interest=` (a product page's quote button, e.g. the sills page
  * ads land on) and the ad tags to the page.
  */
-function LeadParams({ onChange }: { onChange: (interest: string | null, tags: string) => void }) {
+function LeadParams({
+  onChange,
+}: {
+  onChange: (interest: string | null, tags: string) => void;
+}) {
   const params = useSearchParams();
   const interest = params.get("interest");
-  const tags = TRACKING_KEYS.flatMap((k) => (params.get(k) ? [`${k}=${params.get(k)}`] : [])).join(" ");
+  const tags = TRACKING_KEYS.flatMap((k) =>
+    params.get(k) ? [`${k}=${params.get(k)}`] : []
+  ).join(" ");
   useEffect(() => {
     onChange(interest, tags);
   }, [interest, tags, onChange]);
@@ -287,46 +299,6 @@ function Container({
       )}
     >
       {children}
-    </div>
-  );
-}
-
-/**
- * A photograph filling its positioned parent, one wrapper deep (see top).
- * `fetchPriority` is for the hero only: Next 15's `priority` preloads the
- * image but leaves it at the browser's default (low) fetch priority.
- */
-function Photo({
-  src,
-  alt,
-  priority,
-  fetchPriority,
-  sizes = "100vw",
-  className,
-}: {
-  src: string;
-  alt: string;
-  priority?: boolean;
-  fetchPriority?: "high" | "low" | "auto";
-  sizes?: string;
-  className?: string;
-}) {
-  return (
-    <div
-      aria-hidden={alt ? undefined : true}
-      className="absolute inset-0 -z-10"
-    >
-      <div className="relative h-full w-full">
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          priority={priority}
-          fetchPriority={fetchPriority}
-          sizes={sizes}
-          className={cn("object-cover", className)}
-        />
-      </div>
     </div>
   );
 }
@@ -463,7 +435,12 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
           // page's quote button, or the hero search; then any ad tags.
           source:
             [
-              typeParam || (interest ? `quote:${interest}` : searchCount > 0 ? "where-to-buy" : ""),
+              typeParam ||
+                (interest
+                  ? `quote:${interest}`
+                  : searchCount > 0
+                    ? "where-to-buy"
+                    : ""),
               adTags,
             ]
               .filter(Boolean)
@@ -538,7 +515,8 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
 
           {/* The partner finder is off for now (owner, 2026-10-05): until it
               is back, the hero hands straight on to the enquiry form, which
-              asks for the city as well. Flip SHOW_FINDER to restore it. */}
+              asks for the city as well. Flip SHOW_FINDER (lib/contact-finder.ts)
+              to restore it. */}
           {!SHOW_FINDER && (
             <div
               data-over-media
