@@ -29,7 +29,6 @@ import {
   EMAIL_RE,
   INTERESTS,
   NEAR_KM,
-  MAX_SHOWN,
   TRACKING,
   TYPE_ORDER,
   audienceOf,
@@ -39,16 +38,14 @@ import {
   fullAddress,
   indianMobile,
   interestOf,
-  interpret,
-  matching,
-  rank,
   typesFor,
   type Audience,
   type Dealer,
   type DealerType,
   type Interest,
-  type Origin,
   type Ranked,
+  type SearchOutcome,
+  type SearchQuery,
 } from "@/lib/where-to-buy";
 import { DealerEnquiry } from "./DealerEnquiry";
 import "./where-to-buy.css";
@@ -68,8 +65,10 @@ import "./where-to-buy.css";
  * 2026-10-26, like Aquant's locator): name, mobile (checked by a texted
  * code when OTP is set up), email, company and consent, sent with the
  * answers to /api/where-to-buy/lead, which saves the lead for the sales
- * team and returns the outlets. The page itself never holds them
- * (`initialDealers` is null) unless this browser has done so before.
+ * team and answers with the first search. The page never holds the
+ * directory: every search, and every refinement of one, goes to
+ * /api/where-to-buy/search (behind the access cookie the lead sets) and
+ * comes back as the nearest few only (lib/where-to-buy.ts searchOutlets).
  *
  * The answers live in the URL, so a result can be shared:
  *   ?who=homeowner&for=kitchen&where=560102
@@ -177,6 +176,52 @@ const [CONSENT_LEAD] = CONSENT_TEXT.split("Privacy Policy");
 const complete = (a: Answers) => a.all || (!!a.who && (!!a.where || !!a.geo));
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+/** The refinements of a search: the types chosen, samples, slabs. */
+interface Refinements {
+  types: DealerType[] | null;
+  samples: boolean;
+  slabs: boolean;
+}
+
+const NO_REFINEMENTS: Refinements = {
+  types: null,
+  samples: false,
+  slabs: false,
+};
+
+/** The answers and refinements as the server's search query. */
+const queryOf = (a: Answers, r: Refinements): SearchQuery => ({
+  who: a.who,
+  interest: a.interest,
+  where: a.geo ? "" : a.where,
+  geo: a.geo,
+  all: a.all,
+  types: r.types,
+  samples: r.samples,
+  slabs: r.slabs,
+});
+
+/** One search on the server: its outcome, or "locked" when the access
+ *  cookie has lapsed. Throws with a message fit to show. */
+async function fetchOutcome(
+  q: SearchQuery,
+  signal?: AbortSignal
+): Promise<SearchOutcome | "locked"> {
+  const res = await fetch("/api/where-to-buy/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(q),
+    signal,
+  });
+  if (res.status === 401) return "locked";
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok || !j.outcome)
+    throw new Error(
+      j.error ?? "That search did not go through. Please try again."
+    );
+  return j.outcome as SearchOutcome;
+}
+
 function useIsDesktop() {
   const [desk, setDesk] = useState(false);
   useEffect(() => {
@@ -190,18 +235,21 @@ function useIsDesktop() {
 }
 
 export function WhereToBuy({
-  initialDealers,
+  unlocked: startUnlocked,
   otp,
 }: {
-  /** The outlets when this browser has left its details, else null. */
-  initialDealers: Dealer[] | null;
+  /** Whether this browser has left its details (the access cookie). */
+  unlocked: boolean;
   /** Whether the mobile is checked with a texted code. */
   otp: boolean;
 }) {
-  // The outlets: null until the visitor has left their details.
-  const [dealers, setDealers] = useState<Dealer[] | null>(initialDealers);
-  const unlocked = dealers !== null;
-  const startUnlocked = initialDealers !== null;
+  // Whether the visitor has left their details; the outlets themselves
+  // come a search at a time from the server.
+  const [unlocked, setUnlocked] = useState(startUnlocked);
+  /** The server's answer to the current search and refinements. */
+  const [outcome, setOutcome] = useState<SearchOutcome | null>(null);
+  /** The query that answer is for, so a search is never asked twice. */
+  const answered = useRef<string | null>(null);
   // Committed answers, and the form's draft of them.
   const [answers, setAnswers] = useState<Answers>(NO_ANSWERS);
   const [draft, setDraft] = useState<Answers>(NO_ANSWERS);
@@ -318,28 +366,43 @@ export function WhereToBuy({
       window.history.replaceState(window.history.state, "", url);
   }, [ready, answers, typeOverride, samplesOnly, slabsOnly, view]);
 
-  const done = complete(answers) && unlocked;
+  // Every search after the lead goes to the server, which answers with the
+  // nearest few; refinements ask again. A lapsed access shows the form.
+  useEffect(() => {
+    if (!unlocked || !complete(answers)) return;
+    const q = queryOf(answers, {
+      types: typeOverride,
+      samples: samplesOnly,
+      slabs: slabsOnly,
+    });
+    const key = JSON.stringify(q);
+    if (key === answered.current) return;
+    const ctrl = new AbortController();
+    fetchOutcome(q, ctrl.signal)
+      .then((o) => {
+        if (o === "locked") {
+          setUnlocked(false);
+          setOutcome(null);
+          answered.current = null;
+          return;
+        }
+        answered.current = key;
+        setOutcome(o);
+      })
+      .catch((err) => {
+        if (ctrl.signal.aborted) return;
+        setFormError((err as Error).message);
+        setBadField(null);
+      });
+    return () => ctrl.abort();
+  }, [unlocked, answers, typeOverride, samplesOnly, slabsOnly]);
+
+  const done = complete(answers) && unlocked && outcome !== null;
   const audience = answers.all ? null : audienceOf(answers.who);
   const interest = answers.all ? null : interestOf(answers.interest);
-  const list = useMemo(() => dealers ?? [], [dealers]);
-
-  const search = useMemo(
-    () => interpret(answers.all ? "" : answers.where, list),
-    [answers, list]
-  );
-  const origin: Origin | null = useMemo(
-    () =>
-      answers.all
-        ? null
-        : answers.geo
-          ? { ...answers.geo, label: "your location", kind: "geo" }
-          : search.origin,
-    [answers, search]
-  );
-  const ranked = useMemo(
-    () => rank(list, search, origin),
-    [list, search, origin]
-  );
+  const origin = outcome?.origin ?? null;
+  // The nearest few, as the server sent them (see MAX_SHOWN).
+  const visible = useMemo(() => outcome?.results ?? [], [outcome]);
 
   const suggested = useMemo<DealerType[]>(
     () =>
@@ -350,23 +413,6 @@ export function WhereToBuy({
   );
   const types = typeOverride ?? suggested;
   const needsDisplay = !typeOverride && !!audience?.needsDisplay;
-
-  const matches = useMemo(
-    () => matching(ranked, { types, needsDisplay, samplesOnly, slabsOnly }),
-    [ranked, types, needsDisplay, samplesOnly, slabsOnly]
-  );
-  // The nearest few only, for every search (see MAX_SHOWN).
-  const visible = useMemo(() => matches.slice(0, MAX_SHOWN), [matches]);
-  const typeCounts = useMemo(() => {
-    const c = new Map<DealerType, number>();
-    matching(ranked, {
-      types: TYPE_ORDER.map((t) => t.value),
-      needsDisplay,
-      samplesOnly,
-      slabsOnly,
-    }).forEach(({ dealer: d }) => c.set(d.type, (c.get(d.type) ?? 0) + 1));
-    return c;
-  }, [ranked, needsDisplay, samplesOnly, slabsOnly]);
 
   // ---- the form
   const setD = (patch: Partial<Answers>) => {
@@ -496,7 +542,11 @@ export function WhereToBuy({
             `That did not go through. Please try again, or call ${SALES_PHONE.display}.`
         );
       }
-      setDealers(j.dealers as Dealer[]);
+      // The lead answers with the first search; the cookie it set covers
+      // the searches after it.
+      answered.current = JSON.stringify(queryOf(a, NO_REFINEMENTS));
+      setOutcome((j.outcome as SearchOutcome | undefined) ?? null);
+      setUnlocked(true);
       setStep("answers");
       setContact({
         name: details.name.trim(),
@@ -540,14 +590,14 @@ export function WhereToBuy({
     return { ...draft, where: draft.geo ? "" : where, all: false };
   };
 
-  /** The card's first step: on to the details, or (once given) the results. */
-  const submit = (e?: React.FormEvent) => {
+  /** The card's first step: on to the details, or (once given) a search. */
+  const submit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (sending) return;
     const a = checkAnswers();
     if (!a) return;
     if (!unlocked) {
-      // The outlets are not here to check the place against yet: the
-      // server checks it with the lead.
+      // The server checks the place, with the lead.
       setFormError(null);
       setBadField(null);
       setStep("details");
@@ -556,15 +606,33 @@ export function WhereToBuy({
       );
       return;
     }
-    if (!a.geo) {
-      const s = interpret(a.where, list);
-      if (s.unknown && !s.outsidePin)
+    // The server checks the place, and answers with the nearest few.
+    setSending(true);
+    try {
+      const q = queryOf(a, NO_REFINEMENTS);
+      const o = await fetchOutcome(q);
+      if (o === "locked") {
+        setUnlocked(false);
+        setOutcome(null);
+        answered.current = null;
+        return fail(
+          null,
+          "Please leave your details again to see the outlets."
+        );
+      }
+      if (o.unknown)
         return fail(
           "where",
           "We don't recognise that. Try a 6-digit PIN code such as 560102, or an area such as HSR Layout."
         );
+      answered.current = JSON.stringify(q);
+      setOutcome(o);
+      show(a);
+    } catch (err) {
+      fail(null, (err as Error).message);
+    } finally {
+      setSending(false);
     }
-    show(a);
   };
 
   /** The card's second step: the answers and the details, as a lead. */
@@ -754,7 +822,7 @@ export function WhereToBuy({
   }, []);
 
   // ---- the results line
-  const place = answers.geo ? "you" : (search.origin?.label ?? answers.where);
+  const place = answers.geo ? "you" : (origin?.label ?? answers.where);
   const outlets = (k: number) => `${k} outlet${k === 1 ? "" : "s"}`;
   let heading: string;
   let note: string | null = null;
@@ -762,22 +830,21 @@ export function WhereToBuy({
   // Never a total: only what is shown is counted (see MAX_SHOWN).
   if (answers.all) {
     heading = "Outlets in Bengaluru";
-  } else if (search.outsidePin && !answers.geo) {
+  } else if (outcome?.outsidePin) {
     heading = `No outlets listed near ${answers.where} yet`;
     note =
       "This directory covers Bengaluru for now. Enquire and we will connect you with the Pacific partner nearest to you.";
     offerEnquiry = true;
-  } else if (!matches.length) {
+  } else if (!visible.length) {
     heading = `No outlets for ${audience?.plural ?? "you"} near ${place} yet`;
     note = "Enquire and we will connect you with the right Pacific partner.";
     offerEnquiry = true;
   } else {
-    heading =
-      matches.length > visible.length
-        ? `The ${visible.length} nearest outlets to ${place}`
-        : `${outlets(matches.length)} near ${place}`;
-    const nearest = matches[0].km;
-    if (nearest != null && nearest > NEAR_KM && !matches[0].exact) {
+    heading = outcome?.more
+      ? `The ${visible.length} nearest outlets to ${place}`
+      : `${outlets(visible.length)} near ${place}`;
+    const nearest = visible[0].km;
+    if (nearest != null && nearest > NEAR_KM && !visible[0].exact) {
       note = `The nearest is about ${formatKm(nearest)} away${
         nearest > 60 ? "; this directory covers Bengaluru for now" : ""
       }. Enquire and we will find the partner nearest to you.`;
@@ -1229,7 +1296,7 @@ export function WhereToBuy({
                     className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
                     aria-hidden="true"
                   />
-                  Sending
+                  {unlocked ? "Searching" : "Sending"}
                 </>
               ) : (
                 <>
@@ -1288,9 +1355,9 @@ export function WhereToBuy({
                 aria-label="Type of outlet"
               >
                 {TYPE_ORDER.map((t) => {
-                  const c = typeCounts.get(t.value) ?? 0;
+                  const has = !!outcome?.available.includes(t.value);
                   const on = types.includes(t.value);
-                  if (!c && !on) return null;
+                  if (!has && !on) return null;
                   return (
                     <Chip
                       key={t.value}

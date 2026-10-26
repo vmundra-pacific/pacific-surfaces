@@ -8,9 +8,11 @@
  * Firebase phone sign-in is set up (lib/phone-verification.ts: the browser
  * sends the ID token Firebase gave it for the right code); saves a
  * `dealerLead` document (Studio: Form Submissions →
- * Where to Buy Leads) and emails the sales inbox; and only then returns
- * the outlets, with the access cookie that shows them again on later
- * visits (lib/where-to-buy-access.ts).
+ * Where to Buy Leads) and emails the sales inbox; and only then answers
+ * with the first search, the nearest few outlets and never the directory,
+ * with the access cookie that lets /api/where-to-buy/search answer the
+ * searches after it, on this visit and later ones
+ * (lib/where-to-buy-access.ts).
  *
  * Same guards as /api/contact/submit (rate limit, clamped fields, escaped
  * email), plus a honeypot; Firebase adds its reCAPTCHA to the texting.
@@ -32,19 +34,14 @@ import {
 import {
   CONSENT_TEXT,
   EMAIL_RE,
-  MAX_SHOWN,
   audienceOf,
   formatKm,
   formatMobile,
   indianMobile,
   interestOf,
-  interpret,
-  matching,
-  rank,
-  typesFor,
-  type Origin,
+  readGeo,
 } from "@/lib/where-to-buy";
-import { DEALERS } from "@/lib/where-to-buy-dealers";
+import { searchDirectory } from "@/lib/where-to-buy-dealers";
 import { accessCookie, accessToken } from "@/lib/where-to-buy-access";
 
 export const runtime = "nodejs";
@@ -85,7 +82,7 @@ interface Body {
   who?: string;
   interest?: string;
   where?: string;
-  geo?: { lat?: unknown; lng?: unknown } | null;
+  geo?: unknown;
   name?: string;
   mobile?: string;
   /** Firebase's ID token for the verified mobile. */
@@ -130,26 +127,28 @@ export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as Body;
     // A bot filled the hidden field: accept quietly, keep and show nothing.
-    if (body.website) return NextResponse.json({ success: true, dealers: [] });
+    if (body.website) return NextResponse.json({ success: true });
 
     // ---- The three answers
     const who = audienceOf(clampField(body.who, 40));
     if (!who) return invalid("who", "Tell us who you are.");
     const interest = interestOf(clampField(body.interest, 40));
-    const lat = Number(body.geo?.lat);
-    const lng = Number(body.geo?.lng);
-    const geo =
-      Number.isFinite(lat) &&
-      Number.isFinite(lng) &&
-      Math.abs(lat) <= 90 &&
-      Math.abs(lng) <= 180
-        ? { lat: Math.round(lat * 100) / 100, lng: Math.round(lng * 100) / 100 }
-        : null;
+    const geo = readGeo(body.geo);
     const where = geo ? "" : clampField(body.where, 60);
     if (!geo && !where)
       return invalid("where", "Enter your PIN code or use your location.");
-    const search = interpret(where, DEALERS);
-    if (search.unknown && !search.outsidePin)
+    // The first search, as the page will show it.
+    const outcome = searchDirectory({
+      who: who.value,
+      interest: interest?.value ?? null,
+      where,
+      geo,
+      all: false,
+      types: null,
+      samples: false,
+      slabs: false,
+    });
+    if (outcome.unknown)
       return invalid(
         "where",
         "We don't recognise that. Try a 6-digit PIN code such as 560102, or an area such as HSR Layout."
@@ -181,24 +180,16 @@ export async function POST(req: NextRequest) {
       );
 
     // What the visitor is shown first, for the sales team's follow-up.
-    const origin: Origin | null = geo
-      ? { ...geo, label: "your location", kind: "geo" }
-      : search.origin;
-    const shown = matching(rank(DEALERS, search, origin), {
-      types: typesFor(who.value, interest?.value ?? null),
-      needsDisplay: who.needsDisplay,
-    })
-      .slice(0, MAX_SHOWN)
-      .map(
-        ({ dealer: d, km }) =>
-          `${d.name} (${d.area}${km != null ? `, ${formatKm(km)}` : ""})`
-      );
+    const shown = outcome.results.map(
+      ({ dealer: d, km }) =>
+        `${d.name} (${d.area}${km != null ? `, ${formatKm(km)}` : ""})`
+    );
     const location = geo ? `My location (${geo.lat}, ${geo.lng})` : where;
     const matchedAs = geo
       ? undefined
-      : search.outsidePin
+      : outcome.outsidePin
         ? "Outside the Bengaluru directory"
-        : search.origin?.label;
+        : outcome.origin?.label;
 
     const lead = {
       _type: "dealerLead",
@@ -243,7 +234,10 @@ export async function POST(req: NextRequest) {
     }
     if (!leadId) throw new Error("Lead neither saved nor emailed.");
 
-    const res = NextResponse.json({ success: true, dealers: DEALERS });
+    const res = NextResponse.json(
+      { success: true, outcome },
+      { headers: { "Cache-Control": "private, no-store" } }
+    );
     const token = accessToken(leadId);
     if (token) res.cookies.set(accessCookie(token));
     return res;

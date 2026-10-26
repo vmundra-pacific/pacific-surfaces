@@ -496,3 +496,86 @@ export const TRACKING = [
   "gclid",
   "fbclid",
 ];
+
+/* ---- One search, run on the server ---------------------------------------
+ * The browser never holds the directory, not even after the lead form
+ * (marketing, 2026-10-26: "lock it down"): it sends the answers and the
+ * refinements to /api/where-to-buy/search and gets back only the nearest
+ * MAX_SHOWN, with what the page needs to describe them. Pure, like the
+ * rest of this module; the server passes in the outlets.
+ */
+
+export interface SearchQuery {
+  who: Audience | null;
+  interest: Interest | null;
+  /** A PIN code or an area, as typed. */
+  where: string;
+  /** Or the visitor's location, rounded to ~1 km. */
+  geo: { lat: number; lng: number } | null;
+  /** The whole directory, no questions asked (?all=1). */
+  all: boolean;
+  /** The visitor's own choice of outlet types; null for the suggested. */
+  types: DealerType[] | null;
+  samples: boolean;
+  slabs: boolean;
+}
+
+export interface SearchOutcome {
+  /** The nearest that match, at most MAX_SHOWN. */
+  results: Ranked[];
+  /** What the search was understood as, for the map and the heading. */
+  origin: Origin | null;
+  /** More match than are shown; never how many. */
+  more: boolean;
+  /** A six-digit PIN outside the directory. */
+  outsidePin: boolean;
+  /** A place we do not recognise. */
+  unknown: boolean;
+  /** The outlet types with something to show under the other filters. */
+  available: DealerType[];
+}
+
+export function searchOutlets(
+  dealers: Dealer[],
+  q: SearchQuery
+): SearchOutcome {
+  const search = interpret(q.all ? "" : q.where, dealers);
+  const origin: Origin | null = q.all
+    ? null
+    : q.geo
+      ? { ...q.geo, label: "your location", kind: "geo" }
+      : search.origin;
+  const ranked = rank(dealers, search, origin);
+  const audience = q.all ? null : audienceOf(q.who);
+  const types = q.types?.length
+    ? q.types
+    : audience
+      ? typesFor(audience.value, q.interest)
+      : TYPE_ORDER.map((t) => t.value);
+  const filters = {
+    needsDisplay: !q.types?.length && !!audience?.needsDisplay,
+    samplesOnly: q.samples,
+    slabsOnly: q.slabs,
+  };
+  const matches = matching(ranked, { types, ...filters });
+  return {
+    results: matches.slice(0, MAX_SHOWN),
+    origin,
+    more: matches.length > MAX_SHOWN,
+    outsidePin: !q.geo && search.outsidePin,
+    unknown: !q.geo && search.unknown && !search.outsidePin,
+    available: TYPE_ORDER.map((t) => t.value).filter(
+      (t) => matching(ranked, { types: [t], ...filters }).length > 0
+    ),
+  };
+}
+
+/** A location from untrusted JSON, rounded to ~1 km, or null. */
+export function readGeo(v: unknown): { lat: number; lng: number } | null {
+  const g = (v ?? {}) as { lat?: unknown; lng?: unknown };
+  const lat = Number(g.lat);
+  const lng = Number(g.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  return { lat: Math.round(lat * 100) / 100, lng: Math.round(lng * 100) / 100 };
+}

@@ -36,21 +36,28 @@ export function accessToken(leadId: string): string | null {
   return `${payload}.${sign(payload)}`;
 }
 
-/** Is this cookie value a genuine, unexpired token? */
-export function hasAccess(token: string | undefined): boolean {
-  if (!token || !secret()) return false;
+/** The lead a genuine, unexpired token names, or null. */
+export function accessLead(token: string | undefined): string | null {
+  if (!token || !secret()) return null;
   const [payload, sig] = token.split(".");
-  if (!payload || !sig) return false;
+  if (!payload || !sig) return null;
   const want = Buffer.from(sign(payload));
   const got = Buffer.from(sig);
-  if (want.length !== got.length || !timingSafeEqual(want, got)) return false;
+  if (want.length !== got.length || !timingSafeEqual(want, got)) return null;
   try {
-    const { e } = JSON.parse(Buffer.from(payload, "base64url").toString());
-    return typeof e === "number" && e > Date.now() / 1000;
+    const { l, e } = JSON.parse(Buffer.from(payload, "base64url").toString());
+    return typeof e === "number" &&
+      e > Date.now() / 1000 &&
+      typeof l === "string"
+      ? l
+      : null;
   } catch {
-    return false;
+    return null;
   }
 }
+
+/** Is this cookie value a genuine, unexpired token? */
+export const hasAccess = (token: string | undefined) => !!accessLead(token);
 
 export const accessCookie = (token: string) => ({
   name: ACCESS_COOKIE,
