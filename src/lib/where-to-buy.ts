@@ -535,6 +535,9 @@ export interface SearchOutcome {
   available: DealerType[];
 }
 
+/** Where a search for the city itself ("Bengaluru") is measured from. */
+const BENGALURU_CENTRE = { lat: 12.9716, lng: 77.5946 };
+
 export function searchOutlets(
   dealers: Dealer[],
   q: SearchQuery
@@ -544,7 +547,23 @@ export function searchOutlets(
     ? null
     : q.geo
       ? { ...q.geo, label: "your location", kind: "geo" }
-      : search.origin;
+      : search.wholeCity
+        ? { ...BENGALURU_CENTRE, label: "Bengaluru", kind: "area" }
+        : search.origin;
+  const outsidePin = !q.geo && search.outsidePin;
+  const unknown = !q.geo && search.unknown && !search.outsidePin;
+  // Nowhere to measure from (a place we do not know, a PIN outside the
+  // directory): nothing, rather than the first few by name, which would
+  // let the directory be read a few names at a time.
+  if (!origin)
+    return {
+      results: [],
+      origin,
+      more: false,
+      outsidePin,
+      unknown,
+      available: [],
+    };
   const ranked = rank(dealers, search, origin);
   const audience = q.all ? null : audienceOf(q.who);
   const types = q.types?.length
@@ -562,8 +581,8 @@ export function searchOutlets(
     results: matches.slice(0, MAX_SHOWN),
     origin,
     more: matches.length > MAX_SHOWN,
-    outsidePin: !q.geo && search.outsidePin,
-    unknown: !q.geo && search.unknown && !search.outsidePin,
+    outsidePin,
+    unknown,
     available: TYPE_ORDER.map((t) => t.value).filter(
       (t) => matching(ranked, { types: [t], ...filters }).length > 0
     ),

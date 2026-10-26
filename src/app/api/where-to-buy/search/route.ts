@@ -34,7 +34,6 @@ interface Body {
   interest?: string;
   where?: string;
   geo?: unknown;
-  all?: unknown;
   types?: unknown;
   samples?: unknown;
   slabs?: unknown;
@@ -79,18 +78,20 @@ export async function POST(req: NextRequest) {
     interest: interestOf(clampField(body.interest, 40))?.value ?? null,
     where: geo ? "" : clampField(body.where, 60),
     geo,
-    all: body.all === true,
+    // No "whole directory" search any more: every search is measured from
+    // a place and answered with the nearest few.
+    all: false,
     types: types.length ? types : null,
     samples: body.samples === true,
     slabs: body.slabs === true,
   };
-  if (!q.all && !q.who) {
+  if (!q.who) {
     return NextResponse.json(
       { error: "Tell us who you are.", field: "who" },
       { status: 400, headers: PRIVATE }
     );
   }
-  if (!q.all && !q.geo && !q.where) {
+  if (!q.geo && !q.where) {
     return NextResponse.json(
       { error: "Enter your PIN code or use your location.", field: "where" },
       { status: 400, headers: PRIVATE }

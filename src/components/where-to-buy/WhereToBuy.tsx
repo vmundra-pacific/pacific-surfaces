@@ -321,7 +321,9 @@ export function WhereToBuy({
       interest: interestOf(p.get("for"))?.value ?? null,
       where: (p.get("where") ?? "").slice(0, 60),
       geo: Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null,
-      all: p.get("all") === "1",
+      // ?all=1 (the whole directory) is no longer offered: every search
+      // is the nearest few to a place.
+      all: false,
     };
     setDraft(a);
     // A shared link shows results only to a visitor who has left their
