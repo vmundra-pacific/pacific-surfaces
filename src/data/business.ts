@@ -86,6 +86,9 @@ export const FACTORY = {
   /** The profile's map pin. */
   geo: { latitude: 12.6766191, longitude: 77.9592661 },
   mapUrl: "https://maps.google.com/?cid=639735137987049257",
+  /** The Google Business Profile's share link (marketing, 2026-10-26):
+   *  the listing's panel, with its photos and reviews. */
+  profileUrl: "https://share.google/bUWTY1nnZ3OsAgwQL",
   directionsUrl:
     "https://www.google.com/maps/dir/?api=1&destination=Pacific%20Engineered%20Surfaces%20Pvt.%20Ltd.%2C%20National%20Highway%2044%2C%20Nallaganakothapalli%2C%20Hosur%2C%20Tamil%20Nadu%20635117",
   /** Google Maps' own "Embed a map" code for the listing; no API key. */

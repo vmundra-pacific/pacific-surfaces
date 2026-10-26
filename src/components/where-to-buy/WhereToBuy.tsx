@@ -15,7 +15,12 @@ import {
   Phone,
 } from "lucide-react";
 import { Photo } from "@/components/ui/photo";
-import { SALES_PHONE } from "@/data/business";
+import {
+  FACTORY,
+  FACTORY_ADDRESS,
+  OPENING_HOURS,
+  SALES_PHONE,
+} from "@/data/business";
 import { trackMetaEvent } from "@/lib/meta-pixel";
 import { cn } from "@/lib/utils";
 import {
@@ -85,6 +90,23 @@ const DealerMap = dynamic(() => import("./DealerMap"), {
     </div>
   ),
 });
+
+/** The plant's own photographs, for the factory's popup on the map; each
+ *  opens the Google Business Profile, which has the rest. */
+const FACTORY_PHOTOS = [
+  {
+    src: "/videos/sustainability-hero-poster.jpg",
+    alt: "The Pacific Surfaces plant from the air, among green fields",
+  },
+  {
+    src: "/videos/origin-poster.jpg",
+    alt: "Inside the Pacific Surfaces plant",
+  },
+  {
+    src: "/images/india-home/bretonstone-robot.webp",
+    alt: "A Breton robot over the quartz mix on the Bretonstone line",
+  },
+];
 
 /** The photograph: not /contact's bar counter, so the two pages differ. */
 const MEDIA = {
@@ -679,6 +701,57 @@ export function WhereToBuy({
     },
     [openEnquiry]
   );
+
+  // The factory's popup: the plant's photographs, then where and when,
+  // with the Google Business Profile for the rest. Plain DOM, as above.
+  const factoryPopup = useCallback(() => {
+    const el = document.createElement("div");
+    el.setAttribute("data-testid", "factory-popup");
+    const photos = document.createElement("div");
+    photos.className = "wtb-pop-photos";
+    for (const p of FACTORY_PHOTOS) {
+      const a = document.createElement("a");
+      a.href = FACTORY.profileUrl;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      const img = document.createElement("img");
+      img.src = p.src;
+      img.alt = p.alt;
+      img.loading = "lazy";
+      img.decoding = "async";
+      a.append(img);
+      photos.append(a);
+    }
+    const kicker = document.createElement("div");
+    kicker.className = "wtb-pop-kicker";
+    kicker.textContent = `Our factory · ${FACTORY.locality}`;
+    const name = document.createElement("div");
+    name.className = "wtb-pop-name";
+    name.textContent = FACTORY.name;
+    const addr = document.createElement("div");
+    addr.className = "wtb-pop-addr";
+    addr.textContent = FACTORY_ADDRESS;
+    const hours = document.createElement("div");
+    hours.className = "wtb-pop-addr";
+    hours.textContent = `Experience centre: ${OPENING_HOURS.display}`;
+    const actions = document.createElement("div");
+    actions.className = "wtb-pop-actions";
+    const dir = document.createElement("a");
+    dir.href = FACTORY.directionsUrl;
+    dir.target = "_blank";
+    dir.rel = "noopener noreferrer";
+    dir.textContent = "Directions";
+    const google = document.createElement("a");
+    google.href = FACTORY.profileUrl;
+    google.target = "_blank";
+    google.rel = "noopener noreferrer";
+    google.className = "wtb-pop-secondary";
+    google.setAttribute("data-testid", "factory-google");
+    google.textContent = "Photos & reviews";
+    actions.append(dir, google);
+    el.append(photos, kicker, name, addr, hours, actions);
+    return el;
+  }, []);
 
   // ---- the results line
   const place = answers.geo ? "you" : (search.origin?.label ?? answers.where);
@@ -1405,6 +1478,7 @@ export function WhereToBuy({
                     focusToken={focusToken}
                     onSelect={onMarker}
                     popupFor={popupFor}
+                    factoryPopup={factoryPopup}
                   />
                 </div>
               </div>

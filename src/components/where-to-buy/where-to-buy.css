@@ -144,3 +144,88 @@
 .grecaptcha-badge {
   visibility: hidden;
 }
+
+/* The factory: a square ink badge with a label, unlike the round outlet
+   pins, on the map for every search; a corner control flies to it. Its
+   popup leads with the plant's photographs, bled to the popup's edges. */
+.wtb-map .leaflet-popup-pane img {
+  filter: none !important;
+}
+.wtb-map .wtb-factory {
+  background: none;
+  border: 0;
+}
+.wtb-map .wtb-factory span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #14140f;
+  color: #ffffff !important;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+.wtb-map .wtb-factory-label {
+  padding: 3px 7px;
+  border: 0;
+  border-radius: 0;
+  background: #14140f;
+  color: #ffffff !important;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  box-shadow: none;
+}
+.wtb-map .wtb-factory-label::before {
+  display: none;
+}
+.wtb-map .wtb-factory-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  background: #14140f;
+  color: #ffffff !important;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+.wtb-map .wtb-factory-control span {
+  color: #ffffff !important;
+}
+.wtb-map .wtb-pop-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  margin: -16px -18px 12px;
+}
+.wtb-map .wtb-pop-photos a:first-child {
+  grid-column: span 2;
+}
+.wtb-map .wtb-pop-photos img {
+  display: block;
+  width: 100%;
+  height: 84px;
+  object-fit: cover;
+}
+.wtb-map .wtb-pop-photos a:first-child img {
+  height: 140px;
+}
+.wtb-map .wtb-factory-popup .leaflet-popup-close-button {
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  line-height: 24px;
+  background: #ffffff;
+  color: #14140f;
+}
+.wtb-map .wtb-pop-actions a.wtb-pop-secondary {
+  background: #ffffff;
+  color: #14140f !important;
+}
