@@ -63,6 +63,9 @@ export default defineConfig({
                     S.documentTypeListItem("contactSubmission").title(
                       "Contact Submissions"
                     ),
+                    S.documentTypeListItem("dealerLead").title(
+                      "Where to Buy Leads"
+                    ),
                     S.documentTypeListItem("sillsEnquiry").title(
                       "Window Sill Enquiries"
                     ),

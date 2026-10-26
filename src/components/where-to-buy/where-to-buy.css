@@ -137,3 +137,10 @@
     transition: none;
   }
 }
+
+/* Firebase's invisible reCAPTCHA (the lead form's Send code): the badge
+   would sit over the support dock, so it is hidden and the form carries
+   Google's required wording instead. */
+.grecaptcha-badge {
+  visibility: hidden;
+}

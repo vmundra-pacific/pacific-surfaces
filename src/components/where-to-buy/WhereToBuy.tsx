@@ -14,20 +14,28 @@ import {
   Pencil,
   Phone,
 } from "lucide-react";
+import { Photo } from "@/components/ui/photo";
+import { SALES_PHONE } from "@/data/business";
+import { trackMetaEvent } from "@/lib/meta-pixel";
 import { cn } from "@/lib/utils";
 import {
   AUDIENCES,
-  DEALERS,
+  CONSENT_TEXT,
+  EMAIL_RE,
   INTERESTS,
   NEAR_KM,
-  PAGE_SIZE,
+  MAX_SHOWN,
+  TRACKING,
   TYPE_ORDER,
   audienceOf,
   directionsUrl,
   formatKm,
+  formatMobile,
   fullAddress,
+  indianMobile,
   interestOf,
   interpret,
+  matching,
   rank,
   typesFor,
   type Audience,
@@ -44,17 +52,26 @@ import "./where-to-buy.css";
  * /where-to-buy: find Pacific Surfaces dealers, distributors and studios.
  *
  * Like Cosentino's locator, it asks first (who you are, what you are
- * interested in, your PIN code or location) and then lists only the
+ * interested in, your PIN code or location: dropdowns in one card on a
+ * photograph, laid out like /contact) and then lists only the
  * outlets that suit the answers, nearest first, a page at a time: a list
  * and a map, side by side on desktop and a List / Map toggle on phones.
  * Each outlet has Directions (Google Maps, no key) and Enquire (the site's
  * quick-enquiry endpoint, prefilled with the outlet and the answers).
  *
+ * Nothing is listed until the visitor leaves their details (marketing,
+ * 2026-10-26, like Aquant's locator): name, mobile (checked by a texted
+ * code when OTP is set up), email, company and consent, sent with the
+ * answers to /api/where-to-buy/lead, which saves the lead for the sales
+ * team and returns the outlets. The page itself never holds them
+ * (`initialDealers` is null) unless this browser has done so before.
+ *
  * The answers live in the URL, so a result can be shared:
  *   ?who=homeowner&for=kitchen&where=560102
  *   ?who=trade&for=browsing&lat=12.93&lng=77.62   (location, to ~1 km)
  * plus the refinements type=, samples=1, slabs=1, view=map, and all=1 for
- * the whole directory.
+ * the whole directory. A shared link opens the results for a visitor who
+ * has left their details, and the form, filled in, for anyone else.
  */
 
 const DealerMap = dynamic(() => import("./DealerMap"), {
@@ -69,14 +86,23 @@ const DealerMap = dynamic(() => import("./DealerMap"), {
   ),
 });
 
+/** The photograph: not /contact's bar counter, so the two pages differ. */
+const MEDIA = {
+  hero: {
+    src: "/images/india-home/taj-vein-kitchen.webp",
+    alt: "A kitchen island and full-height wall in Taj Vein",
+  },
+};
+
 const INK = "#14140f";
 const LIGHT = { fontVariationSettings: "'wght' 250, 'wdth' 100" };
 const MID = { fontVariationSettings: "'wght' 420, 'wdth' 100" };
 const MUTED = { color: "rgba(20,20,15,0.62)" };
 
 const FIELD =
-  "h-12 w-full border border-[#14140f]/15 bg-white px-4 text-[15px] font-light text-[#14140f] placeholder:text-[#14140f]/45 focus:border-[#14140f] focus:outline-none transition-colors";
-const STEP = "text-[11px] uppercase tracking-[0.18em]";
+  "h-12 w-full border border-[#14140f]/15 bg-white px-4 text-[15px] font-light text-[#14140f] placeholder:text-[#14140f]/45 focus:border-[#14140f] focus:outline-none transition-colors aria-[invalid=true]:border-[#9b2c2c]";
+/** The contact page's enquiry form labels. */
+const LABEL = "mb-2 block text-[11px] uppercase tracking-[0.16em]";
 
 type GeoState = "idle" | "locating" | "denied" | "unavailable";
 
@@ -100,6 +126,32 @@ const NO_ANSWERS: Answers = {
   all: false,
 };
 
+/** The lead form's fields, after the three answers. */
+interface Details {
+  name: string;
+  mobile: string;
+  email: string;
+  company: string;
+  /** The texted code, when OTP is on. */
+  otp: string;
+  consent: boolean;
+  /** Honeypot: people never fill it. */
+  website: string;
+}
+
+const NO_DETAILS: Details = {
+  name: "",
+  mobile: "",
+  email: "",
+  company: "",
+  otp: "",
+  consent: false,
+  website: "",
+};
+
+/** The consent wording, split around its Privacy Policy link. */
+const [CONSENT_LEAD] = CONSENT_TEXT.split("Privacy Policy");
+
 const complete = (a: Answers) => a.all || (!!a.who && (!!a.where || !!a.geo));
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -115,12 +167,49 @@ function useIsDesktop() {
   return desk;
 }
 
-export function WhereToBuy() {
+export function WhereToBuy({
+  initialDealers,
+  otp,
+}: {
+  /** The outlets when this browser has left its details, else null. */
+  initialDealers: Dealer[] | null;
+  /** Whether the mobile is checked with a texted code. */
+  otp: boolean;
+}) {
+  // The outlets: null until the visitor has left their details.
+  const [dealers, setDealers] = useState<Dealer[] | null>(initialDealers);
+  const unlocked = dealers !== null;
+  const startUnlocked = initialDealers !== null;
   // Committed answers, and the form's draft of them.
   const [answers, setAnswers] = useState<Answers>(NO_ANSWERS);
   const [draft, setDraft] = useState<Answers>(NO_ANSWERS);
-  const [editing, setEditing] = useState(true);
   const [formError, setFormError] = useState<string | null>(null);
+  /** The field the error is about, to mark and focus it. */
+  const [badField, setBadField] = useState<string | null>(null);
+  /** The card's step: the three answers, then (before any outlet is
+   *  shown) the visitor's details, after Continue. */
+  const [step, setStep] = useState<"answers" | "details">("answers");
+  // The lead form.
+  const [details, setDetails] = useState<Details>(NO_DETAILS);
+  const [otpState, setOtpState] = useState<"idle" | "sending" | "sent">("idle");
+  /** The mobile the last code went to (10 digits). */
+  const [otpFor, setOtpFor] = useState("");
+  const [resendIn, setResendIn] = useState(0);
+  /** Turns the typed code into Firebase's proof (lib/firebase-phone.ts). */
+  const confirmCode = useRef<((code: string) => Promise<string>) | null>(null);
+  /** That proof, once the code was right; good for an hour. */
+  const [phoneToken, setPhoneToken] = useState<{
+    mobile: string;
+    token: string;
+  } | null>(null);
+  const recaptchaHost = useRef<HTMLDivElement>(null);
+  const [sending, setSending] = useState(false);
+  /** The visitor's details, to fill in the outlet enquiry. */
+  const [contact, setContact] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+  } | null>(null);
   const [geoState, setGeoState] = useState<GeoState>("idle");
   // False when the page's Permissions-Policy header forbids geolocation
   // (next.config.ts sends geolocation=() sitewide): the button is hidden
@@ -131,7 +220,6 @@ export function WhereToBuy() {
   const [typeOverride, setTypeOverride] = useState<DealerType[] | null>(null);
   const [samplesOnly, setSamplesOnly] = useState(false);
   const [slabsOnly, setSlabsOnly] = useState(false);
-  const [shown, setShown] = useState(PAGE_SIZE);
   const [view, setView] = useState<"list" | "map">("list");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [focusToken, setFocusToken] = useState(0);
@@ -166,10 +254,9 @@ export function WhereToBuy() {
       all: p.get("all") === "1",
     };
     setDraft(a);
-    if (complete(a)) {
-      setAnswers(a);
-      setEditing(false);
-    }
+    // A shared link shows results only to a visitor who has left their
+    // details; anyone else gets the form, filled in.
+    if (complete(a) && startUnlocked) setAnswers(a);
     const t = (p.get("type") ?? "")
       .split(",")
       .filter((x): x is DealerType => TYPE_ORDER.some((o) => o.value === x));
@@ -178,12 +265,18 @@ export function WhereToBuy() {
     setSlabsOnly(p.get("slabs") === "1");
     if (p.get("view") === "map") setView("map");
     setReady(true);
-  }, []);
+  }, [startUnlocked]);
 
-  // And keep the URL in step.
+  // And keep the URL in step, keeping any ad tags so the lead and the
+  // outlet enquiries can still read them.
   useEffect(() => {
     if (!ready) return;
+    const now = new URLSearchParams(window.location.search);
     const p = new URLSearchParams();
+    TRACKING.forEach((k) => {
+      const v = now.get(k);
+      if (v) p.set(k, v);
+    });
     if (complete(answers)) {
       if (answers.all) p.set("all", "1");
       if (answers.who) p.set("who", answers.who);
@@ -203,13 +296,14 @@ export function WhereToBuy() {
       window.history.replaceState(window.history.state, "", url);
   }, [ready, answers, typeOverride, samplesOnly, slabsOnly, view]);
 
-  const done = complete(answers) && !editing;
+  const done = complete(answers) && unlocked;
   const audience = answers.all ? null : audienceOf(answers.who);
   const interest = answers.all ? null : interestOf(answers.interest);
+  const list = useMemo(() => dealers ?? [], [dealers]);
 
   const search = useMemo(
-    () => interpret(answers.all ? "" : answers.where),
-    [answers]
+    () => interpret(answers.all ? "" : answers.where, list),
+    [answers, list]
   );
   const origin: Origin | null = useMemo(
     () =>
@@ -220,7 +314,10 @@ export function WhereToBuy() {
           : search.origin,
     [answers, search]
   );
-  const ranked = useMemo(() => rank(DEALERS, search, origin), [search, origin]);
+  const ranked = useMemo(
+    () => rank(list, search, origin),
+    [list, search, origin]
+  );
 
   const suggested = useMemo<DealerType[]>(
     () =>
@@ -233,84 +330,253 @@ export function WhereToBuy() {
   const needsDisplay = !typeOverride && !!audience?.needsDisplay;
 
   const matches = useMemo(
-    () =>
-      ranked.filter(
-        ({ dealer: d }) =>
-          types.includes(d.type) &&
-          (!needsDisplay || d.samples || d.slabs) &&
-          (!samplesOnly || d.samples) &&
-          (!slabsOnly || d.slabs)
-      ),
+    () => matching(ranked, { types, needsDisplay, samplesOnly, slabsOnly }),
     [ranked, types, needsDisplay, samplesOnly, slabsOnly]
   );
-  const visible = useMemo(
-    () => (answers.all ? matches : matches.slice(0, shown)),
-    [matches, shown, answers.all]
-  );
+  // The nearest few only, for every search (see MAX_SHOWN).
+  const visible = useMemo(() => matches.slice(0, MAX_SHOWN), [matches]);
   const typeCounts = useMemo(() => {
     const c = new Map<DealerType, number>();
-    ranked
-      .filter(
-        ({ dealer: d }) =>
-          (!needsDisplay || d.samples || d.slabs) &&
-          (!samplesOnly || d.samples) &&
-          (!slabsOnly || d.slabs)
-      )
-      .forEach(({ dealer: d }) => c.set(d.type, (c.get(d.type) ?? 0) + 1));
+    matching(ranked, {
+      types: TYPE_ORDER.map((t) => t.value),
+      needsDisplay,
+      samplesOnly,
+      slabsOnly,
+    }).forEach(({ dealer: d }) => c.set(d.type, (c.get(d.type) ?? 0) + 1));
     return c;
   }, [ranked, needsDisplay, samplesOnly, slabsOnly]);
 
   // ---- the form
   const setD = (patch: Partial<Answers>) => {
     setFormError(null);
+    setBadField(null);
     setDraft((d) => ({ ...d, ...patch, all: false }));
   };
+  const setL = (patch: Partial<Details>) => {
+    setFormError(null);
+    setBadField(null);
+    setDetails((d) => ({ ...d, ...patch }));
+  };
 
-  const submit = (e?: React.FormEvent) => {
-    e?.preventDefault();
+  /** Show an error, on the card's step with its field, marked and focused. */
+  const fail = (field: string | null, message: string) => {
+    const answer = field === "who" || field === "where";
+    setFormError(message);
+    setBadField(field);
+    if (answer) setStep("answers");
+    const id = answer ? `wtb-${field}` : `wtb-lead-${field}`;
+    if (field)
+      requestAnimationFrame(() => document.getElementById(id)?.focus());
+  };
+
+  const mobile = indianMobile(details.mobile);
+  const codeSent = otpState === "sent" && !!mobile && otpFor === mobile;
+  const mobileProven = !!mobile && phoneToken?.mobile === mobile;
+
+  // The wait before a code can be sent again.
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((n) => n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
+
+  const sendCode = async () => {
+    if (!mobile)
+      return fail("mobile", "Enter a 10-digit Indian mobile number.");
+    if (!recaptchaHost.current) return;
+    setOtpState("sending");
+    setFormError(null);
+    setBadField(null);
+    try {
+      const { sendCode: text } = await import("@/lib/firebase-phone");
+      confirmCode.current = await text(mobile, recaptchaHost.current);
+      setOtpFor(mobile);
+      setOtpState("sent");
+      setResendIn(30);
+      setDetails((d) => ({ ...d, otp: "" }));
+      requestAnimationFrame(() =>
+        document.getElementById("wtb-lead-otp")?.focus()
+      );
+    } catch (err) {
+      setOtpState(otpFor === mobile ? "sent" : "idle");
+      fail(
+        "mobile",
+        err instanceof Error ? err.message : "We could not send the code."
+      );
+    }
+  };
+
+  /** The details' first problem, as [field, message]. */
+  const checkDetails = (): [string, string] | null => {
+    if (details.name.trim().length < 2) return ["name", "Enter your name."];
+    if (!EMAIL_RE.test(details.email.trim()))
+      return ["email", "Enter a valid email address."];
+    if (!mobile) return ["mobile", "Enter a 10-digit Indian mobile number."];
+    if (otp && !mobileProven) {
+      if (!codeSent)
+        return ["mobile", "Tap Send code to verify your mobile number."];
+      if (!/^\d{6}$/.test(details.otp))
+        return ["otp", "Enter the 6-digit code we sent to your mobile."];
+    }
+    if (!details.consent)
+      return ["consent", "Tick the box to agree to be contacted."];
+    return null;
+  };
+
+  /** The visitor's details, the code's proof, then the lead; it returns the outlets. */
+  const sendLead = async (a: Answers) => {
+    const problem = checkDetails();
+    if (problem) return fail(...problem);
+    setSending(true);
+    try {
+      let token = mobileProven ? phoneToken!.token : "";
+      if (otp && !token) {
+        try {
+          token = await confirmCode.current!(details.otp);
+        } catch (err) {
+          return fail("otp", (err as Error).message);
+        }
+        setPhoneToken({ mobile: mobile!, token });
+      }
+      const here = new URLSearchParams(window.location.search);
+      const res = await fetch("/api/where-to-buy/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          who: a.who,
+          interest: a.interest,
+          where: a.where,
+          geo: a.geo,
+          name: details.name.trim(),
+          mobile,
+          phoneToken: token,
+          email: details.email.trim(),
+          company: details.company.trim(),
+          consent: details.consent,
+          website: details.website,
+          tracking: TRACKING.flatMap((k) =>
+            here.get(k) ? [`${k}=${here.get(k)}`] : []
+          ).join(" "),
+          referrer: document.referrer,
+          pageUrl: window.location.href,
+        }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        // Firebase's proof was refused: start the code over.
+        if (j.field === "otp") {
+          setPhoneToken(null);
+          setOtpState("idle");
+        }
+        return fail(
+          j.field ?? null,
+          j.error ??
+            `That did not go through. Please try again, or call ${SALES_PHONE.display}.`
+        );
+      }
+      setDealers(j.dealers as Dealer[]);
+      setStep("answers");
+      setContact({
+        name: details.name.trim(),
+        email: details.email.trim(),
+        phone: formatMobile(mobile!),
+      });
+      // Fired only once the lead is saved, so a failed POST never counts.
+      trackMetaEvent("Lead", {
+        content_name: "Where to buy",
+        content_category: a.interest ?? "dealer",
+      });
+      window.gtag?.("event", "generate_lead", {
+        form: "where_to_buy_details",
+        page: window.location.pathname,
+      });
+      show(a);
+    } catch {
+      fail(
+        null,
+        `That did not go through. Please try again, or call ${SALES_PHONE.display}.`
+      );
+    } finally {
+      setSending(false);
+    }
+  };
+
+  /** The three answers, or null after pointing at the one missing. */
+  const checkAnswers = (): Answers | null => {
     const where = draft.where.trim();
-    if (!draft.who) return setFormError("Tell us who you are.");
-    if (!draft.geo && !where)
-      return setFormError(
+    if (!draft.who) {
+      fail("who", "Tell us who you are.");
+      return null;
+    }
+    if (!draft.geo && !where) {
+      fail(
+        "where",
         `Enter your PIN code${geoAllowed ? " or use your location" : ""}.`
       );
-    if (!draft.geo) {
-      const s = interpret(where);
+      return null;
+    }
+    return { ...draft, where: draft.geo ? "" : where, all: false };
+  };
+
+  /** The card's first step: on to the details, or (once given) the results. */
+  const submit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const a = checkAnswers();
+    if (!a) return;
+    if (!unlocked) {
+      // The outlets are not here to check the place against yet: the
+      // server checks it with the lead.
+      setFormError(null);
+      setBadField(null);
+      setStep("details");
+      requestAnimationFrame(() =>
+        document.getElementById("wtb-lead-name")?.focus()
+      );
+      return;
+    }
+    if (!a.geo) {
+      const s = interpret(a.where, list);
       if (s.unknown && !s.outsidePin)
-        return setFormError(
+        return fail(
+          "where",
           "We don't recognise that. Try a 6-digit PIN code such as 560102, or an area such as HSR Layout."
         );
     }
-    setAnswers({ ...draft, where: draft.geo ? "" : where, all: false });
-    setEditing(false);
+    show(a);
+  };
+
+  /** The card's second step: the answers and the details, as a lead. */
+  const submitDetails = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (sending) return;
+    const a = checkAnswers();
+    if (a) sendLead(a);
+  };
+
+  /** Commit the answers and show the results. */
+  const show = (a: Answers) => {
+    setAnswers(a);
     setTypeOverride(null);
     setSamplesOnly(false);
     setSlabsOnly(false);
-    setShown(PAGE_SIZE);
     setActiveId(null);
     requestAnimationFrame(() =>
       resultsTop.current?.scrollIntoView({ behavior: "smooth", block: "start" })
     );
   };
 
-  const browseAll = () => {
-    setAnswers({ ...NO_ANSWERS, all: true });
-    setEditing(false);
-    setTypeOverride(null);
-    setShown(PAGE_SIZE);
-    requestAnimationFrame(() =>
-      resultsTop.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-    );
-  };
+  /** Back up to the questions, which keep the answers to change. */
+  const edit = () =>
+    document
+      .getElementById("wtb-form")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
 
-  const edit = () => {
-    setDraft(answers.all ? NO_ANSWERS : answers);
-    setEditing(true);
-    requestAnimationFrame(() =>
-      document
-        .getElementById("wtb-form")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" })
-    );
+  /** From the details back to the answers ("Change"); the details stay. */
+  const back = () => {
+    setFormError(null);
+    setBadField(null);
+    setStep("answers");
+    requestAnimationFrame(() => document.getElementById("wtb-who")?.focus());
   };
 
   const locate = () => {
@@ -420,8 +686,9 @@ export function WhereToBuy() {
   let heading: string;
   let note: string | null = null;
   let offerEnquiry = false;
+  // Never a total: only what is shown is counted (see MAX_SHOWN).
   if (answers.all) {
-    heading = `All ${outlets(matches.length)} in Bengaluru`;
+    heading = "Outlets in Bengaluru";
   } else if (search.outsidePin && !answers.geo) {
     heading = `No outlets listed near ${answers.where} yet`;
     note =
@@ -434,7 +701,7 @@ export function WhereToBuy() {
   } else {
     heading =
       matches.length > visible.length
-        ? `${visible.length} nearest of ${matches.length} near ${place}`
+        ? `The ${visible.length} nearest outlets to ${place}`
         : `${outlets(matches.length)} near ${place}`;
     const nearest = matches[0].km;
     if (nearest != null && nearest > NEAR_KM && !matches[0].exact) {
@@ -461,13 +728,17 @@ export function WhereToBuy() {
       ? visible.findIndex((r) => !r.exact)
       : -1;
 
+  // The answers so far, recalled above the details form.
+  const draftInterest = interestOf(draft.interest);
   const summary = [
-    audience?.label,
-    interest && interest.value !== "browsing" ? interest.label : null,
-    answers.geo
+    audienceOf(draft.who)?.label,
+    draftInterest && draftInterest.value !== "browsing"
+      ? draftInterest.label
+      : null,
+    draft.geo
       ? "Near my location"
-      : answers.where
-        ? `Near ${search.origin?.label ?? answers.where}`
+      : draft.where.trim()
+        ? `Near ${draft.where.trim()}`
         : null,
   ].filter(Boolean) as string[];
 
@@ -479,121 +750,105 @@ export function WhereToBuy() {
 
   return (
     <>
-      {/* 1 · The questions ----------------------------------------------------- */}
-      {/* A light hero: data-header-light asks the header for its solid,
-          dark-on-light state at the top of the page. */}
-      <section
-        data-header-light
-        className="border-b border-[#14140f]/10 pb-8 pt-28 sm:pb-10 lg:pt-32"
-        style={{ background: "#EFEDE9", color: INK }}
-      >
-        <div className="mx-auto w-full max-w-[1760px] px-4 sm:px-8 lg:px-12">
-          <p className="text-xs uppercase tracking-[0.3em]">Where to buy</p>
-          <h1
-            style={LIGHT}
-            className={cn(
-              "mt-3 uppercase leading-[0.98] tracking-[-0.03em]",
-              done
-                ? "text-[30px] sm:text-4xl lg:text-5xl"
-                : "text-[34px] sm:text-5xl lg:text-[64px]"
-            )}
-          >
-            Find Pacific Surfaces near you
-          </h1>
-
-          {done ? (
-            <div
-              className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3"
-              data-testid="answers-summary"
+      {/* 1 · The questions, on a photograph as on /contact (after
+          Cosentino): who you are, what for and where, in one card. ------ */}
+      <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-[#14140f] pb-16 pt-32 lg:pt-36">
+        <Photo
+          src={MEDIA.hero.src}
+          alt={MEDIA.hero.alt}
+          priority
+          fetchPriority="high"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/25 to-black/55"
+        />
+        <div className="mx-auto flex w-full max-w-[1760px] flex-col items-center px-5 sm:px-8 lg:px-12">
+          <div data-over-media className="animate-fade-up text-center">
+            <p className="text-xs uppercase tracking-[0.3em]">Where to buy</p>
+            <h1
+              style={LIGHT}
+              className="mt-4 text-[40px] uppercase leading-none tracking-[-0.03em] sm:text-6xl lg:text-[60px] xl:text-[72px]"
             >
-              {answers.all ? (
-                <p className="text-base font-light">
-                  Every outlet in Bengaluru.
-                </p>
-              ) : (
-                <ul className="flex flex-wrap gap-2">
-                  {summary.map((s) => (
-                    <li
-                      key={s}
-                      className="border border-[#14140f]/20 bg-white px-3 py-1.5 text-[12px] uppercase tracking-[0.12em]"
-                    >
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <button
-                type="button"
-                onClick={edit}
-                data-testid="edit-search"
-                className="inline-flex h-9 items-center gap-1.5 text-[12px] uppercase tracking-[0.14em] underline underline-offset-4"
-              >
-                <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                Edit search
-              </button>
-            </div>
-          ) : (
-            <>
-              <p className="mt-4 max-w-2xl text-base font-light leading-snug sm:text-lg">
-                Dealers, distributors and kitchen and interior studios where you
-                can see and buy Pacific Surfaces quartz and granite. Three quick
-                questions and we show the ones that suit you, nearest first. Now
-                listing Bengaluru; more cities soon.
+              Find Pacific Surfaces near you
+            </h1>
+            <p className="mx-auto mt-5 max-w-xl text-base font-light leading-snug sm:text-lg">
+              Dealers, distributors and kitchen and interior studios where you
+              can see and buy Pacific quartz and granite. Now listing Bengaluru;
+              more cities soon.
+            </p>
+          </div>
+
+          {/* The card sits beside the copy, not inside data-over-media, so
+              its ink stays dark. Before any outlet is shown it has two
+              steps in the one form: the answers, then (after Continue) the
+              visitor's details. */}
+          <form
+            id="wtb-form"
+            onSubmit={step === "details" && !unlocked ? submitDetails : submit}
+            noValidate
+            aria-label={step === "details" ? "Your details" : "Find an outlet"}
+            data-testid="wtb-form"
+            className="animate-fade-up mt-10 w-full max-w-[560px] scroll-mt-28 bg-white/85 p-6 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.45)] backdrop-blur-md sm:p-9"
+            style={{ color: INK, animationDelay: "0.15s" }}
+          >
+            {!unlocked && (
+              <p className={cn(LABEL, "mb-5")} style={MUTED}>
+                Step {step === "answers" ? "1" : "2"} of 2
+                {step === "details" ? " · Your details" : ""}
               </p>
-
-              <form
-                id="wtb-form"
-                onSubmit={submit}
-                noValidate
-                className="mt-7 grid max-w-5xl scroll-mt-24 gap-6 border border-[#14140f]/10 bg-white p-5 sm:p-7"
-                aria-label="Find an outlet"
-                data-testid="wtb-form"
-              >
-                <fieldset>
-                  <legend className={STEP}>1 · I am a</legend>
-                  <div
-                    className="mt-3 flex flex-wrap gap-2"
-                    role="radiogroup"
-                    aria-label="I am a"
+            )}
+            {step === "answers" || unlocked ? (
+              <div className="space-y-5">
+                <div>
+                  <label htmlFor="wtb-who" className={LABEL}>
+                    I am a *
+                  </label>
+                  <select
+                    id="wtb-who"
+                    value={draft.who ?? ""}
+                    onChange={(e) =>
+                      setD({ who: audienceOf(e.target.value)?.value ?? null })
+                    }
+                    aria-invalid={badField === "who"}
+                    className={FIELD}
                   >
+                    <option value="">Select</option>
                     {AUDIENCES.map((a) => (
-                      <Choice
-                        key={a.value}
-                        on={draft.who === a.value}
-                        onClick={() => setD({ who: a.value })}
-                      >
+                      <option key={a.value} value={a.value}>
                         {a.label}
-                      </Choice>
+                      </option>
                     ))}
-                  </div>
-                </fieldset>
-
-                <fieldset>
-                  <legend className={STEP}>2 · Interested in</legend>
-                  <div
-                    className="mt-3 flex flex-wrap gap-2"
-                    role="radiogroup"
-                    aria-label="Interested in"
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="wtb-for" className={LABEL}>
+                    Interested in
+                  </label>
+                  <select
+                    id="wtb-for"
+                    value={draft.interest ?? ""}
+                    onChange={(e) =>
+                      setD({
+                        interest: interestOf(e.target.value)?.value ?? null,
+                      })
+                    }
+                    className={FIELD}
                   >
+                    <option value="">Select</option>
                     {INTERESTS.map((i) => (
-                      <Choice
-                        key={i.value}
-                        on={draft.interest === i.value}
-                        onClick={() => setD({ interest: i.value })}
-                      >
+                      <option key={i.value} value={i.value}>
                         {i.label}
-                      </Choice>
+                      </option>
                     ))}
-                  </div>
-                </fieldset>
-
-                <fieldset>
-                  <legend className={STEP}>3 · Where</legend>
-                  <div className="mt-3 flex flex-col gap-2.5 sm:flex-row">
-                    <div className="relative flex-1 sm:max-w-md">
-                      <label htmlFor="wtb-where" className="sr-only">
-                        PIN code or area
-                      </label>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="wtb-where" className={LABEL}>
+                    PIN code or area *
+                  </label>
+                  <div className="flex flex-col gap-2.5 sm:flex-row">
+                    <div className="relative flex-1">
                       <MapPin
                         className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50"
                         aria-hidden="true"
@@ -609,10 +864,11 @@ export function WhereToBuy() {
                         onChange={(e) =>
                           setD({ where: e.target.value, geo: null })
                         }
+                        aria-invalid={badField === "where"}
                         placeholder={
                           draft.geo
                             ? "Using your location"
-                            : "PIN code, e.g. 560102, or area"
+                            : "e.g. 560102 or HSR Layout"
                         }
                         className={cn(FIELD, "pl-11")}
                       />
@@ -633,7 +889,7 @@ export function WhereToBuy() {
                               }
                             : { color: INK, borderColor: INK }
                         }
-                        className="inline-flex h-12 items-center justify-center gap-2 border bg-white px-5 text-[13px] uppercase tracking-[0.14em] transition-colors disabled:opacity-60"
+                        className="inline-flex h-12 shrink-0 items-center justify-center gap-2 border bg-white px-4 text-[12px] uppercase tracking-[0.12em] transition-colors disabled:opacity-60"
                       >
                         {draft.geo ? (
                           <Check className="h-4 w-4" aria-hidden="true" />
@@ -643,7 +899,7 @@ export function WhereToBuy() {
                         {geoState === "locating"
                           ? "Locating…"
                           : draft.geo
-                            ? "Using my location"
+                            ? "Located"
                             : "Use my location"}
                       </button>
                     )}
@@ -655,53 +911,290 @@ export function WhereToBuy() {
                         : "We could not get your location. Enter your PIN code instead."}
                     </p>
                   )}
-                </fieldset>
-
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-5" data-testid="wtb-details">
+                {/* The answers so far, with the way back to change them. */}
+                <div
+                  className="flex flex-wrap items-center gap-2"
+                  data-testid="answers-summary"
+                >
+                  {summary.map((s) => (
+                    <span
+                      key={s}
+                      className="border border-[#14140f]/20 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em]"
+                    >
+                      {s}
+                    </span>
+                  ))}
                   <button
-                    type="submit"
-                    data-over-media
-                    data-testid="wtb-submit"
-                    style={{ background: INK, color: "#ffffff" }}
-                    className="inline-flex h-12 items-center justify-center gap-2 px-8 text-[13px] uppercase tracking-[0.14em] transition-opacity hover:opacity-85"
+                    type="button"
+                    onClick={back}
+                    data-testid="change-answers"
+                    className="inline-flex h-8 items-center gap-1.5 px-1 text-[11px] uppercase tracking-[0.14em] underline underline-offset-4"
                   >
-                    Show outlets
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                    Change
                   </button>
-                  {formError && (
-                    <p
-                      className="text-sm font-light text-[#9b2c2c]"
-                      role="alert"
-                      data-testid="form-error"
-                    >
-                      {formError}
-                    </p>
-                  )}
-                  {complete(answers) && (
-                    <button
-                      type="button"
-                      onClick={() => setEditing(false)}
-                      className="text-[12px] uppercase tracking-[0.14em] underline underline-offset-4 sm:ml-auto"
-                    >
-                      Cancel
-                    </button>
+                </div>
+                <p
+                  className="text-[13px] font-light leading-snug"
+                  style={MUTED}
+                >
+                  We show the outlets as soon as you send this, and our team may
+                  call to help you choose.
+                </p>
+                <div>
+                  <label htmlFor="wtb-lead-name" className={LABEL}>
+                    Full name *
+                  </label>
+                  <input
+                    id="wtb-lead-name"
+                    type="text"
+                    autoComplete="name"
+                    maxLength={200}
+                    value={details.name}
+                    onChange={(e) => setL({ name: e.target.value })}
+                    aria-invalid={badField === "name"}
+                    placeholder="Your name"
+                    className={FIELD}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="wtb-lead-mobile" className={LABEL}>
+                    Mobile *
+                    {otp && (
+                      <span className="normal-case tracking-normal opacity-60">
+                        {" "}
+                        (we text you a code)
+                      </span>
+                    )}
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] font-light"
+                        style={MUTED}
+                      >
+                        +91
+                      </span>
+                      <input
+                        id="wtb-lead-mobile"
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel-national"
+                        maxLength={16}
+                        value={details.mobile}
+                        onChange={(e) => setL({ mobile: e.target.value })}
+                        aria-invalid={badField === "mobile"}
+                        aria-describedby={
+                          mobileProven ? "wtb-lead-verified" : undefined
+                        }
+                        placeholder="98450 12345"
+                        className={cn(FIELD, "pl-14")}
+                      />
+                    </div>
+                    {otp &&
+                      (mobileProven ? (
+                        <span
+                          id="wtb-lead-verified"
+                          className="inline-flex h-12 shrink-0 items-center gap-1.5 px-2 text-[12px] uppercase tracking-[0.12em]"
+                        >
+                          <Check className="h-4 w-4" aria-hidden="true" />
+                          Verified
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={sendCode}
+                          disabled={
+                            otpState === "sending" || (codeSent && resendIn > 0)
+                          }
+                          data-testid="send-code"
+                          style={{ color: INK, borderColor: INK }}
+                          className="inline-flex h-12 shrink-0 items-center justify-center border bg-white px-4 text-[12px] uppercase tracking-[0.12em] transition-colors hover:bg-black/5 disabled:opacity-50"
+                        >
+                          {otpState === "sending"
+                            ? "Sending…"
+                            : !codeSent
+                              ? "Send code"
+                              : resendIn > 0
+                                ? `Resend ${resendIn}s`
+                                : "Resend code"}
+                        </button>
+                      ))}
+                  </div>
+                  {/* The texted code, under the number it went to. */}
+                  {otp && codeSent && !mobileProven && (
+                    <div className="mt-3">
+                      <label htmlFor="wtb-lead-otp" className={LABEL}>
+                        Code sent to {formatMobile(otpFor)} *
+                      </label>
+                      <input
+                        id="wtb-lead-otp"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        maxLength={6}
+                        value={details.otp}
+                        onChange={(e) =>
+                          setL({ otp: e.target.value.replace(/\D/g, "") })
+                        }
+                        aria-invalid={badField === "otp"}
+                        placeholder="6-digit code"
+                        className={cn(FIELD, "tracking-[0.3em]")}
+                      />
+                    </div>
                   )}
                 </div>
-              </form>
-              <p className="mt-4 text-[13px] font-light" style={MUTED}>
-                Or{" "}
-                <button
-                  type="button"
-                  onClick={browseAll}
-                  className="underline underline-offset-4"
-                  style={{ color: INK }}
-                >
-                  browse every Bengaluru outlet
-                </button>
-                .
+                <div>
+                  <label htmlFor="wtb-lead-email" className={LABEL}>
+                    Email *
+                  </label>
+                  <input
+                    id="wtb-lead-email"
+                    type="email"
+                    autoComplete="email"
+                    maxLength={320}
+                    value={details.email}
+                    onChange={(e) => setL({ email: e.target.value })}
+                    aria-invalid={badField === "email"}
+                    placeholder="you@email.com"
+                    className={FIELD}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="wtb-lead-company" className={LABEL}>
+                    Company{" "}
+                    <span className="normal-case tracking-normal opacity-60">
+                      (optional)
+                    </span>
+                  </label>
+                  <input
+                    id="wtb-lead-company"
+                    type="text"
+                    autoComplete="organization"
+                    maxLength={200}
+                    value={details.company}
+                    onChange={(e) => setL({ company: e.target.value })}
+                    placeholder="Firm or studio, if any"
+                    className={FIELD}
+                  />
+                </div>
+                <label className="flex cursor-pointer items-start gap-3 text-[13px] font-light leading-snug">
+                  <input
+                    id="wtb-lead-consent"
+                    type="checkbox"
+                    checked={details.consent}
+                    onChange={(e) => setL({ consent: e.target.checked })}
+                    aria-invalid={badField === "consent"}
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-[#14140f]"
+                  />
+                  <span>
+                    {CONSENT_LEAD}
+                    <Link
+                      href="/privacy"
+                      target="_blank"
+                      className="underline underline-offset-4"
+                    >
+                      Privacy Policy
+                    </Link>
+                    . *
+                  </span>
+                </label>
+                {otp && (
+                  <p className="text-[11px] font-light" style={MUTED}>
+                    Codes are sent by Google Firebase; this form is protected by
+                    reCAPTCHA and the Google{" "}
+                    <a
+                      href="https://policies.google.com/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2"
+                    >
+                      Privacy Policy
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      href="https://policies.google.com/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2"
+                    >
+                      Terms of Service
+                    </a>{" "}
+                    apply.
+                  </p>
+                )}
+                {/* Firebase's invisible reCAPTCHA renders here. */}
+                <div ref={recaptchaHost} />
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  value={details.website}
+                  onChange={(e) => setL({ website: e.target.value })}
+                  className="absolute left-[-9999px] h-px w-px opacity-0"
+                />
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={sending}
+              data-over-media
+              data-testid="wtb-submit"
+              style={{ background: INK, color: "#ffffff" }}
+              className="mt-7 inline-flex h-[52px] w-full items-center justify-center gap-2 text-sm uppercase tracking-[0.14em] transition-opacity hover:opacity-85 disabled:opacity-60"
+            >
+              {sending ? (
+                <>
+                  <span
+                    className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                    aria-hidden="true"
+                  />
+                  Sending
+                </>
+              ) : (
+                <>
+                  {step === "answers" && !unlocked
+                    ? "Continue"
+                    : "Show outlets"}
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </>
+              )}
+            </button>
+            {formError && (
+              <p
+                className="mt-3 text-sm font-light text-[#9b2c2c]"
+                role="alert"
+                data-testid="form-error"
+              >
+                {formError}
               </p>
-            </>
-          )}
+            )}
+            <p className="mt-5 text-center text-[13px] font-light">
+              Prefer to talk?{" "}
+              <a
+                href={SALES_PHONE.href}
+                className="underline underline-offset-4"
+              >
+                {SALES_PHONE.display}
+              </a>
+              {" · "}
+              <a
+                href={`https://api.whatsapp.com/send/?phone=${SALES_PHONE.href.replace(/\D/g, "")}&text=${encodeURIComponent("Hi, I'd like to know where to buy Pacific Surfaces.")}&type=phone_number&app_absent=0`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-4"
+              >
+                WhatsApp
+              </a>
+            </p>
+          </form>
         </div>
       </section>
 
@@ -734,10 +1227,9 @@ export function WhereToBuy() {
                           ? types.filter((x) => x !== t.value)
                           : [...types, t.value];
                         setTypeOverride(next.length ? next : null);
-                        setShown(PAGE_SIZE);
                       }}
                     >
-                      {t.plural} <span className="opacity-60">{c}</span>
+                      {t.plural}
                     </Chip>
                   );
                 })}
@@ -788,14 +1280,15 @@ export function WhereToBuy() {
                   {subline}
                 </p>
               </div>
-              {/* Phones: the answers can be changed from the sticky bar. */}
+              {/* Back up to the card to change the answers (sticky on phones). */}
               <button
                 type="button"
                 onClick={edit}
                 aria-label="Edit search"
+                title="Edit search"
                 data-testid="edit-search-bar"
                 style={{ color: INK }}
-                className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center border border-[#14140f]/20 lg:hidden"
+                className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center border border-[#14140f]/20"
               >
                 <Pencil className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -872,22 +1365,6 @@ export function WhereToBuy() {
                     ))}
                   </ol>
                 )}
-                {matches.length > visible.length && (
-                  <button
-                    type="button"
-                    onClick={() => setShown((n) => n + PAGE_SIZE)}
-                    data-testid="show-more"
-                    style={{ color: INK, borderColor: INK }}
-                    className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 border bg-white text-[13px] uppercase tracking-[0.14em] transition-colors hover:bg-black/5"
-                  >
-                    Show {Math.min(PAGE_SIZE, matches.length - visible.length)}{" "}
-                    more
-                    <span className="opacity-60">
-                      ({matches.length - visible.length} left)
-                    </span>
-                  </button>
-                )}
-
                 <div className="mt-8 border-t border-[#14140f]/10 pt-6 text-sm font-light">
                   <p>
                     Not near Bengaluru, or need help choosing?{" "}
@@ -941,39 +1418,11 @@ export function WhereToBuy() {
           dealer={enquiry.dealer}
           near={answers.geo ? "my location" : answers.where}
           context={enquiryContext}
+          contact={contact}
           onClose={closeEnquiry}
         />
       )}
     </>
-  );
-}
-
-/** One answer in the form: a radio as a button. */
-function Choice({
-  on,
-  onClick,
-  children,
-}: {
-  on: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={on}
-      onClick={onClick}
-      data-over-media={on ? "" : undefined}
-      style={
-        on
-          ? { background: INK, color: "#ffffff", borderColor: INK }
-          : { color: INK }
-      }
-      className="inline-flex min-h-11 items-center gap-1.5 border border-[#14140f]/20 px-4 py-2 text-left text-[13px] leading-tight transition-colors hover:border-[#14140f]"
-    >
-      {children}
-    </button>
   );
 }
 

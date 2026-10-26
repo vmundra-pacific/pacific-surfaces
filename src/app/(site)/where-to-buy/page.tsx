@@ -1,14 +1,21 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import { WhereToBuy } from "@/components/where-to-buy/WhereToBuy";
-import { ORG_ID, SITE_URL } from "@/data/business";
-import { safeJsonLd } from "@/lib/escape";
-import { DEALERS } from "@/lib/where-to-buy";
+import { phoneVerificationEnabled } from "@/lib/phone-verification";
+import { DEALERS } from "@/lib/where-to-buy-dealers";
+import { ACCESS_COOKIE, hasAccess } from "@/lib/where-to-buy-access";
 
 /**
  * Where to Buy: dealers, distributors and studios that show Pacific
  * Surfaces. Pilot: Bengaluru, from src/data/dealers-bangalore.json
  * (regenerate with scripts/build-dealers-bangalore.py).
+ *
+ * The outlets are shown only after the visitor leaves their details
+ * (marketing, 2026-10-26), so they are not in this page's HTML for anyone
+ * else: no Store list in the structured data, and the list is rendered
+ * only for a browser holding the access cookie that
+ * /api/where-to-buy/lead sets. Reading the cookie makes the page dynamic.
  */
 
 const TITLE =
@@ -26,44 +33,8 @@ export const metadata: Metadata = {
   },
 };
 
-/** The outlets as an ItemList of Stores, so search can read the directory. */
-function DealerListSchema() {
-  const json = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Where to buy Pacific Surfaces in Bengaluru",
-    url: `${SITE_URL}/where-to-buy`,
-    numberOfItems: DEALERS.length,
-    itemListElement: DEALERS.map((d, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      item: {
-        "@type": "Store",
-        name: d.name,
-        address: {
-          "@type": "PostalAddress",
-          ...(d.address ? { streetAddress: d.address } : {}),
-          addressLocality:
-            d.area === "Bengaluru" ? "Bengaluru" : `${d.area}, Bengaluru`,
-          addressRegion: "Karnataka",
-          ...(d.pin ? { postalCode: d.pin } : {}),
-          addressCountry: "IN",
-        },
-        geo: { "@type": "GeoCoordinates", latitude: d.lat, longitude: d.lng },
-        ...(d.phone ? { telephone: d.phone.href.replace("tel:", "") } : {}),
-        brand: { "@id": ORG_ID },
-      },
-    })),
-  };
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: safeJsonLd(json) }}
-    />
-  );
-}
-
-export default function WhereToBuyPage() {
+export default async function WhereToBuyPage() {
+  const unlocked = hasAccess((await cookies()).get(ACCESS_COOKIE)?.value);
   return (
     <>
       <BreadcrumbList
@@ -72,8 +43,10 @@ export default function WhereToBuyPage() {
           { name: "Where to buy", url: "/where-to-buy" },
         ]}
       />
-      <DealerListSchema />
-      <WhereToBuy />
+      <WhereToBuy
+        initialDealers={unlocked ? DEALERS : null}
+        otp={phoneVerificationEnabled()}
+      />
     </>
   );
 }

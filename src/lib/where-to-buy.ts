@@ -1,16 +1,18 @@
 /**
- * Where to Buy: the outlet data and the search behind /where-to-buy.
+ * Where to Buy: the search behind /where-to-buy.
  *
  * Pilot data is Bengaluru only, built from the internal sample-stand master
  * by scripts/build-dealers-bangalore.py (public business details only).
- * Everything here is pure, so the page can rank on the server for the first
- * paint and again in the browser as the visitor searches.
+ * The outlets themselves are NOT imported here: this module is bundled into
+ * the browser, and the list is shown only after the lead form (marketing,
+ * 2026-10-26), so it lives in where-to-buy-dealers.ts (server only) and
+ * reaches the page once a lead is saved. Everything here is pure, so the
+ * server and the browser rank the same way.
  *
  * Ranking (owner's brief): an exact PIN or area match first, then distance
  * from what was searched (the PIN's or locality's centre, or the visitor's
  * own location), then name.
  */
-import dealerData from "@/data/dealers-bangalore.json";
 import placeData from "@/data/bangalore-places.json";
 
 export type DealerType =
@@ -50,7 +52,6 @@ export interface Locality {
   lng: number;
 }
 
-export const DEALERS = dealerData.dealers as Dealer[];
 export const PIN_CENTRES: Record<string, number[]> = placeData.pins;
 export const LOCALITIES = placeData.localities as Locality[];
 
@@ -176,10 +177,7 @@ export function findLocality(q: string): Locality | null {
   return best?.l ?? null;
 }
 
-export function interpret(
-  query: string,
-  dealers: Dealer[] = DEALERS
-): SearchResult {
+export function interpret(query: string, dealers: Dealer[]): SearchResult {
   const raw = query.trim();
   if (!raw) return EMPTY;
 
@@ -437,7 +435,64 @@ export function typesFor(
   return narrowed.length ? narrowed : a.types;
 }
 
-/** Results shown at first, and added by each "Show more". */
-export const PAGE_SIZE = 8;
+/** The ranked outlets that pass the visitor's filters. */
+export function matching(
+  ranked: Ranked[],
+  f: {
+    types: DealerType[];
+    /** Only outlets with samples or slabs on show (homeowners). */
+    needsDisplay: boolean;
+    samplesOnly?: boolean;
+    slabsOnly?: boolean;
+  }
+) {
+  return ranked.filter(
+    ({ dealer: d }) =>
+      f.types.includes(d.type) &&
+      (!f.needsDisplay || d.samples || d.slabs) &&
+      (!f.samplesOnly || d.samples) &&
+      (!f.slabsOnly || d.slabs)
+  );
+}
+
+/** The most outlets shown for a search, on the list and the map: the
+ *  nearest three, with no "Show more" and no totals, so the directory
+ *  cannot be read off the page (marketing, 2026-10-26). */
+export const MAX_SHOWN = 3;
 /** Beyond this the results line says the nearest outlet is far. */
 export const NEAR_KM = 15;
+
+/* ---- The lead form ------------------------------------------------------
+ * Marketing (2026-10-26, after Aquant's locator): visitors leave their
+ * details before any outlet is shown, so the sales team can follow up and
+ * competitors cannot read the directory freely. Shared by the form and
+ * /api/where-to-buy/lead so both check the same way.
+ */
+
+/** An Indian mobile as its 10 digits, or null: "+91 98450 12345",
+ *  "098450-12345" and "9845012345" all give "9845012345". */
+export function indianMobile(s: string): string | null {
+  const d = s.replace(/\D/g, "").replace(/^(?:91|0)(?=\d{10}$)/, "");
+  return /^[6-9]\d{9}$/.test(d) ? d : null;
+}
+
+/** "9845012345" as "+91 98450 12345". */
+export const formatMobile = (ten: string) =>
+  `+91 ${ten.slice(0, 5)} ${ten.slice(5)}`;
+
+export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** What the consent box says, saved word for word with each lead. */
+export const CONSENT_TEXT =
+  "I agree to Pacific Surfaces contacting me by phone, WhatsApp, SMS or email about my enquiry, as set out in the Privacy Policy.";
+
+/** Ad tags carried from the landing URL into the lead. */
+export const TRACKING = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "gclid",
+  "fbclid",
+];

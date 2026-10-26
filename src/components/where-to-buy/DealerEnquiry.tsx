@@ -77,19 +77,22 @@ export function DealerEnquiry({
   dealer,
   near,
   context = {},
+  contact,
   onClose,
 }: {
   dealer: Dealer | null;
   /** What the visitor searched, for the no-outlet message. */
   near: string;
   context?: EnquiryContext;
+  /** The details the visitor gave on the Where to Buy form, if this visit. */
+  contact?: { name: string; email: string; phone: string } | null;
   onClose: () => void;
 }) {
   const pathname = usePathname() ?? "/where-to-buy";
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
+    name: contact?.name ?? "",
+    email: contact?.email ?? "",
+    phone: contact?.phone ?? "",
     application: context.application ?? "",
     message: prefill(dealer, near, context),
     website: "",
