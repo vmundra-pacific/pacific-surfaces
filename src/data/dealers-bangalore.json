@@ -1092,7 +1092,10 @@
    "area": "Indiranagar",
    "pin": "560008",
    "city": "Bengaluru",
-   "phone": null,
+   "phone": {
+    "display": "+91 80 2521 0332",
+    "href": "tel:+918025210332"
+   },
    "lat": 12.964904,
    "lng": 77.641322,
    "geo": "pin",
@@ -1316,7 +1319,10 @@
    "area": "Basavanagudi",
    "pin": "560004",
    "city": "Bengaluru",
-   "phone": null,
+   "phone": {
+    "display": "+91 80 7353 0998",
+    "href": "tel:+918073530998"
+   },
    "lat": 12.954408,
    "lng": 77.576775,
    "geo": "pin",
@@ -1335,7 +1341,10 @@
    "area": "Banaswadi",
    "pin": "560043",
    "city": "Bengaluru",
-   "phone": null,
+   "phone": {
+    "display": "+91 99009 75197",
+    "href": "tel:+919900975197"
+   },
    "lat": 13.014162,
    "lng": 77.651854,
    "geo": "area",

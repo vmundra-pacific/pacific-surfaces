@@ -73,7 +73,7 @@ import "./where-to-buy.css";
  * The answers live in the URL, so a result can be shared:
  *   ?who=homeowner&for=kitchen&where=560102
  *   ?who=trade&for=browsing&lat=12.93&lng=77.62   (location, to ~1 km)
- * plus the refinements type=, samples=1, slabs=1, view=map, and all=1 for
+ * plus the refinements type=, view=map, and all=1 for
  * the whole directory. A shared link opens the results for a visitor who
  * has left their details, and the form, filled in, for anyone else.
  */
@@ -288,8 +288,6 @@ export function WhereToBuy({
 
   // Refinements of the results.
   const [typeOverride, setTypeOverride] = useState<DealerType[] | null>(null);
-  const [samplesOnly, setSamplesOnly] = useState(false);
-  const [slabsOnly, setSlabsOnly] = useState(false);
   const [view, setView] = useState<"list" | "map">("list");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [focusToken, setFocusToken] = useState(0);
@@ -333,8 +331,6 @@ export function WhereToBuy({
       .split(",")
       .filter((x): x is DealerType => TYPE_ORDER.some((o) => o.value === x));
     if (t.length) setTypeOverride(t);
-    setSamplesOnly(p.get("samples") === "1");
-    setSlabsOnly(p.get("slabs") === "1");
     if (p.get("view") === "map") setView("map");
     setReady(true);
   }, [startUnlocked]);
@@ -358,15 +354,13 @@ export function WhereToBuy({
         p.set("lng", String(answers.geo.lng));
       } else if (answers.where) p.set("where", answers.where);
       if (typeOverride) p.set("type", typeOverride.join(","));
-      if (samplesOnly) p.set("samples", "1");
-      if (slabsOnly) p.set("slabs", "1");
       if (view === "map") p.set("view", "map");
     }
     const s = p.toString();
     const url = `${window.location.pathname}${s ? `?${s}` : ""}`;
     if (url !== `${window.location.pathname}${window.location.search}`)
       window.history.replaceState(window.history.state, "", url);
-  }, [ready, answers, typeOverride, samplesOnly, slabsOnly, view]);
+  }, [ready, answers, typeOverride, view]);
 
   // Every search after the lead goes to the server, which answers with the
   // nearest few; refinements ask again. A lapsed access shows the form.
@@ -374,8 +368,8 @@ export function WhereToBuy({
     if (!unlocked || !complete(answers)) return;
     const q = queryOf(answers, {
       types: typeOverride,
-      samples: samplesOnly,
-      slabs: slabsOnly,
+      samples: false,
+      slabs: false,
     });
     const key = JSON.stringify(q);
     if (key === answered.current) return;
@@ -397,7 +391,7 @@ export function WhereToBuy({
         setBadField(null);
       });
     return () => ctrl.abort();
-  }, [unlocked, answers, typeOverride, samplesOnly, slabsOnly]);
+  }, [unlocked, answers, typeOverride]);
 
   const done = complete(answers) && unlocked && outcome !== null;
   const audience = answers.all ? null : audienceOf(answers.who);
@@ -649,8 +643,6 @@ export function WhereToBuy({
   const show = (a: Answers) => {
     setAnswers(a);
     setTypeOverride(null);
-    setSamplesOnly(false);
-    setSlabsOnly(false);
     setActiveId(null);
     requestAnimationFrame(() =>
       resultsTop.current?.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -1377,23 +1369,10 @@ export function WhereToBuy({
                 })}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <Toggle
-                  on={samplesOnly}
-                  onClick={() => setSamplesOnly((v) => !v)}
-                >
-                  Samples<span className="hidden sm:inline"> on display</span>
-                </Toggle>
-                <Toggle on={slabsOnly} onClick={() => setSlabsOnly((v) => !v)}>
-                  Slabs<span className="hidden sm:inline"> on display</span>
-                </Toggle>
-                {(typeOverride || samplesOnly || slabsOnly) && (
+                {typeOverride && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setTypeOverride(null);
-                      setSamplesOnly(false);
-                      setSlabsOnly(false);
-                    }}
+                    onClick={() => setTypeOverride(null)}
                     className="inline-flex h-10 items-center px-2 text-[12px] uppercase tracking-[0.12em] underline underline-offset-4"
                   >
                     {answers.all ? "Clear" : "Back to suggested"}
@@ -1596,46 +1575,6 @@ function Chip({
   );
 }
 
-function Toggle({
-  on,
-  onClick,
-  children,
-}: {
-  on: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      onClick={onClick}
-      style={{ color: INK }}
-      className="inline-flex h-10 items-center gap-2 border border-[#14140f]/20 px-3 text-[12px] uppercase tracking-[0.12em] transition-colors hover:border-[#14140f]"
-    >
-      <span
-        aria-hidden="true"
-        className="flex h-4 w-4 items-center justify-center border"
-        style={{ borderColor: INK, background: on ? INK : "#ffffff" }}
-      >
-        {on && (
-          <svg
-            viewBox="0 0 12 12"
-            className="h-3 w-3"
-            fill="none"
-            stroke="#ffffff"
-            strokeWidth="2"
-          >
-            <path d="M2.5 6.5l2.2 2.2L9.5 3.8" />
-          </svg>
-        )}
-      </span>
-      {children}
-    </button>
-  );
-}
-
 function ViewTab({
   on,
   onClick,
@@ -1684,13 +1623,6 @@ function DealerCard({
 }) {
   const d = r.dealer;
   const approx = d.geo === "pin-code" || d.geo === "area";
-  const display = [
-    d.samples && "Sample stand",
-    d.slabs &&
-      (d.onDisplay.length
-        ? `Display slabs: ${d.onDisplay.join(", ")}`
-        : "Display slabs"),
-  ].filter(Boolean) as string[];
   return (
     <div
       id={`dealer-${d.id}`}
@@ -1739,17 +1671,6 @@ function DealerCard({
           {approx && (
             <p className="mt-1 text-[12px] font-light" style={MUTED}>
               Map position approximate; use Directions or call ahead.
-            </p>
-          )}
-          {display.length > 0 && (
-            <p className="mt-2 text-[13px] font-light">
-              <span
-                className="text-[11px] uppercase tracking-[0.14em]"
-                style={MUTED}
-              >
-                On display{" "}
-              </span>
-              {display.join(" · ")}
             </p>
           )}
           {d.phone && (

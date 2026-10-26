@@ -12,7 +12,8 @@ Writes
 The master is an INTERNAL sheet, so only public business details leave it:
 business name, type, address, area, PIN, city, what Pacific material is on
 display, and a phone number only when the sheet says it came from the
-business's own public listing ("Phone Source" = "Google (...)"). Contact
+business's own public listing ("Phone Source" = "Google (...)"). An outlet
+with no such number takes the one on its Sanity `dealer` document, if any. Contact
 person names, their mobiles, sales staff, stand status, remarks, costs and
 the collateral log are never read into the output.
 
@@ -424,6 +425,8 @@ def phone_obj(raw: str) -> dict | None:
     digits = re.sub(r"\D", "", first)
     if digits.startswith("91") and len(digits) == 12:
         n = digits[2:]
+    elif len(digits) == 11 and digits.startswith("0"):  # 080 xxxx xxxx
+        n = digits[1:]
     elif len(digits) == 10:
         n = digits
     else:
@@ -433,6 +436,32 @@ def phone_obj(raw: str) -> dict | None:
     else:
         display = f"+91 {n[:5]} {n[5:]}"
     return {"display": display, "href": f"tel:+91{n}"}
+
+
+SANITY_QUERY_URL = "https://zg1p4qgs.apicdn.sanity.io/v2026-03-28/data/query/production"
+
+
+def sanity_phones() -> dict[str, dict]:
+    """Public phone numbers of the Sanity `dealer` documents, by squashed name.
+
+    An outlet the sheet gives no public phone takes its number from here.
+    Cached like the geocoding, so --offline still has them.
+    """
+    q = '*[_type=="dealer" && defined(phone)]{name, phone}'
+    key = "sanity:" + q
+    if key not in cache:
+        if OFFLINE:
+            return {}
+        url = SANITY_QUERY_URL + "?" + urllib.parse.urlencode({"query": q})
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=30) as resp:
+            cache[key] = json.load(resp)["result"]
+        save_cache()
+    out = {}
+    for row in cache[key]:
+        ph = phone_obj(row.get("phone") or "")
+        if ph and row.get("name"):
+            out[squash(row["name"])] = ph
+    return out
 
 
 def on_display(details: str) -> list[str]:
@@ -618,6 +647,12 @@ def main() -> None:
             ang = 2 * math.pi * k / len(group)
             d["lat"] = round(lat0 + 0.0022 * math.sin(ang), 6)
             d["lng"] = round(lng0 + 0.0022 * math.cos(ang) / math.cos(math.radians(lat0)), 6)
+
+    # No public phone in the sheet: use the one in Sanity, if any.
+    from_sanity = sanity_phones()
+    for d in dealers:
+        if d["phone"] is None:
+            d["phone"] = from_sanity.get(squash(d["name"]))
 
     dealers.sort(key=lambda d: d["name"].lower())
     ids = [d["id"] for d in dealers]
