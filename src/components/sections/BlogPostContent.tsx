@@ -228,6 +228,7 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
               the custom image renderer above for inline assets,
               this is fallback for any direct <img> in body). */}
           <motion.div
+            data-article-body
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
