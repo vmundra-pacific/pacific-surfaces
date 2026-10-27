@@ -38,8 +38,17 @@ export const projectId = assertValue(
  * build without it fails on a private dataset. The form routes read and
  * write with SANITY_API_WRITE_TOKEN, and Studio uses each editor's own
  * login, so neither depends on this token.
+ *
+ * Fallback (2026-10-27): the dataset went private before a Viewer token
+ * was on Vercel, and a private dataset answers an anonymous query with
+ * nothing (no error), so the site emptied ("0 designs"). Until
+ * SANITY_API_READ_TOKEN is set, reads use the write token the forms
+ * already hold on the server. It never reaches the browser (server-only
+ * clients) and reads only published documents (perspective "published"
+ * in client.ts). Still add a Viewer token: least privilege.
  */
-export const readToken = process.env.SANITY_API_READ_TOKEN;
+export const readToken =
+  process.env.SANITY_API_READ_TOKEN || process.env.SANITY_API_WRITE_TOKEN;
 
 function assertValue<T>(v: T | undefined, errorMessage: string): T {
   if (v === undefined) {
