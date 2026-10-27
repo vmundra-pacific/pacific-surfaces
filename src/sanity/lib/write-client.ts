@@ -1,3 +1,4 @@
+import "server-only";
 import { createClient } from "@sanity/client";
 import { apiVersion, dataset, projectId } from "../env";
 

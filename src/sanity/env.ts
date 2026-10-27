@@ -16,8 +16,8 @@ export const projectId = assertValue(
  *
  * Deliberately NOT prefixed with NEXT_PUBLIC_ — it must never reach the
  * browser. It is only ever referenced from server components, route
- * handlers and build-time scripts (verified: no `"use client"` module
- * imports src/sanity/lib/client.ts).
+ * handlers and build-time scripts (client.ts imports `server-only`, so a
+ * `"use client"` module importing it is a build error).
  *
  * Why this exists: the read clients were previously tokenless, which
  * requires the dataset to be world-readable. That meant anyone holding
@@ -32,6 +32,12 @@ export const projectId = assertValue(
  * the token is simply unused, and once it's private the same code path
  * starts authenticating. Grant it Viewer/read permission only — never a
  * write role.
+ *
+ * Before the dataset is set to Private it must be on Vercel for
+ * Production AND Preview: pages are also rendered at build time, so a
+ * build without it fails on a private dataset. The form routes read and
+ * write with SANITY_API_WRITE_TOKEN, and Studio uses each editor's own
+ * login, so neither depends on this token.
  */
 export const readToken = process.env.SANITY_API_READ_TOKEN;
 

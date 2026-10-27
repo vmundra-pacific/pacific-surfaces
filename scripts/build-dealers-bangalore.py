@@ -438,7 +438,25 @@ def phone_obj(raw: str) -> dict | None:
     return {"display": display, "href": f"tel:+91{n}"}
 
 
-SANITY_QUERY_URL = "https://zg1p4qgs.apicdn.sanity.io/v2026-03-28/data/query/production"
+SANITY_QUERY_URL = "https://zg1p4qgs.api.sanity.io/v2026-03-28/data/query/production"
+
+
+def sanity_read_token() -> str:
+    """SANITY_API_READ_TOKEN, from the environment or .env.local.
+
+    The dataset is private, so the query needs it (a Viewer token, as on
+    the site). Falls back to the write token, which can read too.
+    """
+    import os
+
+    env = dict(os.environ)
+    local = ROOT / ".env.local"
+    if local.exists():
+        for line in local.read_text(encoding="utf-8").splitlines():
+            k, sep, v = line.partition("=")
+            if sep and k.strip() and not k.lstrip().startswith("#"):
+                env.setdefault(k.strip(), v.strip().strip('"'))
+    return env.get("SANITY_API_READ_TOKEN") or env.get("SANITY_API_WRITE_TOKEN") or ""
 
 
 def sanity_phones() -> dict[str, dict]:
@@ -452,8 +470,12 @@ def sanity_phones() -> dict[str, dict]:
     if key not in cache:
         if OFFLINE:
             return {}
-        url = SANITY_QUERY_URL + "?" + urllib.parse.urlencode({"query": q})
-        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=30) as resp:
+        url = SANITY_QUERY_URL + "?" + urllib.parse.urlencode({"query": q, "perspective": "published"})
+        headers = {"User-Agent": UA}
+        token = sanity_read_token()
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=30) as resp:
             cache[key] = json.load(resp)["result"]
         save_cache()
     out = {}
