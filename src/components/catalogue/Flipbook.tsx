@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
+  SOURCE_LANG,
+  nudgeTranslator,
+  translatedLanguage,
+} from "@/lib/site-translate";
+import {
   Check,
   ChevronLeft,
   ChevronRight,
@@ -33,12 +38,224 @@ import {
  * page is one spread on screen and no pairing logic is needed.
  */
 
+type Matrix = number[];
+
+interface PdfViewport {
+  width: number;
+  height: number;
+  scale: number;
+  transform: Matrix;
+}
+
+interface PdfTextContent {
+  items: {
+    str?: string;
+    transform: Matrix;
+    width: number;
+    height: number;
+    fontName: string;
+  }[];
+  styles: Record<string, { ascent?: number; vertical?: boolean }>;
+}
+
 interface PdfPage {
-  getViewport: (o: { scale: number }) => { width: number; height: number };
+  getViewport: (o: { scale: number }) => PdfViewport;
+  getTextContent: () => Promise<PdfTextContent>;
   render: (o: Record<string, unknown>) => {
     promise: Promise<void>;
     cancel: () => void;
   };
+}
+
+/* ---------- translated reading ----------
+ * When the site is shown in another language (the region selector, which
+ * uses Google Translate), the catalogue is translated too (owner,
+ * 2026-10-27). Text inside a canvas can't be translated, so each leaf is
+ * drawn without its text, the PDF's own words are laid over it as real text
+ * in the same places, sizes and colours, and Google Translate translates
+ * those. A translated line is squeezed to the width the original took, so
+ * it never runs into the picture beside it. In English none of this runs.
+ *
+ * The words sit in a layer of their own directly on <body>, fixed over the
+ * canvas, not inside the reader: the widget never looked inside the reader
+ * again once it had opened (checked 2026-10-27, text added there stayed in
+ * English), but translates new text on <body> when nudged. "Pacific" is
+ * kept as written; it is the brand, not the ocean.
+ */
+
+/** Two PDF matrices multiplied, as pdf.js's Util.transform. */
+const multiply = (a: Matrix, b: Matrix): Matrix => [
+  a[0] * b[0] + a[2] * b[1],
+  a[1] * b[0] + a[3] * b[1],
+  a[0] * b[2] + a[2] * b[3],
+  a[1] * b[2] + a[3] * b[3],
+  a[0] * b[4] + a[2] * b[5] + a[4],
+  a[1] * b[4] + a[3] * b[5] + a[5],
+];
+
+interface Glyph {
+  x: number;
+  y: number;
+  color: string;
+}
+
+/** Make a context skip text, noting where each glyph went and its colour. */
+function muteText(ctx: CanvasRenderingContext2D, glyphs: Glyph[]) {
+  ctx.fillText = (_text: string, x: number, y: number) => {
+    const p = ctx.getTransform().transformPoint(new DOMPoint(x, y));
+    glyphs.push({
+      x: p.x,
+      y: p.y,
+      color: typeof ctx.fillStyle === "string" ? ctx.fillStyle : "#000",
+    });
+  };
+  ctx.strokeText = () => {};
+}
+
+interface TextRun {
+  left: number;
+  top: number;
+  size: number;
+  width: number;
+  angle: number;
+  color: string;
+  text: string;
+}
+
+/** A leaf's text as positioned runs, in CSS pixels of the drawn spread. */
+function textRuns(
+  content: PdfTextContent,
+  vp: PdfViewport,
+  offsetX: number,
+  glyphs: Glyph[],
+  dpr: number
+): TextRun[] {
+  const runs: TextRun[] = [];
+  for (const item of content.items) {
+    if (!item.str || !item.str.trim()) continue;
+    const tx = multiply(vp.transform, item.transform);
+    const size = Math.hypot(tx[2], tx[3]);
+    if (size < 1) continue;
+    const style = content.styles[item.fontName];
+    const ascent = Math.min(Math.max(style?.ascent ?? 0.8, 0.5), 1);
+    const width = (style?.vertical ? item.height : item.width) * vp.scale;
+    const [x, y] = [tx[4], tx[5]];
+    const ink = glyphs.find(
+      (g) =>
+        g.x >= x - 1 && g.x <= x + width + 1 && Math.abs(g.y - y) <= size * 0.6
+    );
+    runs.push({
+      left: (offsetX + x) / dpr,
+      top: (y - size * ascent) / dpr,
+      size: size / dpr,
+      width: width / dpr,
+      angle: Math.atan2(tx[1], tx[0]),
+      color: ink?.color ?? "#000",
+      text: item.str,
+    });
+  }
+  return runs;
+}
+
+/** Squeeze a run to the width its original line took (never stretch). */
+function fitRun(span: HTMLElement) {
+  const target = Number(span.dataset.w);
+  const natural = span.offsetWidth;
+  const k =
+    natural > 0 && target > 0
+      ? Math.min(1, Math.max(0.5, target / natural))
+      : 1;
+  span.style.transform = `rotate(${span.dataset.a}rad) scaleX(${k})`;
+}
+
+/** A run's text, with the brand name marked not to be translated. The
+ *  space after it goes with it: the widget trims the text that follows. */
+function runContent(text: string): Node[] {
+  return text
+    .split(/(pacific\s*)/i)
+    .filter(Boolean)
+    .map((part) => {
+      if (!/^pacific\s*$/i.test(part)) return document.createTextNode(part);
+      const keep = document.createElement("span");
+      keep.className = "notranslate";
+      keep.setAttribute("translate", "no");
+      keep.textContent = part;
+      return keep;
+    });
+}
+
+interface TextHost {
+  wrap: HTMLDivElement;
+  layer: HTMLDivElement;
+}
+
+function createTextHost(): TextHost {
+  const wrap = document.createElement("div");
+  wrap.className = "font-sans select-none";
+  // Above the reader (z-[200]); clicks go through to it.
+  Object.assign(wrap.style, {
+    position: "fixed",
+    zIndex: "201",
+    pointerEvents: "none",
+    overflow: "hidden",
+    opacity: "0",
+    transition: "opacity 200ms",
+  });
+  const layer = document.createElement("div");
+  Object.assign(layer.style, { position: "absolute", transformOrigin: "0 0" });
+  wrap.appendChild(layer);
+  document.body.appendChild(wrap);
+  return { wrap, layer };
+}
+
+/** Keep the words on the canvas: clipped to the stage, which scrolls when
+ *  zoomed, and scaled to the canvas as laid out (max-h-full can shrink it
+ *  below the size it was drawn at). */
+function placeText(
+  host: TextHost,
+  stage: HTMLElement,
+  canvas: HTMLCanvasElement
+) {
+  const s = stage.getBoundingClientRect();
+  const c = canvas.getBoundingClientRect();
+  const w = Number(host.layer.dataset.w) || c.width;
+  const h = Number(host.layer.dataset.h) || c.height;
+  Object.assign(host.wrap.style, {
+    left: `${s.left}px`,
+    top: `${s.top}px`,
+    width: `${s.width}px`,
+    height: `${s.height}px`,
+  });
+  Object.assign(host.layer.style, {
+    left: `${c.left - s.left}px`,
+    top: `${c.top - s.top}px`,
+    width: `${w}px`,
+    height: `${h}px`,
+    transform: `scale(${c.width / w || 1}, ${c.height / h || 1})`,
+  });
+}
+
+function paintRuns(layer: HTMLElement, runs: TextRun[]) {
+  layer.replaceChildren(
+    ...runs.map((r) => {
+      const s = document.createElement("span");
+      s.append(...runContent(r.text));
+      s.dataset.w = String(r.width);
+      s.dataset.a = String(r.angle);
+      Object.assign(s.style, {
+        position: "absolute",
+        left: `${r.left}px`,
+        top: `${r.top}px`,
+        fontSize: `${r.size}px`,
+        lineHeight: "1",
+        whiteSpace: "pre",
+        color: r.color,
+        transformOrigin: "0 0",
+      });
+      return s;
+    })
+  );
+  layer.querySelectorAll<HTMLElement>("span[data-w]").forEach(fitRun);
 }
 interface PdfDoc {
   numPages: number;
@@ -64,6 +281,8 @@ export function Flipbook({
   onClose: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // The spread's words, laid over the canvas when the site is translated.
+  const textHostRef = useRef<TextHost | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const docRef = useRef<PdfDoc | null>(null);
   const taskRef = useRef<{ cancel: () => void } | null>(null);
@@ -207,6 +426,11 @@ export function Flipbook({
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, w, h);
 
+    // Translated reading: leaves drawn without text, the words laid over
+    // them (see paintRuns above).
+    const translating = translatedLanguage() !== SOURCE_LANG;
+    const runs: TextRun[] = [];
+
     // Render each leaf into its own offscreen canvas, then place them side
     // by side. pdf.js renders to the origin of whatever canvas it is given,
     // so it cannot draw the right-hand leaf at an offset directly.
@@ -219,6 +443,8 @@ export function Flipbook({
       if (!octx) continue;
       octx.fillStyle = "#ffffff";
       octx.fillRect(0, 0, off.width, off.height);
+      const glyphs: Glyph[] = [];
+      if (translating) muteText(octx, glyphs);
       const task = leaves[i].render({
         canvasContext: octx,
         viewport: vps[i],
@@ -232,6 +458,22 @@ export function Flipbook({
       }
       if (!aliveRef.current) return;
       ctx.drawImage(off, x, 0);
+      if (translating) {
+        try {
+          runs.push(
+            ...textRuns(
+              await leaves[i].getTextContent(),
+              vps[i],
+              x,
+              glyphs,
+              dpr
+            )
+          );
+        } catch {
+          /* no text layer for this leaf */
+        }
+        if (!aliveRef.current) return;
+      }
       x += off.width;
     }
     setPainted(true);
@@ -242,7 +484,59 @@ export function Flipbook({
       ctx.fillStyle = "rgba(0,0,0,.16)";
       ctx.fillRect(seam - 1, 0, 2, h);
     }
+
+    const host = textHostRef.current;
+    if (host && translating) {
+      host.layer.dataset.w = String(w / dpr);
+      host.layer.dataset.h = String(h / dpr);
+      paintRuns(host.layer, runs);
+      if (stageRef.current) placeText(host, stageRef.current, canvas);
+      nudgeTranslator();
+    }
   }, [page, zoom, paired]);
+
+  // Translated reading: the words' layer on <body> (see createTextHost),
+  // for as long as the reader is open.
+  useEffect(() => {
+    if (translatedLanguage() === SOURCE_LANG) return;
+    const host = createTextHost();
+    textHostRef.current = host;
+    // The widget swaps translated words in after they are laid out;
+    // squeeze each line back into its original width.
+    let frame = 0;
+    const mo = new MutationObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() =>
+        host.layer.querySelectorAll<HTMLElement>("span[data-w]").forEach(fitRun)
+      );
+    });
+    mo.observe(host.layer, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    });
+    const stage = stageRef.current;
+    const place = () => {
+      if (stageRef.current && canvasRef.current)
+        placeText(host, stageRef.current, canvasRef.current);
+    };
+    stage?.addEventListener("scroll", place, { passive: true });
+    window.addEventListener("resize", place);
+    return () => {
+      mo.disconnect();
+      cancelAnimationFrame(frame);
+      stage?.removeEventListener("scroll", place);
+      window.removeEventListener("resize", place);
+      host.wrap.remove();
+      textHostRef.current = null;
+    };
+  }, []);
+
+  // Shown with the spread, hidden while a page turns.
+  useEffect(() => {
+    const host = textHostRef.current;
+    if (host) host.wrap.style.opacity = painted && !turning ? "1" : "0";
+  }, [painted, turning]);
 
   useEffect(() => {
     if (!loading && !error) void draw();

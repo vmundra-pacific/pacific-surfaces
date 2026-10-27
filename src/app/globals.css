@@ -140,3 +140,26 @@ body {
     animation: none;
   }
 }
+
+/* Google Translate (the region selector's languages, lib/site-translate):
+   the page is translated in place with none of the widget's own chrome,
+   so a translated page looks exactly like the English one. Its top
+   banner pushes <body> down by setting `top`; the rest are its hover
+   tooltip, "original text" balloon and highlight. Inert when the page is
+   not translated. */
+.goog-te-banner-frame,
+iframe.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-yAWNEb-L7lbkb {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}

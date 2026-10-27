@@ -20,6 +20,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
+import { RegionSelector } from "@/components/global/RegionSelector";
+import { useHeaderFit } from "@/components/layout/useHeaderFit";
 import { ProductsMega } from "@/components/layout/ProductsMega";
 
 // The search overlay renders nothing until it is opened, so its code is
@@ -551,6 +553,9 @@ export default function Header() {
   const [activeMega, setActiveMega] = useState<string | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const megaOpen = openMegaItem !== null;
+  // The bar's grid; its items are scaled down where they would collide.
+  const navGridRef = useRef<HTMLDivElement>(null);
+  useHeaderFit(navGridRef);
 
   const handleMegaEnter = (itemName: string) => {
     if (closeTimerRef.current) {
@@ -973,34 +978,44 @@ export default function Header() {
               menu like Cosentino"): the outer columns take only their
               content, so the nav fits between them instead of falling
               back to the hamburger; from 1700px the centred thirds. */}
-          <div className="grid h-20 min-w-0 grid-cols-[1fr_auto_1fr] min-[1200px]:max-[1699px]:grid-cols-[auto_1fr_auto] items-center gap-x-4">
+          <div
+            ref={navGridRef}
+            className="grid h-20 min-w-0 grid-cols-[1fr_auto_1fr] min-[1200px]:max-[1699px]:grid-cols-[auto_1fr_auto] items-center gap-x-4"
+          >
             {/* Logo — one PacificLogoMark graphic, always white. The
                 drop-shadow is a soft glow (not a hard box) so the mark
                 stays legible over the bright homepage marble hero
                 without reintroducing the flat background tile that
                 used to sit behind it. */}
-            <Link
-              href="/"
-              className="col-start-1 justify-self-start flex items-center group"
-            >
-              {/* The Pacific Surfaces lockup (mark + PACIFIC +
+            {/* Logo, then the region selector behind a hairline divider,
+                as on Cosentino's bar (owner, 2026-10-27). */}
+            <div className="col-start-1 justify-self-start flex items-center gap-3 min-[640px]:gap-4">
+              <Link href="/" className="flex shrink-0 items-center group">
+                {/* The Pacific Surfaces lockup (mark + PACIFIC +
                   SURFACES) as one graphic from the official artwork,
                   rather than an icon plus HTML text. Same size at every
                   breakpoint; it is compact enough never to crowd the
                   nav. */}
-              <PacificLogoMark
-                className={cn(
-                  // h-10, down from h-12: at the old size the lockup
-                  // crowded the nav on the narrower desktop widths.
-                  "h-10 w-auto text-current transition-[filter] duration-200",
-                  // The glow exists to lift the mark off photography.
-                  // On a settled light or dark bar there is no photo
-                  // behind it, and the shadow reads as a smudge.
-                  navTheme === "regular" &&
-                    "drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)]"
-                )}
+                <PacificLogoMark
+                  className={cn(
+                    // h-10, down from h-12: at the old size the lockup
+                    // crowded the nav on the narrower desktop widths.
+                    "h-10 w-auto text-current transition-[filter] duration-200",
+                    // The glow exists to lift the mark off photography.
+                    // On a settled light or dark bar there is no photo
+                    // behind it, and the shadow reads as a smudge.
+                    navTheme === "regular" &&
+                      "drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)]"
+                  )}
+                />
+              </Link>
+              <span
+                data-fit-optional
+                aria-hidden="true"
+                className="hidden h-6 w-px shrink-0 bg-current opacity-30 min-[640px]:block"
               />
-            </Link>
+              <RegionSelector />
+            </div>
 
             {/* Desktop nav.
                 Breakpoint: was `lg:` (1024px) — at that width, 7 nav
@@ -1023,7 +1038,10 @@ export default function Header() {
                     key={item.name}
                     // the Visualizer tab only where the row has room: below
                     // 1500 px it makes way for the Where to Buy pill
-                    className={cn("relative group shrink-0", item.name === "Visualizer" && "hidden min-[1500px]:block")}
+                    className={cn(
+                      "relative group shrink-0",
+                      item.name === "Visualizer" && "hidden min-[1500px]:block"
+                    )}
                     // Hover handlers fire for any mega item (Products
                     // or Spaces). The handler takes `item.name` so the
                     // shared mega-menu panel knows which content to
