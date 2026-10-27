@@ -82,12 +82,10 @@ export function CertificateViewer({
   }, [meta, cert]);
 
   useEffect(() => {
-    const html = document.documentElement;
     const { overflow } = document.body.style;
     // overflow alone, as in the Flipbook: a position:fixed lock fights
     // Lenis and loses the scroll position on close.
     document.body.style.overflow = "hidden";
-    html.classList.add("cert-viewing");
 
     const conceal = () => setConcealed(true);
     const scrubClipboard = () => {
@@ -128,7 +126,6 @@ export function CertificateViewer({
 
     return () => {
       document.body.style.overflow = overflow;
-      html.classList.remove("cert-viewing");
       window.removeEventListener("keydown", onKeyDown, true);
       window.removeEventListener("keyup", onKeyUp, true);
       window.removeEventListener("blur", conceal);
@@ -160,10 +157,18 @@ export function CertificateViewer({
       className="fixed inset-0 z-[200] flex flex-col bg-black/85 backdrop-blur-sm"
       onContextMenu={guard}
       onDragStart={guard}
-      style={{ userSelect: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none" }}
+      style={{
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        WebkitTouchCallout: "none",
+      }}
     >
-      {/* Printing a page with the viewer open prints nothing. */}
-      <style>{`@media print { html.cert-viewing body { display: none !important; } }`}</style>
+      {/* Printing a page with the viewer open prints nothing. The rule
+          lives only as long as the viewer is mounted, so it needs no
+          marker class: a class on <html> made Chrome restyle every element
+          on the page (~70 ms on a mid-range phone) as the viewer opened,
+          inside the tap (INP, 2026-10-27). */}
+      <style>{`@media print { body { display: none !important; } }`}</style>
 
       <div className="flex shrink-0 items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
@@ -194,8 +199,8 @@ export function CertificateViewer({
       >
         {failed && (
           <div className="mx-auto mt-24 max-w-md text-center text-sm text-white/80">
-            This certificate could not be loaded just now. Please try again
-            in a moment.
+            This certificate could not be loaded just now. Please try again in a
+            moment.
           </div>
         )}
 
@@ -250,7 +255,7 @@ export function CertificateViewer({
         )}
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 
