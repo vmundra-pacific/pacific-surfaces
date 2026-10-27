@@ -1,0 +1,58 @@
+/* The homepage hero (HeroScrollCanvas). Larger screens: a 700vh track
+   that scrubs the kitchen frames. Phones (the same media query as
+   PHONE_QUERY in the component): one screen, no frames, and two
+   photographs cross-fading, 5 s each (owner, 2026-10-27). The layout is
+   here, not in script, so it is right from the first paint. */
+
+.hero-track {
+  height: 700vh;
+}
+.hero-stage {
+  height: 100vh;
+}
+
+@media (max-width: 767px), (max-aspect-ratio: 3/5), (max-height: 500px) {
+  .hero-track,
+  .hero-stage {
+    height: 100vh;
+    height: 100svh;
+  }
+  .hero-desktop-only {
+    display: none;
+  }
+  /* A little darker than the scrub's opening frame: the Almond Mist
+     photograph is pale, and the headline and H1 sit over it in white.
+     (Inline opacity is the desktop loop's; nothing changes it here.) */
+  .hero-overlay {
+    opacity: 0.35 !important;
+  }
+}
+
+/* The second photograph over the first: hidden until it has loaded, then
+   a 10 s cycle, 1 s fades, so each photograph holds for about 5 s. */
+.hero-slide-2 {
+  opacity: 0;
+}
+.hero-slide-2[data-loaded] {
+  animation: hero-crossfade 10s ease-in-out infinite;
+}
+
+@keyframes hero-crossfade {
+  0%,
+  40% {
+    opacity: 0;
+  }
+  50%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide-2[data-loaded] {
+    animation: none;
+  }
+}

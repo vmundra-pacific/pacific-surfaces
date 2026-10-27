@@ -12,9 +12,29 @@
  * everywhere" — appropriate for testimonials sourced from clients
  * across continents.
  */
+import { useEffect, useState } from "react";
 import { ProfessionalsVideoGrid } from "@/components/sections/ProfessionalsVideoGrid";
 import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
+
+/** Where the section shows (its classes below): not on phones, held
+ *  either way, the same phones the homepage hero treats as phones. */
+const SHOWN_QUERY = "(min-width: 768px) and (min-height: 501px)";
+
+/** Whether the section is on screen at this width; false until mounted, so
+ *  a phone never renders the films (and never fetches them, as it did while
+ *  they were merely hidden: owner, 2026-10-27). */
+function useShown() {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(SHOWN_QUERY);
+    const on = () => setShown(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return shown;
+}
 
 interface Testimonial {
   quote: string;
@@ -67,12 +87,13 @@ const ENTRY_OFFSETS: Array<{ x: number; y: number }> = [
 ];
 
 export function TestimonialsSection() {
+  const shown = useShown();
   return (
     // Not on phones (owner, 2026-10-24): the five professionals' films are a
     // desktop section; on a phone they were a long scroll of posters.
     <section
       id="sec-voices"
-      className="relative hidden bg-[#0a1620] py-16 sm:py-20 md:block md:py-28 px-6 scroll-mt-20 overflow-hidden"
+      className="relative hidden bg-[#0a1620] py-16 sm:py-20 md:[@media(min-height:501px)]:block md:py-28 px-6 scroll-mt-20 overflow-hidden"
     >
       <div className="mx-auto max-w-7xl">
         {/* Section header */}
@@ -86,11 +107,13 @@ export function TestimonialsSection() {
           <div className="text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase text-white/80 mb-4">
             05 · Voices
           </div>
-          <ProfessionalsVideoGrid
-        eyebrow="In motion"
-        title="See the work in motion."
-        body="A few minutes inside the design reviews, fabrication floor, and on-site installs that shape a Pacific partnership."
-      />
+          {shown && (
+            <ProfessionalsVideoGrid
+              eyebrow="In motion"
+              title="See the work in motion."
+              body="A few minutes inside the design reviews, fabrication floor, and on-site installs that shape a Pacific partnership."
+            />
+          )}
         </motion.div>
 
         {/* Card grid — 1 col on phone, 2 on tablet, 6 on desktop.

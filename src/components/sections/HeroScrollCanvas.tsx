@@ -4,21 +4,35 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ALTERNATE_NAME, ALTERNATE_NAME_PAGE, HOME_H1 } from "@/data/business";
+import "./hero-scroll.css";
 
 const TOTAL_FRAMES = 520;
 const pad = (n: number) => String(n).padStart(4, "0");
 
-/* Portrait phones get their own frames (owner, 2026-10-22: "performance
-   is very low in phone"). A phone shows only the centre strip of a
-   1920 x 1080 frame, so /hero-frames-m/ holds that strip, 648 x 1080 at
-   full resolution, from every second frame: 260 JPEGs of ~85 KB (JPEG
-   decodes fastest on phones) in place of 520 frames of ~200 KB. */
-const PHONE_QUERY = "(max-aspect-ratio: 3/5)";
-type FramePlan = { dir: string; total: number; initial: number; step: number; phone: boolean };
-const framePlan = (): FramePlan =>
-  window.matchMedia(PHONE_QUERY).matches
-    ? { dir: "/hero-frames-m", total: 260, initial: 10, step: 2, phone: true }
-    : { dir: "/hero-frames", total: TOTAL_FRAMES, initial: 20, step: 1, phone: false };
+/* Phones get no scroll animation (owner, 2026-10-27): the hero is one
+   screen high and two photographs cross-fade in it, 5 s each, so no
+   frames load and no scroll loop runs. A phone is narrow, portrait-tall
+   or landscape-short; hero-scroll.css switches the layout on the same
+   query before any script runs. (The phone frame set, /hero-frames-m/,
+   is no longer used.) */
+const PHONE_QUERY =
+  "(max-width: 767px), (max-aspect-ratio: 3/5), (max-height: 500px)";
+const isPhone = () => window.matchMedia(PHONE_QUERY).matches;
+
+/** The phone hero's photographs, cut to a portrait strip; the first is
+ *  the page's first paint there, the second fades in over it. */
+const PHONE_SLIDES = [
+  "/images/home/phone-hero-restaurant",
+  "/images/home/phone-hero-almond-mist",
+];
+
+type FramePlan = { dir: string; total: number; initial: number; step: number };
+const framePlan = (): FramePlan => ({
+  dir: "/hero-frames",
+  total: TOTAL_FRAMES,
+  initial: 20,
+  step: 1,
+});
 
 /* The lump sequence (a 206-frame slab cross-section reveal that used
    to play after the kitchen scrub) was removed. The kitchen frames
@@ -115,8 +129,10 @@ export function HeroScrollCanvas() {
   const [showCta, setShowCta] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(true);
   const [ready, setReady] = useState(false);
-  // Which frame set this screen uses; fixed at mount.
-  const planRef = useRef<FramePlan>({ dir: "/hero-frames", total: TOTAL_FRAMES, initial: 20, step: 1, phone: false });
+  const planRef = useRef<FramePlan>(framePlan());
+  // A phone: the cross-fading photographs instead of the scrub.
+  const [phone, setPhone] = useState(false);
+  const [slide2Loaded, setSlide2Loaded] = useState(false);
 
   // Progressive frame preloading:
   // Phase 1: the first INITIAL_BATCH frames → the canvas takes over.
@@ -126,6 +142,14 @@ export function HeroScrollCanvas() {
   //          Save-Data or 2G/3G connections. Loading all 520 frames up
   //          front cost every visitor about 77 MB (site audit, 2026-10-01).
   useEffect(() => {
+    // Phones: no frames at all; the first photograph is already in the
+    // server HTML, and the first headline stands still over it.
+    if (isPhone()) {
+      setPhone(true);
+      setActiveHeadline(0);
+      window.dispatchEvent(new Event("pacific:hero-ready"));
+      return;
+    }
     const plan = framePlan();
     planRef.current = plan;
     const TOTAL = plan.total;
@@ -143,8 +167,6 @@ export function HeroScrollCanvas() {
     // try-AVIF-then-retry-JPG approach we had before.
     const detectExt = (): Promise<"avif" | "jpg"> =>
       new Promise((resolve) => {
-        // The phone frames are JPEG only.
-        if (plan.phone) return resolve("jpg");
         const probe = new window.Image();
         const t = setTimeout(() => resolve("jpg"), 1500);
         probe.onload = () => {
@@ -238,14 +260,10 @@ export function HeroScrollCanvas() {
         // assets. Total bytes loaded = same 520 frames, smarter order.
         const FAST_BATCH = 20;
         const SLOW_BATCH = 8;
-        // Strides in desktop frames; the phone set is every second one.
         const s = (strides: number[]) => strides.map((n) => Math.max(1, Math.round(n / plan.step)));
         const FAST_STRIDES = s([40, 20]);
-        // Phones stop at every second phone frame (130 in all, ~11 MB):
-        // the lerp hides the gaps on a small screen, the bytes do not.
-        // Their strides are all even, so none adds frames past that.
-        const ON_SCROLL_STRIDES = plan.phone ? [4] : s([10, 5]);
-        const SLOW_STRIDES = plan.phone ? [2] : s([2, 1]);
+        const ON_SCROLL_STRIDES = s([10, 5]);
+        const SLOW_STRIDES = s([2, 1]);
         const conn = (
           navigator as Navigator & {
             connection?: { saveData?: boolean; effectiveType?: string };
@@ -420,6 +438,8 @@ export function HeroScrollCanvas() {
   const lastBarRef = useRef(-1);
 
   useEffect(() => {
+    // Phones have nothing to scrub: no loop, no scroll listener.
+    if (isPhone()) return;
     let raf = 0;
     let running = false;
     const LERP_SPEED = 0.12; // 0–1, higher = snappier, lower = smoother
@@ -584,13 +604,9 @@ export function HeroScrollCanvas() {
           the parallax" and clear the active pill while the hero is
           on screen. The id is not in the nav's SECTIONS list — only
           the side-rail's separate hero observer cares about it. */}
-      <section
-        id="sec-hero"
-        ref={trackRef}
-        className="relative"
-        style={{ height: "700vh" }}
-      >
-        <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <section id="sec-hero" ref={trackRef} className="hero-track relative">
+        {/* 700vh on larger screens, one screen on phones (hero-scroll.css). */}
+        <div className="hero-stage sticky top-0 w-full overflow-hidden">
           {/* Static poster of frame 0 — guarantees the first parallax
               image is visible on cold load even before the canvas paints
               (on some mobile cold loads the canvas isn't laid out until
@@ -604,9 +620,13 @@ export function HeroScrollCanvas() {
               priority, so the preload scanner finds this LCP image
               without a separate preload. */}
           <picture>
-            {/* Portrait phones: the phone set's first frame, the same
-                file the canvas loader asks for there. */}
-            <source media={PHONE_QUERY} srcSet="/hero-frames-m/frame-0001.jpg" />
+            {/* Phones: the first of the two cross-fading photographs. */}
+            <source
+              media={PHONE_QUERY}
+              type="image/avif"
+              srcSet={`${PHONE_SLIDES[0]}.avif`}
+            />
+            <source media={PHONE_QUERY} srcSet={`${PHONE_SLIDES[0]}.webp`} />
             <source type="image/avif" srcSet="/hero-frames/frame-0001.avif" />
             <img
               src="/hero-frames/frame-0001.jpg"
@@ -617,14 +637,33 @@ export function HeroScrollCanvas() {
               className="absolute inset-0 h-full w-full object-cover"
             />
           </picture>
+          {/* Phones: the second photograph, fading in over the first and
+              out again every 5 s once it has loaded (hero-scroll.css). */}
+          {phone && (
+            <picture>
+              <source type="image/avif" srcSet={`${PHONE_SLIDES[1]}.avif`} />
+              <img
+                src={`${PHONE_SLIDES[1]}.webp`}
+                alt=""
+                aria-hidden="true"
+                decoding="async"
+                onLoad={() => setSlide2Loaded(true)}
+                data-loaded={slide2Loaded ? "" : undefined}
+                className="hero-slide-2 absolute inset-0 h-full w-full object-cover"
+              />
+            </picture>
+          )}
           {/* Canvas */}
-          <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+          <canvas
+            ref={canvasRef}
+            className="hero-desktop-only absolute inset-0 w-full h-full"
+          />
 
           {/* Dark overlay — opacity driven imperatively from the rAF
               (initial value matches overlayOpacityFor(0) = 0.25). */}
           <div
             ref={overlayRef}
-            className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-300"
+            className="hero-overlay absolute inset-0 bg-black pointer-events-none transition-opacity duration-300"
             style={{ opacity: 0.25 }}
           />
 
@@ -794,7 +833,7 @@ export function HeroScrollCanvas() {
               identical to the old width changes; the lerp already
               supplies the smoothing the removed width transition
               approximated). */}
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/10 z-20">
+          <div className="hero-desktop-only absolute bottom-0 left-0 right-0 h-[2px] bg-white/10 z-20">
             <div
               ref={barRef}
               className="h-full w-full bg-white/60 origin-left"
