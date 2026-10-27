@@ -741,6 +741,13 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
   },
 };
 
+// Every topic's copy lives in this file, so its pages are built once per
+// deploy rather than on each visit. Other /learn/<anything> URLs still
+// render the "Coming soon" fallback, built on their first visit.
+export function generateStaticParams(): Params[] {
+  return Object.keys(TOPIC_COPY).map((topic) => ({ topic }));
+}
+
 const FALLBACK: TopicCopy = {
   title: "Coming soon",
   eyebrow: "Pacific Surfaces",

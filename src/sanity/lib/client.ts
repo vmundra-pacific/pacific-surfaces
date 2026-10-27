@@ -10,11 +10,12 @@ import { apiVersion, dataset, projectId, readToken } from "../env";
  * `server-only` makes importing these clients from browser code a build
  * error, so no query (and no token) can end up in a client bundle.
  *
- * The CDN: @sanity/client 7 does not switch the API CDN off for a token
- * (only for `withCredentials`), so this is our own choice: with a token,
- * every read goes to the live API, the one path certain to work on a
- * private dataset. The cost is that reads are API requests rather than
- * CDN hits; Next's own caching (revalidate) keeps their number down.
+ * The CDN: reads go through Sanity's API CDN, token or not. It serves
+ * token-authenticated queries on this private dataset (checked
+ * 2026-10-27: same results as the live API) in ~50 ms against 190-410 ms
+ * for the live API in Europe, and CDN requests are the cheaper kind on
+ * Sanity's bill. Until the dataset went private the site read through
+ * the CDN anyway (no token). freshClient below stays on the live API.
  *
  * `perspective: "published"`: a token can see drafts, and the site must
  * only ever show published documents. It is already the API's default
@@ -24,7 +25,7 @@ const baseClient = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: !readToken,
+  useCdn: true,
   perspective: "published",
   ...(readToken ? { token: readToken } : {}),
 });

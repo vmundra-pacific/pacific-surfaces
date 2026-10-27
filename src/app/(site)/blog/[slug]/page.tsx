@@ -10,6 +10,19 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+// Cached like the product pages: built ahead for every post and
+// refreshed at most once a minute. Without generateStaticParams the
+// route rendered on every visit (a function call in iad1 and a Sanity
+// query each time); a post published later is built on its first visit.
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const slugs: string[] = await client.fetch(
+    `*[_type == "blogPost" && defined(slug.current)].slug.current`
+  );
+  return slugs.map((slug) => ({ slug }));
+}
+
 /** The post's own opening words, for a post with no SEO description or
  *  excerpt in Sanity: about 155 characters, cut at a word. */
 function openingWords(body: unknown, max = 155): string | undefined {

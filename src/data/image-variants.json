@@ -1,179 +1,1281 @@
 {
- "/store-basins/aisle/banner.png": {
-  "256": "/store-basins/_w/aisle/banner-256.webp",
-  "640": "/store-basins/_w/aisle/banner-640.webp",
-  "1080": "/store-basins/_w/aisle/banner-1080.webp",
-  "1920": "/store-basins/_w/aisle/banner-1920.webp",
-  "3136": "/store-basins/_w/aisle/banner-3136.webp"
- },
- "/store-basins/aisle/quartz-top-above.jpg": {
-  "256": "/store-basins/_w/aisle/quartz-top-above-256.webp",
-  "640": "/store-basins/_w/aisle/quartz-top-above-640.webp",
-  "1080": "/store-basins/_w/aisle/quartz-top-above-1080.webp",
-  "1536": "/store-basins/_w/aisle/quartz-top-above-1536.webp"
- },
- "/store-basins/aisle/quartz-top-front.jpg": {
-  "256": "/store-basins/_w/aisle/quartz-top-front-256.webp",
-  "640": "/store-basins/_w/aisle/quartz-top-front-640.webp",
-  "1080": "/store-basins/_w/aisle/quartz-top-front-1080.webp",
-  "1536": "/store-basins/_w/aisle/quartz-top-front-1536.webp"
- },
- "/store-basins/aisle/store-hero.png": {
-  "256": "/store-basins/_w/aisle/store-hero-256.webp",
-  "640": "/store-basins/_w/aisle/store-hero-640.webp",
-  "1080": "/store-basins/_w/aisle/store-hero-1080.webp",
-  "1774": "/store-basins/_w/aisle/store-hero-1774.webp"
- },
- "/store-basins/double-basin/base.png": {
-  "256": "/store-basins/_w/double-basin/base-256.webp",
-  "640": "/store-basins/_w/double-basin/base-640.webp",
-  "1080": "/store-basins/_w/double-basin/base-1080.webp",
-  "1920": "/store-basins/_w/double-basin/base-1920.webp",
-  "3256": "/store-basins/_w/double-basin/base-3256.webp"
- },
- "/store-basins/double-basin/highlights.png": {
-  "256": "/store-basins/_w/double-basin/highlights-256.webp",
-  "640": "/store-basins/_w/double-basin/highlights-640.webp",
-  "1080": "/store-basins/_w/double-basin/highlights-1080.webp",
-  "1920": "/store-basins/_w/double-basin/highlights-1920.webp",
-  "3256": "/store-basins/_w/double-basin/highlights-3256.webp"
- },
- "/store-basins/double-basin/mask.png": {
-  "256": "/store-basins/_w/double-basin/mask-256.webp",
-  "640": "/store-basins/_w/double-basin/mask-640.webp",
-  "1080": "/store-basins/_w/double-basin/mask-1080.webp",
-  "1920": "/store-basins/_w/double-basin/mask-1920.webp",
-  "3256": "/store-basins/_w/double-basin/mask-3256.webp"
- },
- "/store-basins/double-basin/shadows.png": {
-  "256": "/store-basins/_w/double-basin/shadows-256.webp",
-  "640": "/store-basins/_w/double-basin/shadows-640.webp",
-  "1080": "/store-basins/_w/double-basin/shadows-1080.webp",
-  "1920": "/store-basins/_w/double-basin/shadows-1920.webp",
-  "3256": "/store-basins/_w/double-basin/shadows-3256.webp"
- },
- "/store-basins/double-basin-renders/01-angled.png": {
-  "256": "/store-basins/_w/double-basin-renders/01-angled-256.webp",
-  "640": "/store-basins/_w/double-basin-renders/01-angled-640.webp",
-  "1080": "/store-basins/_w/double-basin-renders/01-angled-1080.webp",
-  "1774": "/store-basins/_w/double-basin-renders/01-angled-1774.webp"
- },
- "/store-basins/double-basin-renders/02-top.png": {
-  "256": "/store-basins/_w/double-basin-renders/02-top-256.webp",
-  "640": "/store-basins/_w/double-basin-renders/02-top-640.webp",
-  "1080": "/store-basins/_w/double-basin-renders/02-top-1080.webp",
-  "1774": "/store-basins/_w/double-basin-renders/02-top-1774.webp"
- },
- "/store-basins/double-basin-renders/03-side.png": {
-  "256": "/store-basins/_w/double-basin-renders/03-side-256.webp",
-  "640": "/store-basins/_w/double-basin-renders/03-side-640.webp",
-  "1080": "/store-basins/_w/double-basin-renders/03-side-1080.webp",
-  "1774": "/store-basins/_w/double-basin-renders/03-side-1774.webp"
- },
- "/store-basins/double-basin-renders/04-residential.png": {
-  "256": "/store-basins/_w/double-basin-renders/04-residential-256.webp",
-  "640": "/store-basins/_w/double-basin-renders/04-residential-640.webp",
-  "1080": "/store-basins/_w/double-basin-renders/04-residential-1080.webp",
-  "1536": "/store-basins/_w/double-basin-renders/04-residential-1536.webp"
- },
- "/store-basins/double-basin-renders/05-hotel.png": {
-  "256": "/store-basins/_w/double-basin-renders/05-hotel-256.webp",
-  "640": "/store-basins/_w/double-basin-renders/05-hotel-640.webp",
-  "1080": "/store-basins/_w/double-basin-renders/05-hotel-1080.webp",
-  "1536": "/store-basins/_w/double-basin-renders/05-hotel-1536.webp"
- },
- "/store-basins/double-basin-renders/06-office.png": {
-  "256": "/store-basins/_w/double-basin-renders/06-office-256.webp",
-  "640": "/store-basins/_w/double-basin-renders/06-office-640.webp",
-  "1080": "/store-basins/_w/double-basin-renders/06-office-1080.webp",
-  "1536": "/store-basins/_w/double-basin-renders/06-office-1536.webp"
- },
- "/store-basins/double-basin-scene/base.webp": {
-  "256": "/store-basins/_w/double-basin-scene/base-256.webp",
-  "640": "/store-basins/_w/double-basin-scene/base-640.webp",
-  "1080": "/store-basins/_w/double-basin-scene/base-1080.webp",
-  "1812": "/store-basins/double-basin-scene/base.webp"
- },
- "/store-basins/double-basin-scene/highlights.webp": {
-  "256": "/store-basins/_w/double-basin-scene/highlights-256.webp",
-  "640": "/store-basins/_w/double-basin-scene/highlights-640.webp",
-  "1080": "/store-basins/_w/double-basin-scene/highlights-1080.webp",
-  "1812": "/store-basins/double-basin-scene/highlights.webp"
- },
- "/store-basins/double-basin-scene/mask.webp": {
-  "256": "/store-basins/_w/double-basin-scene/mask-256.webp",
-  "640": "/store-basins/_w/double-basin-scene/mask-640.webp",
-  "1080": "/store-basins/_w/double-basin-scene/mask-1080.webp",
-  "1812": "/store-basins/double-basin-scene/mask.webp"
- },
- "/store-basins/double-basin-scene/shadows.webp": {
-  "256": "/store-basins/_w/double-basin-scene/shadows-256.webp",
-  "640": "/store-basins/_w/double-basin-scene/shadows-640.webp",
-  "1080": "/store-basins/_w/double-basin-scene/shadows-1080.webp",
-  "1812": "/store-basins/double-basin-scene/shadows.webp"
- },
- "/store-basins/single-basin-renders/01-angled.png": {
-  "256": "/store-basins/_w/single-basin-renders/01-angled-256.webp",
-  "640": "/store-basins/_w/single-basin-renders/01-angled-640.webp",
-  "1080": "/store-basins/_w/single-basin-renders/01-angled-1080.webp",
-  "1536": "/store-basins/_w/single-basin-renders/01-angled-1536.webp"
- },
- "/store-basins/single-basin-renders/02-top.png": {
-  "256": "/store-basins/_w/single-basin-renders/02-top-256.webp",
-  "640": "/store-basins/_w/single-basin-renders/02-top-640.webp",
-  "1080": "/store-basins/_w/single-basin-renders/02-top-1080.webp",
-  "1536": "/store-basins/_w/single-basin-renders/02-top-1536.webp"
- },
- "/store-basins/single-basin-renders/03-side.png": {
-  "256": "/store-basins/_w/single-basin-renders/03-side-256.webp",
-  "640": "/store-basins/_w/single-basin-renders/03-side-640.webp",
-  "1080": "/store-basins/_w/single-basin-renders/03-side-1080.webp",
-  "1536": "/store-basins/_w/single-basin-renders/03-side-1536.webp"
- },
- "/store-basins/single-basin-renders/04-residential.png": {
-  "256": "/store-basins/_w/single-basin-renders/04-residential-256.webp",
-  "640": "/store-basins/_w/single-basin-renders/04-residential-640.webp",
-  "1080": "/store-basins/_w/single-basin-renders/04-residential-1080.webp",
-  "1536": "/store-basins/_w/single-basin-renders/04-residential-1536.webp"
- },
- "/store-basins/single-basin-renders/05-hotel.png": {
-  "256": "/store-basins/_w/single-basin-renders/05-hotel-256.webp",
-  "640": "/store-basins/_w/single-basin-renders/05-hotel-640.webp",
-  "1080": "/store-basins/_w/single-basin-renders/05-hotel-1080.webp",
-  "1536": "/store-basins/_w/single-basin-renders/05-hotel-1536.webp"
- },
- "/store-basins/single-basin-renders/06-office.png": {
-  "256": "/store-basins/_w/single-basin-renders/06-office-256.webp",
-  "640": "/store-basins/_w/single-basin-renders/06-office-640.webp",
-  "1080": "/store-basins/_w/single-basin-renders/06-office-1080.webp",
-  "1536": "/store-basins/_w/single-basin-renders/06-office-1536.webp"
- },
- "/store-basins/single-basin-scene/base.webp": {
-  "256": "/store-basins/_w/single-basin-scene/base-256.webp",
-  "640": "/store-basins/_w/single-basin-scene/base-640.webp",
-  "1080": "/store-basins/_w/single-basin-scene/base-1080.webp",
-  "1920": "/store-basins/_w/single-basin-scene/base-1920.webp",
-  "2944": "/store-basins/single-basin-scene/base.webp"
- },
- "/store-basins/single-basin-scene/highlights.webp": {
-  "256": "/store-basins/_w/single-basin-scene/highlights-256.webp",
-  "640": "/store-basins/_w/single-basin-scene/highlights-640.webp",
-  "1080": "/store-basins/_w/single-basin-scene/highlights-1080.webp",
-  "1920": "/store-basins/_w/single-basin-scene/highlights-1920.webp",
-  "2944": "/store-basins/single-basin-scene/highlights.webp"
- },
- "/store-basins/single-basin-scene/mask.webp": {
-  "256": "/store-basins/_w/single-basin-scene/mask-256.webp",
-  "640": "/store-basins/_w/single-basin-scene/mask-640.webp",
-  "1080": "/store-basins/_w/single-basin-scene/mask-1080.webp",
-  "1920": "/store-basins/_w/single-basin-scene/mask-1920.webp",
-  "2944": "/store-basins/single-basin-scene/mask.webp"
- },
- "/store-basins/single-basin-scene/shadows.webp": {
-  "256": "/store-basins/_w/single-basin-scene/shadows-256.webp",
-  "640": "/store-basins/_w/single-basin-scene/shadows-640.webp",
-  "1080": "/store-basins/_w/single-basin-scene/shadows-1080.webp",
-  "1920": "/store-basins/_w/single-basin-scene/shadows-1920.webp",
-  "2944": "/store-basins/single-basin-scene/shadows.webp"
- }
+  "/store-basins/aisle/banner.png": {
+    "256": "/store-basins/_w/aisle/banner-256.webp",
+    "640": "/store-basins/_w/aisle/banner-640.webp",
+    "1080": "/store-basins/_w/aisle/banner-1080.webp",
+    "1920": "/store-basins/_w/aisle/banner-1920.webp",
+    "3136": "/store-basins/_w/aisle/banner-3136.webp"
+  },
+  "/store-basins/aisle/quartz-top-above.jpg": {
+    "256": "/store-basins/_w/aisle/quartz-top-above-256.webp",
+    "640": "/store-basins/_w/aisle/quartz-top-above-640.webp",
+    "1080": "/store-basins/_w/aisle/quartz-top-above-1080.webp",
+    "1536": "/store-basins/_w/aisle/quartz-top-above-1536.webp"
+  },
+  "/store-basins/aisle/quartz-top-front.jpg": {
+    "256": "/store-basins/_w/aisle/quartz-top-front-256.webp",
+    "640": "/store-basins/_w/aisle/quartz-top-front-640.webp",
+    "1080": "/store-basins/_w/aisle/quartz-top-front-1080.webp",
+    "1536": "/store-basins/_w/aisle/quartz-top-front-1536.webp"
+  },
+  "/store-basins/aisle/store-hero.png": {
+    "256": "/store-basins/_w/aisle/store-hero-256.webp",
+    "640": "/store-basins/_w/aisle/store-hero-640.webp",
+    "1080": "/store-basins/_w/aisle/store-hero-1080.webp",
+    "1774": "/store-basins/_w/aisle/store-hero-1774.webp"
+  },
+  "/store-basins/double-basin/base.png": {
+    "256": "/store-basins/_w/double-basin/base-256.webp",
+    "640": "/store-basins/_w/double-basin/base-640.webp",
+    "1080": "/store-basins/_w/double-basin/base-1080.webp",
+    "1920": "/store-basins/_w/double-basin/base-1920.webp",
+    "3256": "/store-basins/_w/double-basin/base-3256.webp"
+  },
+  "/store-basins/double-basin/highlights.png": {
+    "256": "/store-basins/_w/double-basin/highlights-256.webp",
+    "640": "/store-basins/_w/double-basin/highlights-640.webp",
+    "1080": "/store-basins/_w/double-basin/highlights-1080.webp",
+    "1920": "/store-basins/_w/double-basin/highlights-1920.webp",
+    "3256": "/store-basins/_w/double-basin/highlights-3256.webp"
+  },
+  "/store-basins/double-basin/mask.png": {
+    "256": "/store-basins/_w/double-basin/mask-256.webp",
+    "640": "/store-basins/_w/double-basin/mask-640.webp",
+    "1080": "/store-basins/_w/double-basin/mask-1080.webp",
+    "1920": "/store-basins/_w/double-basin/mask-1920.webp",
+    "3256": "/store-basins/_w/double-basin/mask-3256.webp"
+  },
+  "/store-basins/double-basin/shadows.png": {
+    "256": "/store-basins/_w/double-basin/shadows-256.webp",
+    "640": "/store-basins/_w/double-basin/shadows-640.webp",
+    "1080": "/store-basins/_w/double-basin/shadows-1080.webp",
+    "1920": "/store-basins/_w/double-basin/shadows-1920.webp",
+    "3256": "/store-basins/_w/double-basin/shadows-3256.webp"
+  },
+  "/store-basins/double-basin-renders/01-angled.png": {
+    "256": "/store-basins/_w/double-basin-renders/01-angled-256.webp",
+    "640": "/store-basins/_w/double-basin-renders/01-angled-640.webp",
+    "1080": "/store-basins/_w/double-basin-renders/01-angled-1080.webp",
+    "1774": "/store-basins/_w/double-basin-renders/01-angled-1774.webp"
+  },
+  "/store-basins/double-basin-renders/02-top.png": {
+    "256": "/store-basins/_w/double-basin-renders/02-top-256.webp",
+    "640": "/store-basins/_w/double-basin-renders/02-top-640.webp",
+    "1080": "/store-basins/_w/double-basin-renders/02-top-1080.webp",
+    "1774": "/store-basins/_w/double-basin-renders/02-top-1774.webp"
+  },
+  "/store-basins/double-basin-renders/03-side.png": {
+    "256": "/store-basins/_w/double-basin-renders/03-side-256.webp",
+    "640": "/store-basins/_w/double-basin-renders/03-side-640.webp",
+    "1080": "/store-basins/_w/double-basin-renders/03-side-1080.webp",
+    "1774": "/store-basins/_w/double-basin-renders/03-side-1774.webp"
+  },
+  "/store-basins/double-basin-renders/04-residential.png": {
+    "256": "/store-basins/_w/double-basin-renders/04-residential-256.webp",
+    "640": "/store-basins/_w/double-basin-renders/04-residential-640.webp",
+    "1080": "/store-basins/_w/double-basin-renders/04-residential-1080.webp",
+    "1536": "/store-basins/_w/double-basin-renders/04-residential-1536.webp"
+  },
+  "/store-basins/double-basin-renders/05-hotel.png": {
+    "256": "/store-basins/_w/double-basin-renders/05-hotel-256.webp",
+    "640": "/store-basins/_w/double-basin-renders/05-hotel-640.webp",
+    "1080": "/store-basins/_w/double-basin-renders/05-hotel-1080.webp",
+    "1536": "/store-basins/_w/double-basin-renders/05-hotel-1536.webp"
+  },
+  "/store-basins/double-basin-renders/06-office.png": {
+    "256": "/store-basins/_w/double-basin-renders/06-office-256.webp",
+    "640": "/store-basins/_w/double-basin-renders/06-office-640.webp",
+    "1080": "/store-basins/_w/double-basin-renders/06-office-1080.webp",
+    "1536": "/store-basins/_w/double-basin-renders/06-office-1536.webp"
+  },
+  "/store-basins/double-basin-scene/base.webp": {
+    "256": "/store-basins/_w/double-basin-scene/base-256.webp",
+    "640": "/store-basins/_w/double-basin-scene/base-640.webp",
+    "1080": "/store-basins/_w/double-basin-scene/base-1080.webp",
+    "1812": "/store-basins/double-basin-scene/base.webp"
+  },
+  "/store-basins/double-basin-scene/highlights.webp": {
+    "256": "/store-basins/_w/double-basin-scene/highlights-256.webp",
+    "640": "/store-basins/_w/double-basin-scene/highlights-640.webp",
+    "1080": "/store-basins/_w/double-basin-scene/highlights-1080.webp",
+    "1812": "/store-basins/double-basin-scene/highlights.webp"
+  },
+  "/store-basins/double-basin-scene/mask.webp": {
+    "256": "/store-basins/_w/double-basin-scene/mask-256.webp",
+    "640": "/store-basins/_w/double-basin-scene/mask-640.webp",
+    "1080": "/store-basins/_w/double-basin-scene/mask-1080.webp",
+    "1812": "/store-basins/double-basin-scene/mask.webp"
+  },
+  "/store-basins/double-basin-scene/shadows.webp": {
+    "256": "/store-basins/_w/double-basin-scene/shadows-256.webp",
+    "640": "/store-basins/_w/double-basin-scene/shadows-640.webp",
+    "1080": "/store-basins/_w/double-basin-scene/shadows-1080.webp",
+    "1812": "/store-basins/double-basin-scene/shadows.webp"
+  },
+  "/store-basins/single-basin-renders/01-angled.png": {
+    "256": "/store-basins/_w/single-basin-renders/01-angled-256.webp",
+    "640": "/store-basins/_w/single-basin-renders/01-angled-640.webp",
+    "1080": "/store-basins/_w/single-basin-renders/01-angled-1080.webp",
+    "1536": "/store-basins/_w/single-basin-renders/01-angled-1536.webp"
+  },
+  "/store-basins/single-basin-renders/02-top.png": {
+    "256": "/store-basins/_w/single-basin-renders/02-top-256.webp",
+    "640": "/store-basins/_w/single-basin-renders/02-top-640.webp",
+    "1080": "/store-basins/_w/single-basin-renders/02-top-1080.webp",
+    "1536": "/store-basins/_w/single-basin-renders/02-top-1536.webp"
+  },
+  "/store-basins/single-basin-renders/03-side.png": {
+    "256": "/store-basins/_w/single-basin-renders/03-side-256.webp",
+    "640": "/store-basins/_w/single-basin-renders/03-side-640.webp",
+    "1080": "/store-basins/_w/single-basin-renders/03-side-1080.webp",
+    "1536": "/store-basins/_w/single-basin-renders/03-side-1536.webp"
+  },
+  "/store-basins/single-basin-renders/04-residential.png": {
+    "256": "/store-basins/_w/single-basin-renders/04-residential-256.webp",
+    "640": "/store-basins/_w/single-basin-renders/04-residential-640.webp",
+    "1080": "/store-basins/_w/single-basin-renders/04-residential-1080.webp",
+    "1536": "/store-basins/_w/single-basin-renders/04-residential-1536.webp"
+  },
+  "/store-basins/single-basin-renders/05-hotel.png": {
+    "256": "/store-basins/_w/single-basin-renders/05-hotel-256.webp",
+    "640": "/store-basins/_w/single-basin-renders/05-hotel-640.webp",
+    "1080": "/store-basins/_w/single-basin-renders/05-hotel-1080.webp",
+    "1536": "/store-basins/_w/single-basin-renders/05-hotel-1536.webp"
+  },
+  "/store-basins/single-basin-renders/06-office.png": {
+    "256": "/store-basins/_w/single-basin-renders/06-office-256.webp",
+    "640": "/store-basins/_w/single-basin-renders/06-office-640.webp",
+    "1080": "/store-basins/_w/single-basin-renders/06-office-1080.webp",
+    "1536": "/store-basins/_w/single-basin-renders/06-office-1536.webp"
+  },
+  "/store-basins/single-basin-scene/base.webp": {
+    "256": "/store-basins/_w/single-basin-scene/base-256.webp",
+    "640": "/store-basins/_w/single-basin-scene/base-640.webp",
+    "1080": "/store-basins/_w/single-basin-scene/base-1080.webp",
+    "1920": "/store-basins/_w/single-basin-scene/base-1920.webp",
+    "2944": "/store-basins/single-basin-scene/base.webp"
+  },
+  "/store-basins/single-basin-scene/highlights.webp": {
+    "256": "/store-basins/_w/single-basin-scene/highlights-256.webp",
+    "640": "/store-basins/_w/single-basin-scene/highlights-640.webp",
+    "1080": "/store-basins/_w/single-basin-scene/highlights-1080.webp",
+    "1920": "/store-basins/_w/single-basin-scene/highlights-1920.webp",
+    "2944": "/store-basins/single-basin-scene/highlights.webp"
+  },
+  "/store-basins/single-basin-scene/mask.webp": {
+    "256": "/store-basins/_w/single-basin-scene/mask-256.webp",
+    "640": "/store-basins/_w/single-basin-scene/mask-640.webp",
+    "1080": "/store-basins/_w/single-basin-scene/mask-1080.webp",
+    "1920": "/store-basins/_w/single-basin-scene/mask-1920.webp",
+    "2944": "/store-basins/single-basin-scene/mask.webp"
+  },
+  "/store-basins/single-basin-scene/shadows.webp": {
+    "256": "/store-basins/_w/single-basin-scene/shadows-256.webp",
+    "640": "/store-basins/_w/single-basin-scene/shadows-640.webp",
+    "1080": "/store-basins/_w/single-basin-scene/shadows-1080.webp",
+    "1920": "/store-basins/_w/single-basin-scene/shadows-1920.webp",
+    "2944": "/store-basins/single-basin-scene/shadows.webp"
+  },
+  "/images/corporate/sustainability.jpg": {
+    "256": "/images/_w/corporate/sustainability-256.webp",
+    "384": "/images/_w/corporate/sustainability-384.webp",
+    "640": "/images/_w/corporate/sustainability-640.webp",
+    "828": "/images/_w/corporate/sustainability-828.webp",
+    "1000": "/images/_w/corporate/sustainability-1000.webp"
+  },
+  "/images/ecosurfaces.png": {
+    "256": "/images/_w/ecosurfaces-256.webp",
+    "384": "/images/_w/ecosurfaces-384.webp",
+    "640": "/images/_w/ecosurfaces-640.webp",
+    "828": "/images/_w/ecosurfaces-828.webp",
+    "1080": "/images/_w/ecosurfaces-1080.webp",
+    "1290": "/images/_w/ecosurfaces-1290.webp",
+    "1697": "/images/_w/ecosurfaces-1697.webp"
+  },
+  "/images/flooring/absolute-black-terrace.webp": {
+    "256": "/images/_w/flooring/absolute-black-terrace-256.webp",
+    "384": "/images/_w/flooring/absolute-black-terrace-384.webp",
+    "640": "/images/_w/flooring/absolute-black-terrace-640.webp",
+    "828": "/images/_w/flooring/absolute-black-terrace-828.webp",
+    "999": "/images/flooring/absolute-black-terrace.webp"
+  },
+  "/images/flooring/black-tea-pavers.webp": {
+    "256": "/images/_w/flooring/black-tea-pavers-256.webp",
+    "384": "/images/_w/flooring/black-tea-pavers-384.webp",
+    "640": "/images/_w/flooring/black-tea-pavers-640.webp",
+    "828": "/images/_w/flooring/black-tea-pavers-828.webp",
+    "999": "/images/flooring/black-tea-pavers.webp"
+  },
+  "/images/flooring/card-courtyard.webp": {
+    "256": "/images/_w/flooring/card-courtyard-256.webp",
+    "384": "/images/_w/flooring/card-courtyard-384.webp",
+    "640": "/images/_w/flooring/card-courtyard-640.webp",
+    "828": "/images/_w/flooring/card-courtyard-828.webp",
+    "1000": "/images/flooring/card-courtyard.webp"
+  },
+  "/images/flooring/finish-black-antik.webp": {
+    "256": "/images/_w/flooring/finish-black-antik-256.webp",
+    "384": "/images/_w/flooring/finish-black-antik-384.webp",
+    "640": "/images/_w/flooring/finish-black-antik-640.webp",
+    "706": "/images/flooring/finish-black-antik.webp"
+  },
+  "/images/flooring/finish-black-river.webp": {
+    "256": "/images/_w/flooring/finish-black-river-256.webp",
+    "384": "/images/_w/flooring/finish-black-river-384.webp",
+    "640": "/images/_w/flooring/finish-black-river-640.webp",
+    "704": "/images/flooring/finish-black-river.webp"
+  },
+  "/images/flooring/finish-red-multi-flamed.webp": {
+    "256": "/images/_w/flooring/finish-red-multi-flamed-256.webp",
+    "384": "/images/_w/flooring/finish-red-multi-flamed-384.webp",
+    "640": "/images/_w/flooring/finish-red-multi-flamed-640.webp",
+    "703": "/images/flooring/finish-red-multi-flamed.webp"
+  },
+  "/images/flooring/finish-steel-grey-flamed.webp": {
+    "256": "/images/_w/flooring/finish-steel-grey-flamed-256.webp",
+    "384": "/images/_w/flooring/finish-steel-grey-flamed-384.webp",
+    "640": "/images/_w/flooring/finish-steel-grey-flamed-640.webp",
+    "703": "/images/flooring/finish-steel-grey-flamed.webp"
+  },
+  "/images/flooring/finish-steel-grey-polished.webp": {
+    "256": "/images/_w/flooring/finish-steel-grey-polished-256.webp",
+    "384": "/images/_w/flooring/finish-steel-grey-polished-384.webp",
+    "640": "/images/_w/flooring/finish-steel-grey-polished-640.webp",
+    "706": "/images/flooring/finish-steel-grey-polished.webp"
+  },
+  "/images/flooring/new-viscont-white-courtyard.webp": {
+    "256": "/images/_w/flooring/new-viscont-white-courtyard-256.webp",
+    "384": "/images/_w/flooring/new-viscont-white-courtyard-384.webp",
+    "640": "/images/_w/flooring/new-viscont-white-courtyard-640.webp",
+    "828": "/images/_w/flooring/new-viscont-white-courtyard-828.webp",
+    "1000": "/images/flooring/new-viscont-white-courtyard.webp"
+  },
+  "/images/flooring/paver-5cm.webp": {
+    "256": "/images/_w/flooring/paver-5cm-256.webp",
+    "384": "/images/_w/flooring/paver-5cm-384.webp",
+    "640": "/images/_w/flooring/paver-5cm-640.webp",
+    "828": "/images/_w/flooring/paver-5cm-828.webp",
+    "925": "/images/flooring/paver-5cm.webp"
+  },
+  "/images/flooring/red-multi-patio.webp": {
+    "256": "/images/_w/flooring/red-multi-patio-256.webp",
+    "384": "/images/_w/flooring/red-multi-patio-384.webp",
+    "640": "/images/_w/flooring/red-multi-patio-640.webp",
+    "828": "/images/_w/flooring/red-multi-patio-828.webp",
+    "922": "/images/flooring/red-multi-patio.webp"
+  },
+  "/images/flooring/sadarahalli-grey-pool.webp": {
+    "256": "/images/_w/flooring/sadarahalli-grey-pool-256.webp",
+    "384": "/images/_w/flooring/sadarahalli-grey-pool-384.webp",
+    "640": "/images/_w/flooring/sadarahalli-grey-pool-640.webp",
+    "828": "/images/_w/flooring/sadarahalli-grey-pool-828.webp",
+    "832": "/images/flooring/sadarahalli-grey-pool.webp"
+  },
+  "/images/flooring/steel-grey-patio.webp": {
+    "256": "/images/_w/flooring/steel-grey-patio-256.webp",
+    "384": "/images/_w/flooring/steel-grey-patio-384.webp",
+    "640": "/images/_w/flooring/steel-grey-patio-640.webp",
+    "727": "/images/flooring/steel-grey-patio.webp"
+  },
+  "/images/flooring/tan-brown-terrace.webp": {
+    "256": "/images/_w/flooring/tan-brown-terrace-256.webp",
+    "384": "/images/_w/flooring/tan-brown-terrace-384.webp",
+    "640": "/images/_w/flooring/tan-brown-terrace-640.webp",
+    "828": "/images/_w/flooring/tan-brown-terrace-828.webp",
+    "1018": "/images/flooring/tan-brown-terrace.webp"
+  },
+  "/images/flooring/viscont-white-deck.webp": {
+    "256": "/images/_w/flooring/viscont-white-deck-256.webp",
+    "384": "/images/_w/flooring/viscont-white-deck-384.webp",
+    "640": "/images/_w/flooring/viscont-white-deck-640.webp",
+    "828": "/images/_w/flooring/viscont-white-deck-828.webp",
+    "832": "/images/flooring/viscont-white-deck.webp"
+  },
+  "/images/home/phone-hero-almond-mist.webp": {
+    "256": "/images/_w/home/phone-hero-almond-mist-256.webp",
+    "384": "/images/_w/home/phone-hero-almond-mist-384.webp",
+    "640": "/images/_w/home/phone-hero-almond-mist-640.webp",
+    "828": "/images/_w/home/phone-hero-almond-mist-828.webp",
+    "1080": "/images/_w/home/phone-hero-almond-mist-1080.webp",
+    "1290": "/images/_w/home/phone-hero-almond-mist-1290.webp",
+    "1296": "/images/home/phone-hero-almond-mist.webp"
+  },
+  "/images/home/phone-hero-restaurant.webp": {
+    "256": "/images/_w/home/phone-hero-restaurant-256.webp",
+    "384": "/images/_w/home/phone-hero-restaurant-384.webp",
+    "640": "/images/_w/home/phone-hero-restaurant-640.webp",
+    "828": "/images/_w/home/phone-hero-restaurant-828.webp",
+    "922": "/images/home/phone-hero-restaurant.webp"
+  },
+  "/images/india-home/bretonstone-robot.webp": {
+    "256": "/images/_w/india-home/bretonstone-robot-256.webp",
+    "384": "/images/_w/india-home/bretonstone-robot-384.webp",
+    "640": "/images/_w/india-home/bretonstone-robot-640.webp",
+    "828": "/images/_w/india-home/bretonstone-robot-828.webp",
+    "1080": "/images/_w/india-home/bretonstone-robot-1080.webp",
+    "1290": "/images/_w/india-home/bretonstone-robot-1290.webp",
+    "1920": "/images/_w/india-home/bretonstone-robot-1920.webp",
+    "2400": "/images/india-home/bretonstone-robot.webp"
+  },
+  "/images/india-home/collection-eclipse.webp": {
+    "256": "/images/_w/india-home/collection-eclipse-256.webp",
+    "384": "/images/_w/india-home/collection-eclipse-384.webp",
+    "640": "/images/_w/india-home/collection-eclipse-640.webp",
+    "828": "/images/_w/india-home/collection-eclipse-828.webp",
+    "1080": "/images/_w/india-home/collection-eclipse-1080.webp",
+    "1290": "/images/_w/india-home/collection-eclipse-1290.webp",
+    "1920": "/images/_w/india-home/collection-eclipse-1920.webp",
+    "2400": "/images/india-home/collection-eclipse.webp"
+  },
+  "/images/india-home/taj-vein-kitchen.webp": {
+    "256": "/images/_w/india-home/taj-vein-kitchen-256.webp",
+    "384": "/images/_w/india-home/taj-vein-kitchen-384.webp",
+    "640": "/images/_w/india-home/taj-vein-kitchen-640.webp",
+    "828": "/images/_w/india-home/taj-vein-kitchen-828.webp",
+    "1080": "/images/_w/india-home/taj-vein-kitchen-1080.webp",
+    "1290": "/images/_w/india-home/taj-vein-kitchen-1290.webp",
+    "1920": "/images/_w/india-home/taj-vein-kitchen-1920.webp",
+    "3200": "/images/india-home/taj-vein-kitchen.webp"
+  },
+  "/images/inspirations/inspiration-gallery.png": {
+    "256": "/images/_w/inspirations/inspiration-gallery-256.webp",
+    "384": "/images/_w/inspirations/inspiration-gallery-384.webp",
+    "640": "/images/_w/inspirations/inspiration-gallery-640.webp",
+    "828": "/images/_w/inspirations/inspiration-gallery-828.webp",
+    "1000": "/images/_w/inspirations/inspiration-gallery-1000.webp"
+  },
+  "/images/products/fab-creations.jpeg": {
+    "256": "/images/_w/products/fab-creations-256.webp",
+    "384": "/images/_w/products/fab-creations-384.webp",
+    "640": "/images/_w/products/fab-creations-640.webp",
+    "828": "/images/_w/products/fab-creations-828.webp",
+    "1080": "/images/_w/products/fab-creations-1080.webp",
+    "1290": "/images/_w/products/fab-creations-1290.webp",
+    "1508": "/images/_w/products/fab-creations-1508.webp"
+  },
+  "/images/products/facades.png": {
+    "256": "/images/_w/products/facades-256.webp",
+    "384": "/images/_w/products/facades-384.webp",
+    "640": "/images/_w/products/facades-640.webp"
+  },
+  "/images/products/granites.png": {
+    "256": "/images/_w/products/granites-256.webp",
+    "384": "/images/_w/products/granites-384.webp",
+    "640": "/images/_w/products/granites-640.webp"
+  },
+  "/images/products/semi-precious.png": {
+    "256": "/images/_w/products/semi-precious-256.webp",
+    "357": "/images/_w/products/semi-precious-357.webp"
+  },
+  "/images/products/translucent.jpeg": {
+    "256": "/images/_w/products/translucent-256.webp",
+    "384": "/images/_w/products/translucent-384.webp",
+    "640": "/images/_w/products/translucent-640.webp",
+    "828": "/images/_w/products/translucent-828.webp",
+    "1080": "/images/_w/products/translucent-1080.webp",
+    "1153": "/images/_w/products/translucent-1153.webp"
+  },
+  "/images/products/vision.png": {
+    "256": "/images/_w/products/vision-256.webp",
+    "384": "/images/_w/products/vision-384.webp",
+    "640": "/images/_w/products/vision-640.webp"
+  },
+  "/images/professions/services.jpg": {
+    "256": "/images/_w/professions/services-256.webp",
+    "384": "/images/_w/professions/services-384.webp",
+    "640": "/images/_w/professions/services-640.webp",
+    "828": "/images/_w/professions/services-828.webp",
+    "1000": "/images/_w/professions/services-1000.webp"
+  },
+  "/images/sgs-cert.png": {
+    "256": "/images/_w/sgs-cert-256.webp",
+    "384": "/images/_w/sgs-cert-384.webp",
+    "626": "/images/_w/sgs-cert-626.webp"
+  },
+  "/images/spaces/architecture.png": {
+    "256": "/images/_w/spaces/architecture-256.webp",
+    "384": "/images/_w/spaces/architecture-384.webp",
+    "476": "/images/_w/spaces/architecture-476.webp"
+  },
+  "/images/spaces/bathrooms/basin-and-bath.jpg": {
+    "256": "/images/_w/spaces/bathrooms/basin-and-bath-256.webp",
+    "384": "/images/_w/spaces/bathrooms/basin-and-bath-384.webp",
+    "640": "/images/_w/spaces/bathrooms/basin-and-bath-640.webp",
+    "828": "/images/_w/spaces/bathrooms/basin-and-bath-828.webp",
+    "1080": "/images/_w/spaces/bathrooms/basin-and-bath-1080.webp",
+    "1290": "/images/_w/spaces/bathrooms/basin-and-bath-1290.webp",
+    "1920": "/images/_w/spaces/bathrooms/basin-and-bath-1920.webp",
+    "2180": "/images/spaces/bathrooms/basin-and-bath.jpg"
+  },
+  "/images/spaces/bathrooms/bath-and-shower.jpg": {
+    "256": "/images/_w/spaces/bathrooms/bath-and-shower-256.webp",
+    "384": "/images/_w/spaces/bathrooms/bath-and-shower-384.webp",
+    "640": "/images/_w/spaces/bathrooms/bath-and-shower-640.webp",
+    "828": "/images/_w/spaces/bathrooms/bath-and-shower-828.webp",
+    "880": "/images/_w/spaces/bathrooms/bath-and-shower-880.webp"
+  },
+  "/images/spaces/bathrooms/bath-shower-niche.jpg": {
+    "256": "/images/_w/spaces/bathrooms/bath-shower-niche-256.webp",
+    "384": "/images/_w/spaces/bathrooms/bath-shower-niche-384.webp",
+    "640": "/images/_w/spaces/bathrooms/bath-shower-niche-640.webp",
+    "828": "/images/_w/spaces/bathrooms/bath-shower-niche-828.webp",
+    "1080": "/images/_w/spaces/bathrooms/bath-shower-niche-1080.webp",
+    "1290": "/images/_w/spaces/bathrooms/bath-shower-niche-1290.webp",
+    "1920": "/images/_w/spaces/bathrooms/bath-shower-niche-1920.webp",
+    "2368": "/images/spaces/bathrooms/bath-shower-niche.jpg"
+  },
+  "/images/spaces/bathrooms/double-vanity.jpg": {
+    "256": "/images/_w/spaces/bathrooms/double-vanity-256.webp",
+    "384": "/images/_w/spaces/bathrooms/double-vanity-384.webp",
+    "640": "/images/_w/spaces/bathrooms/double-vanity-640.webp",
+    "828": "/images/_w/spaces/bathrooms/double-vanity-828.webp",
+    "1080": "/images/_w/spaces/bathrooms/double-vanity-1080.webp",
+    "1290": "/images/_w/spaces/bathrooms/double-vanity-1290.webp",
+    "1920": "/images/_w/spaces/bathrooms/double-vanity-1920.webp",
+    "2177": "/images/spaces/bathrooms/double-vanity.jpg"
+  },
+  "/images/spaces/bathrooms/garden-bath.jpg": {
+    "256": "/images/_w/spaces/bathrooms/garden-bath-256.webp",
+    "384": "/images/_w/spaces/bathrooms/garden-bath-384.webp",
+    "640": "/images/_w/spaces/bathrooms/garden-bath-640.webp",
+    "828": "/images/_w/spaces/bathrooms/garden-bath-828.webp",
+    "1080": "/images/_w/spaces/bathrooms/garden-bath-1080.webp",
+    "1290": "/images/_w/spaces/bathrooms/garden-bath-1290.webp",
+    "1920": "/images/_w/spaces/bathrooms/garden-bath-1920.webp",
+    "3000": "/images/spaces/bathrooms/garden-bath.jpg"
+  },
+  "/images/spaces/bathrooms/rain-shower.jpg": {
+    "256": "/images/_w/spaces/bathrooms/rain-shower-256.webp",
+    "384": "/images/_w/spaces/bathrooms/rain-shower-384.webp",
+    "640": "/images/_w/spaces/bathrooms/rain-shower-640.webp",
+    "828": "/images/_w/spaces/bathrooms/rain-shower-828.webp",
+    "941": "/images/_w/spaces/bathrooms/rain-shower-941.webp"
+  },
+  "/images/spaces/bathrooms/shower-niche.jpg": {
+    "256": "/images/_w/spaces/bathrooms/shower-niche-256.webp",
+    "384": "/images/_w/spaces/bathrooms/shower-niche-384.webp",
+    "640": "/images/_w/spaces/bathrooms/shower-niche-640.webp",
+    "828": "/images/_w/spaces/bathrooms/shower-niche-828.webp",
+    "1080": "/images/_w/spaces/bathrooms/shower-niche-1080.webp",
+    "1290": "/images/_w/spaces/bathrooms/shower-niche-1290.webp",
+    "1760": "/images/_w/spaces/bathrooms/shower-niche-1760.webp"
+  },
+  "/images/spaces/bathrooms/shower-tray.jpg": {
+    "256": "/images/_w/spaces/bathrooms/shower-tray-256.webp",
+    "384": "/images/_w/spaces/bathrooms/shower-tray-384.webp",
+    "640": "/images/_w/spaces/bathrooms/shower-tray-640.webp",
+    "828": "/images/_w/spaces/bathrooms/shower-tray-828.webp",
+    "1034": "/images/_w/spaces/bathrooms/shower-tray-1034.webp"
+  },
+  "/images/spaces/bathrooms/shower-wall.jpg": {
+    "256": "/images/_w/spaces/bathrooms/shower-wall-256.webp",
+    "384": "/images/_w/spaces/bathrooms/shower-wall-384.webp",
+    "640": "/images/_w/spaces/bathrooms/shower-wall-640.webp",
+    "828": "/images/_w/spaces/bathrooms/shower-wall-828.webp",
+    "1080": "/images/_w/spaces/bathrooms/shower-wall-1080.webp",
+    "1290": "/images/_w/spaces/bathrooms/shower-wall-1290.webp",
+    "1920": "/images/_w/spaces/bathrooms/shower-wall-1920.webp",
+    "2914": "/images/spaces/bathrooms/shower-wall.jpg"
+  },
+  "/images/spaces/bathrooms/suite-bathroom.jpg": {
+    "256": "/images/_w/spaces/bathrooms/suite-bathroom-256.webp",
+    "384": "/images/_w/spaces/bathrooms/suite-bathroom-384.webp",
+    "640": "/images/_w/spaces/bathrooms/suite-bathroom-640.webp",
+    "828": "/images/_w/spaces/bathrooms/suite-bathroom-828.webp",
+    "1080": "/images/_w/spaces/bathrooms/suite-bathroom-1080.webp",
+    "1290": "/images/_w/spaces/bathrooms/suite-bathroom-1290.webp",
+    "1466": "/images/_w/spaces/bathrooms/suite-bathroom-1466.webp"
+  },
+  "/images/spaces/bathrooms/vanity-mirror.jpg": {
+    "256": "/images/_w/spaces/bathrooms/vanity-mirror-256.webp",
+    "384": "/images/_w/spaces/bathrooms/vanity-mirror-384.webp",
+    "640": "/images/_w/spaces/bathrooms/vanity-mirror-640.webp",
+    "828": "/images/_w/spaces/bathrooms/vanity-mirror-828.webp",
+    "1080": "/images/_w/spaces/bathrooms/vanity-mirror-1080.webp",
+    "1104": "/images/_w/spaces/bathrooms/vanity-mirror-1104.webp"
+  },
+  "/images/spaces/bathrooms/walk-in-shower.jpg": {
+    "256": "/images/_w/spaces/bathrooms/walk-in-shower-256.webp",
+    "384": "/images/_w/spaces/bathrooms/walk-in-shower-384.webp",
+    "640": "/images/_w/spaces/bathrooms/walk-in-shower-640.webp",
+    "828": "/images/_w/spaces/bathrooms/walk-in-shower-828.webp",
+    "1076": "/images/_w/spaces/bathrooms/walk-in-shower-1076.webp"
+  },
+  "/images/spaces/hotels/backlit-bar-latte-luxe-2.jpg": {
+    "256": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-2-256.webp",
+    "384": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-2-384.webp",
+    "640": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-2-640.webp",
+    "828": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-2-828.webp",
+    "1080": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-2-1080.webp",
+    "1116": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-2-1116.webp"
+  },
+  "/images/spaces/hotels/backlit-bar-latte-luxe.jpg": {
+    "256": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-256.webp",
+    "384": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-384.webp",
+    "640": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-640.webp",
+    "828": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-828.webp",
+    "1080": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-1080.webp",
+    "1284": "/images/_w/spaces/hotels/backlit-bar-latte-luxe-1284.webp"
+  },
+  "/images/spaces/hotels/bar-lounge.jpg": {
+    "256": "/images/_w/spaces/hotels/bar-lounge-256.webp",
+    "384": "/images/_w/spaces/hotels/bar-lounge-384.webp",
+    "640": "/images/_w/spaces/hotels/bar-lounge-640.webp",
+    "828": "/images/_w/spaces/hotels/bar-lounge-828.webp",
+    "1080": "/images/_w/spaces/hotels/bar-lounge-1080.webp",
+    "1290": "/images/_w/spaces/hotels/bar-lounge-1290.webp",
+    "1920": "/images/_w/spaces/hotels/bar-lounge-1920.webp",
+    "2176": "/images/spaces/hotels/bar-lounge.jpg"
+  },
+  "/images/spaces/hotels/buffet.jpg": {
+    "256": "/images/_w/spaces/hotels/buffet-256.webp",
+    "384": "/images/_w/spaces/hotels/buffet-384.webp",
+    "640": "/images/_w/spaces/hotels/buffet-640.webp",
+    "828": "/images/_w/spaces/hotels/buffet-828.webp",
+    "1080": "/images/_w/spaces/hotels/buffet-1080.webp",
+    "1290": "/images/_w/spaces/hotels/buffet-1290.webp",
+    "1560": "/images/_w/spaces/hotels/buffet-1560.webp"
+  },
+  "/images/spaces/hotels/cafe-counter-orenda.jpg": {
+    "256": "/images/_w/spaces/hotels/cafe-counter-orenda-256.webp",
+    "384": "/images/_w/spaces/hotels/cafe-counter-orenda-384.webp",
+    "640": "/images/_w/spaces/hotels/cafe-counter-orenda-640.webp",
+    "828": "/images/_w/spaces/hotels/cafe-counter-orenda-828.webp",
+    "1080": "/images/_w/spaces/hotels/cafe-counter-orenda-1080.webp",
+    "1290": "/images/_w/spaces/hotels/cafe-counter-orenda-1290.webp",
+    "1920": "/images/_w/spaces/hotels/cafe-counter-orenda-1920.webp",
+    "2176": "/images/spaces/hotels/cafe-counter-orenda.jpg"
+  },
+  "/images/spaces/hotels/communal-table.jpg": {
+    "256": "/images/_w/spaces/hotels/communal-table-256.webp",
+    "384": "/images/_w/spaces/hotels/communal-table-384.webp",
+    "640": "/images/_w/spaces/hotels/communal-table-640.webp",
+    "828": "/images/_w/spaces/hotels/communal-table-828.webp",
+    "1080": "/images/_w/spaces/hotels/communal-table-1080.webp",
+    "1290": "/images/_w/spaces/hotels/communal-table-1290.webp",
+    "1536": "/images/_w/spaces/hotels/communal-table-1536.webp"
+  },
+  "/images/spaces/hotels/dining-bellagio-2.jpg": {
+    "256": "/images/_w/spaces/hotels/dining-bellagio-2-256.webp",
+    "384": "/images/_w/spaces/hotels/dining-bellagio-2-384.webp",
+    "640": "/images/_w/spaces/hotels/dining-bellagio-2-640.webp",
+    "828": "/images/_w/spaces/hotels/dining-bellagio-2-828.webp",
+    "1080": "/images/_w/spaces/hotels/dining-bellagio-2-1080.webp",
+    "1290": "/images/_w/spaces/hotels/dining-bellagio-2-1290.webp",
+    "1906": "/images/_w/spaces/hotels/dining-bellagio-2-1906.webp"
+  },
+  "/images/spaces/hotels/dining-bellagio.jpg": {
+    "256": "/images/_w/spaces/hotels/dining-bellagio-256.webp",
+    "384": "/images/_w/spaces/hotels/dining-bellagio-384.webp",
+    "640": "/images/_w/spaces/hotels/dining-bellagio-640.webp",
+    "828": "/images/_w/spaces/hotels/dining-bellagio-828.webp",
+    "1080": "/images/_w/spaces/hotels/dining-bellagio-1080.webp",
+    "1290": "/images/_w/spaces/hotels/dining-bellagio-1290.webp",
+    "1536": "/images/_w/spaces/hotels/dining-bellagio-1536.webp"
+  },
+  "/images/spaces/hotels/dining-table.jpg": {
+    "256": "/images/_w/spaces/hotels/dining-table-256.webp",
+    "384": "/images/_w/spaces/hotels/dining-table-384.webp",
+    "640": "/images/_w/spaces/hotels/dining-table-640.webp",
+    "828": "/images/_w/spaces/hotels/dining-table-828.webp",
+    "1080": "/images/_w/spaces/hotels/dining-table-1080.webp",
+    "1290": "/images/_w/spaces/hotels/dining-table-1290.webp",
+    "1536": "/images/_w/spaces/hotels/dining-table-1536.webp"
+  },
+  "/images/spaces/hotels/garden-shower.jpg": {
+    "256": "/images/_w/spaces/hotels/garden-shower-256.webp",
+    "384": "/images/_w/spaces/hotels/garden-shower-384.webp",
+    "640": "/images/_w/spaces/hotels/garden-shower-640.webp",
+    "828": "/images/_w/spaces/hotels/garden-shower-828.webp",
+    "1080": "/images/_w/spaces/hotels/garden-shower-1080.webp",
+    "1290": "/images/_w/spaces/hotels/garden-shower-1290.webp",
+    "1711": "/images/_w/spaces/hotels/garden-shower-1711.webp"
+  },
+  "/images/spaces/hotels/lobby-bar.jpg": {
+    "256": "/images/_w/spaces/hotels/lobby-bar-256.webp",
+    "384": "/images/_w/spaces/hotels/lobby-bar-384.webp",
+    "640": "/images/_w/spaces/hotels/lobby-bar-640.webp",
+    "828": "/images/_w/spaces/hotels/lobby-bar-828.webp",
+    "1080": "/images/_w/spaces/hotels/lobby-bar-1080.webp",
+    "1290": "/images/_w/spaces/hotels/lobby-bar-1290.webp",
+    "1920": "/images/_w/spaces/hotels/lobby-bar-1920.webp",
+    "2176": "/images/spaces/hotels/lobby-bar.jpg"
+  },
+  "/images/spaces/hotels/lobby-patagonia.jpg": {
+    "256": "/images/_w/spaces/hotels/lobby-patagonia-256.webp",
+    "384": "/images/_w/spaces/hotels/lobby-patagonia-384.webp",
+    "640": "/images/_w/spaces/hotels/lobby-patagonia-640.webp",
+    "828": "/images/_w/spaces/hotels/lobby-patagonia-828.webp",
+    "1080": "/images/_w/spaces/hotels/lobby-patagonia-1080.webp",
+    "1290": "/images/_w/spaces/hotels/lobby-patagonia-1290.webp",
+    "1536": "/images/_w/spaces/hotels/lobby-patagonia-1536.webp"
+  },
+  "/images/spaces/hotels/lounge-table.jpg": {
+    "256": "/images/_w/spaces/hotels/lounge-table-256.webp",
+    "384": "/images/_w/spaces/hotels/lounge-table-384.webp",
+    "640": "/images/_w/spaces/hotels/lounge-table-640.webp",
+    "828": "/images/_w/spaces/hotels/lounge-table-828.webp",
+    "1080": "/images/_w/spaces/hotels/lounge-table-1080.webp",
+    "1290": "/images/_w/spaces/hotels/lounge-table-1290.webp",
+    "1334": "/images/_w/spaces/hotels/lounge-table-1334.webp"
+  },
+  "/images/spaces/hotels/pool-terrace.jpg": {
+    "256": "/images/_w/spaces/hotels/pool-terrace-256.webp",
+    "384": "/images/_w/spaces/hotels/pool-terrace-384.webp",
+    "640": "/images/_w/spaces/hotels/pool-terrace-640.webp",
+    "828": "/images/_w/spaces/hotels/pool-terrace-828.webp",
+    "1080": "/images/_w/spaces/hotels/pool-terrace-1080.webp",
+    "1290": "/images/_w/spaces/hotels/pool-terrace-1290.webp",
+    "1920": "/images/_w/spaces/hotels/pool-terrace-1920.webp",
+    "2296": "/images/spaces/hotels/pool-terrace.jpg"
+  },
+  "/images/spaces/hotels/restaurant-alabaster-noir-seasons.jpg": {
+    "256": "/images/_w/spaces/hotels/restaurant-alabaster-noir-seasons-256.webp",
+    "384": "/images/_w/spaces/hotels/restaurant-alabaster-noir-seasons-384.webp",
+    "640": "/images/_w/spaces/hotels/restaurant-alabaster-noir-seasons-640.webp",
+    "828": "/images/_w/spaces/hotels/restaurant-alabaster-noir-seasons-828.webp",
+    "1080": "/images/_w/spaces/hotels/restaurant-alabaster-noir-seasons-1080.webp",
+    "1290": "/images/_w/spaces/hotels/restaurant-alabaster-noir-seasons-1290.webp",
+    "1920": "/images/_w/spaces/hotels/restaurant-alabaster-noir-seasons-1920.webp",
+    "2177": "/images/spaces/hotels/restaurant-alabaster-noir-seasons.jpg"
+  },
+  "/images/spaces/hotels/restaurant-table.jpg": {
+    "256": "/images/_w/spaces/hotels/restaurant-table-256.webp",
+    "384": "/images/_w/spaces/hotels/restaurant-table-384.webp",
+    "640": "/images/_w/spaces/hotels/restaurant-table-640.webp",
+    "828": "/images/_w/spaces/hotels/restaurant-table-828.webp",
+    "1080": "/images/_w/spaces/hotels/restaurant-table-1080.webp",
+    "1290": "/images/_w/spaces/hotels/restaurant-table-1290.webp",
+    "1536": "/images/_w/spaces/hotels/restaurant-table-1536.webp"
+  },
+  "/images/spaces/hotels/spa-pool.jpg": {
+    "256": "/images/_w/spaces/hotels/spa-pool-256.webp",
+    "384": "/images/_w/spaces/hotels/spa-pool-384.webp",
+    "640": "/images/_w/spaces/hotels/spa-pool-640.webp",
+    "828": "/images/_w/spaces/hotels/spa-pool-828.webp",
+    "1080": "/images/_w/spaces/hotels/spa-pool-1080.webp",
+    "1290": "/images/_w/spaces/hotels/spa-pool-1290.webp",
+    "1920": "/images/_w/spaces/hotels/spa-pool-1920.webp",
+    "2176": "/images/spaces/hotels/spa-pool.jpg"
+  },
+  "/images/spaces/hotels/spa-treatment-room.jpg": {
+    "256": "/images/_w/spaces/hotels/spa-treatment-room-256.webp",
+    "384": "/images/_w/spaces/hotels/spa-treatment-room-384.webp",
+    "640": "/images/_w/spaces/hotels/spa-treatment-room-640.webp",
+    "828": "/images/_w/spaces/hotels/spa-treatment-room-828.webp",
+    "1080": "/images/_w/spaces/hotels/spa-treatment-room-1080.webp",
+    "1290": "/images/_w/spaces/hotels/spa-treatment-room-1290.webp",
+    "1537": "/images/_w/spaces/hotels/spa-treatment-room-1537.webp"
+  },
+  "/images/spaces/hotels/spa-wall.jpg": {
+    "256": "/images/_w/spaces/hotels/spa-wall-256.webp",
+    "384": "/images/_w/spaces/hotels/spa-wall-384.webp",
+    "640": "/images/_w/spaces/hotels/spa-wall-640.webp",
+    "828": "/images/_w/spaces/hotels/spa-wall-828.webp",
+    "1080": "/images/_w/spaces/hotels/spa-wall-1080.webp",
+    "1290": "/images/_w/spaces/hotels/spa-wall-1290.webp",
+    "1920": "/images/_w/spaces/hotels/spa-wall-1920.webp",
+    "2177": "/images/spaces/hotels/spa-wall.jpg"
+  },
+  "/images/spaces/hotels/suite-feature-wall.jpg": {
+    "256": "/images/_w/spaces/hotels/suite-feature-wall-256.webp",
+    "384": "/images/_w/spaces/hotels/suite-feature-wall-384.webp",
+    "640": "/images/_w/spaces/hotels/suite-feature-wall-640.webp",
+    "828": "/images/_w/spaces/hotels/suite-feature-wall-828.webp",
+    "1080": "/images/_w/spaces/hotels/suite-feature-wall-1080.webp",
+    "1090": "/images/_w/spaces/hotels/suite-feature-wall-1090.webp"
+  },
+  "/images/spaces/hotels/suite-lounge.jpg": {
+    "256": "/images/_w/spaces/hotels/suite-lounge-256.webp",
+    "384": "/images/_w/spaces/hotels/suite-lounge-384.webp",
+    "640": "/images/_w/spaces/hotels/suite-lounge-640.webp",
+    "828": "/images/_w/spaces/hotels/suite-lounge-828.webp",
+    "1080": "/images/_w/spaces/hotels/suite-lounge-1080.webp",
+    "1290": "/images/_w/spaces/hotels/suite-lounge-1290.webp",
+    "1920": "/images/_w/spaces/hotels/suite-lounge-1920.webp",
+    "2177": "/images/spaces/hotels/suite-lounge.jpg"
+  },
+  "/images/spaces/hotels/wellness-stone-cladding.jpg": {
+    "256": "/images/_w/spaces/hotels/wellness-stone-cladding-256.webp",
+    "384": "/images/_w/spaces/hotels/wellness-stone-cladding-384.webp",
+    "640": "/images/_w/spaces/hotels/wellness-stone-cladding-640.webp",
+    "828": "/images/_w/spaces/hotels/wellness-stone-cladding-828.webp",
+    "1080": "/images/_w/spaces/hotels/wellness-stone-cladding-1080.webp",
+    "1290": "/images/_w/spaces/hotels/wellness-stone-cladding-1290.webp",
+    "1920": "/images/_w/spaces/hotels/wellness-stone-cladding-1920.webp",
+    "2176": "/images/spaces/hotels/wellness-stone-cladding.jpg"
+  },
+  "/images/spaces/hotels/winter-garden.jpg": {
+    "256": "/images/_w/spaces/hotels/winter-garden-256.webp",
+    "384": "/images/_w/spaces/hotels/winter-garden-384.webp",
+    "640": "/images/_w/spaces/hotels/winter-garden-640.webp",
+    "828": "/images/_w/spaces/hotels/winter-garden-828.webp",
+    "1080": "/images/_w/spaces/hotels/winter-garden-1080.webp"
+  },
+  "/images/spaces/kitchen-hero.webp": {
+    "256": "/images/_w/spaces/kitchen-hero-256.webp",
+    "384": "/images/_w/spaces/kitchen-hero-384.webp",
+    "640": "/images/_w/spaces/kitchen-hero-640.webp",
+    "828": "/images/_w/spaces/kitchen-hero-828.webp",
+    "1080": "/images/_w/spaces/kitchen-hero-1080.webp",
+    "1290": "/images/_w/spaces/kitchen-hero-1290.webp",
+    "1672": "/images/spaces/kitchen-hero.webp"
+  },
+  "/images/spaces/kitchens.png": {
+    "256": "/images/_w/spaces/kitchens-256.webp",
+    "384": "/images/_w/spaces/kitchens-384.webp",
+    "640": "/images/_w/spaces/kitchens-640.webp"
+  },
+  "/images/sustainability-statement.png": {
+    "256": "/images/_w/sustainability-statement-256.webp",
+    "384": "/images/_w/sustainability-statement-384.webp",
+    "640": "/images/_w/sustainability-statement-640.webp",
+    "828": "/images/_w/sustainability-statement-828.webp",
+    "1080": "/images/_w/sustainability-statement-1080.webp",
+    "1086": "/images/_w/sustainability-statement-1086.webp"
+  },
+  "/images/thresholds-and-sills/colours/arva-white.jpg": {
+    "256": "/images/_w/thresholds-and-sills/colours/arva-white-256.webp",
+    "384": "/images/_w/thresholds-and-sills/colours/arva-white-384.webp",
+    "640": "/images/_w/thresholds-and-sills/colours/arva-white-640.webp",
+    "828": "/images/_w/thresholds-and-sills/colours/arva-white-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/colours/arva-white-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/colours/arva-white-1290.webp",
+    "1848": "/images/_w/thresholds-and-sills/colours/arva-white-1848.webp"
+  },
+  "/images/thresholds-and-sills/colours/cappuccino.jpg": {
+    "256": "/images/_w/thresholds-and-sills/colours/cappuccino-256.webp",
+    "384": "/images/_w/thresholds-and-sills/colours/cappuccino-384.webp",
+    "640": "/images/_w/thresholds-and-sills/colours/cappuccino-640.webp",
+    "828": "/images/_w/thresholds-and-sills/colours/cappuccino-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/colours/cappuccino-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/colours/cappuccino-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/colours/cappuccino-1920.webp",
+    "2020": "/images/thresholds-and-sills/colours/cappuccino.jpg"
+  },
+  "/images/thresholds-and-sills/colours/desert-silk.jpg": {
+    "256": "/images/_w/thresholds-and-sills/colours/desert-silk-256.webp",
+    "384": "/images/_w/thresholds-and-sills/colours/desert-silk-384.webp",
+    "640": "/images/_w/thresholds-and-sills/colours/desert-silk-640.webp",
+    "828": "/images/_w/thresholds-and-sills/colours/desert-silk-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/colours/desert-silk-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/colours/desert-silk-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/colours/desert-silk-1920.webp",
+    "2112": "/images/thresholds-and-sills/colours/desert-silk.jpg"
+  },
+  "/images/thresholds-and-sills/colours/g20.jpg": {
+    "256": "/images/_w/thresholds-and-sills/colours/g20-256.webp",
+    "384": "/images/_w/thresholds-and-sills/colours/g20-384.webp",
+    "640": "/images/_w/thresholds-and-sills/colours/g20-640.webp",
+    "828": "/images/_w/thresholds-and-sills/colours/g20-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/colours/g20-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/colours/g20-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/colours/g20-1920.webp",
+    "2335": "/images/thresholds-and-sills/colours/g20.jpg"
+  },
+  "/images/thresholds-and-sills/colours/steel-grey.jpg": {
+    "256": "/images/_w/thresholds-and-sills/colours/steel-grey-256.webp",
+    "384": "/images/_w/thresholds-and-sills/colours/steel-grey-384.webp",
+    "640": "/images/_w/thresholds-and-sills/colours/steel-grey-640.webp",
+    "828": "/images/_w/thresholds-and-sills/colours/steel-grey-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/colours/steel-grey-1080.webp",
+    "1198": "/images/_w/thresholds-and-sills/colours/steel-grey-1198.webp"
+  },
+  "/images/thresholds-and-sills/colours/super-white.png": {
+    "256": "/images/_w/thresholds-and-sills/colours/super-white-256.webp",
+    "384": "/images/_w/thresholds-and-sills/colours/super-white-384.webp",
+    "640": "/images/_w/thresholds-and-sills/colours/super-white-640.webp",
+    "828": "/images/_w/thresholds-and-sills/colours/super-white-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/colours/super-white-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/colours/super-white-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/colours/super-white-1920.webp",
+    "2094": "/images/thresholds-and-sills/colours/super-white.png"
+  },
+  "/images/thresholds-and-sills/colours/viscon-white.jpg": {
+    "256": "/images/_w/thresholds-and-sills/colours/viscon-white-256.webp",
+    "384": "/images/_w/thresholds-and-sills/colours/viscon-white-384.webp",
+    "640": "/images/_w/thresholds-and-sills/colours/viscon-white-640.webp",
+    "828": "/images/_w/thresholds-and-sills/colours/viscon-white-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/colours/viscon-white-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/colours/viscon-white-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/colours/viscon-white-1920.webp",
+    "2703": "/images/thresholds-and-sills/colours/viscon-white.jpg"
+  },
+  "/images/thresholds-and-sills/colours/warangal-black.jpg": {
+    "256": "/images/_w/thresholds-and-sills/colours/warangal-black-256.webp",
+    "384": "/images/_w/thresholds-and-sills/colours/warangal-black-384.webp",
+    "640": "/images/_w/thresholds-and-sills/colours/warangal-black-640.webp",
+    "828": "/images/_w/thresholds-and-sills/colours/warangal-black-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/colours/warangal-black-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/colours/warangal-black-1290.webp",
+    "1430": "/images/_w/thresholds-and-sills/colours/warangal-black-1430.webp"
+  },
+  "/images/thresholds-and-sills/control-block-saw.jpg": {
+    "256": "/images/_w/thresholds-and-sills/control-block-saw-256.webp",
+    "384": "/images/_w/thresholds-and-sills/control-block-saw-384.webp",
+    "640": "/images/_w/thresholds-and-sills/control-block-saw-640.webp",
+    "828": "/images/_w/thresholds-and-sills/control-block-saw-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/control-block-saw-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/control-block-saw-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/control-block-saw-1920.webp",
+    "6000": "/images/thresholds-and-sills/control-block-saw.jpg"
+  },
+  "/images/thresholds-and-sills/control-block-yard.jpg": {
+    "256": "/images/_w/thresholds-and-sills/control-block-yard-256.webp",
+    "384": "/images/_w/thresholds-and-sills/control-block-yard-384.webp",
+    "640": "/images/_w/thresholds-and-sills/control-block-yard-640.webp",
+    "828": "/images/_w/thresholds-and-sills/control-block-yard-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/control-block-yard-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/control-block-yard-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/control-block-yard-1920.webp",
+    "5472": "/images/thresholds-and-sills/control-block-yard.jpg"
+  },
+  "/images/thresholds-and-sills/control-crates-in-container.jpg": {
+    "256": "/images/_w/thresholds-and-sills/control-crates-in-container-256.webp",
+    "384": "/images/_w/thresholds-and-sills/control-crates-in-container-384.webp",
+    "640": "/images/_w/thresholds-and-sills/control-crates-in-container-640.webp",
+    "828": "/images/_w/thresholds-and-sills/control-crates-in-container-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/control-crates-in-container-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/control-crates-in-container-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/control-crates-in-container-1920.webp",
+    "3750": "/images/thresholds-and-sills/control-crates-in-container.jpg"
+  },
+  "/images/thresholds-and-sills/control-wire-saw.jpg": {
+    "256": "/images/_w/thresholds-and-sills/control-wire-saw-256.webp",
+    "384": "/images/_w/thresholds-and-sills/control-wire-saw-384.webp",
+    "640": "/images/_w/thresholds-and-sills/control-wire-saw-640.webp",
+    "828": "/images/_w/thresholds-and-sills/control-wire-saw-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/control-wire-saw-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/control-wire-saw-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/control-wire-saw-1920.webp",
+    "5759": "/images/thresholds-and-sills/control-wire-saw.jpg"
+  },
+  "/images/thresholds-and-sills/crate-barcodes.jpg": {
+    "256": "/images/_w/thresholds-and-sills/crate-barcodes-256.webp",
+    "384": "/images/_w/thresholds-and-sills/crate-barcodes-384.webp",
+    "640": "/images/_w/thresholds-and-sills/crate-barcodes-640.webp",
+    "828": "/images/_w/thresholds-and-sills/crate-barcodes-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/crate-barcodes-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/crate-barcodes-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/crate-barcodes-1920.webp",
+    "6400": "/images/thresholds-and-sills/crate-barcodes.jpg"
+  },
+  "/images/thresholds-and-sills/crate-drawing.webp": {
+    "256": "/images/_w/thresholds-and-sills/crate-drawing-256.webp",
+    "384": "/images/_w/thresholds-and-sills/crate-drawing-384.webp",
+    "640": "/images/_w/thresholds-and-sills/crate-drawing-640.webp",
+    "828": "/images/_w/thresholds-and-sills/crate-drawing-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/crate-drawing-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/crate-drawing-1290.webp",
+    "1536": "/images/thresholds-and-sills/crate-drawing.webp"
+  },
+  "/images/thresholds-and-sills/granite-sill-black-bullnose.jpg": {
+    "256": "/images/_w/thresholds-and-sills/granite-sill-black-bullnose-256.webp",
+    "384": "/images/_w/thresholds-and-sills/granite-sill-black-bullnose-384.webp",
+    "640": "/images/_w/thresholds-and-sills/granite-sill-black-bullnose-640.webp",
+    "828": "/images/_w/thresholds-and-sills/granite-sill-black-bullnose-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/granite-sill-black-bullnose-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/granite-sill-black-bullnose-1290.webp",
+    "1500": "/images/_w/thresholds-and-sills/granite-sill-black-bullnose-1500.webp"
+  },
+  "/images/thresholds-and-sills/granite-sill-black-white-corner.jpg": {
+    "256": "/images/_w/thresholds-and-sills/granite-sill-black-white-corner-256.webp",
+    "384": "/images/_w/thresholds-and-sills/granite-sill-black-white-corner-384.webp",
+    "640": "/images/_w/thresholds-and-sills/granite-sill-black-white-corner-640.webp",
+    "828": "/images/_w/thresholds-and-sills/granite-sill-black-white-corner-828.webp",
+    "1024": "/images/_w/thresholds-and-sills/granite-sill-black-white-corner-1024.webp"
+  },
+  "/images/thresholds-and-sills/granite-sill-black.jpg": {
+    "256": "/images/_w/thresholds-and-sills/granite-sill-black-256.webp",
+    "384": "/images/_w/thresholds-and-sills/granite-sill-black-384.webp",
+    "640": "/images/_w/thresholds-and-sills/granite-sill-black-640.webp",
+    "828": "/images/_w/thresholds-and-sills/granite-sill-black-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/granite-sill-black-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/granite-sill-black-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/granite-sill-black-1920.webp",
+    "2111": "/images/thresholds-and-sills/granite-sill-black.jpg"
+  },
+  "/images/thresholds-and-sills/granite-sill-brown.jpg": {
+    "256": "/images/_w/thresholds-and-sills/granite-sill-brown-256.webp",
+    "384": "/images/_w/thresholds-and-sills/granite-sill-brown-384.webp",
+    "640": "/images/_w/thresholds-and-sills/granite-sill-brown-640.webp",
+    "828": "/images/_w/thresholds-and-sills/granite-sill-brown-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/granite-sill-brown-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/granite-sill-brown-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/granite-sill-brown-1920.webp",
+    "2592": "/images/thresholds-and-sills/granite-sill-brown.jpg"
+  },
+  "/images/thresholds-and-sills/granite-sill-exterior.jpg": {
+    "256": "/images/_w/thresholds-and-sills/granite-sill-exterior-256.webp",
+    "384": "/images/_w/thresholds-and-sills/granite-sill-exterior-384.webp",
+    "640": "/images/_w/thresholds-and-sills/granite-sill-exterior-640.webp",
+    "828": "/images/_w/thresholds-and-sills/granite-sill-exterior-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/granite-sill-exterior-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/granite-sill-exterior-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/granite-sill-exterior-1920.webp",
+    "2400": "/images/thresholds-and-sills/granite-sill-exterior.jpg"
+  },
+  "/images/thresholds-and-sills/granite-sill-kitchen.jpg": {
+    "256": "/images/_w/thresholds-and-sills/granite-sill-kitchen-256.webp",
+    "384": "/images/_w/thresholds-and-sills/granite-sill-kitchen-384.webp",
+    "640": "/images/_w/thresholds-and-sills/granite-sill-kitchen-640.webp",
+    "828": "/images/_w/thresholds-and-sills/granite-sill-kitchen-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/granite-sill-kitchen-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/granite-sill-kitchen-1290.webp",
+    "1536": "/images/_w/thresholds-and-sills/granite-sill-kitchen-1536.webp"
+  },
+  "/images/thresholds-and-sills/granite-sill-red.jpg": {
+    "256": "/images/_w/thresholds-and-sills/granite-sill-red-256.webp",
+    "384": "/images/_w/thresholds-and-sills/granite-sill-red-384.webp",
+    "640": "/images/_w/thresholds-and-sills/granite-sill-red-640.webp",
+    "828": "/images/_w/thresholds-and-sills/granite-sill-red-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/granite-sill-red-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/granite-sill-red-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/granite-sill-red-1920.webp",
+    "2111": "/images/thresholds-and-sills/granite-sill-red.jpg"
+  },
+  "/images/thresholds-and-sills/granite-sills-black-row.jpg": {
+    "256": "/images/_w/thresholds-and-sills/granite-sills-black-row-256.webp",
+    "384": "/images/_w/thresholds-and-sills/granite-sills-black-row-384.webp",
+    "640": "/images/_w/thresholds-and-sills/granite-sills-black-row-640.webp",
+    "828": "/images/_w/thresholds-and-sills/granite-sills-black-row-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/granite-sills-black-row-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/granite-sills-black-row-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/granite-sills-black-row-1920.webp",
+    "2111": "/images/thresholds-and-sills/granite-sills-black-row.jpg"
+  },
+  "/images/thresholds-and-sills/granite-sills-black-stack.jpg": {
+    "256": "/images/_w/thresholds-and-sills/granite-sills-black-stack-256.webp",
+    "384": "/images/_w/thresholds-and-sills/granite-sills-black-stack-384.webp",
+    "640": "/images/_w/thresholds-and-sills/granite-sills-black-stack-640.webp",
+    "828": "/images/_w/thresholds-and-sills/granite-sills-black-stack-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/granite-sills-black-stack-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/granite-sills-black-stack-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/granite-sills-black-stack-1920.webp",
+    "2111": "/images/thresholds-and-sills/granite-sills-black-stack.jpg"
+  },
+  "/images/thresholds-and-sills/hero-charcoal-sill.webp": {
+    "256": "/images/_w/thresholds-and-sills/hero-charcoal-sill-256.webp",
+    "384": "/images/_w/thresholds-and-sills/hero-charcoal-sill-384.webp",
+    "640": "/images/_w/thresholds-and-sills/hero-charcoal-sill-640.webp",
+    "828": "/images/_w/thresholds-and-sills/hero-charcoal-sill-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/hero-charcoal-sill-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/hero-charcoal-sill-1290.webp",
+    "1536": "/images/thresholds-and-sills/hero-charcoal-sill.webp"
+  },
+  "/images/thresholds-and-sills/products-drawings.png": {
+    "256": "/images/_w/thresholds-and-sills/products-drawings-256.webp",
+    "384": "/images/_w/thresholds-and-sills/products-drawings-384.webp",
+    "640": "/images/_w/thresholds-and-sills/products-drawings-640.webp",
+    "828": "/images/_w/thresholds-and-sills/products-drawings-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/products-drawings-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/products-drawings-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/products-drawings-1920.webp",
+    "2560": "/images/thresholds-and-sills/products-drawings.png"
+  },
+  "/images/thresholds-and-sills/quartz-sill-brooklyn.jpg": {
+    "256": "/images/_w/thresholds-and-sills/quartz-sill-brooklyn-256.webp",
+    "384": "/images/_w/thresholds-and-sills/quartz-sill-brooklyn-384.webp",
+    "640": "/images/_w/thresholds-and-sills/quartz-sill-brooklyn-640.webp",
+    "828": "/images/_w/thresholds-and-sills/quartz-sill-brooklyn-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/quartz-sill-brooklyn-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/quartz-sill-brooklyn-1290.webp",
+    "1920": "/images/_w/thresholds-and-sills/quartz-sill-brooklyn-1920.webp",
+    "3948": "/images/thresholds-and-sills/quartz-sill-brooklyn.jpg"
+  },
+  "/images/thresholds-and-sills/sills-range.jpg": {
+    "256": "/images/_w/thresholds-and-sills/sills-range-256.webp",
+    "384": "/images/_w/thresholds-and-sills/sills-range-384.webp",
+    "640": "/images/_w/thresholds-and-sills/sills-range-640.webp",
+    "828": "/images/_w/thresholds-and-sills/sills-range-828.webp",
+    "1080": "/images/_w/thresholds-and-sills/sills-range-1080.webp",
+    "1290": "/images/_w/thresholds-and-sills/sills-range-1290.webp",
+    "1409": "/images/_w/thresholds-and-sills/sills-range-1409.webp"
+  },
+  "/certifications/iso.png": {
+    "256": "/certifications/_w/iso-256.webp",
+    "384": "/certifications/_w/iso-384.webp",
+    "640": "/certifications/_w/iso-640.webp",
+    "828": "/certifications/_w/iso-828.webp",
+    "1080": "/certifications/_w/iso-1080.webp",
+    "1290": "/certifications/_w/iso-1290.webp",
+    "1920": "/certifications/_w/iso-1920.webp",
+    "2170": "/certifications/iso.png"
+  },
+  "/certifications/kosher.png": {
+    "256": "/certifications/_w/kosher-256.webp",
+    "384": "/certifications/_w/kosher-384.webp",
+    "640": "/certifications/_w/kosher-640.webp",
+    "828": "/certifications/_w/kosher-828.webp",
+    "1080": "/certifications/_w/kosher-1080.webp",
+    "1290": "/certifications/_w/kosher-1290.webp",
+    "1539": "/certifications/_w/kosher-1539.webp"
+  },
+  "/certifications/nsf.png": {
+    "256": "/certifications/_w/nsf-256.webp",
+    "384": "/certifications/_w/nsf-384.webp",
+    "640": "/certifications/_w/nsf-640.webp",
+    "828": "/certifications/_w/nsf-828.webp",
+    "1080": "/certifications/_w/nsf-1080.webp",
+    "1290": "/certifications/_w/nsf-1290.webp",
+    "1920": "/certifications/_w/nsf-1920.webp",
+    "3840": "/certifications/nsf.png"
+  },
+  "/benefits/acid-resistance.png": {
+    "256": "/benefits/_w/acid-resistance-256.webp",
+    "384": "/benefits/_w/acid-resistance-384.webp",
+    "640": "/benefits/_w/acid-resistance-640.webp",
+    "828": "/benefits/_w/acid-resistance-828.webp",
+    "891": "/benefits/_w/acid-resistance-891.webp"
+  },
+  "/benefits/acid.png": {
+    "256": "/benefits/_w/acid-256.webp",
+    "384": "/benefits/_w/acid-384.webp",
+    "640": "/benefits/_w/acid-640.webp",
+    "828": "/benefits/_w/acid-828.webp",
+    "891": "/benefits/_w/acid-891.webp"
+  },
+  "/benefits/impact-resistance.png": {
+    "256": "/benefits/_w/impact-resistance-256.webp",
+    "384": "/benefits/_w/impact-resistance-384.webp",
+    "640": "/benefits/_w/impact-resistance-640.webp",
+    "828": "/benefits/_w/impact-resistance-828.webp",
+    "1080": "/benefits/_w/impact-resistance-1080.webp",
+    "1290": "/benefits/_w/impact-resistance-1290.webp",
+    "1536": "/benefits/_w/impact-resistance-1536.webp"
+  },
+  "/benefits/impact.png": {
+    "256": "/benefits/_w/impact-256.webp",
+    "384": "/benefits/_w/impact-384.webp",
+    "640": "/benefits/_w/impact-640.webp",
+    "828": "/benefits/_w/impact-828.webp",
+    "1080": "/benefits/_w/impact-1080.webp",
+    "1290": "/benefits/_w/impact-1290.webp",
+    "1536": "/benefits/_w/impact-1536.webp"
+  },
+  "/benefits/scratch-resistance.png": {
+    "256": "/benefits/_w/scratch-resistance-256.webp",
+    "384": "/benefits/_w/scratch-resistance-384.webp",
+    "640": "/benefits/_w/scratch-resistance-640.webp",
+    "828": "/benefits/_w/scratch-resistance-828.webp",
+    "1080": "/benefits/_w/scratch-resistance-1080.webp",
+    "1290": "/benefits/_w/scratch-resistance-1290.webp",
+    "1360": "/benefits/_w/scratch-resistance-1360.webp"
+  },
+  "/benefits/stain-resistance.png": {
+    "256": "/benefits/_w/stain-resistance-256.webp",
+    "384": "/benefits/_w/stain-resistance-384.webp",
+    "640": "/benefits/_w/stain-resistance-640.webp",
+    "805": "/benefits/_w/stain-resistance-805.webp"
+  },
+  "/team/abhijeet-mankotia.jpg": {
+    "256": "/team/_w/abhijeet-mankotia-256.webp",
+    "384": "/team/_w/abhijeet-mankotia-384.webp",
+    "640": "/team/_w/abhijeet-mankotia-640.webp",
+    "828": "/team/_w/abhijeet-mankotia-828.webp",
+    "900": "/team/_w/abhijeet-mankotia-900.webp"
+  },
+  "/team/anish-datta.jpg": {
+    "256": "/team/_w/anish-datta-256.webp",
+    "384": "/team/_w/anish-datta-384.webp",
+    "640": "/team/_w/anish-datta-640.webp",
+    "828": "/team/_w/anish-datta-828.webp",
+    "1080": "/team/_w/anish-datta-1080.webp",
+    "1100": "/team/_w/anish-datta-1100.webp"
+  },
+  "/team/anumuthan.png": {
+    "256": "/team/_w/anumuthan-256.webp",
+    "384": "/team/_w/anumuthan-384.webp",
+    "640": "/team/_w/anumuthan-640.webp",
+    "800": "/team/_w/anumuthan-800.webp"
+  },
+  "/team/marcin.png": {
+    "256": "/team/_w/marcin-256.webp",
+    "384": "/team/_w/marcin-384.webp",
+    "600": "/team/_w/marcin-600.webp"
+  },
+  "/team/mohanlal-somani.jpg": {
+    "256": "/team/_w/mohanlal-somani-256.webp",
+    "384": "/team/_w/mohanlal-somani-384.webp",
+    "640": "/team/_w/mohanlal-somani-640.webp",
+    "828": "/team/_w/mohanlal-somani-828.webp",
+    "1080": "/team/_w/mohanlal-somani-1080.webp",
+    "1100": "/team/_w/mohanlal-somani-1100.webp"
+  },
+  "/team/nagesh-pk.jpg": {
+    "256": "/team/_w/nagesh-pk-256.webp",
+    "384": "/team/_w/nagesh-pk-384.webp",
+    "640": "/team/_w/nagesh-pk-640.webp",
+    "828": "/team/_w/nagesh-pk-828.webp",
+    "1080": "/team/_w/nagesh-pk-1080.webp",
+    "1100": "/team/_w/nagesh-pk-1100.webp"
+  },
+  "/team/paulina-poplawska.jpg": {
+    "256": "/team/_w/paulina-poplawska-256.webp",
+    "384": "/team/_w/paulina-poplawska-384.webp",
+    "640": "/team/_w/paulina-poplawska-640.webp",
+    "828": "/team/_w/paulina-poplawska-828.webp",
+    "1080": "/team/_w/paulina-poplawska-1080.webp",
+    "1100": "/team/_w/paulina-poplawska-1100.webp"
+  },
+  "/team/varun-somani.jpg": {
+    "256": "/team/_w/varun-somani-256.webp",
+    "384": "/team/_w/varun-somani-384.webp",
+    "640": "/team/_w/varun-somani-640.webp",
+    "828": "/team/_w/varun-somani-828.webp",
+    "1080": "/team/_w/varun-somani-1080.webp",
+    "1100": "/team/_w/varun-somani-1100.webp"
+  },
+  "/projects/bathrooms/alabaster-and-latte-luxe.webp": {
+    "256": "/projects/_w/bathrooms/alabaster-and-latte-luxe-256.webp",
+    "384": "/projects/_w/bathrooms/alabaster-and-latte-luxe-384.webp",
+    "640": "/projects/_w/bathrooms/alabaster-and-latte-luxe-640.webp",
+    "828": "/projects/_w/bathrooms/alabaster-and-latte-luxe-828.webp",
+    "1080": "/projects/_w/bathrooms/alabaster-and-latte-luxe-1080.webp",
+    "1290": "/projects/_w/bathrooms/alabaster-and-latte-luxe-1290.webp",
+    "1800": "/projects/bathrooms/alabaster-and-latte-luxe.webp"
+  },
+  "/projects/bathrooms/bathroom.webp": {
+    "256": "/projects/_w/bathrooms/bathroom-256.webp",
+    "384": "/projects/_w/bathrooms/bathroom-384.webp",
+    "640": "/projects/_w/bathrooms/bathroom-640.webp",
+    "828": "/projects/_w/bathrooms/bathroom-828.webp",
+    "941": "/projects/bathrooms/bathroom.webp"
+  },
+  "/projects/cappuccino-1.jpg": {
+    "256": "/projects/_w/cappuccino-1-256.webp",
+    "384": "/projects/_w/cappuccino-1-384.webp",
+    "640": "/projects/_w/cappuccino-1-640.webp",
+    "828": "/projects/_w/cappuccino-1-828.webp",
+    "1080": "/projects/_w/cappuccino-1-1080.webp",
+    "1200": "/projects/_w/cappuccino-1-1200.webp"
+  },
+  "/projects/cappuccino-installed-poster.jpg": {
+    "256": "/projects/_w/cappuccino-installed-poster-256.webp",
+    "384": "/projects/_w/cappuccino-installed-poster-384.webp",
+    "640": "/projects/_w/cappuccino-installed-poster-640.webp",
+    "828": "/projects/_w/cappuccino-installed-poster-828.webp",
+    "1080": "/projects/_w/cappuccino-installed-poster-1080.webp",
+    "1290": "/projects/_w/cappuccino-installed-poster-1290.webp",
+    "1920": "/projects/_w/cappuccino-installed-poster-1920.webp"
+  },
+  "/projects/cladding/horizon-veil.webp": {
+    "256": "/projects/_w/cladding/horizon-veil-256.webp",
+    "384": "/projects/_w/cladding/horizon-veil-384.webp",
+    "640": "/projects/_w/cladding/horizon-veil-640.webp",
+    "828": "/projects/_w/cladding/horizon-veil-828.webp",
+    "1080": "/projects/_w/cladding/horizon-veil-1080.webp",
+    "1290": "/projects/_w/cladding/horizon-veil-1290.webp",
+    "1800": "/projects/cladding/horizon-veil.webp"
+  },
+  "/projects/cladding/patagonia.webp": {
+    "256": "/projects/_w/cladding/patagonia-256.webp",
+    "384": "/projects/_w/cladding/patagonia-384.webp",
+    "640": "/projects/_w/cladding/patagonia-640.webp",
+    "828": "/projects/_w/cladding/patagonia-828.webp",
+    "1080": "/projects/_w/cladding/patagonia-1080.webp",
+    "1290": "/projects/_w/cladding/patagonia-1290.webp",
+    "1376": "/projects/cladding/patagonia.webp"
+  },
+  "/projects/cladding/ruskin.webp": {
+    "256": "/projects/_w/cladding/ruskin-256.webp",
+    "384": "/projects/_w/cladding/ruskin-384.webp",
+    "640": "/projects/_w/cladding/ruskin-640.webp",
+    "828": "/projects/_w/cladding/ruskin-828.webp",
+    "1080": "/projects/_w/cladding/ruskin-1080.webp",
+    "1290": "/projects/_w/cladding/ruskin-1290.webp",
+    "1800": "/projects/cladding/ruskin.webp"
+  },
+  "/projects/cladding/tiffany.webp": {
+    "256": "/projects/_w/cladding/tiffany-256.webp",
+    "384": "/projects/_w/cladding/tiffany-384.webp",
+    "640": "/projects/_w/cladding/tiffany-640.webp",
+    "828": "/projects/_w/cladding/tiffany-828.webp",
+    "1080": "/projects/_w/cladding/tiffany-1080.webp",
+    "1122": "/projects/cladding/tiffany.webp"
+  },
+  "/projects/islands/almond-mist-application.webp": {
+    "256": "/projects/_w/islands/almond-mist-application-256.webp",
+    "384": "/projects/_w/islands/almond-mist-application-384.webp",
+    "640": "/projects/_w/islands/almond-mist-application-640.webp",
+    "828": "/projects/_w/islands/almond-mist-application-828.webp",
+    "1080": "/projects/_w/islands/almond-mist-application-1080.webp",
+    "1290": "/projects/_w/islands/almond-mist-application-1290.webp",
+    "1800": "/projects/islands/almond-mist-application.webp"
+  },
+  "/projects/islands/artemis-kitchen.webp": {
+    "256": "/projects/_w/islands/artemis-kitchen-256.webp",
+    "384": "/projects/_w/islands/artemis-kitchen-384.webp",
+    "640": "/projects/_w/islands/artemis-kitchen-640.webp",
+    "828": "/projects/_w/islands/artemis-kitchen-828.webp",
+    "1080": "/projects/_w/islands/artemis-kitchen-1080.webp",
+    "1290": "/projects/_w/islands/artemis-kitchen-1290.webp",
+    "1800": "/projects/islands/artemis-kitchen.webp"
+  },
+  "/projects/islands/arya-application-kitchen.webp": {
+    "256": "/projects/_w/islands/arya-application-kitchen-256.webp",
+    "384": "/projects/_w/islands/arya-application-kitchen-384.webp",
+    "640": "/projects/_w/islands/arya-application-kitchen-640.webp",
+    "828": "/projects/_w/islands/arya-application-kitchen-828.webp",
+    "1080": "/projects/_w/islands/arya-application-kitchen-1080.webp",
+    "1290": "/projects/_w/islands/arya-application-kitchen-1290.webp",
+    "1536": "/projects/islands/arya-application-kitchen.webp"
+  },
+  "/projects/islands/orenda-kitchen-new.webp": {
+    "256": "/projects/_w/islands/orenda-kitchen-new-256.webp",
+    "384": "/projects/_w/islands/orenda-kitchen-new-384.webp",
+    "640": "/projects/_w/islands/orenda-kitchen-new-640.webp",
+    "828": "/projects/_w/islands/orenda-kitchen-new-828.webp",
+    "1080": "/projects/_w/islands/orenda-kitchen-new-1080.webp",
+    "1290": "/projects/_w/islands/orenda-kitchen-new-1290.webp",
+    "1800": "/projects/islands/orenda-kitchen-new.webp"
+  },
+  "/projects/islands/orenda.webp": {
+    "256": "/projects/_w/islands/orenda-256.webp",
+    "384": "/projects/_w/islands/orenda-384.webp",
+    "640": "/projects/_w/islands/orenda-640.webp",
+    "828": "/projects/_w/islands/orenda-828.webp",
+    "1080": "/projects/islands/orenda.webp"
+  },
+  "/projects/islands/patagonia.webp": {
+    "256": "/projects/_w/islands/patagonia-256.webp",
+    "384": "/projects/_w/islands/patagonia-384.webp",
+    "640": "/projects/_w/islands/patagonia-640.webp",
+    "828": "/projects/_w/islands/patagonia-828.webp",
+    "1080": "/projects/_w/islands/patagonia-1080.webp",
+    "1290": "/projects/_w/islands/patagonia-1290.webp",
+    "1800": "/projects/islands/patagonia.webp"
+  },
+  "/projects/islands/sakura.webp": {
+    "256": "/projects/_w/islands/sakura-256.webp",
+    "384": "/projects/_w/islands/sakura-384.webp",
+    "640": "/projects/_w/islands/sakura-640.webp",
+    "828": "/projects/_w/islands/sakura-828.webp",
+    "1080": "/projects/_w/islands/sakura-1080.webp",
+    "1122": "/projects/islands/sakura.webp"
+  },
+  "/projects/islands/taj-application.webp": {
+    "256": "/projects/_w/islands/taj-application-256.webp",
+    "384": "/projects/_w/islands/taj-application-384.webp",
+    "640": "/projects/_w/islands/taj-application-640.webp",
+    "828": "/projects/_w/islands/taj-application-828.webp",
+    "1080": "/projects/islands/taj-application.webp"
+  },
+  "/projects/islands/taj-vein-application-2.webp": {
+    "256": "/projects/_w/islands/taj-vein-application-2-256.webp",
+    "384": "/projects/_w/islands/taj-vein-application-2-384.webp",
+    "640": "/projects/_w/islands/taj-vein-application-2-640.webp",
+    "828": "/projects/_w/islands/taj-vein-application-2-828.webp",
+    "1080": "/projects/_w/islands/taj-vein-application-2-1080.webp",
+    "1290": "/projects/_w/islands/taj-vein-application-2-1290.webp",
+    "1800": "/projects/islands/taj-vein-application-2.webp"
+  },
+  "/projects/latte-luxe.jpg": {
+    "256": "/projects/_w/latte-luxe-256.webp",
+    "384": "/projects/_w/latte-luxe-384.webp",
+    "640": "/projects/_w/latte-luxe-640.webp",
+    "828": "/projects/_w/latte-luxe-828.webp",
+    "1080": "/projects/_w/latte-luxe-1080.webp",
+    "1200": "/projects/_w/latte-luxe-1200.webp"
+  }
 }

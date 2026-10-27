@@ -57,6 +57,13 @@ const nextConfig: NextConfig = {
     removeConsole: { exclude: ["error", "warn"] },
   },
 
+  /* experimental.inlineCss was tried and left off (2026-10-27). It puts
+     the whole stylesheet (208 KB before compression) into every page's
+     HTML and again into its RSC payload: the homepage went from 42 KB to
+     98 KB gzipped and a blog post from 19 KB to 75 KB, more than the
+     ~0.2 s render-blocking round trip it removes, and the CSS stops being
+     cached between pages. */
+
   /* productionBrowserSourceMaps was previously enabled but caused a
      measurable Performance regression (96 → 65) — Next.js 15 inlines
      extra `//# sourceMappingURL=` references and bumps bundle parse
