@@ -1,3 +1,4 @@
+import "server-only";
 import { createClient } from "next-sanity";
 import { apiVersion, dataset, projectId, readToken } from "../env";
 
@@ -6,17 +7,25 @@ import { apiVersion, dataset, projectId, readToken } from "../env";
  * and optional: while the dataset is public it is undefined and these
  * clients behave exactly as before, and once the dataset is flipped to
  * private the same clients start authenticating with no other change.
+ * `server-only` makes importing these clients from browser code a build
+ * error, so no query (and no token) can end up in a client bundle.
  *
- * `useCdn` must be false whenever a token is present — Sanity's CDN
- * does not serve authenticated requests, and passing a token with
- * useCdn:true silently returns stale/unauthorized responses. So the
- * CDN-cached client only uses the CDN while it is running tokenless.
+ * The CDN: @sanity/client 7 does not switch the API CDN off for a token
+ * (only for `withCredentials`), so this is our own choice: with a token,
+ * every read goes to the live API, the one path certain to work on a
+ * private dataset. The cost is that reads are API requests rather than
+ * CDN hits; Next's own caching (revalidate) keeps their number down.
+ *
+ * `perspective: "published"`: a token can see drafts, and the site must
+ * only ever show published documents. It is already the API's default
+ * for this API version; set here so a token never changes that.
  */
 const baseClient = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: !readToken, // CDN is incompatible with authenticated reads
+  useCdn: !readToken,
+  perspective: "published",
   ...(readToken ? { token: readToken } : {}),
 });
 
@@ -35,6 +44,7 @@ const freshBaseClient = createClient({
   dataset,
   apiVersion,
   useCdn: false,
+  perspective: "published",
   ...(readToken ? { token: readToken } : {}),
 });
 
