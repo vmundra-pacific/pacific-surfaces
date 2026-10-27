@@ -272,7 +272,7 @@ async function resizeIfNeeded(
     const b64 = imageInput.substring(commaIdx + 1);
     const buffer = Buffer.from(b64, "base64");
 
-    let sharp: typeof import("sharp");
+    let sharp: typeof import("sharp").default;
     try {
       sharp = (await import("sharp")).default;
     } catch {

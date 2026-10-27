@@ -247,7 +247,7 @@ async function pickSmallestContainingMask(
 ): Promise<string | null> {
   if (urls.length === 1) return urls[0];
 
-  let sharp: typeof import("sharp");
+  let sharp: typeof import("sharp").default;
   try {
     sharp = (await import("sharp")).default;
   } catch {
@@ -324,7 +324,7 @@ async function resizeIfNeeded(
     const header = imageInput.substring(0, i);
     if (!header.includes(";base64")) return imageInput;
     const buf = Buffer.from(imageInput.substring(i + 1), "base64");
-    let sharp: typeof import("sharp");
+    let sharp: typeof import("sharp").default;
     try {
       sharp = (await import("sharp")).default;
     } catch {
