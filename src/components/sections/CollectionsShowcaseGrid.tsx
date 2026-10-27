@@ -11,6 +11,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { formatCollection } from "@/components/catalogue/labels";
+import { useRegionCountry } from "@/lib/use-region-country";
 
 interface SanityCollection {
   _id: string;
@@ -22,6 +23,11 @@ interface SanityCollection {
   finishCount: string | null;
   showcaseLayout: "wide" | "narrow" | null;
   productCount: number;
+  /** Of productCount, the quartz and Eclipse colours, and those of them in
+   *  the Indian range (data/india-range): India's count is
+   *  productCount - quartzCount + indiaQuartzCount. */
+  quartzCount?: number;
+  indiaQuartzCount?: number;
 }
 
 const fallbackCollections = [
@@ -187,6 +193,9 @@ export function CollectionsShowcaseGrid({
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [travelPx, setTravelPx] = useState(0);
+  // India's card counts leave out quartz and Eclipse colours outside its
+  // range (data/india-range).
+  const country = useRegionCountry();
 
   useEffect(() => {
     const measure = () => {
@@ -241,9 +250,9 @@ export function CollectionsShowcaseGrid({
               className="lg:max-w-md lg:pt-8"
             >
               <p className="text-base font-light text-white/85 leading-relaxed">
-                Superjumbo slabs, 3,480 × 2,007 mm, in 12, 20 and 30 mm.
-                Each one engineered to pass a fabricator&apos;s precision test
-                and an architect&apos;s critical eye.
+                Superjumbo slabs, 3,480 × 2,007 mm, in 12, 20 and 30 mm. Each
+                one engineered to pass a fabricator&apos;s precision test and an
+                architect&apos;s critical eye.
               </p>
             </motion.div>
           </div>
@@ -272,9 +281,15 @@ export function CollectionsShowcaseGrid({
               // untouched.
               const rawName = col.name;
               const name = formatCollection(rawName);
+              const sanityCol = col as SanityCollection;
+              const productCount =
+                country === "IN"
+                  ? sanityCol.productCount -
+                    (sanityCol.quartzCount ?? 0) +
+                    (sanityCol.indiaQuartzCount ?? 0)
+                  : sanityCol.productCount;
               const finishCount = isSanity
-                ? (col as SanityCollection).finishCount ||
-                  `${(col as SanityCollection).productCount} Products`
+                ? sanityCol.finishCount || `${productCount} Products`
                 : (col as (typeof fallbackCollections)[number]).finishCount;
               const rawHeadline = isSanity
                 ? (col as SanityCollection).headline ||

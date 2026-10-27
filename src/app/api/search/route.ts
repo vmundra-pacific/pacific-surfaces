@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { client } from "@/sanity/lib/client";
 import { groq } from "next-sanity";
 import { searchPages, searchWords } from "@/data/site-search";
+import { shownInRegion } from "@/data/india-range";
+import { COUNTRY_COOKIE } from "@/lib/region";
+
+interface SearchHit {
+  _type: "product" | "blogPost";
+  _id: string;
+  name: string;
+  slug?: { current?: string } | null;
+  mainImage?: string | null;
+  collectionName?: string | null;
+  productType?: string | null;
+}
 
 /**
  * GET /api/search?q=vanity+top
@@ -26,7 +38,7 @@ export async function GET(req: NextRequest) {
   const pages = searchPages(q);
   const terms = words.map((w) => `${w}*`);
 
-  const results = await client.fetch(
+  const found: SearchHit[] = await client.fetch(
     groq`
       *[
         !(_id in path("drafts.**")) && (
@@ -38,17 +50,38 @@ export async function GET(req: NextRequest) {
           )) ||
           (_type == "blogPost" && title match $terms)
         )
-      ] | order(coalesce(name, title) asc) [0...20] {
+      ] | order(coalesce(name, title) asc) [0...40] {
         _type,
         _id,
         "name": coalesce(name, title),
         slug,
         "mainImage": mainImage.asset->url,
-        "collectionName": collection->name
+        "collectionName": collection->name,
+        productType
       }
     `,
     { terms }
   );
+
+  // Visitors in India find only the quartz and Eclipse colours in the
+  // Indian catalogue (data/india-range); the region selector sets the
+  // country cookie. Fetched 40, so 20 remain after the filter.
+  const country = req.cookies.get(COUNTRY_COOKIE)?.value;
+  const results = found
+    .filter(
+      (r) =>
+        r._type !== "product" ||
+        shownInRegion(
+          {
+            slug: r.slug?.current,
+            name: r.name,
+            productType: r.productType,
+            collection: r.collectionName,
+          },
+          country
+        )
+    )
+    .slice(0, 20);
 
   return NextResponse.json({ results, pages });
 }

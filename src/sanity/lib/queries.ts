@@ -178,7 +178,8 @@ export const productBySlugQuery = groq`
         _id, name, slug, "mainImage": mainImage.asset->url, price,
         "collectionName": collection->name,
         "categoryName": category->name,
-        manualHues
+        manualHues,
+        productType
       },
       []
     ),
@@ -186,7 +187,8 @@ export const productBySlugQuery = groq`
       _id, name, slug, "mainImage": mainImage.asset->url, price,
       "categoryName": category->name,
       "collectionName": collection->name,
-      manualHues
+      manualHues,
+      productType
     }
   }
 `;
@@ -265,6 +267,19 @@ export const blogPostBySlugQuery = groq`
 // Keep this category map in sync with CATEGORY_PRODUCT_TYPE in
 // src/app/(site)/products/[slug]/[item]/page.tsx — both should agree
 // on which slugs trigger which productType expansion.
+//
+// quartzCount and indiaQuartzCount: of those products, the quartz and
+// Eclipse colours, and how many of them are in the Indian range
+// (data/india-range). A card shows India productCount - quartzCount +
+// indiaQuartzCount. Params: $quartzCollections, $indiaQuartz.
+const inShowcaseCollection = `(
+      collection._ref == ^._id ||
+      (^.slug.current == "quartz" && productType == "quartz-slab") ||
+      (^.slug.current == "granite" && productType == "granite-slab") ||
+      ((^.slug.current == "semi-precious" || ^.slug.current == "semi-precious-stones" || ^.slug.current == "semiprecious") && productType == "semi-precious") ||
+      ((^.slug.current == "integra" || ^.slug.current == "sinks") && productType == "quartz-sink")
+    )`;
+const isQuartzColour = `(productType == "quartz-slab" || collection->name in $quartzCollections)`;
 export const homepageCollectionsQuery = groq`
   *[_type == "collection"] | order(order asc) {
     _id,
@@ -275,13 +290,9 @@ export const homepageCollectionsQuery = groq`
     headline,
     finishCount,
     showcaseLayout,
-    "productCount": count(*[_type == "product" && (
-      collection._ref == ^._id ||
-      (^.slug.current == "quartz" && productType == "quartz-slab") ||
-      (^.slug.current == "granite" && productType == "granite-slab") ||
-      ((^.slug.current == "semi-precious" || ^.slug.current == "semi-precious-stones" || ^.slug.current == "semiprecious") && productType == "semi-precious") ||
-      ((^.slug.current == "integra" || ^.slug.current == "sinks") && productType == "quartz-sink")
-    )])
+    "productCount": count(*[_type == "product" && ${inShowcaseCollection}]),
+    "quartzCount": count(*[_type == "product" && ${inShowcaseCollection} && ${isQuartzColour}]),
+    "indiaQuartzCount": count(*[_type == "product" && ${inShowcaseCollection} && ${isQuartzColour} && slug.current in $indiaQuartz])
   }
 `;
 

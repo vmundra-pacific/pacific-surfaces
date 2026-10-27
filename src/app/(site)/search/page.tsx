@@ -4,6 +4,9 @@ import Image from "next/image";
 import { client } from "@/sanity/lib/client";
 import { groq } from "next-sanity";
 import { sanityImg } from "@/lib/sanity-img";
+import { cookies } from "next/headers";
+import { shownInRegion } from "@/data/india-range";
+import { COUNTRY_COOKIE } from "@/lib/region";
 
 /**
  * /search — site-wide search endpoint that the WebSite/SearchAction
@@ -38,6 +41,8 @@ const searchQuery = groq`
     "categorySlug": category->slug.current,
     "categoryName": category->name,
     "mainImage": mainImage.asset->url,
+    productType,
+    "collectionName": collection->name,
   }
 `;
 
@@ -48,6 +53,8 @@ type SearchResult = {
   categorySlug?: string;
   categoryName?: string;
   mainImage?: string;
+  productType?: string;
+  collectionName?: string;
 };
 
 export default async function SearchPage({
@@ -61,7 +68,21 @@ export default async function SearchPage({
   let results: SearchResult[] = [];
   if (term) {
     try {
-      results = await client.fetch(searchQuery, { term });
+      // India: only the quartz and Eclipse colours in its catalogue
+      // (data/india-range); the region selector sets the cookie.
+      const country = (await cookies()).get(COUNTRY_COOKIE)?.value;
+      const found: SearchResult[] = await client.fetch(searchQuery, { term });
+      results = found.filter((r) =>
+        shownInRegion(
+          {
+            slug: r.slug,
+            name: r.name,
+            productType: r.productType,
+            collection: r.collectionName,
+          },
+          country
+        )
+      );
     } catch (error) {
       // A Sanity outage or malformed query shouldn't 500 the search
       // page — render the empty state and let the user browse.

@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { slabs as ALL_SLABS, type Slab } from "@/data/slabs";
+import { shownInRegion } from "@/data/india-range";
+import { useRegionCountry } from "@/lib/use-region-country";
 import { UploadZone } from "./UploadZone";
 import { DemoRoomStrip } from "./DemoRoomStrip";
 import { RoomCanvas, type RoomCanvasHandle } from "./RoomCanvas";
@@ -203,9 +205,13 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
   // Curate a focused slab shortlist for the picker — all 22 is noisy here.
   // Prefer Sanity-managed products (so the visualizer always reflects what
   // editors publish on the products page); fall back to the hardcoded list.
+  // India sees only the quartz and Eclipse colours in its catalogue
+  // (data/india-range), here as in the catalogue.
+  const country = useRegionCountry();
   const curated = useMemo(() => {
-    const source =
-      sanitySlabs && sanitySlabs.length > 0 ? sanitySlabs : ALL_SLABS;
+    const source = (
+      sanitySlabs && sanitySlabs.length > 0 ? sanitySlabs : ALL_SLABS
+    ).filter((s) => shownInRegion(s, country));
 
     const preferredOrder = [
       "calacatta-pacifica",
@@ -232,7 +238,7 @@ export function VisualizeClient({ sanitySlabs }: VisualizeClientProps = {}) {
     }
     for (const s of source) if (!picked.includes(s)) picked.push(s);
     return picked;
-  }, [sanitySlabs]);
+  }, [sanitySlabs, country]);
 
   // Visitor's favorited designs (from ProductDetail's heart button,
   // localStorage-only — see FavoriteDesignsPanel.tsx), resolved

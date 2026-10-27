@@ -23,6 +23,11 @@ import {
   loadTranslator,
   translatedLanguage,
 } from "@/lib/site-translate";
+import {
+  type Region,
+  readRegion as readStored,
+  saveRegion as store,
+} from "@/lib/region";
 import { cn } from "@/lib/utils";
 
 /**
@@ -41,34 +46,6 @@ import { cn } from "@/lib/utils";
  */
 
 const INTERNATIONAL = "international";
-const STORE_KEY = "ps-region";
-
-interface Region {
-  continent: string;
-  country: string | null;
-  lang: string;
-}
-
-function readStored(): { region: Region; remembered: boolean } | null {
-  for (const [store, remembered] of [
-    [() => sessionStorage, false],
-    [() => localStorage, true],
-  ] as const) {
-    try {
-      const raw = store().getItem(STORE_KEY);
-      if (raw) return { region: JSON.parse(raw) as Region, remembered };
-    } catch {}
-  }
-  return null;
-}
-
-function store(region: Region, remember: boolean) {
-  try {
-    sessionStorage.setItem(STORE_KEY, JSON.stringify(region));
-    if (remember) localStorage.setItem(STORE_KEY, JSON.stringify(region));
-    else localStorage.removeItem(STORE_KEY);
-  } catch {}
-}
 
 const isRobot = () =>
   typeof navigator !== "undefined" &&
@@ -111,6 +88,10 @@ export function RegionSelector({ className }: { className?: string }) {
     if (saved) {
       setRegion(saved.region);
       setRemembered(saved.remembered);
+      // The country cookie for server-rendered search ends with the
+      // browser session; the stored region may outlive it.
+      if (!/(?:^|;\s*)ps-country=/.test(document.cookie))
+        store(saved.region, saved.remembered);
       return;
     }
     if (isRobot()) {

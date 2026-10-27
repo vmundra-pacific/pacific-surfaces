@@ -10,6 +10,7 @@ import {
   recentBlogPostsQuery,
   // featuredDealersQuery, // disabled — DealerLocator section hidden below
 } from "@/sanity/lib/queries";
+import { INDIA_QUARTZ, QUARTZ_COLLECTION_NAMES } from "@/data/india-range";
 import { HeroScrollCanvas } from "@/components/sections/HeroScrollCanvas";
 import { RecentArticles } from "@/components/sections/RecentArticles";
 import type { BlogPost } from "@/components/sections/BlogGrid";
@@ -120,18 +121,24 @@ export default async function HomePage() {
   // (featuredDealersQuery removed temporarily — DealerLocator section
   //  is hidden below. Restore the fetch + the destructured `dealers`
   //  slot when the section is re-enabled.)
-  const [collections, projects, applications, inspirations, recentPosts] = await Promise.all(
-    [
-      client.fetch(homepageCollectionsQuery),
+  const [collections, projects, applications, inspirations, recentPosts] =
+    await Promise.all([
+      client.fetch(homepageCollectionsQuery, {
+        quartzCollections: QUARTZ_COLLECTION_NAMES,
+        indiaQuartz: [...INDIA_QUARTZ],
+      }),
       client.fetch(signatureProjectsQuery),
       client.fetch(applicationCardsQuery),
       client.fetch(inspirationImagesQuery),
       client
         .fetch<BlogPost[]>(recentBlogPostsQuery, { slugs: HOME_ARTICLES })
-        .then((posts) => HOME_ARTICLES.flatMap((s) => posts.filter((p) => p.slug.current === s)))
+        .then((posts) =>
+          HOME_ARTICLES.flatMap((s) =>
+            posts.filter((p) => p.slug.current === s)
+          )
+        )
         .catch((): BlogPost[] => []),
-    ]
-  );
+    ]);
 
   // Collect every video URL referenced by the homepage so we can warm
   // the browser cache during the splash-screen window. By the time the

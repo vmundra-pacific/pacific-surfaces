@@ -10,6 +10,7 @@ import GlobalDustMount from "@/components/global/GlobalDustMount";
 import MetaPixel from "@/components/global/MetaPixel";
 import { ConsentBanner } from "@/components/global/ConsentBanner";
 import { CONSENT_DEFAULTS_SCRIPT } from "@/lib/consent";
+import { REGION_BOOT_SCRIPT } from "@/lib/region";
 import { safeJsonLd } from "@/lib/escape";
 import { siteGraph } from "@/data/business";
 
@@ -100,6 +101,9 @@ export default function RootLayout({
           accepts (lib/consent, ConsentBanner), analytics on.
         */}
         <script dangerouslySetInnerHTML={{ __html: CONSENT_DEFAULTS_SCRIPT }} />
+        {/* The visitor's region on <html data-region> before anything
+            paints, for the colours shown per region (lib/region). */}
+        <script dangerouslySetInnerHTML={{ __html: REGION_BOOT_SCRIPT }} />
         {/* Hubot Sans italic, added after load (see bw-temp.css). */}
         <script dangerouslySetInnerHTML={{ __html: ITALIC_FONT_SCRIPT }} />
         {/*

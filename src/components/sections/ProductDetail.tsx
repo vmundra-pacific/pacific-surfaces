@@ -37,6 +37,8 @@ import { OrderSampleModal } from "@/components/ui/order-sample-modal";
 import { PortableText } from "@portabletext/react";
 import { cn } from "@/lib/utils";
 import { pickSimilar } from "@/lib/product-similarity";
+import { shownInRegion } from "@/data/india-range";
+import { useRegionCountry } from "@/lib/use-region-country";
 import { zoomImageUrl } from "@/lib/zoom-image";
 import { finishDescription } from "@/lib/finish-copy";
 import { allowedApplications, materialFamily } from "@/lib/application-rules";
@@ -96,6 +98,7 @@ interface Product {
     collectionName?: string;
     categoryName?: string;
     manualHues?: string[];
+    productType?: string;
   }[];
   allOtherProducts?: {
     _id: string;
@@ -106,6 +109,7 @@ interface Product {
     categoryName?: string;
     collectionName?: string;
     manualHues?: string[];
+    productType?: string;
   }[];
 }
 
@@ -224,15 +228,42 @@ export function ProductDetail({ product }: { product: Product }) {
   // Memoised: ranking walks the whole catalogue, and this component
   // re-renders on every hero mousemove — recomputing per render was
   // pure waste.
-  const picks = useMemo(
+  // Visitors in India are offered only the quartz and Eclipse colours in
+  // the Indian catalogue (data/india-range), here as in the catalogue.
+  const country = useRegionCountry();
+  const relatedProducts = useMemo(
     () =>
-      pickSimilar(
-        product,
-        product.relatedProducts ?? [],
-        product.allOtherProducts ?? [],
-        5
+      (product.relatedProducts ?? []).filter((p) =>
+        shownInRegion(
+          {
+            slug: p.slug?.current,
+            name: p.name,
+            productType: p.productType,
+            collection: p.collectionName,
+          },
+          country
+        )
       ),
-    [product]
+    [product.relatedProducts, country]
+  );
+  const allOtherProducts = useMemo(
+    () =>
+      (product.allOtherProducts ?? []).filter((p) =>
+        shownInRegion(
+          {
+            slug: p.slug?.current,
+            name: p.name,
+            productType: p.productType,
+            collection: p.collectionName,
+          },
+          country
+        )
+      ),
+    [product.allOtherProducts, country]
+  );
+  const picks = useMemo(
+    () => pickSimilar(product, relatedProducts, allOtherProducts, 5),
+    [product, relatedProducts, allOtherProducts]
   );
 
   // ---- Image sets ----
@@ -1126,10 +1157,7 @@ export function ProductDetail({ product }: { product: Product }) {
             {SECTION_IDS.filter(({ id }) => {
               if (id === "sec-similar-colors")
                 return (
-                  (product.relatedProducts &&
-                    product.relatedProducts.length > 0) ||
-                  (product.allOtherProducts &&
-                    product.allOtherProducts.length > 0)
+                  relatedProducts.length > 0 || allOtherProducts.length > 0
                 );
               if (id === "sec-compare") return !hideCompareSlider;
               if (id === "sec-product-info")
@@ -1476,15 +1504,15 @@ export function ProductDetail({ product }: { product: Product }) {
 
       {/* ===== PRODUCT INFO — Tabbed (Specs | Sizes & Finishes | Applications) ===== */}
       {(showSpecsTab || showApplicationsTab) && (
-      <section
-        id="sec-product-info"
-        ref={(el) => {
-          sectionRefs.current["sec-product-info"] = el;
-        }}
-        className="bg-[#0e2030] border-y border-white/10 scroll-mt-16"
-      >
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          {/* Tab bar.
+        <section
+          id="sec-product-info"
+          ref={(el) => {
+            sectionRefs.current["sec-product-info"] = el;
+          }}
+          className="bg-[#0e2030] border-y border-white/10 scroll-mt-16"
+        >
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            {/* Tab bar.
                 - Specs tab hidden for specialty products (the spec
                   rows below are quartz-slab specific: edge profiles,
                   water absorption, Mohs hardness — none of which
@@ -1495,63 +1523,63 @@ export function ProductDetail({ product }: { product: Product }) {
                   them.
                 - Applications tab only when the product lists
                   applications (the empty state was removed). */}
-          <div className="flex gap-0 border-b border-white/10 overflow-x-auto no-scrollbar">
-            {(
-              [
-                ...(showSpecsTab ? [["specs", "Specs"] as const] : []),
-                ...(showApplicationsTab
-                  ? [["applications", "Applications"] as const]
-                  : []),
-              ] as const
-            ).map(([key, label]) => (
-              <button
-                key={key}
-                onClick={() => setActiveInfoTab(key)}
-                className={cn(
-                  "px-4 sm:px-6 py-4 sm:py-5 text-xs sm:text-sm font-medium tracking-[0.15em] sm:tracking-[0.2em] uppercase whitespace-nowrap -mb-px border-b-[2px] transition-colors",
-                  activeInfoTab === key
-                    ? "text-white border-white"
-                    : "text-pacific-mid border-transparent hover:text-white"
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+            <div className="flex gap-0 border-b border-white/10 overflow-x-auto no-scrollbar">
+              {(
+                [
+                  ...(showSpecsTab ? [["specs", "Specs"] as const] : []),
+                  ...(showApplicationsTab
+                    ? [["applications", "Applications"] as const]
+                    : []),
+                ] as const
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveInfoTab(key)}
+                  className={cn(
+                    "px-4 sm:px-6 py-4 sm:py-5 text-xs sm:text-sm font-medium tracking-[0.15em] sm:tracking-[0.2em] uppercase whitespace-nowrap -mb-px border-b-[2px] transition-colors",
+                    activeInfoTab === key
+                      ? "text-white border-white"
+                      : "text-pacific-mid border-transparent hover:text-white"
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
 
-          {/* Tab content */}
-          <div className="py-12 lg:py-16">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeInfoTab}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3 }}
-              >
-                {activeInfoTab === "specs" && (
-                  <div className="max-w-3xl">
-                    <dl className="divide-y divide-white/10 border-y border-white/10 text-base">
-                      <SpecRow label="Product Name" value={product.name} />
-                      {/* Category row removed per editorial direction —
+            {/* Tab content */}
+            <div className="py-12 lg:py-16">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeInfoTab}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {activeInfoTab === "specs" && (
+                    <div className="max-w-3xl">
+                      <dl className="divide-y divide-white/10 border-y border-white/10 text-base">
+                        <SpecRow label="Product Name" value={product.name} />
+                        {/* Category row removed per editorial direction —
                           collection alone is the meaningful tag, the
                           category was redundant given how Pacific names
                           its collections. */}
-                      {product.collection && (
+                        {product.collection && (
+                          <SpecRow
+                            label="Collection"
+                            value={product.collection.name}
+                          />
+                        )}
                         <SpecRow
-                          label="Collection"
-                          value={product.collection.name}
+                          label={mitredOnly ? "Edge Profile" : "Edge Profiles"}
+                          value={
+                            mitredOnly
+                              ? "Mitred only"
+                              : "Straight, Eased, Bevel, Bullnose, Ogee"
+                          }
                         />
-                      )}
-                      <SpecRow
-                        label={mitredOnly ? "Edge Profile" : "Edge Profiles"}
-                        value={
-                          mitredOnly
-                            ? "Mitred only"
-                            : "Straight, Eased, Bevel, Bullnose, Ogee"
-                        }
-                      />
-                      {/* Water absorption + Mohs hardness vary by
+                        {/* Water absorption + Mohs hardness vary by
                           category — quartz is engineered and far
                           tighter on both metrics than natural granite,
                           and natural-stone categories (semi-precious,
@@ -1561,53 +1589,52 @@ export function ProductDetail({ product }: { product: Product }) {
                           collection without an explicit category, so
                           the slug-only check used to miss). Quartz
                           values stay the default. */}
-                      {(() => {
-                        const catSlug = (
-                          product.category?.slug?.current || ""
-                        ).toLowerCase();
-                        const catName = (
-                          product.category?.name || ""
-                        ).toLowerCase();
-                        const colName = (
-                          product.collection?.name || ""
-                        ).toLowerCase();
-                        const haystacks = `${catSlug} ${catName} ${colName}`;
-                        const isGranite = haystacks.includes("granite");
-                        const isSemiPrecious =
-                          haystacks.includes("semi") ||
-                          haystacks.includes("exotic");
-                        // Quartz default: the lab figure shown on
-                        // /professionals/applications (MATERIAL_TESTS in
-                        // data/thresholds-and-sills).
-                        let waterAbsorption = "≤ 0.04% (ASTM C 97)";
-                        let mohs = "7"; // quartz default
-                        if (isGranite) {
-                          waterAbsorption = "Avg. 0.1 – 0.6%";
-                          mohs = "6";
-                        } else if (isSemiPrecious) {
-                          waterAbsorption = "Avg. 0.2 – 0.5%";
-                          mohs = "6.5 – 7";
-                        }
-                        return (
-                          <>
-                            <SpecRow
-                              label="Water Absorption"
-                              value={waterAbsorption}
-                            />
-                            <SpecRow label="Mohs Hardness" value={mohs} />
-                          </>
-                        );
-                      })()}
-                      <SpecRow
-                        label="Manufactured By"
-                        value="Pacific Engineered Surfaces Pvt. Ltd."
-                      />
-                    </dl>
-                  </div>
-                )}
+                        {(() => {
+                          const catSlug = (
+                            product.category?.slug?.current || ""
+                          ).toLowerCase();
+                          const catName = (
+                            product.category?.name || ""
+                          ).toLowerCase();
+                          const colName = (
+                            product.collection?.name || ""
+                          ).toLowerCase();
+                          const haystacks = `${catSlug} ${catName} ${colName}`;
+                          const isGranite = haystacks.includes("granite");
+                          const isSemiPrecious =
+                            haystacks.includes("semi") ||
+                            haystacks.includes("exotic");
+                          // Quartz default: the lab figure shown on
+                          // /professionals/applications (MATERIAL_TESTS in
+                          // data/thresholds-and-sills).
+                          let waterAbsorption = "≤ 0.04% (ASTM C 97)";
+                          let mohs = "7"; // quartz default
+                          if (isGranite) {
+                            waterAbsorption = "Avg. 0.1 – 0.6%";
+                            mohs = "6";
+                          } else if (isSemiPrecious) {
+                            waterAbsorption = "Avg. 0.2 – 0.5%";
+                            mohs = "6.5 – 7";
+                          }
+                          return (
+                            <>
+                              <SpecRow
+                                label="Water Absorption"
+                                value={waterAbsorption}
+                              />
+                              <SpecRow label="Mohs Hardness" value={mohs} />
+                            </>
+                          );
+                        })()}
+                        <SpecRow
+                          label="Manufactured By"
+                          value="Pacific Engineered Surfaces Pvt. Ltd."
+                        />
+                      </dl>
+                    </div>
+                  )}
 
-                {activeInfoTab === "applications" &&
-                  showApplicationsTab && (
+                  {activeInfoTab === "applications" && showApplicationsTab && (
                     <StaggerContainer>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-w-4xl">
                         {applications.map((a) => (
@@ -1623,11 +1650,11 @@ export function ProductDetail({ product }: { product: Product }) {
                       </div>
                     </StaggerContainer>
                   )}
-              </motion.div>
-            </AnimatePresence>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
       )}
 
       {/* Formats & thicknesses / Finishes / Edges — the fabrication
@@ -1773,8 +1800,8 @@ export function ProductDetail({ product }: { product: Product }) {
         <CompareSliderSection
           product={product}
           picks={picks}
-          relatedProducts={product.relatedProducts || []}
-          allOtherProducts={product.allOtherProducts || []}
+          relatedProducts={relatedProducts}
+          allOtherProducts={allOtherProducts}
         />
       )}
 

@@ -8,7 +8,10 @@
  * interactive without needing server round-trips on each filter change.
  */
 
+import { useMemo } from "react";
 import type { Slab } from "@/data/slabs";
+import { shownInRegion } from "@/data/india-range";
+import { useRegionCountry } from "@/lib/use-region-country";
 import { useFilterState } from "./useFilterState";
 import { FilterBar } from "./FilterBar";
 import { ActiveChips } from "./ActiveChips";
@@ -45,11 +48,20 @@ interface CatalogueClientProps {
 }
 
 export function CatalogueClient({
-  slabs,
+  slabs: allSlabs,
   hero,
   hideHero = false,
   groupByProductType = false,
 }: CatalogueClientProps) {
+  // Visitors in India see only the quartz and Eclipse colours in the
+  // Indian catalogue (data/india-range); everything else is the same in
+  // every region. Counts and filters follow the list.
+  const country = useRegionCountry();
+  const slabs = useMemo(
+    () =>
+      country ? allSlabs.filter((s) => shownInRegion(s, country)) : allSlabs,
+    [allSlabs, country]
+  );
   const api = useFilterState(slabs);
 
   return (

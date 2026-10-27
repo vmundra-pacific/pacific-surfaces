@@ -163,3 +163,11 @@ body {
   background: none !important;
   box-shadow: none !important;
 }
+
+/* India sees only the quartz and Eclipse colours in its catalogue
+   (data/india-range). Lists filter themselves once their script runs;
+   this hides the others from the first paint, so they never flash.
+   <html data-region> is set in app/layout's <head> (lib/region). */
+html[data-region="IN"] [data-india-out] {
+  display: none !important;
+}

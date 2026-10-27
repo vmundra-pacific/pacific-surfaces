@@ -25,6 +25,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { memo, useEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import type { Slab } from "@/data/slabs";
+import { shownInRegion } from "@/data/india-range";
 import { zoomImageUrl } from "@/lib/zoom-image";
 import { OrderSampleModal } from "@/components/ui/order-sample-modal";
 import { FinishLightbox } from "@/components/ui/finish-lightbox";
@@ -116,8 +117,14 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
   return (
     <>
       {/* Tile and caption wrapped together: the parent is a CSS grid, so
-          two siblings here would be laid out as two separate cells. */}
-      <div className="flex flex-col">
+          two siblings here would be laid out as two separate cells.
+          data-india-out: a quartz or Eclipse colour outside the Indian
+          catalogue, hidden for India by CSS until the list itself is
+          filtered (data/india-range, lib/region). */}
+      <div
+        className="flex flex-col"
+        data-india-out={shownInRegion(slab, "IN") ? undefined : ""}
+      >
         <motion.div
           ref={cardRef}
           layout
