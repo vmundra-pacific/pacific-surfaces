@@ -171,3 +171,17 @@ body {
 html[data-region="IN"] [data-india-out] {
   display: none !important;
 }
+
+/* The Middle East's partner, Pacific x Fairdeal (data/partners): shown in
+   place of the Where to Buy search to visitors whose region is in the
+   Middle East, from the first paint (<html data-continent>, lib/region).
+   data-me-only is hidden everywhere else; data-me-out is what it replaces. */
+[data-me-only] {
+  display: none;
+}
+html[data-continent="middle-east"] [data-me-only] {
+  display: block;
+}
+html[data-continent="middle-east"] [data-me-out] {
+  display: none !important;
+}

@@ -73,6 +73,7 @@ const ClosingCTA = dynamic(() =>
 );
 import { VideoPrefetch } from "@/components/global/VideoPrefetch";
 import { HomepageSectionNav } from "@/components/global/HomepageSectionNav";
+import { PartnerBand } from "@/components/where-to-buy/PartnerCard";
 
 // Re-render at most every 60s so homepage content edited in Sanity
 // (collections, projects, applications, inspirations) appears
@@ -214,6 +215,9 @@ export default async function HomePage() {
           showcase, then PartnerWithUs and ClosingCTA close out the
           page. */}
       <VisualizerStrip />
+      {/* The Middle East's Where to buy: Pacific x Fairdeal, shown to
+          visitors whose region is there (owner, 2026-10-28). */}
+      <PartnerBand />
       <PartnerWithUs />
       <ClosingCTA />
       {/* The four newest journal articles, just above the footer. */}

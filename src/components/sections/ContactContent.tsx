@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Photo } from "@/components/ui/photo";
 import { SHOW_FINDER } from "@/lib/contact-finder";
+import { PartnerCard } from "@/components/where-to-buy/PartnerCard";
 import { EMAIL, FACTORY, OPENING_HOURS, SALES_PHONE } from "@/data/business";
 
 /**
@@ -549,6 +550,10 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
               </p>
             </div>
           )}
+
+          {/* The Middle East's partner, for visitors there (owner,
+              2026-10-28): Pacific x Fairdeal, as on /where-to-buy. */}
+          <PartnerCard className="mt-10" />
 
           {SHOW_FINDER && (
             <motion.form

@@ -49,6 +49,7 @@ import {
   type SearchQuery,
 } from "@/lib/where-to-buy";
 import { DealerEnquiry } from "./DealerEnquiry";
+import { PartnerCard } from "./PartnerCard";
 import "./where-to-buy.css";
 
 /**
@@ -910,7 +911,12 @@ export function WhereToBuy({
               white by inline style. Before any outlet is shown the form has
               two steps: the answers, then (after Continue) the visitor's
               details. */}
+          {/* In the Middle East this card gives way to Pacific x Fairdeal
+              (data-me-out / PartnerCard, shown by CSS from the first paint,
+              owner 2026-10-28). */}
+          <PartnerCard />
           <div
+            data-me-out
             className="animate-fade-up w-full max-w-[746px] rounded-[6px] px-5 py-9 sm:px-12 sm:py-12"
             style={{ ...LIQUID_GLASS_DARK, animationDelay: "0.1s" }}
           >
