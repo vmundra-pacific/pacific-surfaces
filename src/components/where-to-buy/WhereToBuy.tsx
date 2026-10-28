@@ -109,12 +109,13 @@ const FACTORY_PHOTOS = [
   },
 ];
 
-/** The photograph (owner, 2026-10-28: the Cristallo Gold island; it was
- *  Taj Vein, and /contact has its own, so the pages differ). */
+/** The photograph (owner, 2026-10-28: the Stellar Fusion bar; it was the
+ *  Cristallo Gold island, and Taj Vein before, and /contact has its own,
+ *  so the pages differ). */
 const MEDIA = {
   hero: {
-    src: "/images/where-to-buy/cristallo-gold-kitchen-island.webp",
-    alt: "A kitchen island and sink wall in Cristallo Gold quartz",
+    src: "/images/where-to-buy/stellar-fusion-bar.webp",
+    alt: "A bar with a shelved wall and counter in Stellar Fusion quartz",
   },
 };
 
