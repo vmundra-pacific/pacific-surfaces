@@ -10,21 +10,49 @@ const TOTAL_FRAMES = 520;
 const pad = (n: number) => String(n).padStart(4, "0");
 
 /* Phones get no scroll animation (owner, 2026-10-27): the hero is one
-   screen high and two photographs cross-fade in it, 5 s each, so no
-   frames load and no scroll loop runs. A phone is narrow, portrait-tall
-   or landscape-short; hero-scroll.css switches the layout on the same
-   query before any script runs. (The phone frame set, /hero-frames-m/,
-   is no longer used.) */
+   screen high and photographs cross-fade in it, 5 s each, so no frames
+   load and no scroll loop runs. Three kitchens since 2026-10-28 (owner),
+   which a swipe, or a tap on the dots, moves on early. A phone is narrow,
+   portrait-tall or landscape-short; hero-scroll.css switches the layout
+   on the same query before any script runs. (The phone frame set,
+   /hero-frames-m/, is no longer used.) */
 const PHONE_QUERY =
   "(max-width: 767px), (max-aspect-ratio: 3/5), (max-height: 500px)";
 const isPhone = () => window.matchMedia(PHONE_QUERY).matches;
 
-/** The phone hero's photographs, cut to a portrait strip; the first is
- *  the page's first paint there, the second fades in over it. */
+/** The phone hero's photographs, cut to a 9:16 strip of the original
+ *  pixels; the first is the page's first paint there, the others fade in
+ *  over it. */
 const PHONE_SLIDES = [
-  "/images/home/phone-hero-restaurant",
-  "/images/home/phone-hero-almond-mist",
+  {
+    src: "/images/home/phone-hero-super-white",
+    label: "A kitchen island in Super White",
+  },
+  {
+    src: "/images/home/phone-hero-sahara-camouflage",
+    label: "A kitchen island in Sahara Camouflage",
+  },
+  {
+    src: "/images/home/phone-hero-artemis",
+    label: "A kitchen island in Artemis",
+  },
 ];
+const SLIDE_MS = 5000;
+
+/** A phone-hero photograph: the one being shown fades in on top of the one
+ *  leaving (which stays at full strength underneath), the rest are hidden. */
+function slideStyle(
+  i: number,
+  active: number,
+  leaving: number
+): React.CSSProperties {
+  const shown = i === active;
+  return {
+    opacity: shown || i === leaving ? 1 : 0,
+    zIndex: shown ? 2 : i === leaving ? 1 : 0,
+    transition: shown ? "opacity 1s ease-in-out" : "none",
+  };
+}
 
 type FramePlan = { dir: string; total: number; initial: number; step: number };
 const framePlan = (): FramePlan => ({
@@ -132,7 +160,57 @@ export function HeroScrollCanvas() {
   const planRef = useRef<FramePlan>(framePlan());
   // A phone: the cross-fading photographs instead of the scrub.
   const [phone, setPhone] = useState(false);
-  const [slide2Loaded, setSlide2Loaded] = useState(false);
+  const [slide, setSlide] = useState(0);
+  const [prevSlide, setPrevSlide] = useState(-1);
+  // Which later photographs have arrived (the first is in the HTML).
+  const [slidesLoaded, setSlidesLoaded] = useState<boolean[]>([
+    true,
+    false,
+    false,
+  ]);
+  const swipeRef = useRef<{ x: number; y: number } | null>(null);
+
+  /** Show another photograph (one that has arrived); the one leaving stays
+   *  underneath until the new one has faded in, so the fade never dips. */
+  const goTo = useCallback(
+    (to: number) => {
+      const n = PHONE_SLIDES.length;
+      const next = ((to % n) + n) % n;
+      if (next === slide || !slidesLoaded[next]) return;
+      setPrevSlide(slide);
+      setSlide(next);
+    },
+    [slide, slidesLoaded]
+  );
+
+  // Every 5 s on to the next photograph that has arrived. Any move,
+  // by hand included, starts the 5 s again; reduced motion keeps still.
+  useEffect(() => {
+    if (!phone || matchMedia("(prefers-reduced-motion: reduce)").matches)
+      return;
+    const t = window.setTimeout(() => {
+      for (let step = 1; step < PHONE_SLIDES.length; step++) {
+        const to = (slide + step) % PHONE_SLIDES.length;
+        if (slidesLoaded[to]) return goTo(to);
+      }
+    }, SLIDE_MS);
+    return () => window.clearTimeout(t);
+  }, [phone, slide, slidesLoaded, goTo]);
+
+  // Swipe sideways for the next or the last photograph (up and down is
+  // still the page scrolling).
+  const swipeStart = (e: React.TouchEvent) => {
+    swipeRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+  const swipeEnd = (e: React.TouchEvent) => {
+    const s0 = swipeRef.current;
+    swipeRef.current = null;
+    if (!phone || !s0) return;
+    const dx = e.changedTouches[0].clientX - s0.x;
+    const dy = e.changedTouches[0].clientY - s0.y;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.4)
+      goTo(slide + (dx < 0 ? 1 : -1));
+  };
 
   // Progressive frame preloading:
   // Phase 1: the first INITIAL_BATCH frames → the canvas takes over.
@@ -260,7 +338,8 @@ export function HeroScrollCanvas() {
         // assets. Total bytes loaded = same 520 frames, smarter order.
         const FAST_BATCH = 20;
         const SLOW_BATCH = 8;
-        const s = (strides: number[]) => strides.map((n) => Math.max(1, Math.round(n / plan.step)));
+        const s = (strides: number[]) =>
+          strides.map((n) => Math.max(1, Math.round(n / plan.step)));
         const FAST_STRIDES = s([40, 20]);
         const ON_SCROLL_STRIDES = s([10, 5]);
         const SLOW_STRIDES = s([2, 1]);
@@ -294,10 +373,13 @@ export function HeroScrollCanvas() {
 
         // Once the visitor is a screen past the hero, frames wait until
         // they come back, so the rest of the page loads unhindered.
-        const heroNear = () => (trackRef.current?.getBoundingClientRect().bottom ?? 0) > -window.innerHeight;
+        const heroNear = () =>
+          (trackRef.current?.getBoundingClientRect().bottom ?? 0) >
+          -window.innerHeight;
         const whenNear = (): Promise<void> =>
           new Promise((resolve) => {
-            const check = () => (cancelled || heroNear() ? resolve() : setTimeout(check, 1000));
+            const check = () =>
+              cancelled || heroNear() ? resolve() : setTimeout(check, 1000);
             check();
           });
 
@@ -369,7 +451,14 @@ export function HeroScrollCanvas() {
     if (!canvas) return;
     // Never more canvas pixels than the frames have (1080 tall): past
     // that a phone only fills and composites upscaled pixels.
-    const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2, 1080 / (canvas.clientHeight || 1080)));
+    const dpr = Math.max(
+      1,
+      Math.min(
+        window.devicePixelRatio || 1,
+        2,
+        1080 / (canvas.clientHeight || 1080)
+      )
+    );
     canvas.width = canvas.clientWidth * dpr;
     canvas.height = canvas.clientHeight * dpr;
     const ctx = canvas.getContext("2d", { alpha: false });
@@ -522,7 +611,8 @@ export function HeroScrollCanvas() {
       // Settled (the lerp has caught up with the scroll): the loop sleeps
       // until the next scroll, leaving the main thread free for taps
       // (2026-10-22: phone INP was 238 ms against a 200 ms limit).
-      if (running && p !== targetProgressRef.current) raf = requestAnimationFrame(tick);
+      if (running && p !== targetProgressRef.current)
+        raf = requestAnimationFrame(tick);
       else running = false;
     };
 
@@ -606,7 +696,11 @@ export function HeroScrollCanvas() {
           the side-rail's separate hero observer cares about it. */}
       <section id="sec-hero" ref={trackRef} className="hero-track relative">
         {/* 700vh on larger screens, one screen on phones (hero-scroll.css). */}
-        <div className="hero-stage sticky top-0 w-full overflow-hidden">
+        <div
+          onTouchStart={swipeStart}
+          onTouchEnd={swipeEnd}
+          className="hero-stage sticky top-0 w-full overflow-hidden"
+        >
           {/* Static poster of frame 0 — guarantees the first parallax
               image is visible on cold load even before the canvas paints
               (on some mobile cold loads the canvas isn't laid out until
@@ -619,40 +713,57 @@ export function HeroScrollCanvas() {
               loader asks for. It is in the server HTML with high fetch
               priority, so the preload scanner finds this LCP image
               without a separate preload. */}
-          <picture>
-            {/* Phones: the first of the two cross-fading photographs. */}
-            <source
-              media={PHONE_QUERY}
-              type="image/avif"
-              srcSet={`${PHONE_SLIDES[0]}.avif`}
-            />
-            <source media={PHONE_QUERY} srcSet={`${PHONE_SLIDES[0]}.webp`} />
-            <source type="image/avif" srcSet="/hero-frames/frame-0001.avif" />
-            <img
-              src="/hero-frames/frame-0001.jpg"
-              alt=""
-              aria-hidden="true"
-              fetchPriority="high"
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          </picture>
-          {/* Phones: the second photograph, fading in over the first and
-              out again every 5 s once it has loaded (hero-scroll.css). */}
-          {phone && (
+          {/* The photographs share one layer, so the fade's z-indexes stay
+              inside it and the shading below still lies over all of them. */}
+          <div className="absolute inset-0 z-0">
             <picture>
-              <source type="image/avif" srcSet={`${PHONE_SLIDES[1]}.avif`} />
+              {/* Phones: the first of the cross-fading photographs. */}
+              <source
+                media={PHONE_QUERY}
+                type="image/avif"
+                srcSet={`${PHONE_SLIDES[0].src}.avif`}
+              />
+              <source
+                media={PHONE_QUERY}
+                srcSet={`${PHONE_SLIDES[0].src}.webp`}
+              />
+              <source type="image/avif" srcSet="/hero-frames/frame-0001.avif" />
               <img
-                src={`${PHONE_SLIDES[1]}.webp`}
+                src="/hero-frames/frame-0001.jpg"
                 alt=""
                 aria-hidden="true"
+                fetchPriority="high"
                 decoding="async"
-                onLoad={() => setSlide2Loaded(true)}
-                data-loaded={slide2Loaded ? "" : undefined}
-                className="hero-slide-2 absolute inset-0 h-full w-full object-cover"
+                style={phone ? slideStyle(0, slide, prevSlide) : undefined}
+                className="absolute inset-0 h-full w-full object-cover"
               />
             </picture>
-          )}
+            {/* Phones: the other photographs, fading in over the first once
+                they have loaded. */}
+            {phone &&
+              PHONE_SLIDES.slice(1).map((sl, k) => {
+                const i = k + 1;
+                return (
+                  <picture key={sl.src}>
+                    <source type="image/avif" srcSet={`${sl.src}.avif`} />
+                    <img
+                      src={`${sl.src}.webp`}
+                      alt=""
+                      aria-hidden="true"
+                      decoding="async"
+                      onLoad={() =>
+                        setSlidesLoaded((l) =>
+                          l.map((v, j) => (j === i ? true : v))
+                        )
+                      }
+                      style={slideStyle(i, slide, prevSlide)}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  </picture>
+                );
+              })}
+          </div>
+
           {/* Canvas */}
           <canvas
             ref={canvasRef}
@@ -815,6 +926,36 @@ export function HeroScrollCanvas() {
               </div>
             </div>
           </div>
+
+          {/* Phones: which photograph this is, and a tap to go to another. */}
+          {phone && (
+            <div
+              data-over-media
+              className="absolute right-1 top-1/2 z-20 flex -translate-y-1/2 flex-col"
+              role="group"
+              aria-label="Hero photographs"
+            >
+              {PHONE_SLIDES.map((sl, i) => (
+                <button
+                  key={sl.src}
+                  type="button"
+                  onClick={() => goTo(i)}
+                  aria-label={sl.label}
+                  aria-current={i === slide ? "true" : undefined}
+                  className="flex h-7 w-7 items-center justify-center"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="block h-2 w-2 rounded-full bg-white transition-opacity duration-500"
+                    style={{
+                      opacity: i === slide ? 1 : 0.4,
+                      boxShadow: "0 0 0 1px rgba(0,0,0,0.25)",
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Scroll hint */}
           <div

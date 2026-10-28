@@ -1,8 +1,9 @@
 /* The homepage hero (HeroScrollCanvas). Larger screens: a 700vh track
    that scrubs the kitchen frames. Phones (the same media query as
-   PHONE_QUERY in the component): one screen, no frames, and two
-   photographs cross-fading, 5 s each (owner, 2026-10-27). The layout is
-   here, not in script, so it is right from the first paint. */
+   PHONE_QUERY in the component): one screen, no frames, and three
+   photographs cross-fading, 5 s each, swipeable (owner, 2026-10-27/28;
+   the fade itself is in the component). The layout is here, not in
+   script, so it is right from the first paint. */
 
 .hero-track {
   height: 700vh;
@@ -20,39 +21,31 @@
   .hero-desktop-only {
     display: none;
   }
-  /* A little darker than the scrub's opening frame: the Almond Mist
-     photograph is pale, and the headline and H1 sit over it in white.
-     (Inline opacity is the desktop loop's; nothing changes it here.) */
+  /* A little darker than the scrub's opening frame: the kitchen
+     photographs are pale, and the headline and H1 sit over them in white.
+     (Inline opacity is the desktop loop's; nothing changes it here.)
+     Sideways swipes belong to the hero's photographs; up and down is
+     still the page. */
   .hero-overlay {
-    opacity: 0.35 !important;
+    opacity: 1 !important;
+    /* Darker where the logo, the headline and the H1 sit, lighter between,
+       so the kitchens still show (the photographs are pale; 2026-10-28). */
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0.2) 22%,
+      rgba(0, 0, 0, 0.38) 48%,
+      rgba(0, 0, 0, 0.26) 68%,
+      rgba(0, 0, 0, 0.6) 100%
+    ) !important;
   }
-}
-
-/* The second photograph over the first: hidden until it has loaded, then
-   a 10 s cycle, 1 s fades, so each photograph holds for about 5 s. */
-.hero-slide-2 {
-  opacity: 0;
-}
-.hero-slide-2[data-loaded] {
-  animation: hero-crossfade 10s ease-in-out infinite;
-}
-
-@keyframes hero-crossfade {
-  0%,
-  40% {
-    opacity: 0;
-  }
-  50%,
-  90% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
+  .hero-stage {
+    touch-action: pan-y;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-slide-2[data-loaded] {
-    animation: none;
+  .hero-stage img {
+    transition: none !important;
   }
 }

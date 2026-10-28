@@ -23,6 +23,7 @@ import {
 } from "@/data/business";
 import { trackMetaEvent } from "@/lib/meta-pixel";
 import { cn } from "@/lib/utils";
+import { LIQUID_GLASS_DARK } from "@/components/global/liquid-glass";
 import {
   AUDIENCES,
   CONSENT_TEXT,
@@ -107,11 +108,12 @@ const FACTORY_PHOTOS = [
   },
 ];
 
-/** The photograph: not /contact's bar counter, so the two pages differ. */
+/** The photograph (owner, 2026-10-28: the Cristallo Gold island; it was
+ *  Taj Vein, and /contact has its own, so the pages differ). */
 const MEDIA = {
   hero: {
-    src: "/images/india-home/taj-vein-kitchen.webp",
-    alt: "A kitchen island and full-height wall in Taj Vein",
+    src: "/images/where-to-buy/cristallo-gold-kitchen-island.webp",
+    alt: "A kitchen island and sink wall in Cristallo Gold quartz",
   },
 };
 
@@ -119,6 +121,8 @@ const INK = "#14140f";
 const LIGHT = { fontVariationSettings: "'wght' 250, 'wdth' 100" };
 const MID = { fontVariationSettings: "'wght' 420, 'wdth' 100" };
 const MUTED = { color: "rgba(20,20,15,0.62)" };
+/** The same, on the glass card (white copy). */
+const GLASS_MUTED = { color: "rgba(255,255,255,0.78)" };
 
 const FIELD =
   "h-12 w-full border border-[#14140f]/15 bg-white px-4 text-[15px] font-light text-[#14140f] placeholder:text-[#14140f]/45 focus:border-[#14140f] focus:outline-none transition-colors aria-[invalid=true]:border-[#9b2c2c]";
@@ -895,440 +899,460 @@ export function WhereToBuy({
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/25 to-black/55"
+          className="absolute inset-0 -z-10 bg-gradient-to-b from-black/40 via-black/5 to-black/30"
         />
         <div className="mx-auto flex w-full max-w-[1760px] flex-col items-center px-5 sm:px-8 lg:px-12">
-          <div data-over-media className="animate-fade-up text-center">
-            <p className="text-xs uppercase tracking-[0.3em]">Where to buy</p>
-            <h1
-              style={LIGHT}
-              className="mt-4 text-[40px] uppercase leading-none tracking-[-0.03em] sm:text-6xl lg:text-[60px] xl:text-[72px]"
-            >
-              Find Pacific Surfaces near you
-            </h1>
-            <p className="mx-auto mt-5 max-w-xl text-base font-light leading-snug sm:text-lg">
-              Dealers, distributors and kitchen and interior studios where you
-              can see and buy Pacific quartz and granite. Now listing Bengaluru;
-              more cities soon.
-            </p>
-          </div>
-
-          {/* The card sits beside the copy, not inside data-over-media, so
-              its ink stays dark. Before any outlet is shown it has two
-              steps in the one form: the answers, then (after Continue) the
-              visitor's details. */}
-          <form
-            id="wtb-form"
-            onSubmit={step === "details" && !unlocked ? submitDetails : submit}
-            noValidate
-            aria-label={step === "details" ? "Your details" : "Find an outlet"}
-            data-testid="wtb-form"
-            className="animate-fade-up mt-10 w-full max-w-[560px] scroll-mt-28 bg-white/85 p-6 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.45)] backdrop-blur-md sm:p-9"
-            style={{ color: INK, animationDelay: "0.15s" }}
+          {/* The card is liquid glass on the photograph, as on Cosentino's
+              where-to-buy page (owner, 2026-10-28), about 39% of a wide
+              screen: the heading and the form inside it. The heading block
+              declares data-over-media (white copy); the form is not inside
+              one, so its fields keep dark ink on white, and its labels are
+              white by inline style. Before any outlet is shown the form has
+              two steps: the answers, then (after Continue) the visitor's
+              details. */}
+          <div
+            className="animate-fade-up w-full max-w-[746px] rounded-[6px] px-5 py-9 sm:px-12 sm:py-12"
+            style={{ ...LIQUID_GLASS_DARK, animationDelay: "0.1s" }}
           >
-            {!unlocked && (
-              <p className={cn(LABEL, "mb-5")} style={MUTED}>
-                Step {step === "answers" ? "1" : "2"} of 2
-                {step === "details" ? " · Your details" : ""}
+            <div data-over-media className="text-center">
+              <p className="text-xs uppercase tracking-[0.3em]">Where to buy</p>
+              <h1
+                style={LIGHT}
+                className="mt-3 text-[32px] uppercase leading-[1.02] tracking-[-0.03em] sm:text-[44px]"
+              >
+                Find Pacific Surfaces near you
+              </h1>
+              <p className="mx-auto mt-4 max-w-md text-[15px] font-light leading-snug sm:text-base">
+                Dealers, distributors and kitchen and interior studios where you
+                can see and buy Pacific quartz and granite. Now listing
+                Bengaluru; more cities soon.
               </p>
-            )}
-            {step === "answers" || unlocked ? (
-              <div className="space-y-5">
-                <div>
-                  <label htmlFor="wtb-who" className={LABEL}>
-                    I am a *
-                  </label>
-                  <select
-                    id="wtb-who"
-                    value={draft.who ?? ""}
-                    onChange={(e) =>
-                      setD({ who: audienceOf(e.target.value)?.value ?? null })
-                    }
-                    aria-invalid={badField === "who"}
-                    className={FIELD}
-                  >
-                    <option value="">Select</option>
-                    {AUDIENCES.map((a) => (
-                      <option key={a.value} value={a.value}>
-                        {a.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="wtb-for" className={LABEL}>
-                    Interested in
-                  </label>
-                  <select
-                    id="wtb-for"
-                    value={draft.interest ?? ""}
-                    onChange={(e) =>
-                      setD({
-                        interest: interestOf(e.target.value)?.value ?? null,
-                      })
-                    }
-                    className={FIELD}
-                  >
-                    <option value="">Select</option>
-                    {INTERESTS.map((i) => (
-                      <option key={i.value} value={i.value}>
-                        {i.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="wtb-where" className={LABEL}>
-                    PIN code or area *
-                  </label>
-                  <div className="flex flex-col gap-2.5 sm:flex-row">
-                    <div className="relative flex-1">
-                      <MapPin
-                        className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50"
-                        aria-hidden="true"
-                      />
-                      <input
-                        id="wtb-where"
-                        type="text"
-                        inputMode="text"
-                        enterKeyHint="search"
-                        autoComplete="postal-code"
-                        maxLength={60}
-                        value={draft.geo ? "" : draft.where}
-                        onChange={(e) =>
-                          setD({ where: e.target.value, geo: null })
-                        }
-                        aria-invalid={badField === "where"}
-                        placeholder={
-                          draft.geo
-                            ? "Using your location"
-                            : "e.g. 560102 or HSR Layout"
-                        }
-                        className={cn(FIELD, "pl-11")}
-                      />
-                    </div>
-                    {geoAllowed && (
-                      <button
-                        type="button"
-                        onClick={locate}
-                        disabled={geoState === "locating"}
-                        aria-pressed={!!draft.geo}
-                        data-over-media={draft.geo ? "" : undefined}
-                        style={
-                          draft.geo
-                            ? {
-                                background: INK,
-                                color: "#ffffff",
-                                borderColor: INK,
-                              }
-                            : { color: INK, borderColor: INK }
-                        }
-                        className="inline-flex h-12 shrink-0 items-center justify-center gap-2 border bg-white px-4 text-[12px] uppercase tracking-[0.12em] transition-colors disabled:opacity-60"
-                      >
-                        {draft.geo ? (
-                          <Check className="h-4 w-4" aria-hidden="true" />
-                        ) : (
-                          <Crosshair className="h-4 w-4" aria-hidden="true" />
-                        )}
-                        {geoState === "locating"
-                          ? "Locating…"
-                          : draft.geo
-                            ? "Located"
-                            : "Use my location"}
-                      </button>
-                    )}
-                  </div>
-                  {(geoState === "denied" || geoState === "unavailable") && (
-                    <p className="mt-2 text-sm font-light" role="status">
-                      {geoState === "denied"
-                        ? "Location is blocked for this site. Allow it in your browser, or enter your PIN code."
-                        : "We could not get your location. Enter your PIN code instead."}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-5" data-testid="wtb-details">
-                {/* The answers so far, with the way back to change them. */}
-                <div
-                  className="flex flex-wrap items-center gap-2"
-                  data-testid="answers-summary"
-                >
-                  {summary.map((s) => (
-                    <span
-                      key={s}
-                      className="border border-[#14140f]/20 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em]"
-                    >
-                      {s}
-                    </span>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={back}
-                    data-testid="change-answers"
-                    className="inline-flex h-8 items-center gap-1.5 px-1 text-[11px] uppercase tracking-[0.14em] underline underline-offset-4"
-                  >
-                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                    Change
-                  </button>
-                </div>
-                <p
-                  className="text-[13px] font-light leading-snug"
-                  style={MUTED}
-                >
-                  We show the outlets as soon as you send this, and our team may
-                  call to help you choose.
+            </div>
+
+            <form
+              id="wtb-form"
+              onSubmit={
+                step === "details" && !unlocked ? submitDetails : submit
+              }
+              noValidate
+              aria-label={
+                step === "details" ? "Your details" : "Find an outlet"
+              }
+              data-testid="wtb-form"
+              className="mx-auto mt-8 w-full max-w-[520px] scroll-mt-28"
+              style={{ color: "#ffffff" }}
+            >
+              {!unlocked && (
+                <p className={cn(LABEL, "mb-5")} style={GLASS_MUTED}>
+                  Step {step === "answers" ? "1" : "2"} of 2
+                  {step === "details" ? " · Your details" : ""}
                 </p>
-                <div>
-                  <label htmlFor="wtb-lead-name" className={LABEL}>
-                    Full name *
-                  </label>
-                  <input
-                    id="wtb-lead-name"
-                    type="text"
-                    autoComplete="name"
-                    maxLength={200}
-                    value={details.name}
-                    onChange={(e) => setL({ name: e.target.value })}
-                    aria-invalid={badField === "name"}
-                    placeholder="Your name"
-                    className={FIELD}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="wtb-lead-mobile" className={LABEL}>
-                    Mobile *
-                    {otp && (
-                      <span className="normal-case tracking-normal opacity-60">
-                        {" "}
-                        (we text you a code)
-                      </span>
-                    )}
-                  </label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <span
-                        aria-hidden="true"
-                        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] font-light"
-                        style={MUTED}
-                      >
-                        +91
-                      </span>
-                      <input
-                        id="wtb-lead-mobile"
-                        type="tel"
-                        inputMode="tel"
-                        autoComplete="tel-national"
-                        maxLength={16}
-                        value={details.mobile}
-                        onChange={(e) => setL({ mobile: e.target.value })}
-                        aria-invalid={badField === "mobile"}
-                        aria-describedby={
-                          mobileProven ? "wtb-lead-verified" : undefined
-                        }
-                        placeholder="98450 12345"
-                        className={cn(FIELD, "pl-14")}
-                      />
-                    </div>
-                    {otp &&
-                      (mobileProven ? (
-                        <span
-                          id="wtb-lead-verified"
-                          className="inline-flex h-12 shrink-0 items-center gap-1.5 px-2 text-[12px] uppercase tracking-[0.12em]"
-                        >
-                          <Check className="h-4 w-4" aria-hidden="true" />
-                          Verified
-                        </span>
-                      ) : (
+              )}
+              {step === "answers" || unlocked ? (
+                <div className="space-y-5">
+                  <div>
+                    <label htmlFor="wtb-who" className={LABEL}>
+                      I am a *
+                    </label>
+                    <select
+                      id="wtb-who"
+                      value={draft.who ?? ""}
+                      onChange={(e) =>
+                        setD({ who: audienceOf(e.target.value)?.value ?? null })
+                      }
+                      aria-invalid={badField === "who"}
+                      className={FIELD}
+                    >
+                      <option value="">Select</option>
+                      {AUDIENCES.map((a) => (
+                        <option key={a.value} value={a.value}>
+                          {a.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="wtb-for" className={LABEL}>
+                      Interested in
+                    </label>
+                    <select
+                      id="wtb-for"
+                      value={draft.interest ?? ""}
+                      onChange={(e) =>
+                        setD({
+                          interest: interestOf(e.target.value)?.value ?? null,
+                        })
+                      }
+                      className={FIELD}
+                    >
+                      <option value="">Select</option>
+                      {INTERESTS.map((i) => (
+                        <option key={i.value} value={i.value}>
+                          {i.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="wtb-where" className={LABEL}>
+                      PIN code or area *
+                    </label>
+                    <div className="flex flex-col gap-2.5 sm:flex-row">
+                      <div className="relative flex-1">
+                        <MapPin
+                          className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50"
+                          aria-hidden="true"
+                        />
+                        <input
+                          id="wtb-where"
+                          type="text"
+                          inputMode="text"
+                          enterKeyHint="search"
+                          autoComplete="postal-code"
+                          maxLength={60}
+                          value={draft.geo ? "" : draft.where}
+                          onChange={(e) =>
+                            setD({ where: e.target.value, geo: null })
+                          }
+                          aria-invalid={badField === "where"}
+                          placeholder={
+                            draft.geo
+                              ? "Using your location"
+                              : "e.g. 560102 or HSR Layout"
+                          }
+                          className={cn(FIELD, "pl-11")}
+                        />
+                      </div>
+                      {geoAllowed && (
                         <button
                           type="button"
-                          onClick={sendCode}
-                          disabled={
-                            otpState === "sending" || (codeSent && resendIn > 0)
+                          onClick={locate}
+                          disabled={geoState === "locating"}
+                          aria-pressed={!!draft.geo}
+                          data-over-media={draft.geo ? "" : undefined}
+                          style={
+                            draft.geo
+                              ? {
+                                  background: INK,
+                                  color: "#ffffff",
+                                  borderColor: INK,
+                                }
+                              : { color: INK, borderColor: INK }
                           }
-                          data-testid="send-code"
-                          style={{ color: INK, borderColor: INK }}
-                          className="inline-flex h-12 shrink-0 items-center justify-center border bg-white px-4 text-[12px] uppercase tracking-[0.12em] transition-colors hover:bg-black/5 disabled:opacity-50"
+                          className="inline-flex h-12 shrink-0 items-center justify-center gap-2 border bg-white px-4 text-[12px] uppercase tracking-[0.12em] transition-colors disabled:opacity-60"
                         >
-                          {otpState === "sending"
-                            ? "Sending…"
-                            : !codeSent
-                              ? "Send code"
-                              : resendIn > 0
-                                ? `Resend ${resendIn}s`
-                                : "Resend code"}
+                          {draft.geo ? (
+                            <Check className="h-4 w-4" aria-hidden="true" />
+                          ) : (
+                            <Crosshair className="h-4 w-4" aria-hidden="true" />
+                          )}
+                          {geoState === "locating"
+                            ? "Locating…"
+                            : draft.geo
+                              ? "Located"
+                              : "Use my location"}
                         </button>
-                      ))}
-                  </div>
-                  {/* The texted code, under the number it went to. */}
-                  {otp && codeSent && !mobileProven && (
-                    <div className="mt-3">
-                      <label htmlFor="wtb-lead-otp" className={LABEL}>
-                        Code sent to {formatMobile(otpFor)} *
-                      </label>
-                      <input
-                        id="wtb-lead-otp"
-                        type="text"
-                        inputMode="numeric"
-                        autoComplete="one-time-code"
-                        maxLength={6}
-                        value={details.otp}
-                        onChange={(e) =>
-                          setL({ otp: e.target.value.replace(/\D/g, "") })
-                        }
-                        aria-invalid={badField === "otp"}
-                        placeholder="6-digit code"
-                        className={cn(FIELD, "tracking-[0.3em]")}
-                      />
+                      )}
                     </div>
-                  )}
+                    {(geoState === "denied" || geoState === "unavailable") && (
+                      <p className="mt-2 text-sm font-light" role="status">
+                        {geoState === "denied"
+                          ? "Location is blocked for this site. Allow it in your browser, or enter your PIN code."
+                          : "We could not get your location. Enter your PIN code instead."}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="wtb-lead-email" className={LABEL}>
-                    Email *
-                  </label>
-                  <input
-                    id="wtb-lead-email"
-                    type="email"
-                    autoComplete="email"
-                    maxLength={320}
-                    value={details.email}
-                    onChange={(e) => setL({ email: e.target.value })}
-                    aria-invalid={badField === "email"}
-                    placeholder="you@email.com"
-                    className={FIELD}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="wtb-lead-company" className={LABEL}>
-                    Company{" "}
-                    <span className="normal-case tracking-normal opacity-60">
-                      (optional)
+              ) : (
+                <div className="space-y-5" data-testid="wtb-details">
+                  {/* The answers so far, with the way back to change them. */}
+                  <div
+                    className="flex flex-wrap items-center gap-2"
+                    data-testid="answers-summary"
+                  >
+                    {summary.map((s) => (
+                      <span
+                        key={s}
+                        className="border border-[#14140f]/20 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em]"
+                        style={{ color: INK }}
+                      >
+                        {s}
+                      </span>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={back}
+                      data-testid="change-answers"
+                      className="inline-flex h-8 items-center gap-1.5 px-1 text-[11px] uppercase tracking-[0.14em] underline underline-offset-4"
+                    >
+                      <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                      Change
+                    </button>
+                  </div>
+                  <p
+                    className="text-[13px] font-light leading-snug"
+                    style={GLASS_MUTED}
+                  >
+                    We show the outlets as soon as you send this, and our team
+                    may call to help you choose.
+                  </p>
+                  <div>
+                    <label htmlFor="wtb-lead-name" className={LABEL}>
+                      Full name *
+                    </label>
+                    <input
+                      id="wtb-lead-name"
+                      type="text"
+                      autoComplete="name"
+                      maxLength={200}
+                      value={details.name}
+                      onChange={(e) => setL({ name: e.target.value })}
+                      aria-invalid={badField === "name"}
+                      placeholder="Your name"
+                      className={FIELD}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="wtb-lead-mobile" className={LABEL}>
+                      Mobile *
+                      {otp && (
+                        <span className="normal-case tracking-normal opacity-60">
+                          {" "}
+                          (we text you a code)
+                        </span>
+                      )}
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] font-light"
+                          style={MUTED}
+                        >
+                          +91
+                        </span>
+                        <input
+                          id="wtb-lead-mobile"
+                          type="tel"
+                          inputMode="tel"
+                          autoComplete="tel-national"
+                          maxLength={16}
+                          value={details.mobile}
+                          onChange={(e) => setL({ mobile: e.target.value })}
+                          aria-invalid={badField === "mobile"}
+                          aria-describedby={
+                            mobileProven ? "wtb-lead-verified" : undefined
+                          }
+                          placeholder="98450 12345"
+                          className={cn(FIELD, "pl-14")}
+                        />
+                      </div>
+                      {otp &&
+                        (mobileProven ? (
+                          <span
+                            id="wtb-lead-verified"
+                            className="inline-flex h-12 shrink-0 items-center gap-1.5 px-2 text-[12px] uppercase tracking-[0.12em]"
+                          >
+                            <Check className="h-4 w-4" aria-hidden="true" />
+                            Verified
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={sendCode}
+                            disabled={
+                              otpState === "sending" ||
+                              (codeSent && resendIn > 0)
+                            }
+                            data-testid="send-code"
+                            style={{ color: INK, borderColor: INK }}
+                            className="inline-flex h-12 shrink-0 items-center justify-center border bg-white px-4 text-[12px] uppercase tracking-[0.12em] transition-colors hover:bg-black/5 disabled:opacity-50"
+                          >
+                            {otpState === "sending"
+                              ? "Sending…"
+                              : !codeSent
+                                ? "Send code"
+                                : resendIn > 0
+                                  ? `Resend ${resendIn}s`
+                                  : "Resend code"}
+                          </button>
+                        ))}
+                    </div>
+                    {/* The texted code, under the number it went to. */}
+                    {otp && codeSent && !mobileProven && (
+                      <div className="mt-3">
+                        <label htmlFor="wtb-lead-otp" className={LABEL}>
+                          Code sent to {formatMobile(otpFor)} *
+                        </label>
+                        <input
+                          id="wtb-lead-otp"
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          maxLength={6}
+                          value={details.otp}
+                          onChange={(e) =>
+                            setL({ otp: e.target.value.replace(/\D/g, "") })
+                          }
+                          aria-invalid={badField === "otp"}
+                          placeholder="6-digit code"
+                          className={cn(FIELD, "tracking-[0.3em]")}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor="wtb-lead-email" className={LABEL}>
+                      Email *
+                    </label>
+                    <input
+                      id="wtb-lead-email"
+                      type="email"
+                      autoComplete="email"
+                      maxLength={320}
+                      value={details.email}
+                      onChange={(e) => setL({ email: e.target.value })}
+                      aria-invalid={badField === "email"}
+                      placeholder="you@email.com"
+                      className={FIELD}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="wtb-lead-company" className={LABEL}>
+                      Company{" "}
+                      <span className="normal-case tracking-normal opacity-60">
+                        (optional)
+                      </span>
+                    </label>
+                    <input
+                      id="wtb-lead-company"
+                      type="text"
+                      autoComplete="organization"
+                      maxLength={200}
+                      value={details.company}
+                      onChange={(e) => setL({ company: e.target.value })}
+                      placeholder="Firm or studio, if any"
+                      className={FIELD}
+                    />
+                  </div>
+                  <label className="flex cursor-pointer items-start gap-3 text-[13px] font-light leading-snug">
+                    <input
+                      id="wtb-lead-consent"
+                      type="checkbox"
+                      checked={details.consent}
+                      onChange={(e) => setL({ consent: e.target.checked })}
+                      aria-invalid={badField === "consent"}
+                      className="mt-0.5 h-4 w-4 shrink-0 accent-[#14140f]"
+                    />
+                    <span>
+                      {CONSENT_LEAD}
+                      <Link
+                        href="/privacy"
+                        target="_blank"
+                        className="underline underline-offset-4"
+                      >
+                        Privacy Policy
+                      </Link>
+                      . *
                     </span>
                   </label>
+                  {otp && (
+                    <p className="text-[11px] font-light" style={GLASS_MUTED}>
+                      Codes are sent by Google Firebase; this form is protected
+                      by reCAPTCHA and the Google{" "}
+                      <a
+                        href="https://policies.google.com/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline underline-offset-2"
+                      >
+                        Privacy Policy
+                      </a>{" "}
+                      and{" "}
+                      <a
+                        href="https://policies.google.com/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline underline-offset-2"
+                      >
+                        Terms of Service
+                      </a>{" "}
+                      apply.
+                    </p>
+                  )}
+                  {/* Firebase's invisible reCAPTCHA renders here. */}
+                  <div ref={recaptchaHost} />
                   <input
-                    id="wtb-lead-company"
                     type="text"
-                    autoComplete="organization"
-                    maxLength={200}
-                    value={details.company}
-                    onChange={(e) => setL({ company: e.target.value })}
-                    placeholder="Firm or studio, if any"
-                    className={FIELD}
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                    value={details.website}
+                    onChange={(e) => setL({ website: e.target.value })}
+                    className="absolute left-[-9999px] h-px w-px opacity-0"
                   />
                 </div>
-                <label className="flex cursor-pointer items-start gap-3 text-[13px] font-light leading-snug">
-                  <input
-                    id="wtb-lead-consent"
-                    type="checkbox"
-                    checked={details.consent}
-                    onChange={(e) => setL({ consent: e.target.checked })}
-                    aria-invalid={badField === "consent"}
-                    className="mt-0.5 h-4 w-4 shrink-0 accent-[#14140f]"
-                  />
-                  <span>
-                    {CONSENT_LEAD}
-                    <Link
-                      href="/privacy"
-                      target="_blank"
-                      className="underline underline-offset-4"
-                    >
-                      Privacy Policy
-                    </Link>
-                    . *
-                  </span>
-                </label>
-                {otp && (
-                  <p className="text-[11px] font-light" style={MUTED}>
-                    Codes are sent by Google Firebase; this form is protected by
-                    reCAPTCHA and the Google{" "}
-                    <a
-                      href="https://policies.google.com/privacy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline underline-offset-2"
-                    >
-                      Privacy Policy
-                    </a>{" "}
-                    and{" "}
-                    <a
-                      href="https://policies.google.com/terms"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline underline-offset-2"
-                    >
-                      Terms of Service
-                    </a>{" "}
-                    apply.
-                  </p>
-                )}
-                {/* Firebase's invisible reCAPTCHA renders here. */}
-                <div ref={recaptchaHost} />
-                <input
-                  type="text"
-                  name="website"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  aria-hidden="true"
-                  value={details.website}
-                  onChange={(e) => setL({ website: e.target.value })}
-                  className="absolute left-[-9999px] h-px w-px opacity-0"
-                />
-              </div>
-            )}
-            <button
-              type="submit"
-              disabled={sending}
-              data-over-media
-              data-testid="wtb-submit"
-              style={{ background: INK, color: "#ffffff" }}
-              className="mt-7 inline-flex h-[52px] w-full items-center justify-center gap-2 text-sm uppercase tracking-[0.14em] transition-opacity hover:opacity-85 disabled:opacity-60"
-            >
-              {sending ? (
-                <>
-                  <span
-                    className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-                    aria-hidden="true"
-                  />
-                  {unlocked ? "Searching" : "Sending"}
-                </>
-              ) : (
-                <>
-                  {step === "answers" && !unlocked
-                    ? "Continue"
-                    : "Show outlets"}
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </>
               )}
-            </button>
-            {formError && (
-              <p
-                className="mt-3 text-sm font-light text-[#9b2c2c]"
-                role="alert"
-                data-testid="form-error"
+              <button
+                type="submit"
+                disabled={sending}
+                data-over-media
+                data-testid="wtb-submit"
+                style={{
+                  background: "rgba(255,255,255,0.14)",
+                  color: "#ffffff",
+                  border: "1px solid rgba(255,255,255,0.8)",
+                }}
+                className="mt-7 inline-flex h-[52px] w-full items-center justify-center gap-2 text-sm uppercase tracking-[0.14em] transition hover:brightness-125 disabled:opacity-60"
               >
-                {formError}
+                {sending ? (
+                  <>
+                    <span
+                      className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                      aria-hidden="true"
+                    />
+                    {unlocked ? "Searching" : "Sending"}
+                  </>
+                ) : (
+                  <>
+                    {step === "answers" && !unlocked
+                      ? "Continue"
+                      : "Show outlets"}
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </>
+                )}
+              </button>
+              {formError && (
+                <p
+                  className="mt-3 text-sm font-light"
+                  style={{ color: "#ffd3cf" }}
+                  role="alert"
+                  data-testid="form-error"
+                >
+                  {formError}
+                </p>
+              )}
+              <p className="mt-5 text-center text-[13px] font-light">
+                Prefer to talk?{" "}
+                <a
+                  href={SALES_PHONE.href}
+                  className="underline underline-offset-4"
+                >
+                  {SALES_PHONE.display}
+                </a>
+                {" · "}
+                <a
+                  href={`https://api.whatsapp.com/send/?phone=${SALES_PHONE.href.replace(/\D/g, "")}&text=${encodeURIComponent("Hi, I'd like to know where to buy Pacific Surfaces.")}&type=phone_number&app_absent=0`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-4"
+                >
+                  WhatsApp
+                </a>
               </p>
-            )}
-            <p className="mt-5 text-center text-[13px] font-light">
-              Prefer to talk?{" "}
-              <a
-                href={SALES_PHONE.href}
-                className="underline underline-offset-4"
-              >
-                {SALES_PHONE.display}
-              </a>
-              {" · "}
-              <a
-                href={`https://api.whatsapp.com/send/?phone=${SALES_PHONE.href.replace(/\D/g, "")}&text=${encodeURIComponent("Hi, I'd like to know where to buy Pacific Surfaces.")}&type=phone_number&app_absent=0`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-4"
-              >
-                WhatsApp
-              </a>
-            </p>
-          </form>
+            </form>
+          </div>
         </div>
       </section>
 
