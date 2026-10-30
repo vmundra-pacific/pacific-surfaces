@@ -39,6 +39,9 @@ export const metadata: Metadata = {
  * `_lib/category.ts` where the `facades-and-finishes` entry has
  * been removed.
  */
+// Rebuilt at most once a minute, so Sanity edits show without a deploy.
+export const revalidate = 60;
+
 export default async function FacadesAndFinishesPage() {
   const [pageData, finishes] = await Promise.all([
     client.fetch(facadesAndFinishesPageQuery),

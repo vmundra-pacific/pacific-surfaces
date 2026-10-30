@@ -217,7 +217,7 @@ export function InspirationGallery() {
 
       {/* ── 3. Grid ── */}
       <section className="bg-[#0a1620]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
           {/* Masonry layout — CSS columns let each card take its image's
               natural aspect ratio. No forced 4:3 crop, no letterboxing,
               no gaps. break-inside-avoid keeps a card on one column. */}
@@ -275,7 +275,7 @@ export function InspirationGallery() {
           </StaggerContainer>
 
           {filtered.length === 0 && (
-            <div className="py-24 text-center text-pacific-mid font-light">
+            <div className="py-14 text-center text-pacific-mid font-light">
               Nothing in this category yet — check back soon.
             </div>
           )}
@@ -343,7 +343,7 @@ export function InspirationGallery() {
 
       {/* ── 5. Statement break ── */}
       <section className="bg-[#112732] border-y border-white/5">
-        <div className="mx-auto max-w-4xl px-6 lg:px-8 py-20 sm:py-28 lg:py-36 text-center">
+        <div className="mx-auto max-w-4xl px-6 lg:px-8 py-12 sm:py-16 lg:py-20 text-center">
           <AnimatedSection animation="fadeUp">
             <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
               On photography
@@ -364,7 +364,7 @@ export function InspirationGallery() {
 
       {/* ── 6. Submit-a-project CTA ── */}
       <section className="bg-[#0a1620]">
-        <div className="mx-auto max-w-4xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32 text-center">
+        <div className="mx-auto max-w-4xl px-6 lg:px-8 py-12 sm:py-16 lg:py-20 text-center">
           <AnimatedSection animation="fadeUp">
             <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
               Built with Pacific?

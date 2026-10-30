@@ -492,7 +492,7 @@ export function CareersContent({ pageData, openings }: Props) {
       <section id="roles" className="scroll-mt-24 bg-[#EFEDE9]">
         <div
           ref={resultsRef}
-          className="mx-auto w-full max-w-[1760px] px-5 py-16 sm:px-8 lg:px-12 lg:py-24"
+          className="mx-auto w-full max-w-[1760px] px-5 py-12 sm:px-8 lg:px-12 lg:py-16"
         >
           <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
             <div>
@@ -646,7 +646,7 @@ export function CareersContent({ pageData, openings }: Props) {
       <section id="apply" className="scroll-mt-24 bg-white">
         <div
           ref={formRef}
-          className="mx-auto grid w-full max-w-[1760px] gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20 lg:px-12 lg:py-24"
+          className="mx-auto grid w-full max-w-[1760px] gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:px-12 lg:py-16"
         >
           <div>
             <p className={LABEL}>Apply</p>

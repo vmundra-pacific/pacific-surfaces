@@ -18,6 +18,9 @@ interface Product {
   collection?: { name: string; slug: { current: string } };
 }
 
+// Rebuilt at most once a minute, so Sanity edits show without a deploy.
+export const revalidate = 60;
+
 export default async function SemiPreciousPage() {
   const products = await client.fetch<Product[]>(
     `*[_type == "product" && productType == "semi-precious"] | order(name asc) {

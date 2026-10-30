@@ -82,7 +82,8 @@ export const isDrawing = (src: string) => src.endsWith(".svg");
 /** Our own files served as they are, not recompressed (see store.ts),
  *  unless they have ready-made smaller copies: those go through the image
  *  loader, which picks the copy that fits (lib/image-variants). */
-export const servedAsIs = (src: string) => src.startsWith("/store-basins/") && !hasVariants(src);
+export const servedAsIs = (src: string) =>
+  src.startsWith("/store-basins/") && !hasVariants(src);
 
 export function ShopClient({
   products,
@@ -177,7 +178,7 @@ export function ShopClient({
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-14 lg:px-8">
+      <div className="mx-auto max-w-7xl px-6 py-10 lg:px-8 lg:py-12">
         {sections.length === 0 && (
           <p className="py-16 text-center font-light text-pacific-dark/60">
             Nothing in this section yet.
@@ -185,7 +186,7 @@ export function ShopClient({
         )}
 
         {sections.map(([section, list]) => (
-          <section key={section} className="mb-16 last:mb-0">
+          <section key={section} className="mb-12 last:mb-0">
             <div className="mb-6 flex items-baseline justify-between gap-4 border-b border-pacific-dark/10 pb-3">
               <h2 className="text-lg font-light tracking-tight text-pacific-dark">
                 {section}
@@ -207,7 +208,9 @@ export function ShopClient({
 
             {/* The vanity tops are two wide cards, each showing its whole
                 wide scene (owner, 2026-10-10), where the others are four to
-                a row. */}
+                a row. A shelf with one design (Vanities) is one wide card
+                across the row, photograph beside the options, rather than a
+                quarter-width card with three empty quarters (2026-10-29). */}
             <div
               className={cn(
                 "grid gap-4",
@@ -224,6 +227,7 @@ export function ShopClient({
                   added={justAdded === p.id}
                   onAdd={handleAdd}
                   onPickColour={setPicking}
+                  wide={list.length === 1 && !p.layout}
                 />
               ))}
             </div>
@@ -416,12 +420,16 @@ function ProductCard({
   added,
   onAdd,
   onPickColour,
+  wide = false,
 }: {
   product: ShopProduct;
   colours: ShopColour[];
   added: boolean;
   onAdd: (p: ShopProduct, options: SelectedOptions) => void;
   onPickColour: (picking: Picking | null) => void;
+  /** The card is alone on its shelf: photograph and options side by side
+   *  from the md breakpoint up. */
+  wide?: boolean;
 }) {
   // A made-to-order vanity top carries its own lengths and basin count.
   const options = product.layout
@@ -469,12 +477,18 @@ function ProductCard({
   );
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border border-pacific-dark/10 bg-white">
+    <article
+      className={cn(
+        "group flex flex-col overflow-hidden rounded-xl border border-pacific-dark/10 bg-white",
+        wide && "col-span-full md:flex-row"
+      )}
+    >
       <Link
         href={`/shop/${product.slug}`}
         className={cn(
           "relative block overflow-hidden bg-pacific-dark/5",
-          layers ? "aspect-[21/10]" : "aspect-square"
+          layers ? "aspect-[21/10]" : "aspect-square",
+          wide && "md:aspect-auto md:min-h-[420px] md:w-1/2 md:shrink-0"
         )}
       >
         {layers ? (
@@ -498,7 +512,11 @@ function ProductCard({
             // recompressed: at a square crop of a wide shot the optimizer's
             // copy was visibly soft.
             unoptimized={servedAsIs(product.image)}
-            sizes="(max-width: 640px) 50vw, 25vw"
+            sizes={
+              wide
+                ? "(max-width: 768px) 100vw, 50vw"
+                : "(max-width: 640px) 50vw, 25vw"
+            }
             className={cn(
               "transition-transform duration-700 group-hover:scale-[1.04]",
               isDrawing(product.image)
@@ -511,7 +529,12 @@ function ProductCard({
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col p-4">
+      <div
+        className={cn(
+          "flex flex-1 flex-col p-4",
+          wide && "md:justify-center md:p-8"
+        )}
+      >
         <Link
           href={`/shop/${product.slug}`}
           className="text-sm font-medium text-pacific-dark hover:opacity-70"

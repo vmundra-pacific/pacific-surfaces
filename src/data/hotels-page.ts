@@ -82,17 +82,52 @@ export const HOTELS_PAGE: SpacePageData = {
   design: {
     heading: "Design your hotel with Pacific Surfaces",
     body: [
-      "Quartz and Eclipse in Superjumbo slabs, 3,480 × 2,007 mm, for every surface a guest sees and touches.",
+      "Quartz and Eclipse in Superjumbo slabs, 137 × 79 in (3,500 × 2,050 mm), for every surface a guest sees and touches.",
       "From the reception desk and the bar to the spa, the rooms and the bathrooms, in one design or several.",
     ],
     cards: [
-      { title: "Reception desks", href: "/applications/reception-desks", image: `${H}/lobby-patagonia.jpg`, alt: "A hotel lobby with reception elements in Patagonia" },
-      { title: "Bar counters", href: "/applications/bar-counters", image: `${H}/bar-lounge.jpg`, alt: "A long bar counter in a warm-veined quartz" },
-      { title: "Backlit features", href: "/applications/backlit-features", image: `${H}/backlit-bar-latte-luxe-2.jpg`, alt: "A backlit bar in Latte Luxe" },
-      { title: "Feature walls", href: "/applications/feature-walls", image: `${H}/suite-feature-wall.jpg`, alt: "A feature wall behind a lounge" },
-      { title: "Wall cladding", href: "/applications/wall-cladding", image: `${H}/spa-wall.jpg`, alt: "A spa wall clad in quartz" },
-      { title: "Dining and furniture", href: "/applications/dining-and-furniture", image: `${H}/dining-table.jpg`, alt: "A dining table with a white quartz top" },
-      { title: "Hospitality interiors", href: "/applications/hospitality-interiors", image: `${H}/restaurant-alabaster-noir-seasons.jpg`, alt: "A restaurant dining room with a dark and light chequered floor" },
+      {
+        title: "Reception desks",
+        href: "/applications/reception-desks",
+        image: `${H}/lobby-patagonia.jpg`,
+        alt: "A hotel lobby with reception elements in Patagonia",
+      },
+      {
+        title: "Bar counters",
+        href: "/applications/bar-counters",
+        image: `${H}/bar-lounge.jpg`,
+        alt: "A long bar counter in a warm-veined quartz",
+      },
+      {
+        title: "Backlit features",
+        href: "/applications/backlit-features",
+        image: `${H}/backlit-bar-latte-luxe-2.jpg`,
+        alt: "A backlit bar in Latte Luxe",
+      },
+      {
+        title: "Feature walls",
+        href: "/applications/feature-walls",
+        image: `${H}/suite-feature-wall.jpg`,
+        alt: "A feature wall behind a lounge",
+      },
+      {
+        title: "Wall cladding",
+        href: "/applications/wall-cladding",
+        image: `${H}/spa-wall.jpg`,
+        alt: "A spa wall clad in quartz",
+      },
+      {
+        title: "Dining and furniture",
+        href: "/applications/dining-and-furniture",
+        image: `${H}/dining-table.jpg`,
+        alt: "A dining table with a white quartz top",
+      },
+      {
+        title: "Hospitality interiors",
+        href: "/applications/hospitality-interiors",
+        image: `${H}/restaurant-alabaster-noir-seasons.jpg`,
+        alt: "A restaurant dining room with a dark and light chequered floor",
+      },
     ],
   },
 
@@ -108,26 +143,106 @@ export const HOTELS_PAGE: SpacePageData = {
     heading: "Hotel inspiration",
     tags: ["All", "Lobbies", "Restaurants", "Bars", "Spa", "Rooms"],
     shots: [
-      { src: `${H}/lobby-bar.jpg`, alt: "A lobby bar with guests", tags: ["All", "Lobbies", "Bars"] },
-      { src: `${H}/lobby-patagonia.jpg`, alt: "A lobby in Patagonia", tags: ["All", "Lobbies"] },
-      { src: `${H}/pool-terrace.jpg`, alt: "A lounge on a pool terrace", tags: ["All", "Lobbies"] },
-      { src: `${H}/communal-table.jpg`, alt: "A long communal table in white quartz", tags: ["All", "Lobbies", "Restaurants"] },
-      { src: `${H}/backlit-bar-latte-luxe.jpg`, alt: "A backlit bar in Latte Luxe", tags: ["All", "Bars"] },
-      { src: `${H}/bar-lounge.jpg`, alt: "A hotel bar counter", tags: ["All", "Bars"] },
-      { src: `${H}/restaurant-table.jpg`, alt: "A restaurant table being served", tags: ["All", "Restaurants"] },
-      { src: `${H}/dining-bellagio.jpg`, alt: "Restaurant booths against Bellagio", tags: ["All", "Restaurants"] },
-      { src: `${H}/restaurant-alabaster-noir-seasons.jpg`, alt: "A restaurant dining room", tags: ["All", "Restaurants"] },
-      { src: `${H}/cafe-counter-orenda.jpg`, alt: "A café counter in Orenda", tags: ["All", "Restaurants", "Bars"] },
-      { src: `${H}/buffet.jpg`, alt: "A buffet in front of an open kitchen", tags: ["All", "Restaurants"] },
-      { src: `${H}/winter-garden.jpg`, alt: "A restaurant under a glass roof", tags: ["All", "Restaurants"] },
-      { src: `${H}/spa-treatment-room.jpg`, alt: "A spa treatment room", tags: ["All", "Spa"] },
-      { src: `${H}/spa-pool.jpg`, alt: "An indoor pool beside a backlit wall", tags: ["All", "Spa"] },
-      { src: `${H}/wellness-stone-cladding.jpg`, alt: "A wellness area clad in a grey stone pattern", tags: ["All", "Spa"] },
-      { src: `${H}/garden-shower.jpg`, alt: "An outdoor shower in a garden", tags: ["All", "Spa"] },
-      { src: `${H}/suite-feature-wall.jpg`, alt: "A suite with a feature wall", tags: ["All", "Rooms"] },
-      { src: `${H}/suite-lounge.jpg`, alt: "A suite lounge with a veined wall", tags: ["All", "Rooms"] },
-      { src: `${H}/lounge-table.jpg`, alt: "A stone coffee table in a lounge", tags: ["All", "Rooms"] },
-      { src: `${B}/suite-bathroom.jpg`, alt: "A suite bathroom", tags: ["All", "Rooms"] },
+      {
+        src: `${H}/lobby-bar.jpg`,
+        alt: "A lobby bar with guests",
+        tags: ["All", "Lobbies", "Bars"],
+      },
+      {
+        src: `${H}/lobby-patagonia.jpg`,
+        alt: "A lobby in Patagonia",
+        tags: ["All", "Lobbies"],
+      },
+      {
+        src: `${H}/pool-terrace.jpg`,
+        alt: "A lounge on a pool terrace",
+        tags: ["All", "Lobbies"],
+      },
+      {
+        src: `${H}/communal-table.jpg`,
+        alt: "A long communal table in white quartz",
+        tags: ["All", "Lobbies", "Restaurants"],
+      },
+      {
+        src: `${H}/backlit-bar-latte-luxe.jpg`,
+        alt: "A backlit bar in Latte Luxe",
+        tags: ["All", "Bars"],
+      },
+      {
+        src: `${H}/bar-lounge.jpg`,
+        alt: "A hotel bar counter",
+        tags: ["All", "Bars"],
+      },
+      {
+        src: `${H}/restaurant-table.jpg`,
+        alt: "A restaurant table being served",
+        tags: ["All", "Restaurants"],
+      },
+      {
+        src: `${H}/dining-bellagio.jpg`,
+        alt: "Restaurant booths against Bellagio",
+        tags: ["All", "Restaurants"],
+      },
+      {
+        src: `${H}/restaurant-alabaster-noir-seasons.jpg`,
+        alt: "A restaurant dining room",
+        tags: ["All", "Restaurants"],
+      },
+      {
+        src: `${H}/cafe-counter-orenda.jpg`,
+        alt: "A café counter in Orenda",
+        tags: ["All", "Restaurants", "Bars"],
+      },
+      {
+        src: `${H}/buffet.jpg`,
+        alt: "A buffet in front of an open kitchen",
+        tags: ["All", "Restaurants"],
+      },
+      {
+        src: `${H}/winter-garden.jpg`,
+        alt: "A restaurant under a glass roof",
+        tags: ["All", "Restaurants"],
+      },
+      {
+        src: `${H}/spa-treatment-room.jpg`,
+        alt: "A spa treatment room",
+        tags: ["All", "Spa"],
+      },
+      {
+        src: `${H}/spa-pool.jpg`,
+        alt: "An indoor pool beside a backlit wall",
+        tags: ["All", "Spa"],
+      },
+      {
+        src: `${H}/wellness-stone-cladding.jpg`,
+        alt: "A wellness area clad in a grey stone pattern",
+        tags: ["All", "Spa"],
+      },
+      {
+        src: `${H}/garden-shower.jpg`,
+        alt: "An outdoor shower in a garden",
+        tags: ["All", "Spa"],
+      },
+      {
+        src: `${H}/suite-feature-wall.jpg`,
+        alt: "A suite with a feature wall",
+        tags: ["All", "Rooms"],
+      },
+      {
+        src: `${H}/suite-lounge.jpg`,
+        alt: "A suite lounge with a veined wall",
+        tags: ["All", "Rooms"],
+      },
+      {
+        src: `${H}/lounge-table.jpg`,
+        alt: "A stone coffee table in a lounge",
+        tags: ["All", "Rooms"],
+      },
+      {
+        src: `${B}/suite-bathroom.jpg`,
+        alt: "A suite bathroom",
+        tags: ["All", "Rooms"],
+      },
     ],
   },
 
@@ -135,13 +250,23 @@ export const HOTELS_PAGE: SpacePageData = {
     heading: "Designs from the Hospitality Collection",
     cta: { label: "View all colours", href: "/products/quartz" },
     /** Sanity slugs of the designs the catalogue names; read at render time. */
-    slugs: ["patagonia-p30", "latte-luxe-5040", "bellagio-3016", "orenda-p25", "alabaster-noir-3003", "seasons-4005"],
+    slugs: [
+      "patagonia-p30",
+      "latte-luxe-5040",
+      "bellagio-3016",
+      "orenda-p25",
+      "alabaster-noir-3003",
+      "seasons-4005",
+    ],
   },
 
   catalogue: {
     heading: "The Pacific Hospitality Collection",
     body: "Communal areas, restaurants, spa and wellness, rooms, bathrooms and furniture: the whole collection in one catalogue.",
-    cta: { label: "Read the catalogue", href: "/resources?read=pacific-hospitality-collection" },
+    cta: {
+      label: "Read the catalogue",
+      href: "/resources?read=pacific-hospitality-collection",
+    },
     image: `${H}/pool-terrace.jpg`,
     alt: "A lounge on a hotel pool terrace",
   },
@@ -150,28 +275,47 @@ export const HOTELS_PAGE: SpacePageData = {
   faqs: [
     {
       question: "Where in a hotel can Pacific surfaces be used?",
-      answer: "Communal areas and lobbies, restaurants and bars, spa and wellness, rooms and suites, bathrooms and furniture: the six chapters of the Pacific Hospitality Collection.",
+      answer:
+        "Communal areas and lobbies, restaurants and bars, spa and wellness, rooms and suites, bathrooms and furniture: the six chapters of the Pacific Hospitality Collection.",
     },
     {
       question: "Can a bar counter be backlit?",
-      answer: "In a design made for it, yes. The Hospitality Collection shows Latte Luxe, from the Kosmic Series, backlit on a bar. Ask our team which designs suit a backlit application.",
+      answer:
+        "In a design made for it, yes. The Hospitality Collection shows Latte Luxe, from the Kosmic Series, backlit on a bar. Ask our team which designs suit a backlit application.",
     },
     {
       question: "Can one design run through the whole hotel?",
-      answer: "Yes. Pacific quartz is pressed at Superjumbo size, 3,480 × 2,007 mm, in 12, 20 and 30 mm thicknesses, so one design can run from the reception desk to the guest bathrooms.",
+      answer:
+        "Yes. Pacific quartz is pressed at Superjumbo size, 137 × 79 in (3,500 × 2,050 mm), in 12, 20 and 30 mm thicknesses, so one design can run from the reception desk to the guest bathrooms.",
     },
     {
       question: "How do we start a hotel project?",
-      answer: "Send the drawings through the quote form. Our team helps specify each space and puts you in touch with a fabricator near the site.",
+      answer:
+        "Send the drawings through the quote form. Our team helps specify each space and puts you in touch with a fabricator near the site.",
     },
   ],
 
   spaces: {
     heading: "Pacific Surfaces for every space",
     cards: [
-      { title: "Kitchens by Pacific Surfaces", href: "/spaces/kitchens", image: "/images/spaces/kitchen-hero.webp", alt: "A Pacific kitchen with a stone island" },
-      { title: "Bathrooms by Pacific Surfaces", href: "/spaces/bathrooms", image: `${B}/garden-bath.jpg`, alt: "A bathroom with a freestanding bath and a walk-in shower" },
-      { title: "Flooring by Pacific Surfaces", href: "/applications/flooring", image: "/images/flooring/card-courtyard.webp", alt: "A courtyard floored in granite" },
+      {
+        title: "Kitchens by Pacific Surfaces",
+        href: "/spaces/kitchens",
+        image: "/images/spaces/kitchen-hero.webp",
+        alt: "A Pacific kitchen with a stone island",
+      },
+      {
+        title: "Bathrooms by Pacific Surfaces",
+        href: "/spaces/bathrooms",
+        image: `${B}/garden-bath.jpg`,
+        alt: "A bathroom with a freestanding bath and a walk-in shower",
+      },
+      {
+        title: "Flooring by Pacific Surfaces",
+        href: "/applications/flooring",
+        image: "/images/flooring/card-courtyard.webp",
+        alt: "A courtyard floored in granite",
+      },
     ],
   },
 };

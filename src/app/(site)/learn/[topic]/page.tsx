@@ -176,7 +176,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
       {
         heading: "Where Pacific quartz lives",
         content:
-          "Specified for kitchen worktops and islands, vanity tops, feature walls, reception desks, bar tops, and any high-traffic surface where consistency, durability, and ease of maintenance matter. Pacific's superjumbo format (137″ × 79″, 3,480 × 2,007 mm) reduce joints on long runs, making quartz the engineered surface of choice for galley kitchens, hospitality counters, and continuous wall cladding.",
+          "Specified for kitchen worktops and islands, vanity tops, feature walls, reception desks, bar tops, and any high-traffic surface where consistency, durability, and ease of maintenance matter. Pacific's superjumbo format (137 × 79 in, 3,500 × 2,050 mm) reduce joints on long runs, making quartz the engineered surface of choice for galley kitchens, hospitality counters, and continuous wall cladding.",
         imageLabel: "Quartz kitchen install",
       },
     ],
@@ -863,7 +863,7 @@ export default async function LearnTopicPage({
         ))
       ) : (
         // Short topics + fallback — original placeholder card
-        <section className="py-16 md:py-24 px-6">
+        <section className="py-12 md:py-16 px-6">
           <div className="mx-auto max-w-3xl">
             <div className="rounded-2xl border border-pacific-mid/20 bg-pacific-light p-8 sm:p-10">
               <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-pacific-dark/60 mb-4">
@@ -899,7 +899,7 @@ export default async function LearnTopicPage({
       )}
 
       {/* Closing CTA — always shown after body or placeholder */}
-      <section className="py-16 md:py-20 px-6 bg-[#0d1f29]">
+      <section className="py-12 md:py-14 px-6 bg-[#0d1f29]">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-base sm:text-lg font-light text-stone-300 leading-relaxed mb-8 max-w-xl mx-auto">
             Need specifics for your project, or want a sample? The Pacific team

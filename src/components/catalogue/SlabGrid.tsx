@@ -51,7 +51,7 @@ export function SlabGrid({
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex flex-col items-center justify-center py-32 text-center"
+        className="flex flex-col items-center justify-center py-16 text-center"
       >
         <div className="text-xl font-light tracking-tight text-white">
           No designs match those filters.
@@ -71,10 +71,13 @@ export function SlabGrid({
   }
 
   const gridClass = [
-    "grid gap-4 lg:gap-6",
+    // Two across on a phone, dense or not (2026-10-29): at one card to a
+    // row a 390px screen scrolled 70,000 px down the quartz range. From sm
+    // the cards are as wide as they were.
+    "grid gap-3 sm:gap-4 lg:gap-6",
     dense
-      ? "grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-3"
-      : "grid-cols-[repeat(auto-fill,minmax(300px,1fr))]",
+      ? "grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] sm:gap-3"
+      : "grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]",
   ].join(" ");
 
   if (shouldGroup) {

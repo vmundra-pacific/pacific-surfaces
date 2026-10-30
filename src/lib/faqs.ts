@@ -36,7 +36,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "What sizes do Pacific quartz slabs come in?",
-      a: "Slabs are 3,480 × 2,007 mm (137 × 79 in), in 12, 20 and 30 mm thicknesses. The superjumbo format reduces the number of joints needed on long countertops and feature walls. Custom dimensions are available on indent orders.",
+      a: "Slabs are 137 × 79 in (3,500 × 2,050 mm), in 12, 20 and 30 mm thicknesses. The superjumbo format reduces the number of joints needed on long countertops and feature walls. Custom dimensions are available on indent orders.",
     },
     {
       q: "How do I clean and maintain quartz?",
@@ -142,7 +142,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "Can the vanity top be made as a single piece?",
-      a: "Yes — Pacific slabs are 79 inches wide and 137 inches long, which covers single- and double-bowl vanities up to that size in one continuous piece with no joints. Larger or unusually shaped vanities use a colour-matched seam at the basin centre, which all but disappears once polished.",
+      a: "Yes — Pacific slabs are 137 × 79 inches (3,500 × 2,050 mm), which covers single- and double-bowl vanities up to that size in one continuous piece with no joints. Larger or unusually shaped vanities use a colour-matched seam at the basin centre, which all but disappears once polished.",
     },
     {
       q: "Are integrated sinks available with the vanity tops?",

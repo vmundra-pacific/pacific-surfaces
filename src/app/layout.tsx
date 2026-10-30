@@ -11,6 +11,7 @@ import MetaPixel from "@/components/global/MetaPixel";
 import { ConsentBanner } from "@/components/global/ConsentBanner";
 import { CONSENT_DEFAULTS_SCRIPT } from "@/lib/consent";
 import { REGION_BOOT_SCRIPT } from "@/lib/region";
+import { TRANSLATE_WARMUP_SCRIPT } from "@/lib/site-translate";
 import { safeJsonLd } from "@/lib/escape";
 import { siteGraph } from "@/data/business";
 
@@ -104,6 +105,8 @@ export default function RootLayout({
         {/* The visitor's region on <html data-region> before anything
             paints, for the colours shown per region (lib/region). */}
         <script dangerouslySetInnerHTML={{ __html: REGION_BOOT_SCRIPT }} />
+        {/* On a translated page, start fetching the translator now (lib/site-translate). */}
+        <script dangerouslySetInnerHTML={{ __html: TRANSLATE_WARMUP_SCRIPT }} />
         {/* Hubot Sans italic, added after load (see bw-temp.css). */}
         <script dangerouslySetInnerHTML={{ __html: ITALIC_FONT_SCRIPT }} />
         {/*

@@ -25,6 +25,7 @@ import {
   isCategorySlug,
   resolveCategoryPage,
 } from "../_lib/category";
+import { slabSizeLabel } from "@/data/slab";
 
 /**
  * Single dispatcher route under /products/[slug]:
@@ -406,7 +407,9 @@ export default async function ProductOrCategoryPage({ params }: Props) {
   // hits — in parallel with the JS bundle. By the time React
   // hydrates and the user can hover, the slab is in cache.
   // Other images (close-ups, room scenes) lazy-load on demand.
-  const zoomPreload = product.mainImage ? zoomImageUrl(product.mainImage) : null;
+  const zoomPreload = product.mainImage
+    ? zoomImageUrl(product.mainImage)
+    : null;
 
   const { material, collectionLabel } = productFacts(product, slug);
 
@@ -449,7 +452,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
   ];
   const specs = [
     ...(product.size?.trim()
-      ? [{ name: "Format", value: product.size.trim() }]
+      ? [{ name: "Format", value: slabSizeLabel(product.size.trim()) }]
       : []),
     ...thicknesses.map((value) => ({ name: "Thickness", value })),
     ...((product.finishes ?? []) as string[]).map((value) => ({
@@ -462,7 +465,10 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     <>
       {/* Desktop with a mouse only: phones have no magnifier, and there
           the full-size slab competed with the photo they do show. */}
-      <PreloadImage href={zoomPreload} media="(hover: hover) and (min-width: 1024px)" />
+      <PreloadImage
+        href={zoomPreload}
+        media="(hover: hover) and (min-width: 1024px)"
+      />
       <BreadcrumbList
         items={[
           { name: "Home", url: "/" },

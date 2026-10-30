@@ -172,6 +172,7 @@ const STATIC_PAGES: { path: string; since: string; content?: ContentKey }[] = [
   { path: "/shop/vanity-tops", since: "2026-10-18" },
   { path: "/blog", since: "2026-10-18", content: "blog" },
   { path: "/resources", since: "2026-10-18", content: "resources" },
+  { path: "/faqs", since: "2026-10-29" },
   { path: "/sustainability", since: "2026-10-18" },
   { path: "/careers", since: "2026-10-08", content: "careers" },
   { path: "/contact", since: "2026-10-18" },

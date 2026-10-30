@@ -131,7 +131,7 @@ export function SinksContent({ products }: SinksContentProps) {
 
       {/* Products Grid */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <AnimatedSection className="mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Integra Collection
@@ -233,7 +233,7 @@ export function SinksContent({ products }: SinksContentProps) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="py-24 text-center"
+              className="py-14 text-center"
             >
               <p className="text-pacific-mid text-lg font-light">
                 Integra sink collection coming soon.
@@ -245,7 +245,7 @@ export function SinksContent({ products }: SinksContentProps) {
 
       {/* Care & Maintenance */}
       <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <AnimatedSection className="text-center mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Care Guide
@@ -271,7 +271,7 @@ export function SinksContent({ products }: SinksContentProps) {
 
       {/* Purchase Policies */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <AnimatedSection className="text-center mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Policies
@@ -336,7 +336,7 @@ export function SinksContent({ products }: SinksContentProps) {
 
       {/* CTA */}
       <section className="bg-stone-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Find the Perfect Sink for Your Kitchen

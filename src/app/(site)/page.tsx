@@ -74,6 +74,7 @@ const ClosingCTA = dynamic(() =>
 import { VideoPrefetch } from "@/components/global/VideoPrefetch";
 import { HomepageSectionNav } from "@/components/global/HomepageSectionNav";
 import { PartnerBand } from "@/components/where-to-buy/PartnerCard";
+import { PACIFIC_POLSKA } from "@/data/partners";
 
 // Re-render at most every 60s so homepage content edited in Sanity
 // (collections, projects, applications, inspirations) appears
@@ -87,7 +88,7 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Pacific Surfaces | Quartz Slab Manufacturer in India",
   description:
-    "Pacific Surfaces makes quartz slabs at a state-of-the-art Bretonstone plant in India: 12, 20 and 30 mm, up to 3,480 × 2,007 mm, for 45+ countries.",
+    "Pacific Surfaces makes quartz slabs at a state-of-the-art Bretonstone plant in India: 12, 20 and 30 mm, up to 137 × 79 in (3,500 × 2,050 mm), for 45+ countries.",
   keywords: [
     "quartz slab manufacturer",
     "Pacific Quartz",
@@ -100,14 +101,6 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/" },
 };
-
-/** The articles shown above the footer, in this order (owner, 2026-10-20:
- *  posts whose photographs carry no headline text). */
-const HOME_ARTICLES = [
-  "the-ultimate-beginner-s-guide-to-choosing-the-perfect-surface",
-  "pacific-at-the-big-5-dubai-a-week-that-redefined-possibilities",
-  "12mm-quartz-slabs-the-next-big-revolution-in-modern-surfaces",
-];
 
 export default async function HomePage() {
   // LCP: the first parallax frame is not preloaded from here. The hero
@@ -131,13 +124,9 @@ export default async function HomePage() {
       client.fetch(signatureProjectsQuery),
       client.fetch(applicationCardsQuery),
       client.fetch(inspirationImagesQuery),
+      // The three newest journal posts, newest first.
       client
-        .fetch<BlogPost[]>(recentBlogPostsQuery, { slugs: HOME_ARTICLES })
-        .then((posts) =>
-          HOME_ARTICLES.flatMap((s) =>
-            posts.filter((p) => p.slug.current === s)
-          )
-        )
+        .fetch<BlogPost[]>(recentBlogPostsQuery)
         .catch((): BlogPost[] => []),
     ]);
 
@@ -218,6 +207,8 @@ export default async function HomePage() {
       {/* The Middle East's Where to buy: Pacific x Fairdeal, shown to
           visitors whose region is there (owner, 2026-10-28). */}
       <PartnerBand />
+      {/* Poland's: Pacific Polska (owner, 2026-10-29). */}
+      <PartnerBand partner={PACIFIC_POLSKA} />
       <PartnerWithUs />
       <ClosingCTA />
       {/* The four newest journal articles, just above the footer. */}

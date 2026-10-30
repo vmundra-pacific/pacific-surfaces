@@ -221,9 +221,9 @@ export function SignatureProjects({
   return (
     <section
       id="sec-architects"
-      className="py-16 sm:py-20 md:py-28 px-6 bg-pacific-dark scroll-mt-20"
+      className="py-10 sm:py-14 md:py-16 px-6 bg-pacific-dark scroll-mt-20"
     >
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-[76rem]">
         {/* Header */}
         <div className="flex flex-col lg:flex-row items-start justify-between gap-6 sm:gap-8 mb-10 sm:mb-16">
           <div className="lg:max-w-lg">

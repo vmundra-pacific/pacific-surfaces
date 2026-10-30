@@ -28,7 +28,7 @@ export function PageHeader({
           }}
         />
       )}
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-24 sm:pt-32 pb-12 sm:pb-16 relative z-10">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-24 sm:pt-32 pb-8 sm:pb-12 relative z-10">
         {badge && (
           <motion.span
             initial={{ opacity: 0, y: 10 }}

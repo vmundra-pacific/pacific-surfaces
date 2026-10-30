@@ -207,10 +207,11 @@ export const collectionBySlugQuery = groq`
 `;
 
 // Blog
-// The posts chosen for the Recent articles row above the homepage footer
-// ($slugs, in the order given; see RecentArticles).
+// The three newest posts, for the Recent articles row above the homepage
+// footer (see RecentArticles): whatever the marketing team publishes in
+// Sanity shows there (2026-10-30; it was three fixed slugs).
 export const recentBlogPostsQuery = groq`
-  *[_type == "blogPost" && slug.current in $slugs] {
+  *[_type == "blogPost"] | order(publishedAt desc) [0...3] {
     _id,
     title,
     slug,

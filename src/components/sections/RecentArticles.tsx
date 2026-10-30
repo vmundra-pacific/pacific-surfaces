@@ -14,25 +14,33 @@ export function RecentArticles({ posts }: { posts: BlogPost[] }) {
   if (posts.length === 0) return null;
   return (
     <section data-light-page className="bg-white text-[#14140f]">
-      <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
+      <div className="mx-auto max-w-[1440px] px-6 py-12 sm:px-10 lg:px-14 lg:py-16">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] opacity-60">The Pacific Journal</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] opacity-60">
+            The Pacific Journal
+          </p>
           <h2
             className="mt-4 text-[34px] uppercase leading-[1.02] sm:text-[44px] lg:text-[56px]"
-            style={{ fontVariationSettings: "'wght' 250, 'wdth' 100", letterSpacing: "-0.03em" }}
+            style={{
+              fontVariationSettings: "'wght' 250, 'wdth' 100",
+              letterSpacing: "-0.03em",
+            }}
           >
             Recent articles
           </h2>
           <p className="mt-5 text-[15px] font-light leading-relaxed opacity-75">
-            Design ideas, material guides and news from Pacific Surfaces, to help you choose and care for quartz,
-            granite and stone.
+            Design ideas, material guides and news from Pacific Surfaces, to
+            help you choose and care for quartz, granite and stone.
           </p>
         </div>
 
         <ul className="mt-14 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
             <li key={post._id}>
-              <Link href={`/blog/${post.slug.current}`} className="group/post block">
+              <Link
+                href={`/blog/${post.slug.current}`}
+                className="group/post block"
+              >
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#E4E1DB]">
                   {post.mainImage && (
                     <Image

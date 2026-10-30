@@ -19,6 +19,19 @@
 export const SOURCE_LANG = "en";
 const COOKIE = "googtrans";
 const SCRIPT_ID = "google-translate-script";
+const SCRIPT_URL =
+  "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+
+/**
+ * Inline in <head> (app/layout): on a page that is to be translated (the
+ * googtrans cookie names another language) the widget script and its three
+ * hosts are fetched while the page is still loading, instead of after React
+ * has hydrated (2026-10-28, owner: translation is slow). It only fetches:
+ * the widget itself still starts after hydration (loadTranslator), because
+ * translating a page React has not yet taken over breaks hydration. English
+ * visitors run nothing here and download nothing extra.
+ */
+export const TRANSLATE_WARMUP_SCRIPT = String.raw`try{var m=document.cookie.match(/(?:^|;\s*)googtrans=\/[^\/;]*\/([^;]+)/);if(m&&decodeURIComponent(m[1])!=="en"){[["preconnect","https://translate.google.com"],["preconnect","https://translate.googleapis.com"],["preconnect","https://www.gstatic.com"],["preload","${SCRIPT_URL}"]].forEach(function(x){var l=document.createElement("link");l.rel=x[0];l.href=x[1];if(x[0]==="preload")l.as="script";document.head.appendChild(l)})}}catch(e){}`;
 
 declare global {
   interface Window {
@@ -103,7 +116,7 @@ function watchForNewContent() {
   new MutationObserver((records) => {
     if (!records.some((r) => r.addedNodes.length)) return;
     timers.forEach(clearTimeout);
-    timers = [300, 1200, 3000].map((ms) =>
+    timers = [150, 700, 2000].map((ms) =>
       window.setTimeout(nudgeTranslator, ms)
     );
   }).observe(document.body, { childList: true, subtree: true });
@@ -181,8 +194,7 @@ export function loadTranslator(): Promise<void> {
     };
     const s = document.createElement("script");
     s.id = SCRIPT_ID;
-    s.src =
-      "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+    s.src = SCRIPT_URL;
     s.async = true;
     s.onerror = () => {
       loading = null;

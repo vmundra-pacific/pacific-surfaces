@@ -45,6 +45,7 @@ import { allowedApplications, materialFamily } from "@/lib/application-rules";
 import WorktopDetailTabs from "@/components/sections/WorktopDetailTabs";
 import { formatCollection } from "@/components/catalogue/labels";
 import { REFILE } from "@/data/catalogue-refile";
+import { SLAB_SIZE, slabSizeLabel } from "@/data/slab";
 import { collectionPath } from "@/lib/collection-route";
 
 // The certificate viewer renders nothing until a certification tile is
@@ -152,7 +153,7 @@ const SUPERJUMBO_SERIES = [
   "vision",
   "solid",
 ];
-const SUPERJUMBO_SIZE = "3,480 × 2,007 mm (137 × 79 in)";
+const SUPERJUMBO_SIZE = SLAB_SIZE;
 
 /** What a product is made of, for the copy that depends on it. */
 type ProductKind =
@@ -376,7 +377,7 @@ export function ProductDetail({ product }: { product: Product }) {
     formatCollection(effectiveCollection).toLowerCase().includes(series)
   );
   const size: string | undefined = /\d/.test(sanitySize)
-    ? sanitySize
+    ? slabSizeLabel(sanitySize)
     : isSuperjumboSeries
       ? SUPERJUMBO_SIZE
       : undefined;
@@ -1223,7 +1224,7 @@ export function ProductDetail({ product }: { product: Product }) {
         }}
         className="bg-[#112732] scroll-mt-16"
       >
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 lg:py-20">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 lg:py-14">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 lg:gap-20">
             {/* Left — name + description */}
             <AnimatedSection animation="fadeUp">
@@ -1676,7 +1677,7 @@ export function ProductDetail({ product }: { product: Product }) {
               product page so it acts as the closing pitch before the
               modals. ===== */}
       <section className="bg-[#112732] border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 lg:py-16">
           <AnimatedSection animation="fadeUp">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white mb-4">
               Why you should choose {product.name}
@@ -1818,7 +1819,7 @@ export function ProductDetail({ product }: { product: Product }) {
           }}
           className="bg-[#0e2030] border-y border-white/10 scroll-mt-16"
         >
-          <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 lg:py-16">
             <AnimatedSection animation="fadeUp">
               <div className="text-sm font-medium tracking-[0.3em] uppercase text-pacific-mid mb-4">
                 Similar Styles
@@ -2383,7 +2384,7 @@ function CompareSliderSection({
       id="sec-compare"
       className="bg-[#112732] border-y border-white/10 scroll-mt-32"
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 lg:py-16">
         <AnimatedSection animation="fadeUp">
           <div className="text-sm font-medium tracking-[0.3em] uppercase text-pacific-mid mb-4">
             Compare Colors

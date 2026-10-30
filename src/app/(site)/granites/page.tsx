@@ -20,6 +20,9 @@ interface Product {
   finishes?: string[];
 }
 
+// Rebuilt at most once a minute, so Sanity edits show without a deploy.
+export const revalidate = 60;
+
 export default async function GranitesPage() {
   const granitesQuery = groq`
     *[_type == "product" && productType in ["granite-slab", "granite-finish"]] | order(name asc) {

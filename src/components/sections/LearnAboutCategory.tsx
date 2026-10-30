@@ -33,8 +33,8 @@ export function LearnAboutCategory({
   links,
 }: LearnAboutCategoryProps) {
   return (
-    <section className="py-20 md:py-28 px-6 bg-[#0d1f29]">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-12 md:py-16 px-6 bg-[#0d1f29]">
+      <div className="max-w-[76rem] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -295,7 +295,7 @@ export function ShopProductClient({
 
   return (
     <section className="bg-white px-6 py-12 lg:px-8 lg:py-16">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
+      <div className="mx-auto grid max-w-[76rem] grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
         {/* ---- gallery ---- */}
         <div>
           <div
@@ -718,7 +718,7 @@ export function ShopProductClient({
       )}
 
       {similar.length > 0 && (
-        <div className="mx-auto mt-20 max-w-7xl border-t border-pacific-dark/10 pt-12">
+        <div className="mx-auto mt-20 max-w-[76rem] border-t border-pacific-dark/10 pt-12">
           <h2 className="text-2xl font-light tracking-tight text-pacific-dark">
             Similar products
           </h2>

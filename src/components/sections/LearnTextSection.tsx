@@ -28,7 +28,7 @@ export function LearnTextSection({
   return (
     <section
       className={cn(
-        "py-20 md:py-28 px-6",
+        "py-12 md:py-16 px-6",
         isDark ? "bg-[#112732]" : "bg-pacific-light"
       )}
     >

@@ -121,7 +121,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
 
       {/* Products Grid */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <AnimatedSection className="mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Our Collection
@@ -145,7 +145,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="py-24 text-center"
+              className="py-14 text-center"
             >
               <p className="text-pacific-mid text-lg font-light">
                 Granite collection coming soon.
@@ -157,7 +157,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
 
       {/* Stone Finishes */}
       <section className="bg-stone-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <AnimatedSection
             animation="fadeUp"
             className="max-w-3xl mx-auto text-center mb-16"
@@ -247,7 +247,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
 
       {/* Granite Enquiry Form */}
       <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
+        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <AnimatedSection className="text-center mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Get a Quote
@@ -489,7 +489,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
 
       {/* CTA */}
       <section className="bg-stone-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Discover the Perfect Granite for Your Vision

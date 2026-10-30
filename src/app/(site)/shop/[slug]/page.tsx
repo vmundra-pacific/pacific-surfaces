@@ -203,7 +203,7 @@ export default async function ShopProductPage({
       />
 
       <nav className="bg-white px-6 pt-24 lg:px-8">
-        <div className="mx-auto flex max-w-7xl gap-2 text-xs font-light text-pacific-dark/55">
+        <div className="mx-auto flex max-w-[76rem] gap-2 text-xs font-light text-pacific-dark/55">
           <Link href="/" className="hover:text-pacific-dark">
             Home
           </Link>
@@ -335,7 +335,7 @@ function MadeToOrderTopPage({
         ]}
       />
       <nav className="bg-white px-6 pt-24 lg:px-8">
-        <div className="mx-auto flex max-w-7xl gap-2 text-xs font-light text-pacific-dark/55">
+        <div className="mx-auto flex max-w-[76rem] gap-2 text-xs font-light text-pacific-dark/55">
           <Link href="/" className="hover:text-pacific-dark">
             Home
           </Link>

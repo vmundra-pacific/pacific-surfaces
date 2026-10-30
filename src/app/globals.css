@@ -185,3 +185,16 @@ html[data-continent="middle-east"] [data-me-only] {
 html[data-continent="middle-east"] [data-me-out] {
   display: none !important;
 }
+
+/* Poland's partner, Pacific Polska (data/partners), the same way: shown
+   from the first paint to visitors whose country is Poland
+   (<html data-region="PL">), in place of the Where to Buy search. */
+[data-pl-only] {
+  display: none;
+}
+html[data-region="PL"] [data-pl-only] {
+  display: block;
+}
+html[data-region="PL"] [data-pl-out] {
+  display: none !important;
+}

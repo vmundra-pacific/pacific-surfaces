@@ -33,7 +33,7 @@ const partnerCards = [
 
 export function PartnerWithUs() {
   return (
-    <section className="relative py-20 sm:py-28 md:py-36 px-6 bg-pacific-dark overflow-hidden">
+    <section className="relative py-12 sm:py-16 md:py-20 px-6 bg-pacific-dark overflow-hidden">
       {/* Grain overlay */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -41,7 +41,7 @@ export function PartnerWithUs() {
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
       />
-      <div className="relative z-10 max-w-7xl mx-auto">
+      <div className="relative z-10 max-w-[76rem] mx-auto">
         {/* Section header */}
         <div className="text-center mb-12 sm:mb-20">
           <TextReveal

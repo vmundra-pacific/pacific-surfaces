@@ -256,59 +256,51 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
               }
             : undefined
         }
-        className={`group relative aspect-[3/4] overflow-hidden rounded-none bg-[#0a1620] border border-white/10 hover:border-white/25 transition-all duration-500 ${
+        data-over-media
+        className={`group flex h-full flex-col overflow-hidden rounded-none bg-[#0a1620] border border-white/10 hover:border-white/25 transition-colors duration-500 ${
           isReal
             ? "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60"
             : ""
         }`}
       >
-        {/* Thumbnail layer — fills the card. Real Sanity image when
-            available; soft gradient + file watermark for fallback
-            stubs so the card never looks broken. */}
-        {hasThumbnail ? (
-          <Image
-            src={resource.thumbnail!}
-            alt={resource.title}
-            fill
-            // Always zoomed to 110% so the thumbnail crops in tighter
-            // and reads as a "subject-forward" composition. Container
-            // is overflow-hidden so the extra 10% just gets cropped
-            // off the edges.
-            className="object-cover scale-110 transition-transform duration-700 group-hover:scale-[1.14]"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          />
-        ) : (
-          <>
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-br from-[#1a2c3a] via-[#0e2030] to-[#0a1620]"
+        {/* Cover. Real Sanity image when available; soft gradient + file
+            watermark for fallback stubs so the card never looks broken. */}
+        <div className="relative aspect-[3/4] overflow-hidden">
+          {hasThumbnail ? (
+            <Image
+              src={resource.thumbnail!}
+              alt={resource.title}
+              fill
+              // Zoomed to 110% so the thumbnail crops in tighter and reads
+              // as a "subject-forward" composition. The container is
+              // overflow-hidden so the extra 10% just gets cropped off.
+              className="object-cover scale-110 transition-transform duration-700 group-hover:scale-[1.14]"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
-            {/* Faint file-icon watermark, centred */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <FileText
-                className="w-20 h-20 text-white/8"
-                strokeWidth={1}
+          ) : (
+            <>
+              <div
                 aria-hidden="true"
+                className="absolute inset-0 bg-gradient-to-br from-[#1a2c3a] via-[#0e2030] to-[#0a1620]"
               />
-            </div>
-          </>
-        )}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <FileText
+                  className="w-16 h-16 text-white/8"
+                  strokeWidth={1}
+                  aria-hidden="true"
+                />
+              </div>
+            </>
+          )}
+        </div>
 
-        {/* Bottom gradient — keeps the title and download button
-            readable against any thumbnail. Top fades fully transparent
-            so the artwork dominates the upper two-thirds of the card. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/90 via-black/55 to-transparent pointer-events-none"
-        />
-
-        {/* Footer — title on the left, download pill on the right.
-            The pill uses a frosted-glass treatment (translucent white
-            + backdrop-blur) so it reads well over both light and dark
-            thumbnail regions. */}
-        <div className="absolute inset-x-0 bottom-0 p-5 flex items-end justify-between gap-3">
+        {/* Footer, under the cover (2026-10-29): the title above, the Read
+            button and the share and download icons in a row beneath it, so
+            a long title never runs under the buttons, in two columns on a
+            phone as in four on a desktop. */}
+        <div className="flex flex-1 flex-col gap-3 p-3 sm:p-4">
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-light text-white leading-tight">
+            <h3 className="text-[13px] font-light uppercase leading-snug tracking-[0.04em] text-white sm:text-sm">
               {resource.title}
             </h3>
             {resource.description && (
@@ -324,13 +316,13 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
           </div>
 
           {isReal ? (
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Read opens the catalogue in the flipbook; Download keeps
                   the original behaviour for anyone who wants the file. */}
               <button
                 type="button"
                 onClick={() => setReading(true)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/45 bg-white/25 px-4 py-2 text-xs font-medium uppercase tracking-[0.08em] text-white backdrop-blur-md transition-all duration-300 hover:bg-white/35 hover:border-white/70"
+                className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-full border border-white/45 bg-white/15 px-3 sm:w-auto sm:flex-1 text-xs font-medium uppercase tracking-[0.08em] text-white transition-all duration-300 hover:bg-white/30 hover:border-white/70"
               >
                 <BookOpen className="h-3.5 w-3.5" />
                 Read
@@ -339,7 +331,7 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
                 type="button"
                 onClick={share}
                 aria-label={`Share ${resource.title}`}
-                className="inline-flex items-center rounded-full border border-white/35 bg-white/15 p-2 text-white backdrop-blur-md transition-all duration-300 hover:bg-white/25 hover:border-white/55"
+                className="inline-flex h-9 flex-1 items-center justify-center rounded-full border border-white/35 bg-white/10 text-white transition-all duration-300 hover:bg-white/25 hover:border-white/55 sm:w-9 sm:flex-none"
               >
                 {shared ? (
                   <Check className="h-4 w-4" />
@@ -354,7 +346,7 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
                 download={resource.pdfName ?? `${resource.title}.pdf`}
                 aria-label={`Download ${resource.title}`}
                 onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center rounded-full border border-white/35 bg-white/15 p-2 text-white backdrop-blur-md transition-all duration-300 hover:bg-white/25 hover:border-white/55"
+                className="inline-flex h-9 flex-1 items-center justify-center rounded-full border border-white/35 bg-white/10 text-white transition-all duration-300 hover:bg-white/25 hover:border-white/55 sm:w-9 sm:flex-none"
               >
                 <Download className="h-4 w-4" />
               </a>
@@ -362,7 +354,7 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
           ) : (
             <span
               aria-disabled="true"
-              className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium tracking-[0.08em] uppercase text-white/45 bg-white/5 border border-white/15 rounded-full cursor-not-allowed"
+              className="inline-flex h-9 items-center justify-center gap-1.5 px-4 text-xs font-medium tracking-[0.08em] uppercase text-white/45 bg-white/5 border border-white/15 rounded-full cursor-not-allowed"
             >
               Download
             </span>
@@ -384,47 +376,82 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
 }
 
 /* ─── Section renderer ─────────────────────────────────────────────
-   Renders one category section. Uses Sanity entries when present,
-   falls back to placeholder stubs when configured. */
+   A category is its Sanity entries when it has any, else its placeholder
+   stubs. A category with one or two cards would leave most of a wide row
+   empty, so two such categories that follow each other share a row from lg
+   (2026-10-29); the rest take the full row, title and blurb on the left and
+   the cards beside them. */
+
+interface Block {
+  category: string;
+  meta: CategoryMeta;
+  cards: SanityResource[];
+}
+
+function Heading({ meta }: { meta: CategoryMeta }) {
+  return (
+    <AnimatedSection className="mb-5 sm:mb-6 lg:mb-0">
+      <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-white">
+        {meta.title}
+      </h2>
+      <p className="mt-2 text-sm text-pacific-mid font-light leading-relaxed sm:text-base">
+        {meta.blurb}
+      </p>
+    </AnimatedSection>
+  );
+}
+
+const GRID = "grid grid-cols-2 gap-3 sm:gap-5";
 
 function ResourceSection({
-  meta,
   bgClass,
-  category,
-  resources,
+  blocks,
 }: {
-  meta: CategoryMeta;
   bgClass: string;
-  category: string;
-  resources: SanityResource[];
+  blocks: Block[];
 }) {
-  const fromSanity = resources.filter((r) => r.category === category);
-  const cards: SanityResource[] =
-    fromSanity.length > 0
-      ? fromSanity
-      : (meta.fallback ?? []).map((title, i) => ({
-          _id: `fallback-${category}-${i}`,
-          title,
-          category,
-        }));
-
-  if (cards.length === 0) return null;
-
+  const paired = blocks.length > 1;
   return (
     <section className={`${bgClass} border-b border-white/10`}>
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
-        <AnimatedSection className="mb-12">
-          <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-white">
-            {meta.title}
-          </h2>
-          <p className="mt-2 text-pacific-mid font-light">{meta.blurb}</p>
-        </AnimatedSection>
-
-        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {cards.map((c) => (
-            <ResourceCard key={c._id} resource={c} />
-          ))}
-        </StaggerContainer>
+      <div
+        className={
+          paired
+            ? "mx-auto max-w-7xl px-6 lg:px-8 py-8 sm:py-10 lg:grid lg:grid-cols-2 lg:gap-14 lg:py-12"
+            : "mx-auto max-w-7xl px-6 lg:px-8 py-8 sm:py-10 lg:grid lg:grid-cols-[17rem_1fr] lg:gap-10 lg:py-12"
+        }
+      >
+        {blocks.map((blk, i) => (
+          <div
+            key={blk.category}
+            // Stacked on a phone, so the second category is set off from the
+            // first by space, not run on.
+            className={
+              paired ? "lg:mt-0 " + (i > 0 ? "mt-10" : "") : "contents"
+            }
+          >
+            {paired ? (
+              <>
+                <Heading meta={blk.meta} />
+                <StaggerContainer className={`${GRID} lg:mt-6`}>
+                  {blk.cards.map((c) => (
+                    <ResourceCard key={c._id} resource={c} />
+                  ))}
+                </StaggerContainer>
+              </>
+            ) : (
+              <>
+                <Heading meta={blk.meta} />
+                <StaggerContainer
+                  className={`${GRID} md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4`}
+                >
+                  {blk.cards.map((c) => (
+                    <ResourceCard key={c._id} resource={c} />
+                  ))}
+                </StaggerContainer>
+              </>
+            )}
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -473,6 +500,33 @@ export function ResourcesContent({
 
   const allCategories = [...CATEGORY_ORDER, ...trailingCategories];
 
+  const blocks: Block[] = allCategories.flatMap((category) => {
+    const meta = CATEGORY_META[category];
+    if (!meta) return [];
+    const fromSanity = resources.filter((r) => r.category === category);
+    const cards: SanityResource[] =
+      fromSanity.length > 0
+        ? fromSanity
+        : (meta.fallback ?? []).map((title, i) => ({
+            _id: `fallback-${category}-${i}`,
+            title,
+            category,
+          }));
+    return cards.length > 0 ? [{ category, meta, cards }] : [];
+  });
+
+  // Two small categories in a row share a band; the rest are a band each.
+  const rows: Block[][] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const small = (b?: Block) => !!b && b.cards.length <= 2;
+    if (small(blocks[i]) && small(blocks[i + 1])) {
+      rows.push([blocks[i], blocks[i + 1]]);
+      i++;
+    } else {
+      rows.push([blocks[i]]);
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -481,25 +535,18 @@ export function ResourcesContent({
         description="Browse comprehensive design collections, technical documentation, and specifications for all our quartz, granite, and ecosurface products."
       />
 
-      {allCategories.map((cat, idx) => {
-        const meta = CATEGORY_META[cat];
-        if (!meta) return null;
-        // Alternate background per section for visual rhythm.
-        const bgClass = idx % 2 === 0 ? "bg-[#112732]" : "bg-[#0e2030]";
-        return (
-          <ResourceSection
-            key={cat}
-            meta={meta}
-            bgClass={bgClass}
-            category={cat}
-            resources={resources}
-          />
-        );
-      })}
+      {rows.map((blocks, idx) => (
+        <ResourceSection
+          key={blocks.map((b) => b.category).join("+")}
+          // Alternate background per section for visual rhythm.
+          bgClass={idx % 2 === 0 ? "bg-[#112732]" : "bg-[#0e2030]"}
+          blocks={blocks}
+        />
+      ))}
 
       {/* CTA Section */}
       <section className="bg-pacific-dark">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 lg:py-16 text-center">
           <AnimatedSection>
             <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-white mb-4">
               Can&apos;t find what you&apos;re looking for?

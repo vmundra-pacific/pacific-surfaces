@@ -54,9 +54,9 @@ export function SpaceFeatureSection({
   const isDark = theme === "dark";
   return (
     <section
-      className={`py-20 md:py-28 px-6 ${isDark ? "bg-[#112732]" : "bg-pacific-light"}`}
+      className={`py-12 md:py-16 px-6 ${isDark ? "bg-[#112732]" : "bg-pacific-light"}`}
     >
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+      <div className="max-w-[76rem] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
         {/* Image — real Sanity-uploaded photo when imageUrl is set,
             gradient placeholder fallback otherwise. */}
         <motion.div

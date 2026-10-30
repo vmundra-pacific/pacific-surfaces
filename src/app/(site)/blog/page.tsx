@@ -25,6 +25,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "/blog" },
 };
 
+// A new journal article from Sanity shows within a minute (2026-10-30). This
+// page had no revalidate, so it was built once at deploy and served from
+// the cache for days: new posts had their own page but no card here.
+export const revalidate = 60;
+
 export default async function BlogPage() {
   const posts: BlogPost[] = await client.fetch(allBlogPostsQuery);
   const lastUpdated =

@@ -108,7 +108,8 @@ export default defineType({
       name: "size",
       title: "Size",
       type: "string",
-      description: "e.g. 137 x 79 inches",
+      description:
+        "e.g. 137 x 79 inches (shown on the site with its exact mm, 3,500 × 2,050)",
     }),
     defineField({
       name: "finishes",

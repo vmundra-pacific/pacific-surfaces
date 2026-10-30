@@ -151,6 +151,7 @@ const footerLinks = {
     // hierarchy.
     { name: "Resources", href: "/resources" },
     { name: "Visualizer", href: "/visualize" },
+    { name: "FAQs", href: "/faqs" },
     // Privacy Policy lives at /privacy — required by Meta Ads,
     // Google Ads, and GDPR/CCPA disclosure obligations. Terms of
     // Service still pending; add `/terms` here when it exists.

@@ -112,7 +112,7 @@ export function StatementSection({
     <section
       id={id}
       ref={ref}
-      className={`relative py-20 sm:py-32 md:py-44 lg:py-56 px-6 overflow-hidden ${isDark ? "bg-pacific-dark" : "bg-[#112732]"}`}
+      className={`relative py-12 sm:py-20 md:py-28 lg:py-32 px-6 overflow-hidden ${isDark ? "bg-pacific-dark" : "bg-[#112732]"}`}
     >
       {isDark && (
         <div

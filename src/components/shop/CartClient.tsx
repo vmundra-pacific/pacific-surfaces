@@ -113,7 +113,7 @@ export function CartClient({
   // ---- placed -------------------------------------------------------
   if (placed !== null) {
     return (
-      <section className="bg-pacific-light px-6 py-20">
+      <section className="bg-pacific-light px-6 py-12">
         <div className="mx-auto max-w-xl rounded-2xl border border-pacific-dark/10 bg-white px-8 py-12 text-center">
           <CheckCircle className="mx-auto mb-5 h-12 w-12 text-pacific-dark" />
           <h2 className="text-2xl font-light tracking-tight text-pacific-dark">
@@ -144,7 +144,7 @@ export function CartClient({
   // ---- empty --------------------------------------------------------
   if (ready && items.length === 0) {
     return (
-      <section className="bg-pacific-light px-6 py-20 text-center">
+      <section className="bg-pacific-light px-6 py-12 text-center">
         <p className="text-lg font-light text-pacific-dark/70">
           Your cart is empty.
         </p>
@@ -161,7 +161,7 @@ export function CartClient({
 
   return (
     <section className="bg-pacific-light px-6 py-14 lg:px-8">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-12">
+      <div className="mx-auto grid max-w-[76rem] grid-cols-1 gap-10 lg:grid-cols-12">
         {/* ---- lines ---- */}
         <div className="lg:col-span-7">
           <h2 className="mb-5 text-[11px] font-medium uppercase tracking-[0.25em] text-pacific-dark/50">
@@ -241,7 +241,9 @@ export function CartClient({
                     type="button"
                     onClick={() => setForm({ ...form, customerType: value })}
                     aria-pressed={form.customerType === value}
-                    data-over-media={form.customerType === value ? "" : undefined}
+                    data-over-media={
+                      form.customerType === value ? "" : undefined
+                    }
                     className={
                       form.customerType === value
                         ? "rounded-full border border-[#14140f] bg-[#14140f] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-white"
@@ -318,7 +320,11 @@ function CartLine({
             fill
             unoptimized={servedAsIs(item.image)}
             sizes="96px"
-            className={isDrawing(item.image) ? "bg-white object-contain p-1.5" : "object-cover"}
+            className={
+              isDrawing(item.image)
+                ? "bg-white object-contain p-1.5"
+                : "object-cover"
+            }
           />
         ) : null}
       </div>
@@ -399,7 +405,9 @@ function CartLine({
           />
           {item.faucet ? (
             <span className="rounded-full border border-pacific-dark/15 px-3 py-1.5 text-xs font-light text-pacific-dark">
-              <span className="mr-1.5 text-[10px] font-medium uppercase tracking-[0.15em] text-pacific-dark/45">Faucet</span>
+              <span className="mr-1.5 text-[10px] font-medium uppercase tracking-[0.15em] text-pacific-dark/45">
+                Faucet
+              </span>
               {item.faucet}
             </span>
           ) : null}

@@ -281,7 +281,7 @@ const DEFAULTS = {
     {
       title: "Climate Action",
       description:
-        "We measure and reduce greenhouse gas emissions through renewable energy, water recycling, and lower-carbon manufacturing. Pacific's 2 MW solar capacity and on-site windmill power the bulk of operations with carbon-free energy — concrete steps toward a measurably lighter footprint.",
+        "We measure and reduce greenhouse gas emissions through renewable energy, water recycling, and lower-carbon manufacturing. Pacific's 2 MW solar capacity and wind turbine supply renewable energy — concrete steps toward a measurably lighter footprint.",
     },
   ] satisfies SDGEntry[],
   ctaHeadline: "Let's Talk Stone",
@@ -434,7 +434,7 @@ export function SustainabilityContent({
 
       {/* Lead body */}
       <section className="bg-[#0a1620]">
-        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28">
+        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <div className="space-y-6 text-base lg:text-lg font-light text-pacific-light/85 leading-relaxed">
             {heroBody.map((para, i) => (
               <motion.p
@@ -453,7 +453,7 @@ export function SustainabilityContent({
 
       {/* Three initiatives — alternating image/text rows */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28 space-y-14 sm:space-y-20 lg:space-y-28">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20 space-y-10 sm:space-y-12 lg:space-y-16">
           {initiatives.map((init, i) => {
             const Icon = iconForInitiative(init.title);
             const reverse = i % 2 === 1;
@@ -509,7 +509,7 @@ export function SustainabilityContent({
           the right. When no media uploaded, the right side renders
           a placeholder card so the layout stays balanced. */}
       <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -558,7 +558,7 @@ export function SustainabilityContent({
 
       {/* Four pillars */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <AnimatedSection className="max-w-3xl mb-14 lg:mb-20">
             <p className="text-xl sm:text-2xl lg:text-3xl font-light tracking-tight text-white leading-snug">
               {pillarsHeadline}
@@ -595,7 +595,7 @@ export function SustainabilityContent({
           earlier Ecosurfaces split so the page reads with visual
           rhythm rather than two same-shaped sections in a row. */}
       <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
             {/* Media — left, full-height card */}
             <motion.div
@@ -643,7 +643,7 @@ export function SustainabilityContent({
 
       {/* SDGs */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-28">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <AnimatedSection className="max-w-3xl mb-12 lg:mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white mb-6">
               {sdgsHeadline}
@@ -703,7 +703,7 @@ export function SustainabilityContent({
             <div className="absolute inset-0 bg-gradient-to-t from-pacific-dark via-pacific-dark/85 to-pacific-dark/70" />
           </div>
         )}
-        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-24 text-center">
+        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-16 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white mb-5">
               {ctaHeadline}

@@ -83,8 +83,8 @@ export default function SpacesPage() {
         description="Pacific surfaces are designed for the rooms people actually live in: kitchens that get cooked in, bathrooms that get used, public spaces that move."
       />
 
-      <section className="py-20 md:py-28 px-6">
-        <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+      <section className="py-12 md:py-16 px-6">
+        <div className="mx-auto max-w-[76rem] grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
           {SPACES.map((s) => (
             <Link
               key={s.title}

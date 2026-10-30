@@ -173,7 +173,7 @@ export default function WorktopDetailTabs({
 
   return (
     <section className="bg-white border-b border-pacific-mid/15">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 lg:py-16">
         {/* Tab bar — three pills, the active one inverted. */}
         <div className="flex flex-wrap justify-center gap-2 mb-12 lg:mb-16">
           {TABS.map((tab) => (

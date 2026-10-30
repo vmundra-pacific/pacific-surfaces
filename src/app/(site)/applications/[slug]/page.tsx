@@ -26,7 +26,9 @@ import { APPLICATIONS, applicationBySlug } from "@/data/applications";
 const OWN_PAGES = new Set(["flooring"]);
 
 export function generateStaticParams() {
-  return APPLICATIONS.filter((a) => !OWN_PAGES.has(a.slug)).map((a) => ({ slug: a.slug }));
+  return APPLICATIONS.filter((a) => !OWN_PAGES.has(a.slug)).map((a) => ({
+    slug: a.slug,
+  }));
 }
 
 export async function generateMetadata({
@@ -126,7 +128,7 @@ export default async function ApplicationPage({
           page like this is to find a size, so the table sits above the
           collection links rather than below them. */}
       {app.seo && (
-        <section className="bg-white px-6 py-14 md:py-16">
+        <section className="bg-white px-6 py-10 md:py-12">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-[11px] font-medium uppercase tracking-[0.25em] text-pacific-dark/50">
               {app.name} specifications
@@ -156,7 +158,7 @@ export default async function ApplicationPage({
       {app.seo && (
         <>
           <FaqSchema faqs={app.seo.faqs} />
-          <section className="bg-pacific-light px-6 py-16 md:py-20">
+          <section className="bg-pacific-light px-6 py-12 md:py-14">
             <div className="mx-auto max-w-3xl">
               <h2 className="text-3xl font-light text-pacific-dark md:text-4xl">
                 Frequently asked
@@ -184,8 +186,8 @@ export default async function ApplicationPage({
       {/* Specify from — the collections cleared for this application,
           and only those. Engineered surfaces are absent from anything
           outdoors or underfoot; see lib/application-rules. */}
-      <section className="bg-white px-6 py-14 md:py-16">
-        <div className="mx-auto max-w-7xl">
+      <section className="bg-white px-6 py-10 md:py-12">
+        <div className="mx-auto max-w-[76rem]">
           <h2 className="text-[11px] font-medium uppercase tracking-[0.25em] text-pacific-dark/50">
             Specify {app.name.toLowerCase()} from
           </h2>
@@ -208,8 +210,8 @@ export default async function ApplicationPage({
       {/* Where next — the room this belongs to, then the neighbouring
           applications, so the menu's fifteen entries stay connected
           rather than being fifteen dead ends. */}
-      <section className="bg-pacific-light px-6 py-16 md:py-20">
-        <div className="mx-auto max-w-7xl">
+      <section className="bg-pacific-light px-6 py-12 md:py-14">
+        <div className="mx-auto max-w-[76rem]">
           <h2 className="text-[11px] font-medium uppercase tracking-[0.25em] text-pacific-dark/50">
             Keep exploring
           </h2>

@@ -272,7 +272,7 @@ export function ProIntro({
 }) {
   return (
     <section className="bg-white">
-      <Container className="grid gap-10 py-16 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-20 lg:py-28">
+      <Container className="grid gap-10 py-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16 lg:py-16">
         <div>
           <p className={LABEL}>{eyebrow}</p>
           <h2 style={LIGHT} className={`mt-4 ${H2}`}>
@@ -338,7 +338,7 @@ export function ProCards({
   }[columns];
   return (
     <section id={id} className={tone === "stone" ? "bg-[#EFEDE9]" : "bg-white"}>
-      <Container className="py-16 lg:py-24">
+      <Container className="py-12 lg:py-16">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
           <div>
             {eyebrow && <p className={LABEL}>{eyebrow}</p>}
@@ -421,7 +421,7 @@ export function ProSplit({
 }) {
   return (
     <section className={tone === "stone" ? "bg-[#EFEDE9]" : "bg-white"}>
-      <Container className="grid items-center gap-10 py-16 lg:grid-cols-2 lg:gap-20 lg:py-24">
+      <Container className="grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16">
         <div
           className={`relative aspect-[4/3] w-full overflow-hidden bg-[#E4E1DB] ${reverse ? "lg:order-2" : ""}`}
         >
@@ -491,7 +491,7 @@ export function ProSteps({
   const cols = steps.length % 3 === 0 ? "lg:grid-cols-3" : "lg:grid-cols-4";
   return (
     <section className={tone === "stone" ? "bg-[#EFEDE9]" : "bg-white"}>
-      <Container className="py-16 lg:py-24">
+      <Container className="py-12 lg:py-16">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
           <div>
             <p className={LABEL}>{eyebrow}</p>
@@ -547,7 +547,7 @@ export function ProIndex({
 }) {
   return (
     <section className={tone === "stone" ? "bg-[#EFEDE9]" : "bg-white"}>
-      <Container className="py-16 lg:py-24">
+      <Container className="py-12 lg:py-16">
         <p className={LABEL}>{eyebrow}</p>
         <h2 style={LIGHT} className={`mt-4 ${H2}`}>
           {title}
@@ -609,7 +609,7 @@ export function ProTable({
 }) {
   return (
     <section className={tone === "stone" ? "bg-[#EFEDE9]" : "bg-white"}>
-      <Container className="py-16 lg:py-24">
+      <Container className="py-12 lg:py-16">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
           <div>
             <p className={LABEL}>{eyebrow}</p>
@@ -686,7 +686,7 @@ export function ProTimeline({
 }) {
   return (
     <section className={tone === "stone" ? "bg-[#EFEDE9]" : "bg-white"}>
-      <Container className="py-16 lg:py-24">
+      <Container className="py-12 lg:py-16">
         <p className={LABEL}>{eyebrow}</p>
         <h2 style={LIGHT} className={`mt-4 ${H2}`}>
           {title}
@@ -735,7 +735,7 @@ export function ProTeam({
 }) {
   return (
     <section className="bg-white">
-      <Container className="py-16 lg:py-24">
+      <Container className="py-12 lg:py-16">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
           <div>
             <p className={LABEL}>{eyebrow}</p>
@@ -811,7 +811,7 @@ export function ProFigures({
 }) {
   return (
     <div data-over-media className="bg-[#14140f]">
-      <Container className="py-16 lg:py-24">
+      <Container className="py-12 lg:py-16">
         <p className={LABEL}>{eyebrow}</p>
         <h2 style={LIGHT} className={`mt-4 max-w-4xl ${H2}`}>
           {title}
@@ -856,7 +856,7 @@ export function ProFaq({
 }) {
   return (
     <section className="bg-white">
-      <Container className="grid gap-10 py-16 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20 lg:py-24">
+      <Container className="grid gap-10 py-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:py-16">
         <div>
           <p className={LABEL}>FAQ</p>
           <h2 style={LIGHT} className={`mt-4 ${H2}`}>
@@ -929,7 +929,7 @@ export function ProClose({
         className="-z-20 object-cover"
       />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/65" />
-      <Container className="py-20 lg:py-32">
+      <Container className="py-12 lg:py-20">
         <h2
           style={LIGHT}
           className="max-w-4xl text-[34px] uppercase leading-[1.02] tracking-[-0.03em] sm:text-5xl lg:text-[68px]"

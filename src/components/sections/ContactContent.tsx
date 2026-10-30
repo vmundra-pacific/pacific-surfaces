@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Photo } from "@/components/ui/photo";
 import { SHOW_FINDER } from "@/lib/contact-finder";
 import { PartnerCard } from "@/components/where-to-buy/PartnerCard";
+import { PACIFIC_POLSKA } from "@/data/partners";
 import { EMAIL, FACTORY, OPENING_HOURS, SALES_PHONE } from "@/data/business";
 
 /**
@@ -554,6 +555,8 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
           {/* The Middle East's partner, for visitors there (owner,
               2026-10-28): Pacific x Fairdeal, as on /where-to-buy. */}
           <PartnerCard className="mt-10" />
+          {/* Poland's, for visitors there (owner, 2026-10-29). */}
+          <PartnerCard partner={PACIFIC_POLSKA} className="mt-10" />
 
           {SHOW_FINDER && (
             <motion.form
@@ -653,7 +656,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
       {/* 2 · Results, once a search has run ------------------------------- */}
       {results !== null && (
         <section ref={resultsRef} className={cn(PANEL, "scroll-mt-20")}>
-          <Container className="py-14 lg:py-20">
+          <Container className="py-10 lg:py-14">
             <p className="text-xs uppercase tracking-[0.25em]">
               {results.length === 0
                 ? "No match yet"
@@ -1138,7 +1141,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
 
       {/* 6 · Department contacts ------------------------------------------- */}
       <section className="bg-white">
-        <Container className="py-14 lg:py-20">
+        <Container className="py-10 lg:py-14">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h2
               style={LIGHT}
@@ -1195,7 +1198,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
           aria-hidden="true"
           className="absolute inset-0 -z-10 bg-black/50"
         />
-        <Container className="py-24 lg:py-36">
+        <Container className="py-14 lg:py-20">
           <div data-over-media className="max-w-3xl">
             <h2
               style={LIGHT}

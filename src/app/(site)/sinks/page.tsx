@@ -20,6 +20,9 @@ interface Product {
   collection?: { name: string; slug: { current: string } };
 }
 
+// Rebuilt at most once a minute, so Sanity edits show without a deploy.
+export const revalidate = 60;
+
 export default async function SinksPage() {
   const sinksQuery = groq`
     *[_type == "product" && productType == "quartz-sink"] | order(name asc) {

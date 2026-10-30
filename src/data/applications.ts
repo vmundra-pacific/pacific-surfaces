@@ -138,7 +138,7 @@ export const APPLICATIONS: Application[] = [
     badge: "Applications · Kitchen",
     title: "The island is the room's one uninterrupted gesture.",
     description:
-      "At 137 × 79 inches, most islands come out of a single slab — no joint down the middle of the thing everyone gathers around.",
+      "At 137 × 79 inches (3,500 × 2,050 mm), most islands come out of a single slab — no joint down the middle of the thing everyone gathers around.",
     space: { name: "Kitchens", href: "/spaces/kitchens" },
     sections: [
       {
@@ -390,7 +390,7 @@ export const APPLICATIONS: Application[] = [
     badge: "Applications · Architecture",
     title: "Clad a feature wall in one piece of stone.",
     description:
-      "At 137 × 79 inches, an entire wall can be a single uninterrupted surface. Never tile a feature wall again.",
+      "At 137 × 79 inches (3,500 × 2,050 mm), an entire wall can be a single uninterrupted surface. Never tile a feature wall again.",
     space: { name: "Architecture", href: "/spaces/architecture" },
     sections: [
       {

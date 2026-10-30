@@ -66,7 +66,7 @@ export function FAQ({
   return (
     <section
       id={id ?? "sec-faq"}
-      className={`py-16 sm:py-20 md:py-28 px-6 ${sectionBg} scroll-mt-20`}
+      className={`py-10 sm:py-14 md:py-16 px-6 ${sectionBg} scroll-mt-20`}
     >
       <div className="mx-auto max-w-4xl">
         {/* Header */}

@@ -217,7 +217,7 @@ const MATERIALS = [
       "Quartz",
       "Countertops, islands, vanity tops, shower walls, cladding, furniture",
       "Interiors",
-      "12, 20 and 30 mm; slabs up to 3,480 × 2,007 mm",
+      "12, 20 and 30 mm; slabs up to 137 × 79 in (3,500 × 2,050 mm)",
     ],
     href: "/products/quartz",
   },
@@ -283,7 +283,7 @@ const FAQS = [
   },
   {
     q: "How large is a single slab?",
-    a: "Pacific Surfaces quartz is made in a superjumbo format of up to 3,480 × 2,007 mm (137 × 79 in), so most islands and many walls need no joint.",
+    a: "Pacific Surfaces quartz is made in a superjumbo format of up to 137 × 79 in (3,500 × 2,050 mm), so most islands and many walls need no joint.",
   },
   {
     q: "Where can I see the materials installed?",
@@ -327,7 +327,7 @@ export default function ApplicationsPage() {
         eyebrow="Specifying Pacific Surfaces"
         title="The right material for each part of the building"
         body={[
-          "Quartz is engineered for interiors: countertops, islands, vanity tops, shower walls and cladding, in 12, 20 and 30 mm and in slabs up to 3,480 × 2,007 mm. Granite takes the floors, paving, steps and sills, inside and out. Beyond Stone panels clad facades, and translucent and semi-precious stone become a light source.",
+          "Quartz is engineered for interiors: countertops, islands, vanity tops, shower walls and cladding, in 12, 20 and 30 mm and in slabs up to 137 × 79 in (3,500 × 2,050 mm). Granite takes the floors, paving, steps and sills, inside and out. Beyond Stone panels clad facades, and translucent and semi-precious stone become a light source.",
           "Each application below has its own guide, with the materials to use, the thicknesses that suit it and the details that matter on site.",
         ]}
       />
@@ -356,7 +356,7 @@ export default function ApplicationsPage() {
       />
 
       <section className="bg-white">
-        <Container className="py-16 lg:py-24">
+        <Container className="py-12 lg:py-16">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
             <div>
               <p className={LABEL}>Test results</p>

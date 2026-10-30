@@ -67,81 +67,81 @@ export function ProfessionalsVideoGrid({
   };
 
   const grid = (
-        <div
-          className={
-            bare
-              ? "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 lg:gap-5"
-              : "mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5"
-          }
-        >
-          {VIDEOS.map((src, i) => {
-            const isPlaying = playing === i;
-            return (
-              <button
-                key={src}
-                type="button"
-                onClick={() => toggle(i)}
-                aria-label={isPlaying ? "Pause video" : "Play video"}
-                className={`group relative block overflow-hidden border border-white/10 bg-pacific-dark aspect-[3/4] focus:outline-none focus:ring-2 focus:ring-white/40 ${bare ? "" : "rounded-xl"}`}
-              >
-                <video
-                  ref={(el) => {
-                    refs.current[i] = el;
-                  }}
-                  src={src}
-                  playsInline
-                  preload="metadata"
-                  onPlay={() => {
-                    // Ensure only one card plays at a time — pause
-                    // any sibling that's still running. Triggers on
-                    // native player UI too, not just our click toggle.
-                    refs.current.forEach((other, idx) => {
-                      if (other && idx !== i && !other.paused) {
-                        other.pause();
-                      }
-                    });
-                    setPlaying(i);
-                  }}
-                  onPause={() => {
-                    setPlaying((cur) => (cur === i ? null : cur));
-                  }}
-                  onEnded={() => setPlaying(null)}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-                <AnimatePresence>
-                  {!isPlaying && (
-                    <motion.div
-                      key="overlay"
-                      initial={{ opacity: 1 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-t from-black/60 via-black/20 to-black/35 text-white"
-                    >
-                      <div className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/25 transition-colors">
-                        <Play className="w-5 h-5 lg:w-6 lg:h-6 fill-white text-white ml-0.5" />
-                      </div>
-                      <span className="text-[10px] sm:text-[11px] font-medium tracking-[0.25em] uppercase text-white/90">
-                        {/* Different copy per platform — "Click to
+    <div
+      className={
+        bare
+          ? "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 lg:gap-5"
+          : "mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5"
+      }
+    >
+      {VIDEOS.map((src, i) => {
+        const isPlaying = playing === i;
+        return (
+          <button
+            key={src}
+            type="button"
+            onClick={() => toggle(i)}
+            aria-label={isPlaying ? "Pause video" : "Play video"}
+            className={`group relative block overflow-hidden border border-white/10 bg-pacific-dark aspect-[3/4] focus:outline-none focus:ring-2 focus:ring-white/40 ${bare ? "" : "rounded-xl"}`}
+          >
+            <video
+              ref={(el) => {
+                refs.current[i] = el;
+              }}
+              src={src}
+              playsInline
+              preload="metadata"
+              onPlay={() => {
+                // Ensure only one card plays at a time — pause
+                // any sibling that's still running. Triggers on
+                // native player UI too, not just our click toggle.
+                refs.current.forEach((other, idx) => {
+                  if (other && idx !== i && !other.paused) {
+                    other.pause();
+                  }
+                });
+                setPlaying(i);
+              }}
+              onPause={() => {
+                setPlaying((cur) => (cur === i ? null : cur));
+              }}
+              onEnded={() => setPlaying(null)}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <AnimatePresence>
+              {!isPlaying && (
+                <motion.div
+                  key="overlay"
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-t from-black/60 via-black/20 to-black/35 text-white"
+                >
+                  <div className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/25 transition-colors">
+                    <Play className="w-5 h-5 lg:w-6 lg:h-6 fill-white text-white ml-0.5" />
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-medium tracking-[0.25em] uppercase text-white/90">
+                    {/* Different copy per platform — "Click to
                             play" reads natural on desktop, "Play"
                             on mobile where there's no cursor. */}
-                        <span className="hidden md:inline">Click to play</span>
-                        <span className="md:hidden">Play</span>
-                      </span>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </button>
-            );
-          })}
-        </div>
+                    <span className="hidden md:inline">Click to play</span>
+                    <span className="md:hidden">Play</span>
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </button>
+        );
+      })}
+    </div>
   );
 
   if (bare) return grid;
 
   return (
     <section className="bg-[#0a1620] border-y border-white/5">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         <AnimatedSection animation="fadeUp">
           <span className="text-[10px] tracking-[0.3em] uppercase text-pacific-mid/70 font-medium">
             {eyebrow}

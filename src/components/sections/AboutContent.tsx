@@ -58,7 +58,7 @@ const timeline = [
     year: "2023",
     title: "Pacific Engineered Surfaces Pvt. Ltd.",
     description:
-      "A new era with the launch of a state-of-the-art Bretonstone plant, marking the beginning of fully automated manufacturing. Late 2024, opened a warehouse in Poland as part of global expansion.",
+      "A new era with the launch of a state-of-the-art Bretonstone plant, marking the beginning of fully automated manufacturing. Late 2024, opened Pacific Polska, a warehouse in Poland, as part of global expansion.",
   },
 ];
 
@@ -314,7 +314,7 @@ export function AboutContent() {
           />
         </div>
 
-        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-16 sm:py-20 lg:py-28 text-center">
+        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-10 sm:py-14 lg:py-16 text-center">
           <AnimatedSection animation="fadeIn">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/80 mb-5 block">
               Who We Are
@@ -358,7 +358,7 @@ export function AboutContent() {
 
       {/* Disruptive Technology */}
       <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <AnimatedSection className="text-center mb-12 sm:mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               Manufacturing Excellence
@@ -421,7 +421,7 @@ export function AboutContent() {
 
       {/* Values */}
       <section className="bg-[#0e2030]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
           <AnimatedSection className="text-center mb-12 sm:mb-16">
             <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
               What Drives Us
@@ -456,7 +456,7 @@ export function AboutContent() {
 
       {/* Grow with PACIFIC */}
       <section className="bg-[#112732] border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Grow with PACIFIC
@@ -478,7 +478,7 @@ export function AboutContent() {
 
       {/* CTA */}
       <section className="bg-pacific-dark">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 sm:py-20 lg:py-32 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Ready to find the perfect surface?
@@ -529,7 +529,7 @@ function TimelineSection() {
           white whatever the page skin does to the ink around it. */}
       <div
         data-over-media
-        className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32"
+        className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20"
       >
         <AnimatedSection className="text-center mb-12 sm:mb-16">
           <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
@@ -598,7 +598,7 @@ function TimelineSection() {
 function TeamSection() {
   return (
     <section className="bg-[#0e2030]">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
         <AnimatedSection className="text-center mb-12 sm:mb-16">
           <span className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid/70 mb-4 block">
             Leadership

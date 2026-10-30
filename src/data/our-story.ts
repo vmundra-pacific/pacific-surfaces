@@ -39,13 +39,22 @@ export const MILESTONES = [
   },
   {
     year: "2024",
-    title: "Warehouse in Poland",
+    title: "Pacific Polska",
     body: "A warehouse opens in Poland late in the year, closer to customers in Europe.",
   },
 ];
 
-export const TEAM: { name: string; role: string; photo: string; linkedin?: string }[] = [
-  { name: "Mohanlal Somani", role: "Chairman", photo: "/team/mohanlal-somani.jpg" },
+export const TEAM: {
+  name: string;
+  role: string;
+  photo: string;
+  linkedin?: string;
+}[] = [
+  {
+    name: "Mohanlal Somani",
+    role: "Chairman",
+    photo: "/team/mohanlal-somani.jpg",
+  },
   {
     name: "Varun Somani",
     role: "Managing Director",
@@ -76,8 +85,21 @@ export const TEAM: { name: string; role: string; photo: string; linkedin?: strin
     photo: "/team/anish-datta.jpg",
     linkedin: "https://www.linkedin.com/in/anish-datta-690161159/",
   },
-  { name: "Paulina Popławska", role: "Director, Pacific Polska", photo: "/team/paulina-poplawska.jpg" },
-  { name: "Nagesh P K", role: "Commercial Manager, Pacific Granites India", photo: "/team/nagesh-pk.jpg" },
+  {
+    name: "Vikram Singh",
+    role: "Business Head",
+    photo: "/team/vikram-singh.jpg",
+  },
+  {
+    name: "Paulina Popławska",
+    role: "Director, Pacific Polska",
+    photo: "/team/paulina-poplawska.jpg",
+  },
+  {
+    name: "Nagesh P K",
+    role: "Commercial Manager, Pacific Granites India",
+    photo: "/team/nagesh-pk.jpg",
+  },
   {
     name: "Marcin",
     role: "Business Development Consultant, Central and Eastern Europe",

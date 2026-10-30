@@ -99,7 +99,7 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
 
       {/* Products Grid */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 lg:py-16">
           {products.length > 0 ? (
             <>
               <AnimatedSection className="mb-12">
@@ -143,7 +143,7 @@ export function SemiPreciousContent({ products }: { products: Product[] }) {
 
       {/* CTA */}
       <section className="bg-stone-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-14 sm:py-20 lg:py-32 text-center">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 sm:py-14 lg:py-20 text-center">
           <AnimatedSection>
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white max-w-xl mx-auto">
               Ready to elevate your space?

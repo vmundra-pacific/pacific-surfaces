@@ -225,7 +225,7 @@ export function CollectionsShowcaseGrid({
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col">
         <div className="shrink-0 px-6 lg:px-8 pt-16 lg:pt-20 pb-6">
-          <div className="mx-auto max-w-7xl flex flex-col lg:flex-row items-start justify-between gap-8">
+          <div className="mx-auto max-w-[76rem] flex flex-col lg:flex-row items-start justify-between gap-8">
             <div className="lg:max-w-lg">
               <motion.div
                 initial={{ opacity: 0 }}
@@ -250,9 +250,9 @@ export function CollectionsShowcaseGrid({
               className="lg:max-w-md lg:pt-8"
             >
               <p className="text-base font-light text-white/85 leading-relaxed">
-                Superjumbo slabs, 3,480 × 2,007 mm, in 12, 20 and 30 mm. Each
-                one engineered to pass a fabricator&apos;s precision test and an
-                architect&apos;s critical eye.
+                Superjumbo slabs, 137 × 79 in (3,500 × 2,050 mm), in 12, 20 and
+                30 mm. Each one engineered to pass a fabricator&apos;s precision
+                test and an architect&apos;s critical eye.
               </p>
             </motion.div>
           </div>
@@ -375,7 +375,7 @@ export function CollectionsShowcaseGrid({
         </div>
 
         <div className="shrink-0 px-6 lg:px-8 pb-8">
-          <div className="mx-auto max-w-7xl flex items-center gap-4">
+          <div className="mx-auto max-w-[76rem] flex items-center gap-4">
             <span className="text-[10px] tracking-[0.2em] uppercase text-white/80 whitespace-nowrap">
               Scroll
             </span>

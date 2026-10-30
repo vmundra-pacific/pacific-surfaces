@@ -29,7 +29,11 @@ export interface GalleryShot {
   tags: GalleryTag[];
 }
 
-export type GalleryTag = "Kitchens" | "Islands" | "Countertops" | "Backsplashes";
+export type GalleryTag =
+  | "Kitchens"
+  | "Islands"
+  | "Countertops"
+  | "Backsplashes";
 
 export const KITCHENS_PAGE = {
   hero: {
@@ -54,7 +58,7 @@ export const KITCHENS_PAGE = {
       label: "Superjumbo format",
       heading: "Slabs big enough to leave out the joint",
       body: [
-        "Pacific quartz is pressed at Superjumbo size, 3,480 × 2,007 mm, in 12, 20 and 30 mm thicknesses.",
+        "Pacific quartz is pressed at Superjumbo size, 137 × 79 in (3,500 × 2,050 mm), in 12, 20 and 30 mm thicknesses.",
         "Most islands and long counter runs come out of a single piece, with no seam where everyone gathers, and a waterfall end can run in the same slab.",
       ],
       image: "/projects/islands/statuario.webp",
@@ -99,12 +103,42 @@ export const KITCHENS_PAGE = {
       "From the worktop and island to the backsplash, the sink and the walls around them, in one design or several.",
     ],
     cards: [
-      { title: "Countertops", href: "/applications/kitchen-countertops", image: "/projects/islands/new-application-image.webp", alt: "A quartz countertop with an undermount sink and bar stools" },
-      { title: "Kitchen islands", href: "/applications/kitchen-islands", image: "/projects/islands/arya-application-kitchen.webp", alt: "A quartz island in a kitchen open to a garden" },
-      { title: "Backsplashes", href: "/applications/backsplashes", image: "/projects/islands/orenda-kitchen-new.webp", alt: "A full-height stone backsplash behind a hob" },
-      { title: "Waterfall islands", href: "/applications/waterfall-islands", image: "/projects/islands/orenda.webp", alt: "A waterfall island in Orenda, the slab running down both ends" },
-      { title: "Integrated sinks", href: "/products/integra", image: "/images/products/fab-creations.jpeg", alt: "A basin cut into the same slab as its top" },
-      { title: "Wall cladding", href: "/applications/wall-cladding", image: "/projects/cladding/horizon-veil.webp", alt: "A living-room wall clad in large-format stone" },
+      {
+        title: "Countertops",
+        href: "/applications/kitchen-countertops",
+        image: "/projects/islands/new-application-image.webp",
+        alt: "A quartz countertop with an undermount sink and bar stools",
+      },
+      {
+        title: "Kitchen islands",
+        href: "/applications/kitchen-islands",
+        image: "/projects/islands/arya-application-kitchen.webp",
+        alt: "A quartz island in a kitchen open to a garden",
+      },
+      {
+        title: "Backsplashes",
+        href: "/applications/backsplashes",
+        image: "/projects/islands/orenda-kitchen-new.webp",
+        alt: "A full-height stone backsplash behind a hob",
+      },
+      {
+        title: "Waterfall islands",
+        href: "/applications/waterfall-islands",
+        image: "/projects/islands/orenda.webp",
+        alt: "A waterfall island in Orenda, the slab running down both ends",
+      },
+      {
+        title: "Integrated sinks",
+        href: "/products/integra",
+        image: "/images/products/fab-creations.jpeg",
+        alt: "A basin cut into the same slab as its top",
+      },
+      {
+        title: "Wall cladding",
+        href: "/applications/wall-cladding",
+        image: "/projects/cladding/horizon-veil.webp",
+        alt: "A living-room wall clad in large-format stone",
+      },
     ] satisfies KitchenCard[],
   },
 
@@ -118,20 +152,73 @@ export const KITCHENS_PAGE = {
 
   gallery: {
     heading: "Kitchen inspiration",
-    tags: ["Kitchens", "Islands", "Countertops", "Backsplashes"] as GalleryTag[],
+    tags: [
+      "Kitchens",
+      "Islands",
+      "Countertops",
+      "Backsplashes",
+    ] as GalleryTag[],
     shots: [
-      { src: "/projects/islands/orenda-application.webp", alt: "Kitchen in Orenda", tags: ["Kitchens", "Islands", "Backsplashes"] },
-      { src: "/projects/islands/arya-application-kitchen.webp", alt: "Kitchen in Arya", tags: ["Kitchens", "Islands"] },
-      { src: "/projects/islands/artemis-kitchen.webp", alt: "Kitchen in Artemis Grey", tags: ["Kitchens", "Islands"] },
-      { src: "/projects/islands/taj-application.webp", alt: "Island in Taj Vein", tags: ["Islands", "Backsplashes"] },
-      { src: "/projects/islands/statuario.webp", alt: "Island by a city window", tags: ["Islands"] },
-      { src: "/projects/islands/almond-mist-application.webp", alt: "Outdoor island in Almond Mist", tags: ["Kitchens", "Islands"] },
-      { src: "/projects/islands/orenda-kitchen-new.webp", alt: "Hob wall and backsplash in Orenda", tags: ["Kitchens", "Backsplashes", "Countertops"] },
-      { src: "/projects/islands/new-application-image.webp", alt: "Countertop with bar stools", tags: ["Countertops", "Kitchens"] },
-      { src: "/projects/islands/alabaster-noir.webp", alt: "Dark kitchen in Alabaster Noir", tags: ["Kitchens", "Countertops"] },
-      { src: "/projects/islands/sakura.webp", alt: "Island in Sakura", tags: ["Islands", "Backsplashes"] },
-      { src: "/projects/islands/taj-vein-application-2.webp", alt: "Taj Vein island and wall", tags: ["Islands", "Backsplashes"] },
-      { src: "/projects/islands/counter.webp", alt: "Dark worktop detail", tags: ["Countertops"] },
+      {
+        src: "/projects/islands/orenda-application.webp",
+        alt: "Kitchen in Orenda",
+        tags: ["Kitchens", "Islands", "Backsplashes"],
+      },
+      {
+        src: "/projects/islands/arya-application-kitchen.webp",
+        alt: "Kitchen in Arya",
+        tags: ["Kitchens", "Islands"],
+      },
+      {
+        src: "/projects/islands/artemis-kitchen.webp",
+        alt: "Kitchen in Artemis Grey",
+        tags: ["Kitchens", "Islands"],
+      },
+      {
+        src: "/projects/islands/taj-application.webp",
+        alt: "Island in Taj Vein",
+        tags: ["Islands", "Backsplashes"],
+      },
+      {
+        src: "/projects/islands/statuario.webp",
+        alt: "Island by a city window",
+        tags: ["Islands"],
+      },
+      {
+        src: "/projects/islands/almond-mist-application.webp",
+        alt: "Outdoor island in Almond Mist",
+        tags: ["Kitchens", "Islands"],
+      },
+      {
+        src: "/projects/islands/orenda-kitchen-new.webp",
+        alt: "Hob wall and backsplash in Orenda",
+        tags: ["Kitchens", "Backsplashes", "Countertops"],
+      },
+      {
+        src: "/projects/islands/new-application-image.webp",
+        alt: "Countertop with bar stools",
+        tags: ["Countertops", "Kitchens"],
+      },
+      {
+        src: "/projects/islands/alabaster-noir.webp",
+        alt: "Dark kitchen in Alabaster Noir",
+        tags: ["Kitchens", "Countertops"],
+      },
+      {
+        src: "/projects/islands/sakura.webp",
+        alt: "Island in Sakura",
+        tags: ["Islands", "Backsplashes"],
+      },
+      {
+        src: "/projects/islands/taj-vein-application-2.webp",
+        alt: "Taj Vein island and wall",
+        tags: ["Islands", "Backsplashes"],
+      },
+      {
+        src: "/projects/islands/counter.webp",
+        alt: "Dark worktop detail",
+        tags: ["Countertops"],
+      },
     ] satisfies GalleryShot[],
   },
 
@@ -139,7 +226,14 @@ export const KITCHENS_PAGE = {
     heading: "Popular colours for the kitchen",
     cta: { label: "View all colours", href: "/products/quartz" },
     /** Sanity slugs; names and slab photographs are read at render time. */
-    slugs: ["taj-vein-p01", "himalayan-vein-p14", "ruskin-5028", "stellar-ember-5031", "galactic-halo-5012", "alabaster-noir-3003"],
+    slugs: [
+      "taj-vein-p01",
+      "himalayan-vein-p14",
+      "ruskin-5028",
+      "stellar-ember-5031",
+      "galactic-halo-5012",
+      "alabaster-noir-3003",
+    ],
   },
 
   catalogue: {
@@ -153,28 +247,47 @@ export const KITCHENS_PAGE = {
   faqs: [
     {
       question: "Which Pacific surfaces suit a kitchen?",
-      answer: "Mineral infused quartz and Eclipse for worktops, islands and backsplashes: non-porous, heat and stain resistant, and never in need of sealing. Granite where natural stone is wanted. Every piece is cut to your template.",
+      answer:
+        "Mineral infused quartz and Eclipse for worktops, islands and backsplashes: non-porous, heat and stain resistant, and never in need of sealing. Granite where natural stone is wanted. Every piece is cut to your template.",
     },
     {
       question: "Can an island be made from a single slab?",
-      answer: "In most kitchens, yes. Pacific quartz is pressed at Superjumbo size, 3,480 × 2,007 mm, so most islands and long counters are cut from one piece without a joint.",
+      answer:
+        "In most kitchens, yes. Pacific quartz is pressed at Superjumbo size, 137 × 79 in (3,500 × 2,050 mm), so most islands and long counters are cut from one piece without a joint.",
     },
     {
       question: "Does a quartz worktop need sealing?",
-      answer: "No. The surface is non-porous, so it never needs sealing. Warm water and a mild soap are the whole daily routine.",
+      answer:
+        "No. The surface is non-porous, so it never needs sealing. Warm water and a mild soap are the whole daily routine.",
     },
     {
       question: "Where can I buy a Pacific kitchen?",
-      answer: "Through our network of fabricators and dealers. Send us your plan through the quote form and our team will put you in touch with one near you.",
+      answer:
+        "Through our network of fabricators and dealers. Send us your plan through the quote form and our team will put you in touch with one near you.",
     },
   ],
 
   spaces: {
     heading: "Pacific Surfaces for every space",
     cards: [
-      { title: "Bathrooms by Pacific Surfaces", href: "/spaces/bathrooms", image: "/projects/bathrooms/bathtub.webp", alt: "A freestanding bath beside a stone-clad shower" },
-      { title: "Hotels by Pacific Surfaces", href: "/spaces/hospitality", image: "/projects/cladding/tiffany.webp", alt: "A restaurant booth against a green stone wall" },
-      { title: "Flooring by Pacific Surfaces", href: "/applications/flooring", image: "/images/flooring/card-courtyard.webp", alt: "A courtyard floored in New Viscont White granite" },
+      {
+        title: "Bathrooms by Pacific Surfaces",
+        href: "/spaces/bathrooms",
+        image: "/projects/bathrooms/bathtub.webp",
+        alt: "A freestanding bath beside a stone-clad shower",
+      },
+      {
+        title: "Hotels by Pacific Surfaces",
+        href: "/spaces/hospitality",
+        image: "/projects/cladding/tiffany.webp",
+        alt: "A restaurant booth against a green stone wall",
+      },
+      {
+        title: "Flooring by Pacific Surfaces",
+        href: "/applications/flooring",
+        image: "/images/flooring/card-courtyard.webp",
+        alt: "A courtyard floored in New Viscont White granite",
+      },
     ] satisfies KitchenCard[],
   },
 };

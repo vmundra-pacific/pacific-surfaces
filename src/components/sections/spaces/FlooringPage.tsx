@@ -100,7 +100,7 @@ function Hero() {
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/25 to-black/10"
       />
-      <Container className="pb-14 lg:pb-20">
+      <Container className="pb-10 lg:pb-14">
         <h1
           style={LIGHT}
           className="text-5xl uppercase leading-none tracking-[-0.03em] sm:text-6xl lg:text-[96px]"
@@ -117,7 +117,7 @@ function Hero() {
 
 function Finishes() {
   return (
-    <section className="bg-white py-20 lg:py-28">
+    <section className="bg-white py-12 lg:py-16">
       <Container>
         <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
           <Heading>Six finishes</Heading>
@@ -208,7 +208,7 @@ function Technical() {
     ["absorption", "Water absorption, % wt."],
   ];
   return (
-    <section className="bg-white pb-20 lg:pb-28">
+    <section className="bg-white pb-12 lg:pb-16">
       <Container>
         <Heading>Technical data</Heading>
         <p className="mt-4 max-w-2xl text-base font-light leading-relaxed">

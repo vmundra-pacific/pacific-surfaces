@@ -29,7 +29,7 @@ export const BATHROOMS_PAGE: SpacePageData = {
       label: "Floor to ceiling",
       heading: "Walls in Superjumbo slabs",
       body: [
-        "Shower walls, feature walls and full-height cladding from slabs of 3,480 × 2,007 mm, so a wall goes up with very few joints.",
+        "Shower walls, feature walls and full-height cladding from slabs of 137 × 79 in (3,500 × 2,050 mm), so a wall goes up with very few joints.",
         "The same design carries on to the floor, the shower tray and the vanity.",
       ],
       image: `${B}/shower-wall.jpg`,
@@ -84,11 +84,36 @@ export const BATHROOMS_PAGE: SpacePageData = {
       "From the vanity top and the basin to the shower tray, the walls and the floor.",
     ],
     cards: [
-      { title: "Vanity tops", href: "/applications/bathroom-vanity-tops", image: `${B}/double-vanity.jpg`, alt: "Two vanities in a veined quartz" },
-      { title: "Shower walls and trays", href: "/applications/shower-walls-and-trays", image: `${B}/walk-in-shower.jpg`, alt: "A walk-in shower with stone walls" },
-      { title: "Washbasins", href: "/applications/washbasins", image: `${B}/basin-and-bath.jpg`, alt: "A vessel basin on a stone counter" },
-      { title: "Wall cladding", href: "/applications/wall-cladding", image: `${B}/shower-wall.jpg`, alt: "A bathroom wall clad in a veined surface" },
-      { title: "Shop vanity tops", href: "/shop/vanity-tops", image: `${B}/vanity-mirror.jpg`, alt: "A vanity under a lit mirror" },
+      {
+        title: "Vanity tops",
+        href: "/applications/bathroom-vanity-tops",
+        image: `${B}/double-vanity.jpg`,
+        alt: "Two vanities in a veined quartz",
+      },
+      {
+        title: "Shower walls and trays",
+        href: "/applications/shower-walls-and-trays",
+        image: `${B}/walk-in-shower.jpg`,
+        alt: "A walk-in shower with stone walls",
+      },
+      {
+        title: "Washbasins",
+        href: "/applications/washbasins",
+        image: `${B}/basin-and-bath.jpg`,
+        alt: "A vessel basin on a stone counter",
+      },
+      {
+        title: "Wall cladding",
+        href: "/applications/wall-cladding",
+        image: `${B}/shower-wall.jpg`,
+        alt: "A bathroom wall clad in a veined surface",
+      },
+      {
+        title: "Shop vanity tops",
+        href: "/shop/vanity-tops",
+        image: `${B}/vanity-mirror.jpg`,
+        alt: "A vanity under a lit mirror",
+      },
     ],
   },
 
@@ -104,31 +129,89 @@ export const BATHROOMS_PAGE: SpacePageData = {
     heading: "Bathroom inspiration",
     tags: ["All", "Showers", "Vanities", "Baths"],
     shots: [
-      { src: `${B}/garden-bath.jpg`, alt: "A garden bathroom", tags: ["All", "Baths", "Showers"] },
-      { src: `${B}/bath-shower-niche.jpg`, alt: "A bath and a shower niche", tags: ["All", "Baths"] },
-      { src: `${B}/bath-and-shower.jpg`, alt: "A bath beside a glazed shower", tags: ["All", "Baths", "Showers"] },
-      { src: `${B}/basin-and-bath.jpg`, alt: "A vessel basin and a bath", tags: ["All", "Baths", "Vanities"] },
-      { src: `${B}/double-vanity.jpg`, alt: "Two vanities", tags: ["All", "Vanities"] },
-      { src: `${B}/vanity-mirror.jpg`, alt: "A vanity under a lit mirror", tags: ["All", "Vanities"] },
-      { src: `${B}/walk-in-shower.jpg`, alt: "A walk-in shower", tags: ["All", "Showers"] },
-      { src: `${B}/shower-wall.jpg`, alt: "A veined shower wall", tags: ["All", "Showers"] },
-      { src: `${B}/shower-niche.jpg`, alt: "A shower with a lit niche", tags: ["All", "Showers"] },
-      { src: `${B}/rain-shower.jpg`, alt: "A rain shower in a stone enclosure", tags: ["All", "Showers"] },
-      { src: `${B}/shower-tray.jpg`, alt: "A one-piece shower tray", tags: ["All", "Showers"] },
-      { src: `${B}/suite-bathroom.jpg`, alt: "A suite bathroom", tags: ["All", "Vanities", "Showers"] },
+      {
+        src: `${B}/garden-bath.jpg`,
+        alt: "A garden bathroom",
+        tags: ["All", "Baths", "Showers"],
+      },
+      {
+        src: `${B}/bath-shower-niche.jpg`,
+        alt: "A bath and a shower niche",
+        tags: ["All", "Baths"],
+      },
+      {
+        src: `${B}/bath-and-shower.jpg`,
+        alt: "A bath beside a glazed shower",
+        tags: ["All", "Baths", "Showers"],
+      },
+      {
+        src: `${B}/basin-and-bath.jpg`,
+        alt: "A vessel basin and a bath",
+        tags: ["All", "Baths", "Vanities"],
+      },
+      {
+        src: `${B}/double-vanity.jpg`,
+        alt: "Two vanities",
+        tags: ["All", "Vanities"],
+      },
+      {
+        src: `${B}/vanity-mirror.jpg`,
+        alt: "A vanity under a lit mirror",
+        tags: ["All", "Vanities"],
+      },
+      {
+        src: `${B}/walk-in-shower.jpg`,
+        alt: "A walk-in shower",
+        tags: ["All", "Showers"],
+      },
+      {
+        src: `${B}/shower-wall.jpg`,
+        alt: "A veined shower wall",
+        tags: ["All", "Showers"],
+      },
+      {
+        src: `${B}/shower-niche.jpg`,
+        alt: "A shower with a lit niche",
+        tags: ["All", "Showers"],
+      },
+      {
+        src: `${B}/rain-shower.jpg`,
+        alt: "A rain shower in a stone enclosure",
+        tags: ["All", "Showers"],
+      },
+      {
+        src: `${B}/shower-tray.jpg`,
+        alt: "A one-piece shower tray",
+        tags: ["All", "Showers"],
+      },
+      {
+        src: `${B}/suite-bathroom.jpg`,
+        alt: "A suite bathroom",
+        tags: ["All", "Vanities", "Showers"],
+      },
     ],
   },
 
   colours: {
     heading: "Popular colours for the bathroom",
     cta: { label: "View all colours", href: "/products/quartz" },
-    slugs: ["taj-vein-p01", "patagonia-p30", "latte-luxe-5040", "bellagio-3016", "alabaster-3001", "orenda-p25"],
+    slugs: [
+      "taj-vein-p01",
+      "patagonia-p30",
+      "latte-luxe-5040",
+      "bellagio-3016",
+      "alabaster-3001",
+      "orenda-p25",
+    ],
   },
 
   catalogue: {
     heading: "The Pacific Hospitality Collection",
     body: "Bathrooms, rooms, spa and wellness, and the rest of the hotel, in one catalogue.",
-    cta: { label: "Read the catalogue", href: "/resources?read=pacific-hospitality-collection" },
+    cta: {
+      label: "Read the catalogue",
+      href: "/resources?read=pacific-hospitality-collection",
+    },
     image: `${B}/suite-bathroom.jpg`,
     alt: "A suite bathroom with white walls and dark timber",
   },
@@ -137,28 +220,47 @@ export const BATHROOMS_PAGE: SpacePageData = {
   faqs: [
     {
       question: "Which Pacific surfaces suit a bathroom?",
-      answer: "Mineral infused quartz and Eclipse for vanity tops, washbasins, shower trays and walls: non-porous and never in need of sealing. Every piece is cut to your plan.",
+      answer:
+        "Mineral infused quartz and Eclipse for vanity tops, washbasins, shower trays and walls: non-porous and never in need of sealing. Every piece is cut to your plan.",
     },
     {
       question: "Can a shower be clad in quartz?",
-      answer: "Yes, the walls and the tray. Superjumbo slabs, 3,480 × 2,007 mm, cover most shower walls with very few joints.",
+      answer:
+        "Yes, the walls and the tray. Superjumbo slabs, 137 × 79 in (3,500 × 2,050 mm), cover most shower walls with very few joints.",
     },
     {
       question: "Does quartz need sealing in a bathroom?",
-      answer: "No. The surface is non-porous, so it never needs sealing. Warm water and a mild soap are the whole routine.",
+      answer:
+        "No. The surface is non-porous, so it never needs sealing. Warm water and a mild soap are the whole routine.",
     },
     {
       question: "Can I order a vanity top online?",
-      answer: "Yes. The Pacific Store has vanity tops with one, two or three basins, made to your size and colour; our team confirms the order before anything ships.",
+      answer:
+        "Yes. The Pacific Store has vanity tops with one, two or three basins, made to your size and colour; our team confirms the order before anything ships.",
     },
   ],
 
   spaces: {
     heading: "Pacific Surfaces for every space",
     cards: [
-      { title: "Kitchens by Pacific Surfaces", href: "/spaces/kitchens", image: "/images/spaces/kitchen-hero.webp", alt: "A Pacific kitchen with a stone island" },
-      { title: "Hotels by Pacific Surfaces", href: "/spaces/hospitality", image: `${H}/bar-lounge.jpg`, alt: "A hotel bar counter in quartz" },
-      { title: "Flooring by Pacific Surfaces", href: "/applications/flooring", image: "/images/flooring/card-courtyard.webp", alt: "A courtyard floored in granite" },
+      {
+        title: "Kitchens by Pacific Surfaces",
+        href: "/spaces/kitchens",
+        image: "/images/spaces/kitchen-hero.webp",
+        alt: "A Pacific kitchen with a stone island",
+      },
+      {
+        title: "Hotels by Pacific Surfaces",
+        href: "/spaces/hospitality",
+        image: `${H}/bar-lounge.jpg`,
+        alt: "A hotel bar counter in quartz",
+      },
+      {
+        title: "Flooring by Pacific Surfaces",
+        href: "/applications/flooring",
+        image: "/images/flooring/card-courtyard.webp",
+        alt: "A courtyard floored in granite",
+      },
     ],
   },
 };

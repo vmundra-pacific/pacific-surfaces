@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
 
       {/* Body */}
       <section>
-        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-16 lg:py-24 text-pacific-light font-light leading-relaxed">
+        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-12 lg:py-16 text-pacific-light font-light leading-relaxed">
           <p className="text-lg">
             This Privacy Policy (the &ldquo;Policy&rdquo;) sets out the terms
             upon which Pacific Surfaces and its affiliated entities

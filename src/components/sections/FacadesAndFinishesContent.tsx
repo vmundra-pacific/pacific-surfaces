@@ -266,7 +266,7 @@ export function FacadesAndFinishesContent({
 
       {/* ─── 2. Intro split ─────────────────────────────── */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 md:py-28">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 md:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
             {/* LEFT — large tall slot. Priority: video → Sanity image → placeholder. */}
             <motion.div
@@ -424,7 +424,7 @@ export function FacadesAndFinishesContent({
 
       {/* ─── 4. Finish grid ─────────────────────────────── */}
       <section className="bg-[#112732]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-20 md:py-28">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 md:py-16">
           <AnimatedSection className="max-w-3xl mb-12 md:mb-16">
             <div className="text-xs font-medium tracking-[0.25em] uppercase text-pacific-mid mb-5">
               {gridEyebrow}

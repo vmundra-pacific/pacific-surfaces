@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react";
 
 export function ClosingCTA() {
   return (
-    <section className="relative py-20 sm:py-32 md:py-40 px-6 bg-[#112732] overflow-hidden">
+    <section className="relative py-12 sm:py-16 md:py-24 px-6 bg-[#112732] overflow-hidden">
       {/* Grain */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"

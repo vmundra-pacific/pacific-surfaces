@@ -142,7 +142,7 @@ export function SpaceHero({
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-gradient-to-t from-black/70 via-black/20 to-black/10"
       />
-      <Container className="pb-14 lg:pb-20">
+      <Container className="pb-10 lg:pb-14">
         <h1
           style={LIGHT}
           className={cn(
@@ -404,7 +404,7 @@ export function Split({
   alt: string;
 }) {
   return (
-    <section className="bg-white pb-20 lg:pb-28">
+    <section className="bg-white pb-12 lg:pb-16">
       <Container>
         <div className="grid md:grid-cols-2">
           <div
@@ -451,7 +451,7 @@ export function SpaceGallery({
   const [tag, setTag] = useState(tags[0]);
   const shown = shots.filter((s) => s.tags.includes(tag));
   return (
-    <section className="bg-white pb-20 lg:pb-28">
+    <section className="bg-white pb-12 lg:pb-16">
       <Container>
         <Heading>{heading}</Heading>
         {tags.length > 1 && (
@@ -517,7 +517,7 @@ export function SpaceFaqs({
   const [open, setOpen] = useState<number | null>(null);
   const uid = useId();
   return (
-    <section className="bg-white pb-20 lg:pb-28">
+    <section className="bg-white pb-12 lg:pb-16">
       <Container>
         <Heading className="max-w-xl">{heading}</Heading>
         <ul className="mt-10 border-t border-[#14140f]/15">
@@ -572,7 +572,7 @@ export function SpaceOthers({
   cards: SpaceCard[];
 }) {
   return (
-    <section className="bg-white pb-24 lg:pb-32">
+    <section className="bg-white pb-14 lg:pb-20">
       <Container>
         <Heading>{heading}</Heading>
         <div className="mt-8">

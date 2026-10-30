@@ -93,16 +93,16 @@ export function TestimonialsSection() {
     // desktop section; on a phone they were a long scroll of posters.
     <section
       id="sec-voices"
-      className="relative hidden bg-[#0a1620] py-16 sm:py-20 md:[@media(min-height:501px)]:block md:py-28 px-6 scroll-mt-20 overflow-hidden"
+      className="relative hidden bg-[#0a1620] py-10 sm:py-14 md:[@media(min-height:501px)]:block md:py-16 px-6 scroll-mt-20 overflow-hidden"
     >
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-[76rem]">
         {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
-          className="mb-12 sm:mb-16 lg:mb-20"
+          className="mb-2 sm:mb-4"
         >
           <div className="text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase text-white/80 mb-4">
             05 · Voices
@@ -178,8 +178,6 @@ export function TestimonialsSection() {
             );
           })}
         </div> */}
-        
-        
       </div>
     </section>
   );

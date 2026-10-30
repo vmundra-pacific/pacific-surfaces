@@ -42,7 +42,7 @@ export function OriginStats() {
     // file isn't present yet.
     <section
       id="sec-origin"
-      className="relative isolate overflow-hidden min-h-screen flex items-center py-16 sm:py-20 md:py-28 px-6 bg-[#112732] scroll-mt-20"
+      className="relative isolate overflow-hidden min-h-screen flex items-center py-10 sm:py-14 md:py-16 px-6 bg-[#112732] scroll-mt-20"
     >
       {/* Background video — silent, looping, full-bleed cover.
           Drop the clip at /public/videos/origin.mp4 (and a poster JPG
@@ -90,7 +90,7 @@ export function OriginStats() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
-          className="mx-auto max-w-7xl"
+          className="mx-auto max-w-[76rem]"
         >
           <div className="text-xs font-medium tracking-[0.25em] uppercase text-white/80 mb-5">
             03 · The Origin

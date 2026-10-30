@@ -34,8 +34,8 @@ export default function ApplicationsIndexPage() {
         description="Fifteen surface applications, each with the collections, thicknesses and finishes we specify for it."
       />
 
-      <section className="bg-pacific-light px-6 py-16 md:py-24">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="bg-pacific-light px-6 py-12 md:py-16">
+        <div className="mx-auto grid max-w-[76rem] grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {APPLICATIONS.map((app) => (
             <Link
               key={app.slug}

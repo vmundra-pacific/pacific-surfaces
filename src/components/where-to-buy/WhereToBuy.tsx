@@ -50,6 +50,7 @@ import {
 } from "@/lib/where-to-buy";
 import { DealerEnquiry } from "./DealerEnquiry";
 import { PartnerCard } from "./PartnerCard";
+import { PACIFIC_POLSKA } from "@/data/partners";
 import "./where-to-buy.css";
 
 /**
@@ -916,8 +917,11 @@ export function WhereToBuy({
               (data-me-out / PartnerCard, shown by CSS from the first paint,
               owner 2026-10-28). */}
           <PartnerCard />
+          {/* In Poland, Pacific Polska (owner, 2026-10-29), the same way. */}
+          <PartnerCard partner={PACIFIC_POLSKA} />
           <div
             data-me-out
+            data-pl-out
             className="animate-fade-up w-full max-w-[746px] rounded-[6px] px-5 py-9 sm:px-12 sm:py-12"
             style={{ ...LIQUID_GLASS_DARK, animationDelay: "0.1s" }}
           >

@@ -158,7 +158,7 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
       {/* Article body — cream surface, navy headings, stone-grey
           body text. */}
       <article className="bg-[#f4efe8] mx-auto max-w-full">
-        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-16 lg:py-24">
+        <div className="mx-auto max-w-3xl px-6 lg:px-8 py-12 lg:py-16">
           {/* Header */}
           <motion.header
             initial={{ opacity: 0, y: 20 }}

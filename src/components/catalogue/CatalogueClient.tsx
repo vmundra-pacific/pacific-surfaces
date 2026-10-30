@@ -78,7 +78,7 @@ export function CatalogueClient({
       {/* Editorial page head — top padding intentionally smaller
           than a normal page; the full-viewport hero video above
           has already absorbed the navbar offset. */}
-      <section className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-12 lg:pt-16 pb-12 lg:pb-16">
+      <section className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8 pt-10 lg:pt-14 pb-8 lg:pb-10">
         <div className="mb-5 text-sm font-medium tracking-[0.3em] uppercase text-pacific-mid">
           Our Surfaces · {slabs.length} designs
         </div>
@@ -106,7 +106,7 @@ export function CatalogueClient({
           top — a 288px column would leave nothing for the grid on a
           phone. */}
       <div className="relative z-10 lg:flex lg:items-start">
-        <aside className="lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)] lg:w-72 lg:shrink-0 lg:overflow-y-auto lg:border-r lg:border-white/10">
+        <aside className="lg:sticky lg:top-[72px] lg:max-h-[calc(100vh-72px)] lg:w-72 lg:shrink-0 lg:overflow-y-auto lg:border-r lg:border-white/10">
           <FilterBar
             api={api}
             total={api.filtered.length}
@@ -121,7 +121,7 @@ export function CatalogueClient({
 
           {/* Grid — flat by default, grouped per product type when the
               host page opts in (see /products). */}
-          <section className="mx-auto max-w-[1760px] px-6 lg:px-10 pt-8 lg:pt-10 pb-24">
+          <section className="mx-auto max-w-[1760px] px-6 lg:px-10 pt-6 lg:pt-8 pb-14 lg:pb-16">
             <SlabGrid
               slabs={api.filtered}
               dense={api.dense}

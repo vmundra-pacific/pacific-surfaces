@@ -134,7 +134,7 @@ export default function CollaborationPage() {
         ]}
         facts={[
           { value: "45+", label: "Countries we export to" },
-          { value: "3,480 × 2,007 mm", label: "Superjumbo slab size" },
+          { value: "137 × 79 in", label: "Superjumbo slab, 3,500 × 2,050 mm" },
           { value: "5", label: "Certificates on file" },
           { value: "Since 2000", label: "Working in stone" },
         ]}
@@ -153,7 +153,10 @@ export default function CollaborationPage() {
             label: "Materials",
             value: "Quartz, Eclipse, granite, Beyond Stone panels",
           },
-          { label: "Slab format", value: "Up to 3,480 × 2,007 mm" },
+          {
+            label: "Slab format",
+            value: "Up to 137 × 79 in (3,500 × 2,050 mm)",
+          },
           { label: "Quartz thicknesses", value: "12, 20 and 30 mm" },
           {
             label: "Certificates",
@@ -182,7 +185,7 @@ export default function CollaborationPage() {
       />
 
       <section className="bg-white">
-        <Container className="py-16 lg:py-24">
+        <Container className="py-12 lg:py-16">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
             <div>
               <p className={LABEL}>In their words</p>

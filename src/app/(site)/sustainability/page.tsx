@@ -15,8 +15,8 @@ import {
 /**
  * /sustainability: rebuilt 2026-10-08 (owner: the Corporate section to get
  * the same visual upgrade). Only what is on record: the 2 MW solar
- * installation and the on-site wind turbine (no claim about how much of
- * the plant they power), the Bretonstone plant, Pacific Mintek, and the
+ * installation and the wind turbine (no claim of where it stands or about
+ * how much of the plant they power), the Bretonstone plant, Pacific Mintek, and the
  * EPD for Ecosurfaces. The old page's 100% water recycling, Greenguard,
  * ISO 14001, 80% recycled content and supplier audits are off it until
  * the owner confirms them, and the stock photographs of a wind farm, solar
@@ -27,7 +27,7 @@ import {
 export const metadata: Metadata = {
   title: "Sustainability: Solar, Wind and Ecosurfaces | Pacific Surfaces",
   description:
-    "A 2 MW solar installation and a wind turbine at the plant, an Environmental Product Declaration and the Ecosurfaces range: sustainability at Pacific Surfaces.",
+    "A 2 MW solar installation and a wind turbine, an Environmental Product Declaration and the Ecosurfaces range: sustainability at Pacific Surfaces.",
   alternates: { canonical: "/sustainability" },
 };
 
@@ -46,14 +46,14 @@ const GOALS = [
   },
   {
     title: "Climate action",
-    body: "A 2 MW solar installation and an on-site wind turbine at the plant.",
+    body: "A 2 MW solar installation and a Siemens Gamesa wind turbine.",
   },
 ];
 
 const FAQS = [
   {
-    q: "How does the plant use renewable energy?",
-    a: "The plant runs a 2 MW solar installation and an on-site Siemens Gamesa wind turbine.",
+    q: "How does Pacific use renewable energy?",
+    a: "Pacific operates a 2 MW solar installation and a Siemens Gamesa wind turbine.",
   },
   {
     q: "What is Ecosurfaces?",
@@ -82,7 +82,7 @@ export default function SustainabilityPage() {
       <ProHero
         eyebrow="Company · Sustainability"
         title="Sustainability, from the plant to the product"
-        lead="The plant runs a 2 MW solar installation and an on-site wind turbine, and the Ecosurfaces range is documented in an Environmental Product Declaration."
+        lead="Pacific operates a 2 MW solar installation and a wind turbine, and the Ecosurfaces range is documented in an Environmental Product Declaration."
         image="/videos/sustainability-hero-poster.jpg"
         video="/videos/sustainability-hero.mp4"
         alt="The Pacific Surfaces plant from the air, among green fields"
@@ -92,7 +92,7 @@ export default function SustainabilityPage() {
         ]}
         facts={[
           { value: "2 MW", label: "Solar installation" },
-          { value: "On site", label: "Wind turbine" },
+          { value: "Siemens Gamesa", label: "Wind turbine" },
           { value: "EPD", label: "Environmental product declaration" },
           { value: "Since 2020", label: "Quartz grit made in-house" },
         ]}
@@ -103,12 +103,12 @@ export default function SustainabilityPage() {
         eyebrow="Our approach"
         title="Start at the plant, carry it into the product"
         body={[
-          "Sustainability at Pacific starts where the slabs are made: renewable energy on site, a state-of-the-art Bretonstone plant with fully automated manufacturing, and quartz grit from the group's own factory, Pacific Mintek.",
+          "Sustainability at Pacific starts where the slabs are made: renewable energy, a state-of-the-art Bretonstone plant with fully automated manufacturing, and quartz grit from the group's own factory, Pacific Mintek.",
           "It continues in the product. Ecosurfaces, the range of low silica surfaces, is documented in an Environmental Product Declaration that anyone can read in full.",
         ]}
         specs={[
-          { label: "Solar", value: "2 MW installation at the plant" },
-          { label: "Wind", value: "An on-site Siemens Gamesa wind turbine" },
+          { label: "Solar", value: "2 MW installation" },
+          { label: "Wind", value: "A Siemens Gamesa wind turbine" },
           {
             label: "Raw material",
             value: "Quartz grit from Pacific Mintek, since 2020",
@@ -127,12 +127,12 @@ export default function SustainabilityPage() {
           {
             value: "2 MW",
             label: "Solar",
-            note: "A 2 MW solar installation at the plant.",
+            note: "A 2 MW solar installation.",
           },
           {
             value: "Wind",
-            label: "On-site turbine",
-            note: "A Siemens Gamesa wind turbine on the site.",
+            label: "Wind turbine",
+            note: "A Siemens Gamesa wind turbine.",
           },
           {
             value: "2020",

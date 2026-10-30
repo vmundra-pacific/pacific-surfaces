@@ -51,7 +51,7 @@ export function EcosurfacesSection() {
       {/* Content — anchored top left and running across the width.
           min-h gives the section presence without a fixed image
           height. */}
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-20 sm:py-24 md:py-28 min-h-[600px] lg:min-h-[700px]">
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-12 sm:py-16 md:py-20 min-h-[600px] lg:min-h-[700px]">
         <div className="flex max-w-4xl flex-col items-start">
           <div className="flex items-center gap-2 mb-6">
             <span className="block w-8 h-px bg-white/40" />

@@ -38,11 +38,11 @@ const VALUES = [
   },
   {
     title: "Technology",
-    body: "Quartz is made at a state-of-the-art Bretonstone plant with fully automated manufacturing, in slabs up to 3,480 × 2,007 mm.",
+    body: "Quartz is made at a state-of-the-art Bretonstone plant with fully automated manufacturing, in slabs up to 137 × 79 in (3,500 × 2,050 mm).",
   },
   {
     title: "Responsibility",
-    body: "The plant runs a 2 MW solar installation and an on-site wind turbine, and the Ecosurfaces range is documented in an EPD.",
+    body: "Pacific operates a 2 MW solar installation and a wind turbine, and the Ecosurfaces range is documented in an EPD.",
   },
   {
     title: "Service",
@@ -65,7 +65,7 @@ const FAQS = [
   },
   {
     q: "Where does Pacific supply?",
-    a: "More than 45 countries, with a warehouse in Poland since late 2024 and dedicated contacts for Europe and the Middle East.",
+    a: "More than 45 countries, with the Pacific Polska warehouse in Poland since late 2024 and dedicated contacts for Europe and the Middle East.",
   },
   {
     q: "Can I visit?",
@@ -98,7 +98,7 @@ export default function AboutPage() {
           { value: "2000", label: "Founded as Pacific Granites" },
           { value: "45+", label: "Countries we export to" },
           { value: "Up to 12M sq ft", label: "Of quartz made each year" },
-          { value: "3,480 × 2,007 mm", label: "Superjumbo slab size" },
+          { value: "137 × 79 in", label: "Superjumbo slab, 3,500 × 2,050 mm" },
         ]}
       />
       <CompanyNav current="about" />
@@ -108,7 +108,7 @@ export default function AboutPage() {
         title="Twenty-five years in stone"
         body={[
           "Pacific Granites was founded in 2000 to supply natural stone, and began exporting granite in 2011. In 2018 Pacific moved into engineered quartz, and in 2020 it brought quartz grit, a key raw material, in-house with the factory now called Pacific Mintek.",
-          "In 2023 Pacific Engineered Surfaces opened a state-of-the-art Bretonstone plant with fully automated manufacturing. Late in 2024 a warehouse opened in Poland, closer to customers in Europe.",
+          "In 2023 Pacific Engineered Surfaces opened a state-of-the-art Bretonstone plant with fully automated manufacturing. Late in 2024 Pacific Polska, a warehouse in Poland, opened closer to customers in Europe.",
         ]}
         specs={[
           { label: "Founded", value: "2000, as Pacific Granites" },
@@ -120,8 +120,8 @@ export default function AboutPage() {
             label: "Capacity",
             value: "Up to 12M sq ft quartz and 4.8M sq ft granite a year",
           },
-          { label: "Reach", value: "45+ countries; warehouse in Poland" },
-          { label: "Energy", value: "2 MW solar and an on-site wind turbine" },
+          { label: "Reach", value: "45+ countries; Pacific Polska warehouse" },
+          { label: "Energy", value: "2 MW solar and a wind turbine" },
         ]}
       />
 
@@ -136,11 +136,11 @@ export default function AboutPage() {
         eyebrow="The plant"
         title="How a slab is made"
         body={[
-          "Quartz is blended with resin and pigment, then vibro-compacted under vacuum on the Bretonstone line, which presses the mix into a slab and draws out the air. The slab is cured at high temperature, calibrated to an even thickness and polished.",
-          "Slabs come in 12, 20 and 30 mm and in a superjumbo format of up to 3,480 × 2,007 mm.",
+          "Quartz is blended with resin and pigment, then pressed into a slab using Bretonstone® technology: the mix is vibro-compacted under vacuum, which draws out the air. The slab is cured at high temperature, calibrated to an even thickness and polished.",
+          "Slabs come in 12, 20 and 30 mm and in a superjumbo format of up to 137 × 79 in (3,500 × 2,050 mm).",
         ]}
         image="/images/india-home/bretonstone-robot.webp"
-        alt="A Breton robot over the quartz mix on the Bretonstone line"
+        alt="A Breton robot over the quartz mix at the Bretonstone plant"
         cta={{ label: "Pacific Quartz", href: "/products/quartz/about" }}
       />
 

@@ -28,7 +28,7 @@ const items = [
   // The design and collection counts ("273+ Unique Designs", "44
   // Collections") were unsourced and contradicted the homepage's
   // "Seven signature collections. Over 200 designs.", so neither is used.
-  "Superjumbo 3,480 × 2,007 mm",
+  "Superjumbo 137 × 79 in (3,500 × 2,050 mm)",
   "Quartz in 12 · 20 · 30 mm",
   "45+ Countries",
   // Capability stamp
@@ -142,7 +142,11 @@ export function HeritageSection() {
             >
               {label}
             </span>
-            <span data-over-media style={{ color: "rgba(255,255,255,0.45)" }} className="text-xl leading-none">
+            <span
+              data-over-media
+              style={{ color: "rgba(255,255,255,0.45)" }}
+              className="text-xl leading-none"
+            >
               •
             </span>
           </div>

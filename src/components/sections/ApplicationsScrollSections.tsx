@@ -191,7 +191,7 @@ const SECTION_COPY: Record<SectionKey, SectionCopy> = {
     title: "Wall Cladding",
     titleAccent: "& Façades",
     description:
-      'Never tile a wall again. At 137" × 79", Pacific slabs are among the largest engineered stone formats available in India — clad an entire feature wall in a single, uninterrupted piece of stone.',
+      "Never tile a wall again. At 137 × 79 in (3,500 × 2,050 mm), Pacific slabs are among the largest engineered stone formats available in India — clad an entire feature wall in a single, uninterrupted piece of stone.",
     match: "architecture",
     // Dark architectural stone — graphite to deep slate.
     placeholderGradient:
@@ -1107,7 +1107,7 @@ function CommercialSectionMobile({ media }: { media: SectionMedia }) {
   const copy = SECTION_COPY.commercial;
   return (
     <section className="relative bg-[#0a1620] py-16 px-6">
-      <div className="max-w-7xl mx-auto flex flex-col gap-8">
+      <div className="max-w-[76rem] mx-auto flex flex-col gap-8">
         <div>
           <div className="text-xs font-medium tracking-[0.25em] uppercase text-white/80 mb-4">
             {copy.label}

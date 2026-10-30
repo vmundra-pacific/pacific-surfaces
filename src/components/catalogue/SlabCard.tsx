@@ -278,10 +278,10 @@ function SlabCardInner({ slab, index, isProductPieceRoute }: Props) {
           bottom third of every image, or a per-image colour; below it they
           are simply black on the page and the photograph is left alone. */}
         <div className="pt-3">
-          <div className="text-base font-medium leading-tight tracking-tight text-pacific-dark">
+          <div className="text-sm font-medium leading-tight tracking-tight text-pacific-dark sm:text-base">
             {slab.name}
           </div>
-          <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-pacific-dark/55">
+          <div className="mt-1 text-[10px] uppercase tracking-[0.12em] text-pacific-dark/55 sm:text-[11px] sm:tracking-[0.18em]">
             {formatCollection(slab.collection)} · {slab.finishes[0]}
           </div>
         </div>

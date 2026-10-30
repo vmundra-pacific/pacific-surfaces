@@ -444,7 +444,7 @@ export function VanityTopsListing({
 
         {/* The grid */}
         {results.length === 0 ? (
-          <p className="py-24 text-center font-light opacity-70">
+          <p className="py-14 text-center font-light opacity-70">
             No vanity tops match. Clear a filter to see more.
           </p>
         ) : (
