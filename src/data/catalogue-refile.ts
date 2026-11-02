@@ -24,7 +24,11 @@ export interface Refile {
   page: string;
 }
 
-const GRANITE: Refile = { collection: "Granite", productType: "granite-slab", page: "granites" };
+const GRANITE: Refile = {
+  collection: "Granite",
+  productType: "granite-slab",
+  page: "granites",
+};
 const FAB: Refile = { collection: "Fab Creations", page: "fab-creations" };
 
 export const REFILE: Record<string, Refile> = {
@@ -46,14 +50,43 @@ export const REFILE: Record<string, Refile> = {
   // productType, so the quartz section and /products/quartz (both keyed
   // on "quartz-slab") left it out. Owner, 2026-09-30: it belongs in
   // Eclipse.
-  statuario: { collection: "Eclipse", productType: "quartz-slab", page: "quartz" },
+  statuario: {
+    collection: "Eclipse",
+    productType: "quartz-slab",
+    page: "quartz",
+  },
   // The same gap left these three under "Other" on /products: each sits in
   // its collection in Sanity with no productType. Owner, 2026-10-05: Dolce
   // Vita in Eclipse, Cappuccino Dark in Kosmic, Desert Silk in Aurora (the
   // basics).
-  "dolce-vita": { collection: "Eclipse", productType: "quartz-slab", page: "quartz" },
-  "cappuccino-dark": { collection: "Kosmic", productType: "quartz-slab", page: "quartz" },
-  "desert-silk": { collection: "Aurora", productType: "quartz-slab", page: "quartz" },
+  "dolce-vita": {
+    collection: "Eclipse",
+    productType: "quartz-slab",
+    page: "quartz",
+  },
+  "cappuccino-dark": {
+    collection: "Kosmic",
+    productType: "quartz-slab",
+    page: "quartz",
+  },
+  "desert-silk": {
+    collection: "Aurora",
+    productType: "quartz-slab",
+    page: "quartz",
+  },
+  // Typed "physical" in Sanity, so the quartz page hid them everywhere. Both
+  // are on the Indian "Colors by Series" sheet (owner, 2026-11-02): Arya in
+  // Nebula, Soneva in Celestia.
+  "arya-3008": {
+    collection: "Nebula",
+    productType: "quartz-slab",
+    page: "quartz",
+  },
+  "soneva-4001": {
+    collection: "Celestia",
+    productType: "quartz-slab",
+    page: "quartz",
+  },
 };
 
 /** Slugs a category page lists on top of what Sanity assigns it. */

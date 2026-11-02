@@ -1,98 +1,86 @@
 /**
  * The quartz and Eclipse colours shown to visitors in India (owner,
- * 2026-10-27): only those in the Indian catalogue, the Resources page's
- * "PACIFIC INDIA CATALOG" ("Pacific Italian surfaces Indian catalogue,
- * updated October 2026"). Every other range (granites, semi-precious,
+ * 2026-10-27, replaced 2026-11-02 by the "Colors by Series" sheet: 7 series,
+ * 54 colours). Every other range (granites, semi-precious,
  * sinks...) is the same in every region, and every other region sees all
  * quartz and Eclipse colours.
  *
- * Matched from the catalogue by colour name, the catalogue's and the
- * site's codes disagree in places (it gives Venezia 5075, the site's
- * Havana). In the catalogue but not on the site, so not shown anywhere:
- * Carrara Beige.
- *
- * Added by the owner on top of the catalogue (2026-10-27): Cristallo
- * Gold, Sahara Camouflage and Stellar Fusion (Eclipse).
+ * Matched by colour name, the sheet's and the site's codes disagree in
+ * places (it gives Venezia 5075, the site's Havana). Names on the sheet
+ * that differ from the site's: "Arya White" is Arva White, "Deep Wave" is
+ * Deepwave, "Arya" is Arya (3008, not Arya Pearl), Tiffany and Viola are
+ * Eclipse colours here. Aurora+ is the site's Solid Series Super White and
+ * Brilliant White.
  *
  * When the Indian catalogue changes, update INDIA_QUARTZ below. A quartz
  * or Eclipse colour added to the site later stays hidden in India until
  * it is listed here.
  */
 
-/** Slugs of the quartz and Eclipse colours in the Indian catalogue. */
+/** Slugs of the quartz and Eclipse colours in the Indian catalogue
+ *  ("Colors by Series": 7 series, 54 colours, owner 2026-11-02). */
 export const INDIA_QUARTZ = new Set<string>([
-  // Aurora
-  "arva-white-1002", // Arva White (1002)
-  "brilliant-white-1003", // Brilliant White (1003)
-  "classic-gray-1005", // Classic Gray (1005)
-  "desert-silk", // Desert Silk
-  "echo-white-1001", // Echo White (1001)
-  // Celestia
-  "seasons-4005", // Seasons (4005)
-  "silken-4010", // Silken (4010)
-  "stella-4002", // Stella (4002)
-  // Eclipse
-  "almond-mist-p10", // Almond Mist (P10)
-  "arlina-p05", // Arlina (P05)
-  "cristallo-gold", // Cristallo Gold (owner's addition)
-  "dolce-vita", // Dolce Vita
-  "elano-p03", // Elano (P03)
-  "elvion-p04", // Elvion (P04)
-  "horizon-veil-p22", // Horizon Veil (P22)
-  "mintara-p02", // Mintara (P02)
-  "orenda-p25", // Orenda (P25)
-  "patagonia-p30", // Patagonia
-  "sahara-camouflage", // Sahara Camouflage (owner's addition)
-  "statuario", // Statuario
-  "stellar-fusion", // Stellar Fusion (owner's addition)
-  "super-white-eclipse", // Super White
-  "taj-vein-p01", // Taj Vein (P01)
-  // Kosmic
-  "astral-mist", // ASTRAL MIST
-  "bianco-cristallo", // BIANCO CRISTALLO
-  "cappuccino", // CAPPUCCINO
-  "cappuccino-dark", // cappuccino dark (the catalogue's Dark Cappuccino)
+  // Kosmic (16)
+  "astral-mist", // Astral Mist
+  "cappuccino", // Cappuccino
   "cherry-hill-5068", // Cherry Hill (5068)
   "coastal-pearl-5007", // Coastal Pearl (5007)
+  "driftwood-5010", // Driftwood (5010)
   "french-vanilla-5064", // French Vanilla (5064)
-  "galactic-halo-5012", // Galactic Halo (5012)
   "golden-dawn-5013", // Golden Dawn (5013)
-  "irish-cream-5016", // Irish Cream (5016)
   "latte-luxe-5040", // Latte Luxe (5040)
-  "maple-gaze", // MAPLE GAZE
   "matcha-mist-1", // Matcha Mist (5076)
-  "merlot-5063", // Merlot (5063)
-  "poseidon", // POSEIDON
+  "bianco-cristallo", // Bianco Cristallo
+  "poseidon", // Poseidon
   "ruskin-5028", // Ruskin (5028)
   "sakura", // Sakura (5077)
-  "suzuka-5033", // Suzuka (5033)
-  "venezia-5075", // Venezia (5074)
+  "stellar-ember-5031", // Stellar Ember (5031)
+  "merlot-5063", // Merlot (5063)
   "walnut-5070", // Walnut (5070)
-  // Luminara
-  "mystique-2006", // Mystique (2006)
-  "oasis-2009", // Oasis (2009)
-  "zenith-2013", // Zenith (2013)
-  // Nebula
+  // Nebula (14)
   "alabaster-noir-3003", // Alabaster Noir (3003)
+  "arena-3007", // Arena (3007)
   "artemis-3058", // Artemis (3058)
-  "arya-pearl-3009", // Arya Pearl (3009)
-  "ashford-3052", // Ashford(3052)
+  "arya-3008", // Arya (3008)
   "aureate-3014", // Aureate (3014)
   "bellagio-3016", // Bellagio (3016)
-  "belleza-3017", // Belleza (3017)
   "bohemia-3018", // Bohemia (3018)
-  "caterina", // CATERINA
-  "costa-3026", // Costa (3026)
-  "deepwave", // Deepwave (3061)
+  "caterina", // Caterina
+  "deepwave", // Deep Wave (3061)
   "glacial-silver-3059", // Glacial Silver (3059)
   "hazel-gold-3039", // Hazel Gold (3039)
   "hermes-3040", // Hermes (3040)
   "honeydew-3041", // Honeydew (3041)
-  "soneva-4001", // Soneva (4001), filed under Nebula; Celestia in the catalogue
-  // Solid Series
-  "super-white-1009", // Super White (1009)
-  // No collection
+  "costa-3026", // Costa (3026)
+  // Eclipse (10)
+  "ashen-bloom-quartz", // Ashen Bloom (the record added 2026-11-02, not Ashen Bloom (P21))
+  "elano-p03", // Elano (P03)
+  "taj-vein-p01", // Taj Vein (P01)
   "tiffany", // Tiffany
+  "patagonia-p30", // Patagonia
+  "almond-mist-p10", // Almond Mist (P10)
+  "cristallo-gold", // Cristallo Gold
+  "sahara-camouflage", // Sahara Camouflage
+  "orenda-p25", // Orenda (P25)
+  "viola-quartz", // Viola
+  // Aurora (4)
+  "arva-white-1002", // Arva White (1002); the sheet reads "Arya White"
+  "classic-gray-1005", // Classic Gray (1005)
+  "desert-silk", // Desert Silk
+  "echo-white-1001", // Echo White (1001)
+  // Aurora+ (2)
+  "super-white-1009", // Super White (1009)
+  "brilliant-white-1003", // Brilliant White (1003)
+  // Celestia (4)
+  "carrara-beige-quartz", // Carrara Beige
+  "seasons-4005", // Seasons (4005)
+  "soneva-4001", // Soneva (4001)
+  "stella-4002", // Stella (4002)
+  // Luminara (4)
+  "mystique-2006", // Mystique (2006)
+  "oasis-2009", // Oasis (2009)
+  "silken-4010", // Silken (4010)
+  "zenith-2013", // Zenith (2013)
 ]);
 
 /** Collections whose colours are quartz (Eclipse is a quartz line). */
