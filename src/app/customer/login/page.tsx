@@ -15,12 +15,18 @@ export const metadata: Metadata = {
    generic login host so the link is never dead if the env var isn't set;
    point NEXT_PUBLIC_SALESFORCE_LOGIN_URL at the org's My Domain to skip it. */
 const SALESFORCE_LOGIN_URL =
-  process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL ?? "https://login.salesforce.com";
+  process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL ??
+  "https://login.salesforce.com";
+
+/* The ERP (Pacific ERP: fabrication, stock, dispatch) has its own sign-in at
+   erp.pacific-surfaces.com; like Salesforce it is a plain outbound link. */
+const ERP_LOGIN_URL = "https://erp.pacific-surfaces.com/";
 
 /**
  * Customer Care Portal sign-in, laid out after Cosentino's: a white card
  * centred over an application photograph, with two boxes across its top.
- * Customer login is the form below; Employee login goes to Salesforce.
+ * Customer login is the form below; Employee login goes to Salesforce and
+ * ERP login to the ERP.
  *
  * This page sits OUTSIDE the portal's dark theme (see customer/layout.tsx)
  * and leans on the site skin instead: copy on the white card reads black,
@@ -57,9 +63,15 @@ export default async function CustomerLoginPage() {
             CUSTOMER against the Sanity `customer` collection, and a
             Salesforce session here would have no customer `_id` for the
             /customer/* pages to read. So Employee login stays a plain
-            outbound link. */}
-        <div data-over-media className="grid grid-cols-2 bg-[#1b1b19] text-[14px] sm:text-[15px]">
-          <span aria-current="page" className="flex items-center justify-center bg-white px-3 py-4 font-medium text-[#14140f]">
+            outbound link, and so does ERP login. */}
+        <div
+          data-over-media
+          className="grid grid-cols-3 bg-[#1b1b19] text-[13px] sm:text-[15px]"
+        >
+          <span
+            aria-current="page"
+            className="flex items-center justify-center bg-white px-2 py-4 text-center font-medium text-[#14140f] sm:px-3"
+          >
             Customer login
           </span>
           <a
@@ -67,10 +79,26 @@ export default async function CustomerLoginPage() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Employee login (opens the Salesforce login in a new tab)"
-            className="flex items-center justify-center gap-1.5 px-3 py-4 font-light text-white transition-colors hover:bg-white/10"
+            className="flex items-center justify-center gap-1 px-2 py-4 text-center font-light text-white transition-colors hover:bg-white/10 sm:gap-1.5 sm:px-3"
           >
             Employee login
-            <ArrowUpRight className="h-4 w-4 opacity-70" aria-hidden="true" />
+            <ArrowUpRight
+              className="h-4 w-4 shrink-0 opacity-70"
+              aria-hidden="true"
+            />
+          </a>
+          <a
+            href={ERP_LOGIN_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="ERP login (opens the Pacific ERP in a new tab)"
+            className="flex items-center justify-center gap-1 px-2 py-4 text-center font-light text-white transition-colors hover:bg-white/10 sm:gap-1.5 sm:px-3"
+          >
+            ERP login
+            <ArrowUpRight
+              className="h-4 w-4 shrink-0 opacity-70"
+              aria-hidden="true"
+            />
           </a>
         </div>
 
@@ -79,7 +107,9 @@ export default async function CustomerLoginPage() {
             <Link href="/" aria-label="Pacific Surfaces home">
               <PacificLogoMark className="h-9 w-auto text-[#14140f]" />
             </Link>
-            <span className="text-right text-[13px] text-black/60 sm:text-sm">Customer Care Portal</span>
+            <span className="text-right text-[13px] text-black/60 sm:text-sm">
+              Customer Care Portal
+            </span>
           </div>
 
           <LoginForm />
