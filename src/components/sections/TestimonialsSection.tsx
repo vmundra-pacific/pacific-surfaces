@@ -93,7 +93,7 @@ export function TestimonialsSection() {
     // desktop section; on a phone they were a long scroll of posters.
     <section
       id="sec-voices"
-      className="relative hidden bg-[#0a1620] py-10 sm:py-14 md:[@media(min-height:501px)]:block md:py-16 px-6 scroll-mt-20 overflow-hidden"
+      className="relative hidden bg-[#0a1620] py-10 sm:py-12 md:[@media(min-height:501px)]:block md:py-14 px-6 scroll-mt-20 overflow-hidden"
     >
       <div className="mx-auto max-w-[76rem]">
         {/* Section header */}
@@ -102,17 +102,25 @@ export function TestimonialsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
-          className="mb-2 sm:mb-4"
         >
-          <div className="text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase text-white/80 mb-4">
+          {/* One header for the section: the grid is used bare, since its
+              own section wrapper (padding, a second eyebrow, a narrower
+              container) left a band of space under "05 · Voices" and set
+              the heading in from the label (owner, 2026-11-05). */}
+          <div className="text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase text-white/80">
             05 · Voices
           </div>
+          <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
+            See the work in motion.
+          </h2>
+          <p className="mt-5 max-w-2xl text-base sm:text-lg font-light text-pacific-mid leading-relaxed">
+            A few minutes inside the design reviews, fabrication floor, and
+            on-site installs that shape a Pacific partnership.
+          </p>
           {shown && (
-            <ProfessionalsVideoGrid
-              eyebrow="In motion"
-              title="See the work in motion."
-              body="A few minutes inside the design reviews, fabrication floor, and on-site installs that shape a Pacific partnership."
-            />
+            <div className="mt-8 lg:mt-10">
+              <ProfessionalsVideoGrid bare />
+            </div>
           )}
         </motion.div>
 

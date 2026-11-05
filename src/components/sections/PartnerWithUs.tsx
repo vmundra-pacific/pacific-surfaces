@@ -33,7 +33,7 @@ const partnerCards = [
 
 export function PartnerWithUs() {
   return (
-    <section className="relative py-12 sm:py-16 md:py-20 px-6 bg-pacific-dark overflow-hidden">
+    <section className="relative pt-12 sm:pt-16 md:pt-20 pb-10 sm:pb-12 md:pb-14 px-6 bg-pacific-dark overflow-hidden">
       {/* Grain overlay */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -43,7 +43,7 @@ export function PartnerWithUs() {
       />
       <div className="relative z-10 max-w-[76rem] mx-auto">
         {/* Section header */}
-        <div className="text-center mb-12 sm:mb-20">
+        <div className="text-center mb-10 sm:mb-14">
           <TextReveal
             as="h2"
             className="text-3xl sm:text-5xl md:text-6xl font-light tracking-tight text-white"
@@ -92,7 +92,7 @@ export function PartnerWithUs() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-12 sm:mt-20 flex justify-center"
+          className="mt-10 sm:mt-12 flex justify-center"
         >
           <MagneticButton
             href="/contact"
