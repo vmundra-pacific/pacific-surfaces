@@ -9,7 +9,7 @@
  * `server-only` makes a client import a build error.
  */
 import "server-only";
-import dealerData from "@/data/dealers-bangalore.json";
+import dealerData from "@/data/dealers-india.json";
 import { searchOutlets, type Dealer, type SearchQuery } from "./where-to-buy";
 
 export const DEALERS = dealerData.dealers as Dealer[];

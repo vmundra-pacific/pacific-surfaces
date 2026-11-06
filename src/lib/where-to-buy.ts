@@ -1,8 +1,9 @@
 /**
  * Where to Buy: the search behind /where-to-buy.
  *
- * Pilot data is Bengaluru only, built from the internal sample-stand master
- * by scripts/build-dealers-bangalore.py (public business details only).
+ * Outlets across India (Bengaluru was the pilot, 2026-10-24), built from the
+ * internal all-regions dealer and distributor master by
+ * scripts/build-dealers-india.py (public business details only).
  * The outlets themselves are NOT imported here: this module is bundled into
  * the browser, and the list is shown only after the lead form (marketing,
  * 2026-10-26), so it lives in where-to-buy-dealers.ts (server only) and
@@ -13,7 +14,7 @@
  * from what was searched (the PIN's or locality's centre, or the visitor's
  * own location), then name.
  */
-import placeData from "@/data/bangalore-places.json";
+import placeData from "@/data/india-places.json";
 
 export type DealerType =
   | "dealer"
@@ -31,6 +32,7 @@ export interface Dealer {
   area: string;
   pin: string;
   city: string;
+  state: string;
   phone: { display: string; href: string } | null;
   lat: number;
   lng: number;
@@ -48,12 +50,33 @@ export interface Dealer {
 export interface Locality {
   name: string;
   aliases: string[];
+  /** The city a locality is in; a city's own entry names itself. */
+  city: string;
+  state: string;
+  kind: "city" | "area";
   lat: number;
   lng: number;
 }
 
 export const PIN_CENTRES: Record<string, number[]> = placeData.pins;
-export const LOCALITIES = placeData.localities as Locality[];
+export const LOCALITIES = placeData.places as Locality[];
+
+/** The states with outlets, and the other names people type for them. */
+const STATES: Record<string, string[]> = {
+  Karnataka: ["Karnataka"],
+  Maharashtra: ["Maharashtra"],
+  Telangana: ["Telangana"],
+  "Andhra Pradesh": ["Andhra Pradesh", "Andhra", "AP"],
+  Kerala: ["Kerala"],
+  "Tamil Nadu": ["Tamil Nadu", "Tamilnadu", "TN"],
+  Punjab: ["Punjab"],
+  Haryana: ["Haryana"],
+  Chandigarh: [],
+  Uttarakhand: ["Uttarakhand"],
+  Delhi: [],
+  "West Bengal": ["West Bengal", "Bengal", "WB"],
+  Gujarat: ["Gujarat"],
+};
 
 export const TYPE_ORDER: {
   value: DealerType;
@@ -99,7 +122,8 @@ function namesPlace(address: string, alias: string) {
   return sa.length >= 8 && squash(address).includes(sa);
 }
 
-const CITY_WORDS = /\b(bengaluru|bangalore|blr|karnataka|india)\b/gi;
+/** Words that add nothing to a place: "HSR Layout, Bengaluru, India". */
+const FILLER = /\b(india|pin|pincode|near)\b/gi;
 
 export function distanceKm(
   a: { lat: number; lng: number },
@@ -131,9 +155,7 @@ export interface SearchResult {
   exact: Set<string>;
   /** The query was not empty but matched nothing we know. */
   unknown: boolean;
-  /** The query named the city itself ("Bengaluru"): show everything. */
-  wholeCity: boolean;
-  /** A six-digit PIN outside the pilot's coverage. */
+  /** A six-digit PIN outside the directory's coverage. */
   outsidePin: boolean;
 }
 
@@ -141,7 +163,6 @@ const EMPTY: SearchResult = {
   origin: null,
   exact: new Set(),
   unknown: false,
-  wholeCity: false,
   outsidePin: false,
 };
 
@@ -152,29 +173,81 @@ function centroid(list: Dealer[]) {
   };
 }
 
-/** The locality a query names, best match first: exact alias, then prefix. */
-export function findLocality(q: string): Locality | null {
-  const s = squash(q);
-  if (s.length < 3) return null;
-  let prefix: Locality | null = null;
-  for (const l of LOCALITIES) {
-    for (const a of l.aliases.concat(l.name)) {
-      const sa = squash(a);
-      if (sa === s) return l;
-      if (!prefix && sa.startsWith(s)) prefix = l;
-    }
-  }
-  if (prefix) return prefix;
-  // "HSR Layout Sector 2" or "jayanagar 4th block": the longest alias inside.
+/** The city a query names anywhere in it ("andheri mumbai"), or null. */
+function cityIn(s: string): Locality | null {
   let best: { l: Locality; n: number } | null = null;
   for (const l of LOCALITIES) {
+    if (l.kind !== "city") continue;
     for (const a of l.aliases.concat(l.name)) {
       const sa = squash(a);
-      if (sa.length >= 6 && s.includes(sa) && (!best || sa.length > best.n))
+      if (sa.length >= 4 && s.includes(sa) && (!best || sa.length > best.n))
         best = { l, n: sa.length };
     }
   }
   return best?.l ?? null;
+}
+
+/** The locality or city a query names, best match first: an exact alias,
+ *  then a prefix, then the longest alias inside it. An area wins over its
+ *  city ("HSR Layout Bengaluru" is HSR Layout), and when the query names a
+ *  city, that city's areas win over a namesake elsewhere. */
+export function findLocality(q: string): Locality | null {
+  const s = squash(q);
+  if (s.length < 3) return null;
+  const city = cityIn(s);
+  const score = (l: Locality) =>
+    (city && l.city === city.city ? 2 : 0) + (l.kind === "city" ? 1 : 0);
+  const pick = (cands: Locality[]) =>
+    cands.length ? cands.reduce((a, b) => (score(b) > score(a) ? b : a)) : null;
+
+  const exact: Locality[] = [];
+  const prefix: Locality[] = [];
+  for (const l of LOCALITIES) {
+    for (const a of l.aliases.concat(l.name)) {
+      const sa = squash(a);
+      if (sa === s) exact.push(l);
+      else if (sa.startsWith(s)) prefix.push(l);
+    }
+  }
+  if (exact.length) return pick(exact);
+  if (prefix.length) return pick(prefix);
+  // "HSR Layout Sector 2", "jayanagar 4th block", "Andheri West Mumbai":
+  // the longest area alias inside, else the city.
+  let best: { l: Locality; n: number } | null = null;
+  for (const l of LOCALITIES) {
+    if (l.kind !== "area") continue;
+    for (const a of l.aliases.concat(l.name)) {
+      const sa = squash(a);
+      if (sa.length < 6 || !s.includes(sa)) continue;
+      const n = sa.length + (city && l.city === city.city ? 100 : 0);
+      if (!best || n > best.n) best = { l, n };
+    }
+  }
+  return best?.l ?? city;
+}
+
+/** The state a query names, as the STATES key, or null. */
+function findState(q: string): string | null {
+  const s = squash(q);
+  if (s.length < 2) return null;
+  for (const [state, names] of Object.entries(STATES))
+    for (const n of names) if (squash(n) === s) return state;
+  return null;
+}
+
+/** A PIN's centre: its own, else the mean of the PINs we know that share
+ *  its first three digits (its sorting district), else null. */
+function pinCentre(pin: string): { lat: number; lng: number } | null {
+  const own = PIN_CENTRES[pin];
+  if (own) return { lat: own[0], lng: own[1] };
+  const near = Object.entries(PIN_CENTRES).filter(([p]) =>
+    p.startsWith(pin.slice(0, 3))
+  );
+  if (!near.length) return null;
+  return {
+    lat: near.reduce((t, [, c]) => t + c[0], 0) / near.length,
+    lng: near.reduce((t, [, c]) => t + c[1], 0) / near.length,
+  };
 }
 
 export function interpret(query: string, dealers: Dealer[]): SearchResult {
@@ -187,12 +260,7 @@ export function interpret(query: string, dealers: Dealer[]): SearchResult {
     const hits = dealers.filter((d) => d.pin.startsWith(digits));
     const exact = new Set(hits.map((d) => d.id));
     if (digits.length === 6) {
-      const c = PIN_CENTRES[digits];
-      const at = c
-        ? { lat: c[0], lng: c[1] }
-        : hits.length
-          ? centroid(hits)
-          : null;
+      const at = pinCentre(digits) ?? (hits.length ? centroid(hits) : null);
       if (!at) return { ...EMPTY, unknown: true, outsidePin: true };
       return { ...EMPTY, origin: { ...at, label: digits, kind: "pin" }, exact };
     }
@@ -204,20 +272,41 @@ export function interpret(query: string, dealers: Dealer[]): SearchResult {
     };
   }
 
-  const text = raw.replace(CITY_WORDS, " ").replace(/[,]+/g, " ").trim();
+  const text = raw.replace(FILLER, " ").replace(/[,]+/g, " ").trim();
   const s = squash(text);
-  if (!s) return { ...EMPTY, wholeCity: true };
+  if (!s) return { ...EMPTY, unknown: true };
 
-  // An area of the city.
+  // A whole state ("Kerala"): measured from its city with the most
+  // outlets (the middle of a state can be far from all of them).
+  const state = findState(text);
+  if (state) {
+    const hits = dealers.filter((d) => d.state === state);
+    if (!hits.length) return { ...EMPTY, unknown: true };
+    const count = new Map<string, number>();
+    for (const d of hits) count.set(d.city, (count.get(d.city) ?? 0) + 1);
+    const main = [...count].sort((a, b) => b[1] - a[1])[0][0];
+    const at =
+      LOCALITIES.find((l) => l.kind === "city" && l.city === main) ??
+      centroid(hits.filter((d) => d.city === main));
+    return {
+      ...EMPTY,
+      origin: { lat: at.lat, lng: at.lng, label: state, kind: "area" },
+      exact: new Set(hits.map((d) => d.id)),
+    };
+  }
+
+  // A city, or an area of one.
   const place = findLocality(text);
   if (place) {
     const aliases = place.aliases.concat(place.name);
     const exact = new Set(
       dealers
-        .filter(
-          (d) =>
-            d.area === place.name ||
-            aliases.some((a) => namesPlace(d.address, a))
+        .filter((d) =>
+          place.kind === "city"
+            ? d.city === place.city
+            : d.city === place.city &&
+              (d.area === place.name ||
+                aliases.some((a) => namesPlace(d.address, a)))
         )
         .map((d) => d.id)
     );
@@ -298,6 +387,7 @@ export function directionsUrl(d: Dealer) {
 export function fullAddress(d: Dealer) {
   const tail = `${d.city}${d.pin ? ` ${d.pin}` : ""}`;
   if (d.address) return `${d.address}, ${tail}`;
+  if (d.area === d.city) return tail;
   return `${d.area}, ${tail}`;
 }
 
@@ -535,9 +625,6 @@ export interface SearchOutcome {
   available: DealerType[];
 }
 
-/** Where a search for the city itself ("Bengaluru") is measured from. */
-const BENGALURU_CENTRE = { lat: 12.9716, lng: 77.5946 };
-
 export function searchOutlets(
   dealers: Dealer[],
   q: SearchQuery
@@ -547,9 +634,7 @@ export function searchOutlets(
     ? null
     : q.geo
       ? { ...q.geo, label: "your location", kind: "geo" }
-      : search.wholeCity
-        ? { ...BENGALURU_CENTRE, label: "Bengaluru", kind: "area" }
-        : search.origin;
+      : search.origin;
   const outsidePin = !q.geo && search.outsidePin;
   const unknown = !q.geo && search.unknown && !search.outsidePin;
   // Nowhere to measure from (a place we do not know, a PIN outside the

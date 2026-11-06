@@ -7,8 +7,8 @@ import { ACCESS_COOKIE, hasAccess } from "@/lib/where-to-buy-access";
 
 /**
  * Where to Buy: dealers, distributors and studios that show Pacific
- * Surfaces. Pilot: Bengaluru, from src/data/dealers-bangalore.json
- * (regenerate with scripts/build-dealers-bangalore.py).
+ * Surfaces across India, from src/data/dealers-india.json (regenerate
+ * with scripts/build-dealers-india.py from the all-regions master).
  *
  * The outlets are shown only after the visitor leaves their details, and
  * then only the nearest few for each search (marketing, 2026-10-26), so
@@ -19,9 +19,9 @@ import { ACCESS_COOKIE, hasAccess } from "@/lib/where-to-buy-access";
  */
 
 const TITLE =
-  "Where to Buy Pacific Surfaces Quartz & Granite | Dealers in Bengaluru";
+  "Where to Buy Pacific Surfaces Quartz & Granite | Dealers in India";
 const DESCRIPTION =
-  "Find Pacific Surfaces dealers, distributors and kitchen and interior studios in Bengaluru by area and PIN code, with directions, phone numbers and what is on display.";
+  "Find Pacific Surfaces dealers, distributors and kitchen and interior studios across India by city, area and PIN code, with directions and what is on display.";
 
 export const metadata: Metadata = {
   title: TITLE,

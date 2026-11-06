@@ -830,11 +830,11 @@ export function WhereToBuy({
   let offerEnquiry = false;
   // Never a total: only what is shown is counted (see MAX_SHOWN).
   if (answers.all) {
-    heading = "Outlets in Bengaluru";
+    heading = "Pacific outlets in India";
   } else if (outcome?.outsidePin) {
     heading = `No outlets listed near ${answers.where} yet`;
     note =
-      "This directory covers Bengaluru for now. Enquire and we will connect you with the Pacific partner nearest to you.";
+      "We have no outlet listed in that area yet. Enquire and we will connect you with the Pacific partner nearest to you.";
     offerEnquiry = true;
   } else if (!visible.length) {
     heading = `No outlets for ${audience?.plural ?? "you"} near ${place} yet`;
@@ -847,7 +847,7 @@ export function WhereToBuy({
     const nearest = visible[0].km;
     if (nearest != null && nearest > NEAR_KM && !visible[0].exact) {
       note = `The nearest is about ${formatKm(nearest)} away${
-        nearest > 60 ? "; this directory covers Bengaluru for now" : ""
+        nearest > 60 ? "; we have no outlet listed nearer yet" : ""
       }. Enquire and we will find the partner nearest to you.`;
       offerEnquiry = true;
     }
@@ -935,8 +935,7 @@ export function WhereToBuy({
               </h1>
               <p className="mx-auto mt-4 max-w-md text-[15px] font-light leading-snug sm:text-base">
                 Dealers, distributors and kitchen and interior studios where you
-                can see and buy Pacific quartz and granite. Now listing
-                Bengaluru; more cities soon.
+                can see and buy Pacific quartz and granite, across India.
               </p>
             </div>
 
@@ -1523,7 +1522,7 @@ export function WhereToBuy({
                 )}
                 <div className="mt-8 border-t border-[#14140f]/10 pt-6 text-sm font-light">
                   <p>
-                    Not near Bengaluru, or need help choosing?{" "}
+                    No outlet near you, or need help choosing?{" "}
                     <button
                       type="button"
                       onClick={() => openEnquiry(null)}

@@ -21,7 +21,8 @@ import type { Origin, Ranked } from "@/lib/where-to-buy";
  * touches `window` on import.
  */
 
-const BENGALURU: L.LatLngTuple = [12.9716, 77.5946];
+/** Before the first results: India, until they are fitted. */
+const INDIA: L.LatLngTuple = [20.6, 78.9];
 
 function pinIcon(n: number, active: boolean) {
   const size = active ? 34 : 26;
@@ -95,8 +96,8 @@ export default function DealerMap({
   useEffect(() => {
     if (!box.current || map.current) return;
     const m = L.map(box.current, {
-      center: BENGALURU,
-      zoom: 11,
+      center: INDIA,
+      zoom: 5,
       zoomControl: false,
       scrollWheelZoom: false,
       attributionControl: true,

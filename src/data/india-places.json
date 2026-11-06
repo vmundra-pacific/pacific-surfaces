@@ -1,0 +1,3003 @@
+{
+  "generated": "2026-11-05",
+  "source": "OpenStreetMap Nominatim (© OpenStreetMap contributors, ODbL): city, locality and PIN-code centres.",
+  "pins": {
+    "110015": [28.65611, 77.14686],
+    "110074": [28.48375, 77.18665],
+    "110083": [28.69251, 77.08811],
+    "132001": [29.6903, 76.9967],
+    "132100": [29.39127, 76.97717],
+    "134113": [30.68548, 76.84117],
+    "134119": [30.68924, 76.85122],
+    "140306": [30.64843, 76.72711],
+    "141002": [30.90151, 75.82481],
+    "144001": [31.31808, 75.57793],
+    "144400": [31.22067, 75.76965],
+    "160028": [30.71694, 76.80503],
+    "160038": [30.75816, 76.7324],
+    "248001": [30.33135, 78.04031],
+    "360004": [22.26405, 70.78722],
+    "382481": [23.08119, 72.56029],
+    "400001": [18.99076, 72.85362],
+    "400004": [18.96097, 72.82483],
+    "400007": [19.02541, 72.99811],
+    "400011": [18.99136, 72.84123],
+    "400013": [19.00693, 72.82792],
+    "400015": [19.00046, 72.85179],
+    "400016": [19.03496, 72.84262],
+    "400018": [19.00141, 72.81984],
+    "400022": [19.04166, 72.86499],
+    "400028": [19.01922, 72.83683],
+    "400034": [19.02869, 72.97306],
+    "400052": [19.07386, 72.83169],
+    "400053": [19.13827, 72.82884],
+    "400054": [19.08326, 72.83666],
+    "400055": [19.08093, 72.84844],
+    "400056": [19.06271, 72.97829],
+    "400057": [19.1029, 72.84979],
+    "400058": [19.12476, 72.83808],
+    "400059": [19.11544, 72.92127],
+    "400063": [19.16917, 72.86179],
+    "400064": [19.18895, 72.84012],
+    "400067": [19.20731, 72.83862],
+    "400077": [19.07923, 72.90567],
+    "400080": [19.17539, 72.95135],
+    "400083": [19.115, 72.93212],
+    "400086": [19.08838, 72.90428],
+    "400088": [19.04506, 72.92249],
+    "400092": [19.24102, 72.8471],
+    "400093": [19.12656, 72.8658],
+    "400101": [19.20564, 72.87004],
+    "400703": [19.07666, 73.00433],
+    "401207": [19.35098, 72.83087],
+    "401208": [19.37109, 72.89204],
+    "411002": [18.52447, 73.88049],
+    "411009": [18.47743, 73.85081],
+    "411017": [18.61063, 73.79184],
+    "411019": [18.64329, 73.80039],
+    "411021": [18.53013, 73.78468],
+    "411033": [18.62436, 73.77271],
+    "411037": [18.51992, 73.89336],
+    "411044": [18.65594, 73.76961],
+    "411045": [18.56649, 73.7803],
+    "411046": [18.45126, 73.84915],
+    "411048": [18.46764, 73.89027],
+    "411057": [18.59075, 73.73952],
+    "411060": [18.46056, 73.91371],
+    "411069": [18.55424, 73.7939],
+    "500032": [17.44122, 78.35252],
+    "500048": [17.37414, 78.41652],
+    "500081": [17.44755, 78.38287],
+    "560001": [12.9797, 77.5947],
+    "560002": [12.96273, 77.58065],
+    "560003": [13.0011, 77.57251],
+    "560004": [12.94522, 77.57586],
+    "560005": [12.9968, 77.61905],
+    "560006": [13.01064, 77.59121],
+    "560007": [12.95747, 77.62914],
+    "560008": [12.97726, 77.63499],
+    "560009": [12.97861, 77.57628],
+    "560010": [12.9906, 77.55141],
+    "560011": [12.93022, 77.58512],
+    "560012": [13.01932, 77.5675],
+    "560013": [13.04942, 77.55219],
+    "560014": [13.07265, 77.54455],
+    "560015": [13.06293, 77.52615],
+    "560016": [13.01858, 77.67653],
+    "560017": [12.95417, 77.66389],
+    "560018": [12.95828, 77.56395],
+    "560019": [12.94713, 77.5624],
+    "560020": [12.99155, 77.57707],
+    "560021": [12.99189, 77.56316],
+    "560022": [13.0255, 77.54584],
+    "560023": [12.97431, 77.55834],
+    "560024": [13.04532, 77.59777],
+    "560025": [12.96424, 77.60696],
+    "560026": [12.95467, 77.54619],
+    "560027": [12.95933, 77.59308],
+    "560029": [12.92973, 77.60474],
+    "560030": [12.94529, 77.60738],
+    "560032": [13.02772, 77.60032],
+    "560033": [12.99801, 77.64616],
+    "560034": [12.92543, 77.63138],
+    "560035": [12.89602, 77.69982],
+    "560036": [13.01216, 77.6967],
+    "560037": [12.95971, 77.69913],
+    "560038": [12.97973, 77.64167],
+    "560039": [12.93967, 77.52472],
+    "560040": [12.96663, 77.53331],
+    "560041": [12.92339, 77.59238],
+    "560042": [12.98183, 77.617],
+    "560043": [13.02389, 77.64421],
+    "560045": [13.03674, 77.62141],
+    "560046": [13.00032, 77.60144],
+    "560047": [12.95672, 77.61662],
+    "560048": [12.99013, 77.71192],
+    "560049": [13.06004, 77.73104],
+    "560050": [12.9414, 77.5548],
+    "560051": [12.98774, 77.60319],
+    "560052": [12.99077, 77.59208],
+    "560053": [12.96862, 77.57102],
+    "560054": [13.03429, 77.55727],
+    "560055": [13.00775, 77.55986],
+    "560056": [12.94769, 77.49698],
+    "560057": [13.04605, 77.51311],
+    "560058": [13.02329, 77.51356],
+    "560059": [12.92378, 77.49579],
+    "560060": [12.90706, 77.45967],
+    "560061": [12.90362, 77.53999],
+    "560062": [12.86714, 77.5209],
+    "560063": [13.13124, 77.61121],
+    "560064": [13.14017, 77.57225],
+    "560065": [13.08531, 77.5778],
+    "560066": [12.9692, 77.74395],
+    "560067": [12.95569, 77.81291],
+    "560068": [12.89422, 77.64235],
+    "560069": [12.9407, 77.58783],
+    "560070": [12.92246, 77.56681],
+    "560071": [12.95618, 77.6398],
+    "560072": [12.96575, 77.51408],
+    "560073": [13.04317, 77.48674],
+    "560074": [12.88234, 77.42672],
+    "560075": [12.9702, 77.65626],
+    "560076": [12.88064, 77.60387],
+    "560077": [13.06253, 77.65302],
+    "560078": [12.8996, 77.58203],
+    "560079": [12.98821, 77.53264],
+    "560080": [13.01034, 77.57896],
+    "560081": [12.79813, 77.71199],
+    "560082": [12.82615, 77.46733],
+    "560083": [12.82234, 77.5729],
+    "560084": [13.01161, 77.62762],
+    "560085": [12.92991, 77.54406],
+    "560086": [13.00439, 77.53995],
+    "560087": [12.92857, 77.73723],
+    "560088": [13.12129, 77.49533],
+    "560089": [13.17743, 77.50146],
+    "560090": [13.08986, 77.51873],
+    "560091": [12.99439, 77.48192],
+    "560092": [13.06173, 77.59288],
+    "560093": [12.98353, 77.66841],
+    "560094": [13.04077, 77.57358],
+    "560095": [12.93884, 77.62988],
+    "560096": [13.01454, 77.5339],
+    "560097": [13.07855, 77.55523],
+    "560098": [12.91569, 77.51599],
+    "560099": [12.83934, 77.70554],
+    "560100": [12.84601, 77.66127],
+    "560102": [12.91515, 77.65051],
+    "560103": [12.92328, 77.67887],
+    "560104": [12.96232, 77.53804],
+    "560105": [12.78642, 77.63458],
+    "560107": [13.08511, 77.48937],
+    "560108": [12.85708, 77.55679],
+    "560109": [12.86641, 77.52352],
+    "560110": [12.95168, 77.47638],
+    "560111": [12.90121, 77.56267],
+    "560112": [12.97354, 77.45611],
+    "560113": [13.02765, 77.65634],
+    "560114": [12.87644, 77.63604],
+    "560115": [13.03364, 77.77025],
+    "560116": [12.77002, 77.5088],
+    "560117": [12.9946, 77.82297],
+    "560300": [13.19908, 77.7029],
+    "562106": [12.71294, 77.66275],
+    "562107": [12.77872, 77.74777],
+    "562110": [13.24826, 77.6619],
+    "562114": [13.08252, 77.84501],
+    "562123": [13.11741, 77.38033],
+    "562125": [12.87356, 77.78252],
+    "562129": [13.18778, 77.79244],
+    "562130": [12.95631, 77.38054],
+    "562149": [13.13151, 77.68257],
+    "562157": [13.17432, 77.61174],
+    "562162": [13.05822, 77.43875],
+    "577005": [14.44413, 75.92634],
+    "600002": [13.03438, 80.25488],
+    "600006": [13.0626, 80.2493],
+    "600008": [13.07105, 80.25873],
+    "600010": [13.08154, 80.23795],
+    "600017": [13.04259, 80.23489],
+    "600018": [13.03653, 80.25451],
+    "600026": [13.04895, 80.20735],
+    "600034": [13.05788, 80.2433],
+    "600035": [13.0295, 80.24029],
+    "600040": [13.08539, 80.2059],
+    "600042": [12.98152, 80.21904],
+    "600048": [12.91838, 80.11697],
+    "600060": [13.115, 80.22357],
+    "600073": [12.91357, 80.15071],
+    "600095": [13.06234, 80.16636],
+    "600096": [12.95939, 80.24276],
+    "600099": [13.12703, 80.21275],
+    "600102": [13.08761, 80.22349],
+    "600106": [13.07214, 80.21318],
+    "600107": [13.06393, 80.20199],
+    "600110": [13.13533, 80.21982],
+    "600115": [12.94983, 80.25307],
+    "600116": [13.03267, 80.16048],
+    "600117": [12.9469, 80.18243],
+    "600129": [12.94375, 80.18308],
+    "620005": [10.85051, 78.69963],
+    "620018": [10.86217, 78.71042],
+    "625001": [9.93098, 78.12975],
+    "625002": [9.93703, 78.13207],
+    "625006": [9.73919, 78.00752],
+    "636004": [11.68041, 78.13711],
+    "636010": [11.61841, 78.11165],
+    "636012": [11.72375, 78.09954],
+    "637003": [11.25581, 78.10403],
+    "641002": [11.01067, 76.95144],
+    "641004": [11.02573, 77.00674],
+    "641014": [11.03382, 77.02858],
+    "641025": [11.03782, 76.92777],
+    "641028": [11.01433, 77.00405],
+    "641029": [11.06278, 76.94077],
+    "641043": [11.02482, 76.94837],
+    "641108": [11.07494, 76.86589],
+    "670011": [11.91193, 75.36027],
+    "670141": [12.03798, 75.36837],
+    "670702": [11.91375, 75.59538],
+    "671121": [12.50502, 74.99334],
+    "673004": [11.25766, 75.79639],
+    "673011": [11.26524, 75.7726],
+    "673020": [11.28451, 75.78976],
+    "676107": [10.92166, 75.91533],
+    "676123": [11.15912, 76.13457],
+    "676553": [10.93889, 76.04946],
+    "678001": [10.77953, 76.65721],
+    "678582": [10.99488, 76.47518],
+    "678592": [10.84355, 76.57585],
+    "679307": [10.86658, 76.17859],
+    "679322": [10.97797, 76.22888],
+    "680001": [10.52579, 76.21485],
+    "680026": [10.4885, 76.22541],
+    "680751": [10.51179, 76.26066],
+    "682019": [9.97029, 76.31445],
+    "682020": [9.96831, 76.30155],
+    "682024": [10.0217, 76.30458],
+    "682028": [9.99615, 76.3212],
+    "682032": [9.98446, 76.3113],
+    "682304": [9.93902, 76.32447],
+    "683513": [10.14114, 76.22995],
+    "683545": [10.10972, 76.52307],
+    "683547": [10.09106, 76.43062],
+    "683572": [10.19266, 76.38307],
+    "686006": [9.60656, 76.53156],
+    "686603": [9.7369, 76.51333],
+    "691001": [8.88623, 76.5984],
+    "691507": [9.04357, 76.71601],
+    "695001": [8.49526, 76.95082],
+    "695016": [8.54614, 76.90474],
+    "695572": [8.50986, 77.09083],
+    "700017": [22.54318, 88.3619],
+    "700046": [22.54251, 88.38402],
+    "700053": [22.50827, 88.33291],
+    "700099": [22.49305, 88.40376],
+    "700100": [22.52493, 88.4041],
+    "700156": [22.56466, 88.49009]
+  },
+  "places": [
+    {
+      "name": "Ahmedabad",
+      "aliases": ["Ahmedabad", "Amdavad"],
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "kind": "city",
+      "lat": 23.02154,
+      "lng": 72.58006
+    },
+    {
+      "name": "Alappuzha",
+      "aliases": ["Alappuzha", "Alleppey", "Alapuzha"],
+      "city": "Alappuzha",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 9.50034,
+      "lng": 76.41234
+    },
+    {
+      "name": "Anantapur",
+      "aliases": ["Anantapur", "Ananthapur", "Anantapuramu"],
+      "city": "Anantapur",
+      "state": "Andhra Pradesh",
+      "kind": "city",
+      "lat": 14.67832,
+      "lng": 77.6065
+    },
+    {
+      "name": "Angamaly",
+      "aliases": ["Angamaly", "Angamali"],
+      "city": "Angamaly",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 10.19103,
+      "lng": 76.38741
+    },
+    {
+      "name": "Belagavi",
+      "aliases": ["Belagavi", "Belgaum"],
+      "city": "Belagavi",
+      "state": "Karnataka",
+      "kind": "city",
+      "lat": 16.15878,
+      "lng": 74.88886
+    },
+    {
+      "name": "Bengaluru",
+      "aliases": ["Bengaluru", "Bangalore", "Blr"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "city",
+      "lat": 12.97679,
+      "lng": 77.59008
+    },
+    {
+      "name": "Bhimavaram",
+      "aliases": ["Bhimavaram", "Bheemavaram"],
+      "city": "Bhimavaram",
+      "state": "Andhra Pradesh",
+      "kind": "city",
+      "lat": 16.54277,
+      "lng": 81.52734
+    },
+    {
+      "name": "Chandigarh",
+      "aliases": ["Chandigarh", "Tricity"],
+      "city": "Chandigarh",
+      "state": "Chandigarh",
+      "kind": "city",
+      "lat": 30.73344,
+      "lng": 76.77971
+    },
+    {
+      "name": "Chennai",
+      "aliases": ["Chennai", "Madras"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "city",
+      "lat": 13.08009,
+      "lng": 80.2808
+    },
+    {
+      "name": "Coimbatore",
+      "aliases": ["Coimbatore", "Kovai"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "city",
+      "lat": 11.00181,
+      "lng": 76.96284
+    },
+    {
+      "name": "Davanagere",
+      "aliases": ["Davanagere", "Davangere"],
+      "city": "Davanagere",
+      "state": "Karnataka",
+      "kind": "city",
+      "lat": 14.25588,
+      "lng": 75.83034
+    },
+    {
+      "name": "Dehradun",
+      "aliases": ["Dehradun", "Dehra Dun"],
+      "city": "Dehradun",
+      "state": "Uttarakhand",
+      "kind": "city",
+      "lat": 30.32556,
+      "lng": 78.04368
+    },
+    {
+      "name": "Delhi",
+      "aliases": ["Delhi", "New Delhi", "NCR"],
+      "city": "Delhi",
+      "state": "Delhi",
+      "kind": "city",
+      "lat": 28.66645,
+      "lng": 77.21698
+    },
+    {
+      "name": "Erode",
+      "aliases": ["Erode"],
+      "city": "Erode",
+      "state": "Tamil Nadu",
+      "kind": "city",
+      "lat": 11.49053,
+      "lng": 77.35053
+    },
+    {
+      "name": "Hyderabad",
+      "aliases": ["Hyderabad", "Secunderabad", "Cyberabad"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "city",
+      "lat": 17.36059,
+      "lng": 78.47406
+    },
+    {
+      "name": "Jalandhar",
+      "aliases": ["Jalandhar", "Jullundur"],
+      "city": "Jalandhar",
+      "state": "Punjab",
+      "kind": "city",
+      "lat": 31.29223,
+      "lng": 75.56789
+    },
+    {
+      "name": "Kalyan",
+      "aliases": ["Kalyan"],
+      "city": "Kalyan",
+      "state": "Maharashtra",
+      "kind": "city",
+      "lat": 19.23967,
+      "lng": 73.13665
+    },
+    {
+      "name": "Kannur",
+      "aliases": ["Kannur", "Cannanore"],
+      "city": "Kannur",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 11.87638,
+      "lng": 75.3738
+    },
+    {
+      "name": "Karnal",
+      "aliases": ["Karnal"],
+      "city": "Karnal",
+      "state": "Haryana",
+      "kind": "city",
+      "lat": 29.72558,
+      "lng": 76.91069
+    },
+    {
+      "name": "Karur",
+      "aliases": ["Karur"],
+      "city": "Karur",
+      "state": "Tamil Nadu",
+      "kind": "city",
+      "lat": 10.82177,
+      "lng": 78.38287
+    },
+    {
+      "name": "Kasaragod",
+      "aliases": ["Kasaragod", "Kasargod"],
+      "city": "Kasaragod",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 12.4222,
+      "lng": 75.19044
+    },
+    {
+      "name": "Kochi",
+      "aliases": ["Kochi", "Cochin", "Ernakulam"],
+      "city": "Kochi",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 9.9679,
+      "lng": 76.24444
+    },
+    {
+      "name": "Kolkata",
+      "aliases": ["Kolkata", "Calcutta"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "kind": "city",
+      "lat": 22.57265,
+      "lng": 88.3639
+    },
+    {
+      "name": "Kollam",
+      "aliases": ["Kollam", "Quilon", "Kolllam"],
+      "city": "Kollam",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 8.88705,
+      "lng": 76.59067
+    },
+    {
+      "name": "Kottayam",
+      "aliases": ["Kottayam"],
+      "city": "Kottayam",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 9.62874,
+      "lng": 76.64553
+    },
+    {
+      "name": "Kozhikode",
+      "aliases": ["Kozhikode", "Calicut"],
+      "city": "Kozhikode",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 11.24506,
+      "lng": 75.77547
+    },
+    {
+      "name": "Ludhiana",
+      "aliases": ["Ludhiana"],
+      "city": "Ludhiana",
+      "state": "Punjab",
+      "kind": "city",
+      "lat": 30.90902,
+      "lng": 75.8516
+    },
+    {
+      "name": "Madurai",
+      "aliases": ["Madurai"],
+      "city": "Madurai",
+      "state": "Tamil Nadu",
+      "kind": "city",
+      "lat": 9.92612,
+      "lng": 78.1141
+    },
+    {
+      "name": "Malappuram",
+      "aliases": ["Malappuram", "Malapuram"],
+      "city": "Malappuram",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 11.10657,
+      "lng": 76.11017
+    },
+    {
+      "name": "Manjeri",
+      "aliases": ["Manjeri"],
+      "city": "Manjeri",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 11.12023,
+      "lng": 76.11981
+    },
+    {
+      "name": "Mohali",
+      "aliases": ["Mohali", "SAS Nagar", "Zirakpur"],
+      "city": "Mohali",
+      "state": "Punjab",
+      "kind": "city",
+      "lat": 30.69088,
+      "lng": 76.71149
+    },
+    {
+      "name": "Mumbai",
+      "aliases": ["Mumbai", "Bombay"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "city",
+      "lat": 19.055,
+      "lng": 72.8692
+    },
+    {
+      "name": "Namakkal",
+      "aliases": ["Namakkal"],
+      "city": "Namakkal",
+      "state": "Tamil Nadu",
+      "kind": "city",
+      "lat": 11.30339,
+      "lng": 78.1186
+    },
+    {
+      "name": "North Paravur",
+      "aliases": ["North Paravur", "Paravur", "Parur"],
+      "city": "North Paravur",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 10.14841,
+      "lng": 76.22492
+    },
+    {
+      "name": "Palakkad",
+      "aliases": ["Palakkad", "Palghat"],
+      "city": "Palakkad",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 10.78737,
+      "lng": 76.47422
+    },
+    {
+      "name": "Panchkula",
+      "aliases": ["Panchkula"],
+      "city": "Panchkula",
+      "state": "Haryana",
+      "kind": "city",
+      "lat": 30.69754,
+      "lng": 76.85511
+    },
+    {
+      "name": "Panipat",
+      "aliases": ["Panipat"],
+      "city": "Panipat",
+      "state": "Haryana",
+      "kind": "city",
+      "lat": 29.39127,
+      "lng": 76.97717
+    },
+    {
+      "name": "Perinthalmanna",
+      "aliases": ["Perinthalmanna", "Perthilmanna"],
+      "city": "Perinthalmanna",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 10.99095,
+      "lng": 76.22992
+    },
+    {
+      "name": "Perumbavoor",
+      "aliases": ["Perumbavoor", "Kuruppampady", "Kurupumpady", "Kurpumpady"],
+      "city": "Perumbavoor",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 10.11475,
+      "lng": 76.47782
+    },
+    {
+      "name": "Phagwara",
+      "aliases": ["Phagwara"],
+      "city": "Phagwara",
+      "state": "Punjab",
+      "kind": "city",
+      "lat": 31.22067,
+      "lng": 75.76965
+    },
+    {
+      "name": "Pune",
+      "aliases": ["Pune", "Poona"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "city",
+      "lat": 18.52137,
+      "lng": 73.85451
+    },
+    {
+      "name": "Rajkot",
+      "aliases": ["Rajkot"],
+      "city": "Rajkot",
+      "state": "Gujarat",
+      "kind": "city",
+      "lat": 22.30533,
+      "lng": 70.80284
+    },
+    {
+      "name": "Salem",
+      "aliases": ["Salem"],
+      "city": "Salem",
+      "state": "Tamil Nadu",
+      "kind": "city",
+      "lat": 11.64696,
+      "lng": 78.2107
+    },
+    {
+      "name": "Thane",
+      "aliases": ["Thane"],
+      "city": "Thane",
+      "state": "Maharashtra",
+      "kind": "city",
+      "lat": 19.36536,
+      "lng": 73.36854
+    },
+    {
+      "name": "Thiruvananthapuram",
+      "aliases": ["Thiruvananthapuram", "Trivandrum"],
+      "city": "Thiruvananthapuram",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 8.48823,
+      "lng": 76.94755
+    },
+    {
+      "name": "Thrissur",
+      "aliases": ["Thrissur", "Trichur"],
+      "city": "Thrissur",
+      "state": "Kerala",
+      "kind": "city",
+      "lat": 10.4787,
+      "lng": 76.27365
+    },
+    {
+      "name": "Tiruchirappalli",
+      "aliases": ["Tiruchirappalli", "Trichy", "Tiruchi"],
+      "city": "Tiruchirappalli",
+      "state": "Tamil Nadu",
+      "kind": "city",
+      "lat": 10.80711,
+      "lng": 78.68809
+    },
+    {
+      "name": "Tiruppur",
+      "aliases": ["Tiruppur", "Tirupur"],
+      "city": "Tiruppur",
+      "state": "Tamil Nadu",
+      "kind": "city",
+      "lat": 10.79153,
+      "lng": 77.53255
+    },
+    {
+      "name": "Vasai",
+      "aliases": ["Vasai", "Vasai-Virar", "Virar"],
+      "city": "Vasai",
+      "state": "Maharashtra",
+      "kind": "city",
+      "lat": 19.34282,
+      "lng": 72.80544
+    },
+    {
+      "name": "Warangal",
+      "aliases": ["Warangal"],
+      "city": "Warangal",
+      "state": "Telangana",
+      "kind": "city",
+      "lat": 17.98206,
+      "lng": 79.5971
+    },
+    {
+      "name": "HSR Layout",
+      "aliases": ["HSR Layout", "HSR", "Agara", "Agaram", "Agram"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.91162,
+      "lng": 77.63886
+    },
+    {
+      "name": "Indiranagar",
+      "aliases": [
+        "Indiranagar",
+        "Indira Nagar",
+        "HAL 2nd Stage",
+        "Defence Colony",
+        "Doopanahalli"
+      ],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.97329,
+      "lng": 77.64047
+    },
+    {
+      "name": "Jayanagar",
+      "aliases": ["Jayanagar", "Jayanagara"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.92927,
+      "lng": 77.58242
+    },
+    {
+      "name": "J P Nagar",
+      "aliases": ["J P Nagar", "JP Nagar", "J. P. Nagar", "Jambusawari Dinne"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.91095,
+      "lng": 77.59782
+    },
+    {
+      "name": "Basavanagudi",
+      "aliases": ["Basavanagudi", "Vishweshwarapura", "Kariappa Rd"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.94173,
+      "lng": 77.5755
+    },
+    {
+      "name": "Banashankari",
+      "aliases": ["Banashankari", "K.R.Road", "K R Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.92782,
+      "lng": 77.55662
+    },
+    {
+      "name": "Sarjapur Road",
+      "aliases": [
+        "Sarjapur Road",
+        "Sarjapur - Marathahalli",
+        "Sarjapur Main Road",
+        "Dommasandra",
+        "Domsandra",
+        "Kodathi",
+        "Varthur - Sarjapur",
+        "Sulikunte",
+        "Thigala Chowdadenahalli"
+      ],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.92465,
+      "lng": 77.63828
+    },
+    {
+      "name": "Rajarajeshwari Nagar",
+      "aliases": ["Rajarajeshwari Nagar", "RR Nagar", "Ideal Homes"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.92744,
+      "lng": 77.51552
+    },
+    {
+      "name": "Hennur",
+      "aliases": ["Hennur", "Kothanur", "Geddalahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.03708,
+      "lng": 77.64136
+    },
+    {
+      "name": "HRBR Layout",
+      "aliases": ["HRBR Layout", "HBR Layout", "HRBR", "Kalyan Nagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.01415,
+      "lng": 77.63406
+    },
+    {
+      "name": "Banaswadi",
+      "aliases": ["Banaswadi", "Lakshmamma Layout"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.01416,
+      "lng": 77.65185
+    },
+    {
+      "name": "Horamavu",
+      "aliases": [
+        "Horamavu",
+        "K. Channasandra",
+        "K Channasandra",
+        "k channasandra"
+      ],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.02733,
+      "lng": 77.66015
+    },
+    {
+      "name": "Ashok Nagar",
+      "aliases": ["Ashok Nagar", "Castle St"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.96944,
+      "lng": 77.60923
+    },
+    {
+      "name": "V V Puram",
+      "aliases": ["VV Puram", "V V Puram", "RV Road", "R V Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.95006,
+      "lng": 77.57685
+    },
+    {
+      "name": "Bannerghatta Road",
+      "aliases": ["Bannerghatta Rd", "Bannerghatta Road", "Koppa Gate"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.88732,
+      "lng": 77.59701
+    },
+    {
+      "name": "Jakkur",
+      "aliases": ["Jakkur", "Jakkuru"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.07847,
+      "lng": 77.60689
+    },
+    {
+      "name": "Sudhama Nagar",
+      "aliases": ["Sudhama Nagar", "Mission Rd", "Mission Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.96275,
+      "lng": 77.66103
+    },
+    {
+      "name": "Rajajinagar",
+      "aliases": ["Rajajinagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.00054,
+      "lng": 77.5497
+    },
+    {
+      "name": "Jigani",
+      "aliases": ["Jigani"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.78041,
+      "lng": 77.63557
+    },
+    {
+      "name": "Mysore Road",
+      "aliases": ["Mysore Road", "Mysuru Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.94666,
+      "lng": 77.53009
+    },
+    {
+      "name": "Mahadevapura",
+      "aliases": ["Mahadevapura"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.99654,
+      "lng": 77.69272
+    },
+    {
+      "name": "Gollarahatti",
+      "aliases": ["Gollarahatti"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.9893,
+      "lng": 77.47457
+    },
+    {
+      "name": "Soladevanahalli",
+      "aliases": ["Soladevanahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.09074,
+      "lng": 77.48806
+    },
+    {
+      "name": "Bagalur",
+      "aliases": ["Bagaluru", "Bagalur"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.00799,
+      "lng": 77.61847
+    },
+    {
+      "name": "Bidarahalli",
+      "aliases": ["Bidarahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.06198,
+      "lng": 77.71457
+    },
+    {
+      "name": "Adugodi",
+      "aliases": ["Adugodi"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.94402,
+      "lng": 77.60889
+    },
+    {
+      "name": "Whitefield",
+      "aliases": ["Whitefield"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.99574,
+      "lng": 77.75795
+    },
+    {
+      "name": "Yelahanka",
+      "aliases": ["Yelahanka"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.1007,
+      "lng": 77.59635
+    },
+    {
+      "name": "Sadashiva Nagar",
+      "aliases": ["Sadashiva Nagar", "Sadashivanagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.01102,
+      "lng": 77.58086
+    },
+    {
+      "name": "Kamakshipalya",
+      "aliases": ["Kamakshipalya"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.98587,
+      "lng": 77.53318
+    },
+    {
+      "name": "T Dasarahalli",
+      "aliases": ["T. Dasarahalli", "T Dasarahalli", "Dasarahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.04278,
+      "lng": 77.51296
+    },
+    {
+      "name": "Koramangala",
+      "aliases": ["Koramangala"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.93574,
+      "lng": 77.62408
+    },
+    {
+      "name": "Marathahalli",
+      "aliases": ["Marathahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.95526,
+      "lng": 77.69842
+    },
+    {
+      "name": "Electronic City",
+      "aliases": ["Electronic City", "Electronics City"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.84876,
+      "lng": 77.64825
+    },
+    {
+      "name": "BTM Layout",
+      "aliases": ["BTM Layout", "BTM"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.914,
+      "lng": 77.61028
+    },
+    {
+      "name": "Bellandur",
+      "aliases": ["Bellandur"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.93205,
+      "lng": 77.68429
+    },
+    {
+      "name": "Hebbal",
+      "aliases": ["Hebbal"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.03822,
+      "lng": 77.5919
+    },
+    {
+      "name": "Malleshwaram",
+      "aliases": ["Malleshwaram", "Malleswaram"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.00274,
+      "lng": 77.57033
+    },
+    {
+      "name": "MG Road",
+      "aliases": ["MG Road", "M G Road", "Mahatma Gandhi Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.97553,
+      "lng": 77.60679
+    },
+    {
+      "name": "Richmond Town",
+      "aliases": ["Richmond Town", "Richmond Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.96355,
+      "lng": 77.60159
+    },
+    {
+      "name": "Frazer Town",
+      "aliases": ["Frazer Town"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.99759,
+      "lng": 77.61367
+    },
+    {
+      "name": "Yeshwanthpur",
+      "aliases": ["Yeshwanthpur", "Yeshwantpur"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.01769,
+      "lng": 77.5555
+    },
+    {
+      "name": "Kengeri",
+      "aliases": ["Kengeri"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.91766,
+      "lng": 77.48376
+    },
+    {
+      "name": "Vijayanagar",
+      "aliases": ["Vijayanagar", "Vijaynagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.97095,
+      "lng": 77.53739
+    },
+    {
+      "name": "Basaveshwaranagar",
+      "aliases": ["Basaveshwaranagar", "Basaveshwara Nagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.99376,
+      "lng": 77.53913
+    },
+    {
+      "name": "Kanakapura Road",
+      "aliases": ["Kanakapura Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.8857,
+      "lng": 77.5564
+    },
+    {
+      "name": "Hosur Road",
+      "aliases": ["Hosur Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.92724,
+      "lng": 77.61644
+    },
+    {
+      "name": "Old Airport Road",
+      "aliases": ["Old Airport Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.9598,
+      "lng": 77.64925
+    },
+    {
+      "name": "Domlur",
+      "aliases": ["Domlur"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.96247,
+      "lng": 77.6382
+    },
+    {
+      "name": "KR Puram",
+      "aliases": ["KR Puram", "K R Puram", "Krishnarajapuram"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.00752,
+      "lng": 77.69594
+    },
+    {
+      "name": "Hoskote",
+      "aliases": ["Hoskote"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.03184,
+      "lng": 77.76188
+    },
+    {
+      "name": "Devanahalli",
+      "aliases": ["Devanahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.24835,
+      "lng": 77.71344
+    },
+    {
+      "name": "Begur",
+      "aliases": ["Begur"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.86339,
+      "lng": 77.61301
+    },
+    {
+      "name": "Hulimavu",
+      "aliases": ["Hulimavu"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.87735,
+      "lng": 77.6028
+    },
+    {
+      "name": "Arekere",
+      "aliases": ["Arekere"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.88721,
+      "lng": 77.59605
+    },
+    {
+      "name": "RT Nagar",
+      "aliases": ["RT Nagar", "R T Nagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.02272,
+      "lng": 77.59571
+    },
+    {
+      "name": "Sahakara Nagar",
+      "aliases": ["Sahakara Nagar", "Sahakaranagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.06215,
+      "lng": 77.58006
+    },
+    {
+      "name": "Thanisandra",
+      "aliases": ["Thanisandra"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.05225,
+      "lng": 77.63162
+    },
+    {
+      "name": "Vidyaranyapura",
+      "aliases": ["Vidyaranyapura"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.07664,
+      "lng": 77.55773
+    },
+    {
+      "name": "Peenya",
+      "aliases": ["Peenya"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.03305,
+      "lng": 77.53322
+    },
+    {
+      "name": "Nagarbhavi",
+      "aliases": ["Nagarbhavi"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.95124,
+      "lng": 77.51905
+    },
+    {
+      "name": "Uttarahalli",
+      "aliases": ["Uttarahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.90557,
+      "lng": 77.54554
+    },
+    {
+      "name": "Padmanabhanagar",
+      "aliases": ["Padmanabhanagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.9181,
+      "lng": 77.55766
+    },
+    {
+      "name": "Kumaraswamy Layout",
+      "aliases": ["Kumaraswamy Layout"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.91504,
+      "lng": 77.56789
+    },
+    {
+      "name": "Wilson Garden",
+      "aliases": ["Wilson Garden"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.94893,
+      "lng": 77.59683
+    },
+    {
+      "name": "Shanti Nagar",
+      "aliases": ["Shanti Nagar", "Shantinagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.95554,
+      "lng": 77.59243
+    },
+    {
+      "name": "Ulsoor",
+      "aliases": ["Ulsoor", "Halasuru"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.97788,
+      "lng": 77.62467
+    },
+    {
+      "name": "Cox Town",
+      "aliases": ["Cox Town"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.99349,
+      "lng": 77.62511
+    },
+    {
+      "name": "CV Raman Nagar",
+      "aliases": ["CV Raman Nagar", "C V Raman Nagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.9851,
+      "lng": 77.66312
+    },
+    {
+      "name": "Brookefield",
+      "aliases": ["Brookefield"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.96521,
+      "lng": 77.71794
+    },
+    {
+      "name": "Varthur",
+      "aliases": ["Varthur"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.94065,
+      "lng": 77.74699
+    },
+    {
+      "name": "Panathur",
+      "aliases": ["Panathur"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.93515,
+      "lng": 77.70475
+    },
+    {
+      "name": "Kadubeesanahalli",
+      "aliases": ["Kadubeesanahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.93759,
+      "lng": 77.70107
+    },
+    {
+      "name": "Harlur",
+      "aliases": ["Harlur", "Haralur"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.90589,
+      "lng": 77.67547
+    },
+    {
+      "name": "Kasavanahalli",
+      "aliases": ["Kasavanahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.89777,
+      "lng": 77.67451
+    },
+    {
+      "name": "Chandapura",
+      "aliases": ["Chandapura"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.8009,
+      "lng": 77.71149
+    },
+    {
+      "name": "Attibele",
+      "aliases": ["Attibele"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.77512,
+      "lng": 77.77092
+    },
+    {
+      "name": "Anekal",
+      "aliases": ["Anekal"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.88722,
+      "lng": 77.67042
+    },
+    {
+      "name": "Kudlu Gate",
+      "aliases": ["Kudlu Gate"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.88956,
+      "lng": 77.63947
+    },
+    {
+      "name": "Gottigere",
+      "aliases": ["Gottigere"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.85653,
+      "lng": 77.58772
+    },
+    {
+      "name": "Sarjapur",
+      "aliases": ["Sarjapura", "Sarjapur Town"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.9694,
+      "lng": 77.58703
+    },
+    {
+      "name": "Sanjay Nagar",
+      "aliases": ["Sanjay Nagar", "Sanjaynagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.95787,
+      "lng": 77.69587
+    },
+    {
+      "name": "Seshadripuram",
+      "aliases": ["Seshadripuram"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.99466,
+      "lng": 77.57472
+    },
+    {
+      "name": "Majestic",
+      "aliases": ["Majestic", "Gandhi Nagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.97791,
+      "lng": 77.57239
+    },
+    {
+      "name": "Chickpet",
+      "aliases": ["Chickpet"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.95637,
+      "lng": 77.74549
+    },
+    {
+      "name": "Shivajinagar",
+      "aliases": ["Shivajinagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.98553,
+      "lng": 77.60545
+    },
+    {
+      "name": "Jalahalli",
+      "aliases": ["Jalahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.03941,
+      "lng": 77.51974
+    },
+    {
+      "name": "Vasanth Nagar",
+      "aliases": ["Vasanth Nagar", "Vasanthnagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.99217,
+      "lng": 77.59146
+    },
+    {
+      "name": "Ejipura",
+      "aliases": ["Ejipura"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.94524,
+      "lng": 77.62748
+    },
+    {
+      "name": "Vivek Nagar",
+      "aliases": ["Vivek Nagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.95292,
+      "lng": 77.62314
+    },
+    {
+      "name": "Lalbagh",
+      "aliases": ["Lalbagh"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.94653,
+      "lng": 77.58002
+    },
+    {
+      "name": "Kammanahalli",
+      "aliases": ["Kammanahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.01485,
+      "lng": 77.6382
+    },
+    {
+      "name": "Hennur Road",
+      "aliases": ["Hennur Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.03771,
+      "lng": 77.63036
+    },
+    {
+      "name": "Nagawara",
+      "aliases": ["Nagawara"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.04228,
+      "lng": 77.62486
+    },
+    {
+      "name": "Hosa Road",
+      "aliases": ["Hosa Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.87049,
+      "lng": 77.65714
+    },
+    {
+      "name": "Bommanahalli",
+      "aliases": ["Bommanahalli"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.90346,
+      "lng": 77.623
+    },
+    {
+      "name": "Bommasandra",
+      "aliases": ["Bommasandra"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.81602,
+      "lng": 77.68922
+    },
+    {
+      "name": "Kadugodi",
+      "aliases": ["Kadugodi"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.99574,
+      "lng": 77.75795
+    },
+    {
+      "name": "Ramamurthy Nagar",
+      "aliases": ["Ramamurthy Nagar", "Ramamurthi Nagar"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 13.01202,
+      "lng": 77.67778
+    },
+    {
+      "name": "Alipore",
+      "aliases": ["Alipore"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "kind": "area",
+      "lat": 22.52649,
+      "lng": 88.33237
+    },
+    {
+      "name": "Andheri East",
+      "aliases": ["Andheri East"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.11588,
+      "lng": 72.8542
+    },
+    {
+      "name": "Andheri West",
+      "aliases": ["Andheri West"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.11725,
+      "lng": 72.83397
+    },
+    {
+      "name": "Andheri east",
+      "aliases": ["Andheri east"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.11588,
+      "lng": 72.8542
+    },
+    {
+      "name": "Anebagilu",
+      "aliases": ["Anebagilu"],
+      "city": "Kasaragod",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 12.5095,
+      "lng": 74.99631
+    },
+    {
+      "name": "Arumbakkam",
+      "aliases": ["Arumbakkam"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.07437,
+      "lng": 80.20813
+    },
+    {
+      "name": "Attapur",
+      "aliases": ["Attapur"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.36722,
+      "lng": 78.43073
+    },
+    {
+      "name": "Attuvassery",
+      "aliases": ["Attuvassery"],
+      "city": "Kollam",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 9.0398,
+      "lng": 76.71211
+    },
+    {
+      "name": "Bachupally",
+      "aliases": ["Bachupally"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.53665,
+      "lng": 78.36447
+    },
+    {
+      "name": "Balewadi",
+      "aliases": ["Balewadi"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.58203,
+      "lng": 73.76898
+    },
+    {
+      "name": "Bandlaguda",
+      "aliases": ["Bandlaguda"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.37149,
+      "lng": 78.57273
+    },
+    {
+      "name": "Baner",
+      "aliases": ["Baner"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.55899,
+      "lng": 73.78452
+    },
+    {
+      "name": "Banjara Hills",
+      "aliases": ["Banjara Hills"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.41775,
+      "lng": 78.4399
+    },
+    {
+      "name": "Bavdhan Budruk",
+      "aliases": ["Bavdhan Budruk"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.52187,
+      "lng": 73.76513
+    },
+    {
+      "name": "Bhujbal Chowk",
+      "aliases": ["Bhujbal Chowk"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.5978,
+      "lng": 73.76075
+    },
+    {
+      "name": "Borivali West",
+      "aliases": ["Borivali West"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.22981,
+      "lng": 72.84714
+    },
+    {
+      "name": "Chandranagar",
+      "aliases": ["Chandranagar"],
+      "city": "Palakkad",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 10.77532,
+      "lng": 76.68026
+    },
+    {
+      "name": "Cherlapally",
+      "aliases": ["Cherlapally"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.46875,
+      "lng": 78.60249
+    },
+    {
+      "name": "Chhattarpur",
+      "aliases": ["Chhattarpur"],
+      "city": "Delhi",
+      "state": "Delhi",
+      "kind": "area",
+      "lat": 28.50385,
+      "lng": 77.18303
+    },
+    {
+      "name": "Civil Aerodrome",
+      "aliases": ["Civil Aerodrome"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.03691,
+      "lng": 77.03903
+    },
+    {
+      "name": "Civil Station",
+      "aliases": ["Civil Station"],
+      "city": "Kozhikode",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 11.284,
+      "lng": 75.78891
+    },
+    {
+      "name": "D Block",
+      "aliases": ["D Block"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.0849,
+      "lng": 80.22547
+    },
+    {
+      "name": "Dadar",
+      "aliases": ["Dadar"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.01738,
+      "lng": 72.84303
+    },
+    {
+      "name": "Davanagere Industrial Area",
+      "aliases": ["Davanagere Industrial Area"],
+      "city": "Davanagere",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 14.32913,
+      "lng": 75.8805
+    },
+    {
+      "name": "Dubaipadi",
+      "aliases": ["Dubaipadi"],
+      "city": "Perinthalmanna",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 10.97926,
+      "lng": 76.24613
+    },
+    {
+      "name": "Duncan Road",
+      "aliases": ["Duncan Road"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.96261,
+      "lng": 72.82862
+    },
+    {
+      "name": "East Tambaram",
+      "aliases": ["East Tambaram"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 12.92651,
+      "lng": 80.13145
+    },
+    {
+      "name": "Edapally",
+      "aliases": ["Edapally"],
+      "city": "Kochi",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 10.02694,
+      "lng": 76.30912
+    },
+    {
+      "name": "Edathode Paadam Colony",
+      "aliases": ["Edathode Paadam Colony"],
+      "city": "Angamaly",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 10.19334,
+      "lng": 76.38101
+    },
+    {
+      "name": "Elamkulam",
+      "aliases": ["Elamkulam"],
+      "city": "Kochi",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 9.97497,
+      "lng": 76.29348
+    },
+    {
+      "name": "Fort",
+      "aliases": ["Fort"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.92766,
+      "lng": 72.82704
+    },
+    {
+      "name": "GN Mills",
+      "aliases": ["GN Mills"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.0603,
+      "lng": 76.94476
+    },
+    {
+      "name": "Gachibowli",
+      "aliases": ["Gachibowli"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.44362,
+      "lng": 78.35196
+    },
+    {
+      "name": "Ganesh Peth",
+      "aliases": ["Ganesh Peth"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.51542,
+      "lng": 73.86474
+    },
+    {
+      "name": "Ghatkopar",
+      "aliases": ["Ghatkopar"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.08569,
+      "lng": 72.90837
+    },
+    {
+      "name": "Ghatkopar West",
+      "aliases": ["Ghatkopar West"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.08974,
+      "lng": 72.9048
+    },
+    {
+      "name": "Goregaon",
+      "aliases": ["Goregaon"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.16487,
+      "lng": 72.84955
+    },
+    {
+      "name": "Goregaon East",
+      "aliases": ["Goregaon East"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.16926,
+      "lng": 72.85525
+    },
+    {
+      "name": "Gota",
+      "aliases": ["Gota"],
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "kind": "area",
+      "lat": 23.101,
+      "lng": 72.54084
+    },
+    {
+      "name": "Govandi",
+      "aliases": ["Govandi"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.05537,
+      "lng": 72.91507
+    },
+    {
+      "name": "Grant Road",
+      "aliases": ["Grant Road"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.96291,
+      "lng": 72.81773
+    },
+    {
+      "name": "Gurudev Nagar",
+      "aliases": ["Gurudev Nagar"],
+      "city": "Ludhiana",
+      "state": "Punjab",
+      "kind": "area",
+      "lat": 30.89334,
+      "lng": 75.82808
+    },
+    {
+      "name": "Injambakkam",
+      "aliases": ["Injambakkam"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 12.91894,
+      "lng": 80.25129
+    },
+    {
+      "name": "JLPL Industrial Area",
+      "aliases": ["JLPL Industrial Area"],
+      "city": "Mohali",
+      "state": "Punjab",
+      "kind": "area",
+      "lat": 30.65362,
+      "lng": 76.73192
+    },
+    {
+      "name": "Jaihindpuram",
+      "aliases": ["Jaihindpuram"],
+      "city": "Madurai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 9.90553,
+      "lng": 78.10945
+    },
+    {
+      "name": "Jawahar Nagar",
+      "aliases": ["Jawahar Nagar"],
+      "city": "Kozhikode",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 11.26921,
+      "lng": 75.78227
+    },
+    {
+      "name": "Jubilee Hills",
+      "aliases": ["Jubilee Hills"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.43084,
+      "lng": 78.41029
+    },
+    {
+      "name": "Kalikulangara",
+      "aliases": ["Kalikulangara"],
+      "city": "North Paravur",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 10.13276,
+      "lng": 76.22736
+    },
+    {
+      "name": "Kallekkad",
+      "aliases": ["Kallekkad"],
+      "city": "Palakkad",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 10.78524,
+      "lng": 76.6052
+    },
+    {
+      "name": "Kalyan West",
+      "aliases": ["Kalyan West"],
+      "city": "Kalyan",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.24035,
+      "lng": 73.12528
+    },
+    {
+      "name": "Kandivali",
+      "aliases": ["Kandivali"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.2042,
+      "lng": 72.85204
+    },
+    {
+      "name": "Kandivali West",
+      "aliases": ["Kandivali West"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.21398,
+      "lng": 72.83733
+    },
+    {
+      "name": "Karaparamba",
+      "aliases": ["Karaparamba"],
+      "city": "Kozhikode",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 11.2871,
+      "lng": 75.78175
+    },
+    {
+      "name": "Karuppur",
+      "aliases": ["Karuppur"],
+      "city": "Salem",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.72003,
+      "lng": 78.09204
+    },
+    {
+      "name": "Katraj",
+      "aliases": ["Katraj"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.45368,
+      "lng": 73.85632
+    },
+    {
+      "name": "Kavuri Hills",
+      "aliases": ["Kavuri Hills"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.43852,
+      "lng": 78.39441
+    },
+    {
+      "name": "Khar West",
+      "aliases": ["Khar West"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.07479,
+      "lng": 72.83358
+    },
+    {
+      "name": "Khurla Kingra",
+      "aliases": ["Khurla Kingra"],
+      "city": "Jalandhar",
+      "state": "Punjab",
+      "kind": "area",
+      "lat": 31.29076,
+      "lng": 75.55474
+    },
+    {
+      "name": "Killy",
+      "aliases": ["Killy"],
+      "city": "Thiruvananthapuram",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 8.50216,
+      "lng": 77.07004
+    },
+    {
+      "name": "Kolathur",
+      "aliases": ["Kolathur"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.12365,
+      "lng": 80.21288
+    },
+    {
+      "name": "Kondalampatti",
+      "aliases": ["Kondalampatti"],
+      "city": "Salem",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.63056,
+      "lng": 78.12485
+    },
+    {
+      "name": "Kondhwa",
+      "aliases": ["Kondhwa"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.47799,
+      "lng": 73.89406
+    },
+    {
+      "name": "Kovilambakkam",
+      "aliases": ["Kovilambakkam"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 12.94068,
+      "lng": 80.17999
+    },
+    {
+      "name": "Kulathoor",
+      "aliases": ["Kulathoor"],
+      "city": "Thiruvananthapuram",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 8.54036,
+      "lng": 76.88063
+    },
+    {
+      "name": "Kuriyachira",
+      "aliases": ["Kuriyachira"],
+      "city": "Thrissur",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 10.50379,
+      "lng": 76.22599
+    },
+    {
+      "name": "Kuruppanthara",
+      "aliases": ["Kuruppanthara"],
+      "city": "Kottayam",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 9.74124,
+      "lng": 76.51722
+    },
+    {
+      "name": "Kushtia",
+      "aliases": ["Kushtia"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "kind": "area",
+      "lat": 22.52341,
+      "lng": 88.37968
+    },
+    {
+      "name": "Lower Parel",
+      "aliases": ["Lower Parel"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.99568,
+      "lng": 72.83028
+    },
+    {
+      "name": "Madhapur",
+      "aliases": ["Madhapur"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.44089,
+      "lng": 78.39163
+    },
+    {
+      "name": "Madhavaram",
+      "aliases": ["Madhavaram"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.14136,
+      "lng": 80.23251
+    },
+    {
+      "name": "Maduravoyal",
+      "aliases": ["Maduravoyal"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.0606,
+      "lng": 80.16609
+    },
+    {
+      "name": "Magadi Road",
+      "aliases": ["Magadi Road"],
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "area",
+      "lat": 12.97561,
+      "lng": 77.55536
+    },
+    {
+      "name": "Mahalaxmi",
+      "aliases": ["Mahalaxmi"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.10522,
+      "lng": 72.82816
+    },
+    {
+      "name": "Mahim",
+      "aliases": ["Mahim"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.04277,
+      "lng": 72.84079
+    },
+    {
+      "name": "Makaltala",
+      "aliases": ["Makaltala"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "kind": "area",
+      "lat": 22.54582,
+      "lng": 88.42142
+    },
+    {
+      "name": "Malad",
+      "aliases": ["Malad"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.18672,
+      "lng": 72.84859
+    },
+    {
+      "name": "Malad West",
+      "aliases": ["Malad West"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.18529,
+      "lng": 72.83586
+    },
+    {
+      "name": "Mangolpur Khurd",
+      "aliases": ["Mangolpur Khurd"],
+      "city": "Delhi",
+      "state": "Delhi",
+      "kind": "area",
+      "lat": 28.69882,
+      "lng": 77.09425
+    },
+    {
+      "name": "Mansoorabad",
+      "aliases": ["Mansoorabad"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.35418,
+      "lng": 78.56529
+    },
+    {
+      "name": "Maradu",
+      "aliases": ["Maradu"],
+      "city": "Kochi",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 9.93856,
+      "lng": 76.32774
+    },
+    {
+      "name": "Meyyanur",
+      "aliases": ["Meyyanur"],
+      "city": "Salem",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.67225,
+      "lng": 78.13301
+    },
+    {
+      "name": "Miyapur",
+      "aliases": ["Miyapur"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.49816,
+      "lng": 78.35676
+    },
+    {
+      "name": "Model Town",
+      "aliases": ["Model Town"],
+      "city": "Karnal",
+      "state": "Haryana",
+      "kind": "area",
+      "lat": 29.70189,
+      "lng": 76.99793
+    },
+    {
+      "name": "More Wasti",
+      "aliases": ["More Wasti"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.67131,
+      "lng": 73.79733
+    },
+    {
+      "name": "Mukund Nagar",
+      "aliases": ["Mukund Nagar"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.49522,
+      "lng": 73.86622
+    },
+    {
+      "name": "Mukundapur",
+      "aliases": ["Mukundapur"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "kind": "area",
+      "lat": 22.49563,
+      "lng": 88.39845
+    },
+    {
+      "name": "Mulund",
+      "aliases": ["Mulund"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.17214,
+      "lng": 72.9567
+    },
+    {
+      "name": "Muttikulangara",
+      "aliases": ["Muttikulangara"],
+      "city": "Palakkad",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 10.81618,
+      "lng": 76.60944
+    },
+    {
+      "name": "Nadathara",
+      "aliases": ["Nadathara"],
+      "city": "Thrissur",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 10.50813,
+      "lng": 76.26924
+    },
+    {
+      "name": "Nagampadam",
+      "aliases": ["Nagampadam"],
+      "city": "Kottayam",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 9.59733,
+      "lng": 76.52745
+    },
+    {
+      "name": "Nagole",
+      "aliases": ["Nagole"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.37753,
+      "lng": 78.56012
+    },
+    {
+      "name": "Neelankarai",
+      "aliases": ["Neelankarai"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 12.9455,
+      "lng": 80.25747
+    },
+    {
+      "name": "Nigdi",
+      "aliases": ["Nigdi"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.65981,
+      "lng": 73.77728
+    },
+    {
+      "name": "Nungambakkam",
+      "aliases": ["Nungambakkam"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.06206,
+      "lng": 80.24049
+    },
+    {
+      "name": "Pallimukku",
+      "aliases": ["Pallimukku"],
+      "city": "Kollam",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 8.87639,
+      "lng": 76.62433
+    },
+    {
+      "name": "Pallinada",
+      "aliases": ["Pallinada"],
+      "city": "Kochi",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 9.97706,
+      "lng": 76.31694
+    },
+    {
+      "name": "Paradise, Secunderabad",
+      "aliases": ["Paradise, Secunderabad"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.4417,
+      "lng": 78.48743
+    },
+    {
+      "name": "Park Circus",
+      "aliases": ["Park Circus"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "kind": "area",
+      "lat": 22.54078,
+      "lng": 88.37388
+    },
+    {
+      "name": "Pattom",
+      "aliases": ["Pattom"],
+      "city": "Thiruvananthapuram",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 8.51861,
+      "lng": 76.94238
+    },
+    {
+      "name": "Peelamedu",
+      "aliases": ["Peelamedu"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.02778,
+      "lng": 76.99862
+    },
+    {
+      "name": "Perungudi",
+      "aliases": ["Perungudi"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 12.97102,
+      "lng": 80.24181
+    },
+    {
+      "name": "Pimpri",
+      "aliases": ["Pimpri"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.62319,
+      "lng": 73.80199
+    },
+    {
+      "name": "Pirivu",
+      "aliases": ["Pirivu"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.00968,
+      "lng": 77.07984
+    },
+    {
+      "name": "Ponniammanmedu",
+      "aliases": ["Ponniammanmedu"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.13433,
+      "lng": 80.22822
+    },
+    {
+      "name": "Poothole",
+      "aliases": ["Poothole"],
+      "city": "Thrissur",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 10.52024,
+      "lng": 76.20589
+    },
+    {
+      "name": "Pudupet",
+      "aliases": ["Pudupet"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.0712,
+      "lng": 80.26696
+    },
+    {
+      "name": "Puzhathi",
+      "aliases": ["Puzhathi"],
+      "city": "Kannur",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 11.90178,
+      "lng": 75.37543
+    },
+    {
+      "name": "RS Puram",
+      "aliases": ["RS Puram"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.00802,
+      "lng": 76.95017
+    },
+    {
+      "name": "Saibaba Colony",
+      "aliases": ["Saibaba Colony"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.02433,
+      "lng": 76.94479
+    },
+    {
+      "name": "Santacruz East",
+      "aliases": ["Santacruz East"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.07818,
+      "lng": 72.86778
+    },
+    {
+      "name": "Santacruz West",
+      "aliases": ["Santacruz West"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.0844,
+      "lng": 72.83729
+    },
+    {
+      "name": "Sector 11",
+      "aliases": ["Sector 11"],
+      "city": "Panchkula",
+      "state": "Haryana",
+      "kind": "area",
+      "lat": 30.68475,
+      "lng": 76.8524
+    },
+    {
+      "name": "Sector 12A",
+      "aliases": ["Sector 12A"],
+      "city": "Panchkula",
+      "state": "Haryana",
+      "kind": "area",
+      "lat": 30.6747,
+      "lng": 76.85103
+    },
+    {
+      "name": "Sector 28",
+      "aliases": ["Sector 28"],
+      "city": "Chandigarh",
+      "state": "Chandigarh",
+      "kind": "area",
+      "lat": 30.71719,
+      "lng": 76.80372
+    },
+    {
+      "name": "Sector 28",
+      "aliases": ["Sector 28"],
+      "city": "Delhi",
+      "state": "Delhi",
+      "kind": "area",
+      "lat": 28.54528,
+      "lng": 77.0326
+    },
+    {
+      "name": "Sector 82",
+      "aliases": ["Sector 82"],
+      "city": "Mohali",
+      "state": "Punjab",
+      "kind": "area",
+      "lat": 30.65497,
+      "lng": 76.73298
+    },
+    {
+      "name": "Selaiyur",
+      "aliases": ["Selaiyur"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 12.91781,
+      "lng": 80.13795
+    },
+    {
+      "name": "Sewri",
+      "aliases": ["Sewri"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.99878,
+      "lng": 72.85442
+    },
+    {
+      "name": "Shamshabad",
+      "aliases": ["Shamshabad"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.29505,
+      "lng": 78.36415
+    },
+    {
+      "name": "Sion",
+      "aliases": ["Sion"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.04652,
+      "lng": 72.86328
+    },
+    {
+      "name": "Somayampalayam",
+      "aliases": ["Somayampalayam"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.04681,
+      "lng": 76.89944
+    },
+    {
+      "name": "Srinagar Colony",
+      "aliases": ["Srinagar Colony"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "area",
+      "lat": 17.43123,
+      "lng": 78.4338
+    },
+    {
+      "name": "T. Nagar",
+      "aliases": ["T. Nagar"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.03859,
+      "lng": 80.23358
+    },
+    {
+      "name": "Tambaram",
+      "aliases": ["Tambaram"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 12.92579,
+      "lng": 80.11792
+    },
+    {
+      "name": "Tangra North",
+      "aliases": ["Tangra North"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "kind": "area",
+      "lat": 22.55651,
+      "lng": 88.37959
+    },
+    {
+      "name": "Teynampet",
+      "aliases": ["Teynampet"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.04432,
+      "lng": 80.24985
+    },
+    {
+      "name": "Thane West",
+      "aliases": ["Thane West"],
+      "city": "Thane",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.36459,
+      "lng": 73.36836
+    },
+    {
+      "name": "Thergaon",
+      "aliases": ["Thergaon"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.60928,
+      "lng": 73.77294
+    },
+    {
+      "name": "Thiruthiyad",
+      "aliases": ["Thiruthiyad"],
+      "city": "Kozhikode",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 11.26192,
+      "lng": 75.79154
+    },
+    {
+      "name": "Thousand Lights",
+      "aliases": ["Thousand Lights"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.05852,
+      "lng": 80.25878
+    },
+    {
+      "name": "Trichy Zone I",
+      "aliases": ["Trichy Zone I"],
+      "city": "Tiruchirappalli",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 10.84949,
+      "lng": 78.71598
+    },
+    {
+      "name": "Vadakovai",
+      "aliases": ["Vadakovai"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.01518,
+      "lng": 76.95368
+    },
+    {
+      "name": "Vanagaram",
+      "aliases": ["Vanagaram"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.06055,
+      "lng": 80.15258
+    },
+    {
+      "name": "Varadarajapuram",
+      "aliases": ["Varadarajapuram"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 12.97653,
+      "lng": 80.22252
+    },
+    {
+      "name": "Vasai East",
+      "aliases": ["Vasai East"],
+      "city": "Vasai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.4034,
+      "lng": 72.82583
+    },
+    {
+      "name": "Vikhroli",
+      "aliases": ["Vikhroli"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.11148,
+      "lng": 72.92802
+    },
+    {
+      "name": "Vile Parle",
+      "aliases": ["Vile Parle"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.09991,
+      "lng": 72.844
+    },
+    {
+      "name": "Vile Parle East",
+      "aliases": ["Vile Parle East"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 19.10073,
+      "lng": 72.84456
+    },
+    {
+      "name": "Vishal Nagar",
+      "aliases": ["Vishal Nagar"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.58532,
+      "lng": 73.78294
+    },
+    {
+      "name": "Vyttila",
+      "aliases": ["Vyttila"],
+      "city": "Kochi",
+      "state": "Kerala",
+      "kind": "area",
+      "lat": 9.96367,
+      "lng": 76.31813
+    },
+    {
+      "name": "Wakad Chowk",
+      "aliases": ["Wakad Chowk"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.59245,
+      "lng": 73.76162
+    },
+    {
+      "name": "Ward 21",
+      "aliases": ["Ward 21"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.01389,
+      "lng": 76.93445
+    },
+    {
+      "name": "Ward 5",
+      "aliases": ["Ward 5"],
+      "city": "Chandigarh",
+      "state": "Chandigarh",
+      "kind": "area",
+      "lat": 30.75887,
+      "lng": 76.74944
+    },
+    {
+      "name": "Ward 5",
+      "aliases": ["Ward 5"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 11.04845,
+      "lng": 76.93765
+    },
+    {
+      "name": "Worli",
+      "aliases": ["Worli"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "area",
+      "lat": 18.99884,
+      "lng": 72.81703
+    },
+    {
+      "name": "Zone 10 Kodambakkam",
+      "aliases": ["Zone 10 Kodambakkam"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.04921,
+      "lng": 80.22428
+    },
+    {
+      "name": "Zone 11 Valasaravakkam",
+      "aliases": ["Zone 11 Valasaravakkam"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.04302,
+      "lng": 80.17521
+    },
+    {
+      "name": "Zone 13 Adyar",
+      "aliases": ["Zone 13 Adyar"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.00645,
+      "lng": 80.25778
+    },
+    {
+      "name": "Zone 5 Royapuram",
+      "aliases": ["Zone 5 Royapuram"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.11462,
+      "lng": 80.29403
+    },
+    {
+      "name": "Zone 8 Anna Nagar",
+      "aliases": ["Zone 8 Anna Nagar"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.08825,
+      "lng": 80.20734
+    },
+    {
+      "name": "Zone 9 Teynampet",
+      "aliases": ["Zone 9 Teynampet"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "kind": "area",
+      "lat": 13.04432,
+      "lng": 80.24985
+    }
+  ]
+}

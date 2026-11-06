@@ -188,7 +188,7 @@ export async function POST(req: NextRequest) {
     const matchedAs = geo
       ? undefined
       : outcome.outsidePin
-        ? "Outside the Bengaluru directory"
+        ? "Outside the directory"
         : outcome.origin?.label;
 
     const lead = {
