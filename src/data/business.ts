@@ -100,7 +100,7 @@ export const FACTORY = {
 export const FACTORY_ADDRESS = `${FACTORY.streetAddress}, ${FACTORY.locality}, ${FACTORY.region} ${FACTORY.postalCode}`;
 
 export const SOCIAL_PROFILES = {
-  instagram: "https://www.instagram.com/pacificitaliansurfaces",
+  instagram: "https://www.instagram.com/pacific_surfaces/",
   facebook: "https://www.facebook.com/thepacificstone/",
   linkedin: "https://www.linkedin.com/company/pacific-granites-india-pvt-ltd/",
   youtube: "https://www.youtube.com/channel/UCWeTO3mX6zInSev42K9h5Fw",
