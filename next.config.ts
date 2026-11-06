@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { LEGACY_WIX_REDIRECTS } from "./src/data/legacy-wix-redirects";
 
 /**
  * Security headers applied to every HTML route.
@@ -294,6 +295,10 @@ const nextConfig: NextConfig = {
         destination: "/products",
         permanent: true,
       },
+      // Every other old Wix page that has no 1:1 twin here (short colour
+      // pages, renamed or retired products, categories, blog posts): see
+      // src/data/legacy-wix-redirects.ts. Before the catch-all below.
+      ...LEGACY_WIX_REDIRECTS.map((r) => ({ ...r, permanent: true })),
       {
         // Legacy Wix product detail URLs. Wix used /product-page/<slug>
         // for every product PDP; Google still has thousands of these
