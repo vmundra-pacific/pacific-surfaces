@@ -188,6 +188,65 @@ function Details({ p }: { p: Partner }) {
   );
 }
 
+/** The region's distributors (Poland, owner 2026-11-14): name, owner,
+ *  address, phone and a directions link each. */
+function Distributors({ p }: { p: Partner }) {
+  if (!p.distributors?.length) return null;
+  return (
+    <div className="mt-7 border-t border-white/25 pt-6 text-left">
+      <p className="text-[10px] uppercase tracking-[0.18em] opacity-70">
+        Distributors
+      </p>
+      <ul className="mt-4 grid gap-5 sm:grid-cols-2">
+        {p.distributors.map((d) => (
+          <li key={d.name} className="grid content-start gap-2">
+            <div>
+              <p className="text-[15px] font-normal leading-snug">{d.name}</p>
+              {d.owner && (
+                <p className="mt-0.5 text-[12px] font-light leading-snug opacity-75">
+                  {d.owner}
+                </p>
+              )}
+            </div>
+            <div className="flex items-start gap-3">
+              <MapPin
+                className="mt-0.5 h-4 w-4 shrink-0 opacity-80"
+                aria-hidden="true"
+              />
+              <a
+                href={d.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[15px] font-light leading-snug underline underline-offset-4"
+              >
+                {d.addressLines.map((l) => (
+                  <span key={l} className="block">
+                    {l}
+                  </span>
+                ))}
+              </a>
+            </div>
+            {d.phone && (
+              <div className="flex items-start gap-3">
+                <Phone
+                  className="mt-0.5 h-4 w-4 shrink-0 opacity-80"
+                  aria-hidden="true"
+                />
+                <a
+                  href={d.phone.href}
+                  className="text-[15px] font-light leading-snug underline underline-offset-4"
+                >
+                  {d.phone.display}
+                </a>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /**
  * The partner's own lockup (Pacific by Fair Deal), black on transparent, so
  * it sits on a white plate over the dark glass; one without a lockup (Pacific
@@ -266,6 +325,7 @@ export function PartnerCard({
       </p>
       <div className="mx-auto mt-8 max-w-[560px] border-t border-white/25 pt-7">
         <Details p={partner} />
+        <Distributors p={partner} />
       </div>
       <div className="mt-8">
         <Actions p={partner} center />
@@ -304,6 +364,7 @@ export function PartnerBand({
         </div>
         <div className="border-t border-white/25 pt-8 lg:border-l lg:border-t-0 lg:pl-14 lg:pt-0">
           <Details p={partner} />
+          <Distributors p={partner} />
         </div>
       </div>
     </div>

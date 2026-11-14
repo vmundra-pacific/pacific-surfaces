@@ -25,6 +25,17 @@ export interface PartnerContact {
   email: string;
 }
 
+/** A distributor in a partner's region, listed under the partner. */
+export interface RegionDistributor {
+  /** The trading name, as the business writes it. */
+  name: string;
+  /** The owner, as Polish sole traders put it beside the name. */
+  owner?: string;
+  addressLines: string[];
+  phone?: { display: string; href: string };
+  mapUrl: string;
+}
+
 export interface Partner {
   /** Which region's CSS switch shows it: Middle East or Poland. */
   region: "me" | "pl";
@@ -50,6 +61,8 @@ export interface Partner {
   site?: { display: string; href: string; label: string };
   /** The map location Fair Deal links from its own contact page. */
   mapUrl?: string;
+  /** Distributors in the region, listed below the partner's contacts. */
+  distributors?: RegionDistributor[];
 }
 
 export const PACIFIC_X_FAIRDEAL: Partner = {
@@ -116,6 +129,27 @@ export const PACIFIC_POLSKA: Partner = {
       phone: { display: "+48 537 819 991", href: "tel:+48537819991" },
       whatsapp: "48537819991",
       email: "marcin@thepacific.group",
+    },
+  ],
+  // Poland distributors (owner, 2026-11-14). IMPERIAL-GRANIT's address is
+  // its own Google Maps listing (the link the owner sent); no phone given.
+  distributors: [
+    {
+      name: "SB GRANIT",
+      owner: "Szymon Bałazy",
+      addressLines: ["Nowe Szumowo 6", "18-305 Nowe Szumowo"],
+      phone: { display: "+48 604 062 510", href: "tel:+48604062510" },
+      mapUrl:
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(
+          "SB GRANIT, Nowe Szumowo 6, 18-305 Nowe Szumowo, Poland"
+        ),
+    },
+    {
+      name: "IMPERIAL-GRANIT",
+      owner: "Michał Olejniczak",
+      addressLines: ["Tabor Wielki 1C", "63-640 Bralin"],
+      mapUrl: "https://maps.app.goo.gl/uixiZVwKhJ39sFUeA",
     },
   ],
 };
