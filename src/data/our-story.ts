@@ -9,6 +9,10 @@
  *
  * The team is the old page's list, unchanged, with its photographs and the
  * LinkedIn profiles already confirmed.
+ *
+ * 2026-11-17 (owner): Vikram Singh is Business Head India; Satakshi
+ * Rautaray (Germany) joins the list as Business Head, her photograph cropped
+ * to the same head-and-shoulders frame as the others.
  */
 
 export const MILESTONES = [
@@ -87,7 +91,7 @@ export const TEAM: {
   },
   {
     name: "Vikram Singh",
-    role: "Business Head",
+    role: "Business Head India",
     photo: "/team/vikram-singh.jpg",
   },
   {
@@ -105,5 +109,10 @@ export const TEAM: {
     role: "Business Development Consultant, Central and Eastern Europe",
     photo: "/team/marcin.png",
     linkedin: "https://www.linkedin.com/in/marcin-kołczynski-313b4114b",
+  },
+  {
+    name: "Satakshi Rautaray",
+    role: "Business Head",
+    photo: "/team/satakshi-rautaray.png",
   },
 ];
