@@ -11,8 +11,8 @@
  * LinkedIn profiles already confirmed.
  *
  * 2026-11-17 (owner): Vikram Singh is Business Head India; Satakshi
- * Rautaray (Germany) joins the list as Business Head, her photograph cropped
- * to the same head-and-shoulders frame as the others.
+ * Rautaray joins the list as Business Head DACH & Benelux, her photograph
+ * cropped to the same head-and-shoulders frame as the others.
  */
 
 export const MILESTONES = [
@@ -112,7 +112,7 @@ export const TEAM: {
   },
   {
     name: "Satakshi Rautaray",
-    role: "Business Head",
+    role: "Business Head DACH & Benelux",
     photo: "/team/satakshi-rautaray.png",
   },
 ];
