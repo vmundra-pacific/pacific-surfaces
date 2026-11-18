@@ -22,7 +22,9 @@ import { Photo } from "@/components/ui/photo";
 import { SHOW_FINDER } from "@/lib/contact-finder";
 import { PartnerCard } from "@/components/where-to-buy/PartnerCard";
 import { PACIFIC_POLSKA } from "@/data/partners";
-import { EMAIL, FACTORY, OPENING_HOURS, SALES_PHONE } from "@/data/business";
+import { EMAIL, FACTORY, OPENING_HOURS } from "@/data/business";
+import { whatsappLink } from "@/data/sales-reps";
+import { useSalesRep } from "@/lib/use-sales-rep";
 
 /**
  * /contact, laid out after Cosentino's "where to buy" page: a full-bleed
@@ -85,11 +87,6 @@ const MEDIA = {
 const LIGHT = { fontVariationSettings: "'wght' 250, 'wdth' 100" };
 const PANEL = "bg-[#EFEDE9]";
 const INK = "#14140f";
-
-const PHONE = SALES_PHONE.display;
-const PHONE_HREF = SALES_PHONE.href;
-const whatsApp = (text: string) =>
-  `https://api.whatsapp.com/send/?phone=919894033566&text=${encodeURIComponent(text)}&type=phone_number&app_absent=0`;
 
 const ROLES = [
   { value: "homeowner", label: "Homeowner" },
@@ -310,6 +307,11 @@ const FIELD =
 const LABEL = "mb-2 block text-[11px] uppercase tracking-[0.16em]";
 
 export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
+  // Call and WhatsApp go to the visitor's regional rep (data/sales-reps)
+  const salesRep = useSalesRep();
+  const PHONE = salesRep.phone.display;
+  const PHONE_HREF = salesRep.phone.href;
+  const whatsApp = (text: string) => whatsappLink(salesRep, text);
   const [typeParam, setTypeParam] = useState<string | null>(null);
   const [interest, setInterest] = useState<string | null>(null);
   const [adTags, setAdTags] = useState("");

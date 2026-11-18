@@ -58,7 +58,7 @@ export const KITCHENS_PAGE = {
       label: "Superjumbo format",
       heading: "Slabs big enough to leave out the joint",
       body: [
-        "Pacific quartz is pressed at Superjumbo size, 137 × 79 in (3,500 × 2,050 mm), in 12, 20 and 30 mm thicknesses.",
+        "Pacific quartz is pressed at Superjumbo size, 137 × 79 in (3,500 × 2,050 mm), in 12, 20, 30 mm thicknesses.",
         "Most islands and long counter runs come out of a single piece, with no seam where everyone gathers, and a waterfall end can run in the same slab.",
       ],
       image: "/projects/islands/statuario.webp",
@@ -99,7 +99,7 @@ export const KITCHENS_PAGE = {
   design: {
     heading: "Design your kitchen with Pacific Surfaces",
     body: [
-      "Quartz, Eclipse and granite, in 12, 20 and 30 mm and a range of finishes, for every surface in the kitchen.",
+      "Quartz, Eclipse and granite, in 12, 20, 30 mm and a range of finishes, for every surface in the kitchen.",
       "From the worktop and island to the backsplash, the sink and the walls around them, in one design or several.",
     ],
     cards: [

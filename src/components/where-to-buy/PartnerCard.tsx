@@ -36,9 +36,9 @@ const SECONDARY = {
 
 /** The attribute the region CSS looks for. */
 function regionAttr(p: Partner): Record<string, boolean> {
-  return p.region === "pl"
-    ? { "data-pl-only": true }
-    : { "data-me-only": true };
+  if (p.region === "pl") return { "data-pl-only": true };
+  if (p.region === "mx") return { "data-mx-only": true };
+  return { "data-me-only": true };
 }
 
 function Detail({
@@ -144,13 +144,16 @@ function PhoneEmail({ c }: { c: PartnerContact }) {
 }
 
 function Details({ p }: { p: Partner }) {
-  const named = p.contacts.length > 1;
+  // names show with more than one contact, or when the one contact is a person (Mexico)
+  const named = p.contacts.length > 1 || !!p.contacts[0]?.name;
   const hasAddress = !!p.addressLines?.length;
   return (
     <div
       className={
         "grid gap-5 " +
-        (named || hasAddress ? "sm:grid-cols-2" : "sm:grid-cols-1")
+        (p.contacts.length > 1 || hasAddress
+          ? "sm:grid-cols-2"
+          : "sm:grid-cols-1")
       }
     >
       {hasAddress && (

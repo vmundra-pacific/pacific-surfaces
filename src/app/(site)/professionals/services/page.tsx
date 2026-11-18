@@ -125,7 +125,7 @@ const FAQS = [
   },
   {
     q: "Which materials and thicknesses can be fabricated?",
-    a: "Pacific Surfaces quartz in 12, 20 and 30 mm, Eclipse inlayered design quartz, and granite. Each design's page lists its finishes and the thicknesses it comes in.",
+    a: "Pacific Surfaces quartz in 12, 20, 30 mm, Eclipse inlayered design quartz, and granite. Each design's page lists its finishes and the thicknesses it comes in.",
   },
   {
     q: "How large can one piece be?",
@@ -184,7 +184,7 @@ export default function ServicesPage() {
             label: "Slab format",
             value: "Up to 137 × 79 in (3,500 × 2,050 mm)",
           },
-          { label: "Quartz thicknesses", value: "12, 20 and 30 mm" },
+          { label: "Quartz thicknesses", value: "12, 20, 30 mm" },
           { label: "Drawings", value: "DWG, PDF or a hand sketch" },
           { label: "Finishes", value: "Polished, honed or leather, by design" },
         ]}
@@ -215,7 +215,7 @@ export default function ServicesPage() {
           "One source for the slab and the piece means one point of contact, and one standard from the raw mix to the crate.",
         ]}
         points={[
-          "Quartz in 12, 20 and 30 mm",
+          "Quartz in 12, 20, 30 mm",
           "Superjumbo slabs up to 137 × 79 in (3,500 × 2,050 mm), for fewer joints",
           "Up to 12 million sq ft of quartz a year",
           "Certificates on file: NSF/ANSI 51, CE, ISO 9001:2015, Kosher, EPD",

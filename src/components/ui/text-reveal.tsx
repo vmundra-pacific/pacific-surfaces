@@ -1,7 +1,8 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { Fragment, useRef } from "react";
+import { Fragment, useLayoutEffect, useRef, useState } from "react";
+import { translatedLanguage } from "@/lib/site-translate";
 import { cn } from "@/lib/utils";
 
 interface TextRevealProps {
@@ -21,6 +22,22 @@ export function TextReveal({
   const isInView = useInView(ref, { once: true, margin: "-60px" });
 
   const words = children.split(" ");
+
+  // On a page Google Translate is translating, the heading is one plain
+  // sentence: split into a span per word, each word was translated on its
+  // own ("określić przestrzenie To wytrzymać A życie", owner 2026-11-18).
+  // The translator starts after hydration, so the swap lands before it.
+  const [plain, setPlain] = useState(false);
+  useLayoutEffect(() => {
+    if (translatedLanguage() !== "en") setPlain(true);
+  }, []);
+  if (plain) {
+    return (
+      <Tag ref={ref} className={className}>
+        {children}
+      </Tag>
+    );
+  }
 
   // A real space between the word spans keeps the heading's text
   // reading as words ("Frequently Asked Questions") for crawlers and

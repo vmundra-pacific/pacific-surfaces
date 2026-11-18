@@ -137,7 +137,7 @@ export default function AboutPage() {
         title="How a slab is made"
         body={[
           "Quartz is blended with resin and pigment, then pressed into a slab using Bretonstone® technology: the mix is vibro-compacted under vacuum, which draws out the air. The slab is cured at high temperature, calibrated to an even thickness and polished.",
-          "Slabs come in 12, 20 and 30 mm and in a superjumbo format of up to 137 × 79 in (3,500 × 2,050 mm).",
+          "Slabs come in 12, 20, 30 mm and in a superjumbo format of up to 137 × 79 in (3,500 × 2,050 mm).",
         ]}
         image="/images/india-home/bretonstone-robot.webp"
         alt="A Breton robot over the quartz mix at the Bretonstone plant"

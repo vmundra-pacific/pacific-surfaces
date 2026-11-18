@@ -71,7 +71,7 @@ export default function WorktopDetailTabs({
     : EDGE_PROFILES;
   const [active, setActive] = useState<TabKey>("formats");
 
-  // Read the thickness list back as prose ("12, 20 and 30 mm") so the
+  // Read the thickness list back as prose ("12, 20, 30 mm") so the
   // copy stays true to whatever the editor set in Sanity rather than
   // hardcoding a range that may not apply to this product. Only real
   // measurements: Sanity also holds wording such as "As Per

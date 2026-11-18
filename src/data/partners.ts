@@ -37,8 +37,8 @@ export interface RegionDistributor {
 }
 
 export interface Partner {
-  /** Which region's CSS switch shows it: Middle East or Poland. */
-  region: "me" | "pl";
+  /** Which region's CSS switch shows it: Middle East, Poland or Mexico. */
+  region: "me" | "pl" | "mx";
   /** The small line above the brand. */
   kicker: string;
   /** The brand as shown: "Pacific by Fairdeal". */
@@ -64,6 +64,18 @@ export interface Partner {
   /** Distributors in the region, listed below the partner's contacts. */
   distributors?: RegionDistributor[];
 }
+
+/** Saral Mundra: Pacific Surfaces sales for Dubai and Mexico (owner,
+ *  2026-11-18), with the number and address /contact lists for him. Shown
+ *  on the Mexico card; the owner took him off the UAE card the same day
+ *  (Dubai visitors' WhatsApp still reaches him, data/sales-reps). */
+const SARAL_MUNDRA: PartnerContact = {
+  name: "Saral Mundra",
+  role: "Pacific Surfaces sales · Dubai & Mexico",
+  phone: { display: "+91 73977 46963", href: "tel:+917397746963" },
+  whatsapp: "917397746963",
+  email: "saral@thepacific.group",
+};
 
 export const PACIFIC_X_FAIRDEAL: Partner = {
   region: "me",
@@ -158,3 +170,18 @@ export const PACIFIC_POLSKA: Partner = {
 export function contactWhatsApp(c: PartnerContact, text: string) {
   return `https://wa.me/${c.whatsapp}?text=${encodeURIComponent(text)}`;
 }
+
+/**
+ * Mexico (owner, 2026-11-18): visitors whose region is Mexico see Saral
+ * Mundra, Pacific's sales contact for the market, in place of the outlet
+ * search (<html data-region="MX">, globals.css [data-mx-only]).
+ */
+export const PACIFIC_MEXICO: Partner = {
+  region: "mx",
+  kicker: "Where to buy · Mexico",
+  brand: "Pacific Surfaces",
+  tagline: "Quartz and granite surfaces for Mexico, supplied by Pacific",
+  serves: "Mexico",
+  addressLabel: "Contact",
+  contacts: [SARAL_MUNDRA],
+};

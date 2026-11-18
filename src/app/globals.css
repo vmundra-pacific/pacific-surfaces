@@ -198,3 +198,15 @@ html[data-region="PL"] [data-pl-only] {
 html[data-region="PL"] [data-pl-out] {
   display: none !important;
 }
+
+/* Mexico: Saral Mundra's card (data/partners PACIFIC_MEXICO), the same way
+   (<html data-region="MX">), owner 2026-11-18. */
+[data-mx-only] {
+  display: none;
+}
+html[data-region="MX"] [data-mx-only] {
+  display: block;
+}
+html[data-region="MX"] [data-mx-out] {
+  display: none !important;
+}

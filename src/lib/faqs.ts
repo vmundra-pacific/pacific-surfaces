@@ -36,7 +36,7 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
     },
     {
       q: "What sizes do Pacific quartz slabs come in?",
-      a: "Slabs are 137 × 79 in (3,500 × 2,050 mm), in 12, 20 and 30 mm thicknesses. The superjumbo format reduces the number of joints needed on long countertops and feature walls. Custom dimensions are available on indent orders.",
+      a: "Slabs are 137 × 79 in (3,500 × 2,050 mm), in 12, 20, 30 mm thicknesses. The superjumbo format reduces the number of joints needed on long countertops and feature walls. Custom dimensions are available on indent orders.",
     },
     {
       q: "How do I clean and maintain quartz?",

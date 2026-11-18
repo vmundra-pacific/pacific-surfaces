@@ -59,7 +59,7 @@ const TRADES = [
   },
   {
     title: "Fabricators",
-    body: "Slabs in 12, 20 and 30 mm and in superjumbo formats, straight from the plant that makes them.",
+    body: "Slabs in 12, 20, 30 mm and in superjumbo formats, straight from the plant that makes them.",
     image: "/images/india-home/bretonstone-robot.webp",
     alt: "A Breton robot over the quartz mix on the Bretonstone line",
     href: "/contact?type=fabricator#enquiry",
@@ -157,7 +157,7 @@ export default function CollaborationPage() {
             label: "Slab format",
             value: "Up to 137 × 79 in (3,500 × 2,050 mm)",
           },
-          { label: "Quartz thicknesses", value: "12, 20 and 30 mm" },
+          { label: "Quartz thicknesses", value: "12, 20, 30 mm" },
           {
             label: "Certificates",
             value: "NSF/ANSI 51, CE, ISO 9001:2015, Kosher, EPD",

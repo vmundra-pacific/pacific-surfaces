@@ -217,7 +217,7 @@ const MATERIALS = [
       "Quartz",
       "Countertops, islands, vanity tops, shower walls, cladding, furniture",
       "Interiors",
-      "12, 20 and 30 mm; slabs up to 137 × 79 in (3,500 × 2,050 mm)",
+      "12, 20, 30 mm; slabs up to 137 × 79 in (3,500 × 2,050 mm)",
     ],
     href: "/products/quartz",
   },
@@ -327,7 +327,7 @@ export default function ApplicationsPage() {
         eyebrow="Specifying Pacific Surfaces"
         title="The right material for each part of the building"
         body={[
-          "Quartz is engineered for interiors: countertops, islands, vanity tops, shower walls and cladding, in 12, 20 and 30 mm and in slabs up to 137 × 79 in (3,500 × 2,050 mm). Granite takes the floors, paving, steps and sills, inside and out. Beyond Stone panels clad facades, and translucent and semi-precious stone become a light source.",
+          "Quartz is engineered for interiors: countertops, islands, vanity tops, shower walls and cladding, in 12, 20, 30 mm and in slabs up to 137 × 79 in (3,500 × 2,050 mm). Granite takes the floors, paving, steps and sills, inside and out. Beyond Stone panels clad facades, and translucent and semi-precious stone become a light source.",
           "Each application below has its own guide, with the materials to use, the thicknesses that suit it and the details that matter on site.",
         ]}
       />

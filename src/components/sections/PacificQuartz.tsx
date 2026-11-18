@@ -34,7 +34,7 @@ const SPECS = [
     value: "137 × 79 in",
     note: "Superjumbo, 3,500 × 2,050 mm",
   },
-  { label: "Thickness, mm", value: "12, 20 and 30", note: "Three thicknesses" },
+  { label: "Thickness, mm", value: "12, 20, 30", note: "Three thicknesses" },
   { label: "Capacity", value: "12 million sq ft", note: "Of quartz a year" },
   { label: "Reach", value: "45+ countries", note: "Shipped from India" },
 ];

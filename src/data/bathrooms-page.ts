@@ -80,7 +80,7 @@ export const BATHROOMS_PAGE: SpacePageData = {
   design: {
     heading: "Design your bathroom with Pacific Surfaces",
     body: [
-      "Quartz and Eclipse for every surface in the bathroom, in 12, 20 and 30 mm.",
+      "Quartz and Eclipse for every surface in the bathroom, in 12, 20, 30 mm.",
       "From the vanity top and the basin to the shower tray, the walls and the floor.",
     ],
     cards: [

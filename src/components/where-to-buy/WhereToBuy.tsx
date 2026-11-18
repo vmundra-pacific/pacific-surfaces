@@ -50,7 +50,9 @@ import {
 } from "@/lib/where-to-buy";
 import { DealerEnquiry } from "./DealerEnquiry";
 import { PartnerCard } from "./PartnerCard";
-import { PACIFIC_POLSKA } from "@/data/partners";
+import { PACIFIC_MEXICO, PACIFIC_POLSKA } from "@/data/partners";
+import { whatsappLink } from "@/data/sales-reps";
+import { useSalesRep } from "@/lib/use-sales-rep";
 import "./where-to-buy.css";
 
 /**
@@ -250,6 +252,8 @@ export function WhereToBuy({
   /** Whether the mobile is checked with a texted code. */
   otp: boolean;
 }) {
+  // the visitor's regional rep for Call and WhatsApp (data/sales-reps)
+  const salesRep = useSalesRep();
   // Whether the visitor has left their details; the outlets themselves
   // come a search at a time from the server.
   const [unlocked, setUnlocked] = useState(startUnlocked);
@@ -919,9 +923,12 @@ export function WhereToBuy({
           <PartnerCard />
           {/* In Poland, Pacific Polska (owner, 2026-10-29), the same way. */}
           <PartnerCard partner={PACIFIC_POLSKA} />
+          {/* In Mexico, Saral Mundra (owner, 2026-11-18), the same way. */}
+          <PartnerCard partner={PACIFIC_MEXICO} />
           <div
             data-me-out
             data-pl-out
+            data-mx-out
             className="animate-fade-up w-full max-w-[746px] rounded-[6px] px-5 py-9 sm:px-12 sm:py-12"
             style={{ ...LIQUID_GLASS_DARK, animationDelay: "0.1s" }}
           >
@@ -1346,14 +1353,17 @@ export function WhereToBuy({
               <p className="mt-5 text-center text-[13px] font-light">
                 Prefer to talk?{" "}
                 <a
-                  href={SALES_PHONE.href}
+                  href={salesRep.phone.href}
                   className="underline underline-offset-4"
                 >
-                  {SALES_PHONE.display}
+                  {salesRep.phone.display}
                 </a>
                 {" · "}
                 <a
-                  href={`https://api.whatsapp.com/send/?phone=${SALES_PHONE.href.replace(/\D/g, "")}&text=${encodeURIComponent("Hi, I'd like to know where to buy Pacific Surfaces.")}&type=phone_number&app_absent=0`}
+                  href={whatsappLink(
+                    salesRep,
+                    "Hi, I'd like to know where to buy Pacific Surfaces."
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline underline-offset-4"

@@ -373,7 +373,12 @@ function deriveRibbon(ribbons?: string[] | null): Ribbon {
   const lower = ribbons.map((r) => r.trim().toLowerCase());
   // Sanity's value is "New Arrival"; matching only "new" meant no product
   // was ever new, so "New arrivals" sorted nothing first (2026-10-24).
-  if (lower.some((r) => r === "new" || r === "new arrival" || r === "new arrivals")) return "new";
+  if (
+    lower.some(
+      (r) => r === "new" || r === "new arrival" || r === "new arrivals"
+    )
+  )
+    return "new";
   if (lower.includes("featured") || lower.includes("top color"))
     return "featured";
   return null;
@@ -413,7 +418,7 @@ export const HUE_SWATCH: Record<Hue, string> = {
  * Anything that is not a measurement ("As Per Requirement") is kept   *
  * verbatim, so custom-order wording survives.                         *
  *                                                                     *
- * Only 12, 20 and 30 mm are actually produced. Editors have entered   *
+ * Only 12, 20, 30 mm are actually produced. Editors have entered   *
  * other values by mistake (a "1.5 cm" on nine products); those are    *
  * dropped rather than shown, so the filter never offers a thickness   *
  * that cannot be ordered. Fix the source data in Sanity and nothing   *
@@ -471,7 +476,8 @@ export function mapSanityToCatalogue(products: SanityProduct[]): Slab[] {
       // Code-side re-filing wins over Sanity until Sanity is corrected
       // (data/catalogue-refile.ts).
       const refile = REFILE[slug];
-      const collection = refile?.collection ?? p.collectionName ?? "Vision Series";
+      const collection =
+        refile?.collection ?? p.collectionName ?? "Vision Series";
       const hues = deriveHues(
         p.name,
         collection,

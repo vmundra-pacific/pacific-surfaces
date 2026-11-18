@@ -286,7 +286,7 @@ export const HOTELS_PAGE: SpacePageData = {
     {
       question: "Can one design run through the whole hotel?",
       answer:
-        "Yes. Pacific quartz is pressed at Superjumbo size, 137 × 79 in (3,500 × 2,050 mm), in 12, 20 and 30 mm thicknesses, so one design can run from the reception desk to the guest bathrooms.",
+        "Yes. Pacific quartz is pressed at Superjumbo size, 137 × 79 in (3,500 × 2,050 mm), in 12, 20, 30 mm thicknesses, so one design can run from the reception desk to the guest bathrooms.",
     },
     {
       question: "How do we start a hotel project?",

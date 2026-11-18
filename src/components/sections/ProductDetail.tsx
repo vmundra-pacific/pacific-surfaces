@@ -1,5 +1,8 @@
 "use client";
 
+import { whatsappLink } from "@/data/sales-reps";
+import { useSalesRep } from "@/lib/use-sales-rep";
+
 import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -124,9 +127,6 @@ const ribbonStyles: Record<string, string> = {
   Popular: "bg-pacific-dark/85 text-white",
 };
 
-const WHATSAPP_URL_BASE =
-  "https://api.whatsapp.com/send/?phone=919894033566&type=phone_number&app_absent=0&text=";
-
 const FAV_STORAGE_KEY = "ps_favorites_v1";
 
 const SECTION_IDS = [
@@ -217,6 +217,7 @@ const WHY_CHOOSE: Partial<Record<ProductKind, string>> = {
 };
 
 export function ProductDetail({ product }: { product: Product }) {
+  const salesRep = useSalesRep();
   // ---- Similar-product ranking — single source of truth ----
   // Computed once here and reused by:
   //   - the "You May Also Like" rail below, AND
@@ -675,11 +676,11 @@ export function ProductDetail({ product }: { product: Product }) {
     }
   };
 
-  const whatsappHref =
-    WHATSAPP_URL_BASE +
-    encodeURIComponent(
-      `Hi, I'm interested in ${product.name} from Pacific Surfaces. Please share more details and pricing.`
-    );
+  // to the visitor's regional rep (data/sales-reps)
+  const whatsappHref = whatsappLink(
+    salesRep,
+    `Hi, I'm interested in ${product.name} from Pacific Surfaces. Please share more details and pricing.`
+  );
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);

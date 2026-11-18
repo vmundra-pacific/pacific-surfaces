@@ -12,7 +12,9 @@ import {
 } from "lucide-react";
 import { LIQUID_GLASS } from "@/components/global/liquid-glass";
 import { SillDialog } from "@/components/sections/sills/SillDialog";
-import { EMAIL, SALES_PHONE } from "@/data/business";
+import { EMAIL } from "@/data/business";
+import { repFor, whatsappLink } from "@/data/sales-reps";
+import { useRegionCountry } from "@/lib/use-region-country";
 import { trackMetaEvent } from "@/lib/meta-pixel";
 import { cn } from "@/lib/utils";
 
@@ -31,8 +33,9 @@ import { cn } from "@/lib/utils";
  * "#quote", which SillsQuote handles).
  */
 
-const WHATSAPP =
-  "https://api.whatsapp.com/send/?phone=919894033566&text=Hi%2C+I+am+interested+in+your+quartz+and+granite+surfaces.+Please+share+details+and+pricing&type=phone_number&app_absent=0";
+/** WhatsApp and Call go to the visitor's regional rep (data/sales-reps). */
+const WHATSAPP_TEXT =
+  "Hi, I am interested in your quartz and granite surfaces. Please share details and pricing";
 
 const SILLS_PAGE =
   "/products/pacific-european-window-sill-threshold-collection";
@@ -96,6 +99,11 @@ declare global {
 }
 
 export function SupportDock() {
+  // the regional rep for WhatsApp and Call (null region: international)
+  const country = useRegionCountry();
+  const salesRep = repFor(country);
+  const WHATSAPP = whatsappLink(salesRep, WHATSAPP_TEXT);
+  const SALES_PHONE = salesRep.phone;
   const pathname = usePathname() ?? "/";
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
