@@ -202,7 +202,12 @@ export function SignatureProjects({
     }
   }
 
-  const rawItems: Item[] = [...slots, ...overflow];
+  // Placeholders only stand in when Sanity has no projects at all.
+  // Once real projects exist, an unclaimed slot (e.g. a deleted card)
+  // is dropped rather than painted as a blank tile (2026-11-18).
+  const rawItems: Item[] = sanityProjects.length
+    ? [...slots.filter((_, i) => claimed.has(i)), ...overflow]
+    : [...slots, ...overflow];
 
   // On phone: drop cards that would render empty (videoUrl-only,
   // no image to fall back to). Keep everything else, including
@@ -263,11 +268,21 @@ export function SignatureProjects({
           {row1.map((p, i) => (
             <StaggerItem
               key={`${p.name}-${i}`}
-              className={i === 0 ? "md:col-span-3" : "md:col-span-2"}
+              className={
+                row1.length === 1
+                  ? "md:col-span-5"
+                  : i === 0
+                    ? "md:col-span-3"
+                    : "md:col-span-2"
+              }
             >
               <ProjectCard
                 item={p}
-                aspect="aspect-[16/10]"
+                aspect={
+                  i === 0
+                    ? "aspect-[16/10]"
+                    : "aspect-[16/10] md:aspect-auto md:h-full"
+                }
                 fallbackBg={gradientFallbacks[i]}
               />
             </StaggerItem>
@@ -275,7 +290,15 @@ export function SignatureProjects({
         </StaggerContainer>
 
         {/* Row 2 */}
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StaggerContainer
+          className={`grid grid-cols-1 gap-4 ${
+            row2.length === 1
+              ? "md:grid-cols-1"
+              : row2.length === 2 || row2.length === 4
+                ? "md:grid-cols-2"
+                : "md:grid-cols-3"
+          }`}
+        >
           {row2.map((p, i) => (
             <StaggerItem key={`${p.name}-${i}`}>
               <ProjectCard
