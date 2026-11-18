@@ -191,7 +191,7 @@ const SECTION_COPY: Record<SectionKey, SectionCopy> = {
     title: "Wall Cladding",
     titleAccent: "& Façades",
     description:
-      "Never tile a wall again. At 137 × 79 in (3,500 × 2,050 mm), Pacific slabs are among the largest engineered stone formats available in India — clad an entire feature wall in a single, uninterrupted piece of stone.",
+      "Never tile a wall again. At 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in, Pacific slabs are among the largest engineered stone formats available in India — clad an entire feature wall in a single, uninterrupted piece of stone.",
     match: "architecture",
     // Dark architectural stone — graphite to deep slate.
     placeholderGradient:

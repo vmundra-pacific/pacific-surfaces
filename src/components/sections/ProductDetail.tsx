@@ -382,6 +382,11 @@ export function ProductDetail({ product }: { product: Product }) {
     : isSuperjumboSeries
       ? SUPERJUMBO_SIZE
       : undefined;
+  // A size is the slab's when it is the quartz slab or a natural-stone
+  // slab typed in cm ("325 X 203 CM"); a sink's, or a vanity top's typed
+  // in inches ("48 X 22 inches"), is the piece itself.
+  const sizeIsSlab =
+    kind !== "sink" && (size === SUPERJUMBO_SIZE || /\bcm\b/i.test(sanitySize));
   // Wrap the collection name through formatCollection so the
   // editorial rename map (e.g. "Vision" → "Eclipse",
   // "Stone Finishes" → "Beyond Stone") applies to the eyebrow
@@ -1667,6 +1672,7 @@ export function ProductDetail({ product }: { product: Product }) {
         thicknesses={thicknesses}
         finishes={finishes}
         size={size}
+        sizeIsSlab={sizeIsSlab}
         mitredOnly={mitredOnly}
       />
 

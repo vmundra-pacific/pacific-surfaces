@@ -79,6 +79,7 @@ export function ProHero({
   video,
   ctas,
   facts = [],
+  imagePosition = "",
 }: {
   eyebrow: string;
   title: string;
@@ -86,6 +87,10 @@ export function ProHero({
   /** Full-bleed photograph; also the still under `video` until it plays. */
   image: string;
   alt: string;
+  /** Object-position classes for the still, to keep something in the
+   *  picture (a sign on a building) out from under the copy on phones,
+   *  e.g. "object-[30%_50%] md:object-center". */
+  imagePosition?: string;
   /**
    * A muted loop over the photograph, from md up (phones keep the still).
    * The source carries the md media query, so phones never fetch the clip
@@ -110,7 +115,7 @@ export function ProHero({
         priority
         fetchPriority="high"
         sizes="100vw"
-        className="-z-20 object-cover"
+        className={`-z-20 object-cover ${imagePosition}`}
       />
       {video && (
         <video
@@ -158,7 +163,7 @@ export function ProHero({
               >
                 <p
                   style={LIGHT}
-                  className="text-[20px] leading-tight tracking-[-0.01em] sm:text-[24px] lg:text-[32px]"
+                  className="text-[20px] leading-tight tracking-[-0.01em] sm:text-[24px] lg:text-[28px] xl:text-[32px]"
                 >
                   {f.value}
                 </p>
@@ -759,7 +764,7 @@ export function ProTeam({
                     alt={p.name}
                     fill
                     sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
-                    className="object-cover grayscale transition duration-500 group-hover/person:grayscale-0"
+                    className="object-cover"
                   />
                 </div>
                 <p className="mt-4 text-[15px] uppercase tracking-[0.08em]">

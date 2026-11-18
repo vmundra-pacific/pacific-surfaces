@@ -38,9 +38,9 @@ const stats = [
 const timeline = [
   {
     year: "2000",
-    title: "Pacific Granites — Founded",
+    title: "Pacific Stones Pvt. Ltd. — Founded",
     description:
-      "Inception of Pacific Granites as a regional natural stone supplier, laying the foundation for what would become one of India's leading engineered surface manufacturers.",
+      "Inception of Pacific Stones Pvt. Ltd. as a regional natural stone supplier, laying the foundation for what would become one of India's leading engineered surface manufacturers.",
   },
   {
     year: "2011",

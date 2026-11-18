@@ -29,7 +29,7 @@ export const BATHROOMS_PAGE: SpacePageData = {
       label: "Floor to ceiling",
       heading: "Walls in Superjumbo slabs",
       body: [
-        "Shower walls, feature walls and full-height cladding from slabs of 137 × 79 in (3,500 × 2,050 mm), so a wall goes up with very few joints.",
+        "Shower walls, feature walls and full-height cladding from slabs of 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in, so a wall goes up with very few joints.",
         "The same design carries on to the floor, the shower tray and the vanity.",
       ],
       image: `${B}/shower-wall.jpg`,
@@ -226,7 +226,7 @@ export const BATHROOMS_PAGE: SpacePageData = {
     {
       question: "Can a shower be clad in quartz?",
       answer:
-        "Yes, the walls and the tray. Superjumbo slabs, 137 × 79 in (3,500 × 2,050 mm), cover most shower walls with very few joints.",
+        "Yes, the walls and the tray. Slabs of 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in cover most shower walls with very few joints.",
     },
     {
       question: "Does quartz need sealing in a bathroom?",

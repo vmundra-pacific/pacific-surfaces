@@ -217,7 +217,7 @@ const MATERIALS = [
       "Quartz",
       "Countertops, islands, vanity tops, shower walls, cladding, furniture",
       "Interiors",
-      "12, 20, 30 mm; slabs up to 137 × 79 in (3,500 × 2,050 mm)",
+      "12, 20, 30 mm; slabs up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
     ],
     href: "/products/quartz",
   },
@@ -283,7 +283,7 @@ const FAQS = [
   },
   {
     q: "How large is a single slab?",
-    a: "Pacific Surfaces quartz is made in a superjumbo format of up to 137 × 79 in (3,500 × 2,050 mm), so most islands and many walls need no joint.",
+    a: "Pacific Surfaces quartz is made in slabs of up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in, so most islands and many walls need no joint.",
   },
   {
     q: "Where can I see the materials installed?",
@@ -327,7 +327,7 @@ export default function ApplicationsPage() {
         eyebrow="Specifying Pacific Surfaces"
         title="The right material for each part of the building"
         body={[
-          "Quartz is engineered for interiors: countertops, islands, vanity tops, shower walls and cladding, in 12, 20, 30 mm and in slabs up to 137 × 79 in (3,500 × 2,050 mm). Granite takes the floors, paving, steps and sills, inside and out. Beyond Stone panels clad facades, and translucent and semi-precious stone become a light source.",
+          "Quartz is engineered for interiors: countertops, islands, vanity tops, shower walls and cladding, in 12, 20, 30 mm and in slabs up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in. Granite takes the floors, paving, steps and sills, inside and out. Beyond Stone panels clad facades, and translucent and semi-precious stone become a light source.",
           "Each application below has its own guide, with the materials to use, the thicknesses that suit it and the details that matter on site.",
         ]}
       />

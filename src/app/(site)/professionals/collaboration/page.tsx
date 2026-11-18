@@ -134,7 +134,10 @@ export default function CollaborationPage() {
         ]}
         facts={[
           { value: "45+", label: "Countries we export to" },
-          { value: "137 × 79 in", label: "Superjumbo slab, 3,500 × 2,050 mm" },
+          {
+            value: "350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
+            label: "Slab size",
+          },
           { value: "5", label: "Certificates on file" },
           { value: "Since 2000", label: "Working in stone" },
         ]}
@@ -155,7 +158,8 @@ export default function CollaborationPage() {
           },
           {
             label: "Slab format",
-            value: "Up to 137 × 79 in (3,500 × 2,050 mm)",
+            value:
+              "Up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
           },
           { label: "Quartz thicknesses", value: "12, 20, 30 mm" },
           {

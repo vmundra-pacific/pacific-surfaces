@@ -176,7 +176,7 @@ const TOPIC_COPY: Record<string, TopicCopy> = {
       {
         heading: "Where Pacific quartz lives",
         content:
-          "Specified for kitchen worktops and islands, vanity tops, feature walls, reception desks, bar tops, and any high-traffic surface where consistency, durability, and ease of maintenance matter. Pacific's superjumbo format (137 × 79 in, 3,500 × 2,050 mm) reduce joints on long runs, making quartz the engineered surface of choice for galley kitchens, hospitality counters, and continuous wall cladding.",
+          "Specified for kitchen worktops and islands, vanity tops, feature walls, reception desks, bar tops, and any high-traffic surface where consistency, durability, and ease of maintenance matter. Pacific's slabs, up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in, reduce joints on long runs, making quartz the engineered surface of choice for galley kitchens, hospitality counters, and continuous wall cladding.",
         imageLabel: "Quartz kitchen install",
       },
     ],

@@ -82,7 +82,7 @@ export const HOTELS_PAGE: SpacePageData = {
   design: {
     heading: "Design your hotel with Pacific Surfaces",
     body: [
-      "Quartz and Eclipse in Superjumbo slabs, 137 × 79 in (3,500 × 2,050 mm), for every surface a guest sees and touches.",
+      "Quartz and Eclipse in slabs of 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in, for every surface a guest sees and touches.",
       "From the reception desk and the bar to the spa, the rooms and the bathrooms, in one design or several.",
     ],
     cards: [
@@ -286,7 +286,7 @@ export const HOTELS_PAGE: SpacePageData = {
     {
       question: "Can one design run through the whole hotel?",
       answer:
-        "Yes. Pacific quartz is pressed at Superjumbo size, 137 × 79 in (3,500 × 2,050 mm), in 12, 20, 30 mm thicknesses, so one design can run from the reception desk to the guest bathrooms.",
+        "Yes. Pacific quartz is pressed at 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in, in 12, 20, 30 mm thicknesses, so one design can run from the reception desk to the guest bathrooms.",
     },
     {
       question: "How do we start a hotel project?",

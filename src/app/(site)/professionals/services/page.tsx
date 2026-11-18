@@ -129,7 +129,7 @@ const FAQS = [
   },
   {
     q: "How large can one piece be?",
-    a: "Up to the size of the slab. Pacific Surfaces quartz is made in a superjumbo format of up to 137 × 79 in (3,500 × 2,050 mm), so most islands and long counters need no joint. Longer runs are joined and the joints hand-finished.",
+    a: "Up to the size of the slab. Pacific Surfaces quartz is made in slabs of up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in, so most islands and long counters need no joint. Longer runs are joined and the joints hand-finished.",
   },
   {
     q: "Do you supply projects outside India?",
@@ -163,7 +163,10 @@ export default function ServicesPage() {
           { label: "Fab Creations designs", href: "/products/fab-creations" },
         ]}
         facts={[
-          { value: "137 × 79 in", label: "Superjumbo slab, 3,500 × 2,050 mm" },
+          {
+            value: "350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
+            label: "Slab size",
+          },
           { value: "12 · 20 · 30 mm", label: "Quartz thicknesses" },
           { value: "45+", label: "Countries we export to" },
           { value: "Since 2000", label: "Working in stone" },
@@ -182,7 +185,8 @@ export default function ServicesPage() {
           { label: "Materials", value: "Quartz, Eclipse and granite" },
           {
             label: "Slab format",
-            value: "Up to 137 × 79 in (3,500 × 2,050 mm)",
+            value:
+              "Up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
           },
           { label: "Quartz thicknesses", value: "12, 20, 30 mm" },
           { label: "Drawings", value: "DWG, PDF or a hand sketch" },
@@ -216,7 +220,7 @@ export default function ServicesPage() {
         ]}
         points={[
           "Quartz in 12, 20, 30 mm",
-          "Superjumbo slabs up to 137 × 79 in (3,500 × 2,050 mm), for fewer joints",
+          "Slabs up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in, for fewer joints",
           "Up to 12 million sq ft of quartz a year",
           "Certificates on file: NSF/ANSI 51, CE, ISO 9001:2015, Kosher, EPD",
         ]}

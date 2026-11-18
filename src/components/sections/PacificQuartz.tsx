@@ -31,8 +31,8 @@ const LABEL = "text-[11px] uppercase tracking-[0.16em] opacity-60";
 const SPECS = [
   {
     label: "Slab format",
-    value: "137 × 79 in",
-    note: "Superjumbo, 3,500 × 2,050 mm",
+    value: "350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
+    note: "The full slab",
   },
   { label: "Thickness, mm", value: "12, 20, 30", note: "Three thicknesses" },
   { label: "Capacity", value: "12 million sq ft", note: "Of quartz a year" },
@@ -148,7 +148,7 @@ export function PacificQuartz() {
       {/* The numbers. */}
       <section className="border-b border-[#14140f]/10 bg-white">
         <Container>
-          <dl className="grid gap-px py-4 sm:grid-cols-2 lg:grid-cols-4">
+          <dl className="grid gap-px py-4 sm:grid-cols-2 xl:grid-cols-4">
             {SPECS.map((s) => (
               <div key={s.label} className="px-2 py-7 lg:px-6">
                 <dt className={LABEL}>{s.label}</dt>

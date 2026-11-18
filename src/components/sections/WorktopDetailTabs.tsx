@@ -55,6 +55,7 @@ export default function WorktopDetailTabs({
   thicknesses,
   finishes,
   size,
+  sizeIsSlab = true,
   mitredOnly = false,
 }: {
   productName: string;
@@ -62,6 +63,9 @@ export default function WorktopDetailTabs({
   finishes: string[];
   /** Slab format; undefined when it is not known as a measurement. */
   size?: string;
+  /** False when `size` is the piece itself (a basin, a vanity top), not
+   *  the slab it is cut from: then it is not called a slab size. */
+  sizeIsSlab?: boolean;
   /** Eclipse: a mitred edge is the only one offered, so no other profile
    *  is shown (owner, 2026-10-12). */
   mitredOnly?: boolean;
@@ -94,9 +98,13 @@ export default function WorktopDetailTabs({
           </>
         }
         left={
-          sizeKnown
-            ? `${productName} is supplied in an available slab size of ${size}, which covers the great majority of kitchen and vanity runs without a joint. Larger or irregular layouts are cut to your template.`
-            : `Slab sizes and thicknesses for ${productName} are confirmed at quotation, against your project's cutting list. Every layout is cut to your template.`
+          sizeKnown && !sizeIsSlab
+            ? /:/.test(size ?? "")
+              ? `${productName}, ${size.replace(/\s*\|\s*/g, "; ")}. Other sizes are made to order, cut to your template.`
+              : `${productName} measures ${size}. Other sizes are made to order, cut to your template.`
+            : sizeKnown
+              ? `${productName} is supplied in an available slab size of ${size}, which covers the great majority of kitchen and vanity runs without a joint. Larger or irregular layouts are cut to your template.`
+              : `Slab sizes and thicknesses for ${productName} are confirmed at quotation, against your project's cutting list. Every layout is cut to your template.`
         }
         right={
           thicknessProse

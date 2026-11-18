@@ -11,6 +11,7 @@ import {
   EMAIL,
   FACTORY,
   FACTORY_ADDRESS,
+  GRANITE_FACTORY,
   SALES_PHONE,
   SOCIAL_PROFILES,
 } from "@/data/business";
@@ -453,6 +454,22 @@ export default function Footer() {
                   </a>
                 </span>
               ))}
+            </p>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <MapPin className="w-4 h-4 text-pacific-mid shrink-0 mt-0.5" />
+            <p className="font-light">
+              <span className="text-pacific-light font-medium">
+                Granite Factory:
+              </span>{" "}
+              {GRANITE_FACTORY.name}, {GRANITE_FACTORY.address}
+              {" · "}
+              <a
+                href={GRANITE_FACTORY.phone.href}
+                className="whitespace-nowrap hover:text-white transition-colors duration-300"
+              >
+                {GRANITE_FACTORY.phone.display}
+              </a>
             </p>
           </div>
           <div className="flex items-start gap-2.5">

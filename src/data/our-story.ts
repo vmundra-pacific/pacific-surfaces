@@ -2,7 +2,7 @@
  * Our Story (/about): the milestones and the team, 2026-10-08.
  *
  * Milestones are the dates on record (memory: pacific-site-facts): founded
- * 2000 as Pacific Granites; exports from 2011; Pacific Quartz Surfaces LLP
+ * 2000 as Pacific Stones Pvt. Ltd. (owner, 2026-11-18); exports from 2011; Pacific Quartz Surfaces LLP
  * in 2018; the quartz-grit factory, now Pacific Mintek, in 2020; the
  * Bretonstone plant in 2023; the Poland warehouse in late 2024. The old
  * page's growth rate and "one of India's leading" lines are not repeated.
@@ -13,12 +13,16 @@
  * 2026-11-17 (owner): Vikram Singh is Business Head India; Satakshi
  * Rautaray joins the list as Business Head DACH & Benelux, her photograph
  * cropped to the same head-and-shoulders frame as the others.
+ *
+ * 2026-11-18 (owner): Rajani Somani, Marketing Director, after Varun
+ * Somani; Saral Mundra, Business Head Mexico & Middle East, before
+ * Paulina. The 2000 founding name is Pacific Stones Pvt. Ltd.
  */
 
 export const MILESTONES = [
   {
     year: "2000",
-    title: "Pacific Granites",
+    title: "Pacific Stones Pvt. Ltd.",
     body: "Founded as a natural stone business, supplying granite.",
   },
   {
@@ -66,6 +70,11 @@ export const TEAM: {
     linkedin: "https://www.linkedin.com/in/varunsomani-pacific/",
   },
   {
+    name: "Rajani Somani",
+    role: "Marketing Director",
+    photo: "/team/rajani-somani.jpg",
+  },
+  {
     name: "Varun Mundra",
     role: "Director",
     photo: "/team/varun-mundra.jpg",
@@ -93,6 +102,11 @@ export const TEAM: {
     name: "Vikram Singh",
     role: "Business Head India",
     photo: "/team/vikram-singh.jpg",
+  },
+  {
+    name: "Saral Mundra",
+    role: "Business Head Mexico & Middle East",
+    photo: "/team/saral-mundra.jpg",
   },
   {
     name: "Paulina Popławska",

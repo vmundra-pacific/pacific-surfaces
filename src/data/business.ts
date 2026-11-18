@@ -99,6 +99,16 @@ export const FACTORY = {
 /** Street, town, state and PIN on one line. */
 export const FACTORY_ADDRESS = `${FACTORY.streetAddress}, ${FACTORY.locality}, ${FACTORY.region} ${FACTORY.postalCode}`;
 
+/** The granite factory, as on its Google Business Profile (owner,
+ *  2026-11-18): Pacific Granites India Pvt. Ltd.; its phone is the sales
+ *  line. Shown in the footer under the quartz factory. */
+export const GRANITE_FACTORY = {
+  name: "Pacific Granites India Pvt. Ltd.",
+  address:
+    "Kundumaranapalli Road, Nallaganakothapalli, Hosur, Tamil Nadu 635117",
+  phone: SALES_PHONE,
+} as const;
+
 export const SOCIAL_PROFILES = {
   instagram: "https://www.instagram.com/pacific_surfaces/",
   facebook: "https://www.facebook.com/thepacificstone/",
