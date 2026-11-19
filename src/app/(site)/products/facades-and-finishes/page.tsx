@@ -48,7 +48,8 @@ export default async function FacadesAndFinishesPage() {
       // the Pacific dataset. The singleton's collectionSlug field
       // overrides if the collection is ever renamed.
       const slug =
-        ((await cms.beyondStoneCollectionSlug()) as string | null) || "stone-finishes";
+        ((await cms.beyondStoneCollectionSlug()) as string | null) ||
+        "stone-finishes";
       return cms.beyondStoneProducts(slug);
     })(),
   ]);

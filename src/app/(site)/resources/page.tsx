@@ -22,8 +22,7 @@ export default async function ResourcesPage() {
   // Fetch all visible resources from Sanity. Returns [] when none have
   // been authored yet — ResourcesContent gracefully falls back to its
   // hardcoded card list in that case so the page is never empty.
-  const resources =
-    await cms.resources<SanityResource[]>();
+  const resources = await cms.resources<SanityResource[]>();
   return (
     <>
       <BreadcrumbList

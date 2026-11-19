@@ -174,9 +174,7 @@ export const revalidate = 60;
 // identical Sanity round-trips per request. React.cache collapses
 // them into one fetch each within a single request.
 const getCategoryPage = cache((slug: string) => resolveCategoryPage(slug));
-const getProduct = cache((slug: string) =>
-  cms.product(slug)
-);
+const getProduct = cache((slug: string) => cms.product(slug));
 
 /** The product fields the metadata and the JSON-LD read. */
 interface ProductFacts {

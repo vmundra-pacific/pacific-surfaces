@@ -336,7 +336,9 @@ export async function resolveCategoryPage(
   // misses two-word ribbon labels — pulling the candidate set and
   // filtering client-side avoids that quirk entirely.
   if (config.ribbon) {
-    const products = (await cms.productsWithAnyRibbon()) as Array<Record<string, unknown> & { ribbons?: string[] | null }>;
+    const products = (await cms.productsWithAnyRibbon()) as Array<
+      Record<string, unknown> & { ribbons?: string[] | null }
+    >;
     // Normalise: lowercase and strip every non-alphanumeric character
     // so "Eco Surface", "EcoSurface", "eco-surface", "Eco_Surface" all
     // collapse to the same bare comparand.

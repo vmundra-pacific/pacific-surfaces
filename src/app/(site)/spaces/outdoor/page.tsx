@@ -59,8 +59,7 @@ const SECTIONS = [
 export const revalidate = 60;
 
 export default async function OutdoorSpacePage() {
-  const images =
-    (await cms.spacePage<SpacePageImages | null>("outdoor")) ?? {};
+  const images = (await cms.spacePage<SpacePageImages | null>("outdoor")) ?? {};
   const sectionImages = [
     images.section1Image,
     images.section2Image,
