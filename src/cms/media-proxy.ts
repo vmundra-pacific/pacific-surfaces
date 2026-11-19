@@ -1,5 +1,6 @@
 import "server-only";
 import { MEDIA_NAME_RE } from "@/lib/media-url";
+import { contentSource } from "./client";
 import { mediaUpstream } from "./media";
 
 /**
@@ -10,6 +11,8 @@ import { mediaUpstream } from "./media";
  * catalogue reader's byte ranges, downloads) and every file on the CMS's
  * own host, which visitors cannot open.
  *
+ * - Only with CONTENT_SOURCE=cms. Otherwise every name is not found, as
+ *   before this route existed.
  * - Only a CMS file name is accepted: `<32 hex>[-w<width>|-share].<ext>`.
  *   Anything else, a path or `..` included, is not found.
  * - The file comes from the media host when this site knows it, else from
@@ -44,6 +47,7 @@ export async function proxyCmsMedia(
   name: string,
   method: "GET" | "HEAD"
 ): Promise<Response> {
+  if (contentSource() !== "cms") return notFound();
   if (typeof name !== "string" || !MEDIA_NAME_RE.test(name)) return notFound();
   const upstream = mediaUpstream(name);
   if (!upstream) return notFound();

@@ -799,6 +799,7 @@ async function checkMediaProxy(base: string): Promise<void> {
   process.env.CMS_URL = base;
   process.env.CMS_PROTECTION_BYPASS = "dummy-bypass";
   const h = FILE_HASH.ok;
+  process.env.CONTENT_SOURCE = "cms";
   const ask = (
     name: string,
     headers: Record<string, string> = {},
@@ -833,8 +834,20 @@ async function checkMediaProxy(base: string): Promise<void> {
     );
   }
 
-  // From the CMS's file route, with the pass.
+  // With CONTENT_SOURCE unset: not found, as before the route existed.
+  delete process.env.CONTENT_SOURCE;
   let before = seen.length;
+  const unset = await ask(`${h}.jpg`);
+  check(
+    "with CONTENT_SOURCE unset, a good name is 404 and nothing is fetched",
+    unset.status === 404 &&
+      (await unset.text()) === "Not found." &&
+      seen.length === before
+  );
+  process.env.CONTENT_SOURCE = "cms";
+
+  // From the CMS's file route, with the pass.
+  before = seen.length;
   let response = await ask(`${h}.jpg`);
   let sent = seen.slice(before);
   const body = Buffer.from(await response.arrayBuffer());
@@ -1092,6 +1105,7 @@ async function checkMediaProxy(base: string): Promise<void> {
   );
   if (beforeMedia === undefined) delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
   else process.env.NEXT_PUBLIC_MEDIA_BASE_URL = beforeMedia;
+  delete process.env.CONTENT_SOURCE;
 }
 
 /**
