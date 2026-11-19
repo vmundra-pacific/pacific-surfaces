@@ -101,6 +101,11 @@ type StandInAnswer = {
   body?: string;
   location?: string;
   delayMs?: number;
+  /**
+   * Send the headers and the first half of the body, then cut the
+   * connection: "sized" with a Content-Length, "chunked" without one.
+   */
+  breakOff?: "sized" | "chunked";
 };
 
 /** Answers a check puts in place for a while, by the last part of the path. */
@@ -157,6 +162,10 @@ function standIn(name: string): StandInAnswer {
       return { status: 302, location: "https://example.com/login" };
     case "slow":
       return { ...json([1]), delayMs: 1500 };
+    case "broken-sized":
+      return { ...json([{ a: 1 }, { b: 2 }]), breakOff: "sized" };
+    case "broken-chunked":
+      return { ...json([{ a: 1 }, { b: 2 }]), breakOff: "chunked" };
     case "sitemap-empty":
       return json({ products: [], posts: [], dates: {} });
     case "sitemap-no-dates":
@@ -301,6 +310,21 @@ function startStandIn(): Promise<Server> {
       return;
     }
     const answer = standIn(url.pathname.split("/").pop() ?? "");
+    if (answer.breakOff) {
+      const body = Buffer.from(answer.body ?? "");
+      const headers: Record<string, string> = {
+        "content-type": answer.type ?? "application/json",
+      };
+      if (answer.breakOff === "sized") {
+        headers["content-length"] = String(body.length);
+      }
+      res.writeHead(answer.status, headers);
+      res.flushHeaders();
+      res.write(body.subarray(0, Math.floor(body.length / 2)));
+      // Long enough for the reader to have the headers and that part.
+      setTimeout(() => res.socket?.destroy(), 150);
+      return;
+    }
     const send = () => {
       const headers: Record<string, string> = {};
       if (answer.type) headers["content-type"] = answer.type;
@@ -1293,6 +1317,25 @@ async function checkPassingFailures(base: string): Promise<void> {
     check(
       `${name} falls back`,
       isCmsReadError(error) && !passedOn(error),
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+  // A body that breaks off once the headers are in: the read itself
+  // fails, not the connection, and it may pass like a network error.
+  for (const kind of ["sized", "chunked"] as const) {
+    const error = await failureOf(() =>
+      readCmsAnswer(`broken-${kind}`, {}, list)
+    );
+    check(
+      `a body that breaks off mid-way (${kind}) falls back`,
+      isCmsReadError(error) && error.passing === true && !passedOn(error),
+      error instanceof Error ? error.message : String(error)
+    );
+    check(
+      `it failed while the body was read (${kind}), after a 200`,
+      isCmsReadError(error) &&
+        error.status === 200 &&
+        /the answer could not be read/.test(error.message),
       error instanceof Error ? error.message : String(error)
     );
   }
