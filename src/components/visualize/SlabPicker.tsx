@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import type { Slab } from "@/data/slabs";
 import { sanityImg } from "@/lib/sanity-img";
-import { cmsImg, isCmsMedia } from "@/lib/media-url";
+import { slabPickerThumbUrl } from "@/lib/picture-choices";
 
 interface SlabPickerProps {
   slabs: Slab[];
@@ -214,19 +214,10 @@ export function SlabPicker({
                   // swatch. Lazy + async decode keeps the dock
                   // responsive when there are 13+ thumbnails. If the
                   // request fails the swatch beneath remains visible.
-                  // A CMS photograph: its 384 px copy, which covers
-                  // the 240x180 box (object-cover) for a slab's shape.
+                  // Which file: lib/picture-choices.
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={
-                      isCmsMedia(s.photoUrl)
-                        ? cmsImg(s.photoUrl, { w: 384 })
-                        : s.photoUrl.includes("cdn.sanity.io")
-                          ? s.photoUrl +
-                            (s.photoUrl.includes("?") ? "&" : "?") +
-                            "w=240&h=180&fit=crop&q=70&auto=format"
-                          : s.photoUrl
-                    }
+                    src={slabPickerThumbUrl(s.photoUrl)}
                     alt={`${s.name} slab swatch`}
                     loading="lazy"
                     decoding="async"

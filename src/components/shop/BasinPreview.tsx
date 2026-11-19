@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { applySlabToRegion } from "@/components/visualize/slab-texture";
 import { localVariant, variantWidth } from "@/lib/image-variants";
-import { cmsImg, isCmsMedia, toProxy } from "@/lib/media-url";
+import { slabUrl } from "@/lib/picture-choices";
 
 /**
  * Live basin preview — the visualizer's compositing pipeline, applied to a
@@ -77,23 +77,6 @@ let lastWidth: number | null = null;
 /** A layer at (at least) the width it will be drawn: its ready-made copy
  *  when it has one, else the original. */
 const layerAt = (src: string, width: number) => localVariant(src, width) ?? src;
-
-/** A slab photograph as the compositor draws it: through our own proxy
- *  (first-party, CORS-clean), resized by Sanity to the canvas width at full
- *  quality, or a CMS photograph's ready-made copy at or above that width.
- *  Local files are used as they are. */
-function slabUrl(src: string, width: number): string {
-  if (isCmsMedia(src)) return toProxy(cmsImg(src, { w: Math.round(width) }));
-  const m = src.match(/^https?:\/\/cdn\.sanity\.io\/(images\/[^?]+)(\?.*)?$/);
-  if (!m) return src;
-  const q = new URLSearchParams(m[2]?.slice(1) ?? "");
-  if (!q.has("w")) {
-    q.set("w", String(Math.round(width)));
-    q.set("fit", "max");
-    q.set("q", "100");
-  }
-  return `/api/cdn/${m[1]}?${q.toString()}`;
-}
 
 /** Fetch a colour's slab ahead of a click (hover, focus), so the swap
  *  only has to composite. */

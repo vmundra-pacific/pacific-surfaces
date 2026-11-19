@@ -4,9 +4,7 @@ import { ImageResponse } from "next/og";
 // from Sanity's CDN. The proxy is for browser requests; OG generation
 // is server-to-server and doesn't carry cookies anyway.
 import * as cms from "@/cms/read";
-import { sanityImg } from "@/lib/sanity-img";
-import { cmsShareImage } from "@/cms/media";
-import { isCmsMedia } from "@/lib/media-url";
+import { shareBackground } from "@/cms/media";
 
 /**
  * Per-blog-post OG image. Renders the post's hero image as background,
@@ -30,13 +28,9 @@ export default async function Image({ params }: Props) {
 
   const title = post?.title ?? "Field Notes";
   const eyebrow = "Field Notes · The Pacific Journal";
-  // A CMS picture: its share card copy, fetched here (the CMS's own
-  // host needs this server's pass). A Sanity picture: as before.
-  const bgImage = !post?.mainImage
-    ? undefined
-    : isCmsMedia(post.mainImage)
-      ? await cmsShareImage(post.mainImage)
-      : sanityImg(post.mainImage, { w: 1200, h: 630, q: 80, fit: "crop" });
+  // A CMS picture: its share card copy, fetched here. A Sanity picture:
+  // as before (src/cms/media.ts).
+  const bgImage = await shareBackground(post?.mainImage);
 
   return new ImageResponse(
     (

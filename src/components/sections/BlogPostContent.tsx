@@ -29,7 +29,7 @@ import { ChevronRight, Clock, ArrowLeft } from "lucide-react";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { urlForImage } from "@/sanity/lib/image";
 import { sanityImg } from "@/lib/sanity-img";
-import { cmsImg, isCmsMedia } from "@/lib/media-url";
+import { cmsInlineImage, cmsInlineSources } from "@/lib/picture-choices";
 import type { Image as SanityImage } from "sanity";
 
 interface BlogPost {
@@ -48,33 +48,6 @@ interface BlogPost {
 /** The post column is max-w-3xl: full width on a phone, 768px at most. */
 const BODY_SIZES = "(max-width: 768px) 100vw, 768px";
 const BODY_WIDTHS = [640, 960, 1400];
-/** The CMS's ready-made copies that cover the same range. */
-const CMS_BODY_WIDTHS = [640, 1080, 1920];
-
-/** What a CMS answer adds to an inline image's asset. */
-type CmsInlineAsset = { url?: unknown; width?: unknown; height?: unknown };
-
-/**
- * An inline image from the CMS: its original's address and size come
- * with the asset. Null for a Sanity image, which is built from its ref.
- */
-function cmsInlineImage(
-  value: SanityImage
-): { url: string; width?: number; height?: number } | null {
-  const asset = value.asset as CmsInlineAsset | undefined;
-  if (!asset || typeof asset.url !== "string" || !isCmsMedia(asset.url)) {
-    return null;
-  }
-  const size = (n: unknown) =>
-    typeof n === "number" && Number.isFinite(n) && n > 0
-      ? Math.round(n)
-      : undefined;
-  const width = size(asset.width);
-  const height = size(asset.height);
-  return width && height
-    ? { url: asset.url, width, height }
-    : { url: asset.url };
-}
 
 /**
  * The size Sanity will serve for an inline image, so its box is
@@ -194,13 +167,12 @@ const portableTextComponents: PortableTextComponents = {
       // A CMS image: the ready-made copies, sized from the asset (an
       // editor's crop is not applied). Otherwise Sanity resizes it.
       const fromCms = cmsInlineImage(value);
-      const url = fromCms
-        ? cmsImg(fromCms.url, { w: 1920 })
+      const cmsSources = fromCms ? cmsInlineSources(fromCms.url) : null;
+      const url = cmsSources
+        ? cmsSources.src
         : urlForImage(value).width(1400).url();
-      const srcSet = fromCms
-        ? CMS_BODY_WIDTHS.map(
-            (w) => `${cmsImg(fromCms.url, { w })} ${w}w`
-          ).join(", ")
+      const srcSet = cmsSources
+        ? cmsSources.srcSet
         : BODY_WIDTHS.map(
             (w) => `${urlForImage(value).width(w).url()} ${w}w`
           ).join(", ");

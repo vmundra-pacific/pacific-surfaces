@@ -856,6 +856,284 @@ async function checkMediaUrls(): Promise<void> {
 }
 
 /**
+ * Each place the site shows a CMS picture or file (the design's picture
+ * table), in both address forms: with the media folder set, and with
+ * only the CMS's own file route. A Sanity address gets what that place
+ * asked Sanity for. Canvas uses must be same-origin (/api/cdn/m/) in
+ * both forms.
+ */
+async function checkCallSites(): Promise<void> {
+  console.log("Each place a picture is shown, in both address forms");
+  const before = process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  const beforeSource = process.env.CONTENT_SOURCE;
+  const c = await import("../src/lib/picture-choices");
+  const { default: imageLoader } = await import("../src/lib/image-loader");
+  const { sanityImg, sanityProxyUrl } = await import("../src/lib/sanity-img");
+  const { zoomImageUrl } = await import("../src/lib/zoom-image");
+  const { toProxy } = await import("../src/lib/media-url");
+  const { rewriteToProxy } =
+    await import("../src/components/visualize/slab-texture");
+  const { absoluteImage } = await import("../src/components/global/JsonLd");
+  const { resourceHintOrigin } = await import("../src/cms/media");
+  const { default: robots } = await import("../src/app/robots");
+
+  const h = "0123456789abcdef0123456789abcdef";
+  const folder = "https://media.example.com/media";
+  const forms = [
+    {
+      form: "CMS host",
+      setting: undefined,
+      at: (name: string) => `https://cms.example.com/api/media/file/${name}`,
+      // Where a page loads a copy from: this site's pass-through.
+      shown: (name: string) => `/api/cdn/m/${name}`,
+    },
+    {
+      form: "media folder",
+      setting: folder,
+      at: (name: string) => `${folder}/${name}`,
+      shown: (name: string) => `${folder}/${name}`,
+    },
+  ] as const;
+
+  for (const { form, setting, at, shown } of forms) {
+    if (setting) process.env.NEXT_PUBLIC_MEDIA_BASE_URL = setting;
+    else delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+    const pic = at(`${h}.jpg`);
+    const site = (name: string) => `/api/cdn/m/${name}`;
+    const cases: [string, unknown, unknown][] = [
+      [
+        "every <Image> (the loader) at 390",
+        imageLoader({ src: pic, width: 390 }),
+        shown(`${h}-w640.webp`),
+      ],
+      [
+        "every <Image> (the loader) at 3840",
+        imageLoader({ src: pic, width: 3840 }),
+        shown(`${h}-w3840.webp`),
+      ],
+      [
+        "sanityImg at w 720 (product cards)",
+        sanityImg(pic, { w: 720 }),
+        shown(`${h}-w828.webp`),
+      ],
+      [
+        "sanityImg at w 120 (search results)",
+        sanityImg(pic, { w: 120 }),
+        shown(`${h}-w256.webp`),
+      ],
+      [
+        "sanityImg at w 1600 (product and blog heroes)",
+        sanityImg(pic, { w: 1600 }),
+        shown(`${h}-w1920.webp`),
+      ],
+      [
+        "the zoom and its preloads",
+        zoomImageUrl(pic),
+        shown(`${h}-w3840.webp`),
+      ],
+      [
+        "facades: the lightbox keeps the answer's copy",
+        c.finishFullImageUrl({
+          fullImage: at(`${h}-w2560.webp`),
+          mainImage: pic,
+        }),
+        shown(`${h}-w2560.webp`),
+      ],
+      [
+        "signature projects: the video poster",
+        c.thumbUrl(pic),
+        shown(`${h}-w828.webp`),
+      ],
+      [
+        "applications: a tile's CSS background, loaded directly",
+        c.tileBackgroundUrl(pic),
+        shown(`${h}-w1290.webp`),
+      ],
+      [
+        "the visualiser's dock thumbnail",
+        c.slabPickerThumbUrl(pic),
+        shown(`${h}-w384.webp`),
+      ],
+      [
+        "vanity tops: the swatch (canvas, same origin)",
+        c.swatchUrl(pic),
+        site(`${h}-w256.webp`),
+      ],
+      [
+        "the basin preview at 900 (canvas, same origin)",
+        c.slabUrl(pic, 900),
+        site(`${h}-w1080.webp`),
+      ],
+      [
+        "the visualiser's texture (canvas, same origin)",
+        rewriteToProxy(pic),
+        site(`${h}-w3840.webp`),
+      ],
+      [
+        "a blog post's inline image",
+        c.cmsInlineSources(pic),
+        {
+          src: shown(`${h}-w1920.webp`),
+          srcSet: [640, 1080, 1920]
+            .map((w) => `${shown(`${h}-w${w}.webp`)} ${w}w`)
+            .join(", "),
+        },
+      ],
+      [
+        "a blog post's inline image is found by its asset",
+        c.cmsInlineImage({ asset: { url: pic, width: 1600, height: 900 } }),
+        { url: pic, width: 1600, height: 900 },
+      ],
+      [
+        "a video keeps its file",
+        sanityProxyUrl(at(`${h}.mp4`)),
+        shown(`${h}.mp4`),
+      ],
+      [
+        "a download link (same origin, for its file name and ranges)",
+        toProxy(at(`${h}.pdf`)),
+        site(`${h}.pdf`),
+      ],
+      [
+        "structured data: an absolute address",
+        absoluteImage(pic),
+        setting
+          ? `${folder}/${h}.jpg`
+          : `https://pacific-surfaces.com/api/cdn/m/${h}.jpg`,
+      ],
+    ];
+    for (const [where, actual, expected] of cases) {
+      same(`${form}: ${where}`, actual, expected);
+    }
+  }
+
+  // A Sanity address: what each place asked Sanity for, unchanged.
+  delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  const S = "https://cdn.sanity.io/images/p/d/x-2000x1000.jpg";
+  const sanityCases: [string, unknown, unknown][] = [
+    [
+      "the loader",
+      imageLoader({ src: S, width: 640 }),
+      `${S}?w=640&q=100&fit=max&auto=format`,
+    ],
+    [
+      "sanityImg",
+      sanityImg(S, { w: 720 }),
+      `${S}?w=720&q=90&fit=max&auto=format`,
+    ],
+    ["the zoom", zoomImageUrl(S), `${S}?auto=format&q=80`],
+    [
+      "the facades lightbox",
+      c.finishFullImageUrl({
+        fullImage: `${S}?w=2400&fit=max&auto=format`,
+        mainImage: S,
+      }),
+      `${S}?w=2400&fit=max&auto=format`,
+    ],
+    [
+      "the facades lightbox with no full image",
+      c.finishFullImageUrl({ fullImage: null, mainImage: S }),
+      S,
+    ],
+    ["the video poster", c.thumbUrl(S), `${S}?w=800&fit=max&q=70&auto=format`],
+    [
+      "a tile background",
+      c.tileBackgroundUrl(S),
+      "/api/cdn/images/p/d/x-2000x1000.jpg?w=1200&fit=max&q=70&fm=webp",
+    ],
+    [
+      "the dock thumbnail",
+      c.slabPickerThumbUrl(S),
+      `${S}?w=240&h=180&fit=crop&q=70&auto=format`,
+    ],
+    [
+      "the vanity swatch",
+      c.swatchUrl(S),
+      "/api/cdn/images/p/d/x-2000x1000.jpg?w=120&q=90&fit=max&fm=webp",
+    ],
+    ["no vanity swatch", c.swatchUrl(null), undefined],
+    [
+      "the basin preview",
+      c.slabUrl(S, 900),
+      "/api/cdn/images/p/d/x-2000x1000.jpg?w=900&fit=max&q=100",
+    ],
+    [
+      "the visualiser's texture",
+      rewriteToProxy(S),
+      "/api/cdn/images/p/d/x-2000x1000.jpg",
+    ],
+    [
+      "a blog post's inline image is not a CMS one",
+      c.cmsInlineImage({ asset: { _ref: "image-x-2000x1000-jpg" } }),
+      null,
+    ],
+    [
+      "a blog post's inline image with a Sanity address is not a CMS one",
+      c.cmsInlineImage({ asset: { _ref: "image-x-2000x1000-jpg", url: S } }),
+      null,
+    ],
+    [
+      "a Sanity file link",
+      toProxy("https://cdn.sanity.io/files/p/d/x.pdf"),
+      "https://cdn.sanity.io/files/p/d/x.pdf",
+    ],
+    ["structured data", absoluteImage(S), S],
+    [
+      "structured data, a local file",
+      absoluteImage("/images/x.jpg"),
+      "https://pacific-surfaces.com/images/x.jpg",
+    ],
+    [
+      "a local file in the dock",
+      c.slabPickerThumbUrl("/images/x.jpg"),
+      "/images/x.jpg",
+    ],
+  ];
+  for (const [where, actual, expected] of sanityCases) {
+    same(`Sanity: ${where}`, actual, expected);
+  }
+
+  // The layout's hints and robots.txt, with the source unset: as before.
+  delete process.env.CONTENT_SOURCE;
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = folder;
+  same(
+    "source unset: the hints go to Sanity, media folder or not",
+    resourceHintOrigin(),
+    "https://cdn.sanity.io"
+  );
+  same("source unset: robots.txt is as before", robots(), {
+    rules: [
+      {
+        userAgent: "*",
+        allow: ["/", "/api/cdn/files/", "/api/cdn/images/"],
+        disallow: ["/api/", "/studio/", "/_archive/"],
+      },
+    ],
+    sitemap: "https://pacific-surfaces.com/sitemap.xml",
+  });
+  process.env.CONTENT_SOURCE = "cms";
+  same(
+    "source cms: the hints go to the media host",
+    resourceHintOrigin(),
+    "https://media.example.com"
+  );
+  same("source cms: robots.txt allows /api/cdn/m/ too", robots().rules, [
+    {
+      userAgent: "*",
+      allow: ["/", "/api/cdn/files/", "/api/cdn/images/", "/api/cdn/m/"],
+      disallow: ["/api/", "/studio/", "/_archive/"],
+    },
+  ]);
+  delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  same("source cms with no media folder: no hint", resourceHintOrigin(), null);
+
+  if (before === undefined) delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  else process.env.NEXT_PUBLIC_MEDIA_BASE_URL = before;
+  if (beforeSource === undefined) delete process.env.CONTENT_SOURCE;
+  else process.env.CONTENT_SOURCE = beforeSource;
+}
+
+/**
  * /api/cdn/m/<name> (src/cms/media-proxy.ts), the share card fetch
  * (src/cms/media.ts) and the old-address redirect (src/cms/legacy-files.ts).
  */
@@ -1163,6 +1441,42 @@ async function checkMediaProxy(base: string): Promise<void> {
     seen[seen.length - 1]?.headers[READ_KEY_HEADER],
     readKey
   );
+  // The share images' choice of picture, in both forms and for Sanity.
+  const { shareBackground } = await import("../src/cms/media");
+  same(
+    "the share image draws a CMS-host picture's share card",
+    await shareBackground(`https://cms.example.com/api/media/file/${h}.jpg`),
+    `data:image/jpeg;base64,${FILE_BYTES.toString("base64")}`
+  );
+  same(
+    "fetched by its share name",
+    seen[seen.length - 1]?.path,
+    `/api/media/file/${h}-share.jpg`
+  );
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = `${mediaBase}/media`;
+  same(
+    "the share image draws a media-folder picture's share card",
+    await shareBackground(`${mediaBase}/media/${h}.jpg`),
+    `data:image/jpeg;base64,${FILE_BYTES.toString("base64")}`
+  );
+  same(
+    "from the folder, by its share name",
+    seen[seen.length - 1]?.path,
+    `/media/${h}-share.jpg`
+  );
+  delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  before = seen.length;
+  same(
+    "the share image cuts a Sanity picture as before",
+    await shareBackground("https://cdn.sanity.io/images/p/d/x-2000x1000.jpg"),
+    "https://cdn.sanity.io/images/p/d/x-2000x1000.jpg?w=1200&h=630&q=80&fit=crop&auto=format"
+  );
+  same(
+    "no picture, no share background",
+    await shareBackground(null),
+    undefined
+  );
+  check("nothing was fetched for those", seen.length === before);
   same(
     "a missing share card gives none",
     await cmsShareImage(`/api/cdn/m/${FILE_HASH.missing}.jpg`),
@@ -1862,6 +2176,7 @@ async function main(): Promise<void> {
     checkQueryStrings();
     checkContentSource();
     await checkMediaUrls();
+    await checkCallSites();
     await checkFailLoud(base);
     await checkPassingFailures(base);
     await checkMediaProxy(base);

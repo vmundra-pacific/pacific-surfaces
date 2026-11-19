@@ -12,8 +12,7 @@ import {
 } from "lucide-react";
 import { BasinPreview } from "@/components/shop/BasinPreview";
 import { StoreBanner } from "@/components/shop/StoreBanner";
-import { sanityImageProxyUrl, sanityImg } from "@/lib/sanity-img";
-import { cmsImg, isCmsMedia, toProxy } from "@/lib/media-url";
+import { swatchUrl } from "@/lib/picture-choices";
 import { cn } from "@/lib/utils";
 import type { BasinLayers, VanityTopLayout } from "@/data/store";
 
@@ -95,21 +94,6 @@ function passes(item: Item, f: Filters, skip?: FacetKey): boolean {
     return false;
   return true;
 }
-
-/** A design's slab photograph as a small swatch, same-origin. `fm=webp`
- *  rather than sanityImg's `auto=format`: the proxy fetches server-side
- *  without the browser's Accept header, so auto=format would hand back
- *  the original JPEG. A CMS photograph: its 256 px copy, through
- *  /api/cdn/m/. */
-const swatchUrl = (image: string | null) =>
-  !image
-    ? undefined
-    : isCmsMedia(image)
-      ? toProxy(cmsImg(image, { w: 120 }))
-      : sanityImageProxyUrl(
-          sanityImg(image, { w: 120 })?.replace(/auto=format$/, "fm=webp") ??
-            image
-        );
 
 export function VanityTopsListing({
   tops,

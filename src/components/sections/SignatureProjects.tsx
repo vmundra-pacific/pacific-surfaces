@@ -10,7 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { sanityImg, sanityProxyUrl } from "@/lib/sanity-img";
-import { cmsImg, isCmsMedia } from "@/lib/media-url";
+import { thumbUrl } from "@/lib/picture-choices";
 
 interface SanityProject {
   _id: string;
@@ -414,25 +414,6 @@ function ProjectCard({
  * photograph aesthetic of the existing showcase), then pauses
  * cleanly on exit so the GPU can rest.
  */
-// Sanity image CDN tweak: shrink mainImage to ~800px for use as a
-// video poster. Saves bytes (multi-MB master -> ~30 KB AVIF/WebP)
-// without losing visible quality for the time it's on screen before
-// the video plays.
-function thumbUrl(src: string): string {
-  // A CMS photograph: its 828 px copy. Tested first, because on this
-  // site its address also starts with /api/cdn/.
-  if (isCmsMedia(src)) return cmsImg(src, { w: 800 });
-  // Pass-through for non-Sanity URLs (or already-proxied /api/cdn/*
-  // URLs we may receive from a parent that pre-rewrote them).
-  if (!src.includes("cdn.sanity.io") && !src.startsWith("/api/cdn/"))
-    return src;
-  const sep = src.includes("?") ? "&" : "?";
-  const withParams = `${src}${sep}w=800&fit=max&q=70&auto=format`;
-  // Route through the first-party proxy if we still have a raw
-  // cdn.sanity.io URL. (If src already starts with /api/cdn/ this is
-  // a no-op via sanityProxyUrl's pass-through.)
-  return sanityProxyUrl(withParams);
-}
 
 function ProjectVideo({
   src,

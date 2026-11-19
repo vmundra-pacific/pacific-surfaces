@@ -54,29 +54,8 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import { sanityProxyUrl, sanityImageProxyUrl } from "@/lib/sanity-img";
-import { cmsImg, isCmsMedia } from "@/lib/media-url";
-
-/**
- * Wraps a Sanity image URL for use in CSS `background-image` (and
- * other contexts that bypass Next/Image). Routes through /api/cdn/
- * to strip the third-party `sanitySession` cookie, AND appends a
- * width/quality transform so the 3×3 tile grid below doesn't pull a
- * 2.7 MB master JPG just to slice into a decorative scatter. Skipped
- * for non-Sanity URLs. `fm=webp` rather than `auto=format`: the proxy
- * fetches server-side without the browser's Accept header, so
- * auto=format would hand back the original JPEG/PNG. A CMS photograph
- * uses its 1290 px copy, loaded directly from the media host (a CSS
- * background needs no same origin).
- */
-const SANITY_HOST_LITERAL = "cdn.sanity.io";
-function tileBackgroundUrl(url: string): string {
-  if (isCmsMedia(url)) return cmsImg(url, { w: 1200 });
-  if (!url.includes(SANITY_HOST_LITERAL)) return url;
-  const sep = url.includes("?") ? "&" : "?";
-  const transformed = `${url}${sep}w=1200&fit=max&q=70&fm=webp`;
-  return sanityImageProxyUrl(transformed);
-}
+import { sanityProxyUrl } from "@/lib/sanity-img";
+import { tileBackgroundUrl } from "@/lib/picture-choices";
 
 /* ------------------------------------------------------------------ *
  * Sanity data shape                                                   *

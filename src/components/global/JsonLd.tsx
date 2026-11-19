@@ -32,7 +32,7 @@ import { LOGO_ID, LOGO_URL, ORG_ID, SITE_URL } from "@/data/business";
  * the CMS's own host is given at this site's /api/cdn/m/ (lib/media-url);
  * any other address is as given.
  */
-const absoluteImage = (u: string) => {
+export const absoluteImage = (u: string) => {
   const address = cmsImg(u);
   return address.startsWith("http") ? address : `${SITE_URL}${address}`;
 };

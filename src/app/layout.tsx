@@ -14,8 +14,7 @@ import { REGION_BOOT_SCRIPT } from "@/lib/region";
 import { TRANSLATE_WARMUP_SCRIPT } from "@/lib/site-translate";
 import { safeJsonLd } from "@/lib/escape";
 import { siteGraph } from "@/data/business";
-import { contentSource } from "@/cms/client";
-import { mediaOrigin } from "@/lib/media-url";
+import { resourceHintOrigin } from "@/cms/media";
 
 /**
  * Google Analytics 4 measurement ID. Points at the existing
@@ -92,8 +91,7 @@ export const metadata: Metadata = {
 
 /** Where the pictures come from, for the resource hints below: Sanity's
  *  CDN, or with the content from the CMS its media host when set. */
-const HINT_ORIGIN =
-  contentSource() === "cms" ? mediaOrigin() : "https://cdn.sanity.io";
+const HINT_ORIGIN = resourceHintOrigin();
 
 export default function RootLayout({
   children,

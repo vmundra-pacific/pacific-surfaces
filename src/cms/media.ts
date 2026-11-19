@@ -5,10 +5,13 @@ import {
   isCmsMedia,
   MEDIA_NAME_RE,
   mediaBaseUrl,
+  mediaOrigin,
 } from "@/lib/media-url";
+import { sanityImg } from "@/lib/sanity-img";
 import {
   cmsBaseUrl,
   cmsReadKey,
+  contentSource,
   PROTECTION_BYPASS_HEADER,
   protectionBypass,
   READ_KEY_HEADER,
@@ -101,4 +104,27 @@ export async function cmsShareImage(
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * The picture behind a share image (the product and blog post routes): a
+ * CMS picture's share card copy, fetched here, or a Sanity picture cut by
+ * Sanity to 1200x630 as before. Undefined when there is no picture.
+ */
+export async function shareBackground(
+  url: string | null | undefined
+): Promise<string | undefined> {
+  if (!url) return undefined;
+  return isCmsMedia(url)
+    ? cmsShareImage(url)
+    : sanityImg(url, { w: 1200, h: 630, q: 80, fit: "crop" });
+}
+
+/**
+ * Where the pictures come from, for the layout's preconnect and
+ * dns-prefetch hints: Sanity's CDN, or with the content from the CMS its
+ * media host when NEXT_PUBLIC_MEDIA_BASE_URL is set (else none).
+ */
+export function resourceHintOrigin(): string | null {
+  return contentSource() === "cms" ? mediaOrigin() : "https://cdn.sanity.io";
 }
