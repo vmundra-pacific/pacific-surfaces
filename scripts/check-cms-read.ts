@@ -166,8 +166,9 @@ function standIn(name: string): StandInAnswer {
     case "faq":
     case "job-apply":
       return json(null);
-    case "product-tiles":
     case "homepage-collections":
+      return json([{ _id: "c1", name: "Nebula" }]);
+    case "product-tiles":
     case "blog-posts":
     case "resources":
     case "search":
@@ -667,6 +668,7 @@ async function checkFetchers(): Promise<void> {
           indiaQuartz: ["x"],
         }),
       "homepage-collections?indiaQuartz=x&quartzCollections=Nebula&quartzCollections=Pacific%20Quartz",
+      [{ _id: "c1", name: "Nebula" }],
     ],
     [
       "collection",
@@ -765,6 +767,33 @@ async function checkFetchers(): Promise<void> {
       );
     }
   }
+
+  // The reads that are never empty when the CMS is working.
+  overrides.set("homepage-collections", json([]));
+  await rejectsWithCmsError("homepageCollections throws when empty", () =>
+    cms.homepageCollections({ quartzCollections: ["Nebula"], indiaQuartz: [] })
+  );
+  overrides.delete("homepage-collections");
+  overrides.set("products", json([]));
+  await rejectsWithCmsError("productsCatalogue throws when empty", () =>
+    cms.productsCatalogue()
+  );
+  await rejectsWithCmsError("productSlugs throws when empty", () =>
+    cms.productSlugs()
+  );
+  await resolvesTo(
+    "productsByCollectionOrType may be empty",
+    () => cms.productsByCollectionOrType({ slug: "x", productType: null }),
+    []
+  );
+  overrides.delete("products");
+  overrides.set("product-tiles", json([]));
+  await resolvesTo(
+    "productTiles may be empty",
+    () => cms.productTiles(["a"]),
+    []
+  );
+  overrides.delete("product-tiles");
 
   // With the default source, no fetcher reaches the CMS.
   delete process.env.CONTENT_SOURCE;

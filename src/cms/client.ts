@@ -276,7 +276,8 @@ export type ReadOptions = {
   expect: AnswerKind;
   /**
    * Only for the reads that are never empty when the CMS is working (the
-   * whole catalogue, the sitemap's products): an empty list throws.
+   * whole catalogue, the home page's collection cards, the sitemap's
+   * products): an empty list throws.
    */
   neverEmpty?: boolean;
   /** The time limit; the default is READ_TIMEOUT_MS. */

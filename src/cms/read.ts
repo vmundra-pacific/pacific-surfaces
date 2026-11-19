@@ -55,8 +55,12 @@ export { throwIfCmsFailure } from "./client";
  * fetcher reads Sanity exactly as before. With CONTENT_SOURCE=cms each
  * one reads the matching CMS read answer (`./client.ts`), which gives
  * the same shape the Sanity query gave. A failed or unusable CMS answer
- * throws; only the whole catalogue and the sitemap's products also
- * throw when empty, since every other read may be legitimately empty.
+ * throws. Three reads also throw when empty, since a working CMS never
+ * gives them empty: the whole catalogue (which also gives the product
+ * slugs), the home page's collection cards, and the sitemap's products.
+ * The sitemap's products are on that list by choice: an empty list
+ * there would drop every product page from the sitemap for an hour.
+ * Every other read may be legitimately empty.
  */
 
 /* ------------------------------------------------------------------ */
@@ -365,16 +369,20 @@ export const productTiles = <T = any>(slugs: string[]): Promise<T> =>
 /* Collections                                                         */
 /* ------------------------------------------------------------------ */
 
-/** homepageCollections: the collection cards of the home page. */
+/** homepageCollections: the collection cards of the home page. Never empty. */
 export const homepageCollections = <T = any>(params: {
   quartzCollections: string[];
   indiaQuartz: string[];
 }): Promise<T> =>
   fromCms()
-    ? cmsList<T>("homepage-collections", {
-        quartzCollections: params.quartzCollections,
-        indiaQuartz: params.indiaQuartz,
-      })
+    ? readCmsAnswer<T>(
+        "homepage-collections",
+        {
+          quartzCollections: params.quartzCollections,
+          indiaQuartz: params.indiaQuartz,
+        },
+        { expect: "list", neverEmpty: true }
+      )
     : client.fetch<T>(homepageCollectionsQuery, params);
 
 /** collection, full: one collection by slug. */
