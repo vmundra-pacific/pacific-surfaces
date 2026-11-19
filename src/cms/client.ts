@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { isCmsMedia, mediaBaseUrl } from "@/lib/media-url";
 
 /**
  * The website's reader for the Pacific CMS.
@@ -145,6 +146,56 @@ export function buildQueryString(query: ReadQuery): string {
  * decided in one place, src/lib/media-url.ts.
  */
 
+/** Hosts already logged by `noteUnknownPictureHosts`, once each. */
+const loggedPictureHosts = new Set<string>();
+
+/** A picture original's name at the end of a path: `/<32 hex>.<ext>`. */
+const PICTURE_ORIGINAL_RE =
+  /\/[0-9a-f]{32}\.(?:jpe?g|png|gif|webp|avif|tiff?)$/;
+
+/**
+ * A guard against settings that do not match. lib/media-url recognises a
+ * CMS picture only in the media folder this site is set to
+ * (NEXT_PUBLIC_MEDIA_BASE_URL) or on the CMS's own file route; any other
+ * address is shown as it is, which for a CMS picture is its full
+ * original. So when an answer carries a picture original that is neither
+ * recognised in that folder nor on CMS_URL's host, this logs a warning
+ * once per host, naming the host and nothing else. It never throws and
+ * never changes the answer.
+ */
+export function noteUnknownPictureHosts(text: string): void {
+  try {
+    const found = text.match(/https?:\/\/[^\s"'<>\\]+/g);
+    if (!found) return;
+    const folder = mediaBaseUrl();
+    const cms = cmsBaseUrl();
+    const cmsHost = "problem" in cms ? null : new URL(cms.base).host;
+    for (const address of found) {
+      let url: URL;
+      try {
+        url = new URL(address);
+      } catch {
+        continue;
+      }
+      if (!PICTURE_ORIGINAL_RE.test(url.pathname)) continue;
+      const recognised = isCmsMedia(address);
+      const inFolder =
+        recognised && folder !== null && address.startsWith(`${folder}/`);
+      const onCmsHost = recognised && url.host === cmsHost;
+      if (inFolder || onCmsHost || loggedPictureHosts.has(url.host)) continue;
+      loggedPictureHosts.add(url.host);
+      console.warn(
+        `CMS answers carry pictures on ${url.host}, which is neither the ` +
+          "media folder set in NEXT_PUBLIC_MEDIA_BASE_URL nor CMS_URL's " +
+          "host, so pages may show them as full originals. Check that " +
+          "this site's settings match the CMS's media address."
+      );
+    }
+  } catch {
+    // A guard only: a page never fails because of it.
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Reading                                                             */
 /* ------------------------------------------------------------------ */
@@ -251,7 +302,9 @@ const fetchAnswerText = cache(
         throw new CmsReadError(answer, "the answer is not JSON", 200);
       }
       try {
-        return await response.text();
+        const text = await response.text();
+        noteUnknownPictureHosts(text);
+        return text;
       } catch {
         throw new CmsReadError(
           answer,

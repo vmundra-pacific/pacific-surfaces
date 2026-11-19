@@ -1674,6 +1674,126 @@ async function checkMediaProxy(base: string): Promise<void> {
 }
 
 /**
+ * The guard against settings that do not match: a picture original in an
+ * answer that this site would not recognise in its media folder, or that
+ * is on a host other than CMS_URL's, is logged once per host, naming only
+ * the host. The answer is passed on unchanged.
+ */
+async function checkPictureHostGuard(base: string): Promise<void> {
+  console.log("Pictures on a host the settings do not expect");
+  const beforeMedia = process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  process.env.CMS_URL = base;
+  process.env.CMS_READ_KEY = "dummy-read-key";
+  const h = "0123456789abcdef0123456789abcdef";
+  const cmsHost = new URL(base).host;
+  const warned: string[] = [];
+  const realWarn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    warned.push(args.map(String).join(" "));
+  };
+  let n = 0;
+  const readWith = async (addresses: string[]) => {
+    n += 1;
+    const name = `guard-${n}`;
+    const body = addresses.map((mainImage) => ({ mainImage }));
+    overrides.set(name, json(body));
+    try {
+      return await readCmsAnswer(name, {}, { expect: "list" });
+    } finally {
+      overrides.delete(name);
+    }
+  };
+  const warnedFor = async (
+    setting: string | undefined,
+    addresses: string[]
+  ) => {
+    if (setting) process.env.NEXT_PUBLIC_MEDIA_BASE_URL = setting;
+    else delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+    const from = warned.length;
+    const value = await readWith(addresses);
+    return { value, lines: warned.slice(from) };
+  };
+  try {
+    // The lead case: the setting is the host without the folder's path.
+    // The answer's address starts with it, yet no helper recognises it.
+    let r = await warnedFor("https://media-a.example.com", [
+      `https://media-a.example.com/media/${h}.jpg`,
+    ]);
+    check(
+      "a setting without the folder's path: one warning, naming the host",
+      r.lines.length === 1 && r.lines[0].includes("media-a.example.com"),
+      JSON.stringify(r.lines)
+    );
+    check(
+      "the warning names no file, path or key",
+      r.lines.every(
+        (line) =>
+          !line.includes(h) &&
+          !line.includes("/media/") &&
+          !line.includes("dummy-read-key")
+      ),
+      JSON.stringify(r.lines)
+    );
+    same("the answer is passed on unchanged", r.value, [
+      { mainImage: `https://media-a.example.com/media/${h}.jpg` },
+    ]);
+    r = await warnedFor("https://media-a.example.com", [
+      `https://media-a.example.com/media/${"1".repeat(32)}.png`,
+    ]);
+    same("the same host again: no second warning", r.lines, []);
+    r = await warnedFor(undefined, [
+      `https://media-b.example.com/media/${h}.jpg`,
+    ]);
+    check(
+      "no media folder set: a picture on a media host is warned about",
+      r.lines.length === 1 && r.lines[0].includes("media-b.example.com"),
+      JSON.stringify(r.lines)
+    );
+    r = await warnedFor(undefined, [
+      `https://other-cms.example.com/api/media/file/${h}.jpg`,
+    ]);
+    check(
+      "the CMS's file route on a host other than CMS_URL's is warned about",
+      r.lines.length === 1 && r.lines[0].includes("other-cms.example.com"),
+      JSON.stringify(r.lines)
+    );
+    r = await warnedFor("https://media-c.example.com/media", [
+      `https://media-c.example.com/media/${h}.jpg`,
+      `https://media-c.example.com/media/${h}.avif`,
+    ]);
+    same("pictures in the media folder set: no warning", r.lines, []);
+    r = await warnedFor("https://media-c.example.com/media", [
+      `https://media-c.example.com/media/sub/${h}.jpg`,
+    ]);
+    check(
+      "a picture in a sub-folder of the media folder is warned about",
+      r.lines.length === 1 && r.lines[0].includes("media-c.example.com"),
+      JSON.stringify(r.lines)
+    );
+    r = await warnedFor(undefined, [
+      `${base.replace(/\/$/, "")}/api/media/file/${h}.jpg`,
+    ]);
+    same(`pictures on CMS_URL's host (${cmsHost}): no warning`, r.lines, []);
+    r = await warnedFor(undefined, [
+      "https://cdn.sanity.io/images/p/d/1111111111111111111111111111111111111111-10x10.jpg",
+      `https://media-d.example.com/media/${h}-w2560.webp`,
+      `https://media-d.example.com/media/${h}.pdf`,
+      "https://images.unsplash.com/photo-1?w=800",
+    ]);
+    same(
+      "Sanity, a ready-made copy, a PDF, another site: no warning",
+      r.lines,
+      []
+    );
+  } finally {
+    console.warn = realWarn;
+    if (beforeMedia === undefined)
+      delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+    else process.env.NEXT_PUBLIC_MEDIA_BASE_URL = beforeMedia;
+  }
+}
+
+/**
  * Which failures a softening call site passes on. A set-up fault
  * (401, 403, 404, a redirect, an answer that is not JSON or of the
  * wrong kind, an empty answer where one is never empty, a missing
@@ -1851,6 +1971,73 @@ async function checkPassingFailures(base: string): Promise<void> {
     []
   );
   delete process.env.CONTENT_SOURCE;
+}
+
+/**
+ * The page check (scripts/check-cms-pages.ts): which picture addresses
+ * in a page's HTML count as bare originals.
+ */
+async function checkPageScanner(): Promise<void> {
+  console.log("The page check's reading of a page");
+  const { bareOriginalsIn, srcsetAddresses, pictureUses } =
+    await import("./check-cms-pages");
+  const h = "0123456789abcdef0123456789abcdef";
+  const g = "fedcba9876543210fedcba9876543210";
+  const media = "https://media.example.com/media";
+  const html = `<!doctype html><html><head>
+<link rel="preload" as="image" href="${media}/${h}-w3840.webp" fetchPriority="high">
+<link rel="preload" as="image" imageSrcSet="${media}/${g}.png 1x, ${media}/${h}-w1080.webp 2x">
+<link rel="stylesheet" href="/_next/static/css/${h}.css">
+<style>.a{background:url("${media}/${g}.avif")}.b{background:url(/api/cdn/m/${g}.jpg)}</style>
+</head><body>
+<img src="${media}/${h}.jpg" alt="">
+<img src="${media}/${h}-w640.webp" srcset="${media}/${h}-w640.webp 640w, ${media}/${h}.jpeg 1080w, ${media}/${h}-w1920.webp 1920w" alt="">
+<img src="/api/cdn/m/${h}.jpg" alt="">
+<img src="/api/cdn/m/${h}-share.jpg" alt="">
+<img src="https://cdn.sanity.io/images/p/d/x-10x10.jpg?rect=0,0,5,5&amp;w=640" srcset="https://cdn.sanity.io/images/p/d/x-10x10.jpg?rect=0,0,5,5&amp;w=640 640w,https://cdn.sanity.io/images/p/d/x-10x10.jpg?rect=0,0,5,5&amp;w=1080 1080w" alt="">
+<img src="/_next/image?url=${encodeURIComponent(`${media}/${g}.webp`)}&amp;w=640&amp;q=75" alt="">
+<img src='${media}/${g}.jpg?v=1&amp;x=2' alt="">
+<div style="background-image:url(&quot;https://cms.example.com/api/media/file/${g}.jpg&quot;)"></div>
+<div style="background-image:url(${media}/${h}-w1290.webp)"></div>
+<video poster="${media}/${h}.png"><source src="${media}/${h}.mp4" type="video/mp4"></video>
+<a href="${media}/${h}.jpg">The original, as a link</a>
+<a href="/api/cdn/m/${h}.pdf" download>A PDF</a>
+<script>self.__next_f.push([1,"{\\"mainImage\\":\\"${media}/${h}.jpg\\"}"])</script>
+<script>var t = '<img src="${media}/${g}.gif" style="background:url(${media}/${g}.png)">';</script>
+<script src="/_next/static/chunks/${h}.js"></script>
+</body></html>`;
+  same(
+    "a srcset whose addresses hold commas",
+    srcsetAddresses("a.jpg?rect=0,0,5,5 640w, b.jpg 1080w,c.jpg"),
+    ["a.jpg?rect=0,0,5,5", "b.jpg", "c.jpg"]
+  );
+  same(
+    "the bare originals on a planted page, and only those",
+    bareOriginalsIn(html, "http://site.example/page").map(
+      (x) => `${x.where} ${x.address}`
+    ),
+    [
+      `preload ${media}/${g}.png`,
+      `img src ${media}/${h}.jpg`,
+      `srcset ${media}/${h}.jpeg`,
+      `img src /_next/image?url=${encodeURIComponent(`${media}/${g}.webp`)}&w=640&q=75`,
+      `img src ${media}/${g}.jpg?v=1&x=2`,
+      `poster ${media}/${h}.png`,
+      `css url https://cms.example.com/api/media/file/${g}.jpg`,
+      `css url ${media}/${g}.avif`,
+    ]
+  );
+  check(
+    "the server payload in scripts is not read",
+    !pictureUses(html).some((x) => x.address.includes('\\"'))
+  );
+  same(
+    "a page of copies only passes",
+    bareOriginalsIn(
+      `<img src="${media}/${h}-w640.webp" srcset="/api/cdn/m/${h}-w1080.webp 1x"><div style="background:url(/api/cdn/m/${h}.jpg)"></div>`
+    ),
+    []
+  );
 }
 
 /** Each fetcher with CONTENT_SOURCE=cms: the answer and query it asks for. */
@@ -2233,8 +2420,10 @@ async function main(): Promise<void> {
     checkContentSource();
     await checkMediaUrls();
     await checkCallSites();
+    await checkPageScanner();
     await checkFailLoud(base);
     await checkPassingFailures(base);
+    await checkPictureHostGuard(base);
     await checkMediaProxy(base);
     await checkFetchers();
     checkNotice();
