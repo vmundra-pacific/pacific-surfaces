@@ -16,8 +16,8 @@ import { cache } from "react";
  *   Sanity as before.
  * - CMS_URL: the CMS's address (https; plain http only for this machine).
  * - CMS_READ_KEY: the API key of the website's reader login in the CMS.
- * - CMS_PROTECTION_BYPASS: the pass through the CMS's Vercel protection,
- *   sent when set.
+ * - CMS_PROTECTION_BYPASS: the deployment-protection pass, sent when
+ *   set.
  *
  * This file uses nothing but `fetch`, so it also runs in the two share
  * image routes, which run on the edge.
@@ -43,9 +43,9 @@ export function contentSource(): ContentSource {
 
 /** The header that carries the reader login's API key. */
 export const READ_KEY_HEADER = "authorization";
-/** What comes before the key in that header (Payload's API-key form). */
+/** What comes before the key in that header. */
 export const READ_KEY_SCHEME = "users API-Key";
-/** The header that carries the pass through Vercel's deployment protection. */
+/** The header that carries the deployment-protection pass. */
 export const PROTECTION_BYPASS_HEADER = "x-vercel-protection-bypass";
 /** How long one read may take before it counts as failed. */
 export const READ_TIMEOUT_MS = 10_000;
