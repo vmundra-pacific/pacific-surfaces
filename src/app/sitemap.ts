@@ -218,7 +218,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     cms.sitemapPosts<{ slug: string; updatedAt: string | null }[]>(),
     cms
       .sitemapDates<Partial<Record<ContentKey, string | null>>>()
-      .catch((): Partial<Record<ContentKey, string | null>> => ({})),
+      .catch((error): Partial<Record<ContentKey, string | null>> => {
+        cms.throwIfCmsFailure(error);
+        return {};
+      }),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_PAGES.map((p) => ({

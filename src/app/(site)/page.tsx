@@ -117,9 +117,10 @@ export default async function HomePage() {
       cms.homepageApplicationCards(),
       cms.homepageInspirationImages(),
       // The three newest journal posts, newest first.
-      cms
-        .blogPostsRecent<BlogPost[]>()
-        .catch((): BlogPost[] => []),
+      cms.blogPostsRecent<BlogPost[]>().catch((error): BlogPost[] => {
+        cms.throwIfCmsFailure(error);
+        return [];
+      }),
     ]);
 
   // Collect every video URL referenced by the homepage so we can warm

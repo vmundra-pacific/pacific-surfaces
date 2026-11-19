@@ -9,7 +9,10 @@ import type { SpaceColour } from "@/components/sections/spaces/SpaceBlocks";
 export async function spaceColours(slugs: string[]): Promise<SpaceColour[]> {
   const rows = await cms
     .productTiles<{ name: string; slug: string; image: string | null }[]>(slugs)
-    .catch(() => []);
+    .catch((error) => {
+      cms.throwIfCmsFailure(error);
+      return [];
+    });
   return slugs.flatMap((slug) => {
     const r = rows?.find((x) => x.slug === slug);
     return r ? [{ name: r.name, slug: r.slug, image: r.image }] : [];

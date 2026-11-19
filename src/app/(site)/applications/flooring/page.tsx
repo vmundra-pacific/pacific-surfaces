@@ -29,7 +29,10 @@ export default async function FlooringApplicationPage() {
     .productTiles<{ name: string; slug: string; image: string | null }[]>(
       FLOORING_PAGE.colours.slugs
     )
-    .catch(() => []);
+    .catch((error) => {
+      cms.throwIfCmsFailure(error);
+      return [];
+    });
   // Keep the order the page lists them in.
   const colours: SpaceColour[] = FLOORING_PAGE.colours.slugs.flatMap((slug) => {
     const r = rows?.find((x) => x.slug === slug);

@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@sanity/client";
+import { unstable_cache } from "next/cache";
 import { groq } from "next-sanity";
 import { client, freshClient, rawClient } from "@/sanity/lib/client";
 import {
@@ -22,6 +23,16 @@ import {
   signatureProjectsQuery,
   spacePageBySlugQuery,
 } from "@/sanity/lib/queries";
+import {
+  CMS_CACHE_TAG,
+  type AnswerKind,
+  contentSource,
+  readCmsAnswer,
+  readCmsPart,
+  type ReadQuery,
+} from "./client";
+
+export { throwIfCmsFailure } from "./client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any --
    Every fetcher returns what its GROQ query returned, typed by the
@@ -39,6 +50,13 @@ import {
  * catch it had.
  *
  * Lists are always arrays and are passed as given.
+ *
+ * The source: with CONTENT_SOURCE unset (or anything but "cms") every
+ * fetcher reads Sanity exactly as before. With CONTENT_SOURCE=cms each
+ * one reads the matching CMS read answer (`./client.ts`), which gives
+ * the same shape the Sanity query gave. A failed or unusable CMS answer
+ * throws; only the whole catalogue and the sitemap's products also
+ * throw when empty, since every other read may be legitimately empty.
  */
 
 /* ------------------------------------------------------------------ */
@@ -204,50 +222,144 @@ const contentDatesQuery = groq`{
 const jobApplyQuery = `*[_type == "jobOpening" && title == $title][0] { applyEmail, requiresPortfolio }`;
 
 /* ------------------------------------------------------------------ */
+/* The CMS side                                                        */
+/* ------------------------------------------------------------------ */
+
+const fromCms = (): boolean => contentSource() === "cms";
+
+/** The catalogue view of the products answer. Never empty. */
+const CATALOGUE = { view: "catalogue" } as const;
+
+const cmsList = <T>(answer: string, query: ReadQuery = {}): Promise<T> =>
+  readCmsAnswer<T>(answer, query, { expect: "list" });
+
+const cmsObjectOrNull = <T>(answer: string, query: ReadQuery): Promise<T> =>
+  readCmsAnswer<T>(answer, query, { expect: "objectOrNull" });
+
+const cmsPart = <T>(
+  answer: string,
+  query: ReadQuery,
+  part: string,
+  expect: AnswerKind
+): Promise<T> => readCmsPart<T>(answer, query, part, { expect });
+
+/** A list parameter as the per-request cache keys it: trimmed, unique, sorted. */
+const normalisedList = (items: readonly string[]): string[] =>
+  [...new Set(items.map((item) => item.trim()).filter(Boolean))].sort();
+
+const perRequestReads = new Map<
+  string,
+  (query: ReadQuery) => Promise<unknown>
+>();
+
+/**
+ * The three reads made on every visitor request (favourites, the search
+ * box, the search page), kept 60 seconds per parameter set and tagged
+ * `cms`, so the revalidate route can clear them. Only with
+ * CONTENT_SOURCE=cms; made on first use, so the edge routes never touch
+ * it. The query passed in is already normalised: it is both the cache
+ * key and what is sent.
+ */
+function cachedPerRequest<T>(
+  answer: string,
+  view: string,
+  query: ReadQuery
+): Promise<T> {
+  const name = `${answer}:${view}`;
+  let read = perRequestReads.get(name);
+  if (!read) {
+    read = unstable_cache(
+      (normalised: ReadQuery) => cmsList<unknown>(answer, normalised),
+      ["cms-read", answer, view],
+      { revalidate: 60, tags: [CMS_CACHE_TAG] }
+    );
+    perRequestReads.set(name, read);
+  }
+  return read(query) as Promise<T>;
+}
+
+/* ------------------------------------------------------------------ */
 /* Products                                                            */
 /* ------------------------------------------------------------------ */
 
 /** products, view "catalogue": every product, for the catalogue, shop, cart and the like. */
 export const productsCatalogue = <T = any>(): Promise<T> =>
-  client.fetch<T>(catalogueProductsQuery);
+  fromCms()
+    ? readCmsAnswer<T>("products", CATALOGUE, {
+        expect: "list",
+        neverEmpty: true,
+      })
+    : client.fetch<T>(catalogueProductsQuery);
 
-/** products, view "ids": the products with the given ids. */
+/** products, view "ids": the products with the given ids. Cached per request with the CMS. */
 export const productsByIds = <T = any>(ids: string[]): Promise<T> =>
-  client.fetch<T>(productsByIdsQuery, { ids });
+  fromCms()
+    ? cachedPerRequest<T>("products", "ids", {
+        view: "ids",
+        ids: normalisedList(ids),
+      })
+    : client.fetch<T>(productsByIdsQuery, { ids });
 
 /** products, view "collectionOrType": a collection page's products. */
 export const productsByCollectionOrType = <T = any>(params: {
   slug: string;
   productType: string | null;
 }): Promise<T> =>
-  client.fetch<T>(catalogueProductsByCollectionOrTypeQuery, params);
+  fromCms()
+    ? cmsList<T>("products", {
+        view: "collectionOrType",
+        slug: params.slug,
+        productType: params.productType,
+      })
+    : client.fetch<T>(catalogueProductsByCollectionOrTypeQuery, params);
 
 /** products, view "category": the products of one or more collections or a type. */
 export const productsForCategory = <T = any>(params: {
   cids: string[];
   pt: string | null;
   refiled: string[];
-}): Promise<T> => client.fetch<T>(productsByCollectionsOrTypeQuery, params);
+}): Promise<T> =>
+  fromCms()
+    ? cmsList<T>("products", {
+        view: "category",
+        cids: params.cids,
+        pt: params.pt,
+        refiled: params.refiled,
+      })
+    : client.fetch<T>(productsByCollectionsOrTypeQuery, params);
 
 /** products, view "category" with ribbons "any": every product with a ribbon. Read past the cache. */
 export const productsWithAnyRibbon = <T = any>(): Promise<T> =>
-  freshClient.fetch<T>(productsWithAnyRibbonQuery);
+  fromCms()
+    ? cmsList<T>("products", { view: "category", ribbons: "any" })
+    : freshClient.fetch<T>(productsWithAnyRibbonQuery);
 
-/** products, slugs only: for page generation. */
+/** products, slugs only: for page generation. From the CMS: the catalogue, each row cut to its slug. */
 export const productSlugs = <T = any>(): Promise<T> =>
-  client.fetch<T>(productSlugsQuery);
+  fromCms()
+    ? readCmsAnswer<{ slug: unknown }[]>("products", CATALOGUE, {
+        expect: "list",
+        neverEmpty: true,
+      }).then((rows) => rows.map((row) => ({ slug: row.slug })) as T)
+    : client.fetch<T>(productSlugsQuery);
 
 /** product: one product with its related cards, or null. */
 export const product = <T = any>(slug: string): Promise<T> =>
-  client.fetch<T>(productBySlugQuery, { slug });
+  fromCms()
+    ? cmsObjectOrNull<T>("product", { slug })
+    : client.fetch<T>(productBySlugQuery, { slug });
 
 /** product, for the share image that runs on the edge (no URL rewriting). */
 export const productForShareImage = <T = any>(slug: string): Promise<T> =>
-  rawClient.fetch<T>(productBySlugQuery, { slug });
+  fromCms()
+    ? cmsObjectOrNull<T>("product", { slug })
+    : rawClient.fetch<T>(productBySlugQuery, { slug });
 
 /** productTiles: name, slug and photo of the products named by slug. */
 export const productTiles = <T = any>(slugs: string[]): Promise<T> =>
-  client.fetch<T>(productTilesQuery, { slugs });
+  fromCms()
+    ? cmsList<T>("product-tiles", { slugs })
+    : client.fetch<T>(productTilesQuery, { slugs });
 
 /* ------------------------------------------------------------------ */
 /* Collections                                                         */
@@ -257,19 +369,31 @@ export const productTiles = <T = any>(slugs: string[]): Promise<T> =>
 export const homepageCollections = <T = any>(params: {
   quartzCollections: string[];
   indiaQuartz: string[];
-}): Promise<T> => client.fetch<T>(homepageCollectionsQuery, params);
+}): Promise<T> =>
+  fromCms()
+    ? cmsList<T>("homepage-collections", {
+        quartzCollections: params.quartzCollections,
+        indiaQuartz: params.indiaQuartz,
+      })
+    : client.fetch<T>(homepageCollectionsQuery, params);
 
 /** collection, full: one collection by slug. */
 export const collection = <T = any>(slug: string): Promise<T> =>
-  client.fetch<T>(collectionBySlugQuery, { slug });
+  fromCms()
+    ? cmsObjectOrNull<T>("collection", { view: "bySlug", slug })
+    : client.fetch<T>(collectionBySlugQuery, { slug });
 
 /** collection, short: one collection by slug, fewer fields. */
 export const collectionShort = <T = any>(slug: string): Promise<T> =>
-  client.fetch<T>(collectionBySlugQueryLocal, { slug });
+  fromCms()
+    ? cmsObjectOrNull<T>("collection", { view: "bySlugShort", slug })
+    : client.fetch<T>(collectionBySlugQueryLocal, { slug });
 
 /** collection, by name match: the oldest collection whose lower-case name matches the pattern. */
 export const collectionByMatch = <T = any>(pattern: string): Promise<T> =>
-  client.fetch<T>(collectionByMatchQuery, { pattern });
+  fromCms()
+    ? cmsObjectOrNull<T>("collection", { view: "byMatch", pattern })
+    : client.fetch<T>(collectionByMatchQuery, { pattern });
 
 /* ------------------------------------------------------------------ */
 /* Journal                                                             */
@@ -277,23 +401,33 @@ export const collectionByMatch = <T = any>(pattern: string): Promise<T> =>
 
 /** blogPosts, view "all": every post, newest first. */
 export const blogPostsAll = <T = any>(): Promise<T> =>
-  client.fetch<T>(allBlogPostsQuery);
+  fromCms()
+    ? cmsList<T>("blog-posts", { view: "all" })
+    : client.fetch<T>(allBlogPostsQuery);
 
 /** blogPosts, view "recent": the three newest posts. */
 export const blogPostsRecent = <T = any>(): Promise<T> =>
-  client.fetch<T>(recentBlogPostsQuery);
+  fromCms()
+    ? cmsList<T>("blog-posts", { view: "recent" })
+    : client.fetch<T>(recentBlogPostsQuery);
 
 /** blogPosts, view "slugs": every post's slug. */
 export const blogPostSlugs = <T = any>(): Promise<T> =>
-  client.fetch<T>(blogPostSlugsQuery);
+  fromCms()
+    ? cmsList<T>("blog-posts", { view: "slugs" })
+    : client.fetch<T>(blogPostSlugsQuery);
 
 /** blogPost: one post by slug, or null. */
 export const blogPost = <T = any>(slug: string): Promise<T> =>
-  client.fetch<T>(blogPostBySlugQuery, { slug });
+  fromCms()
+    ? cmsObjectOrNull<T>("blog-post", { slug })
+    : client.fetch<T>(blogPostBySlugQuery, { slug });
 
 /** blogPost, for the share image that runs on the edge (no URL rewriting). */
 export const blogPostForShareImage = <T = any>(slug: string): Promise<T> =>
-  rawClient.fetch<T>(blogPostBySlugQuery, { slug });
+  fromCms()
+    ? cmsObjectOrNull<T>("blog-post", { slug })
+    : rawClient.fetch<T>(blogPostBySlugQuery, { slug });
 
 /* ------------------------------------------------------------------ */
 /* Home page                                                           */
@@ -301,15 +435,21 @@ export const blogPostForShareImage = <T = any>(slug: string): Promise<T> =>
 
 /** homepage, signatureProjects. */
 export const homepageSignatureProjects = <T = any>(): Promise<T> =>
-  client.fetch<T>(signatureProjectsQuery);
+  fromCms()
+    ? cmsPart<T>("homepage", {}, "signatureProjects", "list")
+    : client.fetch<T>(signatureProjectsQuery);
 
 /** homepage, applicationCards. */
 export const homepageApplicationCards = <T = any>(): Promise<T> =>
-  client.fetch<T>(applicationCardsQuery);
+  fromCms()
+    ? cmsPart<T>("homepage", {}, "applicationCards", "list")
+    : client.fetch<T>(applicationCardsQuery);
 
 /** homepage, inspirationImages. */
 export const homepageInspirationImages = <T = any>(): Promise<T> =>
-  client.fetch<T>(inspirationImagesQuery);
+  fromCms()
+    ? cmsPart<T>("homepage", {}, "inspirationImages", "list")
+    : client.fetch<T>(inspirationImagesQuery);
 
 /* ------------------------------------------------------------------ */
 /* Resources, careers, Beyond Stone, space pages, FAQ                  */
@@ -317,59 +457,89 @@ export const homepageInspirationImages = <T = any>(): Promise<T> =>
 
 /** resources: the downloads list. Read past the cache. */
 export const resources = <T = any>(): Promise<T> =>
-  freshClient.fetch<T>(allResourcesQuery);
+  fromCms() ? cmsList<T>("resources") : freshClient.fetch<T>(allResourcesQuery);
 
 /** careers, page: the careers page text. */
 export const careersPage = <T = any>(): Promise<T> =>
-  client.fetch<T>(careersPageQuery);
+  fromCms()
+    ? cmsPart<T>("careers", {}, "page", "objectOrNull")
+    : client.fetch<T>(careersPageQuery);
 
 /** careers, jobs: the visible job openings. */
 export const careersJobs = <T = any>(): Promise<T> =>
-  client.fetch<T>(jobOpeningsQuery);
+  fromCms()
+    ? cmsPart<T>("careers", {}, "jobs", "list")
+    : client.fetch<T>(jobOpeningsQuery);
 
 /** beyondStone, page: the Beyond Stone page text. */
 export const beyondStonePage = <T = any>(): Promise<T> =>
-  client.fetch<T>(facadesAndFinishesPageQuery);
+  fromCms()
+    ? cmsPart<T>("beyond-stone", {}, "page", "objectOrNull")
+    : client.fetch<T>(facadesAndFinishesPageQuery);
 
 /** beyondStone, collectionSlug: the collection the page names, if any. */
 export const beyondStoneCollectionSlug = <T = any>(): Promise<T> =>
-  client.fetch<T>(beyondStoneCollectionSlugQuery);
+  fromCms()
+    ? cmsPart<T>("beyond-stone", {}, "collectionSlug", "textOrNull")
+    : client.fetch<T>(beyondStoneCollectionSlugQuery);
 
 /** beyondStone, products: the products of that collection. */
 export const beyondStoneProducts = <T = any>(slug: string): Promise<T> =>
-  client.fetch<T>(facadesAndFinishesProductsQuery, { slug });
+  fromCms()
+    ? cmsPart<T>("beyond-stone", { slug }, "products", "list")
+    : client.fetch<T>(facadesAndFinishesProductsQuery, { slug });
 
 /** spacePage: the four feature images of a space page. Read past the cache. */
 export const spacePage = <T = any>(slug: string): Promise<T> =>
-  freshClient.fetch<T>(spacePageBySlugQuery, { slug });
+  fromCms()
+    ? cmsObjectOrNull<T>("space-page", { slug })
+    : freshClient.fetch<T>(spacePageBySlugQuery, { slug });
 
 /** faq: the questions of one FAQ page. */
 export const faq = <T = any>(key: string): Promise<T> =>
-  client.fetch<T>(faqByKeyQuery, { key });
+  fromCms()
+    ? cmsObjectOrNull<T>("faq", { key })
+    : client.fetch<T>(faqByKeyQuery, { key });
 
 /* ------------------------------------------------------------------ */
 /* Search and sitemap                                                  */
 /* ------------------------------------------------------------------ */
 
-/** search, view "overlay": up to 40 hits for the search box. */
+/** search, view "overlay": up to 40 hits for the search box. Cached per request with the CMS. */
 export const searchOverlay = <T = any>(terms: string[]): Promise<T> =>
-  client.fetch<T>(searchOverlayQuery, { terms });
+  fromCms()
+    ? cachedPerRequest<T>("search", "overlay", {
+        view: "overlay",
+        terms: normalisedList(terms),
+      })
+    : client.fetch<T>(searchOverlayQuery, { terms });
 
-/** search, view "page": up to 60 products for the search page. */
+/** search, view "page": up to 60 products for the search page. Cached per request with the CMS. */
 export const searchPage = <T = any>(term: string): Promise<T> =>
-  client.fetch<T>(searchPageQuery, { term });
+  fromCms()
+    ? cachedPerRequest<T>("search", "page", { view: "page", term: term.trim() })
+    : client.fetch<T>(searchPageQuery, { term });
 
-/** sitemap, products. */
+/** sitemap, products. Never empty. */
 export const sitemapProducts = <T = any>(): Promise<T> =>
-  client.fetch<T>(sitemapProductsQuery);
+  fromCms()
+    ? readCmsPart<T>("sitemap", {}, "products", {
+        expect: "list",
+        neverEmpty: true,
+      })
+    : client.fetch<T>(sitemapProductsQuery);
 
 /** sitemap, posts. */
 export const sitemapPosts = <T = any>(): Promise<T> =>
-  client.fetch<T>(sitemapPostsQuery);
+  fromCms()
+    ? cmsPart<T>("sitemap", {}, "posts", "list")
+    : client.fetch<T>(sitemapPostsQuery);
 
 /** sitemap, dates: when each content area last changed. */
 export const sitemapDates = <T = any>(): Promise<T> =>
-  client.fetch<T>(contentDatesQuery);
+  fromCms()
+    ? cmsPart<T>("sitemap", {}, "dates", "object")
+    : client.fetch<T>(contentDatesQuery);
 
 /* ------------------------------------------------------------------ */
 /* Job application (server only)                                       */
@@ -377,11 +547,13 @@ export const sitemapDates = <T = any>(): Promise<T> =>
 
 /**
  * jobApply: the applied-for role's notification address and portfolio
- * rule. It reads with the write token, as the apply route always did.
- * Throws when the token is missing, which the route treats as a failed
- * look-up.
+ * rule. From Sanity it reads with the write token, as the apply route
+ * always did, and throws when the token is missing, which the route
+ * treats as a failed look-up. From the CMS it is the private
+ * `job-apply` answer, for this server only.
  */
 export async function jobApply<T = any>(title: string): Promise<T> {
+  if (fromCms()) return cmsObjectOrNull<T>("job-apply", { title });
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
   const writeToken = process.env.SANITY_API_WRITE_TOKEN;

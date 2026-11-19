@@ -1,0 +1,337 @@
+import "server-only";
+import { cache } from "react";
+
+/**
+ * The website's reader for the Pacific CMS.
+ *
+ * Every content read the site makes from the CMS goes through
+ * `readCmsAnswer` or `readCmsPart` here; the fetchers in `./read.ts` are
+ * the only callers. The CMS answers fixed, named reads at
+ * `GET ${CMS_URL}/api/read/<answer>`, and each body is exactly what the
+ * matching Sanity query returned: a bare array, object or null.
+ *
+ * Settings, read on the server at call time, never with a NEXT_PUBLIC_
+ * name, so they stay out of every browser bundle:
+ * - CONTENT_SOURCE: "cms" reads the CMS. Unset, or any other value, reads
+ *   Sanity as before.
+ * - CMS_URL: the CMS's address (https; plain http only for this machine).
+ * - CMS_READ_KEY: the API key of the website's reader login in the CMS.
+ * - CMS_PROTECTION_BYPASS: the pass through the CMS's Vercel protection,
+ *   sent when set.
+ *
+ * This file uses nothing but `fetch`, so it also runs in the two share
+ * image routes, which run on the edge.
+ */
+
+/* ------------------------------------------------------------------ */
+/* The content source                                                  */
+/* ------------------------------------------------------------------ */
+
+export type ContentSource = "sanity" | "cms";
+
+/**
+ * Which store the site reads its content from. Only the exact value
+ * "cms" picks the CMS; unset, empty or anything else is "sanity".
+ */
+export function contentSource(): ContentSource {
+  return process.env.CONTENT_SOURCE === "cms" ? "cms" : "sanity";
+}
+
+/* ------------------------------------------------------------------ */
+/* Request settings, kept in one place                                 */
+/* ------------------------------------------------------------------ */
+
+/** The header that carries the reader login's API key. */
+export const READ_KEY_HEADER = "authorization";
+/** What comes before the key in that header (Payload's API-key form). */
+export const READ_KEY_SCHEME = "users API-Key";
+/** The header that carries the pass through Vercel's deployment protection. */
+export const PROTECTION_BYPASS_HEADER = "x-vercel-protection-bypass";
+/** How long one read may take before it counts as failed. */
+export const READ_TIMEOUT_MS = 10_000;
+/** The cache tag of the per-request reads; the revalidate route clears it. */
+export const CMS_CACHE_TAG = "cms";
+
+/* ------------------------------------------------------------------ */
+/* Errors                                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A CMS read that did not give a usable answer. Pages let it propagate,
+ * so a failed rebuild keeps serving the page's last good version.
+ */
+export class CmsReadError extends Error {
+  readonly answer: string;
+  readonly status: number | null;
+  constructor(answer: string, reason: string, status: number | null = null) {
+    super(`CMS read${answer ? ` "${answer}"` : ""} failed: ${reason}`);
+    this.name = "CmsReadError";
+    this.answer = answer;
+    this.status = status;
+  }
+}
+
+export function isCmsReadError(error: unknown): error is CmsReadError {
+  return (
+    error instanceof CmsReadError ||
+    (error instanceof Error && error.name === "CmsReadError")
+  );
+}
+
+/**
+ * For a call site that catches a failed read and shows something softer
+ * instead: a failed CMS read is passed on, so the page is not cached with
+ * the softer version. With Sanity as the source nothing changes.
+ */
+export function throwIfCmsFailure(error: unknown): void {
+  if (isCmsReadError(error)) throw error;
+}
+
+/* ------------------------------------------------------------------ */
+/* The query string                                                    */
+/* ------------------------------------------------------------------ */
+
+export type ReadQuery = Readonly<
+  Record<string, string | readonly string[] | null | undefined>
+>;
+
+/**
+ * The query string of one read. A list is sent as one key per entry
+ * (`ids=a&ids=b`), never joined with commas, so a value that holds a
+ * comma stays one value. An empty list is sent as one empty entry
+ * (`ids=`), which the CMS reads as an empty list. A null or missing
+ * value is left out. Keys are sorted, so the same read always has the
+ * same address.
+ */
+export function buildQueryString(query: ReadQuery): string {
+  const parts: string[] = [];
+  for (const name of Object.keys(query).sort()) {
+    const value = query[name];
+    if (value === undefined || value === null) continue;
+    const values: readonly string[] =
+      typeof value === "string" ? [value] : value.length === 0 ? [""] : value;
+    for (const item of values) {
+      parts.push(`${encodeURIComponent(name)}=${encodeURIComponent(item)}`);
+    }
+  }
+  return parts.join("&");
+}
+
+/* ------------------------------------------------------------------ */
+/* Pictures                                                            */
+/* ------------------------------------------------------------------ */
+
+/** How a picture or file starts in a CMS answer today. */
+export const PICTURE_PLACEHOLDER_PREFIX = "cms-media:";
+
+/**
+ * The one place a picture or file named in a CMS answer becomes the
+ * address the site uses. Not decided yet: for now it hands the value
+ * back unchanged.
+ */
+export function toPictureUrl(value: string): string {
+  return value;
+}
+
+/** Every picture or file in an answer, through `toPictureUrl`. */
+function withPictureUrls(value: unknown): unknown {
+  if (typeof value === "string") {
+    return value.startsWith(PICTURE_PLACEHOLDER_PREFIX)
+      ? toPictureUrl(value)
+      : value;
+  }
+  if (Array.isArray(value)) return value.map(withPictureUrls);
+  if (value !== null && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value)) {
+      out[key] = withPictureUrls(item);
+    }
+    return out;
+  }
+  return value;
+}
+
+/* ------------------------------------------------------------------ */
+/* Reading                                                             */
+/* ------------------------------------------------------------------ */
+
+type CmsSettings = { base: string; key: string; bypass: string | undefined };
+
+function cmsSettings(answer: string): CmsSettings {
+  const address = process.env.CMS_URL?.trim();
+  const key = process.env.CMS_READ_KEY?.trim();
+  const bypass = process.env.CMS_PROTECTION_BYPASS?.trim() || undefined;
+  if (!address) throw new CmsReadError(answer, "CMS_URL is not set");
+  if (!key) throw new CmsReadError(answer, "CMS_READ_KEY is not set");
+  let url: URL;
+  try {
+    url = new URL(address);
+  } catch {
+    throw new CmsReadError(answer, "CMS_URL is not an address");
+  }
+  const thisMachine = ["localhost", "127.0.0.1", "[::1]"].includes(
+    url.hostname
+  );
+  if (url.protocol !== "https:" && !(url.protocol === "http:" && thisMachine)) {
+    throw new CmsReadError(answer, "CMS_URL must be an https address");
+  }
+  return { base: address.replace(/\/+$/, ""), key, bypass };
+}
+
+const isJsonType = (type: string | null): boolean => {
+  const media = (type ?? "").split(";")[0].trim().toLowerCase();
+  return media === "application/json" || media.endsWith("+json");
+};
+
+/**
+ * The body of one answer, as text. Anything but a 200 with a JSON body
+ * throws: a login page, 401, 403, 404, 500, a redirect, HTML, a network
+ * error, or no answer within the time limit. Kept per render (React
+ * `cache`), so the fetchers that take parts of one answer share one call.
+ */
+const fetchAnswerText = cache(
+  async (answer: string, search: string, timeoutMs: number) => {
+    const { base, key, bypass } = cmsSettings(answer);
+    const url = `${base}/api/read/${encodeURIComponent(answer)}${
+      search ? `?${search}` : ""
+    }`;
+    const headers: Record<string, string> = {
+      accept: "application/json",
+      [READ_KEY_HEADER]: `${READ_KEY_SCHEME} ${key}`,
+    };
+    if (bypass) headers[PROTECTION_BYPASS_HEADER] = bypass;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const lateOr = (reason: string) =>
+      controller.signal.aborted ? `no answer within ${timeoutMs} ms` : reason;
+    try {
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method: "GET",
+          headers,
+          redirect: "manual",
+          signal: controller.signal,
+        });
+      } catch {
+        throw new CmsReadError(answer, lateOr("the CMS could not be reached"));
+      }
+      if (response.status !== 200) {
+        await response.body?.cancel().catch(() => undefined);
+        throw new CmsReadError(
+          answer,
+          `status ${response.status}`,
+          response.status
+        );
+      }
+      if (!isJsonType(response.headers.get("content-type"))) {
+        await response.body?.cancel().catch(() => undefined);
+        throw new CmsReadError(answer, "the answer is not JSON", 200);
+      }
+      try {
+        return await response.text();
+      } catch {
+        throw new CmsReadError(answer, lateOr("the answer could not be read"));
+      }
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+);
+
+/** What an answer, or a part of one, must be. */
+export type AnswerKind = "list" | "object" | "objectOrNull" | "textOrNull";
+
+export type ReadOptions = {
+  /** What the answer must be; anything else throws. */
+  expect: AnswerKind;
+  /**
+   * Only for the reads that are never empty when the CMS is working (the
+   * whole catalogue, the sitemap's products): an empty list throws.
+   */
+  neverEmpty?: boolean;
+  /** The time limit; the default is READ_TIMEOUT_MS. */
+  timeoutMs?: number;
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+function isKind(value: unknown, kind: AnswerKind): boolean {
+  switch (kind) {
+    case "list":
+      return Array.isArray(value);
+    case "object":
+      return isRecord(value);
+    case "objectOrNull":
+      return value === null || isRecord(value);
+    case "textOrNull":
+      return value === null || typeof value === "string";
+  }
+}
+
+function checked(
+  answer: string,
+  label: string,
+  value: unknown,
+  options: ReadOptions
+): unknown {
+  if (!isKind(value, options.expect)) {
+    throw new CmsReadError(answer, `${label} is not ${options.expect}`);
+  }
+  if (options.neverEmpty && Array.isArray(value) && value.length === 0) {
+    throw new CmsReadError(answer, `${label} is empty`);
+  }
+  return value;
+}
+
+async function readBody(
+  answer: string,
+  query: ReadQuery,
+  options: ReadOptions
+): Promise<unknown> {
+  const text = await fetchAnswerText(
+    answer,
+    buildQueryString(query),
+    options.timeoutMs ?? READ_TIMEOUT_MS
+  );
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new CmsReadError(answer, "the answer is not JSON", 200);
+  }
+}
+
+/** One CMS answer, checked, with its pictures through `toPictureUrl`. */
+export async function readCmsAnswer<T>(
+  answer: string,
+  query: ReadQuery,
+  options: ReadOptions
+): Promise<T> {
+  const body = await readBody(answer, query, options);
+  return withPictureUrls(checked(answer, "the answer", body, options)) as T;
+}
+
+/**
+ * One part of a CMS answer that holds several (`homepage`, `careers`,
+ * `beyond-stone`, `sitemap`): the answer must be an object that has the
+ * part, and the part must be what `options.expect` says.
+ */
+export async function readCmsPart<T>(
+  answer: string,
+  query: ReadQuery,
+  part: string,
+  options: ReadOptions
+): Promise<T> {
+  const body = await readBody(answer, query, options);
+  if (!isRecord(body)) {
+    throw new CmsReadError(answer, "the answer is not object");
+  }
+  if (!Object.prototype.hasOwnProperty.call(body, part)) {
+    throw new CmsReadError(answer, `the answer has no "${part}"`);
+  }
+  return withPictureUrls(
+    checked(answer, `"${part}"`, body[part], options)
+  ) as T;
+}
