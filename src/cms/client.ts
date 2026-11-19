@@ -138,61 +138,54 @@ export function buildQueryString(query: ReadQuery): string {
 /* Pictures                                                            */
 /* ------------------------------------------------------------------ */
 
-/** How a picture or file starts in a CMS answer today. */
-export const PICTURE_PLACEHOLDER_PREFIX = "cms-media:";
-
-/**
- * The one place a picture or file named in a CMS answer becomes the
- * address the site uses. Not decided yet: for now it hands the value
- * back unchanged.
+/*
+ * A CMS answer gives every picture and file as a full address already,
+ * so answers are passed on as they come. How an address becomes the one
+ * a page loads (a ready-made copy, or this site's /api/cdn/m/) is
+ * decided in one place, src/lib/media-url.ts.
  */
-export function toPictureUrl(value: string): string {
-  return value;
-}
-
-/** Every picture or file in an answer, through `toPictureUrl`. */
-function withPictureUrls(value: unknown): unknown {
-  if (typeof value === "string") {
-    return value.startsWith(PICTURE_PLACEHOLDER_PREFIX)
-      ? toPictureUrl(value)
-      : value;
-  }
-  if (Array.isArray(value)) return value.map(withPictureUrls);
-  if (value !== null && typeof value === "object") {
-    const out: Record<string, unknown> = {};
-    for (const [key, item] of Object.entries(value)) {
-      out[key] = withPictureUrls(item);
-    }
-    return out;
-  }
-  return value;
-}
 
 /* ------------------------------------------------------------------ */
 /* Reading                                                             */
 /* ------------------------------------------------------------------ */
 
-type CmsSettings = { base: string; key: string; bypass: string | undefined };
-
-function cmsSettings(answer: string): CmsSettings {
+/**
+ * CMS_URL without a trailing slash, or why it cannot be used: it must be
+ * set and be an https address (plain http only for this machine).
+ */
+export function cmsBaseUrl(): { base: string } | { problem: string } {
   const address = process.env.CMS_URL?.trim();
-  const key = process.env.CMS_READ_KEY?.trim();
-  const bypass = process.env.CMS_PROTECTION_BYPASS?.trim() || undefined;
-  if (!address) throw new CmsReadError(answer, "CMS_URL is not set");
-  if (!key) throw new CmsReadError(answer, "CMS_READ_KEY is not set");
+  if (!address) return { problem: "CMS_URL is not set" };
   let url: URL;
   try {
     url = new URL(address);
   } catch {
-    throw new CmsReadError(answer, "CMS_URL is not an address");
+    return { problem: "CMS_URL is not an address" };
   }
   const thisMachine = ["localhost", "127.0.0.1", "[::1]"].includes(
     url.hostname
   );
   if (url.protocol !== "https:" && !(url.protocol === "http:" && thisMachine)) {
-    throw new CmsReadError(answer, "CMS_URL must be an https address");
+    return { problem: "CMS_URL must be an https address" };
   }
-  return { base: address.replace(/\/+$/, ""), key, bypass };
+  return { base: address.replace(/\/+$/, "") };
+}
+
+/** The deployment-protection pass, when set. */
+export function protectionBypass(): string | undefined {
+  return process.env.CMS_PROTECTION_BYPASS?.trim() || undefined;
+}
+
+type CmsSettings = { base: string; key: string; bypass: string | undefined };
+
+function cmsSettings(answer: string): CmsSettings {
+  const address = cmsBaseUrl();
+  const key = process.env.CMS_READ_KEY?.trim();
+  if ("problem" in address) {
+    throw new CmsReadError(answer, address.problem);
+  }
+  if (!key) throw new CmsReadError(answer, "CMS_READ_KEY is not set");
+  return { base: address.base, key, bypass: protectionBypass() };
 }
 
 const isJsonType = (type: string | null): boolean => {
@@ -332,14 +325,14 @@ async function readBody(
   }
 }
 
-/** One CMS answer, checked, with its pictures through `toPictureUrl`. */
+/** One CMS answer, checked. */
 export async function readCmsAnswer<T>(
   answer: string,
   query: ReadQuery,
   options: ReadOptions
 ): Promise<T> {
   const body = await readBody(answer, query, options);
-  return withPictureUrls(checked(answer, "the answer", body, options)) as T;
+  return checked(answer, "the answer", body, options) as T;
 }
 
 /**
@@ -360,7 +353,5 @@ export async function readCmsPart<T>(
   if (!Object.prototype.hasOwnProperty.call(body, part)) {
     throw new CmsReadError(answer, `the answer has no "${part}"`);
   }
-  return withPictureUrls(
-    checked(answer, `"${part}"`, body[part], options)
-  ) as T;
+  return checked(answer, `"${part}"`, body[part], options) as T;
 }

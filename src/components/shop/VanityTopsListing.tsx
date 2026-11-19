@@ -13,6 +13,7 @@ import {
 import { BasinPreview } from "@/components/shop/BasinPreview";
 import { StoreBanner } from "@/components/shop/StoreBanner";
 import { sanityImageProxyUrl, sanityImg } from "@/lib/sanity-img";
+import { cmsImg, isCmsMedia, toProxy } from "@/lib/media-url";
 import { cn } from "@/lib/utils";
 import type { BasinLayers, VanityTopLayout } from "@/data/store";
 
@@ -98,14 +99,17 @@ function passes(item: Item, f: Filters, skip?: FacetKey): boolean {
 /** A design's slab photograph as a small swatch, same-origin. `fm=webp`
  *  rather than sanityImg's `auto=format`: the proxy fetches server-side
  *  without the browser's Accept header, so auto=format would hand back
- *  the original JPEG. */
+ *  the original JPEG. A CMS photograph: its 256 px copy, through
+ *  /api/cdn/m/. */
 const swatchUrl = (image: string | null) =>
-  image
-    ? sanityImageProxyUrl(
-        sanityImg(image, { w: 120 })?.replace(/auto=format$/, "fm=webp") ??
-          image
-      )
-    : undefined;
+  !image
+    ? undefined
+    : isCmsMedia(image)
+      ? toProxy(cmsImg(image, { w: 120 }))
+      : sanityImageProxyUrl(
+          sanityImg(image, { w: 120 })?.replace(/auto=format$/, "fm=webp") ??
+            image
+        );
 
 export function VanityTopsListing({
   tops,

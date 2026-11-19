@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { applySlabToRegion } from "@/components/visualize/slab-texture";
 import { localVariant, variantWidth } from "@/lib/image-variants";
+import { cmsImg, isCmsMedia, toProxy } from "@/lib/media-url";
 
 /**
  * Live basin preview — the visualizer's compositing pipeline, applied to a
@@ -79,8 +80,10 @@ const layerAt = (src: string, width: number) => localVariant(src, width) ?? src;
 
 /** A slab photograph as the compositor draws it: through our own proxy
  *  (first-party, CORS-clean), resized by Sanity to the canvas width at full
- *  quality. Local files are used as they are. */
+ *  quality, or a CMS photograph's ready-made copy at or above that width.
+ *  Local files are used as they are. */
 function slabUrl(src: string, width: number): string {
+  if (isCmsMedia(src)) return toProxy(cmsImg(src, { w: Math.round(width) }));
   const m = src.match(/^https?:\/\/cdn\.sanity\.io\/(images\/[^?]+)(\?.*)?$/);
   if (!m) return src;
   const q = new URLSearchParams(m[2]?.slice(1) ?? "");

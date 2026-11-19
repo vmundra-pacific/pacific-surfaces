@@ -1,3 +1,5 @@
+import { cmsImg, isCmsMedia, toProxy } from "./media-url";
+
 /**
  * Single source of truth for Sanity CDN image URLs.
  *
@@ -12,6 +14,11 @@
  *
  * Defaults: q=70, fit=max, auto=format. Always pass `w` to actually
  * benefit — without it the CDN still serves the master.
+ *
+ * Pictures and files from the Pacific CMS are handled here too, so
+ * callers need no branch: each helper below hands a CMS address to
+ * lib/media-url (the ready-made copy at or above `w`, and the CMS's own
+ * host always through /api/cdn/m/).
  *
  * Note on cookie hardening: cdn.sanity.io serves cookies on /files/
  * (videos, HD downloads) but NOT on /images/. The /api/cdn/* proxy
@@ -41,8 +48,12 @@ const PROXIED_RE = /^\/api\/cdn\//;
  *
  * Exported so callers that need first-party routing for video src
  * attributes can opt in explicitly.
+ *
+ * A CMS address keeps its file; only one on the CMS's own host is
+ * moved to /api/cdn/m/.
  */
 export function sanityProxyUrl(url: string): string {
+  if (isCmsMedia(url)) return cmsImg(url);
   if (PROXIED_RE.test(url)) return url; // already proxied
   if (!SANITY_FILES_RE.test(url)) return url; // image or non-Sanity
   return url.replace(SANITY_FILES_RE, "/api/cdn/files/");
@@ -62,8 +73,11 @@ export function sanityProxyUrl(url: string): string {
  * via its own /_next/image optimizer (which strips cookies AND applies
  * AVIF/WebP). Wrapping `<Image>` URLs through here short-circuits the
  * optimizer and ships full-size masters to the browser.
+ *
+ * A CMS address goes through /api/cdn/m/, on whichever host it is.
  */
 export function sanityImageProxyUrl(url: string): string {
+  if (isCmsMedia(url)) return toProxy(url);
   if (PROXIED_RE.test(url)) return url; // already proxied
   if (!SANITY_IMAGES_RE.test(url)) return url; // file or non-Sanity
   return url.replace(SANITY_IMAGES_RE, "/api/cdn/images/");
@@ -74,6 +88,14 @@ export function sanityImg(
   opts: SanityImgOpts = {}
 ): string | undefined {
   if (!url) return undefined;
+  // A CMS picture: the ready-made copy at or above `w`. The copies keep
+  // the picture's shape and are WebP at quality 95, so `fit` and `q` do
+  // not apply; a box that crops fills itself with object-fit, and asks
+  // for at least its longer side.
+  if (isCmsMedia(url)) {
+    const crop = opts.fit === "crop" && opts.h ? opts.h : 0;
+    return cmsImg(url, { w: Math.max(opts.w ?? 0, crop) || undefined });
+  }
   // For non-Sanity URLs (e.g. images.unsplash.com, local /public/...),
   // pass through unchanged — no transforms.
   if (!SANITY_HOST_RE.test(url)) return url;

@@ -1,3 +1,5 @@
+import { cmsImg, isCmsMedia } from "./media-url";
+
 /**
  * URL helper for the product page zoom magnifier.
  *
@@ -19,11 +21,15 @@
  * Same URL is used by the magnifier and the catalogue/related-card
  * hover prefetches, so they all share one cache entry.
  *
+ * A CMS picture is shown as its largest ready-made copy, 3840 px wide
+ * (lib/media-url); the CMS keeps no larger copy.
+ *
  * If the URL doesn't look like a Sanity CDN URL (defensive fallback,
  * e.g. a local /uploads file in dev), we return it unchanged.
  */
 export function zoomImageUrl(rawUrl: string | undefined | null): string {
   if (!rawUrl) return "";
+  if (isCmsMedia(rawUrl)) return cmsImg(rawUrl, { w: 3840 });
   // Non-Sanity URLs (e.g. local /uploads files in dev) don't understand
   // the Sanity image-pipeline params — return them unchanged.
   if (!rawUrl.includes("cdn.sanity.io")) return rawUrl;

@@ -1,4 +1,5 @@
 import { localVariant } from "./image-variants";
+import { cmsImg, isCmsMedia } from "./media-url";
 
 /**
  * Site-wide image loader: no recompression, by the owner's instruction
@@ -15,11 +16,15 @@ import { localVariant } from "./image-variants";
  *  - Sanity photographs are resized by Sanity's own CDN to the width the
  *    layout needs, at quality 100, so a thumbnail is never a
  *    full-resolution original but is never lossy-recompressed either.
+ *  - CMS photographs are served as the CMS's ready-made copy at or above
+ *    the width (lib/media-url). Tested first: their addresses on this
+ *    site (/api/cdn/m/...) also start with "/".
  *  - Anything else is passed through untouched.
  *
  * Wired up in next.config.ts (images.loader = "custom").
  */
 export default function imageLoader({ src, width }: { src: string; width: number; quality?: number }): string {
+  if (isCmsMedia(src)) return cmsImg(src, { w: width });
   if (src.startsWith("https://cdn.sanity.io/")) {
     const url = new URL(src);
     url.searchParams.set("w", String(width));

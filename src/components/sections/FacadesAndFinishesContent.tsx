@@ -34,6 +34,7 @@ import {
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { OrderSampleModal } from "@/components/ui/order-sample-modal";
 import { sanityImg } from "@/lib/sanity-img";
+import { cmsImg } from "@/lib/media-url";
 import { finishDescription } from "@/lib/finish-copy";
 import { LazyVideo } from "@/components/ui/lazy-video";
 
@@ -689,7 +690,10 @@ function FinishLightbox({
     };
   }, []);
 
-  const imageSrc = finish.fullImage || finish.mainImage;
+  // A CMS address keeps its copy; one on the CMS's own host goes
+  // through /api/cdn/m/. Any other address is unchanged.
+  const fullImage = finish.fullImage || finish.mainImage;
+  const imageSrc = fullImage ? cmsImg(fullImage) : fullImage;
 
   return (
     <motion.div

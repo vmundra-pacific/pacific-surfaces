@@ -43,6 +43,7 @@ import { pickSimilar } from "@/lib/product-similarity";
 import { shownInRegion } from "@/data/india-range";
 import { useRegionCountry } from "@/lib/use-region-country";
 import { zoomImageUrl } from "@/lib/zoom-image";
+import { toProxy } from "@/lib/media-url";
 import { finishDescription } from "@/lib/finish-copy";
 import { allowedApplications, materialFamily } from "@/lib/application-rules";
 import WorktopDetailTabs from "@/components/sections/WorktopDetailTabs";
@@ -1285,7 +1286,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     changes again. */}
                 <a
                   href={
-                    product.specSheetUrl ||
+                    (product.specSheetUrl && toProxy(product.specSheetUrl)) ||
                     `mailto:marketing@thepacific.group?subject=${encodeURIComponent(`Spec Sheet Request — ${product.name}`)}`
                   }
                   {...(product.specSheetUrl
@@ -1465,7 +1466,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     set; fall back to a mailto request to bindu@. */}
                 <a
                   href={
-                    product.hdFileUrl ||
+                    (product.hdFileUrl && toProxy(product.hdFileUrl)) ||
                     `mailto:marketing@thepacific.group?subject=${encodeURIComponent(`HD File Request — ${product.name}`)}`
                   }
                   {...(product.hdFileUrl
@@ -1484,7 +1485,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     mailto fallback otherwise. */}
                 <a
                   href={
-                    product.specSheetUrl ||
+                    (product.specSheetUrl && toProxy(product.specSheetUrl)) ||
                     `mailto:marketing@thepacific.group?subject=${encodeURIComponent(`Spec Sheet Request — ${product.name}`)}`
                   }
                   {...(product.specSheetUrl

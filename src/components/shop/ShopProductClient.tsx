@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check, Download, FileText, Minus, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toProxy } from "@/lib/media-url";
 import { useCart } from "@/lib/cart";
 import {
   CUSTOM_SIZE,
@@ -414,7 +415,7 @@ export function ShopProductClient({
             <div className="mt-8 space-y-3">
               {product.hdFileUrl && (
                 <a
-                  href={product.hdFileUrl}
+                  href={toProxy(product.hdFileUrl)}
                   className="inline-flex items-center gap-3 text-sm font-light text-pacific-dark hover:opacity-70"
                 >
                   <span className="flex h-9 w-9 items-center justify-center rounded border border-pacific-dark/20">
@@ -425,7 +426,7 @@ export function ShopProductClient({
               )}
               {product.specSheetUrl && (
                 <a
-                  href={product.specSheetUrl}
+                  href={toProxy(product.specSheetUrl)}
                   className="flex items-center gap-3 text-sm font-light text-pacific-dark hover:opacity-70"
                 >
                   <span className="flex h-9 w-9 items-center justify-center rounded border border-pacific-dark/20">

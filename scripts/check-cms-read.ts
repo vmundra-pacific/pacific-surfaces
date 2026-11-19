@@ -25,7 +25,6 @@ import {
   READ_KEY_SCHEME,
   readCmsAnswer,
   readCmsPart,
-  toPictureUrl,
   type ReadOptions,
 } from "../src/cms/client";
 import {
@@ -129,7 +128,13 @@ function standIn(name: string): StandInAnswer {
     case "wrapped":
       return json({ docs: [] });
     case "pictures":
-      return json([{ mainImage: "cms-media:image-abc-10x10-png", n: 1 }]);
+      return json([
+        {
+          mainImage:
+            "https://cms.example.com/api/media/file/0123456789abcdef0123456789abcdef.jpg",
+          n: 1,
+        },
+      ]);
     case "login-page":
       return { status: 200, type: "text/html", body: "<html>Log in</html>" };
     case "json-text-as-html":
@@ -389,14 +394,15 @@ async function checkFailLoud(base: string): Promise<void> {
     readCmsAnswer("slow", {}, { expect: "list", timeoutMs: 300 })
   );
   await resolvesTo(
-    "a picture passes through toPictureUrl unchanged for now",
+    "a picture address in an answer is passed on as it is",
     () => readCmsAnswer("pictures", {}, list),
-    [{ mainImage: "cms-media:image-abc-10x10-png", n: 1 }]
-  );
-  same(
-    "toPictureUrl returns its value",
-    toPictureUrl("cms-media:x"),
-    "cms-media:x"
+    [
+      {
+        mainImage:
+          "https://cms.example.com/api/media/file/0123456789abcdef0123456789abcdef.jpg",
+        n: 1,
+      },
+    ]
   );
 
   // A port nothing listens on.
@@ -429,6 +435,264 @@ async function checkFailLoud(base: string): Promise<void> {
     seen[seen.length - 1].headers[PROTECTION_BYPASS_HEADER] === undefined
   );
   process.env.CMS_PROTECTION_BYPASS = "dummy-bypass";
+}
+
+/** Picture and file addresses (src/lib/media-url.ts) and the helpers that use them. */
+async function checkMediaUrls(): Promise<void> {
+  console.log("Picture and file addresses");
+  const before = process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  const m = await import("../src/lib/media-url");
+  const { default: imageLoader } = await import("../src/lib/image-loader");
+  const { sanityImg, sanityProxyUrl, sanityImageProxyUrl } =
+    await import("../src/lib/sanity-img");
+  const { zoomImageUrl } = await import("../src/lib/zoom-image");
+  const { rewriteToProxy } =
+    await import("../src/components/visualize/slab-texture");
+
+  const h = "0123456789abcdef0123456789abcdef";
+  const names: [string, boolean][] = [
+    [`${h}.jpg`, true],
+    [`${h}.jpeg`, true],
+    [`${h}.avif`, true],
+    [`${h}.pdf`, true],
+    [`${h}-w256.webp`, true],
+    [`${h}-w3840.webp`, true],
+    [`${h}-share.jpg`, true],
+    [`${h.slice(1)}.jpg`, false],
+    [`${h.toUpperCase()}.jpg`, false],
+    [`${h}-w300.webp`, false],
+    [`${h}-w4000.webp`, false],
+    [`${h}-big.webp`, false],
+    [`${h}-w640-share.jpg`, false],
+    [`${h}`, false],
+    [`${h}.j`, false],
+    [`${h}.jpegxl`, false],
+    [`a/${h}.jpg`, false],
+    [`../${h}.jpg`, false],
+    [`${h}.jpg/..`, false],
+  ];
+  for (const [name, ok] of names) {
+    check(
+      `the name ${JSON.stringify(name)} is ${ok ? "accepted" : "refused"}`,
+      m.MEDIA_NAME_RE.test(name) === ok
+    );
+  }
+  same(
+    "a width becomes the copy at or above it",
+    [1, 256, 257, 390, 640, 750, 1170, 2048, 3840, 5000].map(m.mediaWidthFor),
+    [256, 256, 384, 640, 640, 828, 1290, 2560, 3840, 3840]
+  );
+
+  // With no media host set: the CMS's own host always goes through /api/cdn/m/.
+  const onCms = `https://cms.example.com/api/media/file/${h}.jpg`;
+  check("the CMS's file route is CMS media", m.isCmsMedia(onCms));
+  check(
+    "this site's /api/cdn/m/ is CMS media",
+    m.isCmsMedia(`/api/cdn/m/${h}.png`)
+  );
+  check(
+    "a query after the name is ignored",
+    m.isCmsMedia(`/api/media/file/${h}.jpg?x=1`)
+  );
+  for (const other of [
+    `https://media.example.com/${h}.jpg`,
+    `/api/media/file/sub/${h}.jpg`,
+    `/api/cdn/images/p/d/${h}.jpg`,
+    `https://cdn.sanity.io/images/p/d/${h}-10x10.jpg`,
+    "/images/stone.jpg",
+    "data:image/png;base64,AAAA",
+    "",
+  ]) {
+    check(`${JSON.stringify(other)} is not CMS media`, !m.isCmsMedia(other));
+  }
+  same(
+    "a width on the CMS host",
+    m.cmsImg(onCms, { w: 700 }),
+    `/api/cdn/m/${h}-w828.webp`
+  );
+  same(
+    "the share card on the CMS host",
+    m.cmsImg(onCms, { share: true }),
+    `/api/cdn/m/${h}-share.jpg`
+  );
+  same(
+    "no width keeps the original, through /api/cdn/m/",
+    m.cmsImg(onCms),
+    `/api/cdn/m/${h}.jpg`
+  );
+  same("toProxy on the CMS host", m.toProxy(onCms), `/api/cdn/m/${h}.jpg`);
+  same(
+    "a copy asked for at another width is cut again from its hash",
+    m.cmsImg(`/api/cdn/m/${h}-w2560.webp`, { w: 640 }),
+    `/api/cdn/m/${h}-w640.webp`
+  );
+  same(
+    "a copy asked for with no width stays that copy",
+    m.cmsImg(`/api/cdn/m/${h}-w2560.webp`),
+    `/api/cdn/m/${h}-w2560.webp`
+  );
+  same(
+    "above the largest copy: the largest",
+    m.cmsImg(onCms, { w: 9000 }),
+    `/api/cdn/m/${h}-w3840.webp`
+  );
+  const pdfOnCms = `https://cms.example.com/api/media/file/${h}.pdf`;
+  same(
+    "a PDF keeps its name at any width",
+    m.cmsImg(pdfOnCms, { w: 640 }),
+    `/api/cdn/m/${h}.pdf`
+  );
+  same(
+    "a PDF has no share card",
+    m.cmsImg(pdfOnCms, { share: true }),
+    `/api/cdn/m/${h}.pdf`
+  );
+  same(
+    "a video keeps its name",
+    m.cmsImg(`https://cms.example.com/api/media/file/${h}.mp4`, { w: 1080 }),
+    `/api/cdn/m/${h}.mp4`
+  );
+  same(
+    "an address that is not CMS media is unchanged",
+    m.cmsImg("/images/stone.jpg", { w: 640 }),
+    "/images/stone.jpg"
+  );
+  same("no media host: no origin", m.mediaOrigin(), null);
+  same(
+    "a file name goes through /api/cdn/m/",
+    m.cmsFileAddress(`${h}.pdf`),
+    `/api/cdn/m/${h}.pdf`
+  );
+
+  same(
+    "the image loader cuts a CMS picture before the local branch",
+    imageLoader({ src: `/api/cdn/m/${h}.jpg`, width: 390 }),
+    `/api/cdn/m/${h}-w640.webp`
+  );
+  same(
+    "the image loader leaves Sanity as it was",
+    imageLoader({
+      src: "https://cdn.sanity.io/images/p/d/x-10x10.jpg",
+      width: 640,
+    }),
+    "https://cdn.sanity.io/images/p/d/x-10x10.jpg?w=640&q=100&fit=max&auto=format"
+  );
+  same(
+    "the image loader leaves other local files as they were",
+    imageLoader({ src: "/no-such-file.jpg", width: 640 }),
+    "/no-such-file.jpg?w=640"
+  );
+  same(
+    "sanityImg on a CMS picture",
+    sanityImg(onCms, { w: 720 }),
+    `/api/cdn/m/${h}-w828.webp`
+  );
+  same(
+    "sanityImg on a CMS picture with a square crop",
+    sanityImg(onCms, { w: 1024, h: 1024, fit: "crop", q: 100 }),
+    `/api/cdn/m/${h}-w1080.webp`
+  );
+  same(
+    "sanityImg on a CMS picture with a tall crop asks for the longer side",
+    sanityImg(onCms, { w: 216, h: 264, fit: "crop" }),
+    `/api/cdn/m/${h}-w384.webp`
+  );
+  same(
+    "sanityImg leaves Sanity as it was",
+    sanityImg("https://cdn.sanity.io/images/p/d/x-10x10.jpg", { w: 720 }),
+    "https://cdn.sanity.io/images/p/d/x-10x10.jpg?w=720&q=90&fit=max&auto=format"
+  );
+  same(
+    "sanityProxyUrl moves a CMS-host video to /api/cdn/m/",
+    sanityProxyUrl(`https://cms.example.com/api/media/file/${h}.mp4`),
+    `/api/cdn/m/${h}.mp4`
+  );
+  same(
+    "sanityProxyUrl leaves Sanity files as they were",
+    sanityProxyUrl("https://cdn.sanity.io/files/p/d/x.mp4"),
+    "/api/cdn/files/p/d/x.mp4"
+  );
+  same(
+    "zoom uses the largest copy",
+    zoomImageUrl(onCms),
+    `/api/cdn/m/${h}-w3840.webp`
+  );
+  same(
+    "zoom leaves Sanity as it was",
+    zoomImageUrl("https://cdn.sanity.io/images/p/d/x-10x10.jpg"),
+    "https://cdn.sanity.io/images/p/d/x-10x10.jpg?auto=format&q=80"
+  );
+  same(
+    "the visualiser draws the largest copy through /api/cdn/m/",
+    rewriteToProxy(onCms),
+    `/api/cdn/m/${h}-w3840.webp`
+  );
+  same(
+    "the visualiser leaves Sanity as it was",
+    rewriteToProxy("https://cdn.sanity.io/images/p/d/x-10x10.jpg"),
+    "/api/cdn/images/p/d/x-10x10.jpg"
+  );
+
+  // With the media host set: pictures load from it directly.
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "https://media.example.com/";
+  const onMedia = `https://media.example.com/${h}.jpg`;
+  check("the media host is CMS media", m.isCmsMedia(onMedia));
+  same("the media host's origin", m.mediaOrigin(), "https://media.example.com");
+  same(
+    "a width on the media host",
+    m.cmsImg(onMedia, { w: 1080 }),
+    `https://media.example.com/${h}-w1080.webp`
+  );
+  same(
+    "the share card on the media host",
+    m.cmsImg(onMedia, { share: true }),
+    `https://media.example.com/${h}-share.jpg`
+  );
+  same("no width on the media host: unchanged", m.cmsImg(onMedia), onMedia);
+  same("toProxy on the media host", m.toProxy(onMedia), `/api/cdn/m/${h}.jpg`);
+  same(
+    "a PDF on the media host is the original",
+    m.cmsImg(`https://media.example.com/${h}.pdf`, { w: 640 }),
+    `https://media.example.com/${h}.pdf`
+  );
+  same(
+    "the CMS host still goes through /api/cdn/m/",
+    m.cmsImg(onCms, { w: 1080 }),
+    `/api/cdn/m/${h}-w1080.webp`
+  );
+  same(
+    "a file name on the media host",
+    m.cmsFileAddress(`${h}.pdf`),
+    `https://media.example.com/${h}.pdf`
+  );
+  for (const other of [
+    `https://media.example.com/other/${h}.jpg`,
+    `https://media.example.com.evil.example/${h}.jpg`,
+    `https://media.example.com/${h}-w300.webp`,
+  ]) {
+    check(`${JSON.stringify(other)} is not CMS media`, !m.isCmsMedia(other));
+  }
+  same(
+    "sanityImageProxyUrl takes a media-host picture to /api/cdn/m/",
+    sanityImageProxyUrl(onMedia),
+    `/api/cdn/m/${h}.jpg`
+  );
+  same(
+    "sanityProxyUrl leaves a media-host video where it is",
+    sanityProxyUrl(`https://media.example.com/${h}.mp4`),
+    `https://media.example.com/${h}.mp4`
+  );
+  same(
+    "the image loader on the media host",
+    imageLoader({ src: onMedia, width: 1170 }),
+    `https://media.example.com/${h}-w1290.webp`
+  );
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "ftp://media.example.com";
+  same("a media host that is not http(s) is ignored", m.mediaBaseUrl(), null);
+
+  if (before === undefined) delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  else process.env.NEXT_PUBLIC_MEDIA_BASE_URL = before;
 }
 
 /**
@@ -960,6 +1224,7 @@ async function main(): Promise<void> {
   try {
     checkQueryStrings();
     checkContentSource();
+    await checkMediaUrls();
     await checkFailLoud(base);
     await checkPassingFailures(base);
     await checkFetchers();

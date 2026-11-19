@@ -17,6 +17,7 @@ import {
   StaggerItem,
 } from "@/components/ui/animated-section";
 import { PageHeader } from "@/components/ui/page-header";
+import { toProxy } from "@/lib/media-url";
 
 /**
  * Sanity Resource document shape — mirrors src/sanity/schemas/resource.ts.
@@ -187,6 +188,9 @@ export function resourceKey(title: string): string {
 }
 
 function ResourceCard({ resource }: { resource: SanityResource }) {
+  // A CMS file is read and downloaded through this site's own address,
+  // so the reader's byte ranges and the download's file name work.
+  const pdfUrl = resource.pdfUrl ? toProxy(resource.pdfUrl) : resource.pdfUrl;
   const isReal = Boolean(resource.pdfUrl);
   const hasThumbnail = Boolean(resource.thumbnail);
   const [reading, setReading] = useState(false);
@@ -340,7 +344,7 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
                 )}
               </button>
               <a
-                href={resource.pdfUrl}
+                href={pdfUrl}
                 target="_blank"
                 rel="noreferrer noopener"
                 download={resource.pdfName ?? `${resource.title}.pdf`}
@@ -362,9 +366,9 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
         </div>
       </div>
 
-      {reading && resource.pdfUrl && (
+      {reading && pdfUrl && (
         <Flipbook
-          url={resource.pdfUrl}
+          url={pdfUrl}
           title={resource.title}
           poster={resource.thumbnail}
           shareUrl={shareUrl}

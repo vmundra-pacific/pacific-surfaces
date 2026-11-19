@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { sanityImg, sanityProxyUrl } from "@/lib/sanity-img";
+import { cmsImg, isCmsMedia } from "@/lib/media-url";
 
 interface SanityProject {
   _id: string;
@@ -418,6 +419,9 @@ function ProjectCard({
 // without losing visible quality for the time it's on screen before
 // the video plays.
 function thumbUrl(src: string): string {
+  // A CMS photograph: its 828 px copy. Tested first, because on this
+  // site its address also starts with /api/cdn/.
+  if (isCmsMedia(src)) return cmsImg(src, { w: 800 });
   // Pass-through for non-Sanity URLs (or already-proxied /api/cdn/*
   // URLs we may receive from a parent that pre-rewrote them).
   if (!src.includes("cdn.sanity.io") && !src.startsWith("/api/cdn/"))

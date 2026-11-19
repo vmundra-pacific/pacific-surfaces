@@ -5,6 +5,8 @@ import { ImageResponse } from "next/og";
 // is server-to-server and doesn't carry cookies anyway.
 import * as cms from "@/cms/read";
 import { sanityImg } from "@/lib/sanity-img";
+import { cmsShareImage } from "@/cms/media";
+import { isCmsMedia } from "@/lib/media-url";
 import { isCategorySlug, resolveCategoryPage } from "../_lib/category";
 
 /**
@@ -53,9 +55,13 @@ export default async function Image({ params }: Props) {
       eyebrow: "Premium Stone & Quartz",
     });
   }
-  const bgImage = product.mainImage
-    ? sanityImg(product.mainImage, { w: 1200, h: 630, q: 80, fit: "crop" })
-    : undefined;
+  // A CMS picture: its share card copy, fetched here (the CMS's own
+  // host needs this server's pass). A Sanity picture: as before.
+  const bgImage = !product.mainImage
+    ? undefined
+    : isCmsMedia(product.mainImage)
+      ? await cmsShareImage(product.mainImage)
+      : sanityImg(product.mainImage, { w: 1200, h: 630, q: 80, fit: "crop" });
   return renderCard({
     title: product.name,
     eyebrow: product.collection?.name ?? product.category?.name ?? "Surface",

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { contentSource } from "@/cms/client";
 
 const SITE_URL = "https://pacific-surfaces.com";
 
@@ -12,8 +13,14 @@ export default function robots(): MetadataRoute.Robots {
         // the spec sheets and brochures on /resources live there) and the
         // images a few sections load outside next/image (lib/sanity-img).
         // The longest matching rule wins, so these Allows beat the /api/
-        // Disallow for that media and nothing else.
-        allow: ["/", "/api/cdn/files/", "/api/cdn/images/"],
+        // Disallow for that media and nothing else. With the content
+        // from the CMS, /api/cdn/m/ carries its pictures and files too.
+        allow: [
+          "/",
+          "/api/cdn/files/",
+          "/api/cdn/images/",
+          ...(contentSource() === "cms" ? ["/api/cdn/m/"] : []),
+        ],
         // Studio is the Sanity admin UI — never useful in search.
         // /api routes shouldn't be crawled either. /_archive is
         // the legacy collection routes kept around for git history.

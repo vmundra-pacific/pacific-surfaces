@@ -3,6 +3,33 @@ import { LEGACY_WIX_REDIRECTS } from "./src/data/legacy-wix-redirects";
 import { BLOG_SHORT_SLUG_REDIRECTS } from "./src/data/blog-short-slug-redirects";
 
 /**
+ * The CMS's media host, from NEXT_PUBLIC_MEDIA_BASE_URL (see
+ * src/lib/media-url.ts), as an image remote pattern. None when it is not
+ * set or is not an http(s) address.
+ */
+function mediaHostPattern(): Array<{
+  protocol: "https" | "http";
+  hostname: string;
+  port?: string;
+}> {
+  const raw = process.env.NEXT_PUBLIC_MEDIA_BASE_URL?.trim();
+  if (!raw) return [];
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return [];
+    return [
+      {
+        protocol: url.protocol === "https:" ? "https" : "http",
+        hostname: url.hostname,
+        ...(url.port ? { port: url.port } : {}),
+      },
+    ];
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Security headers applied to every HTML route.
  *
  *   - Strict-Transport-Security: forces HTTPS for one year + applies to
@@ -112,6 +139,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "cdn.sanity.io" },
+      ...mediaHostPattern(),
     ],
     // AVIF first, WebP fallback. Next defaults to WebP-only; AVIF is
     // ~20-40% smaller at the same visual quality, and the optimizer

@@ -14,6 +14,8 @@ import { REGION_BOOT_SCRIPT } from "@/lib/region";
 import { TRANSLATE_WARMUP_SCRIPT } from "@/lib/site-translate";
 import { safeJsonLd } from "@/lib/escape";
 import { siteGraph } from "@/data/business";
+import { contentSource } from "@/cms/client";
+import { mediaOrigin } from "@/lib/media-url";
 
 /**
  * Google Analytics 4 measurement ID. Points at the existing
@@ -88,6 +90,9 @@ export const metadata: Metadata = {
   },
 };
 
+/** The CMS's media host, for the resource hints below. */
+const MEDIA_ORIGIN = mediaOrigin();
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -145,9 +150,22 @@ if(d.readyState==='complete')later();else w.addEventListener('load',later,{once:
           (No Google Fonts preconnects: next/font self-hosts Inter,
           so fonts.googleapis.com / fonts.gstatic.com are never
           contacted at runtime.)
+          With the content from the CMS, its media host takes Sanity's
+          place, when NEXT_PUBLIC_MEDIA_BASE_URL is set (lib/media-url).
         */}
-        <link rel="preconnect" href="https://cdn.sanity.io" />
-        <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+        {contentSource() === "cms" ? (
+          MEDIA_ORIGIN && (
+            <>
+              <link rel="preconnect" href={MEDIA_ORIGIN} />
+              <link rel="dns-prefetch" href={MEDIA_ORIGIN} />
+            </>
+          )
+        ) : (
+          <>
+            <link rel="preconnect" href="https://cdn.sanity.io" />
+            <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+          </>
+        )}
       </head>
       {/*
         suppressHydrationWarning is on <html> and <body> because
