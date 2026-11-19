@@ -17,8 +17,7 @@ import {
   StaggerItem,
 } from "@/components/ui/animated-section";
 import { PageHeader } from "@/components/ui/page-header";
-import { toProxy } from "@/lib/media-url";
-import { resourcePosterUrl } from "@/lib/picture-choices";
+import { resourcePdfUrl, resourcePosterUrl } from "@/lib/picture-choices";
 
 /**
  * Sanity Resource document shape — mirrors src/sanity/schemas/resource.ts.
@@ -191,7 +190,7 @@ export function resourceKey(title: string): string {
 function ResourceCard({ resource }: { resource: SanityResource }) {
   // A CMS file is read and downloaded through this site's own address,
   // so the reader's byte ranges and the download's file name work.
-  const pdfUrl = resource.pdfUrl ? toProxy(resource.pdfUrl) : resource.pdfUrl;
+  const pdfUrl = resourcePdfUrl(resource.pdfUrl);
   const isReal = Boolean(resource.pdfUrl);
   const hasThumbnail = Boolean(resource.thumbnail);
   const [reading, setReading] = useState(false);

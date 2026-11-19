@@ -1037,6 +1037,11 @@ async function checkCallSites(): Promise<void> {
         shown(`${h}.mp4`),
       ],
       [
+        "the catalogue reader's PDF (same origin, for its byte ranges)",
+        c.resourcePdfUrl(at(`${h}.pdf`)),
+        site(`${h}.pdf`),
+      ],
+      [
         "a download link (same origin, for its file name and ranges)",
         toProxy(at(`${h}.pdf`)),
         site(`${h}.pdf`),
@@ -1108,6 +1113,17 @@ async function checkCallSites(): Promise<void> {
       "/catalogues/cover.webp",
     ],
     ["no cover", c.resourcePosterUrl(undefined), undefined],
+    [
+      "the catalogue reader's PDF",
+      c.resourcePdfUrl("https://cdn.sanity.io/files/p/d/x.pdf"),
+      "https://cdn.sanity.io/files/p/d/x.pdf",
+    ],
+    [
+      "the catalogue reader's PDF, a local file",
+      c.resourcePdfUrl("/catalogues/x.pdf"),
+      "/catalogues/x.pdf",
+    ],
+    ["no PDF", c.resourcePdfUrl(undefined), undefined],
     [
       "the basin preview",
       c.slabUrl(S, 900),

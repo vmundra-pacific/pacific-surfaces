@@ -153,6 +153,16 @@ export function resourcePosterUrl(src: string | undefined): string | undefined {
   return src && isCmsMedia(src) ? cmsImg(src, { w: 1080 }) : src;
 }
 
+/**
+ * A resource's PDF (components/sections/ResourcesContent): read in the
+ * catalogue reader and downloaded. A CMS file goes through this site's
+ * /api/cdn/m/, so the reader's byte ranges and the download's file name
+ * work (both need the same origin). Any other address as given.
+ */
+export function resourcePdfUrl(src: string | undefined): string | undefined {
+  return src ? toProxy(src) : src;
+}
+
 /** The blog body's ready-made copies (they cover Sanity's 640/960/1400). */
 export const CMS_BODY_WIDTHS = [640, 1080, 1920];
 
