@@ -188,6 +188,11 @@ function standIn(name: string): StandInAnswer {
       return json({ page: null, jobs: [{ title: "j" }] });
     case "beyond-stone":
       return json({ page: null, collectionSlug: null, products: [] });
+    case "legacy-files":
+      return json({
+        "https://cdn.sanity.io/files/p/d/a.pdf":
+          "0123456789abcdef0123456789abcdef.pdf",
+      });
     case "sitemap":
       return json({
         products: [{ slug: "white", updatedAt: "2026-01-01T00:00:00Z" }],
@@ -199,6 +204,87 @@ function standIn(name: string): StandInAnswer {
   }
 }
 
+/** The bytes every stand-in file has: 100 of them, so ranges are easy to check. */
+const FILE_BYTES = Buffer.from(
+  Array.from({ length: 100 }, (_, i) => 48 + (i % 10))
+);
+const FILE_HASH = {
+  ok: "0123456789abcdef0123456789abcdef",
+  missing: "ffffffffffffffffffffffffffffffff",
+  refused: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  broken: "dddddddddddddddddddddddddddddddd",
+  moved: "cccccccccccccccccccccccccccccccc",
+};
+
+/**
+ * A stand-in file store: the CMS's file route (/api/media/file/<name>)
+ * or a media host (/<name>), answering by the name's hash and honouring
+ * a single Range.
+ */
+function serveFile(
+  name: string,
+  req: IncomingMessage,
+  res: import("node:http").ServerResponse
+): void {
+  const hash = name.slice(0, 32);
+  if (hash === FILE_HASH.missing) {
+    res.writeHead(404, { "content-type": "text/html" });
+    res.end("<html>Not here</html>");
+    return;
+  }
+  if (hash === FILE_HASH.refused) {
+    res.writeHead(401, { "content-type": "text/html" });
+    res.end("<html>Log in</html>");
+    return;
+  }
+  if (hash === FILE_HASH.broken) {
+    res.writeHead(500, { "content-type": "text/plain" });
+    res.end("broken");
+    return;
+  }
+  if (hash === FILE_HASH.moved) {
+    res.writeHead(302, { location: "https://example.com/login" });
+    res.end();
+    return;
+  }
+  const type = name.endsWith(".pdf")
+    ? "application/pdf"
+    : name.endsWith(".webp")
+      ? "image/webp"
+      : "image/jpeg";
+  const range = /^bytes=(\d+)-(\d*)$/.exec(String(req.headers.range ?? ""));
+  const common = {
+    "content-type": type,
+    "accept-ranges": "bytes",
+    etag: '"stand-in"',
+    "set-cookie": "session=stand-in",
+  };
+  if (range) {
+    const start = Number(range[1]);
+    const end = range[2]
+      ? Math.min(Number(range[2]), FILE_BYTES.length - 1)
+      : FILE_BYTES.length - 1;
+    if (start >= FILE_BYTES.length || end < start) {
+      res.writeHead(416, { "content-range": `bytes */${FILE_BYTES.length}` });
+      res.end();
+      return;
+    }
+    const part = FILE_BYTES.subarray(start, end + 1);
+    res.writeHead(206, {
+      ...common,
+      "content-length": String(part.length),
+      "content-range": `bytes ${start}-${end}/${FILE_BYTES.length}`,
+    });
+    res.end(req.method === "HEAD" ? undefined : part);
+    return;
+  }
+  res.writeHead(200, {
+    ...common,
+    "content-length": String(FILE_BYTES.length),
+  });
+  res.end(req.method === "HEAD" ? undefined : FILE_BYTES);
+}
+
 function startStandIn(): Promise<Server> {
   const server = createServer((req, res) => {
     const url = new URL(req.url ?? "/", "http://stand-in");
@@ -207,6 +293,10 @@ function startStandIn(): Promise<Server> {
       search: url.search.slice(1),
       headers: req.headers,
     });
+    if (!url.pathname.startsWith("/api/read/")) {
+      serveFile(url.pathname.split("/").pop() ?? "", req, res);
+      return;
+    }
     const answer = standIn(url.pathname.split("/").pop() ?? "");
     const send = () => {
       const headers: Record<string, string> = {};
@@ -696,6 +786,315 @@ async function checkMediaUrls(): Promise<void> {
 }
 
 /**
+ * /api/cdn/m/<name> (src/cms/media-proxy.ts), the share card fetch
+ * (src/cms/media.ts) and the old-address redirect (src/cms/legacy-files.ts).
+ */
+async function checkMediaProxy(base: string): Promise<void> {
+  console.log("/api/cdn/m/, share cards and old addresses");
+  const { proxyCmsMedia } = await import("../src/cms/media-proxy");
+  const { cmsShareImage } = await import("../src/cms/media");
+  const { legacyTarget } = await import("../src/cms/legacy-files");
+  const beforeMedia = process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  process.env.CMS_URL = base;
+  process.env.CMS_PROTECTION_BYPASS = "dummy-bypass";
+  const h = FILE_HASH.ok;
+  const ask = (
+    name: string,
+    headers: Record<string, string> = {},
+    method: "GET" | "HEAD" = "GET"
+  ) =>
+    proxyCmsMedia(
+      new Request(`http://site.example/api/cdn/m/${encodeURIComponent(name)}`, {
+        method,
+        headers,
+      }),
+      name,
+      method
+    );
+
+  // Refusals: nothing is fetched.
+  for (const [label, name] of [
+    ["a bad name", "not-a-name.jpg"],
+    ["a name that is too short", `${h.slice(2)}.jpg`],
+    ["a path", `x/${h}.jpg`],
+    ["a dot-dot", `../${h}.jpg`],
+    ["a dot-dot after the name", `${h}.jpg/../../etc`],
+    ["an unknown suffix", `${h}-w300.webp`],
+    ["another unknown suffix", `${h}-big.jpg`],
+    ["an upper-case name", `${h.toUpperCase()}.jpg`],
+  ] as const) {
+    const before = seen.length;
+    const response = await ask(name);
+    check(
+      `${label} is refused with 404, and nothing is fetched`,
+      response.status === 404 && seen.length === before,
+      `status ${response.status}`
+    );
+  }
+
+  // From the CMS's file route, with the pass.
+  let before = seen.length;
+  let response = await ask(`${h}.jpg`);
+  let sent = seen.slice(before);
+  const body = Buffer.from(await response.arrayBuffer());
+  check(
+    "a file from the CMS is 200",
+    response.status === 200,
+    `status ${response.status}`
+  );
+  same("its bytes are the file's", body.toString(), FILE_BYTES.toString());
+  same(
+    "it was asked for at the CMS's file route",
+    sent.map((x) => x.path),
+    [`/api/media/file/${h}.jpg`]
+  );
+  same(
+    "the pass goes to the CMS",
+    sent[0]?.headers[PROTECTION_BYPASS_HEADER],
+    "dummy-bypass"
+  );
+  same(
+    "the bytes are asked for as stored",
+    sent[0]?.headers["accept-encoding"],
+    "identity"
+  );
+  check(
+    "no read key goes with a file",
+    sent[0]?.headers[READ_KEY_HEADER] === undefined
+  );
+  same(
+    "its type is passed on",
+    response.headers.get("content-type"),
+    "image/jpeg"
+  );
+  same(
+    "its length is passed on",
+    response.headers.get("content-length"),
+    "100"
+  );
+  same("ranges are offered", response.headers.get("accept-ranges"), "bytes");
+  same(
+    "it is kept a year",
+    response.headers.get("cache-control"),
+    "public, max-age=31536000, s-maxage=31536000, immutable"
+  );
+  check("no cookie comes through", response.headers.get("set-cookie") === null);
+  check("nothing else comes through", response.headers.get("etag") === null);
+
+  response = await ask(`${h}.pdf`, { range: "bytes=10-19" });
+  const part = Buffer.from(await response.arrayBuffer());
+  same("a Range is answered 206", response.status, 206);
+  same(
+    "with its Content-Range",
+    response.headers.get("content-range"),
+    "bytes 10-19/100"
+  );
+  same("with its Content-Length", response.headers.get("content-length"), "10");
+  same(
+    "with just those bytes",
+    part.toString(),
+    FILE_BYTES.subarray(10, 20).toString()
+  );
+  same(
+    "with the file's type",
+    response.headers.get("content-type"),
+    "application/pdf"
+  );
+  same(
+    "the Range was passed on",
+    seen[seen.length - 1]?.headers.range,
+    "bytes=10-19"
+  );
+  response = await ask(`${h}.pdf`, { range: "bytes=500-" });
+  same("a Range past the end is 416", response.status, 416);
+  same(
+    "with the file's size",
+    response.headers.get("content-range"),
+    "bytes */100"
+  );
+  response = await ask(`${h}-w640.webp`, {}, "HEAD");
+  check(
+    "HEAD gives the headers and no body",
+    response.status === 200 &&
+      response.headers.get("content-length") === "100" &&
+      (await response.arrayBuffer()).byteLength === 0
+  );
+  response = await ask(`${FILE_HASH.missing}-share.jpg`);
+  same("a 404 is passed on", response.status, 404);
+  same("as this site's own text", await response.text(), "Not found.");
+  for (const [label, hash] of [
+    ["a refusal (401, a login page)", FILE_HASH.refused],
+    ["a 500", FILE_HASH.broken],
+    ["a redirect", FILE_HASH.moved],
+  ] as const) {
+    response = await ask(`${hash}.jpg`);
+    const text = await response.text();
+    check(
+      `${label} becomes an empty 502`,
+      response.status === 502 && text === "",
+      `status ${response.status}, ${JSON.stringify(text)}`
+    );
+  }
+  delete process.env.CMS_PROTECTION_BYPASS;
+  before = seen.length;
+  await ask(`${h}.jpg`);
+  check(
+    "with no pass set, no pass is sent",
+    seen[before]?.headers[PROTECTION_BYPASS_HEADER] === undefined
+  );
+  process.env.CMS_PROTECTION_BYPASS = "dummy-bypass";
+
+  // From the media host: no pass.
+  const mediaHost = await startStandIn();
+  const mediaBase = `http://127.0.0.1:${(mediaHost.address() as AddressInfo).port}`;
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = mediaBase;
+  before = seen.length;
+  response = await ask(`${h}-w1080.webp`, { range: "bytes=0-9" });
+  sent = seen.slice(before);
+  same(
+    "with the media host set, the file comes from it",
+    sent.map((x) => x.path),
+    [`/${h}-w1080.webp`]
+  );
+  check(
+    "the media host never sees the pass",
+    sent[0]?.headers[PROTECTION_BYPASS_HEADER] === undefined
+  );
+  same("a Range from the media host is 206", response.status, 206);
+  same(
+    "with its Content-Range",
+    response.headers.get("content-range"),
+    "bytes 0-9/100"
+  );
+  await response.arrayBuffer();
+
+  // Share cards for the share images.
+  const share = await cmsShareImage(`${mediaBase}/${h}.png`);
+  same(
+    "a share card from the media host",
+    share,
+    `data:image/jpeg;base64,${FILE_BYTES.toString("base64")}`
+  );
+  same(
+    "asked for by its share name",
+    seen[seen.length - 1]?.path,
+    `/${h}-share.jpg`
+  );
+  check(
+    "the media host never sees the pass for a share card",
+    seen[seen.length - 1]?.headers[PROTECTION_BYPASS_HEADER] === undefined
+  );
+  delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  const shareOnCms = await cmsShareImage(
+    `https://cms.example.com/api/media/file/${h}.jpg`
+  );
+  same(
+    "a share card from the CMS's file route",
+    shareOnCms,
+    `data:image/jpeg;base64,${FILE_BYTES.toString("base64")}`
+  );
+  same(
+    "fetched from CMS_URL, whatever host the address names",
+    seen[seen.length - 1]?.path,
+    `/api/media/file/${h}-share.jpg`
+  );
+  same(
+    "with the pass",
+    seen[seen.length - 1]?.headers[PROTECTION_BYPASS_HEADER],
+    "dummy-bypass"
+  );
+  same(
+    "a missing share card gives none",
+    await cmsShareImage(`/api/cdn/m/${FILE_HASH.missing}.jpg`),
+    undefined
+  );
+  same(
+    "a refused share card gives none",
+    await cmsShareImage(`/api/cdn/m/${FILE_HASH.refused}.jpg`),
+    undefined
+  );
+  same(
+    "a PDF has no share card",
+    await cmsShareImage(`/api/cdn/m/${h}.pdf`),
+    undefined
+  );
+  before = seen.length;
+  same(
+    "a Sanity picture is not fetched here",
+    await cmsShareImage("https://cdn.sanity.io/images/p/d/x-10x10.jpg"),
+    undefined
+  );
+  check("nothing was fetched for it", seen.length === before);
+
+  // With nothing set: not found.
+  delete process.env.CMS_URL;
+  response = await ask(`${h}.jpg`);
+  same(
+    "with neither the media host nor CMS_URL set, 404",
+    response.status,
+    404
+  );
+  process.env.CMS_URL = base;
+  await new Promise((resolve) => mediaHost.close(resolve));
+
+  // Old Sanity addresses.
+  const old =
+    "https://cdn.sanity.io/images/zg1p4qgs/production/1111111111111111111111111111111111111111-1760x2336.jpg";
+  const oldPdf =
+    "https://cdn.sanity.io/files/zg1p4qgs/production/2222222222222222222222222222222222222222.pdf";
+  const files = {
+    [old]: `${h}.jpg`,
+    [oldPdf]: `${h}.pdf`,
+    "https://cdn.sanity.io/x": "../etc",
+  };
+  same(
+    "an old picture address goes to its original",
+    legacyTarget(files, old, null),
+    `/api/cdn/m/${h}.jpg`
+  );
+  same(
+    "with w, to the copy at or above it",
+    legacyTarget(files, old, "1200"),
+    `/api/cdn/m/${h}-w1290.webp`
+  );
+  same(
+    "a w that is not a number is ignored",
+    legacyTarget(files, old, "big"),
+    `/api/cdn/m/${h}.jpg`
+  );
+  same(
+    "an old PDF address goes to the PDF, w or not",
+    legacyTarget(files, oldPdf, "640"),
+    `/api/cdn/m/${h}.pdf`
+  );
+  same(
+    "an unknown address is left to Sanity",
+    legacyTarget(files, `${old}x`, null),
+    null
+  );
+  same(
+    "a name that is not a CMS name is left to Sanity",
+    legacyTarget(files, "https://cdn.sanity.io/x", null),
+    null
+  );
+  same("no list leaves it to Sanity", legacyTarget(null, old, null), null);
+  same(
+    "an inherited key is not a match",
+    legacyTarget(files, "constructor", null),
+    null
+  );
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "https://media.example.com";
+  same(
+    "with the media host set, it goes there",
+    legacyTarget(files, old, "640"),
+    `https://media.example.com/${h}-w640.webp`
+  );
+  if (beforeMedia === undefined) delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  else process.env.NEXT_PUBLIC_MEDIA_BASE_URL = beforeMedia;
+}
+
+/**
  * Which failures a softening call site passes on. A set-up fault
  * (401, 403, 404, a redirect, an answer that is not JSON or of the
  * wrong kind, an empty answer where one is never empty, a missing
@@ -1007,6 +1406,15 @@ async function checkFetchers(): Promise<void> {
       () => cms.jobApply("Sales Manager"),
       "job-apply?title=Sales%20Manager",
     ],
+    [
+      "legacyFiles",
+      () => cms.legacyFiles(),
+      "legacy-files",
+      {
+        "https://cdn.sanity.io/files/p/d/a.pdf":
+          "0123456789abcdef0123456789abcdef.pdf",
+      },
+    ],
   ];
 
   process.env.CONTENT_SOURCE = "cms";
@@ -1066,6 +1474,7 @@ async function checkFetchers(): Promise<void> {
     cms.productsCatalogue(),
     cms.homepageSignatureProjects(),
     cms.faq("quartz"),
+    cms.legacyFiles(),
   ];
   pending.forEach((p) => p.catch(() => undefined));
   await new Promise((resolve) => setTimeout(resolve, 300));
@@ -1227,6 +1636,7 @@ async function main(): Promise<void> {
     await checkMediaUrls();
     await checkFailLoud(base);
     await checkPassingFailures(base);
+    await checkMediaProxy(base);
     await checkFetchers();
     checkNotice();
   } finally {

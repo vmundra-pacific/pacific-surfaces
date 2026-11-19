@@ -1,5 +1,7 @@
 import type { NextRequest } from "next/server";
 import { projectId, dataset } from "@/sanity/env";
+import { contentSource } from "@/cms/client";
+import { legacyRedirect } from "@/cms/legacy-files";
 
 /**
  * Sanity media proxy.
@@ -32,6 +34,10 @@ import { projectId, dataset } from "@/sanity/env";
  *   5. Sets a long, immutable `Cache-Control` so Vercel's edge caches
  *      every asset hash for a year — the asset URLs are content-
  *      addressed by hash, so they never change in place.
+ *   6. With CONTENT_SOURCE=cms only: an address whose file the CMS
+ *      holds is redirected (302) to that file, a `w` picking the copy at
+ *      or above that width (src/cms/legacy-files.ts). Any other address
+ *      is still forwarded to Sanity.
  *
  * What this route does NOT do
  * ---------------------------
@@ -102,6 +108,16 @@ async function proxy(req: NextRequest, ctx: RouteContext, method: "GET" | "HEAD"
     path[2] !== dataset
   ) {
     return new Response("Not found.", { status: 404 });
+  }
+
+  // With the content from the CMS, a file the CMS holds is sent on to it.
+  if (contentSource() === "cms") {
+    const target = await legacyRedirect(
+      `${SANITY_HOST}/${path.map(encodeURIComponent).join("/")}`,
+      req.nextUrl.searchParams.get("w")
+    );
+    if (target)
+      return Response.redirect(new URL(target, req.nextUrl.href), 302);
   }
 
   // Reconstruct the upstream URL. URI-encoded segments stay intact; we

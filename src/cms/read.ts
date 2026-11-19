@@ -550,6 +550,21 @@ export const sitemapDates = <T = any>(): Promise<T> =>
     : client.fetch<T>(contentDatesQuery);
 
 /* ------------------------------------------------------------------ */
+/* Old Sanity file addresses (CMS only)                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * legacyFiles: each old Sanity file address (`https://cdn.sanity.io/…`)
+ * and the name the file has in the CMS, for the redirects of
+ * /api/cdn/images|files/…. Only with CONTENT_SOURCE=cms; with Sanity as
+ * the source there is nothing to look up, and it is empty.
+ */
+export const legacyFiles = <T = Record<string, string>>(): Promise<T> =>
+  fromCms()
+    ? readCmsAnswer<T>("legacy-files", {}, { expect: "object" })
+    : Promise.resolve({} as T);
+
+/* ------------------------------------------------------------------ */
 /* Job application (server only)                                       */
 /* ------------------------------------------------------------------ */
 
