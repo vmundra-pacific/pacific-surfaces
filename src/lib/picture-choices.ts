@@ -130,6 +130,29 @@ export function finishFullImageUrl(finish: {
   return fullImage ? cmsImg(fullImage) : fullImage;
 }
 
+/**
+ * The finish lightbox (components/ui/finish-lightbox, opened from a
+ * catalogue card): the main picture, which can be zoomed to 4x. A CMS
+ * picture: its largest copy, 3840 px. Any other address as given.
+ */
+export function lightboxImageUrl(src: string): string {
+  return isCmsMedia(src) ? cmsImg(src, { w: 3840 }) : src;
+}
+
+/** The finish lightbox's thumbnails (80 px at most). A CMS picture: 256 px. */
+export function lightboxThumbUrl(src: string): string {
+  return isCmsMedia(src) ? cmsImg(src, { w: 256 }) : src;
+}
+
+/**
+ * The catalogue reader's cover (components/catalogue/Flipbook, opened
+ * from /resources), shown while the PDF loads. A CMS picture: its
+ * 1080 px copy. Any other address as given.
+ */
+export function resourcePosterUrl(src: string | undefined): string | undefined {
+  return src && isCmsMedia(src) ? cmsImg(src, { w: 1080 }) : src;
+}
+
 /** The blog body's ready-made copies (they cover Sanity's 640/960/1400). */
 export const CMS_BODY_WIDTHS = [640, 1080, 1920];
 

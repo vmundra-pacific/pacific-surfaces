@@ -23,6 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { X, RotateCcw } from "lucide-react";
+import { lightboxImageUrl, lightboxThumbUrl } from "@/lib/picture-choices";
 
 interface FinishLightboxProps {
   imageSrc: string;
@@ -144,7 +145,7 @@ export function FinishLightbox({
         {currentSrc && (
           <motion.img
             key={currentSrc}
-            src={currentSrc}
+            src={lightboxImageUrl(currentSrc)}
             alt={name}
             onClick={(e) => e.stopPropagation()}
             initial={{ scale: 0.95, opacity: 0 }}
@@ -200,7 +201,7 @@ export function FinishLightbox({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={src}
+                src={lightboxThumbUrl(src)}
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover"
                 draggable={false}

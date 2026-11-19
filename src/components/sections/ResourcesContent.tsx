@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/animated-section";
 import { PageHeader } from "@/components/ui/page-header";
 import { toProxy } from "@/lib/media-url";
+import { resourcePosterUrl } from "@/lib/picture-choices";
 
 /**
  * Sanity Resource document shape — mirrors src/sanity/schemas/resource.ts.
@@ -370,7 +371,7 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
         <Flipbook
           url={pdfUrl}
           title={resource.title}
-          poster={resource.thumbnail}
+          poster={resourcePosterUrl(resource.thumbnail)}
           shareUrl={shareUrl}
           onClose={() => setReading(false)}
         />

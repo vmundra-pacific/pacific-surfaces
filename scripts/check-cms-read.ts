@@ -970,6 +970,21 @@ async function checkCallSites(): Promise<void> {
         site(`${h}-w3840.webp`),
       ],
       [
+        "the finish lightbox's main picture",
+        c.lightboxImageUrl(pic),
+        shown(`${h}-w3840.webp`),
+      ],
+      [
+        "the finish lightbox's thumbnails",
+        c.lightboxThumbUrl(pic),
+        shown(`${h}-w256.webp`),
+      ],
+      [
+        "the catalogue reader's cover",
+        c.resourcePosterUrl(pic),
+        shown(`${h}-w1080.webp`),
+      ],
+      [
         "a blog post's inline image",
         c.cmsInlineSources(pic),
         {
@@ -1052,6 +1067,15 @@ async function checkCallSites(): Promise<void> {
       "/api/cdn/images/p/d/x-2000x1000.jpg?w=120&q=90&fit=max&fm=webp",
     ],
     ["no vanity swatch", c.swatchUrl(null), undefined],
+    ["the finish lightbox", c.lightboxImageUrl(S), S],
+    ["the finish lightbox's thumbnails", c.lightboxThumbUrl(S), S],
+    ["the catalogue reader's cover", c.resourcePosterUrl(S), S],
+    [
+      "the catalogue reader's cover, a local file",
+      c.resourcePosterUrl("/catalogues/cover.webp"),
+      "/catalogues/cover.webp",
+    ],
+    ["no cover", c.resourcePosterUrl(undefined), undefined],
     [
       "the basin preview",
       c.slabUrl(S, 900),
