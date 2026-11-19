@@ -204,8 +204,8 @@ export async function getFaqs(key: FaqPageKey): Promise<FAQItem[]> {
     const doc = await cms.faq<{ questions: FAQItem[] | null } | null>(key);
     if (doc?.questions && doc.questions.length > 0) return doc.questions;
   } catch (error) {
-    // A failed CMS read is passed on, so the page is not saved with
-    // the defaults.
+    // A CMS set-up fault is passed on, so the page is not saved with
+    // the defaults; a timeout or a 5xx falls through to them.
     cms.throwIfCmsFailure(error);
     /* network or schema error — fall through to defaults */
   }

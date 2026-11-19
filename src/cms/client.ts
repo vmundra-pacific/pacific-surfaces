@@ -60,15 +60,29 @@ export const CMS_CACHE_TAG = "cms";
  * A CMS read that did not give a usable answer. Pages let it propagate,
  * so a failed rebuild is not saved: the page is not stored with an
  * empty or fallback section.
+ *
+ * `passing` says whether the failure may clear up by itself: no answer
+ * within the time limit, the CMS out of reach, a 5xx, or an answer that
+ * broke off while it was read. Anything else is a fault in how the site
+ * or the CMS is set up: 401, 403, 404, a redirect, an answer that is not
+ * JSON, an answer of the wrong kind, an empty answer where one is never
+ * empty, or a missing or wrong setting.
  */
 export class CmsReadError extends Error {
   readonly answer: string;
   readonly status: number | null;
-  constructor(answer: string, reason: string, status: number | null = null) {
+  readonly passing: boolean;
+  constructor(
+    answer: string,
+    reason: string,
+    status: number | null = null,
+    passing = false
+  ) {
     super(`CMS read${answer ? ` "${answer}"` : ""} failed: ${reason}`);
     this.name = "CmsReadError";
     this.answer = answer;
     this.status = status;
+    this.passing = passing;
   }
 }
 
@@ -81,11 +95,13 @@ export function isCmsReadError(error: unknown): error is CmsReadError {
 
 /**
  * For a call site that catches a failed read and shows something softer
- * instead: a failed CMS read is passed on, so the page is not cached with
- * the softer version. With Sanity as the source nothing changes.
+ * instead. A set-up fault is passed on, so the page is not cached with
+ * the softer version. A failure that may pass (a timeout, the CMS out of
+ * reach, a 5xx) is not: the call site shows its softer version, as it
+ * does when Sanity fails. With Sanity as the source nothing changes.
  */
 export function throwIfCmsFailure(error: unknown): void {
-  if (isCmsReadError(error)) throw error;
+  if (isCmsReadError(error) && error.passing !== true) throw error;
 }
 
 /* ------------------------------------------------------------------ */
@@ -216,14 +232,20 @@ const fetchAnswerText = cache(
           signal: controller.signal,
         });
       } catch {
-        throw new CmsReadError(answer, lateOr("the CMS could not be reached"));
+        throw new CmsReadError(
+          answer,
+          lateOr("the CMS could not be reached"),
+          null,
+          true
+        );
       }
       if (response.status !== 200) {
         await response.body?.cancel().catch(() => undefined);
         throw new CmsReadError(
           answer,
           `status ${response.status}`,
-          response.status
+          response.status,
+          response.status >= 500
         );
       }
       if (!isJsonType(response.headers.get("content-type"))) {
@@ -233,7 +255,12 @@ const fetchAnswerText = cache(
       try {
         return await response.text();
       } catch {
-        throw new CmsReadError(answer, lateOr("the answer could not be read"));
+        throw new CmsReadError(
+          answer,
+          lateOr("the answer could not be read"),
+          200,
+          true
+        );
       }
     } finally {
       clearTimeout(timer);

@@ -96,6 +96,17 @@ type Seen = {
 };
 const seen: Seen[] = [];
 
+type StandInAnswer = {
+  status: number;
+  type?: string;
+  body?: string;
+  location?: string;
+  delayMs?: number;
+};
+
+/** Answers a check puts in place for a while, by the last part of the path. */
+const overrides = new Map<string, StandInAnswer>();
+
 const json = (body: unknown) => ({
   status: 200,
   type: "application/json",
@@ -103,13 +114,9 @@ const json = (body: unknown) => ({
 });
 
 /** What the stand-in answers, by the last part of the path. */
-function standIn(name: string): {
-  status: number;
-  type?: string;
-  body?: string;
-  location?: string;
-  delayMs?: number;
-} {
+function standIn(name: string): StandInAnswer {
+  const override = overrides.get(name);
+  if (override) return override;
   switch (name) {
     case "list":
       return json([{ a: 1 }]);
@@ -139,6 +146,8 @@ function standIn(name: string): {
       return { status: 404, type: "application/json", body: '{"error":"x"}' };
     case "s500":
       return { status: 500, type: "application/json", body: '{"error":"x"}' };
+    case "s503":
+      return { status: 503, type: "text/html", body: "<html>Busy</html>" };
     case "redirect":
       return { status: 302, location: "https://example.com/login" };
     case "slow":
@@ -419,6 +428,167 @@ async function checkFailLoud(base: string): Promise<void> {
     seen[seen.length - 1].headers[PROTECTION_BYPASS_HEADER] === undefined
   );
   process.env.CMS_PROTECTION_BYPASS = "dummy-bypass";
+}
+
+/**
+ * Which failures a softening call site passes on. A set-up fault
+ * (401, 403, 404, a redirect, an answer that is not JSON or of the
+ * wrong kind, an empty answer where one is never empty, a missing
+ * setting) is passed on; a timeout, a network error or a 5xx falls back
+ * to the call site's softer version, as a Sanity failure does.
+ */
+async function checkPassingFailures(base: string): Promise<void> {
+  console.log("Set-up faults against failures that may pass");
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ??= "dummyproject";
+  process.env.NEXT_PUBLIC_SANITY_DATASET ??= "dummy";
+  const { throwIfCmsFailure } = await import("../src/cms/client");
+  const list: ReadOptions = { expect: "list" };
+  process.env.CMS_URL = base;
+  process.env.CMS_READ_KEY = "dummy-read-key";
+
+  const failureOf = async (run: () => Promise<unknown>): Promise<unknown> => {
+    try {
+      await run();
+    } catch (error) {
+      return error;
+    }
+    return new Error("it did not fail");
+  };
+  const passedOn = (error: unknown): boolean => {
+    if (!isCmsReadError(error)) return false;
+    try {
+      throwIfCmsFailure(error);
+    } catch {
+      return true;
+    }
+    return false;
+  };
+
+  const setUpFaults: [string, () => Promise<unknown>][] = [
+    ["401", () => readCmsAnswer("s401", {}, list)],
+    ["403", () => readCmsAnswer("s403", {}, list)],
+    ["404", () => readCmsAnswer("s404", {}, list)],
+    ["a redirect", () => readCmsAnswer("redirect", {}, list)],
+    ["a login page (200, HTML)", () => readCmsAnswer("login-page", {}, list)],
+    [
+      "JSON text sent as HTML",
+      () => readCmsAnswer("json-text-as-html", {}, list),
+    ],
+    ["a body that is not JSON", () => readCmsAnswer("bad-json", {}, list)],
+    ["a wrapped list", () => readCmsAnswer("wrapped", {}, list)],
+    [
+      "an empty list where it is never empty",
+      () =>
+        readCmsAnswer("empty-list", {}, { expect: "list", neverEmpty: true }),
+    ],
+    [
+      "a missing part",
+      () => readCmsPart("sitemap-no-dates", {}, "dates", { expect: "object" }),
+    ],
+  ];
+  for (const [name, run] of setUpFaults) {
+    check(`${name} is passed on`, passedOn(await failureOf(run)));
+  }
+  delete process.env.CMS_URL;
+  check(
+    "no CMS_URL is passed on",
+    passedOn(await failureOf(() => readCmsAnswer("list", {}, list)))
+  );
+  process.env.CMS_URL = base;
+
+  const mayPass: [string, () => Promise<unknown>][] = [
+    ["500", () => readCmsAnswer("s500", {}, list)],
+    ["503 (HTML)", () => readCmsAnswer("s503", {}, list)],
+    [
+      "no answer within the time limit",
+      () => readCmsAnswer("slow", {}, { expect: "list", timeoutMs: 300 }),
+    ],
+  ];
+  for (const [name, run] of mayPass) {
+    const error = await failureOf(run);
+    check(
+      `${name} falls back`,
+      isCmsReadError(error) && !passedOn(error),
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+  const closed = await startStandIn();
+  const closedPort = (closed.address() as AddressInfo).port;
+  await new Promise((resolve) => closed.close(resolve));
+  process.env.CMS_URL = `http://127.0.0.1:${closedPort}`;
+  const network = await failureOf(() => readCmsAnswer("list", {}, list));
+  check(
+    "a network error falls back",
+    isCmsReadError(network) && !passedOn(network)
+  );
+  process.env.CMS_URL = base;
+
+  // Through two real call sites, with CONTENT_SOURCE=cms.
+  const { getFaqs, FAQ_DEFAULTS } = await import("../src/lib/faqs");
+  const { spaceColours } = await import("../src/lib/space-colours");
+  process.env.CONTENT_SOURCE = "cms";
+  const faqWith = async (answer: StandInAnswer) => {
+    overrides.set("faq", answer);
+    try {
+      return { value: await getFaqs("quartz") };
+    } catch (error) {
+      return { error };
+    } finally {
+      overrides.delete("faq");
+    }
+  };
+  const faq401 = await faqWith(standIn("s401"));
+  check(
+    "getFaqs passes a 401 on",
+    "error" in faq401 && isCmsReadError(faq401.error)
+  );
+  const faqHtml = await faqWith(standIn("login-page"));
+  check(
+    "getFaqs passes a login page on",
+    "error" in faqHtml && isCmsReadError(faqHtml.error)
+  );
+  const faq500 = await faqWith(standIn("s500"));
+  same(
+    "getFaqs falls back to its defaults on a 500",
+    "value" in faq500 ? faq500.value : faq500.error,
+    FAQ_DEFAULTS.quartz
+  );
+  process.env.CMS_URL = `http://127.0.0.1:${closedPort}`;
+  let networkValue: unknown;
+  try {
+    networkValue = await getFaqs("quartz");
+  } catch (error) {
+    networkValue = error;
+  }
+  same(
+    "getFaqs falls back to its defaults on a network error",
+    networkValue,
+    FAQ_DEFAULTS.quartz
+  );
+  process.env.CMS_URL = base;
+
+  const tilesWith = async (answer: StandInAnswer) => {
+    overrides.set("product-tiles", answer);
+    try {
+      return { value: await spaceColours(["a"]) };
+    } catch (error) {
+      return { error };
+    } finally {
+      overrides.delete("product-tiles");
+    }
+  };
+  const tiles403 = await tilesWith(standIn("s403"));
+  check(
+    "the space colours pass a 403 on",
+    "error" in tiles403 && isCmsReadError(tiles403.error)
+  );
+  const tiles503 = await tilesWith(standIn("s503"));
+  same(
+    "the space colours fall back to none on a 503",
+    "value" in tiles503 ? tiles503.value : String(tiles503.error),
+    []
+  );
+  delete process.env.CONTENT_SOURCE;
 }
 
 /** Each fetcher with CONTENT_SOURCE=cms: the answer and query it asks for. */
@@ -762,6 +932,7 @@ async function main(): Promise<void> {
     checkQueryStrings();
     checkContentSource();
     await checkFailLoud(base);
+    await checkPassingFailures(base);
     await checkFetchers();
     checkNotice();
   } finally {
