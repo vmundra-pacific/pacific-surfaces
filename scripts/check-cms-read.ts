@@ -223,6 +223,10 @@ const FILE_HASH = {
   refused: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
   broken: "dddddddddddddddddddddddddddddddd",
   moved: "cccccccccccccccccccccccccccccccc",
+  /** Holds its headers for 1.5 s. */
+  held: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  /** Sends its headers at once and its body in two halves, 0.6 s apart. */
+  slowBody: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 };
 
 /** Where a stand-in file store sends the "moved" file. */
@@ -257,6 +261,27 @@ function serveFile(
   if (hash === FILE_HASH.moved) {
     res.writeHead(302, { location: movedTo });
     res.end();
+    return;
+  }
+  if (hash === FILE_HASH.held) {
+    const timer = setTimeout(() => {
+      res.writeHead(200, {
+        "content-type": "image/jpeg",
+        "content-length": String(FILE_BYTES.length),
+      });
+      res.end(FILE_BYTES);
+    }, 1500);
+    res.on("close", () => clearTimeout(timer));
+    return;
+  }
+  if (hash === FILE_HASH.slowBody) {
+    res.writeHead(200, {
+      "content-type": "image/jpeg",
+      "content-length": String(FILE_BYTES.length),
+    });
+    res.flushHeaders();
+    res.write(FILE_BYTES.subarray(0, 50));
+    setTimeout(() => res.end(FILE_BYTES.subarray(50)), 600);
     return;
   }
   const type = name.endsWith(".pdf")
@@ -997,6 +1022,46 @@ async function checkMediaProxy(base: string): Promise<void> {
       `status ${response.status}, ${JSON.stringify(text)}`
     );
   }
+  // The upstream has a time limit for its headers, not for its body.
+  const { MEDIA_HEADERS_TIMEOUT_MS } = await import("../src/cms/media-proxy");
+  same(
+    "the upstream has 10 s to start answering",
+    MEDIA_HEADERS_TIMEOUT_MS,
+    10_000
+  );
+  const askWithin = (name: string, ms: number) =>
+    proxyCmsMedia(
+      new Request(`http://site.example/api/cdn/m/${name}`),
+      name,
+      "GET",
+      ms
+    );
+  let started = Date.now();
+  response = await askWithin(`${FILE_HASH.held}.jpg`, 300);
+  let took = Date.now() - started;
+  check(
+    "an upstream that holds its headers past the limit is dropped: an empty 502",
+    response.status === 502 && (await response.text()) === "" && took < 1200,
+    `status ${response.status} after ${took} ms`
+  );
+  same("with no cache", response.headers.get("cache-control"), "no-store");
+  started = Date.now();
+  response = await askWithin(`${FILE_HASH.slowBody}.jpg`, 300);
+  let slowBytes = "";
+  try {
+    slowBytes = Buffer.from(await response.arrayBuffer()).toString();
+  } catch (error) {
+    slowBytes = `failed: ${error instanceof Error ? error.message : error}`;
+  }
+  took = Date.now() - started;
+  check(
+    "a body slower than the limit still arrives whole (the timer is cleared)",
+    response.status === 200 &&
+      slowBytes === FILE_BYTES.toString() &&
+      took >= 500,
+    `status ${response.status}, ${slowBytes.slice(0, 40)}, ${took} ms`
+  );
+
   delete process.env.CMS_PROTECTION_BYPASS;
   before = seen.length;
   await ask(`${h}.jpg`);

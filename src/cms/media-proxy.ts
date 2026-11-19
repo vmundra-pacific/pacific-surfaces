@@ -25,6 +25,9 @@ import { mediaUpstream } from "./media";
  *   year's cache for a file (names never change). Any other upstream
  *   answer (a refusal, a redirect, an error) becomes an empty 502, so a
  *   login page never comes through.
+ * - The upstream has 10 seconds to start answering (its headers); after
+ *   that the request is dropped and the answer is an empty 502. Once the
+ *   headers are in, the file streams for as long as it takes.
  */
 
 const PASSED_HEADERS = [
@@ -36,6 +39,9 @@ const PASSED_HEADERS = [
 
 const LONG_CACHE = "public, max-age=31536000, s-maxage=31536000, immutable";
 
+/** How long the upstream may take to send its headers. */
+export const MEDIA_HEADERS_TIMEOUT_MS = 10_000;
+
 const notFound = () => new Response("Not found.", { status: 404 });
 
 const emptyAnswer = (status: number, headers: Headers = new Headers()) => {
@@ -46,7 +52,8 @@ const emptyAnswer = (status: number, headers: Headers = new Headers()) => {
 export async function proxyCmsMedia(
   request: Request,
   name: string,
-  method: "GET" | "HEAD"
+  method: "GET" | "HEAD",
+  headersTimeoutMs: number = MEDIA_HEADERS_TIMEOUT_MS
 ): Promise<Response> {
   if (contentSource() !== "cms") return notFound();
   if (typeof name !== "string" || !MEDIA_NAME_RE.test(name)) return notFound();
@@ -62,20 +69,27 @@ export async function proxyCmsMedia(
   const range = request.headers.get("range");
   if (range) headers.range = range;
 
+  // The time limit covers the headers only. The timer is cleared as
+  // soon as they are in, so the body is never cut off by it.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), headersTimeoutMs);
   let response: Response;
   try {
     response = await fetch(upstream.url, {
       method,
       headers,
       redirect: "manual",
-      // A signal of its own: the framework keeps a second copy of the
-      // body of a fetch made without one (to share it with a later
-      // identical fetch), which for a file of hundreds of megabytes is
-      // held in memory, and which stops the body below from closing.
-      signal: new AbortController().signal,
+      // A signal of its own also matters for another reason: the
+      // framework keeps a second copy of the body of a fetch made without
+      // one (to share it with a later identical fetch), which for a file
+      // of hundreds of megabytes is held in memory, and which stops the
+      // body below from closing.
+      signal: controller.signal,
     });
   } catch {
     return emptyAnswer(502);
+  } finally {
+    clearTimeout(timer);
   }
 
   const status = response.status;
