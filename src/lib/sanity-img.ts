@@ -89,12 +89,11 @@ export function sanityImg(
 ): string | undefined {
   if (!url) return undefined;
   // A CMS picture: the ready-made copy at or above `w`. The copies keep
-  // the picture's shape and are WebP at quality 95, so `fit` and `q` do
-  // not apply; a box that crops fills itself with object-fit, and asks
-  // for at least its longer side.
+  // the picture's shape and are WebP at quality 95, so `q` does not
+  // apply; a box that crops fills itself with object-fit, and asks for a
+  // copy wide enough to cover it (lib/media-url).
   if (isCmsMedia(url)) {
-    const crop = opts.fit === "crop" && opts.h ? opts.h : 0;
-    return cmsImg(url, { w: Math.max(opts.w ?? 0, crop) || undefined });
+    return cmsImg(url, { w: opts.w, h: opts.h, crop: opts.fit === "crop" });
   }
   // For non-Sanity URLs (e.g. images.unsplash.com, local /public/...),
   // pass through unchanged — no transforms.

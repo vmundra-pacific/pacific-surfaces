@@ -730,15 +730,42 @@ async function checkMediaUrls(): Promise<void> {
     sanityImg(onCms, { w: 720 }),
     `/api/cdn/m/${h}-w828.webp`
   );
+  // A crop box asks for a copy that covers it for a picture twice as
+  // wide as tall: the copy at or above max(w, 2 x h).
   same(
-    "sanityImg on a CMS picture with a square crop",
+    "sanityImg on a CMS picture with a square crop covers it",
     sanityImg(onCms, { w: 1024, h: 1024, fit: "crop", q: 100 }),
-    `/api/cdn/m/${h}-w1080.webp`
+    `/api/cdn/m/${h}-w2560.webp`
   );
   same(
-    "sanityImg on a CMS picture with a tall crop asks for the longer side",
+    "sanityImg on a CMS picture with a tall crop asks for twice its height",
     sanityImg(onCms, { w: 216, h: 264, fit: "crop" }),
+    `/api/cdn/m/${h}-w640.webp`
+  );
+  same(
+    "a 240x180 crop box gets the 384 copy",
+    sanityImg(onCms, { w: 240, h: 180, fit: "crop" }),
     `/api/cdn/m/${h}-w384.webp`
+  );
+  same(
+    "a wide crop box asks for its width",
+    m.cmsImg(onCms, { w: 1200, h: 300, crop: true }),
+    `/api/cdn/m/${h}-w1290.webp`
+  );
+  same(
+    "a crop box with only a height",
+    m.cmsImg(onCms, { h: 300, crop: true }),
+    `/api/cdn/m/${h}-w640.webp`
+  );
+  same(
+    "a height without crop is not used",
+    m.cmsImg(onCms, { w: 240, h: 900 }),
+    `/api/cdn/m/${h}-w256.webp`
+  );
+  same(
+    "sanityImg without fit crop ignores the height",
+    sanityImg(onCms, { w: 240, h: 900 }),
+    `/api/cdn/m/${h}-w256.webp`
   );
   same(
     "sanityImg leaves Sanity as it was",
@@ -920,6 +947,11 @@ async function checkCallSites(): Promise<void> {
         "sanityImg at w 120 (search results)",
         sanityImg(pic, { w: 120 }),
         shown(`${h}-w256.webp`),
+      ],
+      [
+        "sanityImg, a 1024 square crop (the visualiser's favourites)",
+        sanityImg(pic, { w: 1024, h: 1024, fit: "crop", q: 100 }),
+        shown(`${h}-w2560.webp`),
       ],
       [
         "sanityImg at w 1600 (product and blog heroes)",

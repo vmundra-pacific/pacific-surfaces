@@ -149,7 +149,25 @@ export type CmsImgOptions = {
   w?: number;
   /** The share card copy (1200 wide, JPEG) instead of a width. */
   share?: boolean;
+  /**
+   * The picture fills a `w` x `h` box and is cut to it (object-fit:
+   * cover). The copies keep the picture's shape, so the copy asked for is
+   * wide enough to cover the box for a picture twice as wide as tall:
+   * the copy at or above max(w, 2 x h).
+   */
+  crop?: boolean;
+  /** The box's height, used with `crop`. */
+  h?: number;
 };
+
+/** The width to ask for: `w`, or for a crop box max(w, 2 x h). */
+function widthAskedFor(options: CmsImgOptions): number | undefined {
+  const { w, h, crop } = options;
+  if (crop && typeof h === "number" && Number.isFinite(h) && h > 0) {
+    return Math.max(typeof w === "number" && Number.isFinite(w) ? w : 0, 2 * h);
+  }
+  return w;
+}
 
 /**
  * A CMS address as the browser should load it. A picture asked for at
@@ -164,15 +182,16 @@ export function cmsImg(url: string, options: CmsImgOptions = {}): string {
   if (!media) return url;
   let name = media.name;
   const picture = media.size !== null || PICTURE_EXTENSIONS.has(media.ext);
+  const width = widthAskedFor(options);
   if (picture && options.share) {
     name = `${media.hash}-share.jpg`;
   } else if (
     picture &&
-    typeof options.w === "number" &&
-    Number.isFinite(options.w) &&
-    options.w > 0
+    typeof width === "number" &&
+    Number.isFinite(width) &&
+    width > 0
   ) {
-    name = `${media.hash}-w${mediaWidthFor(options.w)}.webp`;
+    name = `${media.hash}-w${mediaWidthFor(width)}.webp`;
   }
   return media.mediaFolder
     ? `${media.mediaFolder}/${name}`

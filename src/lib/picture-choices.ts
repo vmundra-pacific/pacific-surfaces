@@ -104,12 +104,12 @@ export function slabUrl(src: string, width: number): string {
 
 /**
  * The visualiser's slab dock (components/visualize/SlabPicker): a 240x180
- * thumbnail. A CMS photograph: its 384 px copy, which covers the box
- * (object-cover) for a slab's shape.
+ * thumbnail, cut to its box (object-cover). A CMS photograph: the copy
+ * that covers that box (lib/media-url), 384 px.
  */
 export function slabPickerThumbUrl(photoUrl: string): string {
   return isCmsMedia(photoUrl)
-    ? cmsImg(photoUrl, { w: 384 })
+    ? cmsImg(photoUrl, { w: 240, h: 180, crop: true })
     : photoUrl.includes("cdn.sanity.io")
       ? photoUrl +
         (photoUrl.includes("?") ? "&" : "?") +
