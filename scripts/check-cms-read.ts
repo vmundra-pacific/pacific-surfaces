@@ -13,8 +13,10 @@
  * of the three per-request reads and the route's revalidation calls.
  */
 import { createHmac } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
+import { join } from "node:path";
 
 import {
   buildQueryString,
@@ -2021,6 +2023,38 @@ async function checkPassingFailures(base: string): Promise<void> {
 }
 
 /**
+ * The components that show a picture through their own helper still call
+ * it where the picture is drawn: the lightbox and the reader's cover are
+ * drawn only in the browser, so no page check sees them. Read from the
+ * source text; the helpers themselves are checked above.
+ */
+function checkHelperWiring(): void {
+  console.log("Each component calls its picture helper");
+  const uses: [string, string][] = [
+    [
+      "src/components/ui/finish-lightbox.tsx",
+      "src={lightboxImageUrl(currentSrc)}",
+    ],
+    [
+      "src/components/sections/ResourcesContent.tsx",
+      "poster={resourcePosterUrl(resource.thumbnail)}",
+    ],
+    [
+      "src/components/visualize/SlabPicker.tsx",
+      "src={slabPickerThumbUrl(s.photoUrl)}",
+    ],
+    [
+      "src/app/(site)/products/[slug]/opengraph-image.tsx",
+      "const bgImage = await shareBackground(product.mainImage);",
+    ],
+  ];
+  for (const [file, call] of uses) {
+    const text = readFileSync(join(__dirname, "..", file), "utf8");
+    check(`${file} has ${call}`, text.includes(call));
+  }
+}
+
+/**
  * The page check (scripts/check-cms-pages.ts): which picture addresses
  * in a page's HTML count as bare originals.
  */
@@ -2487,6 +2521,7 @@ async function main(): Promise<void> {
     checkContentSource();
     await checkMediaUrls();
     await checkCallSites();
+    checkHelperWiring();
     await checkPageScanner();
     await checkFailLoud(base);
     await checkPassingFailures(base);
