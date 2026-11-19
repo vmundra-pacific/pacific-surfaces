@@ -9,6 +9,7 @@
     "start": "next start -H 0.0.0.0 -p 3005",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "check:cms-read": "tsx --conditions=react-server scripts/check-cms-read.ts",
     "prepare": "husky",
     "backfill:palette": "node --env-file=.env.local scripts/backfill-image-palette.mjs",
     "backfill:palette:dry": "node --env-file=.env.local scripts/backfill-image-palette.mjs --dry",
