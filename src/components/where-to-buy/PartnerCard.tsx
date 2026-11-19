@@ -1,5 +1,6 @@
 import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 import { LIQUID_GLASS_DARK } from "@/components/global/liquid-glass";
+import { NearestDistributor } from "./NearestDistributor";
 import {
   PACIFIC_X_FAIRDEAL,
   contactWhatsApp,
@@ -260,6 +261,14 @@ function DistributorEntry({ d }: { d: RegionDistributor }) {
  *  that town's distributors under it. */
 function Distributors({ p }: { p: Partner }) {
   if (!p.distributors?.length) return null;
+  // Poland (owner, 2026-11-19): ask who and where, then show the nearest one.
+  if (p.finder === "postcode") {
+    return (
+      <div className="mt-7 border-t border-white/25 pt-6">
+        <NearestDistributor partner={p} />
+      </div>
+    );
+  }
   const byCity = new Map<string, RegionDistributor[]>();
   for (const d of p.distributors) {
     byCity.set(d.city, [...(byCity.get(d.city) ?? []), d]);

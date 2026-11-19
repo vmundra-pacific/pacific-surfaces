@@ -38,7 +38,23 @@ export interface RegionDistributor {
   phone?: { display: string; href: string };
   email?: string;
   mapUrl: string;
+  /** Where it is, for the nearest-distributor finder's distance and map:
+   *  the street or house from OpenStreetMap where it has one, else the
+   *  village (2026-11-19). */
+  lat?: number;
+  lng?: number;
 }
+
+/** "I am a" in the nearest-distributor finder: the same five as the India
+ *  Where to Buy form (lib/where-to-buy AUDIENCES), repeated here so the
+ *  homepage does not load the India place data. */
+export const FINDER_AUDIENCES = [
+  { value: "homeowner", label: "Homeowner" },
+  { value: "designer", label: "Architect or interior designer" },
+  { value: "studio", label: "Kitchen or interior studio" },
+  { value: "builder", label: "Builder or developer" },
+  { value: "trade", label: "Fabricator or dealer" },
+] as const;
 
 export interface Partner {
   /** Which region's CSS switch shows it: Middle East, Poland or Mexico. */
@@ -67,6 +83,10 @@ export interface Partner {
   mapUrl?: string;
   /** Distributors in the region, listed below the partner's contacts. */
   distributors?: RegionDistributor[];
+  /** "postcode": instead of listing the distributors, ask who the visitor
+   *  is and their postal code, and show the one nearest distributor on a
+   *  map (Poland, owner 2026-11-19; /api/where-to-buy/nearest). */
+  finder?: "postcode";
 }
 
 /** Saral Mundra: Pacific Surfaces sales for Dubai and Mexico (owner,
@@ -131,6 +151,7 @@ export const PACIFIC_POLSKA: Partner = {
   tagline: "Pacific Surfaces in Poland",
   serves: "Poland and Central and Eastern Europe",
   addressLabel: "Warehouse",
+  finder: "postcode",
   contacts: [
     {
       name: "Paulina Popławska",
@@ -158,6 +179,8 @@ export const PACIFIC_POLSKA: Partner = {
       city: "Nowe Szumowo",
       addressLines: ["Nowe Szumowo 6", "18-305 Nowe Szumowo"],
       phone: { display: "+48 604 062 510", href: "tel:+48604062510" },
+      lat: 52.9094,
+      lng: 22.0636,
       mapUrl:
         "https://www.google.com/maps/search/?api=1&query=" +
         encodeURIComponent(
@@ -170,6 +193,8 @@ export const PACIFIC_POLSKA: Partner = {
       city: "Bralin",
       addressLines: ["Tabor Wielki 1C", "63-640 Bralin"],
       mapUrl: "https://maps.app.goo.gl/uixiZVwKhJ39sFUeA",
+      lat: 51.2889,
+      lng: 17.8656,
     },
     {
       name: "ANT-MAR BIS Sp. z o.o.",
@@ -177,6 +202,8 @@ export const PACIFIC_POLSKA: Partner = {
       addressLines: ["Brzozowa 50 (entrance from Cmentarna)", "42-130 Kalej"],
       phone: { display: "+48 34 317 04 29", href: "tel:+48343170429" },
       email: "biuro@antmar.pl",
+      lat: 50.8431,
+      lng: 18.9927,
       mapUrl:
         "https://www.google.com/maps/search/?api=1&query=" +
         encodeURIComponent("ANT-MAR BIS, Brzozowa 50, 42-130 Kalej, Poland"),
