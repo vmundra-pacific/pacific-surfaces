@@ -63,6 +63,11 @@ export async function proxyCmsMedia(
       method,
       headers,
       redirect: "manual",
+      // A signal of its own: the framework keeps a second copy of the
+      // body of a fetch made without one (to share it with a later
+      // identical fetch), which for a file of hundreds of megabytes is
+      // held in memory, and which stops the body below from closing.
+      signal: new AbortController().signal,
     });
   } catch {
     return emptyAnswer(502);
@@ -70,7 +75,7 @@ export async function proxyCmsMedia(
 
   const status = response.status;
   if (status !== 200 && status !== 206) {
-    await response.body?.cancel().catch(() => undefined);
+    void response.body?.cancel().catch(() => undefined);
     if (status === 404) return notFound();
     if (status === 416) {
       const passed = new Headers();
@@ -88,7 +93,7 @@ export async function proxyCmsMedia(
   }
   passed.set("Cache-Control", LONG_CACHE);
   if (method === "HEAD") {
-    await response.body?.cancel().catch(() => undefined);
+    void response.body?.cancel().catch(() => undefined);
     return new Response(null, { status, headers: passed });
   }
   return new Response(response.body, { status, headers: passed });

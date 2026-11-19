@@ -116,8 +116,10 @@ async function proxy(req: NextRequest, ctx: RouteContext, method: "GET" | "HEAD"
       `${SANITY_HOST}/${path.map(encodeURIComponent).join("/")}`,
       req.nextUrl.searchParams.get("w")
     );
-    if (target)
-      return Response.redirect(new URL(target, req.nextUrl.href), 302);
+    // The target is the media host's address or this site's own path.
+    if (target) {
+      return new Response(null, { status: 302, headers: { Location: target } });
+    }
   }
 
   // Reconstruct the upstream URL. URI-encoded segments stay intact; we
