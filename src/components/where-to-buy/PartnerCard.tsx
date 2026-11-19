@@ -5,6 +5,7 @@ import {
   contactWhatsApp,
   type Partner,
   type PartnerContact,
+  type RegionDistributor,
 } from "@/data/partners";
 
 /**
@@ -191,61 +192,98 @@ function Details({ p }: { p: Partner }) {
   );
 }
 
-/** The region's distributors (Poland, owner 2026-11-14): name, owner,
- *  address, phone and a directions link each. */
+/** One distributor: name, owner, address (a directions link), phone and
+ *  e-mail where given. */
+function DistributorEntry({ d }: { d: RegionDistributor }) {
+  return (
+    <li className="grid content-start gap-2">
+      <div>
+        <p className="text-[15px] font-normal leading-snug">{d.name}</p>
+        {d.owner && (
+          <p className="mt-0.5 text-[12px] font-light leading-snug opacity-75">
+            {d.owner}
+          </p>
+        )}
+      </div>
+      <div className="flex items-start gap-3">
+        <MapPin
+          className="mt-0.5 h-4 w-4 shrink-0 opacity-80"
+          aria-hidden="true"
+        />
+        <a
+          href={d.mapUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[15px] font-light leading-snug underline underline-offset-4"
+        >
+          {d.addressLines.map((l) => (
+            <span key={l} className="block">
+              {l}
+            </span>
+          ))}
+        </a>
+      </div>
+      {d.phone && (
+        <div className="flex items-start gap-3">
+          <Phone
+            className="mt-0.5 h-4 w-4 shrink-0 opacity-80"
+            aria-hidden="true"
+          />
+          <a
+            href={d.phone.href}
+            className="text-[15px] font-light leading-snug underline underline-offset-4"
+          >
+            {d.phone.display}
+          </a>
+        </div>
+      )}
+      {d.email && (
+        <div className="flex items-start gap-3">
+          <Mail
+            className="mt-0.5 h-4 w-4 shrink-0 opacity-80"
+            aria-hidden="true"
+          />
+          <a
+            href={`mailto:${d.email}`}
+            className="break-all text-[15px] font-light leading-snug underline underline-offset-4"
+          >
+            {d.email}
+          </a>
+        </div>
+      )}
+    </li>
+  );
+}
+
+/** The region's distributors (Poland, owner 2026-11-14), city by city
+ *  (owner, 2026-11-19): a heading per town, in alphabetical order, with
+ *  that town's distributors under it. */
 function Distributors({ p }: { p: Partner }) {
   if (!p.distributors?.length) return null;
+  const byCity = new Map<string, RegionDistributor[]>();
+  for (const d of p.distributors) {
+    byCity.set(d.city, [...(byCity.get(d.city) ?? []), d]);
+  }
+  const cities = [...byCity.keys()].sort((a, b) => a.localeCompare(b, "pl"));
   return (
     <div className="mt-7 border-t border-white/25 pt-6 text-left">
       <p className="text-[10px] uppercase tracking-[0.18em] opacity-70">
-        Distributors
+        Distributors by city
       </p>
-      <ul className="mt-4 grid gap-5 sm:grid-cols-2">
-        {p.distributors.map((d) => (
-          <li key={d.name} className="grid content-start gap-2">
-            <div>
-              <p className="text-[15px] font-normal leading-snug">{d.name}</p>
-              {d.owner && (
-                <p className="mt-0.5 text-[12px] font-light leading-snug opacity-75">
-                  {d.owner}
-                </p>
-              )}
-            </div>
-            <div className="flex items-start gap-3">
-              <MapPin
-                className="mt-0.5 h-4 w-4 shrink-0 opacity-80"
-                aria-hidden="true"
-              />
-              <a
-                href={d.mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[15px] font-light leading-snug underline underline-offset-4"
-              >
-                {d.addressLines.map((l) => (
-                  <span key={l} className="block">
-                    {l}
-                  </span>
-                ))}
-              </a>
-            </div>
-            {d.phone && (
-              <div className="flex items-start gap-3">
-                <Phone
-                  className="mt-0.5 h-4 w-4 shrink-0 opacity-80"
-                  aria-hidden="true"
-                />
-                <a
-                  href={d.phone.href}
-                  className="text-[15px] font-light leading-snug underline underline-offset-4"
-                >
-                  {d.phone.display}
-                </a>
-              </div>
-            )}
-          </li>
+      <div className="mt-4 grid gap-6 sm:grid-cols-2">
+        {cities.map((city) => (
+          <div key={city}>
+            <h3 className="border-b border-white/15 pb-2 text-[13px] font-normal uppercase tracking-[0.14em]">
+              {city}
+            </h3>
+            <ul className="mt-3 grid gap-5">
+              {byCity.get(city)!.map((d) => (
+                <DistributorEntry key={d.name} d={d} />
+              ))}
+            </ul>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

@@ -31,8 +31,12 @@ export interface RegionDistributor {
   name: string;
   /** The owner, as Polish sole traders put it beside the name. */
   owner?: string;
+  /** The town in the postal line of the address: the card groups the
+   *  distributors under it, city by city (owner, 2026-11-19). */
+  city: string;
   addressLines: string[];
   phone?: { display: string; href: string };
+  email?: string;
   mapUrl: string;
 }
 
@@ -145,10 +149,13 @@ export const PACIFIC_POLSKA: Partner = {
   ],
   // Poland distributors (owner, 2026-11-14). IMPERIAL-GRANIT's address is
   // its own Google Maps listing (the link the owner sent); no phone given.
+  // ANT-MAR BIS (owner, 2026-11-19): name, address, phone and e-mail as on
+  // the company's own card; the phone is written in international form.
   distributors: [
     {
       name: "SB GRANIT",
       owner: "Szymon Bałazy",
+      city: "Nowe Szumowo",
       addressLines: ["Nowe Szumowo 6", "18-305 Nowe Szumowo"],
       phone: { display: "+48 604 062 510", href: "tel:+48604062510" },
       mapUrl:
@@ -160,8 +167,19 @@ export const PACIFIC_POLSKA: Partner = {
     {
       name: "IMPERIAL-GRANIT",
       owner: "Michał Olejniczak",
+      city: "Bralin",
       addressLines: ["Tabor Wielki 1C", "63-640 Bralin"],
       mapUrl: "https://maps.app.goo.gl/uixiZVwKhJ39sFUeA",
+    },
+    {
+      name: "ANT-MAR BIS Sp. z o.o.",
+      city: "Kalej",
+      addressLines: ["Brzozowa 50 (entrance from Cmentarna)", "42-130 Kalej"],
+      phone: { display: "+48 34 317 04 29", href: "tel:+48343170429" },
+      email: "biuro@antmar.pl",
+      mapUrl:
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent("ANT-MAR BIS, Brzozowa 50, 42-130 Kalej, Poland"),
     },
   ],
 };
