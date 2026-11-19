@@ -216,6 +216,9 @@ const FILE_HASH = {
   moved: "cccccccccccccccccccccccccccccccc",
 };
 
+/** Where a stand-in file store sends the "moved" file. */
+let movedTo = "https://example.com/login";
+
 /**
  * A stand-in file store: the CMS's file route (/api/media/file/<name>)
  * or a media host (/<name>), answering by the name's hash and honouring
@@ -243,7 +246,7 @@ function serveFile(
     return;
   }
   if (hash === FILE_HASH.moved) {
-    res.writeHead(302, { location: "https://example.com/login" });
+    res.writeHead(302, { location: movedTo });
     res.end();
     return;
   }
@@ -1103,6 +1106,55 @@ async function checkMediaProxy(base: string): Promise<void> {
     404
   );
   process.env.CMS_URL = base;
+
+  // A redirect is never followed: the file store's 302 points at a second
+  // stand-in on another origin, which serves a file to anyone. It must
+  // receive no request at all, so neither the pass nor the key can reach
+  // it, whatever headers a followed request would carry.
+  const trapSeen: string[] = [];
+  const trap = createServer((req, res) => {
+    trapSeen.push(`${req.method} ${req.url}`);
+    res.writeHead(200, {
+      "content-type": "image/jpeg",
+      "content-length": String(FILE_BYTES.length),
+    });
+    res.end(req.method === "HEAD" ? undefined : FILE_BYTES);
+  });
+  await new Promise<void>((resolve) =>
+    trap.listen(0, "127.0.0.1", () => resolve())
+  );
+  movedTo = `http://127.0.0.1:${(trap.address() as AddressInfo).port}/${h}.jpg`;
+  const moved = FILE_HASH.moved;
+  for (const [form, folder] of [
+    ["the CMS's file route", undefined],
+    ["the media folder", `${mediaBase}/media`],
+  ] as const) {
+    if (folder) process.env.NEXT_PUBLIC_MEDIA_BASE_URL = folder;
+    else delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+    before = seen.length;
+    response = await ask(`${moved}.jpg`);
+    await response.arrayBuffer();
+    check(
+      `from ${form}, a redirect becomes an empty 502`,
+      response.status === 502 && seen.length === before + 1,
+      `status ${response.status}`
+    );
+    response = await ask(`${moved}.jpg`, {}, "HEAD");
+    check(
+      `from ${form}, a redirect on HEAD becomes a 502`,
+      response.status === 502,
+      `status ${response.status}`
+    );
+    same(
+      `from ${form}, a redirected share card gives none`,
+      await cmsShareImage(`/api/cdn/m/${moved}.jpg`),
+      undefined
+    );
+    same(`from ${form}, the redirect's target was never asked`, trapSeen, []);
+  }
+  delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  movedTo = "https://example.com/login";
+  await new Promise((resolve) => trap.close(resolve));
   await new Promise((resolve) => mediaHost.close(resolve));
 
   // Old Sanity addresses.
