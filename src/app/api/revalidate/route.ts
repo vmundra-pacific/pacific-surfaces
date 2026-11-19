@@ -1,6 +1,13 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { parseBody } from "next-sanity/webhook";
+import { CMS_CACHE_TAG } from "@/cms/client";
+import {
+  CMS_SIGNATURE_HEADER,
+  CMS_TIMESTAMP_HEADER,
+  checkCmsNotice,
+  isCmsNotice,
+} from "@/cms/content-changed";
 
 /**
  * Sanity webhook: publishing (or editing, or deleting) a document in the
@@ -15,8 +22,16 @@ import { parseBody } from "next-sanity/webhook";
  * SANITY_REVALIDATE_SECRET on Vercel. The signature is checked, so only
  * Sanity can call it. Every page also refreshes itself at most a minute
  * after a change (`revalidate = 60`), which covers a missed webhook.
+ *
+ * The CMS calls the same address when published content changes, with
+ * its own headers, x-cms-timestamp and x-cms-signature
+ * (src/cms/content-changed.ts), checked with CMS_REVALIDATE_SECRET. A
+ * request with either header is taken as the CMS's; any other request is
+ * handled as Sanity's, exactly as before.
  */
 export async function POST(req: NextRequest) {
+  if (isCmsNotice(req.headers)) return cmsNotice(req);
+
   const secret = process.env.SANITY_REVALIDATE_SECRET;
   if (!secret) {
     return NextResponse.json(
@@ -47,3 +62,32 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+/**
+ * The CMS's notice. The body is read once, as received, and the
+ * signature is checked over exactly those bytes. Any refusal is 401.
+ * On success every page is marked stale, as for Sanity, and the
+ * per-request reads cached under the `cms` tag are cleared.
+ */
+async function cmsNotice(req: NextRequest) {
+  let body: Buffer;
+  try {
+    body = Buffer.from(await req.arrayBuffer());
+  } catch {
+    return refused();
+  }
+  const check = checkCmsNotice({
+    timestamp: req.headers.get(CMS_TIMESTAMP_HEADER),
+    signature: req.headers.get(CMS_SIGNATURE_HEADER),
+    body,
+    secret: process.env.CMS_REVALIDATE_SECRET,
+    now: Date.now(),
+  });
+  if (!check.ok) return refused();
+  revalidatePath("/", "layout");
+  revalidateTag(CMS_CACHE_TAG);
+  return NextResponse.json({ revalidated: true, source: "cms" });
+}
+
+const refused = () =>
+  NextResponse.json({ message: "Invalid signature" }, { status: 401 });
