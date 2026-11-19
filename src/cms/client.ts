@@ -176,11 +176,16 @@ export function protectionBypass(): string | undefined {
   return process.env.CMS_PROTECTION_BYPASS?.trim() || undefined;
 }
 
+/** The reader login's API key, when set. */
+export function cmsReadKey(): string | undefined {
+  return process.env.CMS_READ_KEY?.trim() || undefined;
+}
+
 type CmsSettings = { base: string; key: string; bypass: string | undefined };
 
 function cmsSettings(answer: string): CmsSettings {
   const address = cmsBaseUrl();
-  const key = process.env.CMS_READ_KEY?.trim();
+  const key = cmsReadKey();
   if ("problem" in address) {
     throw new CmsReadError(answer, address.problem);
   }

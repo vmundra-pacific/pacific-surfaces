@@ -15,9 +15,10 @@ import { mediaUpstream } from "./media";
  *   before this route existed.
  * - Only a CMS file name is accepted: `<32 hex>[-w<width>|-share].<ext>`.
  *   Anything else, a path or `..` included, is not found.
- * - The file comes from the media host when this site knows it, else from
- *   the CMS's file route with the deployment-protection pass
- *   (src/cms/media.ts). With neither set it is not found.
+ * - The file comes from the media folder when this site knows it, else
+ *   from the CMS's file route with the reader key and the
+ *   deployment-protection pass (src/cms/media.ts). With neither the
+ *   folder nor CMS_URL and CMS_READ_KEY set it is not found.
  * - A Range header is passed on, and the answer keeps the upstream's
  *   status (200, 206, 404, or 416 for a range past the end), with its
  *   Content-Type, Content-Length, Content-Range and Accept-Ranges, and a

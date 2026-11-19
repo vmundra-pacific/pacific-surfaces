@@ -13,8 +13,10 @@
  * So the site picks a copy from the address alone, in the browser too.
  *
  * Three kinds of address are CMS media:
- *   - the media host, `NEXT_PUBLIC_MEDIA_BASE_URL/<name>`, when that is
- *     set: used as it is;
+ *   - the media folder, `NEXT_PUBLIC_MEDIA_BASE_URL/<name>`, when that is
+ *     set: used as it is. The setting is the folder's full address, the
+ *     same one the CMS's answers carry, path included (for example
+ *     `https://media.example.com/media`);
  *   - any address whose path is `/api/media/file/<name>`, the CMS's own
  *     file route: visitors cannot open it, so it always goes through
  *     this site's `/api/cdn/m/<name>`;
@@ -54,7 +56,10 @@ const PICTURE_EXTENSIONS = new Set([
   "tiff",
 ]);
 
-/** The media host's address, without a trailing slash, or null when it is not set. */
+/**
+ * The media folder's full address (NEXT_PUBLIC_MEDIA_BASE_URL), without a
+ * trailing slash, or null when it is not set. Files sit directly in it.
+ */
 export function mediaBaseUrl(): string | null {
   const raw = process.env.NEXT_PUBLIC_MEDIA_BASE_URL?.trim();
   if (!raw) return null;

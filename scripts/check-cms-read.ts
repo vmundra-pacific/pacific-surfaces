@@ -724,27 +724,34 @@ async function checkMediaUrls(): Promise<void> {
     "/api/cdn/images/p/d/x-10x10.jpg"
   );
 
-  // With the media host set: pictures load from it directly.
-  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "https://media.example.com/";
-  const onMedia = `https://media.example.com/${h}.jpg`;
-  check("the media host is CMS media", m.isCmsMedia(onMedia));
+  // With the media folder set (its full address, as the CMS's answers
+  // carry it): pictures load from it directly.
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "https://media.example.com/media/";
+  const folder = "https://media.example.com/media";
+  const onMedia = `${folder}/${h}.jpg`;
+  same("the setting is kept as the folder", m.mediaBaseUrl(), folder);
+  check("the media folder is CMS media", m.isCmsMedia(onMedia));
   same("the media host's origin", m.mediaOrigin(), "https://media.example.com");
   same(
-    "a width on the media host",
+    "a width in the media folder",
     m.cmsImg(onMedia, { w: 1080 }),
-    `https://media.example.com/${h}-w1080.webp`
+    `${folder}/${h}-w1080.webp`
   );
   same(
-    "the share card on the media host",
+    "the share card in the media folder",
     m.cmsImg(onMedia, { share: true }),
-    `https://media.example.com/${h}-share.jpg`
+    `${folder}/${h}-share.jpg`
   );
-  same("no width on the media host: unchanged", m.cmsImg(onMedia), onMedia);
-  same("toProxy on the media host", m.toProxy(onMedia), `/api/cdn/m/${h}.jpg`);
+  same("no width in the media folder: unchanged", m.cmsImg(onMedia), onMedia);
   same(
-    "a PDF on the media host is the original",
-    m.cmsImg(`https://media.example.com/${h}.pdf`, { w: 640 }),
-    `https://media.example.com/${h}.pdf`
+    "toProxy in the media folder",
+    m.toProxy(onMedia),
+    `/api/cdn/m/${h}.jpg`
+  );
+  same(
+    "a PDF in the media folder is the original",
+    m.cmsImg(`${folder}/${h}.pdf`, { w: 640 }),
+    `${folder}/${h}.pdf`
   );
   same(
     "the CMS host still goes through /api/cdn/m/",
@@ -752,31 +759,42 @@ async function checkMediaUrls(): Promise<void> {
     `/api/cdn/m/${h}-w1080.webp`
   );
   same(
-    "a file name on the media host",
+    "a file name in the media folder",
     m.cmsFileAddress(`${h}.pdf`),
-    `https://media.example.com/${h}.pdf`
+    `${folder}/${h}.pdf`
   );
   for (const other of [
+    `https://media.example.com/${h}.jpg`,
     `https://media.example.com/other/${h}.jpg`,
-    `https://media.example.com.evil.example/${h}.jpg`,
-    `https://media.example.com/${h}-w300.webp`,
+    `https://media.example.com/media/sub/${h}.jpg`,
+    `https://media.example.com/mediax/${h}.jpg`,
+    `https://media.example.com.evil.example/media/${h}.jpg`,
+    `${folder}/${h}-w300.webp`,
   ]) {
     check(`${JSON.stringify(other)} is not CMS media`, !m.isCmsMedia(other));
   }
+  // A setting without the folder's path does not match the answers'
+  // addresses: nothing is recognised, and each picture stays its original.
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "https://media.example.com";
+  check(
+    "a setting without the folder's path does not recognise <folder>/<name>",
+    !m.isCmsMedia(onMedia)
+  );
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = folder;
   same(
-    "sanityImageProxyUrl takes a media-host picture to /api/cdn/m/",
+    "sanityImageProxyUrl takes a media-folder picture to /api/cdn/m/",
     sanityImageProxyUrl(onMedia),
     `/api/cdn/m/${h}.jpg`
   );
   same(
-    "sanityProxyUrl leaves a media-host video where it is",
-    sanityProxyUrl(`https://media.example.com/${h}.mp4`),
-    `https://media.example.com/${h}.mp4`
+    "sanityProxyUrl leaves a media-folder video where it is",
+    sanityProxyUrl(`${folder}/${h}.mp4`),
+    `${folder}/${h}.mp4`
   );
   same(
-    "the image loader on the media host",
+    "the image loader in the media folder",
     imageLoader({ src: onMedia, width: 1170 }),
-    `https://media.example.com/${h}-w1290.webp`
+    `${folder}/${h}-w1290.webp`
   );
   process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "ftp://media.example.com";
   same("a media host that is not http(s) is ignored", m.mediaBaseUrl(), null);
@@ -798,6 +816,8 @@ async function checkMediaProxy(base: string): Promise<void> {
   delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
   process.env.CMS_URL = base;
   process.env.CMS_PROTECTION_BYPASS = "dummy-bypass";
+  process.env.CMS_READ_KEY = "dummy-read-key";
+  const readKey = `${READ_KEY_SCHEME} dummy-read-key`;
   const h = FILE_HASH.ok;
   process.env.CONTENT_SOURCE = "cms";
   const ask = (
@@ -868,13 +888,14 @@ async function checkMediaProxy(base: string): Promise<void> {
     "dummy-bypass"
   );
   same(
+    "the reader key goes to the CMS (its file route answers no one else)",
+    sent[0]?.headers[READ_KEY_HEADER],
+    readKey
+  );
+  same(
     "the bytes are asked for as stored",
     sent[0]?.headers["accept-encoding"],
     "identity"
-  );
-  check(
-    "no read key goes with a file",
-    sent[0]?.headers[READ_KEY_HEADER] === undefined
   );
   same(
     "its type is passed on",
@@ -956,23 +977,47 @@ async function checkMediaProxy(base: string): Promise<void> {
     "with no pass set, no pass is sent",
     seen[before]?.headers[PROTECTION_BYPASS_HEADER] === undefined
   );
+  same(
+    "with no pass set, the reader key still is",
+    seen[before]?.headers[READ_KEY_HEADER],
+    readKey
+  );
   process.env.CMS_PROTECTION_BYPASS = "dummy-bypass";
+  delete process.env.CMS_READ_KEY;
+  before = seen.length;
+  response = await ask(`${h}.jpg`);
+  check(
+    "with no reader key set, the CMS's file route is not asked (404)",
+    response.status === 404 && seen.length === before,
+    `status ${response.status}`
+  );
+  same(
+    "and a share card from it is none",
+    await cmsShareImage(`/api/cdn/m/${h}.jpg`),
+    undefined
+  );
+  check("nothing was fetched for it", seen.length === before);
+  process.env.CMS_READ_KEY = "dummy-read-key";
 
-  // From the media host: no pass.
+  // From the media folder: no pass and no key.
   const mediaHost = await startStandIn();
   const mediaBase = `http://127.0.0.1:${(mediaHost.address() as AddressInfo).port}`;
-  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = mediaBase;
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = `${mediaBase}/media`;
   before = seen.length;
   response = await ask(`${h}-w1080.webp`, { range: "bytes=0-9" });
   sent = seen.slice(before);
   same(
-    "with the media host set, the file comes from it",
+    "with the media folder set, the file comes from <folder>/<name>",
     sent.map((x) => x.path),
-    [`/${h}-w1080.webp`]
+    [`/media/${h}-w1080.webp`]
   );
   check(
     "the media host never sees the pass",
     sent[0]?.headers[PROTECTION_BYPASS_HEADER] === undefined
+  );
+  check(
+    "the media host never sees the reader key",
+    sent[0]?.headers[READ_KEY_HEADER] === undefined
   );
   same("a Range from the media host is 206", response.status, 206);
   same(
@@ -983,20 +1028,24 @@ async function checkMediaProxy(base: string): Promise<void> {
   await response.arrayBuffer();
 
   // Share cards for the share images.
-  const share = await cmsShareImage(`${mediaBase}/${h}.png`);
+  const share = await cmsShareImage(`${mediaBase}/media/${h}.png`);
   same(
-    "a share card from the media host",
+    "a share card from the media folder",
     share,
     `data:image/jpeg;base64,${FILE_BYTES.toString("base64")}`
   );
   same(
-    "asked for by its share name",
+    "asked for by its share name, in the folder",
     seen[seen.length - 1]?.path,
-    `/${h}-share.jpg`
+    `/media/${h}-share.jpg`
   );
   check(
     "the media host never sees the pass for a share card",
     seen[seen.length - 1]?.headers[PROTECTION_BYPASS_HEADER] === undefined
+  );
+  check(
+    "the media host never sees the reader key for a share card",
+    seen[seen.length - 1]?.headers[READ_KEY_HEADER] === undefined
   );
   delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
   const shareOnCms = await cmsShareImage(
@@ -1016,6 +1065,11 @@ async function checkMediaProxy(base: string): Promise<void> {
     "with the pass",
     seen[seen.length - 1]?.headers[PROTECTION_BYPASS_HEADER],
     "dummy-bypass"
+  );
+  same(
+    "and the reader key",
+    seen[seen.length - 1]?.headers[READ_KEY_HEADER],
+    readKey
   );
   same(
     "a missing share card gives none",
@@ -1097,11 +1151,11 @@ async function checkMediaProxy(base: string): Promise<void> {
     legacyTarget(files, "constructor", null),
     null
   );
-  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "https://media.example.com";
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "https://media.example.com/media";
   same(
-    "with the media host set, it goes there",
+    "with the media folder set, it goes there",
     legacyTarget(files, old, "640"),
-    `https://media.example.com/${h}-w640.webp`
+    `https://media.example.com/media/${h}-w640.webp`
   );
   if (beforeMedia === undefined) delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
   else process.env.NEXT_PUBLIC_MEDIA_BASE_URL = beforeMedia;

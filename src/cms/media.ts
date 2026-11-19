@@ -8,19 +8,26 @@ import {
 } from "@/lib/media-url";
 import {
   cmsBaseUrl,
+  cmsReadKey,
   PROTECTION_BYPASS_HEADER,
   protectionBypass,
+  READ_KEY_HEADER,
+  READ_KEY_SCHEME,
 } from "./client";
 
 /**
  * Fetching a CMS file on this server: for /api/cdn/m/<name> and for the
  * share images. Only `fetch` is used, so it also runs on the edge.
  *
- * A file is fetched from the media host when this site knows it
- * (NEXT_PUBLIC_MEDIA_BASE_URL), else from the CMS's own file route at
- * CMS_URL, with the deployment-protection pass. The pass goes to the
- * CMS and nowhere else. Only a file name is ever taken from outside:
- * where it is fetched from comes from this site's settings.
+ * A file is fetched from the media folder when this site knows it
+ * (NEXT_PUBLIC_MEDIA_BASE_URL, the folder's full address), as
+ * `<folder>/<name>`, with no header of ours. Otherwise it is fetched from
+ * the CMS's own file route at CMS_URL, which answers only a signed-in
+ * reader: with the reader login's key (CMS_READ_KEY) and, when set, the
+ * deployment-protection pass. Without the key that route refuses, so no
+ * request is made. The key and the pass go to CMS_URL and nowhere else,
+ * and no redirect is followed. Only a file name is ever taken from
+ * outside: where it is fetched from comes from this site's settings.
  */
 
 export type MediaUpstream = {
@@ -28,14 +35,18 @@ export type MediaUpstream = {
   headers: Record<string, string>;
 };
 
-/** Where a CMS file is fetched from, or null when nothing is set. */
+/** Where a CMS file is fetched from, or null when that is not set up. */
 export function mediaUpstream(name: string): MediaUpstream | null {
   if (!MEDIA_NAME_RE.test(name)) return null;
   const media = mediaBaseUrl();
   if (media) return { url: `${media}/${name}`, headers: {} };
   const cms = cmsBaseUrl();
   if ("problem" in cms) return null;
-  const headers: Record<string, string> = {};
+  const key = cmsReadKey();
+  if (!key) return null;
+  const headers: Record<string, string> = {
+    [READ_KEY_HEADER]: `${READ_KEY_SCHEME} ${key}`,
+  };
   const bypass = protectionBypass();
   if (bypass) headers[PROTECTION_BYPASS_HEADER] = bypass;
   return { url: `${cms.base}/api/media/file/${name}`, headers };
