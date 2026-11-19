@@ -90,8 +90,10 @@ export const metadata: Metadata = {
   },
 };
 
-/** The CMS's media host, for the resource hints below. */
-const MEDIA_ORIGIN = mediaOrigin();
+/** Where the pictures come from, for the resource hints below: Sanity's
+ *  CDN, or with the content from the CMS its media host when set. */
+const HINT_ORIGIN =
+  contentSource() === "cms" ? mediaOrigin() : "https://cdn.sanity.io";
 
 export default function RootLayout({
   children,
@@ -153,19 +155,8 @@ if(d.readyState==='complete')later();else w.addEventListener('load',later,{once:
           With the content from the CMS, its media host takes Sanity's
           place, when NEXT_PUBLIC_MEDIA_BASE_URL is set (lib/media-url).
         */}
-        {contentSource() === "cms" ? (
-          MEDIA_ORIGIN && (
-            <>
-              <link rel="preconnect" href={MEDIA_ORIGIN} />
-              <link rel="dns-prefetch" href={MEDIA_ORIGIN} />
-            </>
-          )
-        ) : (
-          <>
-            <link rel="preconnect" href="https://cdn.sanity.io" />
-            <link rel="dns-prefetch" href="https://cdn.sanity.io" />
-          </>
-        )}
+        {HINT_ORIGIN && <link rel="preconnect" href={HINT_ORIGIN} />}
+        {HINT_ORIGIN && <link rel="dns-prefetch" href={HINT_ORIGIN} />}
       </head>
       {/*
         suppressHydrationWarning is on <html> and <body> because
