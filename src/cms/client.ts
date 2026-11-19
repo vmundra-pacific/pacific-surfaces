@@ -58,7 +58,8 @@ export const CMS_CACHE_TAG = "cms";
 
 /**
  * A CMS read that did not give a usable answer. Pages let it propagate,
- * so a failed rebuild keeps serving the page's last good version.
+ * so a failed rebuild is not saved: the page is not stored with an
+ * empty or fallback section.
  */
 export class CmsReadError extends Error {
   readonly answer: string;
