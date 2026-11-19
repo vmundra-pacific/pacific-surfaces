@@ -1801,6 +1801,37 @@ async function checkPictureHostGuard(base: string): Promise<void> {
       r.lines,
       []
     );
+    // The guard never throws: a read whose guard threw would fail.
+    const settled = async (addresses: string[]) => {
+      try {
+        return await warnedFor(undefined, addresses);
+      } catch (error) {
+        return { value: `the read failed: ${String(error)}`, lines: [] };
+      }
+    };
+    const refused = `http://[x/media/${h}.jpg`;
+    const after = `https://media-e.example.com/media/${h}.jpg`;
+    let s = await settled([refused, after]);
+    same(
+      "an address new URL refuses: the answer is passed on unchanged",
+      s.value,
+      [{ mainImage: refused }, { mainImage: after }]
+    );
+    check(
+      "an address new URL refuses is skipped, and a picture after it is still warned about",
+      s.lines.length === 1 && s.lines[0].includes("media-e.example.com"),
+      JSON.stringify(s.lines)
+    );
+    console.warn = () => {
+      throw new Error("the warning cannot be written");
+    };
+    const unwritten = `https://media-f.example.com/media/${h}.jpg`;
+    s = await settled([unwritten]);
+    same(
+      "a warning that cannot be written: the answer is passed on unchanged",
+      s.value,
+      [{ mainImage: unwritten }]
+    );
   } finally {
     console.warn = realWarn;
     if (beforeMedia === undefined)
