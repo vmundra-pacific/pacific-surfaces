@@ -24,7 +24,18 @@
  */
 
 import { safeJsonLd } from "@/lib/escape";
+import { cmsImg } from "@/lib/media-url";
 import { LOGO_ID, LOGO_URL, ORG_ID, SITE_URL } from "@/data/business";
+
+/**
+ * A picture's address for structured data, absolute. A CMS picture on
+ * the CMS's own host is given at this site's /api/cdn/m/ (lib/media-url);
+ * any other address is as given.
+ */
+const absoluteImage = (u: string) => {
+  const address = cmsImg(u);
+  return address.startsWith("http") ? address : `${SITE_URL}${address}`;
+};
 
 /** The Organization from the site graph, by reference plus its name. */
 const ORG_REF = {
@@ -161,10 +172,9 @@ export function ProductSchema({
   properties,
 }: ProductSchemaProps) {
   const absUrl = url.startsWith("http") ? url : `${SITE_URL}${url}`;
-  const toAbs = (u: string) => (u.startsWith("http") ? u : `${SITE_URL}${u}`);
   const allImages = [
-    ...(image ? [toAbs(image)] : []),
-    ...(additionalImages ?? []).filter(Boolean).map(toAbs),
+    ...(image ? [absoluteImage(image)] : []),
+    ...(additionalImages ?? []).filter(Boolean).map(absoluteImage),
   ];
   const specs = (properties ?? []).filter((p) => p.name && p.value);
   const json: Record<string, unknown> = {
@@ -213,11 +223,7 @@ export function ArticleSchema({
   type = "Article",
 }: ArticleSchemaProps) {
   const absUrl = url.startsWith("http") ? url : `${SITE_URL}${url}`;
-  const absImage = image
-    ? image.startsWith("http")
-      ? image
-      : `${SITE_URL}${image}`
-    : undefined;
+  const absImage = image ? absoluteImage(image) : undefined;
   const byline = authorName?.trim();
   const json = {
     "@context": "https://schema.org",
