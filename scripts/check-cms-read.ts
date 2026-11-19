@@ -1995,7 +1995,7 @@ async function checkPassingFailures(base: string): Promise<void> {
  */
 async function checkPageScanner(): Promise<void> {
   console.log("The page check's reading of a page");
-  const { bareOriginalsIn, srcsetAddresses, pictureUses } =
+  const { bareOriginalsIn, isBareOriginal, srcsetAddresses, pictureUses } =
     await import("./check-cms-pages");
   const h = "0123456789abcdef0123456789abcdef";
   const g = "fedcba9876543210fedcba9876543210";
@@ -2003,13 +2003,16 @@ async function checkPageScanner(): Promise<void> {
   const html = `<!doctype html><html><head>
 <link rel="preload" as="image" href="${media}/${h}-w3840.webp" fetchPriority="high">
 <link rel="preload" as="image" imageSrcSet="${media}/${g}.png 1x, ${media}/${h}-w1080.webp 2x">
+<link rel="preload" as="image" href="/api/cdn/m/${g}.jpg">
 <link rel="stylesheet" href="/_next/static/css/${h}.css">
 <style>.a{background:url("${media}/${g}.avif")}.b{background:url(/api/cdn/m/${g}.jpg)}</style>
 </head><body>
 <img src="${media}/${h}.jpg" alt="">
 <img src="${media}/${h}-w640.webp" srcset="${media}/${h}-w640.webp 640w, ${media}/${h}.jpeg 1080w, ${media}/${h}-w1920.webp 1920w" alt="">
 <img src="/api/cdn/m/${h}.jpg" alt="">
+<img src="/api/cdn/m/${h}-w640.webp" srcset="/api/cdn/m/${h}-w640.webp 640w, /api/cdn/m/${h}.png 1080w" alt="">
 <img src="/api/cdn/m/${h}-share.jpg" alt="">
+<picture><source srcset="/api/cdn/m/${g}.webp 1x, /api/cdn/m/${g}-w1920.webp 2x"><img src="/api/cdn/m/${g}-w1080.webp" alt=""></picture>
 <img src="https://cdn.sanity.io/images/p/d/x-10x10.jpg?rect=0,0,5,5&amp;w=640" srcset="https://cdn.sanity.io/images/p/d/x-10x10.jpg?rect=0,0,5,5&amp;w=640 640w,https://cdn.sanity.io/images/p/d/x-10x10.jpg?rect=0,0,5,5&amp;w=1080 1080w" alt="">
 <img src="/_next/image?url=${encodeURIComponent(`${media}/${g}.webp`)}&amp;w=640&amp;q=75" alt="">
 <img src='${media}/${g}.jpg?v=1&amp;x=2' alt="">
@@ -2034,14 +2037,31 @@ async function checkPageScanner(): Promise<void> {
     ),
     [
       `preload ${media}/${g}.png`,
+      `preload /api/cdn/m/${g}.jpg`,
       `img src ${media}/${h}.jpg`,
       `srcset ${media}/${h}.jpeg`,
+      `img src /api/cdn/m/${h}.jpg`,
+      `srcset /api/cdn/m/${h}.png`,
+      `srcset /api/cdn/m/${g}.webp`,
       `img src /_next/image?url=${encodeURIComponent(`${media}/${g}.webp`)}&w=640&q=75`,
       `img src ${media}/${g}.jpg?v=1&x=2`,
       `poster ${media}/${h}.png`,
       `css url https://cms.example.com/api/media/file/${g}.jpg`,
       `css url ${media}/${g}.avif`,
+      `css url /api/cdn/m/${g}.jpg`,
     ]
+  );
+  same(
+    "an address on /api/cdn/m/ is judged by its name: only the originals fail",
+    [
+      `/api/cdn/m/${h}.jpg`,
+      `https://site.example/api/cdn/m/${h}.png`,
+      `/api/cdn/m/${h}-w640.webp`,
+      `/api/cdn/m/${h}-share.jpg`,
+      `/api/cdn/m/${h}.pdf`,
+      `/api/cdn/m/${h}.mp4`,
+    ].filter((x) => isBareOriginal(x, "http://site.example/page")),
+    [`/api/cdn/m/${h}.jpg`, `https://site.example/api/cdn/m/${h}.png`]
   );
   check(
     "the server payload in scripts is not read",
@@ -2050,7 +2070,7 @@ async function checkPageScanner(): Promise<void> {
   same(
     "a page of copies only passes",
     bareOriginalsIn(
-      `<img src="${media}/${h}-w640.webp" srcset="/api/cdn/m/${h}-w1080.webp 1x"><div style="background:url(/api/cdn/m/${h}.jpg)"></div>`
+      `<img src="${media}/${h}-w640.webp" srcset="/api/cdn/m/${h}-w1080.webp 1x"><div style="background:url(/api/cdn/m/${h}-w1290.webp)"></div><img src="/api/cdn/m/${h}-share.jpg"><video poster="/api/cdn/m/${h}-w1080.webp"></video>`
     ),
     []
   );

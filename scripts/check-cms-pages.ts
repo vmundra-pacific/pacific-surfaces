@@ -13,8 +13,10 @@
  * itself: every img src and srcset, source srcset, video poster, image
  * preload (href and imagesrcset), and CSS url(...) in style attributes
  * and style elements. It fails if one of them is a bare picture original,
- * a path ending `<32 hex>.<ext>`, rather than a copy (`-w<width>.webp`),
- * a share card (`-share.jpg`) or an address on this site's /api/cdn/m/.
+ * a path ending `<32 hex>.<ext>`, rather than a copy (`-w<width>.webp`) or
+ * a share card (`-share.jpg`). An address on this site's /api/cdn/m/ is
+ * judged by its name like any other, so a full original served through it
+ * fails too; its copies, share cards, PDFs and videos pass.
  * The server payload in the page's scripts is not read: it carries the
  * answers' addresses as they come, by design.
  *
@@ -160,8 +162,8 @@ export function pictureUses(html: string): PictureUse[] {
 }
 
 /**
- * True for a bare picture original: its path ends `<32 hex>.<ext>` and it
- * is not on this site's /api/cdn/m/. An optimiser address
+ * True for a bare picture original: its path ends `<32 hex>.<ext>`,
+ * wherever it is, this site's /api/cdn/m/ included. An optimiser address
  * (/_next/image?url=...) is judged by the address it wraps.
  */
 export function isBareOriginal(
@@ -178,7 +180,6 @@ export function isBareOriginal(
     const inner = url.searchParams.get("url");
     return inner ? isBareOriginal(inner, pageUrl) : false;
   }
-  if (url.pathname.startsWith("/api/cdn/m/")) return false;
   const name = url.pathname.split("/").pop() ?? "";
   return PICTURE_ORIGINAL_RE.test(name);
 }
