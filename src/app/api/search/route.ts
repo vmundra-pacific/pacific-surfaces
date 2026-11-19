@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { client } from "@/sanity/lib/client";
-import { groq } from "next-sanity";
+import * as cms from "@/cms/read";
 import { searchPages, searchWords } from "@/data/site-search";
 import { shownInRegion } from "@/data/india-range";
 import { COUNTRY_COOKIE } from "@/lib/region";
@@ -38,30 +37,7 @@ export async function GET(req: NextRequest) {
   const pages = searchPages(q);
   const terms = words.map((w) => `${w}*`);
 
-  const found: SearchHit[] = await client.fetch(
-    groq`
-      *[
-        !(_id in path("drafts.**")) && (
-          // Same gate as the product page (productBySlugQuery): hidden
-          // products (visible == false) and slugless ones have no page,
-          // so listing them sent searchers to a 404.
-          (_type == "product" && visible != false && defined(slug.current) && (
-            (name + " " + coalesce(collection->name, "") + " " + coalesce(category->name, "")) match $terms
-          )) ||
-          (_type == "blogPost" && title match $terms)
-        )
-      ] | order(coalesce(name, title) asc) [0...40] {
-        _type,
-        _id,
-        "name": coalesce(name, title),
-        slug,
-        "mainImage": mainImage.asset->url,
-        "collectionName": collection->name,
-        productType
-      }
-    `,
-    { terms }
-  );
+  const found: SearchHit[] = await cms.searchOverlay(terms);
 
   // Visitors in India find only the quartz and Eclipse colours in the
   // Indian catalogue (data/india-range); the region selector sets the

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import { PreloadImage } from "@/components/global/PreloadImage";
-import { client } from "@/sanity/lib/client";
-import { catalogueProductsQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { QuartzHeroVideo } from "@/components/catalogue/QuartzHeroVideo";
@@ -23,7 +22,7 @@ const HERO_VIDEO = "/videos/all-products.mp4";
 // Per-request dedupe — generateMetadata only needs the product COUNT,
 // but previously paid for a second full catalogue fetch to get it.
 // React.cache shares one fetch between metadata and the page body.
-const getCatalogueProducts = cache(() => client.fetch(catalogueProductsQuery));
+const getCatalogueProducts = cache(() => cms.productsCatalogue());
 
 // Re-check Sanity for new/updated products every 60s instead of only
 // at build time, so a product added or edited in Sanity Studio shows

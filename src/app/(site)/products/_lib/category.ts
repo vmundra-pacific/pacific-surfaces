@@ -1,6 +1,5 @@
 import "server-only";
-import { groq } from "next-sanity";
-import { client, freshClient } from "@/sanity/lib/client";
+import * as cms from "@/cms/read";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 import { refiledForPage } from "@/data/catalogue-refile";
 import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVideo";
@@ -305,79 +304,6 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   // empty for that slug is the right thing.
 };
 
-const collectionByMatchQuery = groq`
-  *[_type == "collection" && lower(name) match $pattern] | order(_createdAt asc)[0] {
-    _id,
-    name,
-    description,
-    seoTitle,
-    seoDescription
-  }
-`;
-
-const collectionBySlugQueryLocal = groq`
-  *[_type == "collection" && slug.current == $slug][0] {
-    _id,
-    name,
-    description,
-    seoTitle,
-    seoDescription
-  }
-`;
-
-// $cids is always an array — the single-collection case just passes a
-// one-element array — so this one query serves both plain categories
-// and the multi-collection (additionalCollections) ones like Fab
-// Creations without needing two near-identical GROQ strings.
-const productsByCollectionsOrTypeQuery = groq`
-  *[_type == "product" && (
-    collection._ref in $cids
-    || ($pt != null && productType == $pt)
-    || slug.current in $refiled
-  )] | order(name asc) {
-    _id,
-    name,
-    slug,
-    "mainImage": mainImage.asset->url,
-    "gallery": gallery[].asset->url,
-    "dominantColor": mainImage.asset->metadata.palette.dominant.background,
-    "collectionName": collection->name,
-    productType,
-    finishes,
-    thickness,
-    ribbons,
-    manualHues,
-    manualPattern,
-    visible
-  }
-`;
-
-// Ribbon-driven product query. Used by cross-collection categories
-// like Ecosurfaces. We pull every product that has at least one
-// ribbon entry, then narrow to the requested ribbon label in JS —
-// GROQ's `match` is token-based so "eco*surface" doesn't catch the
-// two-token string "eco surface". JS-side comparison sidesteps that
-// and lets us be case- and whitespace-insensitive.
-const productsWithAnyRibbonQuery = groq`
-  *[_type == "product" && defined(ribbons) && count(ribbons) > 0]
-    | order(name asc) {
-    _id,
-    name,
-    slug,
-    "mainImage": mainImage.asset->url,
-    "gallery": gallery[].asset->url,
-    "dominantColor": mainImage.asset->metadata.palette.dominant.background,
-    "collectionName": collection->name,
-    productType,
-    finishes,
-    thickness,
-    ribbons,
-    manualHues,
-    manualPattern,
-    visible
-  }
-`;
-
 interface ResolvedCategoryPage {
   config: CategoryConfig;
   collection: {
@@ -410,9 +336,7 @@ export async function resolveCategoryPage(
   // misses two-word ribbon labels — pulling the candidate set and
   // filtering client-side avoids that quirk entirely.
   if (config.ribbon) {
-    const products = (await freshClient.fetch(
-      productsWithAnyRibbonQuery
-    )) as Array<Record<string, unknown> & { ribbons?: string[] | null }>;
+    const products = (await cms.productsWithAnyRibbon()) as Array<Record<string, unknown> & { ribbons?: string[] | null }>;
     // Normalise: lowercase and strip every non-alphanumeric character
     // so "Eco Surface", "EcoSurface", "eco-surface", "Eco_Surface" all
     // collapse to the same bare comparand.
@@ -440,12 +364,8 @@ export async function resolveCategoryPage(
   // unambiguous path). Fall back to the broader name-prefix match
   // for categories that don't pin a slug.
   const collection = config.collectionSlug
-    ? await client.fetch(collectionBySlugQueryLocal, {
-        slug: config.collectionSlug,
-      })
-    : await client.fetch(collectionByMatchQuery, {
-        pattern: `${config.match.toLowerCase()}*`,
-      });
+    ? await cms.collectionShort(config.collectionSlug)
+    : await cms.collectionByMatch(`${config.match.toLowerCase()}*`);
   if (!collection) return null;
 
   // Resolve any linked collections (e.g. Fab Creations pulling in
@@ -458,13 +378,9 @@ export async function resolveCategoryPage(
     const extras = await Promise.all(
       config.additionalCollections.map((ref) =>
         ref.collectionSlug
-          ? client.fetch(collectionBySlugQueryLocal, {
-              slug: ref.collectionSlug,
-            })
+          ? cms.collectionShort(ref.collectionSlug)
           : ref.match
-            ? client.fetch(collectionByMatchQuery, {
-                pattern: `${ref.match.toLowerCase()}*`,
-              })
+            ? cms.collectionByMatch(`${ref.match.toLowerCase()}*`)
             : Promise.resolve(null)
       )
     );
@@ -473,7 +389,7 @@ export async function resolveCategoryPage(
     }
   }
 
-  const products = await client.fetch(productsByCollectionsOrTypeQuery, {
+  const products = await cms.productsForCategory({
     cids,
     pt: config.productType ?? null,
     // Products the site re-files onto this page (data/catalogue-refile).

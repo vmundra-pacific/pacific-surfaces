@@ -197,19 +197,11 @@ export const FAQ_DEFAULTS: Record<FaqPageKey, FAQItem[]> = {
  *
  * Server-only — call from RSC `page.tsx` files.
  */
-import { client } from "@/sanity/lib/client";
-import { groq } from "next-sanity";
-
-const faqByKeyQuery = groq`*[_type == "faqPage" && pageKey == $key][0]{
-  questions[]{ q, a }
-}`;
+import * as cms from "@/cms/read";
 
 export async function getFaqs(key: FaqPageKey): Promise<FAQItem[]> {
   try {
-    const doc = await client.fetch<{ questions: FAQItem[] | null } | null>(
-      faqByKeyQuery,
-      { key }
-    );
+    const doc = await cms.faq<{ questions: FAQItem[] | null } | null>(key);
     if (doc?.questions && doc.questions.length > 0) return doc.questions;
   } catch {
     /* network or schema error — fall through to defaults */

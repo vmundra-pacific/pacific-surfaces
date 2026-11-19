@@ -3,8 +3,7 @@ import { ImageResponse } from "next/og";
 // edge runtime baking this PNG can fetch the source image directly
 // from Sanity's CDN. The proxy is for browser requests; OG generation
 // is server-to-server and doesn't carry cookies anyway.
-import { rawClient as client } from "@/sanity/lib/client";
-import { productBySlugQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { sanityImg } from "@/lib/sanity-img";
 import { isCategorySlug, resolveCategoryPage } from "../_lib/category";
 
@@ -47,7 +46,7 @@ export default async function Image({ params }: Props) {
   }
 
   // Branch 2: product detail.
-  const product = await client.fetch(productBySlugQuery, { slug });
+  const product = await cms.productForShareImage(slug);
   if (!product) {
     return renderCard({
       title: "Pacific Surfaces",

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { client } from "@/sanity/lib/client";
-import { blogPostBySlugQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { BlogPostContent } from "@/components/sections/BlogPostContent";
 import { BreadcrumbList, ArticleSchema } from "@/components/global/JsonLd";
 import { clipAtWord, plainText, type PortableBlock } from "@/lib/portable-text";
@@ -17,9 +16,7 @@ interface Props {
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const slugs: string[] = await client.fetch(
-    `*[_type == "blogPost" && defined(slug.current)].slug.current`
-  );
+  const slugs: string[] = await cms.blogPostSlugs();
   return slugs.map((slug) => ({ slug }));
 }
 
@@ -33,7 +30,7 @@ function openingWords(body: unknown, max = 155): string | undefined {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await client.fetch(blogPostBySlugQuery, { slug });
+  const post = await cms.blogPost(slug);
   if (!post) return { title: "Post Not Found" };
 
   return {
@@ -45,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = await client.fetch(blogPostBySlugQuery, { slug });
+  const post = await cms.blogPost(slug);
 
   if (!post) notFound();
 

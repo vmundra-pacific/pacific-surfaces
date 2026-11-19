@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { client } from "@/sanity/lib/client";
-import { productsByIdsQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 
 /**
@@ -29,7 +28,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ slabs: [] });
   }
 
-  const products = await client.fetch(productsByIdsQuery, { ids });
+  const products = await cms.productsByIds(ids);
   const slabs = mapSanityToCatalogue(products);
 
   return NextResponse.json({ slabs });

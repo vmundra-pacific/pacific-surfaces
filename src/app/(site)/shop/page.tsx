@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { StoreHero } from "@/components/shop/StoreHero";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import { ShopClient, type ShopProduct } from "@/components/shop/ShopClient";
-import { client } from "@/sanity/lib/client";
-import { catalogueProductsQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import {
   VANITY_TOP_PRODUCTS,
   isListedInStore,
@@ -43,7 +42,7 @@ interface CatalogueRow {
 }
 
 export default async function ShopPage() {
-  const rows = await client.fetch<CatalogueRow[]>(catalogueProductsQuery);
+  const rows = await cms.productsCatalogue<CatalogueRow[]>();
 
   const products: ShopProduct[] = (rows ?? [])
     .filter((r) => r.visible !== false && r.name)

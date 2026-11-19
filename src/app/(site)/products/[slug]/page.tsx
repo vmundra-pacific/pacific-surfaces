@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import { PreloadImage } from "@/components/global/PreloadImage";
-import { client } from "@/sanity/lib/client";
-import { productBySlugQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { ProductDetail } from "@/components/sections/ProductDetail";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import {
@@ -176,7 +175,7 @@ export const revalidate = 60;
 // them into one fetch each within a single request.
 const getCategoryPage = cache((slug: string) => resolveCategoryPage(slug));
 const getProduct = cache((slug: string) =>
-  client.fetch(productBySlugQuery, { slug })
+  cms.product(slug)
 );
 
 /** The product fields the metadata and the JSON-LD read. */
@@ -319,7 +318,7 @@ export async function generateStaticParams() {
   // Pre-render every product slug AND every category slug at build
   // time. Category slugs are static (defined in code), product slugs
   // come from Sanity.
-  const products = await client.fetch(`*[_type == "product"]{ slug }`);
+  const products = await cms.productSlugs();
   const productSlugs: { slug: string }[] = products.map(
     (p: { slug: { current: string } }) => ({ slug: p.slug.current })
   );

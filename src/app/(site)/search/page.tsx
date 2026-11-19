@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { client } from "@/sanity/lib/client";
-import { groq } from "next-sanity";
+import * as cms from "@/cms/read";
 import { sanityImg } from "@/lib/sanity-img";
 import { cookies } from "next/headers";
 import { shownInRegion } from "@/data/india-range";
@@ -29,23 +28,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "/search" },
 };
 
-const searchQuery = groq`
-  *[_type == "product" && !(_id in path("drafts.**")) && visible != false && defined(slug.current) && (
-    name match $term + "*" ||
-    pt::text(description) match $term + "*" ||
-    category->name match $term + "*"
-  )] | order(name asc)[0...60] {
-    _id,
-    name,
-    "slug": slug.current,
-    "categorySlug": category->slug.current,
-    "categoryName": category->name,
-    "mainImage": mainImage.asset->url,
-    productType,
-    "collectionName": collection->name,
-  }
-`;
-
 type SearchResult = {
   _id: string;
   name: string;
@@ -71,7 +53,7 @@ export default async function SearchPage({
       // India: only the quartz and Eclipse colours in its catalogue
       // (data/india-range); the region selector sets the cookie.
       const country = (await cookies()).get(COUNTRY_COOKIE)?.value;
-      const found: SearchResult[] = await client.fetch(searchQuery, { term });
+      const found: SearchResult[] = await cms.searchPage(term);
       results = found.filter((r) =>
         shownInRegion(
           {

@@ -1,4 +1,4 @@
-import { client } from "@/sanity/lib/client";
+import * as cms from "@/cms/read";
 import type { SpaceColour } from "@/components/sections/spaces/SpaceBlocks";
 
 /**
@@ -7,13 +7,8 @@ import type { SpaceColour } from "@/components/sections/spaces/SpaceBlocks";
  * Sanity no longer has, or has hidden, is left out rather than shown blank.
  */
 export async function spaceColours(slugs: string[]): Promise<SpaceColour[]> {
-  const rows = await client
-    .fetch<{ name: string; slug: string; image: string | null }[]>(
-      `*[_type == "product" && slug.current in $slugs && visible != false]{
-        name, "slug": slug.current, "image": mainImage.asset->url
-      }`,
-      { slugs }
-    )
+  const rows = await cms
+    .productTiles<{ name: string; slug: string; image: string | null }[]>(slugs)
     .catch(() => []);
   return slugs.flatMap((slug) => {
     const r = rows?.find((x) => x.slug === slug);

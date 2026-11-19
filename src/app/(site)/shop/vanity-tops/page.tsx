@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { BreadcrumbList } from "@/components/global/JsonLd";
-import { client } from "@/sanity/lib/client";
-import { catalogueProductsQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import {
   CUSTOM_SIZE,
   VANITY_TOP_PRODUCTS,
@@ -49,7 +48,7 @@ interface CatalogueRow {
 }
 
 export default async function VanityTopsPage() {
-  const rows = await client.fetch<CatalogueRow[]>(catalogueProductsQuery);
+  const rows = await cms.productsCatalogue<CatalogueRow[]>();
 
   const seen = new Set<string>();
   const colours: ListingColour[] = (rows ?? [])

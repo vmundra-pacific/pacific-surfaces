@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
-import { client } from "@/sanity/lib/client";
-import { groq } from "next-sanity";
+import * as cms from "@/cms/read";
 import { APPLICATIONS } from "@/data/applications";
 import { VANITY_TOP_PRODUCTS } from "@/data/store";
 
@@ -197,24 +196,6 @@ const VANITY_TOPS_SINCE = "2026-10-18";
 const PRODUCT_PAGES_SINCE = "2026-10-18";
 const BLOG_POSTS_SINCE = "2026-10-18";
 
-/** The space pages still built from their Sanity space page. */
-const SPACES = ["architecture", "commercial", "outdoor"];
-
-/** The newest `_updatedAt` among the documents a filter matches. */
-const newest = (filter: string) =>
-  `*[${filter}] | order(_updatedAt desc)[0]._updatedAt`;
-
-const contentDatesQuery = groq`{
-  "home": ${newest('_type in ["collection", "signatureProject", "applicationCard", "inspirationImage"]')},
-  "catalogue": ${newest('_type in ["product", "collection"]')},
-  "facades": ${newest('_type in ["facadesAndFinishesPage", "product", "collection"]')},
-  "blog": ${newest('_type == "blogPost"')},
-  "resources": ${newest('_type == "resource"')},
-  "sustainability": ${newest('_type == "sustainabilityPage"')},
-  "careers": ${newest('_type in ["careersPage", "jobOpening"]')},
-  ${SPACES.map((s) => `"space:${s}": ${newest(`_type == "spacePage" && slug == "${s}"`)}`).join(",\n  ")}
-}`;
-
 /** The later of a code date (written as the plain date) and a content
  *  timestamp (written as Sanity gives it). Both are valid W3C dates. */
 function later(since: string, content?: string | null): string {
@@ -233,18 +214,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // served, rather than one without every product and post URL. Only
   // the dates fall back softly (to the code dates).
   const [products, blogPosts, contentDates] = await Promise.all([
-    client.fetch<{ slug: string; updatedAt: string | null }[]>(
-      groq`*[_type == "product" && defined(slug.current) && visible != false]{
-        "slug": slug.current, "updatedAt": _updatedAt
-      }`
-    ),
-    client.fetch<{ slug: string; updatedAt: string | null }[]>(
-      groq`*[_type == "blogPost" && defined(slug.current)]{
-        "slug": slug.current, "updatedAt": _updatedAt
-      }`
-    ),
-    client
-      .fetch<Partial<Record<ContentKey, string | null>>>(contentDatesQuery)
+    cms.sitemapProducts<{ slug: string; updatedAt: string | null }[]>(),
+    cms.sitemapPosts<{ slug: string; updatedAt: string | null }[]>(),
+    cms
+      .sitemapDates<Partial<Record<ContentKey, string | null>>>()
       .catch((): Partial<Record<ContentKey, string | null>> => ({})),
   ]);
 

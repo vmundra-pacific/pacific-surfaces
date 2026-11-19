@@ -8,11 +8,7 @@ import {
   type ShopProductDetail,
 } from "@/components/shop/ShopProductClient";
 import type { ShopColour } from "@/components/shop/ShopClient";
-import { client } from "@/sanity/lib/client";
-import {
-  catalogueProductsQuery,
-  productBySlugQuery,
-} from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import {
   VANITY_TOP_PRODUCTS,
   basinLayers,
@@ -99,9 +95,7 @@ export async function generateMetadata({
       alternates: { canonical: `/shop/${slug}` },
     };
   }
-  const doc = await client.fetch<ProductDoc | null>(productBySlugQuery, {
-    slug,
-  });
+  const doc = await cms.product<ProductDoc | null>(slug);
   if (!doc?.name) return {};
   return {
     title: `${doc.name} — Pacific Store`,
@@ -122,7 +116,7 @@ export default async function ShopProductPage({
   // A made-to-order vanity top is defined in code, not Sanity.
   const top = vanityTopBySlug(slug);
   if (top) {
-    const rows = await client.fetch<CatalogueRow[]>(catalogueProductsQuery);
+    const rows = await cms.productsCatalogue<CatalogueRow[]>();
     return (
       <MadeToOrderTopPage
         top={top}
@@ -135,8 +129,8 @@ export default async function ShopProductPage({
   if (RETIRED_PIECE.test(slug)) permanentRedirect(SILLS_PAGE);
 
   const [doc, rows] = await Promise.all([
-    client.fetch<ProductDoc | null>(productBySlugQuery, { slug }),
-    client.fetch<CatalogueRow[]>(catalogueProductsQuery),
+    cms.product<ProductDoc | null>(slug),
+    cms.productsCatalogue<CatalogueRow[]>(),
   ]);
 
   if (!doc?.name) notFound();

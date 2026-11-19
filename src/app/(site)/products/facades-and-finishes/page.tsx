@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-import { client } from "@/sanity/lib/client";
-import {
-  facadesAndFinishesPageQuery,
-  facadesAndFinishesProductsQuery,
-} from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { FacadesAndFinishesContent } from "@/components/sections/FacadesAndFinishesContent";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 
@@ -44,7 +40,7 @@ export const revalidate = 60;
 
 export default async function FacadesAndFinishesPage() {
   const [pageData, finishes] = await Promise.all([
-    client.fetch(facadesAndFinishesPageQuery),
+    cms.beyondStonePage(),
     // Pull the slug from the singleton if the editor has overridden
     // it; default to "facades-and-finishes" otherwise.
     (async () => {
@@ -52,10 +48,8 @@ export default async function FacadesAndFinishesPage() {
       // the Pacific dataset. The singleton's collectionSlug field
       // overrides if the collection is ever renamed.
       const slug =
-        ((await client.fetch(
-          `*[_type == "facadesAndFinishesPage"][0].collectionSlug`
-        )) as string | null) || "stone-finishes";
-      return client.fetch(facadesAndFinishesProductsQuery, { slug });
+        ((await cms.beyondStoneCollectionSlug()) as string | null) || "stone-finishes";
+      return cms.beyondStoneProducts(slug);
     })(),
   ]);
 

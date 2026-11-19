@@ -40,6 +40,7 @@
  *                              muthusamyg@pacific-surfaces.com if unset)
  */
 
+import * as cms from "@/cms/read";
 import { NextRequest, NextResponse, after } from "next/server";
 import { createClient } from "@sanity/client";
 import { transporter } from "@/lib/mail";
@@ -203,13 +204,10 @@ export async function POST(req: NextRequest) {
     let roleRequiresPortfolio = false;
     if (appliedFor) {
       try {
-        const role = await sanityClient.fetch<{
+        const role = await cms.jobApply<{
           applyEmail?: string | null;
           requiresPortfolio?: boolean | null;
-        }>(
-          `*[_type == "jobOpening" && title == $title][0] { applyEmail, requiresPortfolio }`,
-          { title: appliedFor }
-        );
+        } | null>(appliedFor);
         roleApplyEmail = role?.applyEmail || undefined;
         roleRequiresPortfolio = !!role?.requiresPortfolio;
       } catch {

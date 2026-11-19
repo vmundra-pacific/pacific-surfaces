@@ -1,6 +1,5 @@
 import { Metadata } from "next";
-import { client } from "@/sanity/lib/client";
-import { careersPageQuery, jobOpeningsQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import { CareersContent } from "@/components/sections/CareersContent";
 
@@ -31,8 +30,8 @@ export const metadata: Metadata = {
  */
 export default async function CareersPage() {
   const [pageData, openings] = await Promise.all([
-    client.fetch(careersPageQuery),
-    client.fetch(jobOpeningsQuery),
+    cms.careersPage(),
+    cms.careersJobs(),
   ]);
 
   return (

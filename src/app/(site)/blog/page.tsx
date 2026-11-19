@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { client } from "@/sanity/lib/client";
-import { allBlogPostsQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import { BlogGrid, type BlogPost } from "@/components/sections/BlogGrid";
 import {
@@ -31,7 +30,7 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function BlogPage() {
-  const posts: BlogPost[] = await client.fetch(allBlogPostsQuery);
+  const posts: BlogPost[] = await cms.blogPostsAll();
   const lastUpdated =
     posts.length > 0
       ? new Date(posts[0].publishedAt).toLocaleDateString("en-GB", {

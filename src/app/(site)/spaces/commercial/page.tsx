@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { SpaceFeatureSection } from "@/components/sections/SpaceFeatureSection";
 import { BreadcrumbList } from "@/components/global/JsonLd";
-import { freshClient } from "@/sanity/lib/client";
-import { spacePageBySlugQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 
 interface SpacePageImages {
   section1Image?: string | null;
@@ -61,9 +60,7 @@ export const revalidate = 60;
 
 export default async function CommercialSpacePage() {
   const images =
-    (await freshClient.fetch<SpacePageImages | null>(spacePageBySlugQuery, {
-      slug: "commercial",
-    })) ?? {};
+    (await cms.spacePage<SpacePageImages | null>("commercial")) ?? {};
   const sectionImages = [
     images.section1Image,
     images.section2Image,

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { client } from "@/sanity/lib/client";
-import { catalogueProductsQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 
@@ -26,7 +25,7 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function CataloguePage() {
-  const products = await client.fetch(catalogueProductsQuery);
+  const products = await cms.productsCatalogue();
   const slabs = mapSanityToCatalogue(products);
   return <CatalogueClient slabs={slabs} />;
 }

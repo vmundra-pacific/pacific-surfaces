@@ -1,15 +1,7 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
-import { client } from "@/sanity/lib/client";
+import * as cms from "@/cms/read";
 import { sanityProxyUrl } from "@/lib/sanity-img";
-import {
-  homepageCollectionsQuery,
-  signatureProjectsQuery,
-  applicationCardsQuery,
-  inspirationImagesQuery,
-  recentBlogPostsQuery,
-  // featuredDealersQuery, // disabled — DealerLocator section hidden below
-} from "@/sanity/lib/queries";
 import { INDIA_QUARTZ, QUARTZ_COLLECTION_NAMES } from "@/data/india-range";
 import { HeroScrollCanvas } from "@/components/sections/HeroScrollCanvas";
 import { RecentArticles } from "@/components/sections/RecentArticles";
@@ -117,16 +109,16 @@ export default async function HomePage() {
   //  slot when the section is re-enabled.)
   const [collections, projects, applications, inspirations, recentPosts] =
     await Promise.all([
-      client.fetch(homepageCollectionsQuery, {
+      cms.homepageCollections({
         quartzCollections: QUARTZ_COLLECTION_NAMES,
         indiaQuartz: [...INDIA_QUARTZ],
       }),
-      client.fetch(signatureProjectsQuery),
-      client.fetch(applicationCardsQuery),
-      client.fetch(inspirationImagesQuery),
+      cms.homepageSignatureProjects(),
+      cms.homepageApplicationCards(),
+      cms.homepageInspirationImages(),
       // The three newest journal posts, newest first.
-      client
-        .fetch<BlogPost[]>(recentBlogPostsQuery)
+      cms
+        .blogPostsRecent<BlogPost[]>()
         .catch((): BlogPost[] => []),
     ]);
 

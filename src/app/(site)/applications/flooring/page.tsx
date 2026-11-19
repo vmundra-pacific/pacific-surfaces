@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import FlooringPage from "@/components/sections/spaces/FlooringPage";
 import type { SpaceColour } from "@/components/sections/spaces/SpaceBlocks";
 import { BreadcrumbList, FaqSchema } from "@/components/global/JsonLd";
-import { client } from "@/sanity/lib/client";
+import * as cms from "@/cms/read";
 import { FLOORING_PAGE } from "@/data/flooring-page";
 
 /**
@@ -25,12 +25,9 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function FlooringApplicationPage() {
-  const rows = await client
-    .fetch<{ name: string; slug: string; image: string | null }[]>(
-      `*[_type == "product" && slug.current in $slugs && visible != false]{
-        name, "slug": slug.current, "image": mainImage.asset->url
-      }`,
-      { slugs: FLOORING_PAGE.colours.slugs }
+  const rows = await cms
+    .productTiles<{ name: string; slug: string; image: string | null }[]>(
+      FLOORING_PAGE.colours.slugs
     )
     .catch(() => []);
   // Keep the order the page lists them in.

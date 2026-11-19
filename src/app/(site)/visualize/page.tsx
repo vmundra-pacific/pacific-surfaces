@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { VisualizeClient } from "@/components/visualize/VisualizeClient";
 import { BreadcrumbList } from "@/components/global/JsonLd";
-import { client } from "@/sanity/lib/client";
-import { catalogueProductsQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 
 export const metadata: Metadata = {
@@ -19,7 +18,7 @@ export const revalidate = 60;
 export default async function VisualizePage() {
   // Same query the products + catalogue pages use, so the visualizer dock
   // always mirrors what's published.
-  const products = await client.fetch(catalogueProductsQuery);
+  const products = await cms.productsCatalogue();
   const sanitySlabs = mapSanityToCatalogue(products);
   return (
     <>

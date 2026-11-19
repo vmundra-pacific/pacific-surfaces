@@ -3,8 +3,7 @@ import { ImageResponse } from "next/og";
 // edge runtime baking this PNG can fetch the hero image directly
 // from Sanity's CDN. The proxy is for browser requests; OG generation
 // is server-to-server and doesn't carry cookies anyway.
-import { rawClient as client } from "@/sanity/lib/client";
-import { blogPostBySlugQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { sanityImg } from "@/lib/sanity-img";
 
 /**
@@ -25,7 +24,7 @@ interface Props {
 
 export default async function Image({ params }: Props) {
   const { slug } = await params;
-  const post = await client.fetch(blogPostBySlugQuery, { slug });
+  const post = await cms.blogPostForShareImage(slug);
 
   const title = post?.title ?? "Field Notes";
   const eyebrow = "Field Notes · The Pacific Journal";

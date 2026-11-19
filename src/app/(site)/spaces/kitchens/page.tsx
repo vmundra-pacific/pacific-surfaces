@@ -3,7 +3,7 @@ import KitchensPage, {
   type KitchenColour,
 } from "@/components/sections/spaces/KitchensPage";
 import { BreadcrumbList, FaqSchema } from "@/components/global/JsonLd";
-import { client } from "@/sanity/lib/client";
+import * as cms from "@/cms/read";
 import { KITCHENS_PAGE } from "@/data/kitchens-page";
 
 /**
@@ -25,14 +25,9 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function KitchensSpacePage() {
-  const rows = await client.fetch<
+  const rows = await cms.productTiles<
     { name: string; slug: string; image: string | null }[]
-  >(
-    `*[_type == "product" && slug.current in $slugs && visible != false]{
-      name, "slug": slug.current, "image": mainImage.asset->url
-    }`,
-    { slugs: KITCHENS_PAGE.colours.slugs }
-  );
+  >(KITCHENS_PAGE.colours.slugs);
   // Keep the order the page lists them in.
   const colours: KitchenColour[] = KITCHENS_PAGE.colours.slugs.flatMap(
     (slug) => {

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { CartClient } from "@/components/shop/CartClient";
-import { client } from "@/sanity/lib/client";
-import { catalogueProductsQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import {
   storeOptions,
   storeSection,
@@ -41,7 +40,7 @@ interface CatalogueRow {
 }
 
 export default async function CartPage() {
-  const rows = await client.fetch<CatalogueRow[]>(catalogueProductsQuery);
+  const rows = await cms.productsCatalogue<CatalogueRow[]>();
 
   // Made-to-order vanity tops are not Sanity products; their options come
   // from data/store.ts.

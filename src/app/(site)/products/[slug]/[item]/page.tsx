@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PreloadImage } from "@/components/global/PreloadImage";
-import { client } from "@/sanity/lib/client";
-import {
-  collectionBySlugQuery,
-  catalogueProductsByCollectionOrTypeQuery,
-} from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { BreadcrumbList } from "@/components/global/JsonLd";
@@ -108,7 +104,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, item } = await params;
-  const collection = await client.fetch(collectionBySlugQuery, { slug: item });
+  const collection = await cms.collection(item);
   if (!collection) return { title: "Collection Not Found" };
   const seriesName = formatCollection(collection.name);
   const seriesLabel = /series$/i.test(seriesName)
@@ -150,8 +146,8 @@ export default async function CollectionPage({ params }: Props) {
   const productType = CATEGORY_PRODUCT_TYPE[item.toLowerCase()] ?? null;
 
   const [collection, products] = await Promise.all([
-    client.fetch(collectionBySlugQuery, { slug: item }),
-    client.fetch(catalogueProductsByCollectionOrTypeQuery, {
+    cms.collection(item),
+    cms.productsByCollectionOrType({
       slug: item,
       productType,
     }),

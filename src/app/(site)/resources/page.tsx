@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { freshClient } from "@/sanity/lib/client";
-import { allResourcesQuery } from "@/sanity/lib/queries";
+import * as cms from "@/cms/read";
 import {
   ResourcesContent,
   type SanityResource,
@@ -24,7 +23,7 @@ export default async function ResourcesPage() {
   // been authored yet — ResourcesContent gracefully falls back to its
   // hardcoded card list in that case so the page is never empty.
   const resources =
-    await freshClient.fetch<SanityResource[]>(allResourcesQuery);
+    await cms.resources<SanityResource[]>();
   return (
     <>
       <BreadcrumbList
