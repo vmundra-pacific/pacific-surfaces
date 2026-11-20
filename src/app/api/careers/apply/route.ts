@@ -44,6 +44,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import { createClient } from "@sanity/client";
 import { transporter } from "@/lib/mail";
 import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
+import { escapeHtml, escapeAttr, clampField, FIELD_LIMITS } from "@/lib/escape";
 
 // `nodejs` runtime (not edge) — Sanity asset upload uses Node
 // streams under the hood, and edge has tighter file/body limits
@@ -66,22 +67,65 @@ const sanityClient =
     : null;
 
 const MAX_RESUME_BYTES = 8 * 1024 * 1024; // 8 MB
-const ALLOWED_RESUME_TYPES = new Set([
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-]);
-
 // Portfolios run heavier than resumes (image-led PDFs, decks), so this
 // gets a larger cap and a broader set of accepted types.
 const MAX_PORTFOLIO_BYTES = 20 * 1024 * 1024; // 20 MB
-const ALLOWED_PORTFOLIO_TYPES = new Set([
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
-  "application/vnd.ms-powerpoint", // .ppt
-  "image/jpeg",
-  "image/png",
-]);
+
+/**
+ * What an upload may be, decided here and not by the sender.
+ *
+ * The browser's `type` and the file's name are both whatever the sender
+ * says, and a file with no `type` at all used to skip the check. The file
+ * is kept in Sanity and is reachable on this site's own origin through
+ * /api/cdn/files/..., at an address that is the hash of its content (so
+ * its uploader knows it): an HTML or SVG file accepted here was a page
+ * anyone could be sent to. So a file must carry an allowed extension AND
+ * begin with that format's signature, and it is stored under the content
+ * type of its extension, never the one the sender claimed.
+ */
+const PDF = [0x25, 0x50, 0x44, 0x46]; // %PDF
+const OLE = [0xd0, 0xcf, 0x11, 0xe0]; // .doc / .ppt container
+const ZIP = [0x50, 0x4b, 0x03, 0x04]; // .docx / .pptx container
+const FILE_KINDS: Record<string, { type: string; magic: number[] }> = {
+  pdf: { type: "application/pdf", magic: PDF },
+  doc: { type: "application/msword", magic: OLE },
+  docx: {
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    magic: ZIP,
+  },
+  ppt: { type: "application/vnd.ms-powerpoint", magic: OLE },
+  pptx: {
+    type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    magic: ZIP,
+  },
+  jpg: { type: "image/jpeg", magic: [0xff, 0xd8, 0xff] },
+  jpeg: { type: "image/jpeg", magic: [0xff, 0xd8, 0xff] },
+  png: { type: "image/png", magic: [0x89, 0x50, 0x4e, 0x47] },
+};
+const RESUME_EXTENSIONS = ["pdf", "doc", "docx"];
+const PORTFOLIO_EXTENSIONS = ["pdf", "ppt", "pptx", "jpg", "jpeg", "png"];
+
+/** The file's bytes, a safe name and its real content type, or null when
+ *  it is not one of the allowed formats. */
+async function readUpload(file: File, allowed: string[]) {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  const kind = allowed.includes(ext) ? FILE_KINDS[ext] : undefined;
+  if (!kind) return null;
+  const buffer = Buffer.from(await file.arrayBuffer());
+  if (!kind.magic.every((byte, i) => buffer[i] === byte)) return null;
+  const stem =
+    file.name
+      .slice(0, -(ext.length + 1))
+      .replace(/[^\p{L}\p{N} ._-]+/gu, "_")
+      .trim()
+      .slice(0, 80) || "file";
+  return { buffer, filename: `${stem}.${ext}`, contentType: kind.type };
+}
+
+const field = (formData: FormData, name: string, max: number) => {
+  const value = formData.get(name);
+  return clampField(typeof value === "string" ? value : "", max);
+};
 
 export async function POST(req: NextRequest) {
   if (!sanityClient) {
@@ -116,23 +160,25 @@ export async function POST(req: NextRequest) {
 
   try {
     const formData = await req.formData();
-    const firstName = (formData.get("firstName") || "").toString().trim();
-    const lastName = (formData.get("lastName") || "").toString().trim();
-    const email = (formData.get("email") || "").toString().trim();
-    const phone = (formData.get("phone") || "").toString().trim();
-    const address = (formData.get("address") || "").toString().trim();
-    const currentLocation = (formData.get("currentLocation") || "")
-      .toString()
-      .trim();
-    const age = (formData.get("age") || "").toString().trim();
-    const totalExperience = (formData.get("totalExperience") || "")
-      .toString()
-      .trim();
-    const comments = (formData.get("comments") || "").toString().trim();
-    const department = (formData.get("department") || "").toString().trim();
-    const appliedFor = (formData.get("appliedFor") || "").toString().trim();
+    // Clamped like the other public forms: these were unbounded, so one
+    // request could write megabytes of text into a document and an email.
+    const firstName = field(formData, "firstName", FIELD_LIMITS.name);
+    const lastName = field(formData, "lastName", FIELD_LIMITS.name);
+    const email = field(formData, "email", FIELD_LIMITS.email);
+    const phone = field(formData, "phone", FIELD_LIMITS.phone);
+    const address = field(formData, "address", FIELD_LIMITS.address);
+    const currentLocation = field(
+      formData,
+      "currentLocation",
+      FIELD_LIMITS.shortText
+    );
+    const age = field(formData, "age", 20);
+    const totalExperience = field(formData, "totalExperience", 60);
+    const comments = field(formData, "comments", FIELD_LIMITS.message);
+    const department = field(formData, "department", FIELD_LIMITS.shortText);
+    const appliedFor = field(formData, "appliedFor", FIELD_LIMITS.shortText);
     const resume = formData.get("resume");
-    const portfolioUrl = (formData.get("portfolioUrl") || "").toString().trim();
+    const portfolioUrl = field(formData, "portfolioUrl", 500);
     const portfolioFile = formData.get("portfolio");
     const portfolio =
       portfolioFile instanceof File && portfolioFile.size > 0
@@ -168,12 +214,14 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    if (resume.type && !ALLOWED_RESUME_TYPES.has(resume.type)) {
+    const resumeUpload = await readUpload(resume, RESUME_EXTENSIONS);
+    if (!resumeUpload) {
       return NextResponse.json(
         { error: "Resume must be a PDF, DOC, or DOCX file." },
         { status: 400 }
       );
     }
+    let portfolioUpload: Awaited<ReturnType<typeof readUpload>> = null;
     if (portfolio) {
       if (portfolio.size > MAX_PORTFOLIO_BYTES) {
         return NextResponse.json(
@@ -181,16 +229,20 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
-      if (portfolio.type && !ALLOWED_PORTFOLIO_TYPES.has(portfolio.type)) {
+      portfolioUpload = await readUpload(portfolio, PORTFOLIO_EXTENSIONS);
+      if (!portfolioUpload) {
         return NextResponse.json(
           { error: "Portfolio must be a PDF, PPT/PPTX, JPG, or PNG file." },
           { status: 400 }
         );
       }
     }
-    if (portfolioUrl && !/^https?:\/\/.+/i.test(portfolioUrl)) {
+    if (portfolioUrl && !/^https?:\/\/[^\s"'<>]+$/i.test(portfolioUrl)) {
       return NextResponse.json(
-        { error: "Portfolio link must be a valid URL starting with http:// or https://." },
+        {
+          error:
+            "Portfolio link must be a valid URL starting with http:// or https://.",
+        },
         { status: 400 }
       );
     }
@@ -228,21 +280,20 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Upload the resume (and portfolio file, if attached) to Sanity assets.
-    const resumeBuffer = Buffer.from(await resume.arrayBuffer());
-    const asset = await sanityClient.assets.upload("file", resumeBuffer, {
-      filename: resume.name,
-      contentType: resume.type || "application/octet-stream",
-    });
+    const asset = await sanityClient.assets.upload(
+      "file",
+      resumeUpload.buffer,
+      {
+        filename: resumeUpload.filename,
+        contentType: resumeUpload.contentType,
+      }
+    );
 
-    const portfolioAsset = portfolio
-      ? await sanityClient.assets.upload(
-          "file",
-          Buffer.from(await portfolio.arrayBuffer()),
-          {
-            filename: portfolio.name,
-            contentType: portfolio.type || "application/octet-stream",
-          }
-        )
+    const portfolioAsset = portfolioUpload
+      ? await sanityClient.assets.upload("file", portfolioUpload.buffer, {
+          filename: portfolioUpload.filename,
+          contentType: portfolioUpload.contentType,
+        })
       : null;
 
     // 2. Create the jobApplication document.
@@ -328,7 +379,11 @@ export async function POST(req: NextRequest) {
 interface NotificationParams {
   doc: { _id: string };
   asset: { _id: string; url: string; originalFilename?: string };
-  portfolioAsset: { _id: string; url: string; originalFilename?: string } | null;
+  portfolioAsset: {
+    _id: string;
+    url: string;
+    originalFilename?: string;
+  } | null;
   portfolioUrl: string;
   roleApplyEmail: string | undefined;
   firstName: string;
@@ -459,22 +514,4 @@ async function sendNotificationEmail({
     html,
     text,
   });
-}
-
-/**
- * Tiny HTML escapers for safe email body interpolation. Resend
- * sanitises some things server-side but we treat candidate input
- * as untrusted regardless.
- */
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function escapeAttr(value: string): string {
-  return escapeHtml(value);
 }

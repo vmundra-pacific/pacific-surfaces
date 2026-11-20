@@ -64,6 +64,12 @@ const SAFE_PASSTHROUGH_HEADERS = new Set([
   "content-range",
 ]);
 
+// Types a browser only ever displays or plays, never executes. Everything
+// else (HTML, XML, scripts, unknown) is served as a download: see the
+// note where the response headers are built.
+const INERT_TYPE_RE =
+  /^(?:image\/(?:jpeg|png|webp|avif|gif)|video\/[a-z0-9.+-]+|audio\/[a-z0-9.+-]+|application\/pdf)$/;
+
 // Use Node.js runtime, NOT edge.
 //
 // Edge functions on Vercel have a strict response-body cap (~4 MB free,
@@ -84,7 +90,11 @@ interface RouteContext {
   params: Promise<{ path: string[] }>;
 }
 
-async function proxy(req: NextRequest, ctx: RouteContext, method: "GET" | "HEAD") {
+async function proxy(
+  req: NextRequest,
+  ctx: RouteContext,
+  method: "GET" | "HEAD"
+) {
   const { path } = await ctx.params;
   if (!path || path.length === 0) {
     return new Response("Bad request: missing asset path.", { status: 400 });
@@ -129,10 +139,13 @@ async function proxy(req: NextRequest, ctx: RouteContext, method: "GET" | "HEAD"
       redirect: "follow",
     });
   } catch (err) {
-    return new Response(
-      `Sanity proxy fetch failed: ${err instanceof Error ? err.message : "unknown"}`,
-      { status: 502 }
-    );
+    // The reason stays in the server log: the visitor only needs to know
+    // the asset could not be fetched.
+    console.error("[cdn] upstream fetch failed:", err);
+    return new Response("Asset unavailable.", {
+      status: 502,
+      headers: { "Cache-Control": "no-store" },
+    });
   }
 
   // Build the response. Pass through whitelisted upstream headers; drop
@@ -159,6 +172,38 @@ async function proxy(req: NextRequest, ctx: RouteContext, method: "GET" | "HEAD"
   }
   // Help Lighthouse's `efficient-cache-policy` audit too.
   responseHeaders.set("X-Sanity-Proxy", "1");
+
+  // This route puts Sanity's bytes on OUR origin, and not every file in
+  // the dataset comes from an editor: /api/careers/apply stores what the
+  // public uploads, and a file asset's address is the hash of its own
+  // content, so an uploader knows it. A document the browser would run
+  // (HTML, SVG, XML) opened at this address would execute with the site's
+  // cookies and session. So:
+  //   - never let the browser guess a type;
+  //   - anything that is not plainly inert media is sent as a download of
+  //     opaque bytes, never rendered;
+  //   - SVG keeps its type (it must still draw in <img>) but is sandboxed
+  //     with scripts off for the case where it is opened as a page.
+  // Sanity's own protective headers do not survive the allowlist above,
+  // which is why they are set again here.
+  responseHeaders.set("X-Content-Type-Options", "nosniff");
+  const mime = (responseHeaders.get("content-type") ?? "")
+    .split(";")[0]
+    .trim()
+    .toLowerCase();
+  if (mime === "image/svg+xml") {
+    responseHeaders.set(
+      "Content-Security-Policy",
+      "default-src 'none'; style-src 'unsafe-inline'; sandbox"
+    );
+  } else if (upstream.body && !INERT_TYPE_RE.test(mime)) {
+    responseHeaders.set("Content-Type", "application/octet-stream");
+    responseHeaders.set("Content-Disposition", "attachment");
+    responseHeaders.set(
+      "Content-Security-Policy",
+      "default-src 'none'; sandbox"
+    );
+  }
 
   // 304/206/etc. are valid statuses to surface — preserve.
   return new Response(upstream.body, {
