@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ShieldCheck, X } from "lucide-react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import type { CertificationLink } from "@/data/certifications";
 
 /**
@@ -40,6 +41,9 @@ export function CertificateViewer({
   const [concealed, setConcealed] = useState(false);
   const [src, setSrc] = useState<Record<number, string>>({});
   const closeRef = useRef<HTMLButtonElement>(null);
+  // Tab stays inside the viewer; focus returns to the badge on close.
+  const rootRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(rootRef);
   // Read through a ref so a parent passing an inline arrow doesn't re-run
   // the setup effect below (and re-lock scroll, re-bind keys) each render.
   const onCloseRef = useRef(onClose);
@@ -150,6 +154,7 @@ export function CertificateViewer({
 
   return createPortal(
     <div
+      ref={rootRef}
       data-over-media
       role="dialog"
       aria-modal="true"

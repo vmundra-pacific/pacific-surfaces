@@ -23,6 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { X, RotateCcw } from "lucide-react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 
 interface FinishLightboxProps {
   imageSrc: string;
@@ -53,6 +54,8 @@ export function FinishLightbox({
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
+  // Tab stays inside the viewer; focus returns to the swatch on close.
+  useDialogFocus(containerRef, mounted);
 
   // createPortal needs a DOM target; SSR has none. Defer the portal
   // mount until after hydration so the component is server-safe.

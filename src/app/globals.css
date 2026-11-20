@@ -210,3 +210,14 @@ html[data-region="MX"] [data-mx-only] {
 html[data-region="MX"] [data-mx-out] {
   display: none !important;
 }
+
+/* Visitors who ask for reduced motion (WCAG 2.3.3): the looping CSS
+   animations stand still. The Framer Motion entrances, the background
+   videos and the smooth-scroll layer are handled in
+   components/providers/MotionPrefs and SmoothScroll. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-bounce-slow {
+    animation: none;
+  }
+}

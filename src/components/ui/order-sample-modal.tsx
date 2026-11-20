@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle, Send, Home, HardHat, ArrowLeft } from "lucide-react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import { trackMetaEvent } from "@/lib/meta-pixel";
 
 interface OrderSampleModalProps {
@@ -66,6 +67,10 @@ export function OrderSampleModal({
   // the three renders at a time), and ties the notes label to its field.
   const titleId = useId();
   const notesId = useId();
+  // Focus moves into the dialog, Tab stays inside, and focus returns to
+  // the button that opened it.
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(dialogRef, open);
   const [projectType, setProjectType] = useState("");
   const [submitted, setSubmitted] = useState(false);
   /**
@@ -190,6 +195,7 @@ export function OrderSampleModal({
             exit={{ opacity: 0, y: 20, scale: 0.98 }}
             transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
             className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl"
+            ref={dialogRef}
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"

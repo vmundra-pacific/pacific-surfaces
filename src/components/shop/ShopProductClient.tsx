@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, Download, FileText, Minus, Plus, X } from "lucide-react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
 import {
@@ -1001,6 +1002,8 @@ function ColourPanel({
   onClose: () => void;
 }) {
   const [query, setQuery] = useState("");
+  const panelRef = useRef<HTMLElement>(null);
+  useDialogFocus(panelRef);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1030,7 +1033,9 @@ function ColourPanel({
         className="absolute inset-0 bg-pacific-dark/40"
       />
       <aside
+        ref={panelRef}
         role="dialog"
+        aria-modal="true"
         aria-label="Colours"
         className="relative flex h-full w-full max-w-md flex-col bg-white shadow-2xl"
       >

@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 
 /**
  * The window the sill collection opens over its page (a product, the size
@@ -34,6 +35,8 @@ export function SillDialog({
 }) {
   const panel = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  // Tab stays inside; focus returns to the opener on close.
+  useDialogFocus(panel);
 
   useEffect(() => {
     const me = Symbol(title);
@@ -44,13 +47,10 @@ export function SillDialog({
     document.addEventListener("keydown", onKey);
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const back = document.activeElement as HTMLElement | null;
-    panel.current?.focus();
     return () => {
       stack.splice(stack.indexOf(me), 1);
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = overflow;
-      back?.focus();
     };
   }, [onClose, title]);
 
@@ -76,7 +76,12 @@ export function SillDialog({
           </h2>
           <div className="flex items-center gap-2">
             {actions}
-            <button type="button" onClick={onClose} aria-label="Close" className="p-2 hover:opacity-60">
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="p-2 hover:opacity-60"
+            >
               <X className="h-5 w-5" strokeWidth={1.25} />
             </button>
           </div>

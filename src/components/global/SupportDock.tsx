@@ -98,6 +98,33 @@ declare global {
   }
 }
 
+/**
+ * Enquire. On the sills page it is a link to that page's own quote form.
+ * A module-level component, so the button keeps its identity (and keyboard
+ * focus) when the dock re-renders as the dialog opens and closes.
+ */
+function EnquireButton({
+  onSills,
+  onEnquire,
+  className,
+  children,
+}: {
+  onSills: boolean;
+  onEnquire: () => void;
+  className: string;
+  children: React.ReactNode;
+}) {
+  return onSills ? (
+    <a href="#quote" data-quote-from="support" className={className}>
+      {children}
+    </a>
+  ) : (
+    <button type="button" onClick={onEnquire} className={className}>
+      {children}
+    </button>
+  );
+}
+
 export function SupportDock() {
   // the regional rep for WhatsApp and Call (null region: international)
   const country = useRegionCountry();
@@ -188,24 +215,6 @@ export function SupportDock() {
     }
   };
 
-  // On the sills page Enquire is a link to its own quote form.
-  const EnquireButton = ({
-    className,
-    children,
-  }: {
-    className: string;
-    children: React.ReactNode;
-  }) =>
-    onSills ? (
-      <a href="#quote" data-quote-from="support" className={className}>
-        {children}
-      </a>
-    ) : (
-      <button type="button" onClick={enquire} className={className}>
-        {children}
-      </button>
-    );
-
   // Icon tiles in the homepage section dock's glass (owner, 2026-10-22):
   // only Enquire carries a word; the others name themselves on hover.
   const icon =
@@ -243,55 +252,62 @@ export function SupportDock() {
 
   return (
     <>
-      {/* Desktop and tablet: the support dock, bottom right */}
-      <ul
-        style={LIQUID_GLASS}
-        className={cn(
-          "fixed bottom-4 right-2 z-[80] hidden flex-col gap-1 rounded-2xl px-1.5 py-2 transition-all duration-500 sm:flex",
-          mounted
-            ? "translate-y-0 opacity-100"
-            : "pointer-events-none translate-y-6 opacity-0"
-        )}
-        aria-label="Quick support"
-      >
-        <li>
-          <EnquireButton className="flex w-12 flex-col items-center justify-center gap-1 rounded-xl py-2 transition hover:bg-white/50">
-            <span
-              style={{ color: "#14140f" }}
-              className="flex flex-col items-center gap-1 text-[9px] font-medium uppercase tracking-[0.02em]"
+      {/* Desktop and tablet: the support dock, bottom right. The <aside>
+          is only the landmark (the list itself is fixed), so screen
+          readers can find the dock as they can the phone row below. */}
+      <aside aria-label="Quick support">
+        <ul
+          style={LIQUID_GLASS}
+          className={cn(
+            "fixed bottom-4 right-2 z-[80] hidden flex-col gap-1 rounded-2xl px-1.5 py-2 transition-all duration-500 sm:flex",
+            mounted
+              ? "translate-y-0 opacity-100"
+              : "pointer-events-none translate-y-6 opacity-0"
+          )}
+        >
+          <li>
+            <EnquireButton
+              onSills={onSills}
+              onEnquire={enquire}
+              className="flex w-12 flex-col items-center justify-center gap-1 rounded-xl py-2 transition hover:bg-white/50"
             >
-              <MessageSquareText
-                className="h-[18px] w-[18px]"
-                strokeWidth={1.6}
-                aria-hidden="true"
-              />
-              Enquire
-            </span>
-          </EnquireButton>
-        </li>
-        {links.map((l) => (
-          <li key={l.href} className="group/dock relative">
-            <a
-              href={l.href}
-              {...(l.external
-                ? { target: "_blank", rel: "noopener noreferrer" }
-                : {})}
-              aria-label={l.label}
-              style={{ color: "#14140f" }}
-              className={icon}
-            >
-              {l.glyph}
-            </a>
-            <span
-              aria-hidden="true"
-              style={{ ...LIQUID_GLASS, color: "#14140f" }}
-              className="pointer-events-none absolute right-full top-1/2 mr-3 -translate-y-1/2 translate-x-1 whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] opacity-0 transition-all duration-200 group-hover/dock:translate-x-0 group-hover/dock:opacity-100 group-focus-within/dock:translate-x-0 group-focus-within/dock:opacity-100"
-            >
-              {l.label}
-            </span>
+              <span
+                style={{ color: "#14140f" }}
+                className="flex flex-col items-center gap-1 text-[9px] font-medium uppercase tracking-[0.02em]"
+              >
+                <MessageSquareText
+                  className="h-[18px] w-[18px]"
+                  strokeWidth={1.6}
+                  aria-hidden="true"
+                />
+                Enquire
+              </span>
+            </EnquireButton>
           </li>
-        ))}
-      </ul>
+          {links.map((l) => (
+            <li key={l.href} className="group/dock relative">
+              <a
+                href={l.href}
+                {...(l.external
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
+                aria-label={l.label}
+                style={{ color: "#14140f" }}
+                className={icon}
+              >
+                {l.glyph}
+              </a>
+              <span
+                aria-hidden="true"
+                style={{ ...LIQUID_GLASS, color: "#14140f" }}
+                className="pointer-events-none absolute right-full top-1/2 mr-3 -translate-y-1/2 translate-x-1 whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] opacity-0 transition-all duration-200 group-hover/dock:translate-x-0 group-hover/dock:opacity-100 group-focus-within/dock:translate-x-0 group-focus-within/dock:opacity-100"
+              >
+                {l.label}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </aside>
 
       {/* Phones: the same glass, a row at the bottom right, and room for it at the foot of the page */}
       {!phoneHidden && (
@@ -307,7 +323,11 @@ export function SupportDock() {
             role="complementary"
             aria-label="Quick support"
           >
-            <EnquireButton className="flex h-11 items-center justify-center gap-2 rounded-xl px-3">
+            <EnquireButton
+              onSills={onSills}
+              onEnquire={enquire}
+              className="flex h-11 items-center justify-center gap-2 rounded-xl px-3"
+            >
               <span
                 style={{ color: "#14140f" }}
                 className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.1em]"

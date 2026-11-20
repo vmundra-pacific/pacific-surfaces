@@ -2,7 +2,11 @@
 
 import { useEffect } from "react";
 
-export default function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
+export default function SmoothScrollProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   useEffect(() => {
     let lenis: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any
     let rafId: number | null = null;
@@ -16,7 +20,14 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
       // Touch-only screens scroll natively (Lenis leaves touch alone by
       // default), so on phones its per-frame loop and its download are
       // pure cost (owner, 2026-10-22: phone performance).
-      if (window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(any-pointer: fine)").matches) return;
+      if (
+        window.matchMedia("(pointer: coarse)").matches &&
+        !window.matchMedia("(any-pointer: fine)").matches
+      )
+        return;
+      // Visitors who ask for reduced motion get the browser's own scroll:
+      // no easing or momentum added on top of their wheel (WCAG 2.3.3).
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       try {
         const { default: Lenis } = await import("lenis");
 
@@ -38,7 +49,10 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
         };
         rafId = requestAnimationFrame(raf);
       } catch (err) {
-        console.info("Lenis failed to load, falling back to native scroll.", err);
+        console.info(
+          "Lenis failed to load, falling back to native scroll.",
+          err
+        );
       }
     }
 

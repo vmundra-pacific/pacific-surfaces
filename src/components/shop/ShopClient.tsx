@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, Plus, ShoppingBag, X } from "lucide-react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
 import {
@@ -256,6 +257,8 @@ function ColourDrawer({
   onClose: () => void;
 }) {
   const [query, setQuery] = useState("");
+  const panelRef = useRef<HTMLElement>(null);
+  useDialogFocus(panelRef, !!picking);
 
   useEffect(() => {
     if (!picking) return;
@@ -295,7 +298,9 @@ function ColourDrawer({
       />
 
       <aside
+        ref={panelRef}
         role="dialog"
+        aria-modal="true"
         aria-label="Colours"
         className="relative flex h-full w-full max-w-md flex-col bg-white shadow-2xl"
       >

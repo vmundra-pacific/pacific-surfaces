@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -141,6 +142,17 @@ export function VanityTopsListing({
   const [shown, setShown] = useState(PAGE);
   const [open, setOpen] = useState<string | null>(null);
   const [drawer, setDrawer] = useState(false);
+  // The All Filters panel: Tab stays inside, Escape closes, focus returns.
+  const drawerRef = useRef<HTMLElement>(null);
+  useDialogFocus(drawerRef, drawer);
+  useEffect(() => {
+    if (!drawer) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDrawer(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [drawer]);
   const barRef = useRef<HTMLDivElement>(null);
 
   // Filters from the address, once, after mount.
@@ -588,7 +600,9 @@ export function VanityTopsListing({
             className="absolute inset-0 bg-black/40"
           />
           <aside
+            ref={drawerRef}
             role="dialog"
+            aria-modal="true"
             aria-label="All filters"
             className="relative flex h-full w-full max-w-sm flex-col bg-white text-[#14140f] shadow-2xl"
           >

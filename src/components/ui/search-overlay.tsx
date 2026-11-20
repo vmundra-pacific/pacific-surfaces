@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { X, Search, ArrowRight } from "lucide-react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import Link from "next/link";
 import Image from "next/image";
 import { sanityImg } from "@/lib/sanity-img";
@@ -43,6 +44,9 @@ const quickLinks = [
 
 export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  // Tab stays inside the overlay; focus returns to the search button.
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(dialogRef, isOpen);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [matchedPages, setMatchedPages] = useState<PageResult[]>([]);
@@ -123,6 +127,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          ref={dialogRef}
           transition={{ duration: 0.3 }}
           data-light-page
           className="fixed inset-0 z-[60] overflow-y-auto bg-[#f6f2ec]/[0.98] backdrop-blur-xl"

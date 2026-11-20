@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { ArrowRight, ChevronDown, Globe, X } from "lucide-react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import {
   CONTINENTS,
   LANGUAGES,
@@ -201,6 +202,8 @@ function RegionDialog({
   const [remember, setRemember] = useState(initialRemember);
   const titleId = useId();
   const boxRef = useRef<HTMLDivElement>(null);
+  // Tab stays inside; focus returns to the region button on close.
+  useDialogFocus(boxRef);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -209,7 +212,6 @@ function RegionDialog({
     document.addEventListener("keydown", onKey);
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    boxRef.current?.focus();
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = overflow;

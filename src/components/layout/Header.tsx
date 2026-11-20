@@ -18,6 +18,7 @@ import {
   User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import { useCart } from "@/lib/cart";
 import { PacificLogoMark } from "@/components/ui/pacific-logo-mark";
 import { RegionSelector } from "@/components/global/RegionSelector";
@@ -675,6 +676,22 @@ export default function Header() {
     []
   );
 
+  // The phone menu and the Coming Soon notice are modal: Tab stays
+  // inside them, Escape closes the menu, and focus returns to the
+  // control that opened them (WCAG 2.1.2, 2.4.3).
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const comingSoonRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(mobileMenuRef, mobileOpen);
+  useDialogFocus(comingSoonRef, !!comingSoonLabel);
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
+
   // Escape closes any open mega-menu — keyboard parity with moving
   // the cursor away. Listener only attached while a mega is open.
   useEffect(() => {
@@ -836,6 +853,7 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
+            ref={comingSoonRef}
             onClick={() => setComingSoonLabel(null)}
             className="fixed inset-0 z-[300] bg-black/70 backdrop-blur-md flex items-center justify-center px-6"
             role="dialog"
@@ -947,6 +965,7 @@ export default function Header() {
         }}
       >
         <nav
+          aria-label="Main"
           /* Asymmetric by design: the logo sits closer to the left edge
              than the CTAs do to the right. The inline paddings win over
              `px-8` — they exist to keep the row clear of the notch /
@@ -1051,6 +1070,27 @@ export default function Header() {
                       item.mega ? () => handleMegaEnter(item.name) : undefined
                     }
                     onMouseLeave={item.mega ? handleMegaLeave : undefined}
+                    // Keyboard parity (WCAG 2.1.1): tabbing onto a trigger
+                    // opens its mega, and tabbing out of the whole item
+                    // (trigger and panel) closes it. Only for keyboard
+                    // focus, so a click that leaves focus on the link does
+                    // not reopen the panel when the window regains focus.
+                    onFocus={
+                      item.mega
+                        ? (e) => {
+                            if (e.target.matches(":focus-visible"))
+                              handleMegaEnter(item.name);
+                          }
+                        : undefined
+                    }
+                    onBlur={
+                      item.mega
+                        ? (e) => {
+                            if (!e.currentTarget.contains(e.relatedTarget))
+                              handleMegaLeave();
+                          }
+                        : undefined
+                    }
                   >
                     {/* Spaces is intentionally non-clickable at the
                   top level — hover still opens the mega-menu, but
@@ -1058,11 +1098,15 @@ export default function Header() {
                   meant to flow through the four space cards in the
                   dropdown rather than a top-level /spaces overview
                   page. Render as a <span> so there's no link target
-                  and no default browser behaviour to suppress. No
-                  aria-haspopup / aria-expanded: they are not allowed
-                  on a plain span, and it can't open anything itself. */}
+                  and no default browser behaviour to suppress. It is
+                  focusable as a button so keyboard users can open the
+                  mega too (focus opens it, see the <li> above). */}
                     {item.name === "Spaces" ? (
                       <span
+                        role="button"
+                        tabIndex={0}
+                        aria-haspopup="true"
+                        aria-expanded={openMegaItem === item.name}
                         className={cn(
                           "relative text-[11.5px] min-[1440px]:text-[12.5px] min-[1700px]:text-[13px] font-medium tracking-[0.08em] uppercase whitespace-nowrap transition-colors duration-300 py-2 cursor-default select-none",
                           // No per-item hover colour, by design - the
@@ -1598,6 +1642,10 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
+            ref={mobileMenuRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
             className="fixed inset-0 z-[60] bg-pacific-dark/95 backdrop-blur-xl min-[1200px]:hidden overflow-y-auto overscroll-contain"
             onClick={() => setMobileOpen(false)}
           >

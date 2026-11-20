@@ -26,6 +26,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageIcon, X, ZoomIn, RotateCcw } from "lucide-react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import {
   AnimatedSection,
   StaggerContainer,
@@ -660,6 +661,7 @@ function FinishLightbox({
 }) {
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(containerRef);
 
   useEffect(() => {
     const el = containerRef.current;

@@ -54,6 +54,19 @@ export function HeritageSection() {
   // post-mount to handle any web-font load that shifts widths.
   const [setWidth, setSetWidth] = useState(0);
   const x = useMotionValue(0);
+  // Visitors who ask for reduced motion get a still strip they can
+  // scroll sideways themselves (WCAG 2.2.2: moving content can be stopped).
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => {
+      setReduced(query.matches);
+      if (query.matches) x.set(0);
+    };
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, [x]);
 
   // Measure the width of one item set after mount + on resize. The
   // measurement is half of the track's total scrollWidth because we
@@ -100,6 +113,7 @@ export function HeritageSection() {
   // pixel-invisible. No keyframe restart, no animation iteration —
   // just continuous monotonic motion in modulo arithmetic.
   useAnimationFrame((_t, delta) => {
+    if (reduced) return;
     if (!inViewRef.current) return;
     if (setWidth <= 0) return;
     const pixelsPerSecond = setWidth / SECONDS_PER_SET;
@@ -121,7 +135,7 @@ export function HeritageSection() {
       // unless the ground declares itself as one, and the stamps vanished
       // into the black (owner, 2026-10-14).
       data-over-media
-      className="relative bg-black border-y border-white/10 overflow-hidden"
+      className={`relative bg-black border-y border-white/10 ${reduced ? "overflow-x-auto no-scrollbar" : "overflow-hidden"}`}
       id="heritage"
       aria-label="Pacific Surfaces — capacity and catalogue stamps"
     >
@@ -134,7 +148,12 @@ export function HeritageSection() {
         className="flex whitespace-nowrap py-3 sm:py-4 will-change-transform"
       >
         {looped.map((label, i) => (
-          <div key={i} className="flex items-center shrink-0">
+          <div
+            key={i}
+            // The second copy only exists to make the loop seamless.
+            aria-hidden={i >= items.length || undefined}
+            className="flex items-center shrink-0"
+          >
             <span
               data-over-media
               style={{ color: "#ffffff" }}

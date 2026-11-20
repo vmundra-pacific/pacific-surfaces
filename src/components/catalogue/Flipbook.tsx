@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import { createPortal } from "react-dom";
 import {
   SOURCE_LANG,
@@ -281,6 +282,9 @@ export function Flipbook({
   onClose: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Tab stays inside the reader; focus returns to the catalogue card.
+  const rootRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(rootRef);
   // The spread's words, laid over the canvas when the site is translated.
   const textHostRef = useRef<TextHost | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -622,6 +626,7 @@ export function Flipbook({
 
   return createPortal(
     <div
+      ref={rootRef}
       id="flipbook-root"
       className="fixed inset-0 z-[200] flex flex-col bg-white"
       role="dialog"
