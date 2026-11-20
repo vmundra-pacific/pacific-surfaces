@@ -168,7 +168,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
             <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white mb-8">
               Stone Beyond Imagination
             </h2>
-            <p className="text-stone-300 font-light leading-relaxed text-lg">
+            <p className="text-pacific-light font-light leading-relaxed text-lg">
               Explore a world of special textures and modern finishing that will
               transform your space into a realm of contemporary luxury. Each
               piece is carefully crafted to elevate your living experience.
@@ -315,6 +315,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                   <input
                     type="text"
                     id="name"
+                    autoComplete="name"
                     required
                     value={formData.name}
                     onChange={(e) =>
@@ -334,6 +335,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                   <input
                     type="tel"
                     id="phone"
+                    autoComplete="tel"
                     required
                     value={formData.phone}
                     onChange={(e) =>
@@ -357,6 +359,7 @@ export function GranitesContent({ products }: GranitesContentProps) {
                   <input
                     type="email"
                     id="email"
+                    autoComplete="email"
                     required
                     value={formData.email}
                     onChange={(e) =>

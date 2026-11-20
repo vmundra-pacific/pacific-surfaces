@@ -252,10 +252,10 @@ export function SupportDock() {
 
   return (
     <>
-      {/* Desktop and tablet: the support dock, bottom right. The <aside>
-          is only the landmark (the list itself is fixed), so screen
-          readers can find the dock as they can the phone row below. */}
+      {/* One landmark for the dock in both its shapes (each is fixed, so
+          the wrapper draws nothing), so screen readers can find it. */}
       <aside aria-label="Quick support">
+        {/* Desktop and tablet: the support dock, bottom right */}
         <ul
           style={LIQUID_GLASS}
           className={cn(
@@ -307,66 +307,65 @@ export function SupportDock() {
             </li>
           ))}
         </ul>
-      </aside>
 
-      {/* Phones: the same glass, a row at the bottom right, and room for it at the foot of the page */}
-      {!phoneHidden && (
-        <>
-          <div
-            style={LIQUID_GLASS}
-            className={cn(
-              "fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom))] right-3 z-[80] flex items-center gap-1 rounded-2xl p-1.5 transition-all duration-500 sm:hidden",
-              mounted
-                ? "translate-y-0 opacity-100"
-                : "pointer-events-none translate-y-6 opacity-0"
-            )}
-            role="complementary"
-            aria-label="Quick support"
-          >
-            <EnquireButton
-              onSills={onSills}
-              onEnquire={enquire}
-              className="flex h-11 items-center justify-center gap-2 rounded-xl px-3"
+        {/* Phones: the same glass, a row at the bottom right, and room for it at the foot of the page */}
+        {!phoneHidden && (
+          <>
+            <div
+              data-support-dock-phone
+              style={LIQUID_GLASS}
+              className={cn(
+                "fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom))] right-3 z-[80] flex items-center gap-1 rounded-2xl p-1.5 transition-all duration-500 sm:hidden",
+                mounted
+                  ? "translate-y-0 opacity-100"
+                  : "pointer-events-none translate-y-6 opacity-0"
+              )}
             >
-              <span
-                style={{ color: "#14140f" }}
-                className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.1em]"
+              <EnquireButton
+                onSills={onSills}
+                onEnquire={enquire}
+                className="flex h-11 items-center justify-center gap-2 rounded-xl px-3"
               >
-                <MessageSquareText
-                  className="h-4 w-4"
-                  strokeWidth={1.6}
-                  aria-hidden="true"
-                />
-                Enquire
-              </span>
-            </EnquireButton>
-            {links.slice(0, 2).map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                {...(l.external
-                  ? { target: "_blank", rel: "noopener noreferrer" }
-                  : {})}
-                aria-label={l.label}
+                <span
+                  style={{ color: "#14140f" }}
+                  className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.1em]"
+                >
+                  <MessageSquareText
+                    className="h-4 w-4"
+                    strokeWidth={1.6}
+                    aria-hidden="true"
+                  />
+                  Enquire
+                </span>
+              </EnquireButton>
+              {links.slice(0, 2).map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  {...(l.external
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
+                  aria-label={l.label}
+                  style={{ color: "#14140f" }}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl"
+                >
+                  {l.glyph}
+                </a>
+              ))}
+              <button
+                type="button"
+                onClick={hidePhone}
+                aria-label="Hide quick support"
                 style={{ color: "#14140f" }}
-                className="flex h-11 w-11 items-center justify-center rounded-xl"
+                className="flex h-11 w-8 items-center justify-center border-l border-black/10 opacity-60"
               >
-                {l.glyph}
-              </a>
-            ))}
-            <button
-              type="button"
-              onClick={hidePhone}
-              aria-label="Hide quick support"
-              style={{ color: "#14140f" }}
-              className="flex h-11 w-8 items-center justify-center border-l border-black/10 opacity-60"
-            >
-              <X className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
-            </button>
-          </div>
-          <div aria-hidden="true" className="h-16 sm:hidden" />
-        </>
-      )}
+                <X className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
+              </button>
+            </div>
+            <div aria-hidden="true" className="h-16 sm:hidden" />
+          </>
+        )}
+      </aside>
 
       {open && (
         <SillDialog title="Quick enquiry" onClose={close} fit>
@@ -506,7 +505,7 @@ export function SupportDock() {
                   )}
                 </button>
                 {state === "error" && (
-                  <p className="text-sm font-light text-[#9b2c2c]">
+                  <p role="alert" className="text-sm font-light text-[#9b2c2c]">
                     That did not send. Please try again, or email {EMAIL}.
                   </p>
                 )}

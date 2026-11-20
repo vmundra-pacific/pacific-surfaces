@@ -200,6 +200,7 @@ export function CartClient({
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field
                 label="Full name"
+                autoComplete="name"
                 value={form.name}
                 onChange={(v) => setForm({ ...form, name: v })}
                 required
@@ -207,6 +208,7 @@ export function CartClient({
               <Field
                 label="Email"
                 type="email"
+                autoComplete="email"
                 value={form.email}
                 onChange={(v) => setForm({ ...form, email: v })}
                 required
@@ -214,12 +216,14 @@ export function CartClient({
               <Field
                 label="Phone"
                 type="tel"
+                autoComplete="tel"
                 value={form.phone}
                 onChange={(v) => setForm({ ...form, phone: v })}
                 required
               />
               <Field
                 label="Company"
+                autoComplete="organization"
                 value={form.company}
                 onChange={(v) => setForm({ ...form, company: v })}
               />
@@ -445,12 +449,15 @@ function Field({
   onChange,
   required,
   type = "text",
+  autoComplete,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   required?: boolean;
   type?: string;
+  /** So browsers can fill the visitor's own details (WCAG 1.3.5). */
+  autoComplete?: string;
 }) {
   return (
     <label className="block">
@@ -460,6 +467,7 @@ function Field({
       </span>
       <input
         type={type}
+        autoComplete={autoComplete}
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}

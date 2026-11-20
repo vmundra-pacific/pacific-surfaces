@@ -901,7 +901,7 @@ export default async function LearnTopicPage({
       {/* Closing CTA — always shown after body or placeholder */}
       <section className="py-12 md:py-14 px-6 bg-[#0d1f29]">
         <div className="max-w-3xl mx-auto text-center">
-          <p className="text-base sm:text-lg font-light text-stone-300 leading-relaxed mb-8 max-w-xl mx-auto">
+          <p className="text-base sm:text-lg font-light text-pacific-light leading-relaxed mb-8 max-w-xl mx-auto">
             Need specifics for your project, or want a sample? The Pacific team
             can talk you through everything over a call or WhatsApp.
           </p>

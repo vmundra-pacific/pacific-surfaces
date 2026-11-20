@@ -221,3 +221,13 @@ html[data-region="MX"] [data-mx-out] {
     animation: none;
   }
 }
+
+/* Phones: a page with its own fixed bar along the bottom (the product
+   page's Order a Sample / Visualize bar) lifts the support dock above it.
+   The dock is wider than the WhatsApp button that bar was built around and
+   sat on top of both of its buttons. */
+@media (max-width: 639px) {
+  body:has([data-phone-bottom-bar]) [data-support-dock-phone] {
+    bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}

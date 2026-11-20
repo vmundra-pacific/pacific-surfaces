@@ -563,7 +563,6 @@ function ProductCard({
               </span>
               <button
                 type="button"
-                aria-label={`Choose colour for ${product.name}`}
                 onClick={() =>
                   onPickColour({
                     product: product.name,
@@ -574,6 +573,10 @@ function ProductCard({
                 }
                 className="flex w-full items-center gap-2 rounded-md border border-pacific-dark/15 px-2 py-1.5 text-left transition-colors hover:border-pacific-dark"
               >
+                {/* Named by the colour shown plus this prefix (WCAG 2.5.3). */}
+                <span className="sr-only">
+                  Choose colour for {product.name}, currently{" "}
+                </span>
                 <span className="relative h-6 w-8 shrink-0 overflow-hidden rounded-sm bg-pacific-dark/5">
                   {colours.find((c) => c.name === colour)?.image ? (
                     <Image

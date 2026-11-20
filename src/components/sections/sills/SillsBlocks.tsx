@@ -146,7 +146,8 @@ export function SpaceHero({
         <h1
           style={LIGHT}
           className={cn(
-            "text-5xl uppercase leading-none tracking-[-0.03em] sm:text-6xl lg:text-[96px]",
+            // Scales below 384 px so "Threshold" fits a 320 px screen.
+            "text-[clamp(36px,12.5vw,48px)] uppercase leading-none tracking-[-0.03em] sm:text-6xl lg:text-[96px]",
             titleClassName
           )}
         >

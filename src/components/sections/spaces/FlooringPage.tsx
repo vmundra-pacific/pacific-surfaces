@@ -215,7 +215,14 @@ function Technical() {
           From the Landscape Edition technical sheets. Country of origin for
           every granite: India.
         </p>
-        <div className="mt-10 overflow-x-auto">
+        {/* Focusable so keyboard users can scroll the table sideways on a
+            phone (WCAG 2.1.1). */}
+        <div
+          role="region"
+          aria-label="Technical data table"
+          tabIndex={0}
+          className="mt-10 overflow-x-auto"
+        >
           <table className="w-full min-w-[720px] border-collapse text-left text-[15px]">
             <thead>
               <tr className="border-b border-[#14140f]/20 text-xs uppercase tracking-[0.1em]">

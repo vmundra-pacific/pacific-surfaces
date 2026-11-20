@@ -127,7 +127,10 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
           /blog index, keeps brand continuity even though the body
           surface below is cream. */}
       <div className="bg-[#112732]">
-        <nav className="mx-auto max-w-3xl px-6 lg:px-8 py-4">
+        <nav
+          aria-label="Breadcrumb"
+          className="mx-auto max-w-3xl px-6 lg:px-8 py-4"
+        >
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
@@ -136,14 +139,14 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
           >
             <Link
               href="/"
-              className="text-pacific-mid/80 hover:text-white transition-colors"
+              className="text-pacific-mid hover:text-white transition-colors"
             >
               Home
             </Link>
             <ChevronRight className="w-3 h-3 text-white/30" />
             <Link
               href="/blog"
-              className="text-pacific-mid/80 hover:text-white transition-colors"
+              className="text-pacific-mid hover:text-white transition-colors"
             >
               Field Notes
             </Link>

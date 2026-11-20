@@ -142,7 +142,9 @@ export function ProHero({
         <p className={LABEL}>{eyebrow}</p>
         <h1
           style={LIGHT}
-          className="mt-5 max-w-5xl text-[42px] uppercase leading-[0.98] tracking-[-0.03em] sm:text-6xl lg:text-[88px]"
+          // Scales with the screen below 420 px so a long first word
+          // ("Sustainability,") is not cut off on a 360 px phone.
+          className="mt-5 max-w-5xl text-[clamp(30px,10vw,42px)] uppercase leading-[0.98] tracking-[-0.03em] sm:text-6xl lg:text-[88px]"
         >
           {title}
         </h1>

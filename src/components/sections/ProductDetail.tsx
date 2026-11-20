@@ -1407,7 +1407,10 @@ export function ProductDetail({ product }: { product: Product }) {
                 are set on the product in Sanity. */}
             {finishes.length > 0 && (
               <div className="py-6 lg:py-8 px-4 lg:px-6 first:pl-0">
-                <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white">
+                <h4
+                  aria-level={2}
+                  className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white"
+                >
                   Finishes Available
                 </h4>
                 <div className="space-y-1.5">
@@ -1431,7 +1434,10 @@ export function ProductDetail({ product }: { product: Product }) {
                 detection rule. */}
             {isQuartzSlab && (
               <div className="py-6 lg:py-8 px-4 lg:px-6">
-                <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white">
+                <h4
+                  aria-level={2}
+                  className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white"
+                >
                   Thicknesses
                 </h4>
                 <div className="space-y-2.5">
@@ -1447,7 +1453,10 @@ export function ProductDetail({ product }: { product: Product }) {
 
             {/* Format / Slab Size */}
             <div className="py-6 lg:py-8 px-4 lg:px-6">
-              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white">
+              <h4
+                aria-level={2}
+                className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white"
+              >
                 Format
               </h4>
               <div className="text-base text-pacific-light">
@@ -1457,7 +1466,10 @@ export function ProductDetail({ product }: { product: Product }) {
 
             {/* Professional Resources */}
             <div className="py-6 lg:py-8 px-4 lg:px-6">
-              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white">
+              <h4
+                aria-level={2}
+                className="text-xs font-semibold tracking-[0.2em] uppercase text-white mb-4 pb-2 border-b-2 border-white"
+              >
                 Professional Resources
               </h4>
               <div className="space-y-2">
@@ -1972,7 +1984,12 @@ export function ProductDetail({ product }: { product: Product }) {
       {/* Spacer so the fixed bar doesn't permanently cover the
           footer / end-of-page content on mobile. */}
       <div aria-hidden="true" className="h-20 lg:hidden" />
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#112732] border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+      {/* data-phone-bottom-bar: lifts the phone support dock above this
+          bar (globals.css), which otherwise covers both buttons. */}
+      <div
+        data-phone-bottom-bar
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#112732] border-t border-white/10 pb-[env(safe-area-inset-bottom)]"
+      >
         <div className="flex items-center gap-3 px-4 py-3 pr-20">
           <button
             onClick={() => setSampleOpen(true)}
@@ -2064,10 +2081,12 @@ function CertBadge({
         onClick={() => setOpen(true)}
         onPointerEnter={warmCertificateViewer}
         onFocus={warmCertificateViewer}
-        aria-label={`${name} — ${link.label}`}
         className="flex flex-col items-center gap-3 transition-opacity duration-300 hover:opacity-75 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
       >
         {body}
+        {/* No aria-label: the badge's own text names the button, and this
+            hidden suffix says what pressing it does (as in TrustStrip). */}
+        <span className="sr-only"> — {link.label}</span>
       </button>
       {open && (
         <LazyCertificateViewer cert={cert} onClose={() => setOpen(false)} />

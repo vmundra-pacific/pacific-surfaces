@@ -881,13 +881,19 @@ export function CareersContent({ pageData, openings }: Props) {
             </button>
 
             {submitStatus === "success" && (
-              <p className="border border-[#14140f]/20 bg-[#EFEDE9] p-4 text-[15px] font-light">
+              <p
+                role="status"
+                className="border border-[#14140f]/20 bg-[#EFEDE9] p-4 text-[15px] font-light"
+              >
                 Thank you for your application. We will review it and get back
                 to you.
               </p>
             )}
             {submitStatus === "error" && (
-              <p className="border border-[#14140f]/40 p-4 text-[15px] font-light">
+              <p
+                role="alert"
+                className="border border-[#14140f]/40 p-4 text-[15px] font-light"
+              >
                 {submitError ||
                   "There was an error submitting your application. Please try again."}
               </p>

@@ -81,7 +81,13 @@ export function ProfessionalsVideoGrid({
             key={src}
             type="button"
             onClick={() => toggle(i)}
-            aria-label={isPlaying ? "Pause video" : "Play video"}
+            // Starts with the words on the card ("Click to play" / "Play")
+            // so voice control matches, and numbers the five cards apart.
+            aria-label={
+              isPlaying
+                ? `Pause video ${i + 1} of ${VIDEOS.length}`
+                : `Click to play video ${i + 1} of ${VIDEOS.length}`
+            }
             className={`group relative block overflow-hidden border border-white/10 bg-pacific-dark aspect-[3/4] focus:outline-none focus:ring-2 focus:ring-white/40 ${bare ? "" : "rounded-xl"}`}
           >
             <video

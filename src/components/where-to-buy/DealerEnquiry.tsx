@@ -294,7 +294,7 @@ export function DealerEnquiry({
               )}
             </button>
             {state === "error" && (
-              <p className="text-sm font-light text-[#9b2c2c]">
+              <p role="alert" className="text-sm font-light text-[#9b2c2c]">
                 That did not send. Please try again, or email {EMAIL}.
               </p>
             )}

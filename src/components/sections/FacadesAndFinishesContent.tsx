@@ -529,13 +529,15 @@ function FinishTile({
         <button
           type="button"
           onClick={onSelect}
-          aria-label={`View ${finish.name} at full resolution`}
           className="absolute inset-0 z-10"
         >
+          {/* Named by the caption on the tile plus this suffix, so the
+              name contains the visible text (WCAG 2.5.3). */}
+          <span className="sr-only">View at full resolution: </span>
           {finish.mainImage ? (
             <Image
               src={sanityImg(finish.mainImage, { w: 800 }) ?? finish.mainImage}
-              alt={finish.name}
+              alt=""
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

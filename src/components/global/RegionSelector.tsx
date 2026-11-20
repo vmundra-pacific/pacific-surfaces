@@ -135,7 +135,6 @@ export function RegionSelector({ className }: { className?: string }) {
         translate="no"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        aria-label={`Region: ${label}. Choose your country or region and language`}
         className={cn(
           "notranslate flex items-center gap-1.5 text-current whitespace-nowrap transition-opacity hover:opacity-70",
           "text-[11.5px] min-[1440px]:text-[12.5px] font-medium tracking-[0.08em] uppercase",
@@ -147,12 +146,25 @@ export function RegionSelector({ className }: { className?: string }) {
         {/* The country's name, as on Cosentino's bar, from tablets up (the
             header's useHeaderFit makes room for it on laptops); on phones
             its code ("PL"), or the globe alone on the narrowest. */}
-        <Globe className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+        {/* No aria-label: the name is built around the text on screen
+            (the country, or its code on phones), so voice control can say
+            what it shows (WCAG 2.5.3). */}
+        <Globe
+          className="h-4 w-4 shrink-0"
+          strokeWidth={1.5}
+          aria-hidden="true"
+        />
+        <span className="sr-only">Region: </span>
         <span className="hidden min-[375px]:inline min-[640px]:hidden">
           {code}
         </span>
         <span data-fit-optional className="hidden min-[640px]:inline">
           {label}
+        </span>
+        {/* The full name where only the code or the globe shows. */}
+        <span className="sr-only">
+          <span className="min-[640px]:hidden"> ({label})</span>. Choose your
+          country or region and language
         </span>
         <ChevronDown
           data-fit-optional

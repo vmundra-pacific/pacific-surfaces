@@ -236,31 +236,19 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
 
   return (
     <StaggerItem>
-      {/* The whole card opens the reader, not just the Read button. Kept
-          as a div with an explicit role rather than a <button>, because a
-          button cannot legally contain the Download anchor. */}
+      {/* The whole card opens the reader on a click, as a convenience for
+          the mouse. It is not itself a button: a button may not contain
+          other buttons (Read, Share) or the Download link, and screen
+          readers lost them inside it. Keyboard and screen-reader users
+          open the reader with the Read button below, which is named after
+          the catalogue. */}
       <div
-        role={isReal ? "button" : undefined}
-        tabIndex={isReal ? 0 : undefined}
-        aria-label={isReal ? `Read ${resource.title}` : undefined}
         onClick={isReal ? () => setReading(true) : undefined}
         onMouseEnter={isReal ? warm : undefined}
         onFocus={isReal ? warm : undefined}
-        onKeyDown={
-          isReal
-            ? (e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setReading(true);
-                }
-              }
-            : undefined
-        }
         data-over-media
         className={`group flex h-full flex-col overflow-hidden rounded-none bg-[#0a1620] border border-white/10 hover:border-white/25 transition-colors duration-500 ${
-          isReal
-            ? "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60"
-            : ""
+          isReal ? "cursor-pointer" : ""
         }`}
       >
         {/* Cover. Real Sanity image when available; soft gradient + file
@@ -269,7 +257,8 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
           {hasThumbnail ? (
             <Image
               src={resource.thumbnail!}
-              alt={resource.title}
+              // Decorative here: the title is printed under the cover.
+              alt=""
               fill
               // Zoomed to 110% so the thumbnail crops in tighter and reads
               // as a "subject-forward" composition. The container is
@@ -321,7 +310,12 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
                   the original behaviour for anyone who wants the file. */}
               <button
                 type="button"
-                onClick={() => setReading(true)}
+                aria-label={`Read ${resource.title}`}
+                onClick={(e) => {
+                  // The card's own click would open it a second time.
+                  e.stopPropagation();
+                  setReading(true);
+                }}
                 className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-full border border-white/45 bg-white/15 px-3 sm:w-auto sm:flex-1 text-xs font-medium uppercase tracking-[0.08em] text-white transition-all duration-300 hover:bg-white/30 hover:border-white/70"
               >
                 <BookOpen className="h-3.5 w-3.5" />
