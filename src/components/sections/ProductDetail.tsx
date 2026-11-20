@@ -44,11 +44,7 @@ import { shownInRegion } from "@/data/india-range";
 import { useRegionCountry } from "@/lib/use-region-country";
 import { zoomImageUrl } from "@/lib/zoom-image";
 import { finishDescription } from "@/lib/finish-copy";
-import {
-  allowedApplications,
-  applicationLabel,
-  materialFamily,
-} from "@/lib/application-rules";
+import { allowedApplications, materialFamily } from "@/lib/application-rules";
 import WorktopDetailTabs from "@/components/sections/WorktopDetailTabs";
 import { formatCollection } from "@/components/catalogue/labels";
 import { REFILE } from "@/data/catalogue-refile";
@@ -1316,7 +1312,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     Order Sample
                   </button>
                   <MagneticButton
-                    href="/where-to-buy"
+                    href="/contact"
                     /* Dark CTA panel — use the dark-bg variant so the
                        label is visible without hovering. */
                     variant="outline-dark"
@@ -1653,7 +1649,7 @@ export function ProductDetail({ product }: { product: Product }) {
                             <div className="flex items-center gap-3 px-6 py-5 bg-white/5 border border-white/10 rounded-2xl">
                               <Check className="w-5 h-5 text-white shrink-0" />
                               <span className="text-base text-pacific-light font-light">
-                                {applicationLabel(a)}
+                                {a}
                               </span>
                             </div>
                           </StaggerItem>
