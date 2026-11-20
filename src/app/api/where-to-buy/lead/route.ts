@@ -109,20 +109,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const limit = rateLimit(
-    `form:${getClientIp(req)}`,
-    FORM_RATE_LIMIT.limit,
-    FORM_RATE_LIMIT.windowMs
-  );
-  if (!limit.allowed) {
-    return NextResponse.json(
+  // Two limits. A try that fails a check below costs nothing and keeps
+  // nothing, and a visitor whose PIN code is not recognised corrects it
+  // and sends again, so tries are only capped loosely here (30 in ten
+  // minutes). The strict quota shared with the other forms (5 in ten
+  // minutes) is spent further down, only by a lead that is about to be
+  // saved and emailed. Before, a few mistyped PIN codes locked a visitor
+  // out of every form on the site for ten minutes.
+  const tooMany = (retryAfterSeconds: number) =>
+    NextResponse.json(
       { error: "Too many tries. Please try again in a few minutes." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(limit.retryAfterSeconds) },
-      }
+      { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
     );
-  }
+  const ip = getClientIp(req);
+  const tries = rateLimit(`wtb-lead-try:${ip}`, 30, FORM_RATE_LIMIT.windowMs);
+  if (!tries.allowed) return tooMany(tries.retryAfterSeconds);
 
   try {
     const body = (await req.json()) as Body;
@@ -212,6 +213,13 @@ export async function POST(req: NextRequest) {
       pageUrl: clampField(body.pageUrl, FIELD_LIMITS.address) || undefined,
       status: "new",
     };
+
+    const limit = rateLimit(
+      `form:${ip}`,
+      FORM_RATE_LIMIT.limit,
+      FORM_RATE_LIMIT.windowMs
+    );
+    if (!limit.allowed) return tooMany(limit.retryAfterSeconds);
 
     // Save first: the document is the record of the lead, so a mail
     // failure (bad SMTP login, quota) must never lose it.
