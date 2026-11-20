@@ -170,6 +170,10 @@ export default defineType({
           { title: "Eco Surface", value: "Eco Surface" },
           { title: "Luxury Drop", value: "Luxury Drop" },
           { title: "Top Color", value: "Top Color" },
+          // Drives /products/translucent (products/_lib/category.ts): the
+          // Translucent Series is existing quartz colours offered for
+          // backlighting, so they are tagged rather than duplicated.
+          { title: "Translucent", value: "Translucent" },
         ],
       },
     }),

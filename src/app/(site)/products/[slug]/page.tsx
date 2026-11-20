@@ -1,3 +1,4 @@
+import { TranslucentCollection } from "@/components/sections/TranslucentCollection";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
@@ -379,6 +380,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
           ]}
         />
         <CatalogueClient slabs={data.slabs} hero={data.config.hero} />
+        {slug === "translucent" && <TranslucentCollection />}
         {learnLinks && learnLinks.length > 0 && (
           <LearnAboutCategory
             categoryName={breadcrumbLabel}

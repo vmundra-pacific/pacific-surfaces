@@ -3,6 +3,7 @@ import { groq } from "next-sanity";
 import { client, freshClient } from "@/sanity/lib/client";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 import { refiledForPage } from "@/data/catalogue-refile";
+import { TRANSLUCENT_SLUGS } from "@/data/translucent";
 import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVideo";
 import type { Slab } from "@/data/slabs";
 
@@ -76,6 +77,21 @@ export interface CategoryConfig {
    * "Eco Surface" / "EcoSurface" / "eco surface" all match).
    */
   ribbon?: string;
+  /**
+   * Optional <title> and meta description for a ribbon-driven page.
+   * Such a page has no Sanity collection document to carry seoTitle /
+   * seoDescription, so they are set here instead. Ignored for
+   * collection-backed pages, which read the collection's own fields.
+   */
+  seoTitle?: string;
+  seoDescription?: string;
+  /**
+   * Optional product slugs a ribbon-driven page always lists, tagged or
+   * not. Lets a series that is known in code (the Translucent Series,
+   * data/translucent.ts) appear without waiting for each product to be
+   * tagged in Sanity; products tagged later join the same page.
+   */
+  slugs?: string[];
   /**
    * Optional extra collections to fold into this page alongside the
    * primary `match`/`collectionSlug` collection — e.g. Fab Creations
@@ -213,15 +229,21 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
   },
   translucent: {
     match: "translucent",
-    // Brand-new category — no Sanity collection named "Translucent"
-    // exists yet (confirmed via repo-wide search when this card was
-    // added to the Products mega-menu; it's backlog-only for now).
-    // resolveCategoryPage returns null when the collection lookup
-    // comes up empty, and the [slug]/page.tsx category branch calls
-    // notFound() in that case — so this route will 404 until an
-    // editor creates the "Translucent" collection in Sanity and tags
-    // at least one product into it. No code change needed once that
-    // happens; the page just starts resolving.
+    // Ribbon-driven, like Ecosurfaces. The Translucent Series ("Crafted
+    // to Glow" catalogue, 2026-04) is five existing quartz colours
+    // offered for backlighting: Bohemia (3018), Glacial Silver (3059),
+    // Latte Luxe (5040), Venice (5041) and Sakura (5077). They keep
+    // their own product pages and collections, and opt in to this page
+    // through the "Translucent" ribbon in Sanity, so no colour is
+    // published twice. The five are also named in `slugs` (from
+    // data/translucent.ts), so the page lists them as soon as this
+    // deploys; scripts/tag-translucent.mjs sets the ribbon as well.
+    ribbon: "Translucent",
+    slugs: TRANSLUCENT_SLUGS,
+    displayName: "Translucent Series",
+    seoTitle: "Translucent Quartz Slabs for Backlit Walls | Pacific Surfaces",
+    seoDescription:
+      "Pacific Translucent Series: onyx-look quartz engineered to be backlit. Bohemia, Glacial Silver, Latte Luxe, Venice and Sakura for feature walls and bars.",
     hero: {
       videoSrc: "/videos/translucent.mp4",
       // No clip or poster in /public/videos yet: render neither.
@@ -378,6 +400,27 @@ const productsWithAnyRibbonQuery = groq`
   }
 `;
 
+// Products by slug, for a ribbon-driven page's `slugs` (same
+// projection as the ribbon query, so the two lists merge).
+const productsBySlugsQuery = groq`
+  *[_type == "product" && slug.current in $slugs] | order(name asc) {
+    _id,
+    name,
+    slug,
+    "mainImage": mainImage.asset->url,
+    "gallery": gallery[].asset->url,
+    "dominantColor": mainImage.asset->metadata.palette.dominant.background,
+    "collectionName": collection->name,
+    productType,
+    finishes,
+    thickness,
+    ribbons,
+    manualHues,
+    manualPattern,
+    visible
+  }
+`;
+
 interface ResolvedCategoryPage {
   config: CategoryConfig;
   collection: {
@@ -418,17 +461,28 @@ export async function resolveCategoryPage(
     // collapse to the same bare comparand.
     const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
     const want = norm(config.ribbon);
-    const filtered = products.filter((p) =>
+    const tagged = products.filter((p) =>
       (p.ribbons ?? []).some((r) => typeof r === "string" && norm(r) === want)
     );
+    // Slugs the config names are listed whether or not they are tagged
+    // yet; a product in both lists appears once.
+    const named = config.slugs?.length
+      ? ((await freshClient.fetch(productsBySlugsQuery, {
+          slugs: config.slugs,
+        })) as typeof products)
+      : [];
+    const seen = new Set<unknown>();
+    const filtered = [...named, ...tagged]
+      .filter((p) => (seen.has(p._id) ? false : (seen.add(p._id), true)))
+      .sort((a, b) => String(a.name).localeCompare(String(b.name)));
     return {
       config,
       collection: {
         _id: `__synth__/${slug}`,
         name: config.displayName ?? config.match,
         description: config.hero?.description ?? null,
-        seoTitle: null,
-        seoDescription: null,
+        seoTitle: config.seoTitle ?? null,
+        seoDescription: config.seoDescription ?? null,
       },
       slabs: mapSanityToCatalogue(
         filtered as unknown as Parameters<typeof mapSanityToCatalogue>[0]
