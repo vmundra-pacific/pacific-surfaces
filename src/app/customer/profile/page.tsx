@@ -21,7 +21,7 @@ export default async function ProfilePage() {
 
   const customer: CustomerProfile | null = session?.user?.id
     ? await freshClient.fetch(
-        `*[_type == "customer" && _id == $id][0]{ name, email, company, phone, createdAt }`,
+        `*[_type == "customer" && _id == $id && active == true][0]{ name, email, company, phone, createdAt }`,
         { id: session.user.id }
       )
     : null;
@@ -32,7 +32,10 @@ export default async function ProfilePage() {
       <p className="mt-3 text-pacific-mid">
         Your account details on file with Pacific Surfaces. To update any of
         these, contact your account manager or{" "}
-        <a href="mailto:bindu@thepacific.group" className="underline hover:text-white">
+        <a
+          href="mailto:bindu@thepacific.group"
+          className="underline hover:text-white"
+        >
           bindu@thepacific.group
         </a>
         .
@@ -40,13 +43,14 @@ export default async function ProfilePage() {
 
       <div className="mt-10 divide-y divide-white/10 rounded-3xl border border-white/10">
         {FIELDS.map(({ key, label }) => (
-          <div key={key} className="flex items-center justify-between px-8 py-6">
+          <div
+            key={key}
+            className="flex items-center justify-between px-8 py-6"
+          >
             <span className="text-sm tracking-[0.15em] uppercase text-pacific-mid">
               {label}
             </span>
-            <span className="text-white">
-              {customer?.[key] || "—"}
-            </span>
+            <span className="text-white">{customer?.[key] || "—"}</span>
           </div>
         ))}
       </div>

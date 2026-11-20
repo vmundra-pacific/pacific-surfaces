@@ -8,7 +8,7 @@ export default async function Dashboard() {
 
   const statuses: string[] = session?.user?.id
     ? await freshClient.fetch(
-        `*[_type == "grievance" && customer._ref == $customerId].status`,
+        `*[_type == "grievance" && customer._ref == $customerId && customer->active == true].status`,
         { customerId: session.user.id }
       )
     : [];

@@ -31,7 +31,8 @@ export default async function GrievanceDetailPage({
         `*[
           _type == "grievance" &&
           ticketId == $ticketId &&
-          customer._ref == $customerId
+          customer._ref == $customerId &&
+          customer->active == true
         ][0]{
           _id, ticketId, subject, category, priority, status, description, adminReply, createdAt
         }`,

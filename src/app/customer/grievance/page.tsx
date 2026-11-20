@@ -32,7 +32,7 @@ export default async function GrievancesPage() {
   // guard anyway rather than assume.
   const grievances: Grievance[] = session?.user?.id
     ? await freshClient.fetch(
-        `*[_type == "grievance" && customer._ref == $customerId] | order(createdAt desc) {
+        `*[_type == "grievance" && customer._ref == $customerId && customer->active == true] | order(createdAt desc) {
           _id, ticketId, subject, category, priority, status, createdAt
         }`,
         { customerId: session.user.id }

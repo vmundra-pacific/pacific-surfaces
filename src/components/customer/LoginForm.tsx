@@ -31,11 +31,20 @@ export default function LoginForm() {
     setLoading(true);
     setError("");
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    // signIn rejects when the request itself fails (offline, server
+    // down); without this the button stayed on "Signing in…" for good.
+    let result;
+    try {
+      result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+    } catch {
+      setLoading(false);
+      setError("We could not reach the server. Please try again.");
+      return;
+    }
 
     setLoading(false);
 
@@ -64,7 +73,10 @@ export default function LoginForm() {
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
-          <label htmlFor="portal-email" className="mb-2 block text-[15px] font-medium">
+          <label
+            htmlFor="portal-email"
+            className="mb-2 block text-[15px] font-medium"
+          >
             Email address
           </label>
           <input
@@ -80,7 +92,10 @@ export default function LoginForm() {
         </div>
 
         <div>
-          <label htmlFor="portal-password" className="mb-2 block text-[15px] font-medium">
+          <label
+            htmlFor="portal-password"
+            className="mb-2 block text-[15px] font-medium"
+          >
             Password
           </label>
           <div className="relative">
@@ -101,17 +116,27 @@ export default function LoginForm() {
               aria-pressed={showPassword}
               className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center"
             >
-              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
 
-        <a href={RESET_HREF} className="inline-block text-[15px] underline underline-offset-2">
+        <a
+          href={RESET_HREF}
+          className="inline-block text-[15px] underline underline-offset-2"
+        >
           Forgot your password?
         </a>
 
         {error && (
-          <p role="alert" className="border border-black/25 bg-[#f4f3f0] px-3.5 py-2.5 text-sm">
+          <p
+            role="alert"
+            className="border border-black/25 bg-[#f4f3f0] px-3.5 py-2.5 text-sm"
+          >
             {error}
           </p>
         )}
