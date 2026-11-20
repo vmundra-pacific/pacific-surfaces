@@ -120,3 +120,23 @@ export function allowedApplications(
 ): string[] {
   return applications.filter((a) => isApplicationAllowed(a, family));
 }
+
+/**
+ * Display labels for the Sanity enum values (titles as in
+ * sanity/schemas/product.ts). The product page was printing the raw
+ * enum ("island-tops", "vanity-top") to visitors.
+ */
+const LABELS: Record<string, string> = {
+  countertops: "Countertops",
+  "island-tops": "Island Tops",
+  "vanity-top": "Vanity Top",
+  "wall-cladding": "Wall Cladding",
+  flooring: "Flooring",
+  backsplash: "Backsplash",
+  "table-top": "Table Top",
+};
+
+/** Human-readable label for an application value; unknown values pass through. */
+export function applicationLabel(application: string): string {
+  return LABELS[normalise(application)] ?? application;
+}
