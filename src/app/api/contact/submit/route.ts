@@ -13,11 +13,7 @@
 import nodemailer from "nodemailer";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@sanity/client";
-import {
-  rateLimit,
-  getClientIp,
-  FORM_RATE_LIMIT,
-} from "@/lib/rate-limit";
+import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 import { escapeHtml, clampField, FIELD_LIMITS } from "@/lib/escape";
 
 export const runtime = "nodejs";
@@ -37,7 +33,7 @@ const sanityClient =
       })
     : null;
 
-    const transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
   secure: false, // true only for port 465
@@ -60,16 +56,16 @@ interface ContactBody {
 
 export async function POST(req: NextRequest) {
   if (
-  !process.env.SMTP_HOST ||
-  !process.env.SMTP_USER ||
-  !process.env.SMTP_PASS ||
-  !process.env.COMPANY_EMAIL
-) {
-  return NextResponse.json(
-    { error: "Email service is not configured." },
-    { status: 503 }
-  );
-}
+    !process.env.SMTP_HOST ||
+    !process.env.SMTP_USER ||
+    !process.env.SMTP_PASS ||
+    !process.env.COMPANY_EMAIL
+  ) {
+    return NextResponse.json(
+      { error: "Email service is not configured." },
+      { status: 503 }
+    );
+  }
 
   // Throttle before doing any work: this endpoint sends mail through a
   // shared mailbox with a finite daily quota and writes a Sanity
@@ -83,7 +79,10 @@ export async function POST(req: NextRequest) {
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many submissions. Please try again in a few minutes." },
-      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+      {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      }
     );
   }
 
@@ -131,22 +130,22 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-    await transporter.sendMail({
-  from: `"Pacific Website" <${process.env.SMTP_USER}>`,
-  to: process.env.COMPANY_EMAIL,
-  replyTo: email,
+      await transporter.sendMail({
+        from: `"Pacific Website" <${process.env.SMTP_USER}>`,
+        to: process.env.COMPANY_EMAIL,
+        replyTo: email,
 
-  // `name` is safe unescaped in the Subject header: nodemailer encodes
-  // header values, and the email regex below already rejects the CR/LF
-  // needed for header injection.
-  subject: `🌐 New Website Enquiry - ${name}`,
+        // `name` is safe unescaped in the Subject header: nodemailer encodes
+        // header values, and the email regex below already rejects the CR/LF
+        // needed for header injection.
+        subject: `🌐 New Website Enquiry - ${name}`,
 
-  // Every interpolated value below is attacker-controlled and MUST be
-  // escaped. Without this, a submitted field containing markup was
-  // injected verbatim into the email that lands in the staff inbox —
-  // allowing spoofed content, tracking pixels and phishing links inside
-  // a message that appears to come from our own website.
-  html: `
+        // Every interpolated value below is attacker-controlled and MUST be
+        // escaped. Without this, a submitted field containing markup was
+        // injected verbatim into the email that lands in the staff inbox —
+        // allowing spoofed content, tracking pixels and phishing links inside
+        // a message that appears to come from our own website.
+        html: `
     <div style="font-family:Arial,sans-serif;max-width:700px;margin:auto">
 
       <h2 style="color:#1f2937">
@@ -192,11 +191,11 @@ export async function POST(req: NextRequest) {
 
       <h3>Message</h3>
 
-      <p>${escapeHtml(message) || "No message provided."}</p>
+      <p style="white-space:pre-wrap">${escapeHtml(message) || "No message provided."}</p>
 
     </div>
   `,
-});
+      });
     } catch (mailError) {
       // Saved in Studio, so the visitor still gets a success; staff
       // just miss the email. Without a saved copy the lead is gone.

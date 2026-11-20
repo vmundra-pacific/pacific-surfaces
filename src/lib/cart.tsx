@@ -65,7 +65,14 @@ export interface CartItem {
 export function lineKey(
   item: Pick<
     CartItem,
-    "id" | "colour" | "length" | "width" | "height" | "basins" | "finish" | "faucet"
+    | "id"
+    | "colour"
+    | "length"
+    | "width"
+    | "height"
+    | "basins"
+    | "finish"
+    | "faucet"
   >
 ): string {
   return [
@@ -105,13 +112,23 @@ function readStored(): CartItem[] {
     if (!Array.isArray(parsed)) return [];
     // Defensive: a stored cart written by an older build (or hand-
     // edited) shouldn't be able to crash the header on every page.
-    return parsed.filter(
-      (i): i is CartItem =>
-        typeof i === "object" &&
-        i !== null &&
-        typeof (i as CartItem).id === "string" &&
-        typeof (i as CartItem).name === "string"
-    );
+    return parsed
+      .filter(
+        (i): i is CartItem =>
+          typeof i === "object" &&
+          i !== null &&
+          typeof (i as CartItem).id === "string" &&
+          typeof (i as CartItem).name === "string"
+      )
+      .map((i) => ({
+        ...i,
+        // A missing or non-numeric quantity showed as "NaN pieces" and the
+        // +/- buttons could never repair it.
+        quantity: Math.min(
+          99,
+          Math.max(1, Math.floor(Number(i.quantity)) || 1)
+        ),
+      }));
   } catch {
     return [];
   }
@@ -160,7 +177,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               : i
           );
         }
-        return [...prev, { ...item, quantity }];
+        return [
+          ...prev,
+          { ...item, quantity: Math.min(99, Math.max(1, quantity)) },
+        ];
       });
     },
     []

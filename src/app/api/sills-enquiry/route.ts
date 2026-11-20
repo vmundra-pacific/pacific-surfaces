@@ -22,7 +22,13 @@ const writeToken = process.env.SANITY_API_WRITE_TOKEN;
 
 const sanityClient =
   projectId && dataset && writeToken
-    ? createClient({ projectId, dataset, apiVersion: "2026-03-28", useCdn: false, token: writeToken })
+    ? createClient({
+        projectId,
+        dataset,
+        apiVersion: "2026-03-28",
+        useCdn: false,
+        token: writeToken,
+      })
     : null;
 
 const transporter = nodemailer.createTransport({
@@ -52,15 +58,30 @@ interface Body {
 }
 
 export async function POST(req: NextRequest) {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.COMPANY_EMAIL) {
-    return NextResponse.json({ error: "Email service is not configured." }, { status: 503 });
+  if (
+    !process.env.SMTP_HOST ||
+    !process.env.SMTP_USER ||
+    !process.env.SMTP_PASS ||
+    !process.env.COMPANY_EMAIL
+  ) {
+    return NextResponse.json(
+      { error: "Email service is not configured." },
+      { status: 503 }
+    );
   }
 
-  const limit = rateLimit(`form:${getClientIp(req)}`, FORM_RATE_LIMIT.limit, FORM_RATE_LIMIT.windowMs);
+  const limit = rateLimit(
+    `form:${getClientIp(req)}`,
+    FORM_RATE_LIMIT.limit,
+    FORM_RATE_LIMIT.windowMs
+  );
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many submissions. Please try again in a few minutes." },
-      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+      {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      }
     );
   }
 
@@ -87,11 +108,19 @@ export async function POST(req: NextRequest) {
     const referrer = clampField(body.referrer, FIELD_LIMITS.address);
     const pageUrl = clampField(body.pageUrl, FIELD_LIMITS.address);
 
-    if (!name) return NextResponse.json({ error: "Name is required." }, { status: 400 });
+    if (!name)
+      return NextResponse.json({ error: "Name is required." }, { status: 400 });
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json({ error: "A valid email address is required." }, { status: 400 });
+      return NextResponse.json(
+        { error: "A valid email address is required." },
+        { status: 400 }
+      );
     }
-    if (!phone) return NextResponse.json({ error: "Phone is required." }, { status: 400 });
+    if (!phone)
+      return NextResponse.json(
+        { error: "Phone is required." },
+        { status: 400 }
+      );
 
     // Save first: the document is the record, a mail failure must not lose it.
     let doc = null;
@@ -143,7 +172,7 @@ export async function POST(req: NextRequest) {
               ${row("Referrer", referrer)}
             </table>
             <h3>Message</h3>
-            <p>${escapeHtml(message) || "No message provided."}</p>
+            <p style="white-space:pre-wrap">${escapeHtml(message) || "No message provided."}</p>
           </div>`,
       });
     } catch (mailError) {
@@ -154,6 +183,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, id: doc?._id });
   } catch (error) {
     console.error("[sills-enquiry] failed:", error);
-    return NextResponse.json({ error: "Something went wrong. Please try again later." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong. Please try again later." },
+      { status: 500 }
+    );
   }
 }

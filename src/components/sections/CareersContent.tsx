@@ -333,11 +333,16 @@ export function CareersContent({ pageData, openings }: Props) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Mirror of the server-side caps in /api/careers/apply. Keeping
-  // them in sync here lets us reject oversize files instantly instead
-  // of waiting for an HTTP round-trip + generic 400.
-  const MAX_RESUME_BYTES = 8 * 1024 * 1024;
-  const MAX_PORTFOLIO_BYTES = 20 * 1024 * 1024;
+  // What can actually be sent. The server route allows 8 MB and 20 MB,
+  // but the host (Vercel) refuses any request over 4.5 MB before the
+  // route runs, so a larger file failed with a bare "Submission failed".
+  // 4 MB for the two files together leaves room for the form's fields.
+  const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+  const MAX_RESUME_BYTES = MAX_UPLOAD_BYTES;
+  const MAX_PORTFOLIO_BYTES = MAX_UPLOAD_BYTES;
+  // The message's 4-second timer, so a new attempt can cancel the last
+  // one's (it used to re-enable the button mid-upload).
+  const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -345,7 +350,7 @@ export function CareersContent({ pageData, openings }: Props) {
     if (file.size > MAX_RESUME_BYTES) {
       setResumeFile(null);
       setSubmitError(
-        `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. Resume must be under 8 MB — try compressing the PDF or saving it without embedded images.`
+        `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. Resume must be under 4 MB — try compressing the PDF or saving it without embedded images.`
       );
       setSubmitStatus("error");
       // Clear the native input so the same oversized file can't sit
@@ -366,7 +371,7 @@ export function CareersContent({ pageData, openings }: Props) {
     if (file.size > MAX_PORTFOLIO_BYTES) {
       setPortfolioFile(null);
       setSubmitError(
-        `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. Portfolio must be under 20 MB.`
+        `That file is ${(file.size / 1024 / 1024).toFixed(1)} MB. Portfolio file must be under 4 MB — share a link to a larger one instead.`
       );
       setSubmitStatus("error");
       e.target.value = "";
@@ -395,6 +400,14 @@ export function CareersContent({ pageData, openings }: Props) {
       setSubmitStatus("error");
       return;
     }
+    if (resumeFile.size + (portfolioFile?.size ?? 0) > MAX_UPLOAD_BYTES) {
+      setSubmitError(
+        "Your resume and portfolio file together must be under 4 MB. Use a smaller file, or share the portfolio as a link."
+      );
+      setSubmitStatus("error");
+      return;
+    }
+    if (statusTimer.current) clearTimeout(statusTimer.current);
     setSubmitStatus("submitting");
     setSubmitError("");
 
@@ -411,7 +424,12 @@ export function CareersContent({ pageData, openings }: Props) {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body?.error || "Submission failed");
+        throw new Error(
+          body?.error ||
+            (res.status === 413
+              ? "Your files are too large to send. Keep them under 4 MB together."
+              : "We could not send your application. Please try again.")
+        );
       }
       setSubmitStatus("success");
       setFormData({
@@ -433,13 +451,19 @@ export function CareersContent({ pageData, openings }: Props) {
       if (portfolioInputRef.current) portfolioInputRef.current.value = "";
       setAppliedRole("");
       setAppliedRoleRequiresPortfolio(false);
-      setTimeout(() => setSubmitStatus("idle"), 4000);
+      statusTimer.current = setTimeout(() => setSubmitStatus("idle"), 4000);
     } catch (err) {
+      // A failed fetch is a TypeError ("Failed to fetch"): say what it means.
       setSubmitError(
-        err instanceof Error ? err.message : "Something went wrong."
+        err instanceof TypeError
+          ? "We could not reach the server. Check your connection and try again."
+          : err instanceof Error
+            ? err.message
+            : "Something went wrong."
       );
+      // The error stays until the next attempt: it used to vanish after
+      // four seconds, read or not.
       setSubmitStatus("error");
-      setTimeout(() => setSubmitStatus("idle"), 4000);
     }
   };
 
@@ -796,9 +820,9 @@ export function CareersContent({ pageData, openings }: Props) {
                 required
                 className={`${FIELD} file:mr-4 file:border-0 file:bg-[#EFEDE9] file:px-4 file:py-2 file:font-light`}
               />
-              {/* The 8 MB cap is enforced in /api/careers/apply. */}
+              {/* 4 MB: see MAX_UPLOAD_BYTES. */}
               <p className="mt-2 text-[13px] font-light opacity-70">
-                PDF, DOC or DOCX, up to 8 MB.
+                PDF, DOC or DOCX, up to 4 MB.
               </p>
               {resumeFile && (
                 <p className="mt-1 text-[13px] font-light">
@@ -825,8 +849,8 @@ export function CareersContent({ pageData, openings }: Props) {
                   className={FIELD}
                 />
                 <p className="mt-2 text-[13px] font-light opacity-70">
-                  Or upload a file instead: PDF, PPT/PPTX, JPG or PNG, up to 20
-                  MB.
+                  Or upload a file instead: PDF, PPT/PPTX, JPG or PNG, up to 4
+                  MB together with your resume.
                 </p>
                 <input
                   id="portfolio"
@@ -887,7 +911,10 @@ export function CareersContent({ pageData, openings }: Props) {
               </p>
             )}
             {submitStatus === "error" && (
-              <p className="border border-[#14140f]/40 p-4 text-[15px] font-light">
+              <p
+                role="alert"
+                className="border border-[#14140f]/40 p-4 text-[15px] font-light"
+              >
                 {submitError ||
                   "There was an error submitting your application. Please try again."}
               </p>
