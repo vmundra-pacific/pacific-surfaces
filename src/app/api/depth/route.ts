@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateImageInput } from "@/lib/image-input";
-import {
-  rateLimit,
-  getClientIp,
-  VISUALIZE_RATE_LIMIT,
-} from "@/lib/rate-limit";
+import { rateLimit, getClientIp, VISUALIZE_RATE_LIMIT } from "@/lib/rate-limit";
 
 /**
  * POST /api/depth
@@ -31,7 +27,6 @@ const DEPTH_VERSION =
 const MAX_DIM = 1280;
 
 export async function POST(req: NextRequest) {
-
   // Rate limit: 10 calls / 15 min per visitor, shared across all four
   // visualizer routes (they're all Replicate calls that cost real money
   // and none require a login). See src/lib/rate-limit.ts for details.
@@ -86,7 +81,8 @@ export async function POST(req: NextRequest) {
     if (result.status === "failed") {
       console.error(`[depth] Failed: ${result.error}`);
       return NextResponse.json(
-        { error: result.error || "Depth estimation failed" },
+        // result.error (the provider's response) is logged above, not sent.
+        { error: "Depth estimation failed" },
         { status: 502 }
       );
     }

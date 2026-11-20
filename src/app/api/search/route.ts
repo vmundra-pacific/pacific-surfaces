@@ -28,8 +28,10 @@ interface SearchHit {
  * because the whole query had to match one product name).
  */
 export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
-  const words = searchWords(q);
+  // Nobody types more than this into a search box; longer input only
+  // made a heavier query.
+  const q = (req.nextUrl.searchParams.get("q") ?? "").trim().slice(0, 100);
+  const words = searchWords(q).slice(0, 8);
 
   if (words.length === 0) {
     return NextResponse.json({ results: [], pages: [] });
@@ -38,8 +40,12 @@ export async function GET(req: NextRequest) {
   const pages = searchPages(q);
   const terms = words.map((w) => `${w}*`);
 
-  const found: SearchHit[] = await client.fetch(
-    groq`
+  // If the CMS cannot be reached the site's own pages are still found,
+  // rather than the whole search failing.
+  let found: SearchHit[] = [];
+  try {
+    found = await client.fetch(
+      groq`
       *[
         !(_id in path("drafts.**")) && (
           // Same gate as the product page (productBySlugQuery): hidden
@@ -60,8 +66,11 @@ export async function GET(req: NextRequest) {
         productType
       }
     `,
-    { terms }
-  );
+      { terms }
+    );
+  } catch (err) {
+    console.error("[search] product search failed:", err);
+  }
 
   // Visitors in India find only the quartz and Eclipse colours in the
   // Indian catalogue (data/india-range); the region selector sets the

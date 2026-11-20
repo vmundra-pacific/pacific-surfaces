@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateImageInput } from "@/lib/image-input";
-import {
-  rateLimit,
-  getClientIp,
-  VISUALIZE_RATE_LIMIT,
-} from "@/lib/rate-limit";
+import { rateLimit, getClientIp, VISUALIZE_RATE_LIMIT } from "@/lib/rate-limit";
 
 /**
  * POST /api/segment-point
@@ -30,7 +26,6 @@ const SAM2_VERSION =
 const MAX_DIM = 1280;
 
 export async function POST(req: NextRequest) {
-
   // Rate limit: 10 calls / 15 min per visitor, shared across all four
   // visualizer routes (they're all Replicate calls that cost real money
   // and none require a login). See src/lib/rate-limit.ts for details.
@@ -67,8 +62,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
+  // The tap, as a fraction of the picture's width and height. Checked
+  // before the paid model call: anything else became NaN pixels.
   const { x, y } = body;
-  if (x == null || y == null) {
+  if (
+    typeof x !== "number" ||
+    typeof y !== "number" ||
+    !(x >= 0 && x <= 1 && y >= 0 && y <= 1)
+  ) {
     return NextResponse.json({ error: "Missing x or y" }, { status: 400 });
   }
 
@@ -114,7 +115,8 @@ export async function POST(req: NextRequest) {
     if (result.status === "failed") {
       console.error(`[segment-point] Failed: ${result.error}`);
       return NextResponse.json(
-        { error: result.error || "Segmentation failed" },
+        // result.error (the provider's response) is logged above, not sent.
+        { error: "Segmentation failed" },
         { status: 502 }
       );
     }

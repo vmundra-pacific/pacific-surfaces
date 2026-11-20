@@ -33,7 +33,12 @@ export default function FavoritesPage() {
     let ids: string[] = [];
     try {
       const raw = localStorage.getItem(FAV_STORAGE_KEY);
-      ids = raw ? JSON.parse(raw) : [];
+      const parsed: unknown = raw ? JSON.parse(raw) : [];
+      // Anything but a list of ids (a stored null or object) crashed the
+      // page on .length below.
+      ids = Array.isArray(parsed)
+        ? parsed.filter((id): id is string => typeof id === "string")
+        : [];
     } catch {
       ids = [];
     }
