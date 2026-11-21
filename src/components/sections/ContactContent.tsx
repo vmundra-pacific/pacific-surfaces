@@ -122,12 +122,18 @@ const departmentContacts: {
     /** The markets this person covers, on a line under the name. */
     region?: string;
     phone?: string;
-    email: string;
+    email?: string;
   }[];
 }[] = [
   {
     name: "International Sales",
+    // Order (owner, 2026-11-21): Abhijeet, Manish, Manya. Abhijeet's phone
+    // is the international line in data/sales-reps; no e-mail given yet.
     contacts: [
+      {
+        name: "Abhijeet Mankotia",
+        phone: "+91 80505 60007",
+      },
       {
         name: "Manish Mundra",
         role: "Global Sales", // owner, 2026-11-21
@@ -161,26 +167,25 @@ const departmentContacts: {
     ],
   },
   {
-    // Business Development, covering DACH & Benelux, shown under her
-    // name rather than in the heading (owner, 2026-11-21).
-    name: "Inquiries for Germany",
+    // Region in the heading, designation beside the name (owner,
+    // 2026-11-21: "stick to this layout").
+    name: "Inquiries for DACH & Benelux",
     contacts: [
       {
         name: "Satakshi Rautaray",
-        region: "DACH & Benelux",
+        role: "Business Development",
         phone: "+49 1525 5460275",
         email: "satakshi@thepacific.group",
       },
     ],
   },
   {
-    // Saral covers Dubai, the Middle East and Mexico, shown under his
-    // name rather than in the heading (owner, 2026-11-21).
-    name: "Inquiries for Middle East",
+    // Same layout; "Dubai" dropped from the heading (owner, 2026-11-21).
+    name: "Inquiries for Middle East & Mexico",
     contacts: [
       {
         name: "Saral Mundra",
-        region: "Dubai, Middle East & Mexico",
+        role: "Business Development",
         phone: "+91 73977 46963",
         email: "saral@thepacific.group",
       },
@@ -1121,7 +1126,10 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                 </h3>
                 <div className="mt-5 space-y-4">
                   {dept.contacts.map((c) => (
-                    <div key={c.email} className="space-y-1 text-sm font-light">
+                    <div
+                      key={c.email ?? c.name ?? c.phone}
+                      className="space-y-1 text-sm font-light"
+                    >
                       {c.name && (
                         <p className="font-normal">
                           {c.name}
@@ -1141,16 +1149,18 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                           {c.phone}
                         </a>
                       )}
-                      <a
-                        href={`mailto:${c.email}`}
-                        className="flex items-center gap-2 opacity-75 hover:opacity-100"
-                      >
-                        <Mail
-                          className="h-3.5 w-3.5 shrink-0"
-                          aria-hidden="true"
-                        />
-                        <EmailText email={c.email} />
-                      </a>
+                      {c.email && (
+                        <a
+                          href={`mailto:${c.email}`}
+                          className="flex items-center gap-2 opacity-75 hover:opacity-100"
+                        >
+                          <Mail
+                            className="h-3.5 w-3.5 shrink-0"
+                            aria-hidden="true"
+                          />
+                          <EmailText email={c.email} />
+                        </a>
+                      )}
                       {c.region && (
                         <p className="flex items-center gap-2 opacity-75">
                           <Globe
