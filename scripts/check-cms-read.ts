@@ -18,6 +18,8 @@ import { createServer, type IncomingMessage, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { join } from "node:path";
 
+import ts from "typescript";
+
 import {
   buildQueryString,
   contentSource,
@@ -2022,35 +2024,809 @@ async function checkPassingFailures(base: string): Promise<void> {
   delete process.env.CONTENT_SOURCE;
 }
 
+/* ------------------------------------------------------------------ */
+/* The components draw their pictures through their helpers            */
+/* ------------------------------------------------------------------ */
+
 /**
- * The components that show a picture through their own helper still call
- * it where the picture is drawn: the lightbox and the reader's cover are
- * drawn only in the browser, so no page check sees them. Read from the
- * source text; the helpers themselves are checked above.
+ * A place where a component draws a picture through its own helper. The
+ * place is found without looking at the value being judged: a JSX
+ * element by its tag (and the call it sits in, when the tag alone is not
+ * enough), or a call by another of its properties. Exactly one place
+ * must match.
+ */
+interface PictureUse {
+  /** The file, from the repository root. */
+  file: string;
+  /** The place, in words. */
+  name: string;
+  place:
+    | { element: string; within?: string }
+    | { call: string; where: [string, string] };
+  /** The attribute, or the property, that holds the picture. */
+  attribute: string;
+  /** The helper, the module it is imported from, and what it is given. */
+  helper: string;
+  from: string;
+  argument: string;
+}
+
+const PICTURE_USES: PictureUse[] = [
+  {
+    file: "src/components/ui/finish-lightbox.tsx",
+    name: "the finish lightbox's main picture",
+    place: { element: "motion.img" },
+    attribute: "src",
+    helper: "lightboxImageUrl",
+    from: "@/lib/picture-choices",
+    argument: "currentSrc",
+  },
+  {
+    file: "src/components/sections/ResourcesContent.tsx",
+    name: "the catalogue reader's cover",
+    place: { element: "Flipbook" },
+    attribute: "poster",
+    helper: "resourcePosterUrl",
+    from: "@/lib/picture-choices",
+    argument: "resource.thumbnail",
+  },
+  {
+    file: "src/components/visualize/SlabPicker.tsx",
+    name: "the slab picker's thumbnail",
+    place: { element: "img", within: "slabs.map" },
+    attribute: "src",
+    helper: "slabPickerThumbUrl",
+    from: "@/lib/picture-choices",
+    argument: "s.photoUrl",
+  },
+  {
+    file: "src/app/(site)/products/[slug]/opengraph-image.tsx",
+    name: "the product share card's background",
+    place: { call: "renderCard", where: ["title", "product.name"] },
+    attribute: "bgImage",
+    helper: "shareBackground",
+    from: "@/cms/media",
+    argument: "product.mainImage",
+  },
+];
+
+/** A file parsed for the wiring check, with a checker for its names. */
+interface ParsedSource {
+  source: ts.SourceFile;
+  checker: ts.TypeChecker;
+  syntaxErrors: number;
+}
+
+/**
+ * Parses one file on its own. No library and no import is read, so the
+ * checker knows only the file's own names; that is enough to tell which
+ * declaration a name refers to. Comments are not nodes.
+ */
+function parseSource(file: string, text: string): ParsedSource {
+  const name = `/${file}`;
+  const source = ts.createSourceFile(
+    name,
+    text,
+    ts.ScriptTarget.Latest,
+    true,
+    file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+  );
+  const host: ts.CompilerHost = {
+    getSourceFile: (f) => (f === name ? source : undefined),
+    getDefaultLibFileName: () => "lib.d.ts",
+    writeFile: () => undefined,
+    getCurrentDirectory: () => "/",
+    getCanonicalFileName: (f) => f,
+    useCaseSensitiveFileNames: () => true,
+    getNewLine: () => "\n",
+    fileExists: (f) => f === name,
+    readFile: (f) => (f === name ? text : undefined),
+  };
+  const program = ts.createProgram({
+    rootNames: [name],
+    options: {
+      noLib: true,
+      noResolve: true,
+      types: [],
+      jsx: ts.JsxEmit.Preserve,
+      target: ts.ScriptTarget.Latest,
+    },
+    host,
+  });
+  return {
+    source,
+    checker: program.getTypeChecker(),
+    syntaxErrors: program.getSyntacticDiagnostics(source).length,
+  };
+}
+
+const codePrinter = ts.createPrinter({ removeComments: true });
+
+/** A node written out as code, without its comments. */
+function codeOf(node: ts.Node, source: ts.SourceFile): string {
+  return codePrinter.printNode(ts.EmitHint.Unspecified, node, source);
+}
+
+/** The same, on one line, for a message. */
+function shown(node: ts.Node, source: ts.SourceFile): string {
+  return codeOf(node, source).replace(/\s+/g, " ");
+}
+
+/** An expression without its parentheses and type assertions. */
+function bare(expression: ts.Expression): ts.Expression {
+  let e = expression;
+  while (
+    ts.isParenthesizedExpression(e) ||
+    ts.isAsExpression(e) ||
+    ts.isSatisfiesExpression(e) ||
+    ts.isNonNullExpression(e) ||
+    ts.isTypeAssertionExpression(e)
+  ) {
+    e = e.expression;
+  }
+  return e;
+}
+
+/** What a name refers to; for `{ name }` in an object, the value's name. */
+function symbolOf(
+  id: ts.Identifier,
+  checker: ts.TypeChecker
+): ts.Symbol | undefined {
+  const parent = id.parent;
+  return ts.isShorthandPropertyAssignment(parent) && parent.name === id
+    ? checker.getShorthandAssignmentValueSymbol(parent)
+    : checker.getSymbolAtLocation(id);
+}
+
+/** The one `const name = ...` a symbol stands for, if that is what it is. */
+function constDeclarationOf(
+  symbol: ts.Symbol | undefined
+): ts.VariableDeclaration | undefined {
+  const declarations = symbol?.declarations ?? [];
+  if (declarations.length !== 1) return undefined;
+  const [d] = declarations;
+  return ts.isVariableDeclaration(d) &&
+    ts.isIdentifier(d.name) &&
+    (ts.getCombinedNodeFlags(d) & ts.NodeFlags.BlockScoped) ===
+      ts.NodeFlags.Const
+    ? d
+    : undefined;
+}
+
+/**
+ * Whether an expression is always truthy (true) or always falsy (false),
+ * read from the source alone: literals, `undefined`, `void`, `!`, `&&`,
+ * `||`, and a const that holds one of those. Anything else is not known.
+ */
+function alwaysTruthy(
+  expression: ts.Expression,
+  parsed: ParsedSource,
+  depth = 0
+): boolean | undefined {
+  if (depth > 8) return undefined;
+  const e = bare(expression);
+  if (e.kind === ts.SyntaxKind.TrueKeyword) return true;
+  if (
+    e.kind === ts.SyntaxKind.FalseKeyword ||
+    e.kind === ts.SyntaxKind.NullKeyword ||
+    ts.isVoidExpression(e)
+  ) {
+    return false;
+  }
+  if (ts.isNumericLiteral(e)) return Number(e.text) !== 0;
+  if (ts.isStringLiteral(e) || ts.isNoSubstitutionTemplateLiteral(e)) {
+    return e.text !== "";
+  }
+  if (
+    ts.isPrefixUnaryExpression(e) &&
+    e.operator === ts.SyntaxKind.ExclamationToken
+  ) {
+    const value = alwaysTruthy(e.operand, parsed, depth + 1);
+    return value === undefined ? undefined : !value;
+  }
+  if (ts.isBinaryExpression(e)) {
+    const or = e.operatorToken.kind === ts.SyntaxKind.BarBarToken;
+    const and = e.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken;
+    if (!or && !and) return undefined;
+    const left = alwaysTruthy(e.left, parsed, depth + 1);
+    if (left === undefined) return undefined;
+    // `a || b` is a when a is truthy; `a && b` is a when a is falsy.
+    return left === or ? left : alwaysTruthy(e.right, parsed, depth + 1);
+  }
+  if (ts.isIdentifier(e)) {
+    const symbol = symbolOf(e, parsed.checker);
+    if (e.text === "undefined" && !symbol?.declarations?.length) return false;
+    const declaration = constDeclarationOf(symbol);
+    return declaration?.initializer
+      ? alwaysTruthy(declaration.initializer, parsed, depth + 1)
+      : undefined;
+  }
+  return undefined;
+}
+
+/**
+ * Why a node can never run, when its own source says so: it sits behind
+ * a guard that never lets it run (`&&`, `||`, `?:`, `if`), or it follows
+ * a return, throw, break or continue in the same block.
+ */
+function neverRuns(node: ts.Node, parsed: ParsedSource): string | undefined {
+  const { source } = parsed;
+  for (
+    let child: ts.Node = node, parent = node.parent;
+    parent;
+    child = parent, parent = parent.parent
+  ) {
+    if (ts.isBinaryExpression(parent) && child === parent.right) {
+      const op = parent.operatorToken.kind;
+      const left = alwaysTruthy(parent.left, parsed);
+      if (
+        (op === ts.SyntaxKind.AmpersandAmpersandToken && left === false) ||
+        (op === ts.SyntaxKind.BarBarToken && left === true)
+      ) {
+        return `it sits behind ${shown(parent.left, source)}, which never lets it run`;
+      }
+    }
+    let guard: ts.Expression | undefined;
+    let taken: boolean | undefined;
+    if (ts.isConditionalExpression(parent) && child !== parent.condition) {
+      guard = parent.condition;
+      taken = child === parent.whenTrue;
+    } else if (ts.isIfStatement(parent) && child !== parent.expression) {
+      guard = parent.expression;
+      taken = child === parent.thenStatement;
+    }
+    if (guard !== undefined) {
+      const value = alwaysTruthy(guard, parsed);
+      if (value !== undefined && value !== taken) {
+        return `it sits in the branch of ${shown(guard, source)} that never runs`;
+      }
+    }
+    if (
+      (ts.isBlock(parent) ||
+        ts.isSourceFile(parent) ||
+        ts.isCaseOrDefaultClause(parent)) &&
+      !ts.isFunctionDeclaration(child)
+    ) {
+      const statements: readonly ts.Statement[] = parent.statements;
+      const index = statements.indexOf(child as ts.Statement);
+      const stop = statements
+        .slice(0, Math.max(index, 0))
+        .find(
+          (s) =>
+            ts.isReturnStatement(s) ||
+            ts.isThrowStatement(s) ||
+            ts.isBreakStatement(s) ||
+            ts.isContinueStatement(s)
+        );
+      if (stop) return `it comes after ${shown(stop, source)}`;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * The name of a JSX attribute or of an object's plain property; none for
+ * anything else (a spread, a computed name, a method or an accessor).
+ */
+function memberName(member: ts.Node): string | undefined {
+  if (ts.isJsxAttribute(member)) {
+    return ts.isIdentifier(member.name) ? member.name.text : undefined;
+  }
+  if (
+    (ts.isPropertyAssignment(member) ||
+      ts.isShorthandPropertyAssignment(member)) &&
+    (ts.isIdentifier(member.name) || ts.isStringLiteral(member.name))
+  ) {
+    return member.name.text;
+  }
+  return undefined;
+}
+
+/** The value a JSX attribute or an object's property is given. */
+function memberValue(member: ts.Node): ts.Expression | undefined {
+  if (ts.isJsxAttribute(member)) {
+    const init = member.initializer;
+    if (init && ts.isJsxExpression(init)) return init.expression;
+    return init && ts.isStringLiteral(init) ? init : undefined;
+  }
+  if (ts.isPropertyAssignment(member)) return member.initializer;
+  if (ts.isShorthandPropertyAssignment(member)) return member.name;
+  return undefined;
+}
+
+/** Whether a node is an argument (or inside one) of a call to `callee`. */
+function insideCall(
+  node: ts.Node,
+  callee: string,
+  source: ts.SourceFile
+): boolean {
+  for (
+    let child: ts.Node = node, parent = node.parent;
+    parent;
+    child = parent, parent = parent.parent
+  ) {
+    if (
+      ts.isCallExpression(parent) &&
+      parent.arguments.some((a) => a === child) &&
+      codeOf(parent.expression, source) === callee
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+interface Place {
+  node: ts.Node;
+  members: readonly ts.Node[];
+}
+
+/** Every place in the file that fits the use's description. */
+function placesOf(use: PictureUse, source: ts.SourceFile): Place[] {
+  const places: Place[] = [];
+  const { place } = use;
+  const visit = (node: ts.Node): void => {
+    if ("element" in place) {
+      if (
+        (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+        codeOf(node.tagName, source) === place.element &&
+        (place.within === undefined || insideCall(node, place.within, source))
+      ) {
+        places.push({ node, members: node.attributes.properties });
+      }
+    } else if (
+      ts.isCallExpression(node) &&
+      codeOf(node.expression, source) === place.call
+    ) {
+      const [key, wanted] = place.where;
+      for (const argument of node.arguments) {
+        if (
+          ts.isObjectLiteralExpression(argument) &&
+          argument.properties.some((p) => {
+            const value = memberValue(p);
+            return (
+              memberName(p) === key &&
+              value !== undefined &&
+              codeOf(value, source) === wanted
+            );
+          })
+        ) {
+          places.push({ node, members: argument.properties });
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return places;
+}
+
+/** Whether `callee` is the helper the use names, imported from its module. */
+function isImportedHelper(
+  callee: ts.Identifier,
+  use: PictureUse,
+  parsed: ParsedSource
+): boolean {
+  const declarations =
+    parsed.checker.getSymbolAtLocation(callee)?.declarations ?? [];
+  if (declarations.length !== 1) return false;
+  const [specifier] = declarations;
+  if (!ts.isImportSpecifier(specifier) || specifier.isTypeOnly) return false;
+  const declaration = specifier.parent.parent.parent;
+  return (
+    (specifier.propertyName ?? specifier.name).text === use.helper &&
+    ts.isImportDeclaration(declaration) &&
+    !declaration.importClause?.isTypeOnly &&
+    ts.isStringLiteral(declaration.moduleSpecifier) &&
+    declaration.moduleSpecifier.text === use.from
+  );
+}
+
+/**
+ * What is wrong with an expression that should be
+ * `[await] helper(argument)`; `holder` says what holds it.
+ */
+function callProblems(
+  holder: string,
+  expression: ts.Expression,
+  use: PictureUse,
+  parsed: ParsedSource
+): string[] {
+  const { source } = parsed;
+  let e = bare(expression);
+  if (ts.isAwaitExpression(e)) e = bare(e.expression);
+  const wanted = `${use.helper}(${use.argument})`;
+  if (
+    !ts.isCallExpression(e) ||
+    !ts.isIdentifier(e.expression) ||
+    e.expression.text !== use.helper
+  ) {
+    return [`${holder} ${shown(expression, source)}, not ${wanted}`];
+  }
+  const problems: string[] = [];
+  if (!isImportedHelper(e.expression, use, parsed)) {
+    problems.push(`that ${use.helper} is not the one from ${use.from}`);
+  }
+  const given = e.arguments.map((a) => codeOf(a, source)).join(", ");
+  if (given !== use.argument) {
+    problems.push(`${use.helper} is given (${given}), not (${use.argument})`);
+  }
+  return problems;
+}
+
+/**
+ * What is wrong with one use in this text of its file; nothing when the
+ * place is drawn from what the helper returns: the call itself, or a
+ * const that holds it.
+ */
+function wiringProblems(use: PictureUse, text: string): string[] {
+  const parsed = parseSource(use.file, text);
+  if (parsed.syntaxErrors > 0) return ["the file does not parse"];
+  const { source } = parsed;
+  const where =
+    "element" in use.place
+      ? `<${use.place.element}>${use.place.within ? ` inside ${use.place.within}(...)` : ""}`
+      : `${use.place.call}({ ${use.place.where[0]}: ${use.place.where[1]} })`;
+  const places = placesOf(use, source);
+  if (places.length !== 1) {
+    return [`${places.length} of ${where} found, not exactly one`];
+  }
+  const [{ node, members }] = places;
+  const problems: string[] = [];
+  const dead = neverRuns(node, parsed);
+  if (dead) problems.push(`${where} never runs: ${dead}`);
+  if (members.some((m) => memberName(m) === undefined)) {
+    problems.push(
+      `${where} has a spread or a member the check cannot name, which can replace ${use.attribute}`
+    );
+  }
+  const named = members.filter((m) => memberName(m) === use.attribute);
+  const value = named.length === 1 ? memberValue(named[0]) : undefined;
+  if (named.length !== 1 || value === undefined) {
+    problems.push(`${where} has no single ${use.attribute} with a value`);
+    return problems;
+  }
+  const v = bare(value);
+  if (!ts.isIdentifier(v)) {
+    const holder = `${use.attribute} is`;
+    return [...problems, ...callProblems(holder, value, use, parsed)];
+  }
+  const declaration = constDeclarationOf(symbolOf(v, parsed.checker));
+  if (!declaration?.initializer) {
+    problems.push(`${use.attribute} is ${v.text}, which is not a const`);
+    return problems;
+  }
+  const unset = neverRuns(declaration, parsed);
+  if (unset) problems.push(`${v.text} is never set: ${unset}`);
+  const holder = `${use.attribute} is ${v.text}, which holds`;
+  return [
+    ...problems,
+    ...callProblems(holder, declaration.initializer, use, parsed),
+  ];
+}
+
+function readSource(file: string): string {
+  return readFileSync(join(__dirname, "..", file), "utf8");
+}
+
+/**
+ * A change to one file, made in memory only, that the wiring check must
+ * catch: `breaks` names the use it breaks, and each edit's old text must
+ * occur in the file exactly once.
+ */
+interface WiringCase {
+  breaks: string;
+  file: string;
+  what: string;
+  edits: [string, string][];
+}
+
+const LIGHTBOX = "src/components/ui/finish-lightbox.tsx";
+const READER = "src/components/sections/ResourcesContent.tsx";
+const PICKER = "src/components/visualize/SlabPicker.tsx";
+const PRODUCT_CARD = "src/app/(site)/products/[slug]/opengraph-image.tsx";
+
+const LIGHTBOX_MAIN = "the finish lightbox's main picture";
+const LIGHTBOX_MAIN_CALL = "src={lightboxImageUrl(currentSrc)}";
+const LIGHTBOX_MAIN_RAW: [string, string] = [
+  LIGHTBOX_MAIN_CALL,
+  "src={currentSrc}",
+];
+const READER_CALL = "poster={resourcePosterUrl(resource.thumbnail)}";
+const PICKER_CALL = "src={slabPickerThumbUrl(s.photoUrl)}";
+const PRODUCT_LINE =
+  "const bgImage = await shareBackground(product.mainImage);";
+
+const WIRING_CASES: WiringCase[] = [
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn from the raw address",
+    edits: [LIGHTBOX_MAIN_RAW],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn from the raw address, the call kept in a line comment beside it",
+    edits: [
+      [LIGHTBOX_MAIN_CALL, `src={currentSrc} // was ${LIGHTBOX_MAIN_CALL}`],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn from the raw address, the call kept in a JSX comment",
+    edits: [
+      LIGHTBOX_MAIN_RAW,
+      [
+        "{/* Main image area",
+        `{/* was ${LIGHTBOX_MAIN_CALL} */}\n      {/* Main image area`,
+      ],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn from the raw address, the call kept in a picture behind a guard that is always false",
+    edits: [
+      LIGHTBOX_MAIN_RAW,
+      [
+        "{/* Title strip */}",
+        `{false && <img alt="" ${LIGHTBOX_MAIN_CALL} />}\n      {/* Title strip */}`,
+      ],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn from the raw address, the call kept in a second copy behind a guard that is always false",
+    edits: [
+      LIGHTBOX_MAIN_RAW,
+      [
+        "{/* Title strip */}",
+        `{false && <motion.img alt="" ${LIGHTBOX_MAIN_CALL} />}\n      {/* Title strip */}`,
+      ],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn from the raw address, the call made once and its answer unused",
+    edits: [
+      LIGHTBOX_MAIN_RAW,
+      [
+        "const hasThumbs = slides.length > 1;",
+        "const hasThumbs = slides.length > 1;\n  const unusedSrc = lightboxImageUrl(currentSrc);",
+      ],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn from the raw address, the call kept in a picture that is made but never drawn",
+    edits: [
+      LIGHTBOX_MAIN_RAW,
+      [
+        "const hasThumbs = slides.length > 1;",
+        `const hasThumbs = slides.length > 1;\n  const unusedPicture = <img alt="" ${LIGHTBOX_MAIN_CALL} />;`,
+      ],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn behind a guard that is always false",
+    edits: [["{currentSrc && (", "{false && currentSrc && ("]],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn only after an early return",
+    edits: [
+      [
+        "const currentSrc = slides[activeIndex] ?? imageSrc;",
+        "return null;\n  const currentSrc = slides[activeIndex] ?? imageSrc;",
+      ],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "a spread after the call giving src again",
+    edits: [
+      [
+        LIGHTBOX_MAIN_CALL,
+        `${LIGHTBOX_MAIN_CALL}\n            {...{ src: currentSrc }}`,
+      ],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn through a local function of the helper's name",
+    edits: [
+      [
+        "const hasThumbs = slides.length > 1;",
+        "const hasThumbs = slides.length > 1;\n  const lightboxImageUrl = (src: string) => src;",
+      ],
+    ],
+  },
+  {
+    breaks: "the catalogue reader's cover",
+    file: READER,
+    what: "drawn from the raw address",
+    edits: [[READER_CALL, "poster={resource.thumbnail}"]],
+  },
+  {
+    breaks: "the catalogue reader's cover",
+    file: READER,
+    what: "drawn from the raw address, the call kept in a line comment beside it",
+    edits: [[READER_CALL, `poster={resource.thumbnail} // ${READER_CALL}`]],
+  },
+  {
+    breaks: "the catalogue reader's cover",
+    file: READER,
+    what: "drawn from the raw address, the call kept in a video that is made but never drawn",
+    edits: [
+      [READER_CALL, "poster={resource.thumbnail}"],
+      [
+        "const pdfUrl = resourcePdfUrl(resource.pdfUrl);",
+        `const pdfUrl = resourcePdfUrl(resource.pdfUrl);\n  const unusedVideo = <video ${READER_CALL} />;`,
+      ],
+    ],
+  },
+  {
+    breaks: "the catalogue reader's cover",
+    file: READER,
+    what: "the helper given another address",
+    edits: [[READER_CALL, "poster={resourcePosterUrl(resource.pdfUrl)}"]],
+  },
+  {
+    breaks: "the slab picker's thumbnail",
+    file: PICKER,
+    what: "drawn from the raw address",
+    edits: [[PICKER_CALL, "src={s.photoUrl}"]],
+  },
+  {
+    breaks: "the slab picker's thumbnail",
+    file: PICKER,
+    what: "drawn from the raw address, the call kept in a line comment beside it",
+    edits: [[PICKER_CALL, `src={s.photoUrl} // ${PICKER_CALL}`]],
+  },
+  {
+    breaks: "the slab picker's thumbnail",
+    file: PICKER,
+    what: "drawn from the raw address, the call kept in a favourite's picture that is made but never drawn",
+    edits: [
+      [PICKER_CALL, "src={s.photoUrl}"],
+      [
+        "{favorites.map((s) => {\n                const isActive = active?.id === s.id;",
+        `{favorites.map((s) => {\n                const isActive = active?.id === s.id;\n                const unusedThumb = <img alt="" ${PICKER_CALL} />;`,
+      ],
+    ],
+  },
+  {
+    breaks: "the product share card's background",
+    file: PRODUCT_CARD,
+    what: "taken from the raw picture",
+    edits: [[PRODUCT_LINE, "const bgImage = product.mainImage ?? undefined;"]],
+  },
+  {
+    breaks: "the product share card's background",
+    file: PRODUCT_CARD,
+    what: "given the raw picture, the helper's answer left unused",
+    edits: [
+      [
+        "    bgImage,\n  });",
+        "    bgImage: product.mainImage ?? undefined,\n  });",
+      ],
+    ],
+  },
+  {
+    breaks: "the product share card's background",
+    file: PRODUCT_CARD,
+    what: "taken from the raw picture, the call kept in a comment above it",
+    edits: [
+      [
+        PRODUCT_LINE,
+        `// ${PRODUCT_LINE}\n  const bgImage = product.mainImage ?? undefined;`,
+      ],
+    ],
+  },
+  {
+    breaks: "the product share card's background",
+    file: PRODUCT_CARD,
+    what: "taken from the raw picture, the call kept in an inner block whose answer is unused",
+    edits: [
+      [
+        PRODUCT_LINE,
+        `const bgImage = product.mainImage ?? undefined;\n  {\n    ${PRODUCT_LINE}\n    void bgImage;\n  }`,
+      ],
+    ],
+  },
+  {
+    breaks: "the product share card's background",
+    file: PRODUCT_CARD,
+    what: "taken from the raw picture, the call kept in a block that never runs",
+    edits: [
+      [
+        PRODUCT_LINE,
+        `const bgImage = product.mainImage ?? undefined;\n  if (false) {\n    ${PRODUCT_LINE}\n    void bgImage;\n  }`,
+      ],
+    ],
+  },
+  {
+    breaks: "the product share card's background",
+    file: PRODUCT_CARD,
+    what: "the helper's answer replaced afterwards",
+    edits: [
+      [
+        PRODUCT_LINE,
+        "let bgImage = await shareBackground(product.mainImage);\n  bgImage = product.mainImage ?? undefined;",
+      ],
+    ],
+  },
+  {
+    breaks: "the product share card's background",
+    file: PRODUCT_CARD,
+    what: "the helper called only in a branch that never runs",
+    edits: [
+      [
+        PRODUCT_LINE,
+        "const bgImage = false\n    ? await shareBackground(product.mainImage)\n    : (product.mainImage ?? undefined);",
+      ],
+    ],
+  },
+];
+
+/**
+ * The components that show a picture through their own helper still draw
+ * it from what the helper returns: the lightbox and the reader's cover
+ * are drawn only in the browser, so no page check sees them. Judged on
+ * the parsed source (the TypeScript compiler's syntax tree, where
+ * comments are not nodes), so a comment, a copy that is never drawn or a
+ * call whose answer is unused does not count. The helpers themselves are
+ * checked above.
  */
 function checkHelperWiring(): void {
-  console.log("Each component calls its picture helper");
-  const uses: [string, string][] = [
-    [
-      "src/components/ui/finish-lightbox.tsx",
-      "src={lightboxImageUrl(currentSrc)}",
-    ],
-    [
-      "src/components/sections/ResourcesContent.tsx",
-      "poster={resourcePosterUrl(resource.thumbnail)}",
-    ],
-    [
-      "src/components/visualize/SlabPicker.tsx",
-      "src={slabPickerThumbUrl(s.photoUrl)}",
-    ],
-    [
-      "src/app/(site)/products/[slug]/opengraph-image.tsx",
-      "const bgImage = await shareBackground(product.mainImage);",
-    ],
-  ];
-  for (const [file, call] of uses) {
-    const text = readFileSync(join(__dirname, "..", file), "utf8");
-    check(`${file} has ${call}`, text.includes(call));
+  console.log("Each component draws its picture from its helper");
+  for (const use of PICTURE_USES) {
+    const problems = wiringProblems(use, readSource(use.file));
+    check(
+      `${use.file}: ${use.name} is drawn from ${use.helper}(${use.argument})`,
+      problems.length === 0,
+      problems.join("; ")
+    );
+  }
+  console.log("The wiring check catches changes that keep the call's text");
+  for (const c of WIRING_CASES) {
+    const name = `caught: ${c.breaks}, ${c.what}`;
+    let text = readSource(c.file);
+    let fits = true;
+    for (const [old, replacement] of c.edits) {
+      if (text.split(old).length !== 2) fits = false;
+      else text = text.replace(old, () => replacement);
+    }
+    if (!fits) {
+      check(name, false, "the change no longer fits the file");
+      continue;
+    }
+    if (parseSource(c.file, text).syntaxErrors > 0) {
+      check(name, false, "the changed file does not parse");
+      continue;
+    }
+    const use = PICTURE_USES.find(
+      (u) => u.file === c.file && u.name === c.breaks
+    );
+    if (!use) {
+      check(name, false, "no such use is checked");
+      continue;
+    }
+    check(
+      name,
+      wiringProblems(use, text).length > 0,
+      "the check finds nothing wrong"
+    );
   }
 }
 
