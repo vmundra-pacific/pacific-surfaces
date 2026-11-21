@@ -80,6 +80,34 @@ function inlineImageSize(
  * card aesthetic of the index.
  */
 const portableTextComponents: PortableTextComponents = {
+  // Bulleted and numbered lists from Studio. The body's `prose` classes
+  // do nothing (the Tailwind typography plugin is not installed), and
+  // Tailwind's reset strips list markers and indent, so lists published
+  // in Sanity showed as plain lines with no bullets (2026-11-21).
+  list: {
+    bullet: ({ children }) => (
+      <ul className="my-6 list-disc space-y-2 pl-6 marker:text-pacific-dark/50">
+        {children}
+      </ul>
+    ),
+    number: ({ children }) => (
+      <ol className="my-6 list-decimal space-y-2 pl-6 marker:text-pacific-dark/50">
+        {children}
+      </ol>
+    ),
+  },
+  listItem: {
+    bullet: ({ children }) => (
+      <li className="pl-1 font-light leading-relaxed text-pacific-dark/80">
+        {children}
+      </li>
+    ),
+    number: ({ children }) => (
+      <li className="pl-1 font-light leading-relaxed text-pacific-dark/80">
+        {children}
+      </li>
+    ),
+  },
   types: {
     image: ({
       value,
