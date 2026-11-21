@@ -16,6 +16,7 @@ import {
   ExternalLink,
   Search,
   MessageCircle,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Photo } from "@/components/ui/photo";
@@ -115,7 +116,14 @@ const LOOKING_FOR = [
 
 const departmentContacts: {
   name: string;
-  contacts: { name?: string; role?: string; phone?: string; email: string }[];
+  contacts: {
+    name?: string;
+    role?: string;
+    /** The markets this person covers, on a line under the name. */
+    region?: string;
+    phone?: string;
+    email: string;
+  }[];
 }[] = [
   {
     name: "International Sales",
@@ -153,20 +161,26 @@ const departmentContacts: {
     ],
   },
   {
+    // Business Development, covering DACH & Benelux, shown under her
+    // name rather than in the heading (owner, 2026-11-21).
     name: "Inquiries for Germany",
     contacts: [
       {
         name: "Satakshi Rautaray",
+        region: "DACH & Benelux",
         phone: "+49 1525 5460275",
         email: "satakshi@thepacific.group",
       },
     ],
   },
   {
+    // Saral covers Dubai, the Middle East and Mexico, shown under his
+    // name rather than in the heading (owner, 2026-11-21).
     name: "Inquiries for Middle East",
     contacts: [
       {
-        name: "Saral",
+        name: "Saral Mundra",
+        region: "Dubai, Middle East & Mexico",
         phone: "+91 73977 46963",
         email: "saral@thepacific.group",
       },
@@ -1137,6 +1151,15 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                         />
                         <EmailText email={c.email} />
                       </a>
+                      {c.region && (
+                        <p className="flex items-center gap-2 opacity-75">
+                          <Globe
+                            className="h-3.5 w-3.5 shrink-0"
+                            aria-hidden="true"
+                          />
+                          {c.region}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
