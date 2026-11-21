@@ -16,8 +16,6 @@ import {
   ExternalLink,
   Search,
   MessageCircle,
-  Globe,
-  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Photo } from "@/components/ui/photo";
@@ -25,9 +23,8 @@ import { SHOW_FINDER } from "@/lib/contact-finder";
 import { PartnerCard } from "@/components/where-to-buy/PartnerCard";
 import { PACIFIC_POLSKA } from "@/data/partners";
 import { EMAIL, FACTORY, OPENING_HOURS } from "@/data/business";
-import { INDIA_TEAM, whatsappLink } from "@/data/sales-reps";
+import { whatsappLink } from "@/data/sales-reps";
 import { useSalesRep } from "@/lib/use-sales-rep";
-import { useRegionCountry } from "@/lib/use-region-country";
 
 /**
  * /contact, laid out after Cosentino's "where to buy" page: a full-bleed
@@ -118,13 +115,14 @@ const LOOKING_FOR = [
 
 const departmentContacts: {
   name: string;
-  contacts: { name?: string; phone?: string; email: string }[];
+  contacts: { name?: string; role?: string; phone?: string; email: string }[];
 }[] = [
   {
     name: "International Sales",
     contacts: [
       {
-        name: "Manish",
+        name: "Manish Mundra",
+        role: "Global Sales", // owner, 2026-11-21
         phone: "+91 93242 81801",
         email: "manish@thepacific.group",
       },
@@ -315,16 +313,6 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
   const PHONE = salesRep.phone.display;
   const PHONE_HREF = salesRep.phone.href;
   const whatsApp = (text: string) => whatsappLink(salesRep, text);
-  // Direct lines: Domestic or International (owner, 2026-11-21).
-  const regionCountry = useRegionCountry();
-  const [marketChoice, setMarketChoice] = useState<
-    "domestic" | "international" | null
-  >(null);
-  const market =
-    marketChoice ??
-    (regionCountry && regionCountry.toUpperCase() !== "IN"
-      ? "international"
-      : "domestic");
   const [typeParam, setTypeParam] = useState<string | null>(null);
   const [interest, setInterest] = useState<string | null>(null);
   const [adTags, setAdTags] = useState("");
@@ -1000,143 +988,6 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         </div>
       </section>
 
-      {/* 4 · Direct lines ----------------------------------------------------
-          Domestic / International dropdown (owner, 2026-11-21). Domestic:
-          the India team's email, call, WhatsApp and hours. International:
-          the International Sales team listed above, in the same order.
-          Until the visitor picks, a region chosen in the header outside
-          India opens it on International. */}
-      <section className="border-b border-[#14140f]/10 bg-white">
-        <Container className="pt-8">
-          <div className="flex flex-wrap items-center gap-4 px-2 lg:px-6">
-            <label
-              htmlFor="contact-market"
-              className="text-[11px] uppercase tracking-[0.16em] opacity-60"
-            >
-              Contact for
-            </label>
-            <div className="relative">
-              <select
-                id="contact-market"
-                value={market}
-                onChange={(e) =>
-                  setMarketChoice(
-                    e.target.value as "domestic" | "international"
-                  )
-                }
-                className={cn(FIELD, "w-auto appearance-none pr-11")}
-              >
-                <option value="domestic">Domestic (India)</option>
-                <option value="international">International</option>
-              </select>
-              <ChevronDown
-                className="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 opacity-60"
-                strokeWidth={1.5}
-                aria-hidden="true"
-              />
-            </div>
-          </div>
-        </Container>
-        <Container className="grid gap-px py-4 sm:grid-cols-2 lg:grid-cols-4">
-          {market === "domestic"
-            ? [
-                {
-                  icon: Mail,
-                  label: "Email",
-                  value: EMAIL,
-                  href: `mailto:${EMAIL}`,
-                },
-                {
-                  icon: Phone,
-                  label: "Call",
-                  value: INDIA_TEAM.phone.display,
-                  href: INDIA_TEAM.phone.href,
-                },
-                {
-                  icon: MessageCircle,
-                  label: "WhatsApp",
-                  value: "Message the sales team",
-                  href: whatsappLink(
-                    INDIA_TEAM,
-                    "Hi, I have an enquiry for Pacific Surfaces."
-                  ),
-                  external: true,
-                },
-                { icon: Clock, label: "Hours", value: OPENING_HOURS.display },
-              ].map((l) => {
-                const Icon = l.icon;
-                const body = (
-                  <>
-                    <Icon
-                      className="h-6 w-6 shrink-0"
-                      strokeWidth={1.25}
-                      aria-hidden="true"
-                    />
-                    <span>
-                      <span className="block text-[11px] uppercase tracking-[0.16em] opacity-60">
-                        {l.label}
-                      </span>
-                      <span className="mt-1 block break-words text-[17px] font-light">
-                        {l.value}
-                      </span>
-                    </span>
-                  </>
-                );
-                const cls = "flex items-center gap-4 px-2 py-6 lg:px-6";
-                return l.href ? (
-                  <a
-                    key={l.label}
-                    href={l.href}
-                    {...(l.external
-                      ? { target: "_blank", rel: "noopener noreferrer" }
-                      : {})}
-                    className={cn(cls, "transition-opacity hover:opacity-70")}
-                  >
-                    {body}
-                  </a>
-                ) : (
-                  <div key={l.label} className={cls}>
-                    {body}
-                  </div>
-                );
-              })
-            : (
-                departmentContacts.find((d) => d.name === "International Sales")
-                  ?.contacts ?? []
-              ).map((c) => (
-                <div
-                  key={c.email}
-                  className="flex items-center gap-4 px-2 py-6 lg:px-6"
-                >
-                  <Globe
-                    className="h-6 w-6 shrink-0"
-                    strokeWidth={1.25}
-                    aria-hidden="true"
-                  />
-                  <span className="min-w-0">
-                    <span className="block text-[11px] uppercase tracking-[0.16em] opacity-60">
-                      {c.name}
-                    </span>
-                    {c.phone && (
-                      <a
-                        href={`tel:${c.phone.replace(/\s/g, "")}`}
-                        className="mt-1 block text-[17px] font-light transition-opacity hover:opacity-70"
-                      >
-                        {c.phone}
-                      </a>
-                    )}
-                    <a
-                      href={`mailto:${c.email}`}
-                      className="block break-words text-[15px] font-light opacity-80 transition-opacity hover:opacity-60"
-                    >
-                      {c.email}
-                    </a>
-                  </span>
-                </div>
-              ))}
-        </Container>
-      </section>
-
       {/* 5 · The factory --------------------------------------------------
           Name, address, phones and hours exactly as on the Google Business
           Profile and in the site's JSON-LD (data/business), with Google
@@ -1232,8 +1083,10 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
         </Container>
       </section>
 
-      {/* 6 · Department contacts ------------------------------------------- */}
-      <section className="bg-white">
+      {/* 6 · Department contacts -------------------------------------------
+          #departments: where "Contact" in the footer and the menu lands
+          (owner, 2026-11-21). */}
+      <section id="departments" className="scroll-mt-20 bg-white">
         <Container className="py-10 lg:py-14">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h2
@@ -1255,7 +1108,16 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                 <div className="mt-5 space-y-4">
                   {dept.contacts.map((c) => (
                     <div key={c.email} className="space-y-1 text-sm font-light">
-                      {c.name && <p className="font-normal">{c.name}</p>}
+                      {c.name && (
+                        <p className="font-normal">
+                          {c.name}
+                          {c.role && (
+                            <span className="font-light opacity-70">
+                              {` (${c.role})`}
+                            </span>
+                          )}
+                        </p>
+                      )}
                       {c.phone && (
                         <a
                           href={`tel:${c.phone.replace(/\s/g, "")}`}

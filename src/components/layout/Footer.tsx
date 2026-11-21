@@ -144,7 +144,7 @@ const footerLinks = {
     { name: "Sustainability", href: "/sustainability" },
     { name: "Careers", href: "/careers" },
     { name: "News & Events", href: "/blog" },
-    { name: "Contact Us", href: "/contact" },
+    { name: "Contact Us", href: "/contact#departments" },
   ],
   resources: [
     // "All Collections" removed — Products column's "More" link

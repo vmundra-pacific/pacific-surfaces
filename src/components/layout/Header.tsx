@@ -417,7 +417,7 @@ const navigation = [
   // Visualizer as a plain tab; Where to Buy took its pill on the right
   // (owner, 2026-10-24: "swap visualiser with where to buy").
   { name: "Visualizer", href: "/visualize" },
-  { name: "Contact", href: "/contact" },
+  { name: "Contact", href: "/contact#departments" },
 ];
 
 // Desktop nav drops "Contact" because the "Get a Quote" CTA already

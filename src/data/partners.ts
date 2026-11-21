@@ -210,6 +210,23 @@ export const PACIFIC_POLSKA: Partner = {
         "https://www.google.com/maps/search/?api=1&query=" +
         encodeURIComponent("ANT-MAR BIS, Brzozowa 50, 42-130 Kalej, Poland"),
     },
+    // PARTNER KAMIENIA (owner, 2026-11-21): address, phone and e-mail as on
+    // partnerkamienia.pl/kamien-w-domu/kontakt; the point is the building
+    // OpenStreetMap gives for that address.
+    {
+      name: "PARTNER KAMIENIA",
+      city: "Rzeszotary",
+      addressLines: ["ul. Legnicka 32", "59-222 Rzeszotary"],
+      phone: { display: "+48 502 161 547", href: "tel:+48502161547" },
+      email: "biuro@partnerkamienia.pl",
+      lat: 51.2526,
+      lng: 16.1615,
+      mapUrl:
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(
+          "PARTNER KAMIENIA, Legnicka 32, 59-222 Rzeszotary, Poland"
+        ),
+    },
   ],
 };
 
