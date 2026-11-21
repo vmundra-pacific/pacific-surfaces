@@ -2247,7 +2247,12 @@ function alwaysTruthy(
     const and = e.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken;
     if (!or && !and) return undefined;
     const left = alwaysTruthy(e.left, parsed, depth + 1);
-    if (left === undefined) return undefined;
+    if (left === undefined) {
+      // An unknown left side still loses to a constant right side:
+      // `x && false` is always falsy, `x || true` is always truthy.
+      const right = alwaysTruthy(e.right, parsed, depth + 1);
+      return right !== undefined && right === or ? right : undefined;
+    }
     // `a || b` is a when a is truthy; `a && b` is a when a is falsy.
     return left === or ? left : alwaysTruthy(e.right, parsed, depth + 1);
   }
@@ -2472,6 +2477,27 @@ function callProblems(
   return problems;
 }
 
+/** What is wrong with a value that should be the helper's answer. */
+function holdsHelper(
+  holder: string,
+  value: ts.Expression,
+  use: PictureUse,
+  parsed: ParsedSource
+): string[] {
+  const v = bare(value);
+  if (!ts.isIdentifier(v)) return callProblems(holder, value, use, parsed);
+  const declaration = constDeclarationOf(symbolOf(v, parsed.checker));
+  if (!declaration?.initializer) {
+    return [`${holder} ${v.text}, not ${use.helper}(${use.argument})`];
+  }
+  return callProblems(
+    `${holder} ${v.text}, which holds`,
+    declaration.initializer,
+    use,
+    parsed
+  );
+}
+
 /**
  * What is wrong with one use in this text of its file; nothing when the
  * place is drawn from what the helper returns: the call itself, or a
@@ -2497,6 +2523,20 @@ function wiringProblems(use: PictureUse, text: string): string[] {
     problems.push(
       `${where} has a spread or a member the check cannot name, which can replace ${use.attribute}`
     );
+  }
+  if ("element" in use.place) {
+    // A browser loads srcSet in preference to src, so a srcSet or sizes
+    // beside the right src must itself be what the helper returns.
+    for (const m of members) {
+      const name = memberName(m);
+      if (name === undefined || !/^(srcset|sizes)$/i.test(name)) continue;
+      const extra = memberValue(m);
+      problems.push(
+        ...(extra === undefined
+          ? [`${where} has a ${name} with no value the check can read`]
+          : holdsHelper(`${name} is`, extra, use, parsed))
+      );
+    }
   }
   const named = members.filter((m) => memberName(m) === use.attribute);
   const value = named.length === 1 ? memberValue(named[0]) : undefined;
@@ -2641,6 +2681,54 @@ const WIRING_CASES: WiringCase[] = [
     file: LIGHTBOX,
     what: "drawn behind a guard that is always false",
     edits: [["{currentSrc && (", "{false && currentSrc && ("]],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "a raw srcSet beside the call, which a browser loads in preference to src",
+    edits: [[LIGHTBOX_MAIN_CALL, `${LIGHTBOX_MAIN_CALL} srcSet={currentSrc}`]],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "a raw sizes beside the call",
+    edits: [[LIGHTBOX_MAIN_CALL, `${LIGHTBOX_MAIN_CALL} sizes={currentSrc}`]],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "a srcSet beside the call that holds a raw address in a const",
+    edits: [
+      [LIGHTBOX_MAIN_CALL, `${LIGHTBOX_MAIN_CALL} srcSet={rawSet}`],
+      [
+        "const hasThumbs = slides.length > 1;",
+        "const hasThumbs = slides.length > 1;\n  const rawSet = currentSrc;",
+      ],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_THUMB,
+    file: LIGHTBOX,
+    what: "a raw srcSet beside the call",
+    edits: [[LIGHTBOX_THUMB_CALL, `${LIGHTBOX_THUMB_CALL} srcSet={src}`]],
+  },
+  {
+    breaks: "the slab picker's thumbnail",
+    file: PICKER,
+    what: "a raw srcSet beside the call",
+    edits: [[PICKER_CALL, `${PICKER_CALL} srcSet={s.photoUrl}`]],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn behind a guard that ends in a constant false after an unknown value",
+    edits: [["{currentSrc && (", "{currentSrc && false && ("]],
+  },
+  {
+    breaks: LIGHTBOX_MAIN,
+    file: LIGHTBOX,
+    what: "drawn behind a negated guard that ends in a constant true after an unknown value",
+    edits: [["{currentSrc && (", "{!(currentSrc || true) && ("]],
   },
   {
     breaks: LIGHTBOX_MAIN,
