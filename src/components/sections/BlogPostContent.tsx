@@ -80,6 +80,54 @@ function inlineImageSize(
  * card aesthetic of the index.
  */
 const portableTextComponents: PortableTextComponents = {
+  // Studio's text styles (Normal, Heading 1–6, Quote). Same cause as the
+  // lists below: with `prose` inert, Tailwind's reset gave every heading
+  // body size and paragraphs no spacing, so styles chosen in Sanity made
+  // no difference once published (2026-11-21). The post title is the
+  // page's only <h1>, so an editor's "Heading 1" is drawn at H1 size but
+  // emitted as <h2>, keeping one H1 per page for search engines.
+  block: {
+    normal: ({ children }) => (
+      <p className="my-5 text-base font-light leading-relaxed text-pacific-dark/80 sm:text-lg">
+        {children}
+      </p>
+    ),
+    h1: ({ children }) => (
+      <h2 className="mt-14 mb-6 text-3xl font-light leading-[1.15] tracking-tight text-pacific-dark sm:text-4xl">
+        {children}
+      </h2>
+    ),
+    h2: ({ children }) => (
+      <h2 className="mt-12 mb-5 text-2xl font-light leading-snug tracking-tight text-pacific-dark sm:text-3xl">
+        {children}
+      </h2>
+    ),
+    h3: ({ children }) => (
+      <h3 className="mt-10 mb-4 text-xl font-light leading-snug tracking-tight text-pacific-dark sm:text-2xl">
+        {children}
+      </h3>
+    ),
+    h4: ({ children }) => (
+      <h4 className="mt-8 mb-3 text-lg font-medium leading-snug text-pacific-dark sm:text-xl">
+        {children}
+      </h4>
+    ),
+    h5: ({ children }) => (
+      <h5 className="mt-8 mb-3 text-base font-medium leading-snug text-pacific-dark sm:text-lg">
+        {children}
+      </h5>
+    ),
+    h6: ({ children }) => (
+      <h6 className="mt-8 mb-3 text-sm font-medium uppercase tracking-[0.15em] text-pacific-dark/70">
+        {children}
+      </h6>
+    ),
+    blockquote: ({ children }) => (
+      <blockquote className="my-8 border-l-4 border-pacific-dark/40 pl-6 text-lg font-light leading-relaxed text-pacific-dark/70 sm:text-xl">
+        {children}
+      </blockquote>
+    ),
+  },
   // Bulleted and numbered lists from Studio. The body's `prose` classes
   // do nothing (the Tailwind typography plugin is not installed), and
   // Tailwind's reset strips list markers and indent, so lists published
