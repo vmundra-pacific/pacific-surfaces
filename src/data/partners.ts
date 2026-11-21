@@ -169,7 +169,8 @@ export const PACIFIC_POLSKA: Partner = {
     },
   ],
   // Poland distributors (owner, 2026-11-14). IMPERIAL-GRANIT's address is
-  // its own Google Maps listing (the link the owner sent); no phone given.
+  // its own Google Maps listing (the link the owner sent); phone from the
+  // owner, 2026-11-21.
   // ANT-MAR BIS (owner, 2026-11-19): name, address, phone and e-mail as on
   // the company's own card; the phone is written in international form.
   distributors: [
@@ -192,6 +193,7 @@ export const PACIFIC_POLSKA: Partner = {
       owner: "Michał Olejniczak",
       city: "Bralin",
       addressLines: ["Tabor Wielki 1C", "63-640 Bralin"],
+      phone: { display: "+48 606 839 239", href: "tel:+48606839239" },
       mapUrl: "https://maps.app.goo.gl/uixiZVwKhJ39sFUeA",
       lat: 51.2889,
       lng: 17.8656,
