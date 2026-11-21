@@ -2062,6 +2062,15 @@ const PICTURE_USES: PictureUse[] = [
     argument: "currentSrc",
   },
   {
+    file: "src/components/ui/finish-lightbox.tsx",
+    name: "the finish lightbox's thumbnail",
+    place: { element: "img", within: "slides.map" },
+    attribute: "src",
+    helper: "lightboxThumbUrl",
+    from: "@/lib/picture-choices",
+    argument: "src",
+  },
+  {
     file: "src/components/sections/ResourcesContent.tsx",
     name: "the catalogue reader's cover",
     place: { element: "Flipbook" },
@@ -2087,6 +2096,15 @@ const PICTURE_USES: PictureUse[] = [
     helper: "shareBackground",
     from: "@/cms/media",
     argument: "product.mainImage",
+  },
+  {
+    file: "src/app/(site)/blog/[slug]/opengraph-image.tsx",
+    name: "the blog share card's background",
+    place: { element: "img" },
+    attribute: "src",
+    helper: "shareBackground",
+    from: "@/cms/media",
+    argument: "post?.mainImage",
   },
 ];
 
@@ -2493,7 +2511,9 @@ function wiringProblems(use: PictureUse, text: string): string[] {
   }
   const declaration = constDeclarationOf(symbolOf(v, parsed.checker));
   if (!declaration?.initializer) {
-    problems.push(`${use.attribute} is ${v.text}, which is not a const`);
+    problems.push(
+      `${use.attribute} is ${v.text}, not ${use.helper}(${use.argument}) or a const that holds it`
+    );
     return problems;
   }
   const unset = neverRuns(declaration, parsed);
@@ -2525,6 +2545,7 @@ const LIGHTBOX = "src/components/ui/finish-lightbox.tsx";
 const READER = "src/components/sections/ResourcesContent.tsx";
 const PICKER = "src/components/visualize/SlabPicker.tsx";
 const PRODUCT_CARD = "src/app/(site)/products/[slug]/opengraph-image.tsx";
+const BLOG_CARD = "src/app/(site)/blog/[slug]/opengraph-image.tsx";
 
 const LIGHTBOX_MAIN = "the finish lightbox's main picture";
 const LIGHTBOX_MAIN_CALL = "src={lightboxImageUrl(currentSrc)}";
@@ -2532,10 +2553,13 @@ const LIGHTBOX_MAIN_RAW: [string, string] = [
   LIGHTBOX_MAIN_CALL,
   "src={currentSrc}",
 ];
+const LIGHTBOX_THUMB = "the finish lightbox's thumbnail";
+const LIGHTBOX_THUMB_CALL = "src={lightboxThumbUrl(src)}";
 const READER_CALL = "poster={resourcePosterUrl(resource.thumbnail)}";
 const PICKER_CALL = "src={slabPickerThumbUrl(s.photoUrl)}";
 const PRODUCT_LINE =
   "const bgImage = await shareBackground(product.mainImage);";
+const BLOG_LINE = "const bgImage = await shareBackground(post?.mainImage);";
 
 const WIRING_CASES: WiringCase[] = [
   {
@@ -2650,6 +2674,48 @@ const WIRING_CASES: WiringCase[] = [
         "const hasThumbs = slides.length > 1;\n  const lightboxImageUrl = (src: string) => src;",
       ],
     ],
+  },
+  {
+    breaks: LIGHTBOX_THUMB,
+    file: LIGHTBOX,
+    what: "drawn from the raw address",
+    edits: [[LIGHTBOX_THUMB_CALL, "src={src}"]],
+  },
+  {
+    breaks: LIGHTBOX_THUMB,
+    file: LIGHTBOX,
+    what: "drawn from the raw address, the call kept in a line comment beside it",
+    edits: [[LIGHTBOX_THUMB_CALL, `src={src} // was ${LIGHTBOX_THUMB_CALL}`]],
+  },
+  {
+    breaks: LIGHTBOX_THUMB,
+    file: LIGHTBOX,
+    what: "drawn from the raw address, the call kept in a picture behind a guard that is always false",
+    edits: [
+      [LIGHTBOX_THUMB_CALL, "src={src}"],
+      [
+        "{slides.map((src, i) => (",
+        `{false && slides.map((src) => <img alt="" ${LIGHTBOX_THUMB_CALL} />)}\n          {slides.map((src, i) => (`,
+      ],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_THUMB,
+    file: LIGHTBOX,
+    what: "drawn from the raw address, the call kept in pictures that are made but never drawn",
+    edits: [
+      [LIGHTBOX_THUMB_CALL, "src={src}"],
+      [
+        "const hasThumbs = slides.length > 1;",
+        `const hasThumbs = slides.length > 1;\n  const unusedThumbs = slides.map((src) => <img alt="" ${LIGHTBOX_THUMB_CALL} />);`,
+      ],
+    ],
+  },
+  {
+    breaks: LIGHTBOX_THUMB,
+    file: LIGHTBOX,
+    what: "drawn through the main picture's helper",
+    edits: [[LIGHTBOX_THUMB_CALL, "src={lightboxImageUrl(src)}"]],
   },
   {
     breaks: "the catalogue reader's cover",
@@ -2777,16 +2843,62 @@ const WIRING_CASES: WiringCase[] = [
       ],
     ],
   },
+  {
+    breaks: "the blog share card's background",
+    file: BLOG_CARD,
+    what: "taken from the raw picture",
+    edits: [[BLOG_LINE, "const bgImage = post?.mainImage ?? undefined;"]],
+  },
+  {
+    breaks: "the blog share card's background",
+    file: BLOG_CARD,
+    what: "drawn from the raw picture, the helper's answer left unused",
+    edits: [["src={bgImage}", "src={post?.mainImage ?? undefined}"]],
+  },
+  {
+    breaks: "the blog share card's background",
+    file: BLOG_CARD,
+    what: "taken from the raw picture, the call kept in a comment above it",
+    edits: [
+      [
+        BLOG_LINE,
+        `// ${BLOG_LINE}\n  const bgImage = post?.mainImage ?? undefined;`,
+      ],
+    ],
+  },
+  {
+    breaks: "the blog share card's background",
+    file: BLOG_CARD,
+    what: "taken from the raw picture, the call kept in an inner block whose answer is unused",
+    edits: [
+      [
+        BLOG_LINE,
+        `const bgImage = post?.mainImage ?? undefined;\n  {\n    ${BLOG_LINE}\n    void bgImage;\n  }`,
+      ],
+    ],
+  },
+  {
+    breaks: "the blog share card's background",
+    file: BLOG_CARD,
+    what: "taken from the raw picture, the call kept in a block that never runs",
+    edits: [
+      [
+        BLOG_LINE,
+        `const bgImage = post?.mainImage ?? undefined;\n  if (false) {\n    ${BLOG_LINE}\n    void bgImage;\n  }`,
+      ],
+    ],
+  },
 ];
 
 /**
  * The components that show a picture through their own helper still draw
- * it from what the helper returns: the lightbox and the reader's cover
- * are drawn only in the browser, so no page check sees them. Judged on
- * the parsed source (the TypeScript compiler's syntax tree, where
- * comments are not nodes), so a comment, a copy that is never drawn or a
- * call whose answer is unused does not count. The helpers themselves are
- * checked above.
+ * it from what the helper returns. The lightbox (its main picture and its
+ * thumbnails) and the reader's cover are drawn only in the browser, and
+ * the share cards are drawn into an image, not a page, so no page check
+ * sees them. Judged on the parsed source (the TypeScript compiler's
+ * syntax tree, where comments are not nodes), so a comment, a copy that
+ * is never drawn or a call whose answer is unused does not count. The
+ * helpers themselves are checked above.
  */
 function checkHelperWiring(): void {
   console.log("Each component draws its picture from its helper");
