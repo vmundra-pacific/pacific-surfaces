@@ -11,8 +11,9 @@
  * Only that way back is supported: the site on the CMS
  * (CONTENT_SOURCE=cms) with some kinds sent back to Sanity. Sending one
  * kind forward to the CMS while the site stays on Sanity is NOT
- * supported: the file routes, the picture-host hint and robots follow
- * CONTENT_SOURCE only, so they would still point at Sanity.
+ * supported and is refused when the server starts: the file routes, the
+ * picture-host hint and robots follow CONTENT_SOURCE only, so they would
+ * still point at Sanity.
  *
  * Any other value, in any of these settings ("CMS", "true", " cms"), is
  * refused with an error that names the setting. It is never read as one
@@ -68,10 +69,22 @@ export function contentSourceFor(type: ContentType): ContentSource {
   return own ?? contentSource();
 }
 
-/** Refuses a wrong value in any of the settings. Run when the server starts. */
+/**
+ * Refuses a wrong value in any of the settings, and refuses any kind set to
+ * "cms" while CONTENT_SOURCE is "sanity" or not set. Run when the server
+ * starts.
+ */
 export function assertContentSettings(): void {
-  contentSource();
+  const site = contentSource();
   for (const type of Object.keys(CONTENT_TYPE_SETTINGS) as ContentType[]) {
-    contentSourceFor(type);
+    const kind = contentSourceFor(type);
+    if (kind === "cms" && site !== "cms") {
+      const name = CONTENT_TYPE_SETTINGS[type];
+      throw new Error(
+        `${name} is "cms" but CONTENT_SOURCE is ${site === "sanity" && process.env.CONTENT_SOURCE ? '"sanity"' : "not set"}. ` +
+          `This mix is not supported: the site's files and pictures would still come from Sanity. ` +
+          `Set CONTENT_SOURCE=cms for the whole site, and send single kinds back with ${name}=sanity.`
+      );
+    }
   }
 }

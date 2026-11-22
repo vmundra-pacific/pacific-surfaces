@@ -522,6 +522,33 @@ function checkContentSourcePerType(): void {
       "cms"
     );
     same("faq: still follows sanity", contentSourceFor("faq"), "sanity");
+    // ...but that mix is not accepted at start (only the way back is).
+    for (const type of types) {
+      clear();
+      process.env[CONTENT_TYPE_SETTINGS[type]] = "cms";
+      check(
+        `${CONTENT_TYPE_SETTINGS[type]}=cms with CONTENT_SOURCE not set is refused at start, naming the setting`,
+        throwsWith(() => assertContentSettings(), CONTENT_TYPE_SETTINGS[type])
+      );
+      process.env.CONTENT_SOURCE = "sanity";
+      check(
+        `${CONTENT_TYPE_SETTINGS[type]}=cms with CONTENT_SOURCE=sanity is refused at start`,
+        throwsWith(() => assertContentSettings(), CONTENT_TYPE_SETTINGS[type])
+      );
+      process.env.CONTENT_SOURCE = "cms";
+      check(
+        `${CONTENT_TYPE_SETTINGS[type]}=cms with CONTENT_SOURCE=cms starts`,
+        !throwsWith(() => assertContentSettings(), "")
+      );
+    }
+    clear();
+    process.env.CONTENT_SOURCE_FAQ = "sanity";
+    check(
+      "a kind sent to sanity while CONTENT_SOURCE is not set starts",
+      !throwsWith(() => assertContentSettings(), "")
+    );
+    process.env.CONTENT_SOURCE = "sanity";
+    process.env.CONTENT_SOURCE_PRODUCTS = "cms";
     check(
       "CONTENT_SOURCE_PRODUCTS is named for the products fetchers",
       CONTENT_TYPE_SETTINGS.products === "CONTENT_SOURCE_PRODUCTS"
@@ -3512,12 +3539,8 @@ async function checkFetchers(): Promise<void> {
   delete process.env.CONTENT_SOURCE;
   process.env.CONTENT_SOURCE_FAQ = "cms";
   check(
-    "CONTENT_SOURCE unset with CONTENT_SOURCE_FAQ=cms: the FAQ calls the CMS",
-    await asked(() => cms.faq("quartz"))
-  );
-  check(
-    "CONTENT_SOURCE unset with CONTENT_SOURCE_FAQ=cms: products do not call the CMS",
-    !(await asked(() => cms.productsCatalogue()))
+    "CONTENT_SOURCE unset with CONTENT_SOURCE_FAQ=cms is refused at start",
+    throwsWith(() => assertContentSettings(), "CONTENT_SOURCE_FAQ")
   );
   delete process.env.CONTENT_SOURCE_FAQ;
   process.env.CONTENT_SOURCE_FAQ = "Cms";
