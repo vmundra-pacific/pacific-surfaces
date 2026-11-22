@@ -4,9 +4,15 @@
  * CONTENT_SOURCE picks the store for the whole site: "sanity" or "cms".
  * Unset or empty means "sanity".
  *
- * A single kind of content can be sent back, or forward, on its own with
+ * A single kind of content can be sent back to Sanity on its own with
  * its own setting, for example CONTENT_SOURCE_PRODUCTS=sanity while
  * CONTENT_SOURCE=cms. Unset or empty means "follow CONTENT_SOURCE".
+ *
+ * Only that way back is supported: the site on the CMS
+ * (CONTENT_SOURCE=cms) with some kinds sent back to Sanity. Sending one
+ * kind forward to the CMS while the site stays on Sanity is NOT
+ * supported: the file routes, the picture-host hint and robots follow
+ * CONTENT_SOURCE only, so they would still point at Sanity.
  *
  * Any other value, in any of these settings ("CMS", "true", " cms"), is
  * refused with an error that names the setting. It is never read as one

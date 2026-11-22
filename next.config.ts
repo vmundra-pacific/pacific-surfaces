@@ -277,13 +277,10 @@ const nextConfig: NextConfig = {
         destination: "/products/quartz",
         permanent: true,
       },
-      // The four legacy standalone product landings each had their
-      // own bespoke layout (SinksContent, GranitesContent, etc.).
-      // Now that every category renders through the unified
-      // /products/<slug> Catalogue UI, these old URLs redirect into
-      // their new equivalents. The page files still exist on disk
-      // so the work isn't lost — the redirect just intercepts before
-      // they're served.
+      // The four old standalone product landings (sinks, granites,
+      // semi-precious, ecosurfaces) are gone. Every category now renders
+      // through the unified /products/<slug> Catalogue UI, so the old
+      // URLs redirect permanently into their new equivalents.
       {
         source: "/sinks",
         destination: "/products/integra",

@@ -20,8 +20,8 @@ interface OrderSampleModalProps {
    *     Address is hidden (not needed for an enquiry), Notes/message
    *     becomes required and gets more space, email subject is
    *     "Enquiry".
-   * Defaults to "sample" so existing call sites (ProductDetail,
-   * GranitesContent) keep working without modification.
+   * Defaults to "sample" so existing call sites (ProductDetail)
+   * keep working without modification.
    */
   mode?: "sample" | "enquire";
 }
