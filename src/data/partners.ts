@@ -95,7 +95,7 @@ export interface Partner {
  *  (Dubai visitors' WhatsApp still reaches him, data/sales-reps). */
 const SARAL_MUNDRA: PartnerContact = {
   name: "Saral Mundra",
-  role: "Pacific Surfaces sales · Dubai & Mexico",
+  role: "Business Development · Dubai & Mexico", // owner, 2026-11-21
   phone: { display: "+91 73977 46963", href: "tel:+917397746963" },
   whatsapp: "917397746963",
   email: "saral@thepacific.group",

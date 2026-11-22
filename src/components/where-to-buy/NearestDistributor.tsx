@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useId, useState } from "react";
-import { ArrowRight, ChevronDown, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import {
   FINDER_AUDIENCES,
@@ -51,51 +51,10 @@ const SECONDARY = {
   color: "#ffffff",
   border: "1px solid rgba(255,255,255,0.8)",
 };
-const REGION_NAME: Record<Partner["region"], string> = {
-  pl: "Poland",
-  me: "the Middle East",
-  mx: "Mexico",
-};
 const POSTCODE = /^\s*\d{2}[\s-]?\d{3}\s*$/;
 
-export function NearestDistributor({
-  partner,
-  children,
-}: {
-  partner: Partner;
-  /** Every distributor, shown under a "See all distributors" button
-   *  (owner, 2026-11-21). */
-  children?: React.ReactNode;
-}) {
+export function NearestDistributor({ partner }: { partner: Partner }) {
   const id = useId();
-  const [showAll, setShowAll] = useState(false);
-  const count = partner.distributors?.length ?? 0;
-  const allList = children ? (
-    <div className="mt-8 border-t border-white/25 pt-6 text-left">
-      <MagneticButton
-        type="button"
-        variant="outline-dark"
-        size="md"
-        aria-expanded={showAll}
-        aria-controls={`${id}-all`}
-        onClick={() => setShowAll((v) => !v)}
-        className="!rounded-none h-12 !border-white/80 !text-[12px] uppercase tracking-[0.14em] hover:!bg-white/15 hover:!text-white"
-      >
-        {showAll
-          ? "Hide all distributors"
-          : `See all distributors in ${REGION_NAME[partner.region]} (${count})`}
-        <ChevronDown
-          className={`h-4 w-4 transition-transform ${showAll ? "rotate-180" : ""}`}
-          aria-hidden="true"
-        />
-      </MagneticButton>
-      {showAll && (
-        <div id={`${id}-all`} className="mt-6">
-          {children}
-        </div>
-      )}
-    </div>
-  ) : null;
   const [who, setWho] = useState("");
   const [postcode, setPostcode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -251,78 +210,74 @@ export function NearestDistributor({
             Search another postal code
           </MagneticButton>
         </div>
-        {allList}
       </div>
     );
   }
 
   return (
-    <>
-      <form onSubmit={search} noValidate className="text-left">
-        <p className="text-[10px] uppercase tracking-[0.18em] opacity-70">
-          Find your nearest distributor
-        </p>
-        <p className="mt-3 text-[15px] font-light leading-snug">
-          Tell us who you are and your postal code, and we will show the
-          distributor nearest to you.
-        </p>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor={`${id}-who`} className={LABEL}>
-              I am a *
-            </label>
-            <select
-              id={`${id}-who`}
-              value={who}
-              onChange={(e) => setWho(e.target.value)}
-              required
-              className={FIELD}
-            >
-              <option value="" disabled>
-                Choose one
-              </option>
-              {FINDER_AUDIENCES.map((a) => (
-                <option key={a.value} value={a.value}>
-                  {a.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor={`${id}-postcode`} className={LABEL}>
-              Postal code *
-            </label>
-            <input
-              id={`${id}-postcode`}
-              value={postcode}
-              onChange={(e) => setPostcode(e.target.value)}
-              inputMode="numeric"
-              autoComplete="postal-code"
-              placeholder="e.g. 42-130"
-              maxLength={8}
-              required
-              className={FIELD}
-            />
-          </div>
-        </div>
-        {error && (
-          <p role="alert" className="mt-3 text-[13px] font-light leading-snug">
-            {error}
-          </p>
-        )}
-        <div className="mt-5">
-          <MagneticButton
-            type="submit"
-            variant="primary-dark"
-            size="md"
-            disabled={busy}
-            className="!rounded-none h-12 uppercase tracking-[0.14em] !text-[12px]"
+    <form onSubmit={search} noValidate className="text-left">
+      <p className="text-[10px] uppercase tracking-[0.18em] opacity-70">
+        Find your nearest distributor
+      </p>
+      <p className="mt-3 text-[15px] font-light leading-snug">
+        Tell us who you are and your postal code, and we will show the
+        distributor nearest to you.
+      </p>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor={`${id}-who`} className={LABEL}>
+            I am a *
+          </label>
+          <select
+            id={`${id}-who`}
+            value={who}
+            onChange={(e) => setWho(e.target.value)}
+            required
+            className={FIELD}
           >
-            {busy ? "Finding…" : "Find my distributor"}
-          </MagneticButton>
+            <option value="" disabled>
+              Choose one
+            </option>
+            {FINDER_AUDIENCES.map((a) => (
+              <option key={a.value} value={a.value}>
+                {a.label}
+              </option>
+            ))}
+          </select>
         </div>
-      </form>
-      {allList}
-    </>
+        <div>
+          <label htmlFor={`${id}-postcode`} className={LABEL}>
+            Postal code *
+          </label>
+          <input
+            id={`${id}-postcode`}
+            value={postcode}
+            onChange={(e) => setPostcode(e.target.value)}
+            inputMode="numeric"
+            autoComplete="postal-code"
+            placeholder="e.g. 42-130"
+            maxLength={8}
+            required
+            className={FIELD}
+          />
+        </div>
+      </div>
+      {error && (
+        <p role="alert" className="mt-3 text-[13px] font-light leading-snug">
+          {error}
+        </p>
+      )}
+      <div className="mt-5">
+        <MagneticButton
+          type="submit"
+          variant="primary-dark"
+          size="md"
+          disabled={busy}
+          className="!rounded-none h-12 uppercase tracking-[0.14em] !text-[12px]"
+        >
+          {busy ? "Finding…" : "Find my distributor"}
+        </MagneticButton>
+      </div>
+    </form>
   );
 }

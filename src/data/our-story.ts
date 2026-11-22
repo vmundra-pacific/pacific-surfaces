@@ -105,7 +105,7 @@ export const TEAM: {
   },
   {
     name: "Saral Mundra",
-    role: "Business Head Mexico & Middle East",
+    role: "Business Development", // owner, 2026-11-21
     photo: "/team/saral-mundra.jpg",
   },
   {
@@ -126,7 +126,7 @@ export const TEAM: {
   },
   {
     name: "Satakshi Rautaray",
-    role: "Business Head DACH & Benelux",
+    role: "Business Development", // owner, 2026-11-21
     photo: "/team/satakshi-rautaray.png",
   },
 ];

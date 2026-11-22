@@ -263,33 +263,19 @@ function Distributors({ p }: { p: Partner }) {
   if (!p.distributors?.length) return null;
   // Poland (owner, 2026-11-19): ask who and where, then show the nearest one.
   if (p.finder === "postcode") {
-    // ...with a button to see every distributor (owner, 2026-11-21).
     return (
       <div className="mt-7 border-t border-white/25 pt-6">
-        <NearestDistributor partner={p}>
-          <DistributorsByCity p={p} />
-        </NearestDistributor>
+        <NearestDistributor partner={p} />
       </div>
     );
   }
-  return (
-    <div className="mt-7 border-t border-white/25 pt-6 text-left">
-      <DistributorsByCity p={p} />
-    </div>
-  );
-}
-
-/** Every distributor of the region, a heading per town in alphabetical
- *  order with that town's distributors under it. */
-function DistributorsByCity({ p }: { p: Partner }) {
-  if (!p.distributors?.length) return null;
   const byCity = new Map<string, RegionDistributor[]>();
   for (const d of p.distributors) {
     byCity.set(d.city, [...(byCity.get(d.city) ?? []), d]);
   }
   const cities = [...byCity.keys()].sort((a, b) => a.localeCompare(b, "pl"));
   return (
-    <div>
+    <div className="mt-7 border-t border-white/25 pt-6 text-left">
       <p className="text-[10px] uppercase tracking-[0.18em] opacity-70">
         Distributors by city
       </p>
