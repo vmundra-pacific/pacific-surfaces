@@ -13,8 +13,10 @@ import { isCmsMedia, mediaBaseUrl } from "@/lib/media-url";
  *
  * Settings, read on the server at call time, never with a NEXT_PUBLIC_
  * name, so they stay out of every browser bundle:
- * - CONTENT_SOURCE: "cms" reads the CMS. Unset, or any other value, reads
- *   Sanity as before.
+ * - CONTENT_SOURCE: "cms" reads the CMS, "sanity" (or unset) reads Sanity.
+ *   Any other value is refused with an error (`./content-source.ts`).
+ * - CONTENT_SOURCE_<TYPE> (for example CONTENT_SOURCE_PRODUCTS): the same
+ *   for one kind of content; unset follows CONTENT_SOURCE.
  * - CMS_URL: the CMS's address (https; plain http only for this machine).
  * - CMS_READ_KEY: the API key of the website's reader login in the CMS.
  * - CMS_PROTECTION_BYPASS: the deployment-protection pass, sent when
@@ -28,15 +30,13 @@ import { isCmsMedia, mediaBaseUrl } from "@/lib/media-url";
 /* The content source                                                  */
 /* ------------------------------------------------------------------ */
 
-export type ContentSource = "sanity" | "cms";
-
-/**
- * Which store the site reads its content from. Only the exact value
- * "cms" picks the CMS; unset, empty or anything else is "sanity".
- */
-export function contentSource(): ContentSource {
-  return process.env.CONTENT_SOURCE === "cms" ? "cms" : "sanity";
-}
+export {
+  assertContentSettings,
+  contentSource,
+  contentSourceFor,
+  type ContentSource,
+  type ContentType,
+} from "./content-source";
 
 /* ------------------------------------------------------------------ */
 /* Request settings, kept in one place                                 */

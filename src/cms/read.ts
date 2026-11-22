@@ -27,6 +27,8 @@ import {
   CMS_CACHE_TAG,
   type AnswerKind,
   contentSource,
+  contentSourceFor,
+  type ContentType,
   readCmsAnswer,
   readCmsPart,
   type ReadQuery,
@@ -51,8 +53,12 @@ export { throwIfCmsFailure } from "./client";
  *
  * Lists are always arrays and are passed as given.
  *
- * The source: with CONTENT_SOURCE unset (or anything but "cms") every
- * fetcher reads Sanity exactly as before. With CONTENT_SOURCE=cms each
+ * The source: with CONTENT_SOURCE unset (or "sanity") every
+ * fetcher reads Sanity exactly as before. A kind of content can read the
+ * other store on its own with CONTENT_SOURCE_<TYPE> (`./content-source.ts`:
+ * products, collections, journal, home, resources, careers, Beyond Stone,
+ * space pages, FAQ, search, sitemap); unset follows CONTENT_SOURCE. With
+ * CONTENT_SOURCE=cms each
  * one reads the matching CMS read answer (`./client.ts`), which gives
  * the same shape the Sanity query gave. A failed or unusable CMS answer
  * throws. Three reads also throw when empty, since a working CMS never
@@ -229,7 +235,8 @@ const jobApplyQuery = `*[_type == "jobOpening" && title == $title][0] { applyEma
 /* The CMS side                                                        */
 /* ------------------------------------------------------------------ */
 
-const fromCms = (): boolean => contentSource() === "cms";
+const fromCms = (type: ContentType): boolean =>
+  contentSourceFor(type) === "cms";
 
 /** The catalogue view of the products answer. Never empty. */
 const CATALOGUE = { view: "catalogue" } as const;
@@ -288,7 +295,7 @@ function cachedPerRequest<T>(
 
 /** products, view "catalogue": every product, for the catalogue, shop, cart and the like. */
 export const productsCatalogue = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("products")
     ? readCmsAnswer<T>("products", CATALOGUE, {
         expect: "list",
         neverEmpty: true,
@@ -297,7 +304,7 @@ export const productsCatalogue = <T = any>(): Promise<T> =>
 
 /** products, view "ids": the products with the given ids. Cached per request with the CMS. */
 export const productsByIds = <T = any>(ids: string[]): Promise<T> =>
-  fromCms()
+  fromCms("products")
     ? cachedPerRequest<T>("products", "ids", {
         view: "ids",
         ids: normalisedList(ids),
@@ -309,7 +316,7 @@ export const productsByCollectionOrType = <T = any>(params: {
   slug: string;
   productType: string | null;
 }): Promise<T> =>
-  fromCms()
+  fromCms("products")
     ? cmsList<T>("products", {
         view: "collectionOrType",
         slug: params.slug,
@@ -323,7 +330,7 @@ export const productsForCategory = <T = any>(params: {
   pt: string | null;
   refiled: string[];
 }): Promise<T> =>
-  fromCms()
+  fromCms("products")
     ? cmsList<T>("products", {
         view: "category",
         cids: params.cids,
@@ -334,13 +341,13 @@ export const productsForCategory = <T = any>(params: {
 
 /** products, view "category" with ribbons "any": every product with a ribbon. Read past the cache. */
 export const productsWithAnyRibbon = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("products")
     ? cmsList<T>("products", { view: "category", ribbons: "any" })
     : freshClient.fetch<T>(productsWithAnyRibbonQuery);
 
 /** products, slugs only: for page generation. From the CMS: the catalogue, each row cut to its slug. */
 export const productSlugs = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("products")
     ? readCmsAnswer<{ slug: unknown }[]>("products", CATALOGUE, {
         expect: "list",
         neverEmpty: true,
@@ -349,19 +356,19 @@ export const productSlugs = <T = any>(): Promise<T> =>
 
 /** product: one product with its related cards, or null. */
 export const product = <T = any>(slug: string): Promise<T> =>
-  fromCms()
+  fromCms("products")
     ? cmsObjectOrNull<T>("product", { slug })
     : client.fetch<T>(productBySlugQuery, { slug });
 
 /** product, for the share image that runs on the edge (no URL rewriting). */
 export const productForShareImage = <T = any>(slug: string): Promise<T> =>
-  fromCms()
+  fromCms("products")
     ? cmsObjectOrNull<T>("product", { slug })
     : rawClient.fetch<T>(productBySlugQuery, { slug });
 
 /** productTiles: name, slug and photo of the products named by slug. */
 export const productTiles = <T = any>(slugs: string[]): Promise<T> =>
-  fromCms()
+  fromCms("products")
     ? cmsList<T>("product-tiles", { slugs })
     : client.fetch<T>(productTilesQuery, { slugs });
 
@@ -374,7 +381,7 @@ export const homepageCollections = <T = any>(params: {
   quartzCollections: string[];
   indiaQuartz: string[];
 }): Promise<T> =>
-  fromCms()
+  fromCms("collections")
     ? readCmsAnswer<T>(
         "homepage-collections",
         {
@@ -387,19 +394,19 @@ export const homepageCollections = <T = any>(params: {
 
 /** collection, full: one collection by slug. */
 export const collection = <T = any>(slug: string): Promise<T> =>
-  fromCms()
+  fromCms("collections")
     ? cmsObjectOrNull<T>("collection", { view: "bySlug", slug })
     : client.fetch<T>(collectionBySlugQuery, { slug });
 
 /** collection, short: one collection by slug, fewer fields. */
 export const collectionShort = <T = any>(slug: string): Promise<T> =>
-  fromCms()
+  fromCms("collections")
     ? cmsObjectOrNull<T>("collection", { view: "bySlugShort", slug })
     : client.fetch<T>(collectionBySlugQueryLocal, { slug });
 
 /** collection, by name match: the oldest collection whose lower-case name matches the pattern. */
 export const collectionByMatch = <T = any>(pattern: string): Promise<T> =>
-  fromCms()
+  fromCms("collections")
     ? cmsObjectOrNull<T>("collection", { view: "byMatch", pattern })
     : client.fetch<T>(collectionByMatchQuery, { pattern });
 
@@ -409,31 +416,31 @@ export const collectionByMatch = <T = any>(pattern: string): Promise<T> =>
 
 /** blogPosts, view "all": every post, newest first. */
 export const blogPostsAll = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("journal")
     ? cmsList<T>("blog-posts", { view: "all" })
     : client.fetch<T>(allBlogPostsQuery);
 
 /** blogPosts, view "recent": the three newest posts. */
 export const blogPostsRecent = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("journal")
     ? cmsList<T>("blog-posts", { view: "recent" })
     : client.fetch<T>(recentBlogPostsQuery);
 
 /** blogPosts, view "slugs": every post's slug. */
 export const blogPostSlugs = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("journal")
     ? cmsList<T>("blog-posts", { view: "slugs" })
     : client.fetch<T>(blogPostSlugsQuery);
 
 /** blogPost: one post by slug, or null. */
 export const blogPost = <T = any>(slug: string): Promise<T> =>
-  fromCms()
+  fromCms("journal")
     ? cmsObjectOrNull<T>("blog-post", { slug })
     : client.fetch<T>(blogPostBySlugQuery, { slug });
 
 /** blogPost, for the share image that runs on the edge (no URL rewriting). */
 export const blogPostForShareImage = <T = any>(slug: string): Promise<T> =>
-  fromCms()
+  fromCms("journal")
     ? cmsObjectOrNull<T>("blog-post", { slug })
     : rawClient.fetch<T>(blogPostBySlugQuery, { slug });
 
@@ -443,19 +450,19 @@ export const blogPostForShareImage = <T = any>(slug: string): Promise<T> =>
 
 /** homepage, signatureProjects. */
 export const homepageSignatureProjects = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("home")
     ? cmsPart<T>("homepage", {}, "signatureProjects", "list")
     : client.fetch<T>(signatureProjectsQuery);
 
 /** homepage, applicationCards. */
 export const homepageApplicationCards = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("home")
     ? cmsPart<T>("homepage", {}, "applicationCards", "list")
     : client.fetch<T>(applicationCardsQuery);
 
 /** homepage, inspirationImages. */
 export const homepageInspirationImages = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("home")
     ? cmsPart<T>("homepage", {}, "inspirationImages", "list")
     : client.fetch<T>(inspirationImagesQuery);
 
@@ -465,47 +472,49 @@ export const homepageInspirationImages = <T = any>(): Promise<T> =>
 
 /** resources: the downloads list. Read past the cache. */
 export const resources = <T = any>(): Promise<T> =>
-  fromCms() ? cmsList<T>("resources") : freshClient.fetch<T>(allResourcesQuery);
+  fromCms("resources")
+    ? cmsList<T>("resources")
+    : freshClient.fetch<T>(allResourcesQuery);
 
 /** careers, page: the careers page text. */
 export const careersPage = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("careers")
     ? cmsPart<T>("careers", {}, "page", "objectOrNull")
     : client.fetch<T>(careersPageQuery);
 
 /** careers, jobs: the visible job openings. */
 export const careersJobs = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("careers")
     ? cmsPart<T>("careers", {}, "jobs", "list")
     : client.fetch<T>(jobOpeningsQuery);
 
 /** beyondStone, page: the Beyond Stone page text. */
 export const beyondStonePage = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("beyondStone")
     ? cmsPart<T>("beyond-stone", {}, "page", "objectOrNull")
     : client.fetch<T>(facadesAndFinishesPageQuery);
 
 /** beyondStone, collectionSlug: the collection the page names, if any. */
 export const beyondStoneCollectionSlug = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("beyondStone")
     ? cmsPart<T>("beyond-stone", {}, "collectionSlug", "textOrNull")
     : client.fetch<T>(beyondStoneCollectionSlugQuery);
 
 /** beyondStone, products: the products of that collection. */
 export const beyondStoneProducts = <T = any>(slug: string): Promise<T> =>
-  fromCms()
+  fromCms("beyondStone")
     ? cmsPart<T>("beyond-stone", { slug }, "products", "list")
     : client.fetch<T>(facadesAndFinishesProductsQuery, { slug });
 
 /** spacePage: the four feature images of a space page. Read past the cache. */
 export const spacePage = <T = any>(slug: string): Promise<T> =>
-  fromCms()
+  fromCms("spacePages")
     ? cmsObjectOrNull<T>("space-page", { slug })
     : freshClient.fetch<T>(spacePageBySlugQuery, { slug });
 
 /** faq: the questions of one FAQ page. */
 export const faq = <T = any>(key: string): Promise<T> =>
-  fromCms()
+  fromCms("faq")
     ? cmsObjectOrNull<T>("faq", { key })
     : client.fetch<T>(faqByKeyQuery, { key });
 
@@ -515,7 +524,7 @@ export const faq = <T = any>(key: string): Promise<T> =>
 
 /** search, view "overlay": up to 40 hits for the search box. Cached per request with the CMS. */
 export const searchOverlay = <T = any>(terms: string[]): Promise<T> =>
-  fromCms()
+  fromCms("search")
     ? cachedPerRequest<T>("search", "overlay", {
         view: "overlay",
         terms: normalisedList(terms),
@@ -524,13 +533,13 @@ export const searchOverlay = <T = any>(terms: string[]): Promise<T> =>
 
 /** search, view "page": up to 60 products for the search page. Cached per request with the CMS. */
 export const searchPage = <T = any>(term: string): Promise<T> =>
-  fromCms()
+  fromCms("search")
     ? cachedPerRequest<T>("search", "page", { view: "page", term: term.trim() })
     : client.fetch<T>(searchPageQuery, { term });
 
 /** sitemap, products. Never empty. */
 export const sitemapProducts = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("sitemap")
     ? readCmsPart<T>("sitemap", {}, "products", {
         expect: "list",
         neverEmpty: true,
@@ -539,13 +548,13 @@ export const sitemapProducts = <T = any>(): Promise<T> =>
 
 /** sitemap, posts. */
 export const sitemapPosts = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("sitemap")
     ? cmsPart<T>("sitemap", {}, "posts", "list")
     : client.fetch<T>(sitemapPostsQuery);
 
 /** sitemap, dates: when each content area last changed. */
 export const sitemapDates = <T = any>(): Promise<T> =>
-  fromCms()
+  fromCms("sitemap")
     ? cmsPart<T>("sitemap", {}, "dates", "object")
     : client.fetch<T>(contentDatesQuery);
 
@@ -560,7 +569,7 @@ export const sitemapDates = <T = any>(): Promise<T> =>
  * the source there is nothing to look up, and it is empty.
  */
 export const legacyFiles = <T = Record<string, string>>(): Promise<T> =>
-  fromCms()
+  contentSource() === "cms"
     ? readCmsAnswer<T>("legacy-files", {}, { expect: "object" })
     : Promise.resolve({} as T);
 
@@ -576,7 +585,7 @@ export const legacyFiles = <T = Record<string, string>>(): Promise<T> =>
  * `job-apply` answer, for this server only.
  */
 export async function jobApply<T = any>(title: string): Promise<T> {
-  if (fromCms()) return cmsObjectOrNull<T>("job-apply", { title });
+  if (fromCms("careers")) return cmsObjectOrNull<T>("job-apply", { title });
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
   const writeToken = process.env.SANITY_API_WRITE_TOKEN;

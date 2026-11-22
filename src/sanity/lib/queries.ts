@@ -122,29 +122,6 @@ export const catalogueProductsByCollectionOrTypeQuery = groq`
 `;
 
 // Products
-export const allProductsQuery = groq`
-  *[_type == "product"] | order(name asc) {
-    _id,
-    name,
-    slug,
-    description,
-    "mainImage": mainImage.asset->url,
-    "gallery": gallery[].asset->url,
-    price,
-    category->{_id, name, slug},
-    collection->{_id, name, slug},
-    finishes,
-    thickness,
-    size,
-    application,
-    ribbons,
-    seoTitle,
-    seoDescription,
-    seoKeywords,
-    visible
-  }
-`;
-
 export const productBySlugQuery = groq`
   *[_type == "product" && slug.current == $slug && visible != false][0] {
     _id,

@@ -32,6 +32,12 @@ import {
   type ReadOptions,
 } from "../src/cms/client";
 import {
+  assertContentSettings,
+  CONTENT_TYPE_SETTINGS,
+  contentSourceFor,
+  type ContentType,
+} from "../src/cms/content-source";
+import {
   CMS_NOTICE_WINDOW_MS,
   checkCmsNotice,
   signCmsNotice,
@@ -51,6 +57,15 @@ function check(name: string, ok: boolean, detail = ""): void {
   } else {
     failures += 1;
     console.log(`  FAIL  ${name}${detail ? ` (${detail})` : ""}`);
+  }
+}
+
+function throwsWith(run: () => unknown, text: string): boolean {
+  try {
+    run();
+    return false;
+  } catch (error) {
+    return error instanceof Error && error.message.includes(text);
   }
 }
 
@@ -433,9 +448,6 @@ function checkContentSource(): void {
     ["", "sanity"],
     ["sanity", "sanity"],
     ["cms", "cms"],
-    ["CMS", "sanity"],
-    [" cms", "sanity"],
-    ["true", "sanity"],
   ];
   for (const [value, expected] of cases) {
     if (value === undefined) delete process.env.CONTENT_SOURCE;
@@ -446,8 +458,131 @@ function checkContentSource(): void {
       expected
     );
   }
+  for (const value of ["CMS", " cms", "true", "Sanity", "cms "]) {
+    process.env.CONTENT_SOURCE = value;
+    check(
+      `CONTENT_SOURCE ${JSON.stringify(value)} is refused, not read as a store`,
+      throwsWith(() => contentSource(), "CONTENT_SOURCE")
+    );
+  }
   if (before === undefined) delete process.env.CONTENT_SOURCE;
   else process.env.CONTENT_SOURCE = before;
+}
+
+/** One setting per kind of content: CONTENT_SOURCE_<TYPE>. */
+function checkContentSourcePerType(): void {
+  console.log("CONTENT_SOURCE per type");
+  const names = [
+    "CONTENT_SOURCE",
+    ...Object.values(CONTENT_TYPE_SETTINGS),
+  ] as string[];
+  const saved = Object.fromEntries(names.map((n) => [n, process.env[n]]));
+  const clear = () => names.forEach((n) => delete process.env[n]);
+  const types = Object.keys(CONTENT_TYPE_SETTINGS) as ContentType[];
+  try {
+    clear();
+    for (const type of types) {
+      same(
+        `${type}: nothing set reads sanity`,
+        contentSourceFor(type),
+        "sanity"
+      );
+    }
+    process.env.CONTENT_SOURCE = "cms";
+    for (const type of types) {
+      same(
+        `${type}: unset follows CONTENT_SOURCE=cms`,
+        contentSourceFor(type),
+        "cms"
+      );
+      process.env[CONTENT_TYPE_SETTINGS[type]] = "sanity";
+      same(
+        `${type}: its own "sanity" wins over cms`,
+        contentSourceFor(type),
+        "sanity"
+      );
+      same(
+        `${type}: the other kinds still read cms`,
+        types.filter((t) => t !== type && contentSourceFor(t) !== "cms"),
+        []
+      );
+      process.env[CONTENT_TYPE_SETTINGS[type]] = "";
+      same(
+        `${type}: an empty setting follows CONTENT_SOURCE`,
+        contentSourceFor(type),
+        "cms"
+      );
+      delete process.env[CONTENT_TYPE_SETTINGS[type]];
+    }
+    process.env.CONTENT_SOURCE = "sanity";
+    process.env.CONTENT_SOURCE_PRODUCTS = "cms";
+    same(
+      "products: its own cms wins over sanity",
+      contentSourceFor("products"),
+      "cms"
+    );
+    same("faq: still follows sanity", contentSourceFor("faq"), "sanity");
+    check(
+      "CONTENT_SOURCE_PRODUCTS is named for the products fetchers",
+      CONTENT_TYPE_SETTINGS.products === "CONTENT_SOURCE_PRODUCTS"
+    );
+
+    // A wrong value is refused loudly, by name, never read as a store.
+    clear();
+    for (const type of types) {
+      for (const value of ["CMS", "Sanity", " cms", "true", "1", "cms "]) {
+        process.env[CONTENT_TYPE_SETTINGS[type]] = value;
+        check(
+          `${CONTENT_TYPE_SETTINGS[type]}=${JSON.stringify(value)} is refused at start`,
+          throwsWith(() => assertContentSettings(), CONTENT_TYPE_SETTINGS[type])
+        );
+        check(
+          `${CONTENT_TYPE_SETTINGS[type]}=${JSON.stringify(value)} is refused when read`,
+          throwsWith(() => contentSourceFor(type), CONTENT_TYPE_SETTINGS[type])
+        );
+      }
+      delete process.env[CONTENT_TYPE_SETTINGS[type]];
+    }
+    process.env.CONTENT_SOURCE = "yes";
+    check(
+      "a wrong CONTENT_SOURCE is refused at start",
+      throwsWith(() => assertContentSettings(), "CONTENT_SOURCE")
+    );
+    clear();
+    process.env.CONTENT_SOURCE = "cms";
+    process.env.CONTENT_SOURCE_PRODUCTS = "sanity";
+    check(
+      "good settings pass the start-up check",
+      !throwsWith(() => assertContentSettings(), "")
+    );
+
+    // Every fetcher asks for its kind; every kind is used.
+    const source = readFileSync(join(process.cwd(), "src/cms/read.ts"), "utf8");
+    check(
+      "no fetcher asks the source without naming its kind",
+      !/fromCms\(\)/.test(source)
+    );
+    for (const type of types) {
+      check(
+        `${type} is used by a fetcher`,
+        source.includes(`fromCms("${type}")`)
+      );
+    }
+    // The server start runs the check.
+    const start = readFileSync(
+      join(process.cwd(), "src/instrumentation.ts"),
+      "utf8"
+    );
+    check(
+      "the server start-up runs assertContentSettings",
+      /export function register/.test(start) &&
+        start.includes("assertContentSettings()")
+    );
+  } finally {
+    clear();
+    for (const [n, v] of Object.entries(saved))
+      if (v !== undefined) process.env[n] = v;
+  }
 }
 
 async function checkFailLoud(base: string): Promise<void> {
@@ -3345,6 +3480,60 @@ async function checkFetchers(): Promise<void> {
     seen.length === before
   );
 
+  // One kind sent back to Sanity while the site reads the CMS, and the
+  // other way round. A read that goes to Sanity here fails (no real
+  // project) and is ignored; what counts is whether the CMS was asked.
+  const asked = async (run: () => Promise<unknown>): Promise<boolean> => {
+    const mark = seen.length;
+    await run().catch(() => undefined);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return seen.length > mark;
+  };
+  process.env.CONTENT_SOURCE = "cms";
+  process.env.CONTENT_SOURCE_PRODUCTS = "sanity";
+  check(
+    "CONTENT_SOURCE=cms with CONTENT_SOURCE_PRODUCTS=sanity: products do not call the CMS",
+    !(await asked(() => cms.productsCatalogue())) &&
+      !(await asked(() => cms.product("a")))
+  );
+  check(
+    "CONTENT_SOURCE=cms with CONTENT_SOURCE_PRODUCTS=sanity: the FAQ still calls the CMS",
+    await asked(() => cms.faq("quartz"))
+  );
+  check(
+    "CONTENT_SOURCE=cms with CONTENT_SOURCE_PRODUCTS=sanity: the home page still calls the CMS",
+    await asked(() => cms.homepageSignatureProjects())
+  );
+  delete process.env.CONTENT_SOURCE_PRODUCTS;
+  check(
+    "with CONTENT_SOURCE_PRODUCTS unset, products follow CONTENT_SOURCE=cms again",
+    await asked(() => cms.productsCatalogue())
+  );
+  delete process.env.CONTENT_SOURCE;
+  process.env.CONTENT_SOURCE_FAQ = "cms";
+  check(
+    "CONTENT_SOURCE unset with CONTENT_SOURCE_FAQ=cms: the FAQ calls the CMS",
+    await asked(() => cms.faq("quartz"))
+  );
+  check(
+    "CONTENT_SOURCE unset with CONTENT_SOURCE_FAQ=cms: products do not call the CMS",
+    !(await asked(() => cms.productsCatalogue()))
+  );
+  delete process.env.CONTENT_SOURCE_FAQ;
+  process.env.CONTENT_SOURCE_FAQ = "Cms";
+  let refused = "";
+  try {
+    await cms.faq("quartz");
+  } catch (error) {
+    refused = error instanceof Error ? error.message : String(error);
+  }
+  check(
+    "a wrong CONTENT_SOURCE_FAQ makes the FAQ fetcher throw, naming the setting",
+    refused.includes("CONTENT_SOURCE_FAQ")
+  );
+  delete process.env.CONTENT_SOURCE_FAQ;
+  process.env.CONTENT_SOURCE = "cms";
+
   const failure = new Error("x");
   failure.name = "CmsReadError";
   let passedOn = false;
@@ -3495,6 +3684,7 @@ async function main(): Promise<void> {
   try {
     checkQueryStrings();
     checkContentSource();
+    checkContentSourcePerType();
     await checkMediaUrls();
     await checkCallSites();
     checkHelperWiring();
