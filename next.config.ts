@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { LEGACY_WIX_REDIRECTS } from "./src/data/legacy-wix-redirects";
+import { BLOG_SHORT_SLUG_REDIRECTS } from "./src/data/blog-short-slug-redirects";
 
 /**
  * Security headers applied to every HTML route.
@@ -299,6 +300,9 @@ const nextConfig: NextConfig = {
       // pages, renamed or retired products, categories, blog posts): see
       // src/data/legacy-wix-redirects.ts. Before the catch-all below.
       ...LEGACY_WIX_REDIRECTS.map((r) => ({ ...r, permanent: true })),
+      // Short /blog links inside CMS post bodies (site audit, 2026-11-20):
+      // see src/data/blog-short-slug-redirects.ts.
+      ...BLOG_SHORT_SLUG_REDIRECTS.map((r) => ({ ...r, permanent: true })),
       {
         // Legacy Wix product detail URLs. Wix used /product-page/<slug>
         // for every product PDP; Google still has thousands of these
