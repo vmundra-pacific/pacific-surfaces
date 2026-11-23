@@ -9,11 +9,15 @@
  * (that is: npx tsx --conditions=react-server scripts/check-cms-forms.ts;
  * the condition lets the server-only modules load outside Next.)
  *
- * Not covered here, because they need Next itself: the routes.
+ * Not covered here, because they need Next itself: the routes. Their
+ * imports are checked instead: no form route, customer page or the
+ * sign-in loads Sanity any more.
  */
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
+import { join } from "node:path";
 
 import {
   callCustomerDoor,
@@ -484,6 +488,48 @@ async function checkCustomerDoors(): Promise<void> {
   process.env.CMS_FORMS_SECRET = SECRET;
 }
 
+function checkImports(): void {
+  console.log(
+    "No Sanity left in the forms, the sign-in and the customer pages"
+  );
+  const files = [
+    "src/app/api/contact/submit/route.ts",
+    "src/app/api/order/submit/route.ts",
+    "src/app/api/sample-request/submit/route.ts",
+    "src/app/api/sills-enquiry/route.ts",
+    "src/app/api/where-to-buy/lead/route.ts",
+    "src/app/api/careers/apply/route.ts",
+    "src/app/api/newsletter/subscribe/route.ts",
+    "src/app/api/customer/grievance/route.ts",
+    "src/auth.config.ts",
+    "src/app/customer/dashboard/page.tsx",
+    "src/app/customer/profile/page.tsx",
+    "src/app/customer/grievance/page.tsx",
+    "src/app/customer/grievance/[ticketId]/page.tsx",
+    "src/app/api/cdn/[...path]/route.ts",
+  ];
+  for (const file of files) {
+    const source = readFileSync(join(process.cwd(), file), "utf8");
+    check(
+      `${file} loads no Sanity module`,
+      !/from\s+["'](@sanity\/|@\/sanity\/|next-sanity)/.test(source)
+    );
+  }
+  const careers = readFileSync(
+    join(process.cwd(), "src/app/api/careers/apply/route.ts"),
+    "utf8"
+  );
+  check(
+    "the careers email carries no Sanity link",
+    !/sanity\.(studio|io)/.test(careers)
+  );
+  check("/studio is gone", !existsSync(join(process.cwd(), "src/app/studio")));
+  check(
+    "sanity.config.ts is gone",
+    !existsSync(join(process.cwd(), "sanity.config.ts"))
+  );
+}
+
 async function main(): Promise<void> {
   const server = await startStandIn();
   const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -494,6 +540,7 @@ async function main(): Promise<void> {
     await checkRetry();
     await checkCareersDoor();
     await checkCustomerDoors();
+    checkImports();
   } finally {
     server.close();
   }
