@@ -2,12 +2,17 @@ import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { callCustomerDoor } from "@/cms/forms";
 
-/**
- * The shape of every CMS id (a UUID). A session made before the move to
- * the CMS carries a Sanity id instead, which the CMS knows nothing of.
- */
+/** The shape of every CMS id (a UUID). */
 const CMS_ID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * The mark a session gets when the customer signs in through the CMS. A
+ * session made before the move carries a Sanity id instead, which the
+ * CMS knows nothing of, and no mark; the id alone cannot tell, since
+ * Sanity Studio also made ids shaped like a CMS id.
+ */
+const SIGNED_IN_THROUGH_CMS = "cms";
 
 /** What the CMS's sign-in door answers for a right password. */
 type SignedIn = {
@@ -73,11 +78,15 @@ export default {
     // session.user.id is undefined and every page/route that needs
     // "this logged-in customer's record in the CMS" (dashboard stats,
     // grievance list/create, profile) has nothing to ask for.
-    // A session whose id is not a CMS id was made before the move to the
-    // CMS: end it (null clears the cookie), so the customer is sent to
-    // sign in again instead of seeing empty pages.
+    // A session without the mark, or whose id is not a CMS id, was made
+    // before the move to the CMS: end it (null clears the cookie), so the
+    // customer is sent to sign in again instead of seeing empty pages.
     jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        token.src = SIGNED_IN_THROUGH_CMS;
+      }
+      if (token.src !== SIGNED_IN_THROUGH_CMS) return null;
       if (typeof token.id !== "string" || !CMS_ID.test(token.id)) return null;
       return token;
     },

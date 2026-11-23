@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { customerGrievance, type Grievance } from "@/cms/customers";
 
+// This page reads the CMS: up to two tries of each read, 25 seconds each
+// (src/cms/forms.ts).
+export const maxDuration = 60;
+
 export default async function GrievanceDetailPage({
   params,
 }: {

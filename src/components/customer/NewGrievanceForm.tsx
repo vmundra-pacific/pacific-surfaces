@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 
 const CATEGORIES = [
@@ -42,6 +43,13 @@ export default function NewGrievanceForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject, category, priority, description }),
       });
+
+      // The session has ended, or the CMS no longer knows this account:
+      // sign out and go to the sign-in page.
+      if (response.status === 401) {
+        await signOut({ callbackUrl: "/customer/login" });
+        return;
+      }
 
       const data = await response.json();
 

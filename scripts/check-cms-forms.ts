@@ -10,16 +10,22 @@
  * (that is: npx tsx --conditions=react-server scripts/check-cms-forms.ts;
  * the condition lets the server-only modules load outside Next.)
  *
- * Not covered here, because they need Next itself: the routes. Their
- * imports are checked instead: no form route, customer page or the
- * sign-in loads Sanity any more.
+ * Two routes are called here as they are, against the stand-in CMS: the
+ * careers route and the complaint route (its session read replaced by a
+ * stand-in, since the real one needs Next itself). The sign-in's session
+ * rule (auth.config.ts) is called too. The other routes need Next
+ * itself; their imports are checked instead: no form route, customer
+ * page or the sign-in loads Sanity any more.
  */
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server } from "node:http";
+import Module from "node:module";
 import type { AddressInfo } from "node:net";
 import { join } from "node:path";
+import { NextRequest } from "next/server";
 
+import authConfig from "../src/auth.config";
 import {
   callCustomerDoor,
   CmsFormError,
@@ -586,6 +592,368 @@ async function checkCustomerDoors(): Promise<void> {
   process.env.CMS_FORMS_SECRET = SECRET;
 }
 
+/** A made-up customer id, shaped like every CMS id. */
+const CUSTOMER = "0b6f3c1e-4d2a-4c8e-9f1a-2b3c4d5e6f70";
+
+/** Runs some code with the routes' error log silenced. */
+async function quietly<T>(run: () => Promise<T>): Promise<T> {
+  const realError = console.error;
+  console.error = () => undefined;
+  try {
+    return await run();
+  } finally {
+    console.error = realError;
+  }
+}
+
+async function checkGrievanceResent(): Promise<void> {
+  console.log("A complaint sent again");
+  const fields = {
+    ticketId: "GR-20261123-AB12",
+    subject: "Chipped edge",
+    category: "Delivery",
+    priority: "Medium",
+    description: "The edge was chipped on arrival.",
+    status: "Open",
+    createdAt: "2026-11-23T20:00:00.000Z",
+  };
+  const readBack = (subject: string, description: string) => ({
+    status: 200,
+    body: {
+      ok: true,
+      grievance: {
+        id: "9d1c2b3a-0000-4000-8000-000000000001",
+        ticketId: fields.ticketId,
+        customer: CUSTOMER,
+        subject,
+        description,
+        status: "Open",
+      },
+    },
+  });
+  const refusedTicket = {
+    status: 400,
+    body: { ok: false, error: "invalid", field: "ticketId" },
+  };
+
+  script.set("/api/forms/grievance", [
+    { status: 500, body: { ok: false, error: "failed" } },
+    refusedTicket,
+  ]);
+  script.set("/api/customers/grievance", [
+    readBack(fields.subject, fields.description),
+  ]);
+  let before = seen.length;
+  let answer: unknown = null;
+  const thrown = await rejects(async () => {
+    answer = await saveForm("grievance", fields, CUSTOMER);
+  });
+  same(
+    "a complaint whose second try finds its ticket already saved, with the same subject and description, is saved",
+    [answer, thrown?.message ?? null],
+    [{ id: null, reference: null, outcome: "created", retried: true }, null]
+  );
+  const asked = seen
+    .slice(before)
+    .find((s) => s.path === "/api/customers/grievance");
+  same(
+    "it reads the complaint back by the customer and the ticket",
+    asked ? JSON.parse(asked.body.toString()) : null,
+    { customerId: CUSTOMER, ticketId: fields.ticketId }
+  );
+
+  script.set("/api/forms/grievance", [
+    { status: 503, body: { ok: false } },
+    refusedTicket,
+  ]);
+  script.set("/api/customers/grievance", [
+    readBack("Another complaint", fields.description),
+  ]);
+  const clash = await rejects(() => saveForm("grievance", fields, CUSTOMER));
+  check(
+    "a ticket number already used by a different complaint still fails",
+    clash instanceof CmsFormError && clash.field === "ticketId"
+  );
+
+  script.set("/api/forms/grievance", ["drop", refusedTicket]);
+  script.set("/api/customers/grievance", [
+    readBack(fields.subject, "Another description"),
+  ]);
+  const otherText = await rejects(() =>
+    saveForm("grievance", fields, CUSTOMER)
+  );
+  check(
+    "a complaint with the same subject but another description still fails",
+    otherText instanceof CmsFormError && otherText.field === "ticketId"
+  );
+
+  script.set("/api/forms/grievance", [
+    { status: 502, body: { ok: false } },
+    refusedTicket,
+  ]);
+  script.set("/api/customers/grievance", [
+    { status: 404, body: { ok: false } },
+  ]);
+  const notFound = await rejects(() => saveForm("grievance", fields, CUSTOMER));
+  check(
+    "a ticket the customer's own complaints do not hold still fails",
+    notFound instanceof CmsFormError && notFound.field === "ticketId"
+  );
+
+  script.set("/api/forms/grievance", [refusedTicket]);
+  script.set("/api/customers/grievance", [
+    readBack(fields.subject, fields.description),
+  ]);
+  before = seen.length;
+  const first = await rejects(() => saveForm("grievance", fields, CUSTOMER));
+  check(
+    "a first try refused on its ticket still fails",
+    first instanceof CmsFormError && first.field === "ticketId"
+  );
+  check(
+    "and nothing is read back",
+    seen.slice(before).every((s) => s.path !== "/api/customers/grievance")
+  );
+}
+
+async function checkSessions(): Promise<void> {
+  console.log("Sessions (auth.config.ts)");
+  type JwtArgs = Parameters<typeof authConfig.callbacks.jwt>[0];
+  const jwt = (args: {
+    token: Record<string, unknown>;
+    user?: { id: string };
+  }) =>
+    authConfig.callbacks.jwt({ account: null, ...args } as unknown as JwtArgs);
+
+  const signedIn = await jwt({ token: { sub: "x" }, user: { id: CUSTOMER } });
+  check(
+    "a sign-in through the CMS gives a marked session with the CMS id",
+    !!signedIn && signedIn.id === CUSTOMER && signedIn.src === "cms"
+  );
+  const later = await jwt({ token: { ...(signedIn ?? {}) } });
+  check(
+    "a marked session with a CMS id is kept",
+    !!later && later.id === CUSTOMER && later.src === "cms"
+  );
+  const old = await jwt({ token: { id: CUSTOMER, sub: CUSTOMER } });
+  same(
+    "a session without the mark is ended, even when its id is shaped like a CMS id (Studio made such ids)",
+    old,
+    null
+  );
+  const oldShape = await jwt({ token: { id: "customer-abc123", src: "cms" } });
+  same(
+    "a session whose id is not shaped like a CMS id is ended",
+    oldShape,
+    null
+  );
+  const oddSignIn = await jwt({ token: {}, user: { id: "customer-abc123" } });
+  same(
+    "a sign-in with an id not shaped like a CMS id gives no session",
+    oddSignIn,
+    null
+  );
+}
+
+async function checkGrievanceRoute(): Promise<void> {
+  console.log("The complaint route");
+  // The session read is replaced by a stand-in that gives one signed-in
+  // customer; the real one needs Next itself.
+  const authPath = join(process.cwd(), "src/auth.ts");
+  const stub = new Module(authPath);
+  stub.filename = authPath;
+  stub.loaded = true;
+  stub.exports = { auth: async () => ({ user: { id: CUSTOMER } }) };
+  (Module as unknown as { _cache: Record<string, Module> })._cache[authPath] =
+    stub;
+  const route = await import("../src/app/api/customer/grievance/route");
+  const send = () =>
+    quietly(() =>
+      route.POST(
+        new Request("http://localhost/api/customer/grievance", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            subject: "Chipped edge",
+            description: "The edge was chipped on arrival.",
+          }),
+        })
+      )
+    );
+
+  script.set("/api/forms/grievance", [
+    { status: 400, body: { ok: false, error: "invalid", field: "customerId" } },
+  ]);
+  const unknown = await send();
+  same(
+    "a customer the CMS does not know (any more) is answered 401, so the page sends him to sign in",
+    unknown.status,
+    401
+  );
+
+  script.set("/api/forms/grievance", [
+    { status: 400, body: { ok: false, error: "invalid", field: "subject" } },
+  ]);
+  same("any other refusal is still a 500", (await send()).status, 500);
+
+  script.set("/api/forms/grievance", [created("ref-gr-route")]);
+  const ok = await send();
+  same("a saved complaint is a 200", ok.status, 200);
+}
+
+async function checkCareersRoute(): Promise<void> {
+  console.log("The careers route");
+  // The route also loads the content reads, which need these two names
+  // set; made-up values, nothing is read here.
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ??= "madeup0";
+  process.env.NEXT_PUBLIC_SANITY_DATASET ??= "made-up";
+  const route = await import("../src/app/api/careers/apply/route");
+  let visitor = 0;
+  const apply = async (extra: Record<string, string> = {}) => {
+    visitor += 1;
+    const form = new FormData();
+    const fields = {
+      firstName: "Test",
+      lastName: "Person",
+      email: "test@example.com",
+      phone: "0000000000",
+      ...extra,
+    };
+    for (const [name, value] of Object.entries(fields)) form.set(name, value);
+    form.set(
+      "resume",
+      new File([new Uint8Array([0x25, 0x50, 0x44, 0x46])], "cv.pdf", {
+        type: "application/pdf",
+      })
+    );
+    const response = await quietly(() =>
+      route.POST(
+        new NextRequest("http://localhost/api/careers/apply", {
+          method: "POST",
+          body: form,
+          headers: { "x-forwarded-for": `203.0.113.${visitor}` },
+        })
+      )
+    );
+    const body = (await response.json()) as { error?: string };
+    return { status: response.status, error: body.error };
+  };
+  const LINK_MESSAGE =
+    "Portfolio link must be a valid URL starting with http:// or https://.";
+  const sentFields = (mark: number): Record<string, unknown> | null => {
+    const request = seen
+      .slice(mark)
+      .find((s) => s.path === "/api/forms/job-application");
+    if (!request) return null;
+    const parts = multipartParts(
+      request.body,
+      String(request.headers["content-type"] ?? "")
+    );
+    return JSON.parse(parts[0]?.body.toString() ?? "null");
+  };
+
+  // 20 + 478 + 2 = 500 characters as pasted; the space makes it 502.
+  const longLink = `https://example.com/${"a".repeat(478)} b`;
+  script.set("/api/forms/job-application", [
+    { status: 400, body: { ok: false, error: "invalid", field: "resume" } },
+  ]);
+  let mark = seen.length;
+  const long = await apply({ portfolioUrl: longLink });
+  same(
+    "a portfolio link over 500 characters once its spaces are %20 is refused with the link's message, not cut",
+    long,
+    { status: 400, error: LINK_MESSAGE }
+  );
+  same("and nothing is sent to the CMS", seen.length - mark, 0);
+
+  // 20 + 476 + 2 = 498 characters as pasted; the space makes it 500.
+  mark = seen.length;
+  await apply({ portfolioUrl: `https://example.com/${"a".repeat(476)} b` });
+  const whole = `https://example.com/${"a".repeat(476)}%20b`;
+  same(
+    "a link of exactly 500 characters once its spaces are %20 is sent whole",
+    [sentFields(mark)?.portfolioUrl, whole.length],
+    [whole, 500]
+  );
+
+  const refusal = async (field: string) => {
+    script.set("/api/forms/job-application", [
+      { status: 400, body: { ok: false, error: "invalid", field } },
+    ]);
+    return apply();
+  };
+  same(
+    "a CMS refusal of the applicant's email is a 400 with the email message",
+    await refusal("email"),
+    { status: 400, error: "A valid email address is required." }
+  );
+  same(
+    "a CMS refusal of the CV is a 400 with the CV message",
+    await refusal("resume"),
+    { status: 400, error: "Resume must be a PDF, DOC, or DOCX file." }
+  );
+  for (const field of [
+    "firstName",
+    "lastName",
+    "phone",
+    "address",
+    "currentLocation",
+    "age",
+    "totalExperience",
+    "department",
+    "appliedFor",
+    "comments",
+    "portfolio",
+    "portfolioUrl",
+  ]) {
+    const answer = await refusal(field);
+    check(
+      `a CMS refusal of the applicant's own field ${field} is a 400`,
+      answer.status === 400,
+      `got ${answer.status}`
+    );
+  }
+  for (const field of ["fields", "body", "status", "submittedAt"]) {
+    same(
+      `a CMS refusal of ${field}, not the applicant's to fix, is the usual 500`,
+      await refusal(field),
+      { status: 500, error: "Something went wrong. Please try again later." }
+    );
+  }
+}
+
+function checkTimeLimits(): void {
+  console.log("Time limits of the server code that waits on the CMS");
+  const limits: Array<[string, number]> = [
+    ["src/app/api/contact/submit/route.ts", 60],
+    ["src/app/api/order/submit/route.ts", 60],
+    ["src/app/api/sample-request/submit/route.ts", 60],
+    ["src/app/api/sills-enquiry/route.ts", 60],
+    ["src/app/api/where-to-buy/lead/route.ts", 60],
+    ["src/app/api/newsletter/subscribe/route.ts", 60],
+    ["src/app/api/customer/grievance/route.ts", 60],
+    ["src/app/api/careers/apply/route.ts", 130],
+    ["src/app/api/auth/[...nextauth]/route.ts", 60],
+    ["src/app/customer/dashboard/page.tsx", 60],
+    ["src/app/customer/profile/page.tsx", 60],
+    ["src/app/customer/grievance/page.tsx", 60],
+    ["src/app/customer/grievance/[ticketId]/page.tsx", 60],
+  ];
+  const declared = (file: string) => {
+    const source = readFileSync(join(process.cwd(), file), "utf8");
+    const match = /^export const maxDuration = (\d+);$/m.exec(source);
+    return match ? Number(match[1]) : null;
+  };
+  for (const [file, seconds] of limits) {
+    same(`${file} may run ${seconds} seconds`, declared(file), seconds);
+  }
+  same(
+    "the middleware (edge) sets no time limit",
+    declared("src/middleware.ts"),
+    null
+  );
+}
+
 function checkImports(): void {
   console.log(
     "No Sanity left in the forms, the sign-in and the customer pages"
@@ -638,6 +1006,11 @@ async function main(): Promise<void> {
     await checkRetry();
     await checkCareersDoor();
     await checkCustomerDoors();
+    await checkGrievanceResent();
+    await checkSessions();
+    await checkGrievanceRoute();
+    await checkCareersRoute();
+    checkTimeLimits();
     checkImports();
   } finally {
     server.closeAllConnections();

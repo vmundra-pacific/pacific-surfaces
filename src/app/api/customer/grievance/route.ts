@@ -1,7 +1,11 @@
 import { auth } from "@/auth";
-import { saveForm } from "@/cms/forms";
+import { CmsFormError, saveForm } from "@/cms/forms";
 import { customerGrievances } from "@/cms/customers";
 import { clampField, FIELD_LIMITS } from "@/lib/escape";
+
+// Up to two tries of the CMS, and a read back when the second try finds
+// the ticket already saved (src/cms/forms.ts).
+export const maxDuration = 60;
 
 const VALID_CATEGORIES = [
   "Product Quality",
@@ -102,12 +106,22 @@ export async function POST(req: Request) {
       session.user.id
     );
 
-    // `id` carries the entry's reference, never the CMS's own id.
+    // `id` carries the entry's reference, never the CMS's own id; it is
+    // null for a complaint found already saved on a second try.
     return Response.json({ success: true, ticketId, id: saved.reference });
   } catch (err) {
     // Most likely cause: CMS_URL or CMS_FORMS_SECRET is missing, or the
     // CMS did not answer (src/cms/forms.ts).
     console.error("Failed to create grievance:", err);
+    // The CMS knows no active customer by this session's id (the account
+    // was switched off or removed): 401, so the page sends him to sign in.
+    if (
+      err instanceof CmsFormError &&
+      err.status === 400 &&
+      err.field === "customerId"
+    ) {
+      return Response.json({ error: "Please sign in again." }, { status: 401 });
+    }
     return Response.json(
       { error: "Could not submit your grievance. Please try again." },
       { status: 500 }

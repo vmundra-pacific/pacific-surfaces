@@ -57,6 +57,9 @@ import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 // `nodejs` runtime (not edge) — edge has tighter file/body limits
 // that can choke on a 5MB resume PDF.
 export const runtime = "nodejs";
+// Up to two tries of the CMS's careers door, 60 seconds each
+// (src/cms/forms.ts), and a little over.
+export const maxDuration = 130;
 
 const MAX_RESUME_BYTES = 8 * 1024 * 1024; // 8 MB
 const ALLOWED_RESUME_TYPES = new Set([
@@ -143,14 +146,14 @@ export async function POST(req: NextRequest) {
     const appliedFor = field(formData, "appliedFor", FIELD_LIMITS.shortText);
     const resume = formData.get("resume");
     // A space in a pasted link is written as %20, as a browser does, so
-    // the link still opens and the CMS takes it.
+    // the link still opens and the CMS takes it. A link is never cut: one
+    // longer than the CMS keeps is refused below.
     const rawPortfolioUrl = formData.get("portfolioUrl");
-    const portfolioUrl = clampField(
-      (typeof rawPortfolioUrl === "string" ? rawPortfolioUrl : "")
-        .trim()
-        .replace(/ /g, "%20"),
-      FIELD_LIMITS.address
-    );
+    const portfolioUrl = (
+      typeof rawPortfolioUrl === "string" ? rawPortfolioUrl : ""
+    )
+      .trim()
+      .replace(/ /g, "%20");
     const portfolioFile = formData.get("portfolio");
     const portfolio =
       portfolioFile instanceof File && portfolioFile.size > 0
@@ -203,8 +206,13 @@ export async function POST(req: NextRequest) {
         );
       }
     }
-    // The CMS's own test of a link: http(s)://, then no spaces.
-    if (portfolioUrl && !/^https?:\/\/\S+$/i.test(portfolioUrl)) {
+    // The CMS's own test of a link: http(s)://, then no spaces, and no
+    // longer than it keeps.
+    if (
+      portfolioUrl &&
+      (portfolioUrl.length > FIELD_LIMITS.address ||
+        !/^https?:\/\/\S+$/i.test(portfolioUrl))
+    ) {
       return NextResponse.json(
         { error: PORTFOLIO_LINK_ERROR },
         { status: 400 }
@@ -314,9 +322,15 @@ export async function POST(req: NextRequest) {
     // Log the real error server-side; never leak internals (stack
     // details, env hints, CMS errors) to the client.
     console.error("[careers/apply] submission failed:", error);
-    // The CMS refused one value: tell the applicant which, so a resend
-    // can succeed. A file is judged by its bytes there.
-    if (error instanceof CmsFormError && error.status === 400) {
+    // The CMS refused one of the applicant's own values: tell him which,
+    // so a resend can succeed. A file is judged by its bytes there. A
+    // refusal of anything else is the site's fault: the usual 500.
+    if (
+      error instanceof CmsFormError &&
+      error.status === 400 &&
+      error.field !== null &&
+      APPLICANT_FIELDS.has(error.field)
+    ) {
       return NextResponse.json(
         { error: refusedMessage(error.field) },
         { status: 400 }
@@ -329,8 +343,26 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/** What the applicant is told when the CMS refuses one field. */
-function refusedMessage(field: string | null): string {
+/** The fields the applicant fills in, as the CMS names them. */
+const APPLICANT_FIELDS = new Set([
+  "resume",
+  "portfolio",
+  "portfolioUrl",
+  "email",
+  "firstName",
+  "lastName",
+  "phone",
+  "address",
+  "currentLocation",
+  "age",
+  "totalExperience",
+  "department",
+  "appliedFor",
+  "comments",
+]);
+
+/** What the applicant is told when the CMS refuses one of his fields. */
+function refusedMessage(field: string): string {
   switch (field) {
     case "resume":
       return RESUME_TYPE_ERROR;

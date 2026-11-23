@@ -19,6 +19,8 @@ import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 import { clampField, FIELD_LIMITS } from "@/lib/escape";
 
 export const runtime = "nodejs";
+// Up to two tries of the CMS, 25 seconds each (src/cms/forms.ts).
+export const maxDuration = 60;
 
 interface NewsletterBody {
   firstName?: string;

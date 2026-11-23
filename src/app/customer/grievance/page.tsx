@@ -3,6 +3,10 @@ import { auth } from "@/auth";
 import { customerGrievances, type Grievance } from "@/cms/customers";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 
+// This page reads the CMS: up to two tries of each read, 25 seconds each
+// (src/cms/forms.ts).
+export const maxDuration = 60;
+
 // Pacific palette only — no amber/emerald/warm tones (brand
 // guideline), so status is distinguished by weight/opacity rather
 // than a traffic-light color scheme.

@@ -1,6 +1,10 @@
 import { auth } from "@/auth";
 import { customerProfile, type CustomerProfile } from "@/cms/customers";
 
+// This page reads the CMS: up to two tries of each read, 25 seconds each
+// (src/cms/forms.ts).
+export const maxDuration = 60;
+
 const FIELDS: Array<{
   key: "name" | "email" | "company" | "phone";
   label: string;

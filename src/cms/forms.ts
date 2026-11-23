@@ -24,7 +24,11 @@ import {
  *
  * A request is sent once more, newly signed, only when the first try
  * most likely saved nothing: the CMS could not be reached, or it answered
- * 500, 502 or 503.
+ * 500, 502 or 503. "Most likely", not surely: a connection cut, or a 500
+ * or 502 from the hosting platform, can come after the CMS has saved. An
+ * order and a complaint are then known by their unique numbers, a CV as a
+ * repeat, a newsletter address as already there; a contact, sample,
+ * window-sills or Where to Buy entry may, very rarely, be kept twice.
  * It is not sent again when the website stopped waiting (its own time
  * limit) or on a 504: the CMS may still finish that first write, and a
  * second one would double the entry. Anything that is not the expected
@@ -215,15 +219,20 @@ async function postSigned(
           // The CMS may still be saving: a second try could double it.
           throw new CmsFormError(door, `no answer within ${timeoutMs} ms`);
         }
+        // Most often nothing reached the CMS. But a connection cut after
+        // the CMS saved looks the same: then the second try may keep the
+        // entry twice (see the top of this file).
         lastReason = "the CMS could not be reached";
         lastStatus = null;
-        continue; // nothing reached the CMS: try once more
+        continue;
       }
       if (RETRY_STATUSES.has(response.status)) {
+        // Most likely nothing saved; a 500 or 502 from the hosting
+        // platform can still come after the CMS saved (see the top).
         await response.body?.cancel().catch(() => undefined);
         lastReason = `status ${response.status}`;
         lastStatus = response.status;
-        continue; // most likely nothing saved: try once more
+        continue;
       }
       let json: unknown = null;
       try {
@@ -263,16 +272,25 @@ function jsonBody(value: unknown): Prepared {
 /**
  * What a form door answers on success. `id` is the CMS's id of the row:
  * it stays on the server and is never sent to the browser; it is null
- * only for an order known to be saved by its reference (see `saveForm`).
- * `reference` is a random text kept on the row; the cart shows it, Where
- * to Buy signs it into its cookie. `retried` is true when the answer came
- * from the second try.
+ * only for an order or a complaint known to be saved by the first try
+ * (see `saveForm`). `reference` is a random text kept on the row; the
+ * cart shows it, Where to Buy signs it into its cookie. `retried` is true
+ * when the answer came from the second try.
  */
 export type FormSaved = {
   id: string | null;
   reference: string;
   outcome: string;
   retried: boolean;
+};
+
+/**
+ * What saving a complaint answers: as `FormSaved`, but `reference` is
+ * null for a complaint known to be saved by reading it back (the read
+ * does not give the reference).
+ */
+export type GrievanceSaved = Omit<FormSaved, "reference"> & {
+  reference: string | null;
 };
 
 function readSaved(door: string, answer: DoorAnswer): FormSaved {
@@ -313,6 +331,12 @@ export type FormFields = Record<string, unknown>;
  * in a way that may still have saved it, and the second try is refused
  * because that reference is already there, the order is saved: the
  * answer then carries the reference and no id.
+ *
+ * A complaint's ticket number is unique too. When its second try is
+ * refused on the ticket number, the complaint is read back by the
+ * customer and the ticket: it counts as saved (no id, no reference) only
+ * when the one found has the same subject and description, so another
+ * complaint that happens to hold the same number does not count.
  */
 export async function saveForm(
   kind: Exclude<FormKind, "job-application" | "grievance">,
@@ -322,12 +346,12 @@ export async function saveForm(
   kind: "grievance",
   fields: FormFields,
   customerId: string
-): Promise<FormSaved>;
+): Promise<GrievanceSaved>;
 export async function saveForm(
   kind: Exclude<FormKind, "job-application">,
   fields: FormFields,
   customerId?: string
-): Promise<FormSaved> {
+): Promise<GrievanceSaved> {
   const door = `forms/${kind}`;
   const payload = kind === "grievance" ? { fields, customerId } : { fields };
   const answer = await postSigned(
@@ -336,11 +360,13 @@ export async function saveForm(
     jsonBody(payload),
     FORM_TIMEOUT_MS
   );
+  const refusedOnSecondTry =
+    answer.tries > 1 && answer.status === 400
+      ? refusedField(answer.json)
+      : null;
   if (
     kind === "order" &&
-    answer.tries > 1 &&
-    answer.status === 400 &&
-    refusedField(answer.json) === "reference" &&
+    refusedOnSecondTry === "reference" &&
     typeof fields.reference === "string" &&
     fields.reference !== ""
   ) {
@@ -351,7 +377,46 @@ export async function saveForm(
       retried: true,
     };
   }
+  if (
+    kind === "grievance" &&
+    refusedOnSecondTry === "ticketId" &&
+    customerId &&
+    (await grievanceAlreadySaved(customerId, fields))
+  ) {
+    return { id: null, reference: null, outcome: "created", retried: true };
+  }
   return readSaved(door, answer);
+}
+
+/**
+ * Is this very complaint already in the CMS? Read back by the customer
+ * and the ticket number, it must have the same subject and description.
+ * Any failure of the read counts as no.
+ */
+async function grievanceAlreadySaved(
+  customerId: string,
+  fields: FormFields
+): Promise<boolean> {
+  const { ticketId, subject, description } = fields;
+  if (
+    typeof ticketId !== "string" ||
+    ticketId === "" ||
+    typeof subject !== "string" ||
+    typeof description !== "string"
+  ) {
+    return false;
+  }
+  try {
+    const found = await callCustomerDoor("grievance", { customerId, ticketId });
+    return (
+      found.ok &&
+      isObject(found.grievance) &&
+      found.grievance.subject === subject &&
+      found.grievance.description === description
+    );
+  } catch {
+    return false;
+  }
 }
 
 /** A file to send on: its bytes, name and claimed type. */

@@ -1,6 +1,10 @@
 import { auth } from "@/auth";
 import { customerGrievances } from "@/cms/customers";
 
+// This page reads the CMS: up to two tries of each read, 25 seconds each
+// (src/cms/forms.ts).
+export const maxDuration = 60;
+
 const CLOSED_STATUSES = new Set(["Resolved", "Closed"]);
 
 export default async function Dashboard() {

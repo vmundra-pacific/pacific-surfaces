@@ -46,6 +46,8 @@ import { searchDirectory } from "@/lib/where-to-buy-dealers";
 import { accessCookie, accessToken } from "@/lib/where-to-buy-access";
 
 export const runtime = "nodejs";
+// Up to two tries of the CMS, 25 seconds each (src/cms/forms.ts).
+export const maxDuration = 60;
 
 const inbox = process.env.WTB_LEADS_EMAIL || process.env.COMPANY_EMAIL;
 const mailReady = !!(
