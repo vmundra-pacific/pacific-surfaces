@@ -1,19 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
-import { freshClient } from "@/sanity/lib/client";
-
-interface Grievance {
-  _id: string;
-  ticketId: string;
-  subject: string;
-  category?: string;
-  priority?: string;
-  status: string;
-  description?: string;
-  adminReply?: string;
-  createdAt: string;
-}
+import { customerGrievance, type Grievance } from "@/cms/customers";
 
 export default async function GrievanceDetailPage({
   params,
@@ -24,19 +12,10 @@ export default async function GrievanceDetailPage({
   const session = await auth();
 
   const grievance: Grievance | null = session?.user?.id
-    ? await freshClient.fetch(
-        // Scoped to the logged-in customer's own ref — so one
-        // customer can never view another's ticket by guessing/
-        // sharing a ticketId.
-        `*[
-          _type == "grievance" &&
-          ticketId == $ticketId &&
-          customer._ref == $customerId
-        ][0]{
-          _id, ticketId, subject, category, priority, status, description, adminReply, createdAt
-        }`,
-        { ticketId, customerId: session.user.id }
-      )
+    ? // Scoped by the CMS to the logged-in customer's own tickets — so
+      // one customer can never view another's ticket by guessing/
+      // sharing a ticketId.
+      await customerGrievance(session.user.id, ticketId)
     : null;
 
   if (!grievance) notFound();

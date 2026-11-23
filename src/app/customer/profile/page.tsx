@@ -1,15 +1,10 @@
 import { auth } from "@/auth";
-import { freshClient } from "@/sanity/lib/client";
+import { customerProfile, type CustomerProfile } from "@/cms/customers";
 
-interface CustomerProfile {
-  name: string;
-  email: string;
-  company?: string;
-  phone?: string;
-  createdAt?: string;
-}
-
-const FIELDS: Array<{ key: keyof CustomerProfile; label: string }> = [
+const FIELDS: Array<{
+  key: "name" | "email" | "company" | "phone";
+  label: string;
+}> = [
   { key: "name", label: "Name" },
   { key: "email", label: "Email" },
   { key: "company", label: "Company" },
@@ -20,10 +15,7 @@ export default async function ProfilePage() {
   const session = await auth();
 
   const customer: CustomerProfile | null = session?.user?.id
-    ? await freshClient.fetch(
-        `*[_type == "customer" && _id == $id][0]{ name, email, company, phone, createdAt }`,
-        { id: session.user.id }
-      )
+    ? await customerProfile(session.user.id)
     : null;
 
   return (
@@ -32,7 +24,10 @@ export default async function ProfilePage() {
       <p className="mt-3 text-pacific-mid">
         Your account details on file with Pacific Surfaces. To update any of
         these, contact your account manager or{" "}
-        <a href="mailto:bindu@thepacific.group" className="underline hover:text-white">
+        <a
+          href="mailto:bindu@thepacific.group"
+          className="underline hover:text-white"
+        >
           bindu@thepacific.group
         </a>
         .
@@ -40,13 +35,14 @@ export default async function ProfilePage() {
 
       <div className="mt-10 divide-y divide-white/10 rounded-3xl border border-white/10">
         {FIELDS.map(({ key, label }) => (
-          <div key={key} className="flex items-center justify-between px-8 py-6">
+          <div
+            key={key}
+            className="flex items-center justify-between px-8 py-6"
+          >
             <span className="text-sm tracking-[0.15em] uppercase text-pacific-mid">
               {label}
             </span>
-            <span className="text-white">
-              {customer?.[key] || "—"}
-            </span>
+            <span className="text-white">{customer?.[key] || "—"}</span>
           </div>
         ))}
       </div>

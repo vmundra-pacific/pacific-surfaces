@@ -1,17 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { freshClient } from "@/sanity/lib/client";
+import { customerGrievances, type Grievance } from "@/cms/customers";
 import { MagneticButton } from "@/components/ui/magnetic-button";
-
-interface Grievance {
-  _id: string;
-  ticketId: string;
-  subject: string;
-  category?: string;
-  priority?: string;
-  status: string;
-  createdAt: string;
-}
 
 // Pacific palette only — no amber/emerald/warm tones (brand
 // guideline), so status is distinguished by weight/opacity rather
@@ -30,13 +20,9 @@ export default async function GrievancesPage() {
   // Layout guarantees a session by the time this renders (middleware
   // blocks unauthenticated requests before they ever reach here), but
   // guard anyway rather than assume.
+  // Newest first, as the CMS answers them.
   const grievances: Grievance[] = session?.user?.id
-    ? await freshClient.fetch(
-        `*[_type == "grievance" && customer._ref == $customerId] | order(createdAt desc) {
-          _id, ticketId, subject, category, priority, status, createdAt
-        }`,
-        { customerId: session.user.id }
-      )
+    ? await customerGrievances(session.user.id)
     : [];
 
   return (
@@ -62,7 +48,7 @@ export default async function GrievancesPage() {
         <div className="mt-10 space-y-4">
           {grievances.map((g) => (
             <Link
-              key={g._id}
+              key={g.id}
               href={`/customer/grievance/${g.ticketId}`}
               className="block rounded-2xl border border-white/10 bg-white/[.02] p-6 transition hover:border-white/25"
             >

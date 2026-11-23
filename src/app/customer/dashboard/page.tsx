@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { freshClient } from "@/sanity/lib/client";
+import { customerGrievances } from "@/cms/customers";
 
 const CLOSED_STATUSES = new Set(["Resolved", "Closed"]);
 
@@ -7,10 +7,7 @@ export default async function Dashboard() {
   const session = await auth();
 
   const statuses: string[] = session?.user?.id
-    ? await freshClient.fetch(
-        `*[_type == "grievance" && customer._ref == $customerId].status`,
-        { customerId: session.user.id }
-      )
+    ? (await customerGrievances(session.user.id)).map((g) => g.status)
     : [];
 
   const total = statuses.length;

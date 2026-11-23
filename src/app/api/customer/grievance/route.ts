@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
-import { freshClient } from "@/sanity/lib/client";
-import { writeClient } from "@/sanity/lib/write-client";
+import { saveForm } from "@/cms/forms";
+import { customerGrievances } from "@/cms/customers";
 
 const VALID_CATEGORIES = [
   "Product Quality",
@@ -14,8 +14,8 @@ const VALID_CATEGORIES = [
 const VALID_PRIORITIES = ["Low", "Medium", "High", "Critical"];
 
 // Human-readable ticket id — e.g. GR-20260707-4F2A. Not a database
-// key (Sanity's _id already is one), just what the customer sees on
-// screen and can reference in an email/call.
+// key (the CMS has its own), just what the customer sees on screen
+// and can reference in an email/call.
 function makeTicketId() {
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const suffix = Math.random().toString(16).slice(2, 6).toUpperCase();
@@ -23,35 +23,31 @@ function makeTicketId() {
 }
 
 // GET /api/customer/grievance — the logged-in customer's own
-// grievances, most recent first. Powers /customer/grievance's list.
+// grievances, most recent first, read through the CMS's customer door.
+// Powers nothing today (the list page reads the CMS itself). The CMS's
+// own ids are left out of the answer.
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const grievances = await freshClient.fetch(
-    `*[_type == "grievance" && customer._ref == $customerId] | order(createdAt desc) {
-      _id,
-      ticketId,
-      subject,
-      category,
-      priority,
-      status,
-      description,
-      adminReply,
-      createdAt
-    }`,
-    { customerId: session.user.id }
-  );
+  const grievances = (await customerGrievances(session.user.id)).map((g) => ({
+    ticketId: g.ticketId,
+    subject: g.subject,
+    category: g.category,
+    priority: g.priority,
+    status: g.status,
+    description: g.description,
+    adminReply: g.adminReply,
+    createdAt: g.createdAt,
+  }));
 
   return Response.json({ grievances });
 }
 
 // POST /api/customer/grievance — create a new grievance for the
-// logged-in customer. Previously this just echoed the request body
-// back without ever writing to Sanity — nothing a customer submitted
-// was actually saved.
+// logged-in customer, saved in the CMS (src/cms/forms.ts).
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -89,22 +85,25 @@ export async function POST(req: Request) {
   const ticketId = makeTicketId();
 
   try {
-    const created = await writeClient.create({
-      _type: "grievance",
-      ticketId,
-      subject,
-      category,
-      priority,
-      description,
-      status: "Open",
-      customer: { _type: "reference", _ref: session.user.id },
-      createdAt: new Date().toISOString(),
-    });
+    const saved = await saveForm(
+      "grievance",
+      {
+        ticketId,
+        subject,
+        category,
+        priority,
+        description,
+        status: "Open",
+        createdAt: new Date().toISOString(),
+      },
+      session.user.id
+    );
 
-    return Response.json({ success: true, ticketId, id: created._id });
+    // `id` carries the entry's reference, never the CMS's own id.
+    return Response.json({ success: true, ticketId, id: saved.reference });
   } catch (err) {
-    // Most likely cause: SANITY_API_WRITE_TOKEN is missing or isn't a
-    // write-capable token (see src/sanity/lib/write-client.ts).
+    // Most likely cause: CMS_URL or CMS_FORMS_SECRET is missing, or the
+    // CMS did not answer (src/cms/forms.ts).
     console.error("Failed to create grievance:", err);
     return Response.json(
       { error: "Could not submit your grievance. Please try again." },

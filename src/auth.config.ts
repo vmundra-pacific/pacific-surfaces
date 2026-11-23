@@ -1,14 +1,11 @@
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-import { freshClient } from "@/sanity/lib/client";
+import { callCustomerDoor } from "@/cms/forms";
 
-type Customer = {
-  _id: string;
-  name: string;
-  email: string;
-  passwordHash: string;
-  active: boolean;
+/** What the CMS's sign-in door answers for a right password. */
+type SignedIn = {
+  ok: true;
+  customer: { id: string | number; name: string; email: string };
 };
 
 export default {
@@ -24,26 +21,19 @@ export default {
         const password = String(credentials?.password ?? "");
         if (!email || !password) return null;
 
-        // Never log the email, the customer record, or the
-        // password-valid result here — this ran on every login
-        // attempt and was writing the customer's passwordHash
-        // straight into server logs.
-        const customer = await freshClient.fetch<Customer | null>(
-          `*[
-            _type == "customer" &&
-            email == $email &&
-            active == true
-          ][0]`,
-          { email }
-        );
-
-        if (!customer?.passwordHash) return null;
-
-        const valid = await bcrypt.compare(password, customer.passwordHash);
-        if (!valid) return null;
+        // Never log the email, the password or the answer here.
+        // The CMS checks the password against the stored hash; the hash
+        // never leaves the CMS. A wrong password, an unknown, locked or
+        // inactive account all answer `{"ok": false}`.
+        const answer = await callCustomerDoor("sign-in", { email, password });
+        if (!answer.ok) return null;
+        const { customer } = answer as SignedIn;
+        if (!customer || customer.id === undefined || customer.id === null) {
+          return null;
+        }
 
         return {
-          id: customer._id,
+          id: String(customer.id),
           name: customer.name,
           email: customer.email,
         };
@@ -71,11 +61,11 @@ export default {
     authorized({ auth }) {
       return !!auth?.user;
     },
-    // Carry the Sanity customer _id (set as `id` in `authorize` above)
+    // Carry the CMS customer id (set as `id` in `authorize` above)
     // from the JWT onto the session object — without this,
     // session.user.id is undefined and every page/route that needs
-    // "this logged-in customer's Sanity doc" (dashboard stats,
-    // grievance list/create, profile) has nothing to query on.
+    // "this logged-in customer's record in the CMS" (dashboard stats,
+    // grievance list/create, profile) has nothing to ask for.
     jwt({ token, user }) {
       if (user) token.id = user.id;
       return token;
