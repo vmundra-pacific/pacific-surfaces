@@ -31,7 +31,6 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/components/ui/animated-section";
-import { MagneticButton } from "@/components/ui/magnetic-button";
 import { OrderSampleModal } from "@/components/ui/order-sample-modal";
 import { sanityImg } from "@/lib/sanity-img";
 import { finishFullImageUrl } from "@/lib/picture-choices";
@@ -630,20 +629,8 @@ function EmptyState() {
   return (
     <div className="bg-white/[0.04] border border-white/10 p-10 md:p-14 text-center">
       <p className="text-pacific-light font-light max-w-2xl mx-auto leading-relaxed">
-        No finishes are showing up. Make sure the existing{" "}
-        <strong className="text-white">Stone Finishes</strong> collection in
-        Studio has at least one published Product tagged to it, and that the
-        collection slug matches the value set in{" "}
-        <strong className="text-white">
-          Beyond Stone Page → Grid → Source Collection Slug
-        </strong>
-        .
+        No finishes are showing right now.
       </p>
-      <div className="mt-8">
-        <MagneticButton href="/studio" variant="outline" size="sm">
-          Open Studio
-        </MagneticButton>
-      </div>
     </div>
   );
 }
