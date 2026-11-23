@@ -22,10 +22,14 @@ import {
  * - `x-vercel-protection-bypass`: CMS_PROTECTION_BYPASS, when set.
  * The CMS refuses a time more than five minutes off.
  *
- * A request that gets no answer, or a 5xx, is sent once more, newly
- * signed. Anything else that is not the expected answer throws a
- * `CmsFormError`; the route then answers the visitor as it does when a
- * save fails.
+ * A request is sent once more, newly signed, only when the first try
+ * most likely saved nothing: the CMS could not be reached, or it answered
+ * 500, 502 or 503.
+ * It is not sent again when the website stopped waiting (its own time
+ * limit) or on a 504: the CMS may still finish that first write, and a
+ * second one would double the entry. Anything that is not the expected
+ * answer throws a `CmsFormError`; the route then answers the visitor as
+ * it does when a save fails.
  *
  * Settings, read on the server at call time, never with a NEXT_PUBLIC_
  * name: CMS_URL, CMS_FORMS_SECRET, CMS_PROTECTION_BYPASS. With no
@@ -41,8 +45,12 @@ import {
 
 export const CMS_TIMESTAMP_HEADER = "x-cms-timestamp";
 export const CMS_SIGNATURE_HEADER = "x-cms-signature";
-/** How long one try of a JSON door may take. */
-export const FORM_TIMEOUT_MS = 15_000;
+/**
+ * How long one try of a JSON door may take. Long enough for the CMS to
+ * start cold and wake its database, since a try that runs out of time
+ * is not sent again.
+ */
+export const FORM_TIMEOUT_MS = 25_000;
 /** How long one try of the careers door may take: it carries the files. */
 export const UPLOAD_TIMEOUT_MS = 60_000;
 
@@ -83,15 +91,23 @@ export function cmsJobApplicationUrl(id: string): string | null {
 /**
  * A door that did not give the expected answer. The message names the
  * door and the reason (a status, a field name), never a value sent.
+ * `field` is the field the CMS named when it refused a value (a 400).
  */
 export class CmsFormError extends Error {
   readonly door: string;
   readonly status: number | null;
-  constructor(door: string, reason: string, status: number | null = null) {
+  readonly field: string | null;
+  constructor(
+    door: string,
+    reason: string,
+    status: number | null = null,
+    field: string | null = null
+  ) {
     super(`CMS door "${door}" failed: ${reason}`);
     this.name = "CmsFormError";
     this.door = door;
     this.status = status;
+    this.field = field;
   }
 }
 
@@ -142,11 +158,15 @@ export async function signFormRequest(
 
 type Prepared = { body: Uint8Array; contentType: string };
 
-type DoorAnswer = { status: number; json: unknown };
+/** The status, the JSON body (null when not JSON) and the tries made. */
+type DoorAnswer = { status: number; json: unknown; tries: number };
+
+/** The statuses after which the CMS most likely saved nothing. */
+const RETRY_STATUSES = new Set([500, 502, 503]);
 
 /**
- * One signed POST, sent once more on no answer or a 5xx. Gives the
- * status and the JSON body (null when the body is not JSON).
+ * One signed POST, sent once more only when the first try most likely
+ * saved nothing (see the top of this file).
  */
 async function postSigned(
   path: string,
@@ -191,17 +211,19 @@ async function postSigned(
           signal: controller.signal,
         });
       } catch {
-        lastReason = controller.signal.aborted
-          ? `no answer within ${timeoutMs} ms`
-          : "the CMS could not be reached";
+        if (controller.signal.aborted) {
+          // The CMS may still be saving: a second try could double it.
+          throw new CmsFormError(door, `no answer within ${timeoutMs} ms`);
+        }
+        lastReason = "the CMS could not be reached";
         lastStatus = null;
-        continue; // a network failure: try once more
+        continue; // nothing reached the CMS: try once more
       }
-      if (response.status >= 500) {
+      if (RETRY_STATUSES.has(response.status)) {
         await response.body?.cancel().catch(() => undefined);
         lastReason = `status ${response.status}`;
         lastStatus = response.status;
-        continue; // a server failure: try once more
+        continue; // most likely nothing saved: try once more
       }
       let json: unknown = null;
       try {
@@ -209,12 +231,19 @@ async function postSigned(
       } catch {
         json = null;
       }
-      return { status: response.status, json };
+      return { status: response.status, json, tries: attempt };
     } finally {
       clearTimeout(timer);
     }
   }
   throw new CmsFormError(door, `${lastReason}, twice`, lastStatus);
+}
+
+/** The field a 400 answer names, or null. */
+function refusedField(json: unknown): string | null {
+  return isObject(json) && typeof json.field === "string"
+    ? json.field.slice(0, 64)
+    : null;
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -233,14 +262,21 @@ function jsonBody(value: unknown): Prepared {
 
 /**
  * What a form door answers on success. `id` is the CMS's id of the row:
- * it stays on the server and is never sent to the browser. `reference`
- * is a random text kept on the row; the cart shows it, Where to Buy signs
- * it into its cookie.
+ * it stays on the server and is never sent to the browser; it is null
+ * only for an order known to be saved by its reference (see `saveForm`).
+ * `reference` is a random text kept on the row; the cart shows it, Where
+ * to Buy signs it into its cookie. `retried` is true when the answer came
+ * from the second try.
  */
-export type FormSaved = { id: string; reference: string; outcome: string };
+export type FormSaved = {
+  id: string | null;
+  reference: string;
+  outcome: string;
+  retried: boolean;
+};
 
 function readSaved(door: string, answer: DoorAnswer): FormSaved {
-  const { status, json } = answer;
+  const { status, json, tries } = answer;
   if (status === 200 && isObject(json) && json.ok === true) {
     const id = json.id;
     const reference = json.reference;
@@ -252,15 +288,17 @@ function readSaved(door: string, answer: DoorAnswer): FormSaved {
       reference !== "" &&
       typeof outcome === "string"
     ) {
-      return { id: String(id), reference, outcome };
+      return { id: String(id), reference, outcome, retried: tries > 1 };
     }
     throw new CmsFormError(door, "the answer is not of the agreed shape", 200);
   }
-  const field =
-    isObject(json) && typeof json.field === "string"
-      ? ` (field ${json.field.slice(0, 64)})`
-      : "";
-  throw new CmsFormError(door, `status ${status}${field}`, status);
+  const field = status === 400 ? refusedField(json) : null;
+  throw new CmsFormError(
+    door,
+    `status ${status}${field ? ` (field ${field})` : ""}`,
+    status,
+    field
+  );
 }
 
 /** The form fields, as the route wrote them to Sanity, without `_type`. */
@@ -270,6 +308,11 @@ export type FormFields = Record<string, unknown>;
  * Saves one form entry: `POST ${CMS_URL}/api/forms/<kind>` with
  * `{"fields": {...}}`, plus `customerId` beside `fields` for a grievance.
  * Throws a `CmsFormError` when it is not saved.
+ *
+ * An order's reference is unique in the CMS. When the first try failed
+ * in a way that may still have saved it, and the second try is refused
+ * because that reference is already there, the order is saved: the
+ * answer then carries the reference and no id.
  */
 export async function saveForm(
   kind: Exclude<FormKind, "job-application" | "grievance">,
@@ -293,6 +336,21 @@ export async function saveForm(
     jsonBody(payload),
     FORM_TIMEOUT_MS
   );
+  if (
+    kind === "order" &&
+    answer.tries > 1 &&
+    answer.status === 400 &&
+    refusedField(answer.json) === "reference" &&
+    typeof fields.reference === "string" &&
+    fields.reference !== ""
+  ) {
+    return {
+      id: null,
+      reference: fields.reference,
+      outcome: "created",
+      retried: true,
+    };
+  }
   return readSaved(door, answer);
 }
 
@@ -374,7 +432,8 @@ export function jobApplicationBody(
 /**
  * Saves one job application with its CV and, when given, its portfolio
  * file. The answer's outcome is "duplicate" when the CMS already holds
- * the same application (it then stores nothing new).
+ * the same application (it then stores nothing new); with `retried` true
+ * that may be this very application, saved by the first try.
  */
 export async function saveJobApplication(
   fields: FormFields,

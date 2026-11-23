@@ -48,7 +48,7 @@ export default async function GrievancesPage() {
         <div className="mt-10 space-y-4">
           {grievances.map((g) => (
             <Link
-              key={g.id}
+              key={g.ticketId}
               href={`/customer/grievance/${g.ticketId}`}
               className="block rounded-2xl border border-white/10 bg-white/[.02] p-6 transition hover:border-white/25"
             >

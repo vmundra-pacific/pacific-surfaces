@@ -74,6 +74,7 @@ export default function NewGrievanceForm() {
           placeholder="Surface chipped after installation"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
+          maxLength={200}
         />
       </div>
 
@@ -114,14 +115,22 @@ export default function NewGrievanceForm() {
           placeholder="Describe your issue..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          maxLength={5000}
         />
       </div>
 
       <div>
         <label className={labelClassName}>
-          Attach Images <span className="text-pacific-mid/60">(coming soon)</span>
+          Attach Images{" "}
+          <span className="text-pacific-mid/60">(coming soon)</span>
         </label>
-        <input type="file" multiple accept="image/*" disabled className="block opacity-50" />
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          disabled
+          className="block opacity-50"
+        />
       </div>
 
       {error && (
@@ -130,7 +139,12 @@ export default function NewGrievanceForm() {
         </p>
       )}
 
-      <MagneticButton type="submit" disabled={loading} variant="outline-dark" size="lg">
+      <MagneticButton
+        type="submit"
+        disabled={loading}
+        variant="outline-dark"
+        size="lg"
+      >
         {loading ? "Submitting..." : "Submit Grievance"}
       </MagneticButton>
     </form>

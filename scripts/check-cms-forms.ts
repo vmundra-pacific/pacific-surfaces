@@ -1,6 +1,7 @@
 /**
  * Checks for the CMS writer (src/cms/forms.ts): the signing of every
- * door, the bodies the doors receive, the one retry, and the answers.
+ * door, the bodies the doors receive, when a save is tried once more and
+ * when not, and the answers.
  * It needs no network and no real key: it runs a small stand-in CMS on
  * 127.0.0.1 and uses made-up values.
  *
@@ -83,7 +84,7 @@ const seen: Seen[] = [];
 /** Answers to give, per path, in turn; the last one repeats. */
 const script = new Map<
   string,
-  Array<"drop" | { status: number; body: unknown }>
+  Array<"drop" | "hang" | { status: number; body: unknown }>
 >();
 
 function signedRightly(headers: IncomingMessage["headers"], body: Buffer) {
@@ -116,6 +117,7 @@ function startStandIn(): Promise<Server> {
         req.socket.destroy();
         return;
       }
+      if (next === "hang") return; // never answers
       if (!signed) {
         res.writeHead(401, { "content-type": "application/json" });
         res.end(JSON.stringify({ ok: false, error: "unauthorised" }));
@@ -248,6 +250,7 @@ async function checkFormDoor(): Promise<void> {
     id: "42",
     reference: "ref-contact",
     outcome: "created",
+    retried: false,
   });
 
   delete process.env.CMS_PROTECTION_BYPASS;
@@ -291,6 +294,7 @@ async function checkRetry(): Promise<void> {
     tries.every((t) => t.signed)
   );
   same("and the second answer is used", saved.reference, "PS-TEST-0001");
+  check("and it says so", saved.retried === true);
 
   script.set("/api/forms/sample-request", ["drop", created("ref-sample")]);
   before = seen.length;
@@ -306,6 +310,65 @@ async function checkRetry(): Promise<void> {
   same("two 5xx: two tries only", seen.length - before, 2);
   check("and then it throws", twice instanceof CmsFormError);
 
+  script.set("/api/forms/sills-enquiry", [
+    { status: 504, body: { ok: false } },
+    created("ref-sills"),
+  ]);
+  before = seen.length;
+  const gateway = await rejects(() => saveForm("sills-enquiry", { name: "T" }));
+  same(
+    "a 504 is not tried again (the CMS may still be saving)",
+    seen.length - before,
+    1
+  );
+  check("and it throws", gateway instanceof CmsFormError);
+
+  // The website's own time limit, made short for this check only.
+  script.set("/api/forms/contact", ["hang", created("ref-late")]);
+  const realSetTimeout = globalThis.setTimeout;
+  globalThis.setTimeout = ((handler: () => void) =>
+    realSetTimeout(handler, 200)) as unknown as typeof setTimeout;
+  before = seen.length;
+  let late: Error | null;
+  try {
+    late = await rejects(() => saveForm("contact", { name: "T" }));
+  } finally {
+    globalThis.setTimeout = realSetTimeout;
+  }
+  same(
+    "no answer in time is not tried again (the CMS may still be saving)",
+    seen.length - before,
+    1
+  );
+  check(
+    "and it throws",
+    late instanceof CmsFormError && late.message.includes("no answer")
+  );
+
+  script.set("/api/forms/order", [
+    { status: 503, body: { ok: false } },
+    { status: 400, body: { ok: false, error: "invalid", field: "reference" } },
+  ]);
+  before = seen.length;
+  const known = await saveForm("order", { reference: "PS-TEST-0002" });
+  same(
+    "an order whose second try finds its reference already saved is saved",
+    known,
+    { id: null, reference: "PS-TEST-0002", outcome: "created", retried: true }
+  );
+  same("after two tries", seen.length - before, 2);
+
+  script.set("/api/forms/order", [
+    { status: 400, body: { ok: false, error: "invalid", field: "reference" } },
+  ]);
+  const first = await rejects(() =>
+    saveForm("order", { reference: "PS-TEST-0003" })
+  );
+  check(
+    "but a first try refused on its reference throws",
+    first instanceof CmsFormError && first.field === "reference"
+  );
+
   script.set("/api/forms/where-to-buy-lead", [
     { status: 400, body: { ok: false, error: "invalid", field: "email" } },
   ]);
@@ -316,7 +379,10 @@ async function checkRetry(): Promise<void> {
   same("a 400 is not tried again", seen.length - before, 1);
   check(
     "a 400 throws, naming the field",
-    invalid instanceof CmsFormError && invalid.message.includes("email")
+    invalid instanceof CmsFormError &&
+      invalid.message.includes("email") &&
+      invalid.status === 400 &&
+      invalid.field === "email"
   );
 
   script.set("/api/forms/contact", [
@@ -422,6 +488,7 @@ async function checkCareersDoor(): Promise<void> {
     null
   );
   same("a duplicate is passed on", dup.outcome, "duplicate");
+  check("from the first try", dup.retried === false);
   const two = multipartParts(
     seen[mark]?.body ?? Buffer.alloc(0),
     String(seen[mark]?.headers["content-type"] ?? "")
@@ -430,6 +497,37 @@ async function checkCareersDoor(): Promise<void> {
   check(
     "a file with no type is sent as octet-stream",
     /Content-Type: application\/octet-stream/.test(two[1]?.headers ?? "")
+  );
+
+  script.set("/api/forms/job-application", [
+    "drop",
+    created("ref-job", "duplicate"),
+  ]);
+  const again = await saveJobApplication(
+    { firstName: "Test" },
+    { name: "cv.pdf", type: "", bytes: resumeBytes },
+    null
+  );
+  check(
+    "a duplicate from the second try says so (the first may have saved it)",
+    again.outcome === "duplicate" && again.retried === true
+  );
+
+  script.set("/api/forms/job-application", [
+    { status: 400, body: { ok: false, error: "invalid", field: "resume" } },
+  ]);
+  const refused = await rejects(() =>
+    saveJobApplication(
+      { firstName: "Test" },
+      { name: "cv.doc", type: "", bytes: resumeBytes },
+      null
+    )
+  );
+  check(
+    "a CV refused by its bytes throws, naming the field resume",
+    refused instanceof CmsFormError &&
+      refused.status === 400 &&
+      refused.field === "resume"
   );
 }
 
@@ -542,6 +640,7 @@ async function main(): Promise<void> {
     await checkCustomerDoors();
     checkImports();
   } finally {
+    server.closeAllConnections();
     server.close();
   }
   console.log(`\n${passes} passed, ${failures} failed`);

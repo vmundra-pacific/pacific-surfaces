@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { saveForm } from "@/cms/forms";
 import { customerGrievances } from "@/cms/customers";
+import { clampField, FIELD_LIMITS } from "@/lib/escape";
 
 const VALID_CATEGORIES = [
   "Product Quality",
@@ -66,8 +67,10 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const subject = String(body.subject ?? "").trim();
-  const description = String(body.description ?? "").trim();
+  // Cut to the lengths the CMS keeps, so a long complaint loses its tail
+  // instead of failing every time.
+  const subject = clampField(body.subject, FIELD_LIMITS.shortText);
+  const description = clampField(body.description, FIELD_LIMITS.message);
   const category = VALID_CATEGORIES.includes(body.category ?? "")
     ? body.category!
     : "Other";

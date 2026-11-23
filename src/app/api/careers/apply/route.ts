@@ -20,7 +20,8 @@
  *      was attached) to the CMS's careers door (src/cms/forms.ts),
  *      which keeps the files in its private file store and saves the
  *      application. The CMS answers "duplicate" for the same
- *      application sent again; nothing new is kept and no email sent.
+ *      application sent again; nothing new is kept and no email sent
+ *      (unless the first try of this very request saved it).
  *   2. Send an email notification via the same SMTP transport that
  *      powers the Contact form (src/lib/mail.ts), to:
  *        - the role-specific `applyEmail` if the candidate applied
@@ -44,10 +45,12 @@
 import * as cms from "@/cms/read";
 import { NextRequest, NextResponse, after } from "next/server";
 import {
+  CmsFormError,
   cmsFormsConfigured,
   cmsJobApplicationUrl,
   saveJobApplication,
 } from "@/cms/forms";
+import { clampField, FIELD_LIMITS } from "@/lib/escape";
 import { transporter } from "@/lib/mail";
 import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 
@@ -72,6 +75,18 @@ const ALLOWED_PORTFOLIO_TYPES = new Set([
   "image/jpeg",
   "image/png",
 ]);
+
+const RESUME_TYPE_ERROR = "Resume must be a PDF, DOC, or DOCX file.";
+const PORTFOLIO_TYPE_ERROR =
+  "Portfolio must be a PDF, PPT/PPTX, JPG, or PNG file.";
+const PORTFOLIO_LINK_ERROR =
+  "Portfolio link must be a valid URL starting with http:// or https://.";
+
+/** One text field, trimmed and cut to the length the CMS keeps. */
+const field = (formData: FormData, name: string, max: number) => {
+  const value = formData.get(name);
+  return clampField(typeof value === "string" ? value : "", max);
+};
 
 export async function POST(req: NextRequest) {
   if (!cmsFormsConfigured()) {
@@ -109,23 +124,33 @@ export async function POST(req: NextRequest) {
     if ((formData.get("website") || "").toString()) {
       return NextResponse.json({ success: true });
     }
-    const firstName = (formData.get("firstName") || "").toString().trim();
-    const lastName = (formData.get("lastName") || "").toString().trim();
-    const email = (formData.get("email") || "").toString().trim();
-    const phone = (formData.get("phone") || "").toString().trim();
-    const address = (formData.get("address") || "").toString().trim();
-    const currentLocation = (formData.get("currentLocation") || "")
-      .toString()
-      .trim();
-    const age = (formData.get("age") || "").toString().trim();
-    const totalExperience = (formData.get("totalExperience") || "")
-      .toString()
-      .trim();
-    const comments = (formData.get("comments") || "").toString().trim();
-    const department = (formData.get("department") || "").toString().trim();
-    const appliedFor = (formData.get("appliedFor") || "").toString().trim();
+    // Cut to the lengths the CMS keeps (the other forms do the same), so
+    // a long cover letter loses its tail instead of the application.
+    const firstName = field(formData, "firstName", FIELD_LIMITS.name);
+    const lastName = field(formData, "lastName", FIELD_LIMITS.name);
+    const email = field(formData, "email", FIELD_LIMITS.email);
+    const phone = field(formData, "phone", FIELD_LIMITS.phone);
+    const address = field(formData, "address", FIELD_LIMITS.address);
+    const currentLocation = field(
+      formData,
+      "currentLocation",
+      FIELD_LIMITS.shortText
+    );
+    const age = field(formData, "age", 20);
+    const totalExperience = field(formData, "totalExperience", 60);
+    const comments = field(formData, "comments", FIELD_LIMITS.message);
+    const department = field(formData, "department", FIELD_LIMITS.shortText);
+    const appliedFor = field(formData, "appliedFor", FIELD_LIMITS.shortText);
     const resume = formData.get("resume");
-    const portfolioUrl = (formData.get("portfolioUrl") || "").toString().trim();
+    // A space in a pasted link is written as %20, as a browser does, so
+    // the link still opens and the CMS takes it.
+    const rawPortfolioUrl = formData.get("portfolioUrl");
+    const portfolioUrl = clampField(
+      (typeof rawPortfolioUrl === "string" ? rawPortfolioUrl : "")
+        .trim()
+        .replace(/ /g, "%20"),
+      FIELD_LIMITS.address
+    );
     const portfolioFile = formData.get("portfolio");
     const portfolio =
       portfolioFile instanceof File && portfolioFile.size > 0
@@ -162,10 +187,7 @@ export async function POST(req: NextRequest) {
       );
     }
     if (resume.type && !ALLOWED_RESUME_TYPES.has(resume.type)) {
-      return NextResponse.json(
-        { error: "Resume must be a PDF, DOC, or DOCX file." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: RESUME_TYPE_ERROR }, { status: 400 });
     }
     if (portfolio) {
       if (portfolio.size > MAX_PORTFOLIO_BYTES) {
@@ -176,17 +198,15 @@ export async function POST(req: NextRequest) {
       }
       if (portfolio.type && !ALLOWED_PORTFOLIO_TYPES.has(portfolio.type)) {
         return NextResponse.json(
-          { error: "Portfolio must be a PDF, PPT/PPTX, JPG, or PNG file." },
+          { error: PORTFOLIO_TYPE_ERROR },
           { status: 400 }
         );
       }
     }
-    if (portfolioUrl && !/^https?:\/\/.+/i.test(portfolioUrl)) {
+    // The CMS's own test of a link: http(s)://, then no spaces.
+    if (portfolioUrl && !/^https?:\/\/\S+$/i.test(portfolioUrl)) {
       return NextResponse.json(
-        {
-          error:
-            "Portfolio link must be a valid URL starting with http:// or https://.",
-        },
+        { error: PORTFOLIO_LINK_ERROR },
         { status: 400 }
       );
     }
@@ -253,8 +273,10 @@ export async function POST(req: NextRequest) {
         : null
     );
 
-    // The same application sent again: already saved and emailed.
-    if (saved.outcome === "duplicate") {
+    // The same application sent again: already saved and emailed. But
+    // when the answer came from a second try, the first try may have
+    // saved this very application without answering: email it then.
+    if (saved.outcome === "duplicate" && !saved.retried) {
       return NextResponse.json({ success: true });
     }
 
@@ -265,7 +287,7 @@ export async function POST(req: NextRequest) {
     //    on Vercel.
     after(() =>
       sendNotificationEmail({
-        entryUrl: cmsJobApplicationUrl(saved.id),
+        entryUrl: saved.id ? cmsJobApplicationUrl(saved.id) : null,
         resumeName: resume.name,
         portfolioName: portfolio ? portfolio.name : null,
         portfolioUrl,
@@ -292,10 +314,34 @@ export async function POST(req: NextRequest) {
     // Log the real error server-side; never leak internals (stack
     // details, env hints, CMS errors) to the client.
     console.error("[careers/apply] submission failed:", error);
+    // The CMS refused one value: tell the applicant which, so a resend
+    // can succeed. A file is judged by its bytes there.
+    if (error instanceof CmsFormError && error.status === 400) {
+      return NextResponse.json(
+        { error: refusedMessage(error.field) },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { error: "Something went wrong. Please try again later." },
       { status: 500 }
     );
+  }
+}
+
+/** What the applicant is told when the CMS refuses one field. */
+function refusedMessage(field: string | null): string {
+  switch (field) {
+    case "resume":
+      return RESUME_TYPE_ERROR;
+    case "portfolio":
+      return PORTFOLIO_TYPE_ERROR;
+    case "portfolioUrl":
+      return PORTFOLIO_LINK_ERROR;
+    case "email":
+      return "A valid email address is required.";
+    default:
+      return "Please check your details and try again.";
   }
 }
 

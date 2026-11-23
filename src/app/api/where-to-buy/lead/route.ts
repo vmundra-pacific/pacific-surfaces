@@ -88,7 +88,9 @@ const invalid = (field: string, error: string) =>
   NextResponse.json({ error, field }, { status: 400 });
 
 export async function POST(req: NextRequest) {
-  if (!cmsFormsConfigured() && !mailReady && !dryRun) {
+  // The lead is saved in the CMS before anything else, so without the
+  // CMS there is nothing to do (the email alone is not enough).
+  if (!cmsFormsConfigured() && !dryRun) {
     return NextResponse.json(
       { error: "Lead capture is not configured." },
       { status: 503 }

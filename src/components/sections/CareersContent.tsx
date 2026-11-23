@@ -692,6 +692,7 @@ export function CareersContent({ pageData, openings }: Props) {
                 autoComplete="given-name"
                 value={formData.firstName}
                 onChange={handleInputChange}
+                maxLength={200}
                 required
               />
               <FormInput
@@ -700,6 +701,7 @@ export function CareersContent({ pageData, openings }: Props) {
                 autoComplete="family-name"
                 value={formData.lastName}
                 onChange={handleInputChange}
+                maxLength={200}
                 required
               />
             </div>
@@ -711,6 +713,7 @@ export function CareersContent({ pageData, openings }: Props) {
                 autoComplete="email"
                 value={formData.email}
                 onChange={handleInputChange}
+                maxLength={320}
                 required
               />
               <FormInput
@@ -720,6 +723,7 @@ export function CareersContent({ pageData, openings }: Props) {
                 autoComplete="tel"
                 value={formData.phone}
                 onChange={handleInputChange}
+                maxLength={40}
                 required
               />
             </div>
@@ -729,6 +733,7 @@ export function CareersContent({ pageData, openings }: Props) {
               autoComplete="street-address"
               value={formData.address}
               onChange={handleInputChange}
+              maxLength={500}
               required
             />
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -737,6 +742,7 @@ export function CareersContent({ pageData, openings }: Props) {
                 name="currentLocation"
                 value={formData.currentLocation}
                 onChange={handleInputChange}
+                maxLength={200}
                 placeholder="e.g. Bangalore, Karnataka"
                 required
               />
@@ -754,6 +760,7 @@ export function CareersContent({ pageData, openings }: Props) {
               name="totalExperience"
               value={formData.totalExperience}
               onChange={handleInputChange}
+              maxLength={60}
               placeholder='e.g. "5 years", "Fresher"'
               required
             />
@@ -825,6 +832,7 @@ export function CareersContent({ pageData, openings }: Props) {
                   autoComplete="url"
                   value={formData.portfolioUrl}
                   onChange={handleInputChange}
+                  maxLength={500}
                   placeholder="https://behance.net/yourname or a Drive or Dropbox link"
                   className={FIELD}
                 />
@@ -857,6 +865,7 @@ export function CareersContent({ pageData, openings }: Props) {
                 name="comments"
                 value={formData.comments}
                 onChange={handleInputChange}
+                maxLength={5000}
                 rows={4}
                 placeholder="Notice period, preferred locations, links to your work"
                 className={`${FIELD} resize-y`}
@@ -943,6 +952,7 @@ function FormInput({
   placeholder,
   required,
   autoComplete,
+  maxLength,
 }: {
   label: string;
   name: string;
@@ -953,6 +963,8 @@ function FormInput({
   required?: boolean;
   /** WCAG 1.3.5: an HTML autofill token where the field has one. */
   autoComplete?: string;
+  /** The longest text kept (the same limit as /api/careers/apply). */
+  maxLength?: number;
 }) {
   return (
     <div>
@@ -968,6 +980,7 @@ function FormInput({
         required={required}
         placeholder={placeholder}
         autoComplete={autoComplete}
+        maxLength={maxLength}
         className={FIELD}
       />
     </div>
