@@ -2,16 +2,17 @@
  * Which store the site reads each kind of content from.
  *
  * CONTENT_SOURCE picks the store for the whole site: "sanity" or "cms".
- * Unset or empty means "sanity".
+ * Unset or empty means "cms", so a build without the setting never
+ * reads Sanity.
  *
  * A single kind of content can be sent back to Sanity on its own with
  * its own setting, for example CONTENT_SOURCE_PRODUCTS=sanity while
  * CONTENT_SOURCE=cms. Unset or empty means "follow CONTENT_SOURCE".
  *
  * Only that way back is supported: the site on the CMS
- * (CONTENT_SOURCE=cms) with some kinds sent back to Sanity. Sending one
- * kind forward to the CMS while the site stays on Sanity is NOT
- * supported and is refused when the server starts: the file routes, the
+ * (CONTENT_SOURCE=cms, or unset) with some kinds sent back to Sanity.
+ * Sending one kind forward to the CMS while the site stays on Sanity is
+ * NOT supported and is refused when the server starts: the file routes, the
  * picture-host hint and robots follow CONTENT_SOURCE only, so they would
  * still point at Sanity.
  *
@@ -57,7 +58,7 @@ function parse(name: string, value: string | undefined): ContentSource | null {
 
 /** The store for the whole site. */
 export function contentSource(): ContentSource {
-  return parse("CONTENT_SOURCE", process.env.CONTENT_SOURCE) ?? "sanity";
+  return parse("CONTENT_SOURCE", process.env.CONTENT_SOURCE) ?? "cms";
 }
 
 /** The store for one kind of content: its own setting, else the site's. */
@@ -71,8 +72,7 @@ export function contentSourceFor(type: ContentType): ContentSource {
 
 /**
  * Refuses a wrong value in any of the settings, and refuses any kind set to
- * "cms" while CONTENT_SOURCE is "sanity" or not set. Run when the server
- * starts.
+ * "cms" while CONTENT_SOURCE is "sanity". Run when the server starts.
  */
 export function assertContentSettings(): void {
   const site = contentSource();
@@ -81,7 +81,7 @@ export function assertContentSettings(): void {
     if (kind === "cms" && site !== "cms") {
       const name = CONTENT_TYPE_SETTINGS[type];
       throw new Error(
-        `${name} is "cms" but CONTENT_SOURCE is ${site === "sanity" && process.env.CONTENT_SOURCE ? '"sanity"' : "not set"}. ` +
+        `${name} is "cms" but CONTENT_SOURCE is "sanity". ` +
           `This mix is not supported: the site's files and pictures would still come from Sanity. ` +
           `Set CONTENT_SOURCE=cms for the whole site, and send single kinds back with ${name}=sanity.`
       );

@@ -13,7 +13,7 @@ import { isCmsMedia, mediaBaseUrl } from "@/lib/media-url";
  *
  * Settings, read on the server at call time, never with a NEXT_PUBLIC_
  * name, so they stay out of every browser bundle:
- * - CONTENT_SOURCE: "cms" reads the CMS, "sanity" (or unset) reads Sanity.
+ * - CONTENT_SOURCE: "cms" (or unset) reads the CMS, "sanity" reads Sanity.
  *   Any other value is refused with an error (`./content-source.ts`).
  * - CONTENT_SOURCE_<TYPE> (for example CONTENT_SOURCE_PRODUCTS): the same
  *   for one kind of content; unset follows CONTENT_SOURCE.

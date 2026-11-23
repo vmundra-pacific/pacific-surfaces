@@ -444,8 +444,8 @@ function checkContentSource(): void {
   console.log("CONTENT_SOURCE");
   const before = process.env.CONTENT_SOURCE;
   const cases: [string | undefined, string][] = [
-    [undefined, "sanity"],
-    ["", "sanity"],
+    [undefined, "cms"],
+    ["", "cms"],
     ["sanity", "sanity"],
     ["cms", "cms"],
   ];
@@ -482,11 +482,7 @@ function checkContentSourcePerType(): void {
   try {
     clear();
     for (const type of types) {
-      same(
-        `${type}: nothing set reads sanity`,
-        contentSourceFor(type),
-        "sanity"
-      );
+      same(`${type}: nothing set reads cms`, contentSourceFor(type), "cms");
     }
     process.env.CONTENT_SOURCE = "cms";
     for (const type of types) {
@@ -527,8 +523,8 @@ function checkContentSourcePerType(): void {
       clear();
       process.env[CONTENT_TYPE_SETTINGS[type]] = "cms";
       check(
-        `${CONTENT_TYPE_SETTINGS[type]}=cms with CONTENT_SOURCE not set is refused at start, naming the setting`,
-        throwsWith(() => assertContentSettings(), CONTENT_TYPE_SETTINGS[type])
+        `${CONTENT_TYPE_SETTINGS[type]}=cms with CONTENT_SOURCE not set (so cms) starts`,
+        !throwsWith(() => assertContentSettings(), "")
       );
       process.env.CONTENT_SOURCE = "sanity";
       check(
@@ -1331,15 +1327,22 @@ async function checkCallSites(): Promise<void> {
     same(`Sanity: ${where}`, actual, expected);
   }
 
-  // The layout's hints and robots.txt, with the source unset: as before.
+  // The layout's hints and robots.txt, with the source unset: the CMS.
   delete process.env.CONTENT_SOURCE;
   process.env.NEXT_PUBLIC_MEDIA_BASE_URL = folder;
   same(
-    "source unset: the hints go to Sanity, media folder or not",
+    "source unset: the hints go to the media host, as with cms",
+    resourceHintOrigin(),
+    "https://media.example.com"
+  );
+  // With the source sent back to Sanity: as before.
+  process.env.CONTENT_SOURCE = "sanity";
+  same(
+    "source sanity: the hints go to Sanity, media folder or not",
     resourceHintOrigin(),
     "https://cdn.sanity.io"
   );
-  same("source unset: robots.txt is as before", robots(), {
+  same("source sanity: robots.txt is as before", robots(), {
     rules: [
       {
         userAgent: "*",
@@ -1422,12 +1425,12 @@ async function checkMediaProxy(base: string): Promise<void> {
     );
   }
 
-  // With CONTENT_SOURCE unset: not found, as before the route existed.
-  delete process.env.CONTENT_SOURCE;
+  // With CONTENT_SOURCE=sanity: not found, as before the route existed.
+  process.env.CONTENT_SOURCE = "sanity";
   let before = seen.length;
   const unset = await ask(`${h}.jpg`);
   check(
-    "with CONTENT_SOURCE unset, a good name is 404 and nothing is fetched",
+    "with CONTENT_SOURCE=sanity, a good name is 404 and nothing is fetched",
     unset.status === 404 &&
       (await unset.text()) === "Not found." &&
       seen.length === before
@@ -3491,8 +3494,8 @@ async function checkFetchers(): Promise<void> {
   );
   overrides.delete("product-tiles");
 
-  // With the default source, no fetcher reaches the CMS.
-  delete process.env.CONTENT_SOURCE;
+  // With the source sent back to Sanity, no fetcher reaches the CMS.
+  process.env.CONTENT_SOURCE = "sanity";
   const before = seen.length;
   const pending = [
     cms.productsCatalogue(),
@@ -3503,8 +3506,18 @@ async function checkFetchers(): Promise<void> {
   pending.forEach((p) => p.catch(() => undefined));
   await new Promise((resolve) => setTimeout(resolve, 300));
   check(
-    "with CONTENT_SOURCE unset the fetchers do not call the CMS",
+    "with CONTENT_SOURCE=sanity the fetchers do not call the CMS",
     seen.length === before
+  );
+  // With nothing set, they do: the CMS is the default.
+  delete process.env.CONTENT_SOURCE;
+  check(
+    "with CONTENT_SOURCE unset the fetchers call the CMS",
+    await (async () => {
+      const mark = seen.length;
+      await cms.faq("quartz").catch(() => undefined);
+      return seen.length > mark;
+    })()
   );
 
   // One kind sent back to Sanity while the site reads the CMS, and the
@@ -3536,11 +3549,16 @@ async function checkFetchers(): Promise<void> {
     "with CONTENT_SOURCE_PRODUCTS unset, products follow CONTENT_SOURCE=cms again",
     await asked(() => cms.productsCatalogue())
   );
-  delete process.env.CONTENT_SOURCE;
+  process.env.CONTENT_SOURCE = "sanity";
   process.env.CONTENT_SOURCE_FAQ = "cms";
   check(
-    "CONTENT_SOURCE unset with CONTENT_SOURCE_FAQ=cms is refused at start",
+    "CONTENT_SOURCE=sanity with CONTENT_SOURCE_FAQ=cms is refused at start",
     throwsWith(() => assertContentSettings(), "CONTENT_SOURCE_FAQ")
+  );
+  delete process.env.CONTENT_SOURCE;
+  check(
+    "CONTENT_SOURCE unset with CONTENT_SOURCE_FAQ=cms starts",
+    !throwsWith(() => assertContentSettings(), "")
   );
   delete process.env.CONTENT_SOURCE_FAQ;
   process.env.CONTENT_SOURCE_FAQ = "Cms";
