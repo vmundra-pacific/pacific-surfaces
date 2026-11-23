@@ -10,6 +10,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "check:cms-read": "tsx --conditions=react-server scripts/check-cms-read.ts",
+    "check:cms-forms": "tsx --conditions=react-server scripts/check-cms-forms.ts",
     "prepare": "husky",
     "backfill:palette": "node --env-file=.env.local scripts/backfill-image-palette.mjs",
     "backfill:palette:dry": "node --env-file=.env.local scripts/backfill-image-palette.mjs --dry",
