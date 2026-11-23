@@ -2,38 +2,23 @@
  * POST /api/order/submit
  *
  * Receives a cart plus customer details from /cart, records it as an
- * `orderRequest` document in Sanity, and emails the team so somebody
+ * order request in the CMS (src/cms/forms.ts), and emails the team so somebody
  * picks it up. There is no payment step — the response carries a
  * reference the customer is shown, and the team contacts them to
  * confirm quantities, freight and price.
  *
- * Env vars match /api/contact/submit: Sanity write token for the
- * document, SMTP_* plus COMPANY_EMAIL for the notification. The email
+ * Env vars match /api/contact/submit: CMS_URL and CMS_FORMS_SECRET for
+ * the record, SMTP_* plus COMPANY_EMAIL for the notification. The email
  * is best-effort — an SMTP failure must not lose an order that has
- * already been written to Sanity.
+ * already been saved in the CMS.
  */
 import nodemailer from "nodemailer";
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@sanity/client";
+import { cmsFormsConfigured, saveForm } from "@/cms/forms";
 import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 import { escapeHtml, clampField, FIELD_LIMITS } from "@/lib/escape";
 
 export const runtime = "nodejs";
-
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-const writeToken = process.env.SANITY_API_WRITE_TOKEN;
-
-const sanityClient =
-  projectId && dataset && writeToken
-    ? createClient({
-        projectId,
-        dataset,
-        apiVersion: "2026-03-28",
-        useCdn: false,
-        token: writeToken,
-      })
-    : null;
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -83,7 +68,7 @@ function orderReference(): string {
 }
 
 export async function POST(req: NextRequest) {
-  if (!sanityClient) {
+  if (!cmsFormsConfigured()) {
     return NextResponse.json(
       {
         error:
@@ -157,10 +142,7 @@ export async function POST(req: NextRequest) {
       );
       return [
         {
-          _key: `${clampField(line.id, 64) || "line"}-${clampField(line.length, 16)}x${clampField(line.width, 16)}x${clampField(line.height, 16)}-${clampField(line.basins, 8)}-${clampField(line.finish, 32)}-${clampField(line.faucet, 24)}`.replace(
-            /[^a-zA-Z0-9_-]/g,
-            "-"
-          ),
+          // No `_key`: Sanity needed one per line, the CMS does not.
           name: lineName,
           slug: clampField(line.slug, FIELD_LIMITS.shortText) || undefined,
           collection:
@@ -189,8 +171,7 @@ export async function POST(req: NextRequest) {
     const totalPieces = items.reduce((n, i) => n + i.quantity, 0);
     const reference = orderReference();
 
-    const doc = await sanityClient.create({
-      _type: "orderRequest",
+    const saved = await saveForm("order", {
       reference,
       submittedAt: new Date().toISOString(),
       status: "new",
@@ -205,7 +186,7 @@ export async function POST(req: NextRequest) {
       totalPieces,
     });
 
-    // Notify the team. Deliberately after the Sanity write and inside
+    // Notify the team. Deliberately after the CMS save and inside
     // its own try — a bounced email must not fail an order that has
     // already been recorded.
     try {
@@ -272,7 +253,8 @@ export async function POST(req: NextRequest) {
       console.error("[order/submit] notification email failed:", mailError);
     }
 
-    return NextResponse.json({ success: true, reference, id: doc._id });
+    // `id` carries the entry's reference, never the CMS's own id.
+    return NextResponse.json({ success: true, reference, id: saved.reference });
   } catch (error) {
     console.error("[order/submit] failed:", error);
     return NextResponse.json(

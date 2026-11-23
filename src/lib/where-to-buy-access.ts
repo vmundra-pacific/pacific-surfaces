@@ -3,7 +3,8 @@
  * details, so the outlets are shown again on later visits without the form.
  *
  * A signed token, `<payload>.<signature>`: the payload names the lead (its
- * Sanity id) and when the access ends; the signature is an HMAC-SHA256 with
+ * reference in the CMS; older cookies hold a Sanity id) and when the
+ * access ends; the signature is an HMAC-SHA256 with
  * AUTH_SECRET (already set for sign-in), so it cannot be forged or
  * extended. httpOnly, so page scripts cannot read or copy it.
  */

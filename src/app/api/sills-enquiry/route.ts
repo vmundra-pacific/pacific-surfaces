@@ -3,27 +3,18 @@
  *
  * The quote form of the Window Sills & Thresholds landing page (owner,
  * 2026-10-22: a separate form for the page the ads run to). Saves a
- * `sillsEnquiry` document (Studio: Form Submissions → Window Sill
- * Enquiries) and emails the company inbox with its own subject, so these
+ * window sills enquiry in the CMS (src/cms/forms.ts) and emails the
+ * company inbox with its own subject, so these
  * leads never mix with the general contact form. Same guards as
  * /api/contact/submit: rate limit, clamped fields, escaped email.
  */
 import nodemailer from "nodemailer";
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@sanity/client";
+import { saveForm } from "@/cms/forms";
 import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 import { escapeHtml, clampField, FIELD_LIMITS } from "@/lib/escape";
 
 export const runtime = "nodejs";
-
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-const writeToken = process.env.SANITY_API_WRITE_TOKEN;
-
-const sanityClient =
-  projectId && dataset && writeToken
-    ? createClient({ projectId, dataset, apiVersion: "2026-03-28", useCdn: false, token: writeToken })
-    : null;
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -52,15 +43,30 @@ interface Body {
 }
 
 export async function POST(req: NextRequest) {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.COMPANY_EMAIL) {
-    return NextResponse.json({ error: "Email service is not configured." }, { status: 503 });
+  if (
+    !process.env.SMTP_HOST ||
+    !process.env.SMTP_USER ||
+    !process.env.SMTP_PASS ||
+    !process.env.COMPANY_EMAIL
+  ) {
+    return NextResponse.json(
+      { error: "Email service is not configured." },
+      { status: 503 }
+    );
   }
 
-  const limit = rateLimit(`form:${getClientIp(req)}`, FORM_RATE_LIMIT.limit, FORM_RATE_LIMIT.windowMs);
+  const limit = rateLimit(
+    `form:${getClientIp(req)}`,
+    FORM_RATE_LIMIT.limit,
+    FORM_RATE_LIMIT.windowMs
+  );
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many submissions. Please try again in a few minutes." },
-      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+      {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      }
     );
   }
 
@@ -87,35 +93,40 @@ export async function POST(req: NextRequest) {
     const referrer = clampField(body.referrer, FIELD_LIMITS.address);
     const pageUrl = clampField(body.pageUrl, FIELD_LIMITS.address);
 
-    if (!name) return NextResponse.json({ error: "Name is required." }, { status: 400 });
+    if (!name)
+      return NextResponse.json({ error: "Name is required." }, { status: 400 });
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json({ error: "A valid email address is required." }, { status: 400 });
+      return NextResponse.json(
+        { error: "A valid email address is required." },
+        { status: 400 }
+      );
     }
-    if (!phone) return NextResponse.json({ error: "Phone is required." }, { status: 400 });
+    if (!phone)
+      return NextResponse.json(
+        { error: "Phone is required." },
+        { status: 400 }
+      );
 
-    // Save first: the document is the record, a mail failure must not lose it.
-    let doc = null;
-    if (sanityClient) {
-      doc = await sanityClient.create({
-        _type: "sillsEnquiry",
-        submittedAt: new Date().toISOString(),
-        name,
-        email,
-        phone,
-        company: company || undefined,
-        location: location || undefined,
-        role: role || undefined,
-        products: products.length ? products : undefined,
-        material: material || undefined,
-        quantity: quantity || undefined,
-        message: message || undefined,
-        openedFrom: openedFrom || undefined,
-        tracking: tracking || undefined,
-        referrer: referrer || undefined,
-        pageUrl: pageUrl || undefined,
-        status: "new",
-      });
-    }
+    // Save first: the entry is the record, a mail failure must not lose
+    // it. A failed save throws: the visitor is told, no email is sent.
+    const saved = await saveForm("sills-enquiry", {
+      submittedAt: new Date().toISOString(),
+      name,
+      email,
+      phone,
+      company: company || undefined,
+      location: location || undefined,
+      role: role || undefined,
+      products: products.length ? products : undefined,
+      material: material || undefined,
+      quantity: quantity || undefined,
+      message: message || undefined,
+      openedFrom: openedFrom || undefined,
+      tracking: tracking || undefined,
+      referrer: referrer || undefined,
+      pageUrl: pageUrl || undefined,
+      status: "new",
+    });
 
     const row = (k: string, v: string) =>
       `<tr><td style="width:160px"><strong>${k}</strong></td><td>${escapeHtml(v) || "-"}</td></tr>`;
@@ -148,12 +159,15 @@ export async function POST(req: NextRequest) {
       });
     } catch (mailError) {
       console.error("[sills-enquiry] email failed:", mailError);
-      if (!doc) throw mailError;
     }
 
-    return NextResponse.json({ success: true, id: doc?._id });
+    // `id` carries the entry's reference, never the CMS's own id.
+    return NextResponse.json({ success: true, id: saved.reference });
   } catch (error) {
     console.error("[sills-enquiry] failed:", error);
-    return NextResponse.json({ error: "Something went wrong. Please try again later." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong. Please try again later." },
+      { status: 500 }
+    );
   }
 }

@@ -6,33 +6,18 @@
  *   - mode "sample"   → physical sample request (address required)
  *   - mode "enquire"  → product enquiry (message required)
  *
- * Persists as a `sampleRequest` document. Editors triage in Studio
- * under "Form Submissions → Sample Requests & Enquiries".
+ * Saves a sample request in the CMS (src/cms/forms.ts), where the
+ * owner reads it. No email is sent.
  *
- * Required env vars match /api/contact/submit.
+ * Required env vars: CMS_URL and CMS_FORMS_SECRET.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@sanity/client";
+import { cmsFormsConfigured, saveForm } from "@/cms/forms";
 import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 import { clampField, FIELD_LIMITS } from "@/lib/escape";
 
 export const runtime = "nodejs";
-
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-const writeToken = process.env.SANITY_API_WRITE_TOKEN;
-
-const sanityClient =
-  projectId && dataset && writeToken
-    ? createClient({
-        projectId,
-        dataset,
-        apiVersion: "2026-03-28",
-        useCdn: false,
-        token: writeToken,
-      })
-    : null;
 
 interface SampleBody {
   mode?: "sample" | "enquire";
@@ -49,7 +34,7 @@ interface SampleBody {
 }
 
 export async function POST(req: NextRequest) {
-  if (!sanityClient) {
+  if (!cmsFormsConfigured()) {
     return NextResponse.json(
       {
         error:
@@ -59,8 +44,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Throttle before touching Sanity — every accepted request is a
-  // billable document write on a dataset that is read on every render.
+  // Throttle before touching the CMS — every accepted request is a
+  // database write.
   const limit = rateLimit(
     `form:${getClientIp(req)}`,
     FORM_RATE_LIMIT.limit,
@@ -129,8 +114,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const doc = await sanityClient.create({
-      _type: "sampleRequest",
+    const saved = await saveForm("sample-request", {
       submittedAt: new Date().toISOString(),
       mode,
       userType,
@@ -145,7 +129,8 @@ export async function POST(req: NextRequest) {
       status: "new",
     });
 
-    return NextResponse.json({ success: true, id: doc._id });
+    // `id` carries the entry's reference, never the CMS's own id.
+    return NextResponse.json({ success: true, id: saved.reference });
   } catch (error) {
     // Log the real error server-side; never leak internals to clients.
     console.error("[sample-request/submit] failed:", error);

@@ -2,38 +2,23 @@
  * POST /api/newsletter/subscribe
  *
  * Receives a JSON body { firstName, email } from the footer newsletter
- * form and persists as a `newsletterSubscriber` doc in Sanity. Editors
- * triage in Studio under "Form Submissions → Newsletter Subscribers".
+ * form and saves the subscriber in the CMS (src/cms/forms.ts).
  *
- * Dedup behaviour: if a doc with the same email already exists, the
- * route returns success without creating a duplicate. If that existing
- * doc has status="unsubscribed", we flip it back to "subscribed" so a
- * returning user re-opts-in cleanly.
+ * Dedup behaviour, done by the CMS on the lower-cased email: if a
+ * subscriber with the same email already exists, no duplicate is made,
+ * and one with status "unsubscribed" is set back to "subscribed" so a
+ * returning user re-opts-in cleanly. The route answers success either
+ * way.
  *
- * Required env vars match /api/contact/submit.
+ * Required env vars: CMS_URL and CMS_FORMS_SECRET.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@sanity/client";
+import { cmsFormsConfigured, saveForm } from "@/cms/forms";
 import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 import { clampField, FIELD_LIMITS } from "@/lib/escape";
 
 export const runtime = "nodejs";
-
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-const writeToken = process.env.SANITY_API_WRITE_TOKEN;
-
-const sanityClient =
-  projectId && dataset && writeToken
-    ? createClient({
-        projectId,
-        dataset,
-        apiVersion: "2026-03-28",
-        useCdn: false,
-        token: writeToken,
-      })
-    : null;
 
 interface NewsletterBody {
   firstName?: string;
@@ -41,15 +26,15 @@ interface NewsletterBody {
 }
 
 export async function POST(req: NextRequest) {
-  if (!sanityClient) {
+  if (!cmsFormsConfigured()) {
     return NextResponse.json(
       { error: "Newsletter service is not configured." },
       { status: 503 }
     );
   }
 
-  // Throttle before touching Sanity — every accepted request is a
-  // billable document write on a dataset that is read on every render.
+  // Throttle before touching the CMS — every accepted request is a
+  // database write.
   const limit = rateLimit(
     `form:${getClientIp(req)}`,
     FORM_RATE_LIMIT.limit,
@@ -77,35 +62,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Dedup — look for an existing subscriber with this email.
-    const existing = await sanityClient.fetch<{
-      _id: string;
-      status?: string;
-    } | null>(
-      `*[_type == "newsletterSubscriber" && lower(email) == $email][0] { _id, status }`,
-      { email }
-    );
-
-    if (existing) {
-      // Flip an unsubscribed user back to subscribed; otherwise no-op.
-      if (existing.status === "unsubscribed") {
-        await sanityClient
-          .patch(existing._id)
-          .set({ status: "subscribed" })
-          .commit();
-      }
-      return NextResponse.json({ success: true, id: existing._id });
-    }
-
-    const doc = await sanityClient.create({
-      _type: "newsletterSubscriber",
+    // The CMS creates the subscriber, or finds it and sets it back to
+    // "subscribed" (outcome "created", "resubscribed" or
+    // "already-subscribed"); the visitor sees success in each case.
+    const saved = await saveForm("newsletter", {
       submittedAt: new Date().toISOString(),
       firstName: firstName || undefined,
       email,
       status: "subscribed",
     });
 
-    return NextResponse.json({ success: true, id: doc._id });
+    // `id` carries the entry's reference, never the CMS's own id.
+    return NextResponse.json({ success: true, id: saved.reference });
   } catch (error) {
     // Log the real error server-side; never leak internals to clients.
     console.error("[newsletter/subscribe] failed:", error);

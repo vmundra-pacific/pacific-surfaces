@@ -5,35 +5,36 @@
  *   firstName, lastName, email, phone, address, currentLocation,
  *   age, totalExperience, comments, department,
  *   appliedFor (optional, role title), resume (file),
- *   portfolioUrl (optional, string), portfolio (optional, file).
+ *   portfolioUrl (optional, string), portfolio (optional, file),
+ *   website (a hidden field people never fill: when it is filled the
+ *   route answers success and keeps nothing).
  *
- * If the applied-for role has `requiresPortfolio: true` in Sanity
- * (jobOpening schema — e.g. Senior Graphic Designer), the candidate
+ * If the applied-for role has `requiresPortfolio: true` in the CMS
+ * (job openings — e.g. Senior Graphic Designer), the candidate
  * must supply at least one of portfolioUrl / portfolio, checked here
  * server-side (not just in the client form) since this is a public
  * endpoint.
  *
  * Side effects, in order:
- *   1. Upload the resume binary to Sanity as an asset (and the
- *      portfolio file too, if one was attached).
- *   2. Create a `jobApplication` document referencing the asset(s)
- *      and storing the form fields. Becomes the editable record
- *      in Studio under "Job Applications".
- *   3. Send an email notification via the same SMTP transport that
+ *   1. Send the form fields, the resume and the portfolio file (if one
+ *      was attached) to the CMS's careers door (src/cms/forms.ts),
+ *      which keeps the files in its private file store and saves the
+ *      application. The CMS answers "duplicate" for the same
+ *      application sent again; nothing new is kept and no email sent.
+ *   2. Send an email notification via the same SMTP transport that
  *      powers the Contact form (src/lib/mail.ts), to:
  *        - the role-specific `applyEmail` if the candidate applied
  *          to a specific role and that role has one set, OR
  *        - CAREERS_INBOX_EMAIL if set, OR
  *        - muthusamyg@pacific-surfaces.com as the default inbox.
+ *      The email names the files and links to the application in the
+ *      CMS editor; the files are opened there.
  *      Email is best-effort — if SMTP isn't configured or the send
- *      fails, the document is still created so HR can catch the
- *      application in Studio. We log the failure but don't fail
- *      the whole request.
+ *      fails, the application is still saved in the CMS. We log the
+ *      failure but don't fail the whole request.
  *
  * Required environment variables:
- *   - NEXT_PUBLIC_SANITY_PROJECT_ID
- *   - NEXT_PUBLIC_SANITY_DATASET
- *   - SANITY_API_WRITE_TOKEN  (must have create + asset upload perms)
+ *   - CMS_URL, CMS_FORMS_SECRET
  *   - SMTP_HOST / SMTP_PORT / SMTP_USER / SMTP_PASS  (already set in
  *                              Vercel — same creds the Contact form uses)
  *   - CAREERS_INBOX_EMAIL     (optional override — defaults to
@@ -42,29 +43,17 @@
 
 import * as cms from "@/cms/read";
 import { NextRequest, NextResponse, after } from "next/server";
-import { createClient } from "@sanity/client";
+import {
+  cmsFormsConfigured,
+  cmsJobApplicationUrl,
+  saveJobApplication,
+} from "@/cms/forms";
 import { transporter } from "@/lib/mail";
 import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 
-// `nodejs` runtime (not edge) — Sanity asset upload uses Node
-// streams under the hood, and edge has tighter file/body limits
+// `nodejs` runtime (not edge) — edge has tighter file/body limits
 // that can choke on a 5MB resume PDF.
 export const runtime = "nodejs";
-
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-const writeToken = process.env.SANITY_API_WRITE_TOKEN;
-
-const sanityClient =
-  projectId && dataset && writeToken
-    ? createClient({
-        projectId,
-        dataset,
-        apiVersion: "2026-03-28",
-        useCdn: false,
-        token: writeToken,
-      })
-    : null;
 
 const MAX_RESUME_BYTES = 8 * 1024 * 1024; // 8 MB
 const ALLOWED_RESUME_TYPES = new Set([
@@ -85,7 +74,7 @@ const ALLOWED_PORTFOLIO_TYPES = new Set([
 ]);
 
 export async function POST(req: NextRequest) {
-  if (!sanityClient) {
+  if (!cmsFormsConfigured()) {
     return NextResponse.json(
       {
         error:
@@ -96,10 +85,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Throttle FIRST — before `req.formData()` buffers the body. This is
-  // the most expensive public endpoint: each accepted request uploads
-  // up to 8 MB into Sanity's asset store, creates a document and sends
-  // a Resend email, and the upload previously happened before any
-  // throttle check existed at all.
+  // the most expensive public endpoint: each accepted request sends
+  // up to 28 MB of files on to the CMS, which stores them and saves the
+  // application, and then an email is sent.
   const limit = rateLimit(
     `form:${getClientIp(req)}`,
     FORM_RATE_LIMIT.limit,
@@ -117,6 +105,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const formData = await req.formData();
+    // A bot filled the hidden field: accept quietly, keep nothing.
+    if ((formData.get("website") || "").toString()) {
+      return NextResponse.json({ success: true });
+    }
     const firstName = (formData.get("firstName") || "").toString().trim();
     const lastName = (formData.get("lastName") || "").toString().trim();
     const email = (formData.get("email") || "").toString().trim();
@@ -191,7 +183,10 @@ export async function POST(req: NextRequest) {
     }
     if (portfolioUrl && !/^https?:\/\/.+/i.test(portfolioUrl)) {
       return NextResponse.json(
-        { error: "Portfolio link must be a valid URL starting with http:// or https://." },
+        {
+          error:
+            "Portfolio link must be a valid URL starting with http:// or https://.",
+        },
         { status: 400 }
       );
     }
@@ -225,70 +220,54 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. Upload the resume (and portfolio file, if attached) to Sanity assets.
-    const resumeBuffer = Buffer.from(await resume.arrayBuffer());
-    const asset = await sanityClient.assets.upload("file", resumeBuffer, {
-      filename: resume.name,
-      contentType: resume.type || "application/octet-stream",
-    });
-
-    const portfolioAsset = portfolio
-      ? await sanityClient.assets.upload(
-          "file",
-          Buffer.from(await portfolio.arrayBuffer()),
-          {
-            filename: portfolio.name,
-            contentType: portfolio.type || "application/octet-stream",
-          }
-        )
-      : null;
-
-    // 2. Create the jobApplication document.
+    // 1. Save the application with its files in the CMS.
     const submittedAt = new Date().toISOString();
-    const doc = await sanityClient.create({
-      _type: "jobApplication",
-      submittedAt,
-      firstName,
-      lastName,
-      email,
-      phone,
-      address,
-      currentLocation: currentLocation || undefined,
-      age: age || undefined,
-      totalExperience: totalExperience || undefined,
-      comments: comments || undefined,
-      department,
-      appliedFor: appliedFor || undefined,
-      resume: {
-        _type: "file",
-        asset: {
-          _type: "reference",
-          _ref: asset._id,
-        },
+    const saved = await saveJobApplication(
+      {
+        submittedAt,
+        firstName,
+        lastName,
+        email,
+        phone,
+        address,
+        currentLocation: currentLocation || undefined,
+        age: age || undefined,
+        totalExperience: totalExperience || undefined,
+        comments: comments || undefined,
+        department,
+        appliedFor: appliedFor || undefined,
+        portfolioUrl: portfolioUrl || undefined,
+        status: "new",
       },
-      portfolioUrl: portfolioUrl || undefined,
-      portfolio: portfolioAsset
+      {
+        name: resume.name,
+        type: resume.type,
+        bytes: new Uint8Array(await resume.arrayBuffer()),
+      },
+      portfolio
         ? {
-            _type: "file",
-            asset: {
-              _type: "reference",
-              _ref: portfolioAsset._id,
-            },
+            name: portfolio.name,
+            type: portfolio.type,
+            bytes: new Uint8Array(await portfolio.arrayBuffer()),
           }
-        : undefined,
-      status: "new",
-    });
+        : null
+    );
 
-    // 3. Email notification — best-effort, doesn't fail the
+    // The same application sent again: already saved and emailed.
+    if (saved.outcome === "duplicate") {
+      return NextResponse.json({ success: true });
+    }
+
+    // 2. Email notification — best-effort, doesn't fail the
     //    request if it errors. Wrapped in `after()` so the work
     //    survives the response being sent — a bare fire-and-forget
     //    promise gets killed when the serverless function freezes
     //    on Vercel.
     after(() =>
       sendNotificationEmail({
-        doc,
-        asset,
-        portfolioAsset,
+        entryUrl: cmsJobApplicationUrl(saved.id),
+        resumeName: resume.name,
+        portfolioName: portfolio ? portfolio.name : null,
         portfolioUrl,
         roleApplyEmail,
         firstName,
@@ -307,10 +286,11 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    return NextResponse.json({ success: true, id: doc._id });
+    // No id in the answer: the CMS's id stays on the server.
+    return NextResponse.json({ success: true });
   } catch (error) {
     // Log the real error server-side; never leak internals (stack
-    // details, env hints, Sanity errors) to the client.
+    // details, env hints, CMS errors) to the client.
     console.error("[careers/apply] submission failed:", error);
     return NextResponse.json(
       { error: "Something went wrong. Please try again later." },
@@ -324,9 +304,10 @@ export async function POST(req: NextRequest) {
  * ------------------------------------------------------------------ */
 
 interface NotificationParams {
-  doc: { _id: string };
-  asset: { _id: string; url: string; originalFilename?: string };
-  portfolioAsset: { _id: string; url: string; originalFilename?: string } | null;
+  /** The application in the CMS editor; only the owner can open it. */
+  entryUrl: string | null;
+  resumeName: string;
+  portfolioName: string | null;
   portfolioUrl: string;
   roleApplyEmail: string | undefined;
   firstName: string;
@@ -343,9 +324,9 @@ interface NotificationParams {
 }
 
 async function sendNotificationEmail({
-  doc,
-  asset,
-  portfolioAsset,
+  entryUrl,
+  resumeName,
+  portfolioName,
   portfolioUrl,
   roleApplyEmail,
   firstName,
@@ -360,7 +341,6 @@ async function sendNotificationEmail({
   department,
   appliedFor,
 }: NotificationParams) {
-  if (!sanityClient) return;
   // Falls back to Muthusamy's inbox directly so this works with zero
   // extra Vercel config. Set CAREERS_INBOX_EMAIL later to redirect
   // notifications elsewhere without touching code. roleApplyEmail (the
@@ -374,8 +354,6 @@ async function sendNotificationEmail({
   const subject = appliedFor
     ? `New career application — ${fullName} for ${appliedFor}`
     : `New career application — ${fullName}`;
-
-  const studioUrl = `https://${projectId}.sanity.studio/structure/jobApplication;${doc._id}`;
 
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #112732;">
@@ -402,7 +380,7 @@ async function sendNotificationEmail({
       <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e8ec;">
         <p style="margin: 0 0 8px 0; font-size: 14px;">
           <strong>Resume:</strong>
-          <a href="${escapeAttr(asset.url)}" style="color: #112732;">${escapeHtml(asset.originalFilename || "Download")}</a>
+          ${escapeHtml(resumeName || "attached")}
         </p>
         ${
           portfolioUrl
@@ -413,16 +391,20 @@ async function sendNotificationEmail({
             : ""
         }
         ${
-          portfolioAsset
+          portfolioName !== null
             ? `<p style="margin: 0 0 8px 0; font-size: 14px;">
                 <strong>Portfolio File:</strong>
-                <a href="${escapeAttr(portfolioAsset.url)}" style="color: #112732;">${escapeHtml(portfolioAsset.originalFilename || "Download")}</a>
+                ${escapeHtml(portfolioName || "attached")}
               </p>`
             : ""
         }
-        <p style="margin: 0; font-size: 14px;">
-          <a href="${escapeAttr(studioUrl)}" style="color: #112732;">View &amp; manage in Studio →</a>
-        </p>
+        ${
+          entryUrl
+            ? `<p style="margin: 0; font-size: 14px;">
+          <a href="${escapeAttr(entryUrl)}" style="color: #112732;">Open the application and its files in the CMS →</a>
+        </p>`
+            : ""
+        }
       </div>
     </div>
   `;
@@ -441,10 +423,12 @@ async function sendNotificationEmail({
     appliedFor ? `Applied for: ${appliedFor}` : "",
     comments ? `\nComments:\n${comments}` : "",
     ``,
-    `Resume: ${asset.url}`,
+    `Resume: ${resumeName || "attached"}`,
     portfolioUrl ? `Portfolio Link: ${portfolioUrl}` : "",
-    portfolioAsset ? `Portfolio File: ${portfolioAsset.url}` : "",
-    `Studio: ${studioUrl}`,
+    portfolioName !== null
+      ? `Portfolio File: ${portfolioName || "attached"}`
+      : "",
+    entryUrl ? `In the CMS: ${entryUrl}` : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -460,9 +444,8 @@ async function sendNotificationEmail({
 }
 
 /**
- * Tiny HTML escapers for safe email body interpolation. Resend
- * sanitises some things server-side but we treat candidate input
- * as untrusted regardless.
+ * Tiny HTML escapers for safe email body interpolation. We treat
+ * candidate input as untrusted.
  */
 function escapeHtml(value: string): string {
   return value

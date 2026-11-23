@@ -6,9 +6,9 @@
  * a / interested in / where) with name, mobile, email, company and
  * consent; checks that the mobile was verified by a texted code when
  * Firebase phone sign-in is set up (lib/phone-verification.ts: the browser
- * sends the ID token Firebase gave it for the right code); saves a
- * `dealerLead` document (Studio: Form Submissions →
- * Where to Buy Leads) and emails the sales inbox; and only then answers
+ * sends the ID token Firebase gave it for the right code); saves the
+ * lead in the CMS (src/cms/forms.ts) and emails the sales inbox; and
+ * only then answers
  * with the first search, the nearest few outlets and never the directory,
  * with the access cookie that lets /api/where-to-buy/search answer the
  * searches after it, on this visit and later ones
@@ -17,14 +17,15 @@
  * Same guards as /api/contact/submit (rate limit, clamped fields, escaped
  * email), plus a honeypot; Firebase adds its reCAPTCHA to the texting.
  *
- * Env: SANITY_API_WRITE_TOKEN, SMTP_*, COMPANY_EMAIL (or WTB_LEADS_EMAIL
- * for a separate sales inbox), AUTH_SECRET (signs the cookie).
+ * Env: CMS_URL and CMS_FORMS_SECRET, SMTP_*, COMPANY_EMAIL (or
+ * WTB_LEADS_EMAIL for a separate sales inbox), AUTH_SECRET (signs the
+ * cookie).
  * LEADS_DRY_RUN=1, outside production only, logs the lead instead of
  * saving or emailing it, for testing.
  */
 import nodemailer from "nodemailer";
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@sanity/client";
+import { cmsFormsConfigured, saveForm } from "@/cms/forms";
 import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 import { escapeHtml, clampField, FIELD_LIMITS } from "@/lib/escape";
 import {
@@ -45,21 +46,6 @@ import { searchDirectory } from "@/lib/where-to-buy-dealers";
 import { accessCookie, accessToken } from "@/lib/where-to-buy-access";
 
 export const runtime = "nodejs";
-
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-const writeToken = process.env.SANITY_API_WRITE_TOKEN;
-
-const sanityClient =
-  projectId && dataset && writeToken
-    ? createClient({
-        projectId,
-        dataset,
-        apiVersion: "2026-03-28",
-        useCdn: false,
-        token: writeToken,
-      })
-    : null;
 
 const inbox = process.env.WTB_LEADS_EMAIL || process.env.COMPANY_EMAIL;
 const mailReady = !!(
@@ -102,7 +88,7 @@ const invalid = (field: string, error: string) =>
   NextResponse.json({ error, field }, { status: 400 });
 
 export async function POST(req: NextRequest) {
-  if (!sanityClient && !mailReady && !dryRun) {
+  if (!cmsFormsConfigured() && !mailReady && !dryRun) {
     return NextResponse.json(
       { error: "Lead capture is not configured." },
       { status: 503 }
@@ -192,7 +178,6 @@ export async function POST(req: NextRequest) {
         : outcome.origin?.label;
 
     const lead = {
-      _type: "dealerLead",
       submittedAt: new Date().toISOString(),
       name,
       mobile: formatMobile(mobile),
@@ -203,7 +188,7 @@ export async function POST(req: NextRequest) {
       interest: interest?.label,
       location,
       locationMatched: matchedAs,
-      geo: geo ? { _type: "geopoint", ...geo } : undefined,
+      geo: geo ? { lat: geo.lat, lng: geo.lng } : undefined,
       outletsShown: shown,
       consent: true,
       consentText: CONSENT_TEXT,
@@ -213,26 +198,25 @@ export async function POST(req: NextRequest) {
       status: "new",
     };
 
-    // Save first: the document is the record of the lead, so a mail
-    // failure (bad SMTP login, quota) must never lose it.
-    let leadId: string | null = null;
+    // Save first: the entry is the record of the lead, so a mail failure
+    // (bad SMTP login, quota) must never lose it. A failed save throws.
+    // The cookie names the entry by its reference, never the CMS's id.
+    let leadId: string;
     if (dryRun) {
       console.info("[where-to-buy/lead] dry run, not saved:", lead);
       leadId = "dry-run";
-    } else if (sanityClient) {
-      leadId = (await sanityClient.create(lead))._id;
+    } else {
+      leadId = (await saveForm("where-to-buy-lead", lead)).reference;
     }
 
     if (!dryRun && mailReady) {
       try {
         await sendAlert(lead, mobile);
-        leadId ??= "emailed";
       } catch (mailError) {
+        // Saved in the CMS, so the visitor still gets the outlets.
         console.error("[where-to-buy/lead] email failed:", mailError);
-        if (!leadId) throw mailError;
       }
     }
-    if (!leadId) throw new Error("Lead neither saved nor emailed.");
 
     const res = NextResponse.json(
       { success: true, outcome },

@@ -311,6 +311,9 @@ export function CareersContent({ pageData, openings }: Props) {
     // Optional portfolio link — required (alongside/instead of the
     // file upload below) only when appliedRoleRequiresPortfolio is true.
     portfolioUrl: "",
+    // Honeypot: a hidden field people never fill; the route keeps
+    // nothing when a bot fills it.
+    website: "",
   });
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [portfolioFile, setPortfolioFile] = useState<File | null>(null);
@@ -426,6 +429,7 @@ export function CareersContent({ pageData, openings }: Props) {
         totalExperience: "",
         comments: "",
         portfolioUrl: "",
+        website: "",
       });
       setResumeFile(null);
       setPortfolioFile(null);
@@ -858,6 +862,18 @@ export function CareersContent({ pageData, openings }: Props) {
                 className={`${FIELD} resize-y`}
               />
             </div>
+
+            {/* Honeypot: hidden from people, filled only by bots. */}
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              value={formData.website}
+              onChange={handleInputChange}
+              className="absolute left-[-9999px] h-px w-px opacity-0"
+            />
 
             <button
               type="submit"
