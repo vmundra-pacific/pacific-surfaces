@@ -3,9 +3,10 @@ import { CmsFormError, saveForm } from "@/cms/forms";
 import { customerGrievances } from "@/cms/customers";
 import { clampField, FIELD_LIMITS } from "@/lib/escape";
 
-// Up to two tries of the CMS, and a read back when the second try finds
-// the ticket already saved (src/cms/forms.ts).
-export const maxDuration = 60;
+// Up to two tries of the CMS, 25 seconds each, and a read back of up to
+// two more when the second try finds the ticket already saved
+// (src/cms/forms.ts): 100 seconds, and 10 to spare.
+export const maxDuration = 110;
 
 const VALID_CATEGORIES = [
   "Product Quality",

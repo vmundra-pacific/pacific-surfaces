@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { sendGrievance } from "./send-grievance";
 
 const CATEGORIES = [
   "Product Quality",
@@ -35,26 +36,16 @@ export default function NewGrievanceForm() {
     setError("");
 
     try {
-      // Fixed from the previous /api/customer/grievances (plural) —
-      // the real route lives at /api/customer/grievance (singular),
-      // so every submission through here was silently 404-ing.
-      const response = await fetch("/api/customer/grievance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, category, priority, description }),
-      });
+      // On a 401 (the session has ended, or the CMS no longer knows this
+      // account) sendGrievance signs out and goes to the sign-in page.
+      const sent = await sendGrievance(
+        { subject, category, priority, description },
+        signOut
+      );
+      if (sent.kind === "signed-out") return;
 
-      // The session has ended, or the CMS no longer knows this account:
-      // sign out and go to the sign-in page.
-      if (response.status === 401) {
-        await signOut({ callbackUrl: "/customer/login" });
-        return;
-      }
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data?.error ?? "Something went wrong. Please try again.");
+      if (sent.kind === "error") {
+        setError(sent.message);
         setLoading(false);
         return;
       }

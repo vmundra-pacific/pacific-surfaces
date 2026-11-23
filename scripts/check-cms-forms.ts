@@ -13,7 +13,8 @@
  * Two routes are called here as they are, against the stand-in CMS: the
  * careers route and the complaint route (its session read replaced by a
  * stand-in, since the real one needs Next itself). The sign-in's session
- * rule (auth.config.ts) is called too. The other routes need Next
+ * rule (auth.config.ts) is called too, and the complaint page's sending
+ * (send-grievance.ts) with stand-in answers. The other routes need Next
  * itself; their imports are checked instead: no form route, customer
  * page or the sign-in loads Sanity any more.
  */
@@ -26,16 +27,20 @@ import { join } from "node:path";
 import { NextRequest } from "next/server";
 
 import authConfig from "../src/auth.config";
+import { READ_TIMEOUT_MS } from "../src/cms/client";
 import {
   callCustomerDoor,
   CmsFormError,
   cmsFormsConfigured,
   cmsJobApplicationUrl,
+  FORM_TIMEOUT_MS,
   saveForm,
   saveJobApplication,
   sha256Hex,
   signFormRequest,
+  UPLOAD_TIMEOUT_MS,
 } from "../src/cms/forms";
+import { sendGrievance } from "../src/components/customer/send-grievance";
 
 /* ------------------------------------------------------------------ */
 /* A tiny test runner                                                  */
@@ -786,7 +791,7 @@ async function checkGrievanceRoute(): Promise<void> {
   ]);
   const unknown = await send();
   same(
-    "a customer the CMS does not know (any more) is answered 401, so the page sends him to sign in",
+    "a customer the CMS does not know (any more) is answered 401",
     unknown.status,
     401
   );
@@ -799,6 +804,73 @@ async function checkGrievanceRoute(): Promise<void> {
   script.set("/api/forms/grievance", [created("ref-gr-route")]);
   const ok = await send();
   same("a saved complaint is a 200", ok.status, 200);
+}
+
+async function checkGrievancePage(): Promise<void> {
+  console.log("The complaint page (NewGrievanceForm)");
+  const draft = {
+    subject: "Chipped edge",
+    category: "Delivery",
+    priority: "Medium",
+    description: "The edge was chipped on arrival.",
+  };
+  /** Sends the draft against one made-up answer of the route. */
+  const sendWith = async (answer: Response) => {
+    const signOuts: unknown[] = [];
+    const asked: string[] = [];
+    const sent = await sendGrievance(
+      draft,
+      async (options) => {
+        signOuts.push(options);
+      },
+      async (input) => {
+        asked.push(String(input));
+        return answer;
+      }
+    ).catch(() => ({ kind: "threw" }));
+    return { sent, signOuts, asked };
+  };
+
+  // A body that is not JSON: reading it would throw.
+  const refused = new Response("not json", { status: 401 });
+  const signedOut = await sendWith(refused);
+  same(
+    "a 401 from the complaint route signs the customer out and sends him to the sign-in page",
+    [signedOut.sent, signedOut.signOuts],
+    [{ kind: "signed-out" }, [{ callbackUrl: "/customer/login" }]]
+  );
+  check("and the 401's body is not read", !refused.bodyUsed);
+  same("the complaint page sends to the complaint route", signedOut.asked, [
+    "/api/customer/grievance",
+  ]);
+
+  const failed = await sendWith(
+    Response.json({ error: "Could not submit." }, { status: 500 })
+  );
+  same(
+    "any other refusal shows its message and does not sign out",
+    [failed.sent, failed.signOuts.length],
+    [{ kind: "error", message: "Could not submit." }, 0]
+  );
+  const saved = await sendWith(
+    Response.json({ success: true, ticketId: "GR-20261123-AB12" })
+  );
+  same(
+    "a saved complaint does not sign out",
+    [saved.sent, saved.signOuts.length],
+    [{ kind: "saved" }, 0]
+  );
+
+  const form = readFileSync(
+    join(process.cwd(), "src/components/customer/NewGrievanceForm.tsx"),
+    "utf8"
+  );
+  check(
+    "the complaint page sends through sendGrievance with next-auth's signOut",
+    /import \{ signOut \} from "next-auth\/react";/.test(form) &&
+      /await sendGrievance\([^)]*,\s*signOut\s*\)/.test(form) &&
+      !/fetch\(/.test(form)
+  );
 }
 
 async function checkCareersRoute(): Promise<void> {
@@ -931,8 +1003,8 @@ function checkTimeLimits(): void {
     ["src/app/api/sills-enquiry/route.ts", 60],
     ["src/app/api/where-to-buy/lead/route.ts", 60],
     ["src/app/api/newsletter/subscribe/route.ts", 60],
-    ["src/app/api/customer/grievance/route.ts", 60],
-    ["src/app/api/careers/apply/route.ts", 130],
+    ["src/app/api/customer/grievance/route.ts", 110],
+    ["src/app/api/careers/apply/route.ts", 150],
     ["src/app/api/auth/[...nextauth]/route.ts", 60],
     ["src/app/customer/dashboard/page.tsx", 60],
     ["src/app/customer/profile/page.tsx", 60],
@@ -946,6 +1018,49 @@ function checkTimeLimits(): void {
   };
   for (const [file, seconds] of limits) {
     same(`${file} may run ${seconds} seconds`, declared(file), seconds);
+  }
+
+  // The longest each one may wait on the CMS, in seconds, from the time
+  // limits of src/cms: a read is tried once; a door is tried at most
+  // twice, the first try ending before its limit.
+  const read = READ_TIMEOUT_MS / 1000;
+  const door = (2 * FORM_TIMEOUT_MS) / 1000;
+  const upload = (2 * UPLOAD_TIMEOUT_MS) / 1000;
+  const SPARE = 10;
+  const waits: Array<[string, string, number]> = [
+    ["src/app/api/contact/submit/route.ts", "its form door", door],
+    ["src/app/api/order/submit/route.ts", "its form door", door],
+    ["src/app/api/sample-request/submit/route.ts", "its form door", door],
+    ["src/app/api/sills-enquiry/route.ts", "its form door", door],
+    ["src/app/api/where-to-buy/lead/route.ts", "its form door", door],
+    ["src/app/api/newsletter/subscribe/route.ts", "its form door", door],
+    [
+      "src/app/api/customer/grievance/route.ts",
+      "the complaint door and the read back",
+      2 * door,
+    ],
+    [
+      "src/app/api/careers/apply/route.ts",
+      "the role look-up and the careers door",
+      read + upload,
+    ],
+    ["src/app/api/auth/[...nextauth]/route.ts", "the sign-in door", door],
+    ["src/app/customer/dashboard/page.tsx", "its customer door", door],
+    ["src/app/customer/profile/page.tsx", "its customer door", door],
+    ["src/app/customer/grievance/page.tsx", "its customer door", door],
+    [
+      "src/app/customer/grievance/[ticketId]/page.tsx",
+      "its customer door",
+      door,
+    ],
+  ];
+  for (const [file, what, seconds] of waits) {
+    const limit = declared(file);
+    check(
+      `${file} may run at least ${SPARE} seconds longer than ${what} may take (${seconds} s)`,
+      limit !== null && limit >= seconds + SPARE,
+      `its limit is ${limit}`
+    );
   }
   same(
     "the middleware (edge) sets no time limit",
@@ -1009,6 +1124,7 @@ async function main(): Promise<void> {
     await checkGrievanceResent();
     await checkSessions();
     await checkGrievanceRoute();
+    await checkGrievancePage();
     await checkCareersRoute();
     checkTimeLimits();
     checkImports();

@@ -57,9 +57,11 @@ import { rateLimit, getClientIp, FORM_RATE_LIMIT } from "@/lib/rate-limit";
 // `nodejs` runtime (not edge) — edge has tighter file/body limits
 // that can choke on a 5MB resume PDF.
 export const runtime = "nodejs";
-// Up to two tries of the CMS's careers door, 60 seconds each
-// (src/cms/forms.ts), and a little over.
-export const maxDuration = 130;
+// The role look-up (up to 10 seconds, src/cms/client.ts), then up to two
+// tries of the CMS's careers door, 60 seconds each (src/cms/forms.ts):
+// 130 seconds. The 20 left over are for the form, the email and a slow
+// start.
+export const maxDuration = 150;
 
 const MAX_RESUME_BYTES = 8 * 1024 * 1024; // 8 MB
 const ALLOWED_RESUME_TYPES = new Set([
