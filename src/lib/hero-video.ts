@@ -31,10 +31,10 @@ export function pickedHeroVideo(value: unknown): string | null {
 }
 
 /**
- * A range page's hero with the video picked in the CMS: the same hero
- * with that video playing (so a poster-only hero plays it too), or the
- * hero as it is when no video is picked. Always a new object, so the
- * page's own config is never changed.
+ * A range page's hero with the video picked in the CMS: a new hero
+ * object with that video playing (so a poster-only hero plays it too),
+ * or the same hero, unchanged, when no video is picked. The page's own
+ * config is never changed.
  */
 export function withPickedHeroVideo(
   hero: QuartzHeroVideoProps | undefined,
