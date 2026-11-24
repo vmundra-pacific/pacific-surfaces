@@ -18,6 +18,7 @@ import { createServer, type IncomingMessage, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { join } from "node:path";
 
+import { shownInRegion } from "../src/data/india-range";
 import ts from "typescript";
 
 import {
@@ -437,6 +438,44 @@ function checkQueryStrings(): void {
     "keys come sorted, list order kept",
     buildQueryString({ view: "ids", ids: ["z", "a"] }),
     "ids=z&ids=a&view=ids"
+  );
+}
+
+function checkRegionRanges(): void {
+  const translucent = {
+    slug: "bohemia-translucent",
+    name: "Bohemia (3018)",
+    productType: "quartz-slab",
+    collection: "Translucent",
+  };
+  check(
+    "the Translucent range shows to visitors in India",
+    shownInRegion(translucent, "IN")
+  );
+  check("the Translucent range shows abroad", shownInRegion(translucent, "DE"));
+  const offList = {
+    slug: "made-up-quartz-colour",
+    name: "Made Up (5999)",
+    productType: "quartz-slab",
+    collection: "Kosmic",
+  };
+  check(
+    "a quartz colour not on the India list stays hidden in India",
+    !shownInRegion(offList, "IN")
+  );
+  check(
+    "a quartz colour not on the India list shows abroad",
+    shownInRegion(offList, "DE")
+  );
+  const listed = {
+    slug: "sakura",
+    name: "Sakura (5077)",
+    productType: "quartz-slab",
+    collection: "Kosmic",
+  };
+  check(
+    "a quartz colour on the India list shows in India",
+    shownInRegion(listed, "IN")
   );
 }
 
@@ -3724,6 +3763,7 @@ async function main(): Promise<void> {
   const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`;
   try {
     checkQueryStrings();
+    checkRegionRanges();
     checkContentSource();
     checkContentSourcePerType();
     await checkMediaUrls();

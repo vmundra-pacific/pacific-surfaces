@@ -108,6 +108,11 @@ export interface RegionalItem {
   collection?: string | null;
 }
 
+/** Ranges that are the same in every region, whatever their type: the
+ *  Translucent range (owner, 2026-11-24) is a line of its own; its colours
+ *  are typed quartz but are not part of the Indian quartz list above. */
+export const EVERY_REGION_COLLECTIONS = new Set<string>(["Translucent"]);
+
 /** A quartz or Eclipse colour, however it is filed in Sanity: by type, by
  *  collection (some Eclipse colours have no type), or by its series code
  *  (some are typed "physical" with no collection). */
@@ -124,6 +129,9 @@ export function shownInRegion(
   item: RegionalItem,
   country: string | null | undefined
 ): boolean {
+  if (item.collection && EVERY_REGION_COLLECTIONS.has(item.collection)) {
+    return true;
+  }
   if (country !== "IN" || !isQuartzColour(item)) return true;
   return !!item.slug && INDIA_QUARTZ.has(item.slug);
 }
