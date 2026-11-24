@@ -222,10 +222,10 @@ export const CATEGORY_PAGES: Record<string, CategoryConfig> = {
     // at least one product into it. No code change needed once that
     // happens; the page just starts resolving.
     hero: {
+      // A backlit stone wall behind a crowd (owner, 2026-11-24: the Kling
+      // clip "Create a c… 114"), crossfaded end into start so the loop
+      // has no jump; translucent-poster.jpg beside it is its first frame.
       videoSrc: "/videos/translucent.mp4",
-      // No clip or poster in /public/videos yet: render neither.
-      posterOnly: true,
-      posterSrc: "",
       eyebrow: "Pacific Surfaces · Translucent",
       headline: "Stone that glows",
       headlineItalic: "from within.",
