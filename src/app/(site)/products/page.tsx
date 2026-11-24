@@ -28,7 +28,10 @@ const getCatalogueProducts = cache(() => cms.productsCatalogue());
 // at build time, so a product added or edited in Sanity Studio shows
 // up on the live site on its own — no manual redeploy needed. Matches
 // the same pattern already used on /visualize.
-export const revalidate = 60;
+// At most once an hour since 24 Nov 2026, for fewer reads of the CMS and
+// its database. A CMS edit still shows at once: the CMS's "content
+// changed" call clears this cache (src/app/api/revalidate).
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const products = await getCatalogueProducts();

@@ -20,8 +20,9 @@ import {
  * create, update and delete, dataset production, projection
  * `{_type, "slug": slug.current}`, and the same secret as
  * SANITY_REVALIDATE_SECRET on Vercel. The signature is checked, so only
- * Sanity can call it. Every page also refreshes itself at most a minute
- * after a change (`revalidate = 60`), which covers a missed webhook.
+ * Sanity can call it. Every page also refreshes itself at most an hour
+ * after a change (`revalidate = 3600`, a minute until 24 Nov 2026), which
+ * covers a missed notice.
  *
  * The CMS calls the same address when published content changes, with
  * its own headers, x-cms-timestamp and x-cms-signature

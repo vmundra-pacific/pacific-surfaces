@@ -12,7 +12,10 @@ export const metadata: Metadata = {
 
 // Rebuilt at most once a minute, like /resources, so a Sanity faqPage edit
 // shows here as it does on the product page it belongs to.
-export const revalidate = 60;
+// At most once an hour since 24 Nov 2026, for fewer reads of the CMS and
+// its database. A CMS edit still shows at once: the CMS's "content
+// changed" call clears this cache (src/app/api/revalidate).
+export const revalidate = 3600;
 
 /** The sets the product pages already show (lib/faqs, Sanity first), in the
  *  order the header lists the products. */

@@ -265,7 +265,7 @@ const perRequestReads = new Map<
 
 /**
  * The three reads made on every visitor request (favourites, the search
- * box, the search page), kept 60 seconds per parameter set and tagged
+ * box, the search page), kept an hour per parameter set and tagged
  * `cms`, so the revalidate route can clear them. Only with
  * CONTENT_SOURCE=cms; made on first use, so the edge routes never touch
  * it. The query passed in is already normalised: it is both the cache
@@ -282,7 +282,7 @@ function cachedPerRequest<T>(
     read = unstable_cache(
       (normalised: ReadQuery) => cmsList<unknown>(answer, normalised),
       ["cms-read", answer, view],
-      { revalidate: 60, tags: [CMS_CACHE_TAG] }
+      { revalidate: 3600, tags: [CMS_CACHE_TAG] }
     );
     perRequestReads.set(name, read);
   }

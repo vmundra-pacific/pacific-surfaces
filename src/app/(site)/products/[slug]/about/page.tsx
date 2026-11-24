@@ -45,7 +45,10 @@ interface Params {
 // Cached on first visit and rebuilt at most once a minute (2026-10-22:
 // without these the route rendered afresh on every visit, ~1.3 s on a
 // phone). No pages are listed up front; each is built when first asked for.
-export const revalidate = 60;
+// At most once an hour since 24 Nov 2026, for fewer reads of the CMS and
+// its database. A CMS edit still shows at once: the CMS's "content
+// changed" call clears this cache (src/app/api/revalidate).
+export const revalidate = 3600;
 export async function generateStaticParams() {
   return [];
 }

@@ -5,7 +5,10 @@ import { CareersContent } from "@/components/sections/CareersContent";
 
 // Re-render at most every 60s so new job openings published in
 // Sanity appear without a redeploy.
-export const revalidate = 60;
+// At most once an hour since 24 Nov 2026, for fewer reads of the CMS and
+// its database. A CMS edit still shows at once: the CMS's "content
+// changed" call clears this cache (src/app/api/revalidate).
+export const revalidate = 3600;
 
 // No JobPosting data here: Google wants it on each job's own page, never
 // on a page that lists jobs. Give each role a page first.

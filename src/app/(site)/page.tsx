@@ -71,7 +71,10 @@ import { PACIFIC_POLSKA } from "@/data/partners";
 // Re-render at most every 60s so homepage content edited in Sanity
 // (collections, projects, applications, inspirations) appears
 // without a redeploy.
-export const revalidate = 60;
+// At most once an hour since 24 Nov 2026, for fewer reads of the CMS and
+// its database. A CMS edit still shows at once: the CMS's "content
+// changed" call clears this cache (src/app/api/revalidate).
+export const revalidate = 3600;
 
 // Title, description and the hero's H1 name the brand, what is made and
 // where (SEO brief, 2026-10-05): India, not the town (owner, 2026-10-07).

@@ -18,7 +18,10 @@ export const metadata: Metadata = {
 // next deploy. 60s is a sensible balance: dealer data changes
 // rarely, and 60s of staleness on a freshly-added dealer is
 // acceptable for the use case.
-export const revalidate = 60;
+// At most once an hour since 24 Nov 2026, for fewer reads of the CMS and
+// its database. A CMS edit still shows at once: the CMS's "content
+// changed" call clears this cache (src/app/api/revalidate).
+export const revalidate = 3600;
 
 export default async function ContactPage() {
   // Fetch the full dealer roster server-side so the client component

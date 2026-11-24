@@ -13,7 +13,10 @@ interface Props {
 // refreshed at most once a minute. Without generateStaticParams the
 // route rendered on every visit (a function call in iad1 and a Sanity
 // query each time); a post published later is built on its first visit.
-export const revalidate = 60;
+// At most once an hour since 24 Nov 2026, for fewer reads of the CMS and
+// its database. A CMS edit still shows at once: the CMS's "content
+// changed" call clears this cache (src/app/api/revalidate).
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const slugs: string[] = await cms.blogPostSlugs();

@@ -27,7 +27,10 @@ export const metadata: Metadata = {
 // A new journal article from Sanity shows within a minute (2026-10-30). This
 // page had no revalidate, so it was built once at deploy and served from
 // the cache for days: new posts had their own page but no card here.
-export const revalidate = 60;
+// At most once an hour since 24 Nov 2026, for fewer reads of the CMS and
+// its database. A CMS edit still shows at once: the CMS's "content
+// changed" call clears this cache (src/app/api/revalidate).
+export const revalidate = 3600;
 
 export default async function BlogPage() {
   const posts: BlogPost[] = await cms.blogPostsAll();

@@ -56,7 +56,10 @@ const SECTIONS = [
 // Served from the cache and rebuilt at most once a minute, so Sanity
 // edits show within 60 s (2026-10-22: with revalidate = 0 every visit
 // waited ~1.3 s for a fresh render, failing the phone Core Web Vitals).
-export const revalidate = 60;
+// At most once an hour since 24 Nov 2026, for fewer reads of the CMS and
+// its database. A CMS edit still shows at once: the CMS's "content
+// changed" call clears this cache (src/app/api/revalidate).
+export const revalidate = 3600;
 
 export default async function ArchitectureSpacePage() {
   const images =
