@@ -340,7 +340,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
     // large paint, so emit a high-priority <link rel="preload"
     // as="image"> for it during SSR, same pattern as the PDP slab
     // preload below. Heroes with no still (posterSrc "") get none.
-    const heroPoster = heroPosterSrc(data.config.hero);
+    const heroPoster = heroPosterSrc(data.hero);
     // Map known category slugs to FAQ page keys. If a category
     // doesn't have FAQs yet we just don't render the section. We
     // use a Set<string> for the lookup so the typecheck doesn't
@@ -378,7 +378,7 @@ export default async function ProductOrCategoryPage({ params }: Props) {
             { name: breadcrumbLabel, url: `/products/${slug}` },
           ]}
         />
-        <CatalogueClient slabs={data.slabs} hero={data.config.hero} />
+        <CatalogueClient slabs={data.slabs} hero={data.hero} />
         {learnLinks && learnLinks.length > 0 && (
           <LearnAboutCategory
             categoryName={breadcrumbLabel}

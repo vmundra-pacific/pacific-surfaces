@@ -44,7 +44,7 @@ export default async function ExoticPage() {
   if (!data) notFound();
   // LCP: preload the hero video's poster at high priority, as the
   // [slug] dispatcher does for every other category hero.
-  const heroPoster = heroPosterSrc(data.config.hero);
+  const heroPoster = heroPosterSrc(data.hero);
   return (
     <>
       <PreloadImage href={heroPoster} />
@@ -55,7 +55,7 @@ export default async function ExoticPage() {
           { name: "Exotic Collection", url: "/products/exotic" },
         ]}
       />
-      <CatalogueClient slabs={data.slabs} hero={data.config.hero} />
+      <CatalogueClient slabs={data.slabs} hero={data.hero} />
     </>
   );
 }

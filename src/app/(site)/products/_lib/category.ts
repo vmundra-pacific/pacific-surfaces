@@ -3,6 +3,7 @@ import * as cms from "@/cms/read";
 import { mapSanityToCatalogue } from "@/data/sanityToSlab";
 import { refiledForPage } from "@/data/catalogue-refile";
 import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVideo";
+import { withPickedHeroVideo } from "@/lib/hero-video";
 import type { Slab } from "@/data/slabs";
 
 /**
@@ -62,6 +63,8 @@ export interface CategoryConfig {
    * undefined the default Quartz hero treatment renders — good
    * enough as a starting point for categories that don't yet have
    * tailored video / copy. Override per-category as videos get made.
+   * A video picked in the CMS for the collection plays instead of
+   * `videoSrc` (resolveCategoryPage gives the page that hero).
    */
   hero?: QuartzHeroVideoProps;
   /**
@@ -310,9 +313,15 @@ interface ResolvedCategoryPage {
     _id: string;
     name: string;
     description?: string | null;
+    /** The video picked in the CMS for the top of the page; null when
+     *  none is picked. Sanity's collections have no such field. */
+    heroVideo?: string | null;
     seoTitle?: string | null;
     seoDescription?: string | null;
   };
+  /** The hero to draw: `config.hero`, playing the collection's picked
+   *  video when one is picked. */
+  hero: QuartzHeroVideoProps | undefined;
   slabs: Slab[];
 }
 
@@ -356,6 +365,8 @@ export async function resolveCategoryPage(
         seoTitle: null,
         seoDescription: null,
       },
+      // No collection row behind a ribbon page, so no picked video.
+      hero: config.hero,
       slabs: mapSanityToCatalogue(
         filtered as unknown as Parameters<typeof mapSanityToCatalogue>[0]
       ),
@@ -401,6 +412,8 @@ export async function resolveCategoryPage(
   return {
     config,
     collection,
+    // The video picked in the CMS, if any; else the hero as configured.
+    hero: withPickedHeroVideo(config.hero, collection.heroVideo),
     slabs: mapSanityToCatalogue(products),
   };
 }

@@ -7,6 +7,7 @@ import { CatalogueClient } from "@/components/catalogue/CatalogueClient";
 import { BreadcrumbList } from "@/components/global/JsonLd";
 import type { QuartzHeroVideoProps } from "@/components/catalogue/QuartzHeroVideo";
 import { CATEGORY_PAGES, heroPosterSrc } from "../../_lib/category";
+import { withPickedHeroVideo } from "@/lib/hero-video";
 import { FAQ } from "@/components/sections/FAQ";
 import { getFaqs, type FaqPageKey } from "@/lib/faqs";
 import { formatCollection } from "@/components/catalogue/labels";
@@ -168,9 +169,13 @@ export default async function CollectionPage({ params }: Props) {
   //      CatalogueClient's Quartz default. This was the bug that made
   //      every product page on the site read as quartz-themed.
   //   3. undefined → CatalogueClient renders its built-in Quartz hero.
-  const hero =
+  // A video picked in the CMS for this collection plays over whichever
+  // of those applies. A pick on the parent category's collection is not
+  // used here: each collection has its own.
+  const configuredHero =
     COLLECTION_HERO[item.toLowerCase()] ??
     CATEGORY_PAGES[slug.toLowerCase()]?.hero;
+  const hero = withPickedHeroVideo(configuredHero, collection.heroVideo);
 
   // LCP: preload the hero's still (the video's poster) at high
   // priority, as the category landing does. None for a hero with no

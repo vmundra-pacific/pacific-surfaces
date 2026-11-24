@@ -36,6 +36,7 @@ import { sanityImg } from "@/lib/sanity-img";
 import { finishFullImageUrl } from "@/lib/picture-choices";
 import { finishDescription } from "@/lib/finish-copy";
 import { LazyVideo } from "@/components/ui/lazy-video";
+import { heroVideoAddress } from "@/lib/hero-video";
 
 /* ---------- types ----------------------------------------------- */
 
@@ -143,7 +144,12 @@ export function FacadesAndFinishesContent({
   const heroHeadline = pageData?.heroHeadline || DEFAULTS.heroHeadline;
   const heroDescription = pageData?.heroDescription || "";
   const heroImage = pageData?.heroImage ?? null;
-  const heroVideoUrl = pageData?.heroVideoUrl ?? DEFAULTS.heroVideoUrl;
+  // The video picked in the CMS, else the typed address, else the
+  // page's own file (the read answer gives the first two in one key).
+  // A CMS file is loaded as every CMS file is; anything else as it is.
+  const heroVideoUrl = heroVideoAddress(
+    pageData?.heroVideoUrl ?? DEFAULTS.heroVideoUrl
+  );
 
   const introLeftImage = pageData?.introLeftImage ?? null;
   // Intro left video defaults to /videos/stone-finishes-2.mp4 so

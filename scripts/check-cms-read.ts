@@ -3632,6 +3632,321 @@ async function checkFetchers(): Promise<void> {
   check("throwIfCmsFailure leaves any other error to the call site", keptOther);
 }
 
+/* ------------------------------------------------------------------ */
+/* Hero videos picked in the CMS                                       */
+/* ------------------------------------------------------------------ */
+
+/** Made-up addresses of a picked video, as the CMS gives them. */
+const PICKED_HASH = "0a1b2c3d4e5f60718293a4b5c6d7e8f9";
+const MEDIA_FOLDER = "https://media.example.test/media";
+const PICKED_IN_FOLDER = `${MEDIA_FOLDER}/${PICKED_HASH}.mp4`;
+const PICKED_ON_FILE_ROUTE = `https://cms.example.test/api/media/file/${PICKED_HASH}.mp4`;
+const PICKED_THROUGH_PROXY = `/api/cdn/m/${PICKED_HASH}.mp4`;
+
+/** Where a page plays its hero video, found by the same wiring check. */
+const HERO_VIDEO_USES: PictureUse[] = [
+  {
+    file: "src/components/sections/CareersContent.tsx",
+    name: "the Careers page's hero video",
+    place: { element: "ProHero" },
+    attribute: "video",
+    helper: "careersHeroVideo",
+    from: "@/lib/hero-video",
+    argument: "pageData?.heroVideoUrl",
+  },
+  {
+    file: "src/components/sections/FacadesAndFinishesContent.tsx",
+    name: "the Beyond Stone page's hero video",
+    place: { element: "video" },
+    attribute: "src",
+    helper: "heroVideoAddress",
+    from: "@/lib/hero-video",
+    argument: "pageData?.heroVideoUrl ?? DEFAULTS.heroVideoUrl",
+  },
+  {
+    file: "src/app/(site)/products/[slug]/[item]/page.tsx",
+    name: "a series page's hero",
+    place: { element: "CatalogueClient" },
+    attribute: "hero",
+    helper: "withPickedHeroVideo",
+    from: "@/lib/hero-video",
+    argument: "configuredHero, collection.heroVideo",
+  },
+];
+
+/** The range pages that draw the hero resolveCategoryPage gives. */
+const RANGE_PAGES = [
+  "src/app/(site)/products/[slug]/page.tsx",
+  "src/app/(site)/products/exotic/page.tsx",
+];
+
+async function checkHeroVideos(): Promise<void> {
+  console.log("Hero videos picked in the CMS");
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ??= "dummyproject";
+  process.env.NEXT_PUBLIC_SANITY_DATASET ??= "dummy";
+  const beforeSource = process.env.CONTENT_SOURCE;
+  const beforeMedia = process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  process.env.CONTENT_SOURCE = "cms";
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL = MEDIA_FOLDER;
+
+  const { resolveCategoryPage, heroPosterSrc, CATEGORY_PAGES } =
+    await import("../src/app/(site)/products/_lib/category");
+  type Hero = NonNullable<(typeof CATEGORY_PAGES)[string]["hero"]>;
+  // The helpers are loaded on their own, so that without them this
+  // section reports failures instead of stopping the whole run.
+  let helpers: Record<string, unknown> = {};
+  try {
+    helpers = await import("../src/lib/hero-video");
+  } catch (error) {
+    check(
+      "the hero video helpers load",
+      false,
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+  const helper = <F>(name: string): F | null =>
+    typeof helpers[name] === "function" ? (helpers[name] as F) : null;
+
+  /** The hero a range page draws when the collection answer is `row`. */
+  const heroFor = async (
+    slug: string,
+    row: Record<string, unknown>
+  ): Promise<Hero | undefined | "no page" | "failed"> => {
+    overrides.set("collection", json(row));
+    try {
+      const page = await resolveCategoryPage(slug);
+      if (!page) return "no page";
+      return (page as { hero?: Hero }).hero;
+    } catch (error) {
+      console.log(
+        `        (${error instanceof Error ? error.message : error})`
+      );
+      return "failed";
+    } finally {
+      overrides.delete("collection");
+    }
+  };
+  const row = (heroVideo?: string | null): Record<string, unknown> => ({
+    _id: "collection-x",
+    name: "X",
+    description: null,
+    ...(heroVideo === undefined ? {} : { heroVideo }),
+    seoTitle: null,
+    seoDescription: null,
+  });
+  const field = (hero: unknown, key: keyof Hero): unknown =>
+    hero && typeof hero === "object" ? (hero as Hero)[key] : hero;
+
+  // A video picked: the range page plays it, the rest of its hero kept.
+  const quartz = await heroFor("quartz", row(PICKED_IN_FOLDER));
+  same(
+    "Quartz, a video picked: it plays",
+    field(quartz, "videoSrc"),
+    PICKED_IN_FOLDER
+  );
+  same(
+    "Quartz, a video picked: the rest of the hero is kept",
+    [
+      field(quartz, "eyebrow"),
+      field(quartz, "headline"),
+      field(quartz, "posterOnly"),
+    ],
+    [
+      "Pacific Surfaces · Mineral infused low silica",
+      "Engineered stone,",
+      false,
+    ]
+  );
+  same(
+    "Quartz, a video picked: no poster from the old video is preloaded",
+    typeof quartz === "object" ? heroPosterSrc(quartz) : "no hero given",
+    undefined
+  );
+  same(
+    "a picked video leaves the page's own config as it was",
+    CATEGORY_PAGES.quartz.hero?.videoSrc,
+    "/videos/quartz-hero.mp4"
+  );
+  const fab = await heroFor("fab-creations", row(PICKED_IN_FOLDER));
+  same(
+    "Fab Creations, a video picked: it plays, no longer poster-only",
+    [field(fab, "videoSrc"), field(fab, "posterOnly")],
+    [PICKED_IN_FOLDER, false]
+  );
+  const vanity = await heroFor("vanity", row(PICKED_IN_FOLDER));
+  same(
+    "Vanity, a video picked: it plays, no longer poster-only",
+    [field(vanity, "videoSrc"), field(vanity, "posterOnly")],
+    [PICKED_IN_FOLDER, false]
+  );
+  same(
+    "a video on the CMS's own file route plays through this site's /api/cdn/m/",
+    field(await heroFor("granites", row(PICKED_ON_FILE_ROUTE)), "videoSrc"),
+    PICKED_THROUGH_PROXY
+  );
+  const example = `${MEDIA_FOLDER}/0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f9.mp4`;
+  same(
+    "a picked video's address the site does not know plays as given",
+    field(await heroFor("translucent", row(example)), "videoSrc"),
+    example
+  );
+
+  // No video picked: today's video, with today's poster.
+  const plain = await heroFor("quartz", row(null));
+  same(
+    "Quartz, no video picked: today's video and poster",
+    [
+      field(plain, "videoSrc"),
+      field(plain, "posterOnly"),
+      heroPosterSrc(typeof plain === "object" ? plain : undefined),
+    ],
+    ["/videos/quartz-hero.mp4", undefined, "/videos/quartz-hero-poster.jpg"]
+  );
+  const sanityShaped = await heroFor("quartz", row(undefined));
+  same(
+    "Quartz, a collection with no heroVideo key (Sanity's shape): today's video",
+    [field(sanityShaped, "videoSrc"), field(sanityShaped, "posterOnly")],
+    ["/videos/quartz-hero.mp4", undefined]
+  );
+  same(
+    "Quartz, an empty heroVideo: today's video",
+    field(await heroFor("quartz", row("  ")), "videoSrc"),
+    "/videos/quartz-hero.mp4"
+  );
+  const fabPlain = await heroFor("fab-creations", row(null));
+  same(
+    "Fab Creations, no video picked: poster-only with no still, as today",
+    [
+      field(fabPlain, "videoSrc"),
+      field(fabPlain, "posterOnly"),
+      field(fabPlain, "posterSrc"),
+    ],
+    ["/videos/fab-creations.mp4", true, ""]
+  );
+  const vanityPlain = await heroFor("vanity", row(null));
+  same(
+    "Vanity, no video picked: its still only, as today",
+    [field(vanityPlain, "posterOnly"), field(vanityPlain, "posterSrc")],
+    [true, "/videos/vanity-poster.jpg"]
+  );
+  same(
+    "Translucent, no video picked: today's video",
+    field(await heroFor("translucent", row(null)), "videoSrc"),
+    "/videos/translucent.mp4"
+  );
+  same(
+    "Ecosurfaces (no collection behind it): today's still, even with a pick in the answer",
+    field(await heroFor("ecosurfaces", row(PICKED_IN_FOLDER)), "posterSrc"),
+    "/eco-surfaces-hero.jpg"
+  );
+
+  // A series page with no hero of its own still plays a picked video.
+  const withPicked = helper<(hero: unknown, picked: unknown) => unknown>(
+    "withPickedHeroVideo"
+  );
+  same(
+    "a series page with no configured hero: a picked video plays",
+    withPicked
+      ? withPicked(undefined, PICKED_IN_FOLDER)
+      : "no withPickedHeroVideo",
+    { videoSrc: PICKED_IN_FOLDER, posterOnly: false }
+  );
+  same(
+    "a series page, no video picked: its hero as it is",
+    withPicked ? withPicked(undefined, null) : "no withPickedHeroVideo",
+    undefined
+  );
+
+  // Careers: only a video from the CMS's library replaces its own.
+  const careers = helper<(value: unknown) => unknown>("careersHeroVideo");
+  const careersCases: [string, unknown, string][] = [
+    ["a video picked", PICKED_IN_FOLDER, PICKED_IN_FOLDER],
+    [
+      "a video picked, on the CMS's file route",
+      PICKED_ON_FILE_ROUTE,
+      PICKED_THROUGH_PROXY,
+    ],
+    [
+      "no video picked, the typed default",
+      "/videos/careers-hero.mp4",
+      "/videos/careers-hero.mp4",
+    ],
+    [
+      "no video picked, another typed address",
+      "/videos/typed-other.mp4",
+      "/videos/careers-hero.mp4",
+    ],
+    [
+      "no video picked, a typed web address",
+      "https://example.test/clip.mp4",
+      "/videos/careers-hero.mp4",
+    ],
+    ["the page never published (null)", null, "/videos/careers-hero.mp4"],
+    ["no heroVideoUrl at all", undefined, "/videos/careers-hero.mp4"],
+  ];
+  for (const [what, value, expected] of careersCases) {
+    same(
+      `Careers, ${what}: plays ${expected}`,
+      careers ? careers(value) : "no careersHeroVideo",
+      expected
+    );
+  }
+
+  // Beyond Stone: the answer's address (pick, else typed), else its own file.
+  const beyond = helper<(value: string) => unknown>("heroVideoAddress");
+  const beyondCases: [string, string, string][] = [
+    ["a video picked", PICKED_IN_FOLDER, PICKED_IN_FOLDER],
+    [
+      "a video picked, on the CMS's file route",
+      PICKED_ON_FILE_ROUTE,
+      PICKED_THROUGH_PROXY,
+    ],
+    [
+      "no video picked, today's file",
+      "/videos/natural-stone-finishes.mp4",
+      "/videos/natural-stone-finishes.mp4",
+    ],
+    [
+      "no video picked, a typed web address",
+      "https://example.test/clip.mp4",
+      "https://example.test/clip.mp4",
+    ],
+    ["an empty typed address", "", ""],
+  ];
+  for (const [what, value, expected] of beyondCases) {
+    same(
+      `Beyond Stone, ${what}: plays ${JSON.stringify(expected)}`,
+      beyond ? beyond(value) : "no heroVideoAddress",
+      expected
+    );
+  }
+
+  // Each page plays the video through its helper.
+  for (const use of HERO_VIDEO_USES) {
+    const problems = wiringProblems(use, readSource(use.file));
+    check(
+      `${use.file}: ${use.name} is ${use.helper}(${use.argument})`,
+      problems.length === 0,
+      problems.join("; ")
+    );
+  }
+  for (const file of RANGE_PAGES) {
+    const text = readSource(file);
+    check(
+      `${file}: draws and preloads the hero resolveCategoryPage gives`,
+      text.split("hero={data.hero}").length === 2 &&
+        text.split("heroPosterSrc(data.hero)").length === 2 &&
+        !text.includes("data.config.hero"),
+      "expected hero={data.hero} and heroPosterSrc(data.hero) once each, and no data.config.hero"
+    );
+  }
+
+  if (beforeSource === undefined) delete process.env.CONTENT_SOURCE;
+  else process.env.CONTENT_SOURCE = beforeSource;
+  if (beforeMedia === undefined) delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL;
+  else process.env.NEXT_PUBLIC_MEDIA_BASE_URL = beforeMedia;
+}
+
 function checkNotice(): void {
   console.log("Content-changed notice");
   const secret = "dummy-shared-secret-for-this-check-only";
@@ -3775,6 +4090,7 @@ async function main(): Promise<void> {
     await checkPictureHostGuard(base);
     await checkMediaProxy(base);
     await checkFetchers();
+    await checkHeroVideos();
     checkNotice();
   } finally {
     server.close();

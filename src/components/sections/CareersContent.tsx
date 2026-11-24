@@ -10,6 +10,7 @@ import {
   ProHero,
   ProSteps,
 } from "@/components/sections/professionals/ProKit";
+import { careersHeroVideo } from "@/lib/hero-video";
 
 /* ------------------------------------------------------------------ *
  * Sanity data shapes                                                  *
@@ -143,8 +144,10 @@ export function CareersContent({ pageData, openings }: Props) {
     "Send us your resume and let us know your interest. We'd love to consider you for future opportunities.";
 
   // Hero media is fixed to careers-hero.mp4 (plant and people) since
-  // 2026-10-08; the careersPage heroVideoUrl / heroImage fields are no
-  // longer read.
+  // 2026-10-08; the careersPage heroImage field and a typed
+  // heroVideoUrl are not read. A video picked in the CMS plays instead
+  // (careersHeroVideo); phones, and the still under the video, keep the
+  // page's own picture.
 
   /* --- Dropdown search -------------------------------------------- */
 
@@ -464,7 +467,7 @@ export function CareersContent({ pageData, openings }: Props) {
         title="Careers at Pacific Surfaces"
         lead={hero.description}
         image="/videos/careers-hero-poster.jpg"
-        video="/videos/careers-hero.mp4"
+        video={careersHeroVideo(pageData?.heroVideoUrl)}
         alt="The Pacific Surfaces plant from the air"
         ctas={[
           { label: "See open roles", href: "#roles" },
