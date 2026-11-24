@@ -1188,9 +1188,9 @@ async function checkCallSites(): Promise<void> {
         shown(`${h}-w384.webp`),
       ],
       [
-        "vanity tops: the swatch (canvas, same origin)",
+        "vanity tops: the swatch (a CSS background, from the media host)",
         c.swatchUrl(pic),
-        site(`${h}-w256.webp`),
+        shown(`${h}-w256.webp`),
       ],
       [
         "the basin preview at 900 (canvas, same origin)",
