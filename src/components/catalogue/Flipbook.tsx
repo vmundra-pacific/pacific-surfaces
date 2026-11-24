@@ -265,12 +265,16 @@ interface PdfDoc {
 
 export function Flipbook({
   url,
+  downloadUrl,
   title,
   poster,
   shareUrl,
   onClose,
 }: {
   url: string;
+  /** The download button's address, when it differs from the one read:
+   *  a download keeps its file name only from this site's own address. */
+  downloadUrl?: string;
   title: string;
   /** The card's cover art. Shown instantly so the reader has something on
    *  screen while pdf.js loads and page one rasterises. */
@@ -674,7 +678,12 @@ export function Flipbook({
               )}
             </button>
           )}
-          <a href={url} download aria-label="Download PDF" className={iconBtn}>
+          <a
+            href={downloadUrl ?? url}
+            download
+            aria-label="Download PDF"
+            className={iconBtn}
+          >
             <Download className="h-4 w-4" />
           </a>
           <button

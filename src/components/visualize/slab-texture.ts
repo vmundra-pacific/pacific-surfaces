@@ -8,7 +8,7 @@
  */
 
 import type { Slab } from "@/data/slabs";
-import { cmsImg, isCmsMedia, toProxy } from "@/lib/media-url";
+import { cmsImg, cmsReadable, isCmsMedia } from "@/lib/media-url";
 
 /**
  * Render a slab's texture to an offscreen canvas at the requested size.
@@ -99,14 +99,15 @@ export async function renderSlabTile(
  *
  * Non-Sanity URLs (data: URLs from SVG fallback, blob: URLs, demo-room
  * paths) pass through unchanged. A CMS photograph is drawn from its
- * largest ready-made copy (3840 px), through /api/cdn/m/ for the same
- * reason.
+ * largest ready-made copy (3840 px), straight from the media host, which
+ * shares its files with this site's addresses (lib/media-url
+ * cmsReadable); on any other address through /api/cdn/m/.
  *
  * Exported so the inspector's slab preview can ask for the very same
  * address, and the browser downloads the master once, not twice.
  */
 export function rewriteToProxy(src: string): string {
-  if (isCmsMedia(src)) return toProxy(cmsImg(src, { w: 3840 }));
+  if (isCmsMedia(src)) return cmsReadable(cmsImg(src, { w: 3840 }));
   return src.replace(/^https?:\/\/cdn\.sanity\.io\//, "/api/cdn/");
 }
 

@@ -209,6 +209,50 @@ export function toProxy(url: string): string {
   return media ? `${MEDIA_PROXY_PATH}${media.name}` : url;
 }
 
+/**
+ * The site addresses the media host lets read its files' bytes (its
+ * sharing rule, CORS): with ranges, for the catalogue reader, and as
+ * pixels, for a canvas. These must match that rule: the live site's two
+ * addresses and this project's preview deployments. A page on any other
+ * address (a laptop, say) goes through /api/cdn/m/ instead, as before.
+ */
+export const MEDIA_SHARED_WITH: readonly string[] = [
+  "https://pacific-surfaces.com",
+  "https://www.pacific-surfaces.com",
+];
+const MEDIA_SHARED_PREVIEW_RE =
+  /^https:\/\/pacific-surfaces-[a-z0-9-]+-pacific3\.vercel\.app$/;
+
+/** True when the media host shares its files' bytes with this address. */
+export function mediaSharedWith(origin: string | null | undefined): boolean {
+  if (!origin) return false;
+  return (
+    MEDIA_SHARED_WITH.includes(origin) || MEDIA_SHARED_PREVIEW_RE.test(origin)
+  );
+}
+
+/**
+ * A CMS address for a use that reads the file's bytes in the page
+ * (drawing a picture on a canvas and reading it back, the catalogue
+ * reader's byte ranges): straight from the media host when this page's
+ * address is one it shares with (mediaSharedWith), so the file does not
+ * pass through this site's server; else through /api/cdn/m/, as toProxy.
+ * Decided in the browser, so call it only where the result is not in the
+ * server-rendered markup (it is the proxy on the server). An address that
+ * is not CMS media comes back unchanged.
+ */
+export function cmsReadable(url: string): string {
+  const media = parseMedia(url);
+  if (!media) return url;
+  const base = mediaBaseUrl();
+  const origin =
+    typeof window === "undefined" ? null : (window.location?.origin ?? null);
+  if (base && mediaSharedWith(origin)) {
+    return `${base}/${media.name}`;
+  }
+  return `${MEDIA_PROXY_PATH}${media.name}`;
+}
+
 /** Where a CMS file name is loaded from: the media host when set, else through `/api/cdn/m/`. */
 export function cmsFileAddress(name: string): string {
   const base = mediaBaseUrl();

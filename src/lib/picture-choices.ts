@@ -1,4 +1,4 @@
-import { cmsImg, isCmsMedia, toProxy } from "./media-url";
+import { cmsImg, cmsReadable, isCmsMedia, toProxy } from "./media-url";
 import { sanityImageProxyUrl, sanityImg, sanityProxyUrl } from "./sanity-img";
 
 /**
@@ -66,17 +66,18 @@ export function tileBackgroundUrl(url: string): string {
  * Vanity tops (components/shop/VanityTopsListing): a design's swatch,
  * drawn on a canvas.
  *
- * A design's slab photograph as a small swatch, same-origin. `fm=webp`
- * rather than sanityImg's `auto=format`: the proxy fetches server-side
- * without the browser's Accept header, so auto=format would hand back
- * the original JPEG. A CMS photograph: its 256 px copy, through
- * /api/cdn/m/.
+ * A design's slab photograph as a small swatch (a CSS background).
+ * `fm=webp` rather than sanityImg's `auto=format`: the proxy fetches
+ * server-side without the browser's Accept header, so auto=format would
+ * hand back the original JPEG. A CMS photograph: its 256 px copy, as
+ * cmsImg gives it (from the media host; a CSS background needs no same
+ * origin).
  */
 export const swatchUrl = (image: string | null) =>
   !image
     ? undefined
     : isCmsMedia(image)
-      ? toProxy(cmsImg(image, { w: 120 }))
+      ? cmsImg(image, { w: 120 })
       : sanityImageProxyUrl(
           sanityImg(image, { w: 120 })?.replace(/auto=format$/, "fm=webp") ??
             image
@@ -86,11 +87,13 @@ export const swatchUrl = (image: string | null) =>
  * The basin preview (components/shop/BasinPreview): a slab photograph as
  * the compositor draws it, through our own proxy (first-party,
  * CORS-clean), resized by Sanity to the canvas width at full quality, or
- * a CMS photograph's ready-made copy at or above that width. Local files
- * are used as they are.
+ * a CMS photograph's ready-made copy at or above that width, straight
+ * from the media host where it shares its files with this page's address
+ * (lib/media-url cmsReadable). Local files are used as they are.
  */
 export function slabUrl(src: string, width: number): string {
-  if (isCmsMedia(src)) return toProxy(cmsImg(src, { w: Math.round(width) }));
+  if (isCmsMedia(src))
+    return cmsReadable(cmsImg(src, { w: Math.round(width) }));
   const m = src.match(/^https?:\/\/cdn\.sanity\.io\/(images\/[^?]+)(\?.*)?$/);
   if (!m) return src;
   const q = new URLSearchParams(m[2]?.slice(1) ?? "");
@@ -161,6 +164,17 @@ export function resourcePosterUrl(src: string | undefined): string | undefined {
  */
 export function resourcePdfUrl(src: string | undefined): string | undefined {
   return src ? toProxy(src) : src;
+}
+
+/**
+ * A resource's PDF as the catalogue reader reads it (byte ranges): straight
+ * from the media host where it shares its files with this page's address,
+ * else through /api/cdn/m/ (lib/media-url cmsReadable). Used only once the
+ * reader opens, in the browser. Downloads keep resourcePdfUrl. Any other
+ * address as given.
+ */
+export function resourceReadUrl(src: string | undefined): string | undefined {
+  return src ? cmsReadable(src) : src;
 }
 
 /** The blog body's ready-made copies (they cover Sanity's 640/960/1400). */

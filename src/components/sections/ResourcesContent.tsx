@@ -17,7 +17,11 @@ import {
   StaggerItem,
 } from "@/components/ui/animated-section";
 import { PageHeader } from "@/components/ui/page-header";
-import { resourcePdfUrl, resourcePosterUrl } from "@/lib/picture-choices";
+import {
+  resourcePdfUrl,
+  resourcePosterUrl,
+  resourceReadUrl,
+} from "@/lib/picture-choices";
 
 /**
  * Sanity Resource document shape — mirrors src/sanity/schemas/resource.ts.
@@ -188,8 +192,9 @@ export function resourceKey(title: string): string {
 }
 
 function ResourceCard({ resource }: { resource: SanityResource }) {
-  // A CMS file is read and downloaded through this site's own address,
-  // so the reader's byte ranges and the download's file name work.
+  // A CMS file is downloaded through this site's own address, so the
+  // download keeps its file name; the reader reads it straight from the
+  // media host where that is allowed (lib/picture-choices).
   const pdfUrl = resourcePdfUrl(resource.pdfUrl);
   const isReal = Boolean(resource.pdfUrl);
   const hasThumbnail = Boolean(resource.thumbnail);
@@ -368,7 +373,8 @@ function ResourceCard({ resource }: { resource: SanityResource }) {
 
       {reading && pdfUrl && (
         <Flipbook
-          url={pdfUrl}
+          url={resourceReadUrl(resource.pdfUrl) ?? pdfUrl}
+          downloadUrl={pdfUrl}
           title={resource.title}
           poster={resourcePosterUrl(resource.thumbnail)}
           shareUrl={shareUrl}
