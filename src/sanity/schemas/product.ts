@@ -109,7 +109,7 @@ export default defineType({
       title: "Size",
       type: "string",
       description:
-        "Type one measure in one unit, inches or cm, e.g. 137 x 79 inches (shown on the site as 350 × 205 cm / 137 × 79 in) or 325 x 203 cm; the site adds the other unit. Do not type both units, and do not use mm.",
+        "Type one measure in one unit, inches or cm, e.g. 137 x 79 inches (shown on the site as 347 × 201 cm / 3,470 × 2,010 mm / 137 × 79 in) or 325 x 203 cm; the site adds the other unit. Do not type both units, and do not use mm.",
     }),
     defineField({
       name: "finishes",

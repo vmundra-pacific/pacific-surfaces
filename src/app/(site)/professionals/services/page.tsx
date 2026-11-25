@@ -129,7 +129,7 @@ const FAQS = [
   },
   {
     q: "How large can one piece be?",
-    a: "Up to the size of the slab. Pacific Surfaces quartz is made in slabs of up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in, so most islands and long counters need no joint. Longer runs are joined and the joints hand-finished.",
+    a: "Up to the size of the slab. Pacific Surfaces quartz is made in slabs of up to 347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in, so most islands and long counters need no joint. Longer runs are joined and the joints hand-finished.",
   },
   {
     q: "Do you supply projects outside India?",
@@ -164,7 +164,8 @@ export default function ServicesPage() {
         ]}
         facts={[
           {
-            value: "350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
+            value:
+              "347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in",
             label: "Slab size",
           },
           { value: "12 · 20 · 30 mm", label: "Quartz thicknesses" },
@@ -186,7 +187,7 @@ export default function ServicesPage() {
           {
             label: "Slab format",
             value:
-              "Up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
+              "Up to 347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in",
           },
           { label: "Quartz thicknesses", value: "12, 20, 30 mm" },
           { label: "Drawings", value: "DWG, PDF or a hand sketch" },
@@ -220,7 +221,7 @@ export default function ServicesPage() {
         ]}
         points={[
           "Quartz in 12, 20, 30 mm",
-          "Slabs up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in, for fewer joints",
+          "Slabs up to 347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in, for fewer joints",
           "Up to 12 million sq ft of quartz a year",
           "Certificates on file: NSF/ANSI 51, CE, ISO 9001:2015, Kosher, EPD",
         ]}

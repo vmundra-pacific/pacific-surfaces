@@ -135,7 +135,8 @@ export default function CollaborationPage() {
         facts={[
           { value: "45+", label: "Countries we export to" },
           {
-            value: "350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
+            value:
+              "347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in",
             label: "Slab size",
           },
           { value: "5", label: "Certificates on file" },
@@ -159,7 +160,7 @@ export default function CollaborationPage() {
           {
             label: "Slab format",
             value:
-              "Up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
+              "Up to 347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in",
           },
           { label: "Quartz thicknesses", value: "12, 20, 30 mm" },
           {

@@ -28,7 +28,7 @@ const items = [
   // The design and collection counts ("273+ Unique Designs", "44
   // Collections") were unsourced and contradicted the homepage's
   // "Seven signature collections. Over 200 designs.", so neither is used.
-  "350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in Slabs",
+  "347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in Slabs",
   "Quartz in 12 · 20 · 30 mm",
   "45+ Countries",
   // Capability stamp

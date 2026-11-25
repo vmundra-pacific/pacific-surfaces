@@ -45,7 +45,7 @@ const VALUES = [
   },
   {
     title: "Technology",
-    body: "Quartz is made at a state-of-the-art Bretonstone plant with fully automated manufacturing, in slabs up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in.",
+    body: "Quartz is made at a state-of-the-art Bretonstone plant with fully automated manufacturing, in slabs up to 347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in.",
   },
   {
     title: "Responsibility",
@@ -107,7 +107,8 @@ export default function AboutPage() {
           { value: "45+", label: "Countries we export to" },
           { value: "Up to 12M sq ft", label: "Of quartz made each year" },
           {
-            value: "350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
+            value:
+              "347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in",
             label: "Slab size",
           },
         ]}
@@ -148,7 +149,7 @@ export default function AboutPage() {
         title="How a slab is made"
         body={[
           "Quartz is blended with resin and pigment, then pressed into a slab using Bretonstone® technology: the mix is vibro-compacted under vacuum, which draws out the air. The slab is cured at high temperature, calibrated to an even thickness and polished.",
-          "Slabs come in 12, 20, 30 mm thicknesses and in sizes up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in.",
+          "Slabs come in 12, 20, 30 mm thicknesses and in sizes up to 347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in.",
         ]}
         image="/images/india-home/bretonstone-robot.webp"
         alt="A Breton robot over the quartz mix at the Bretonstone plant"

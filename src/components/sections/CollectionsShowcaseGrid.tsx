@@ -253,9 +253,11 @@ export function CollectionsShowcaseGrid({
                 {/* translate="no": Google Translate wrote the list as "12, 20 i
                     30 mm" (Polish "and"); the owner wants the commas kept. */}
                 Slabs of{" "}
-                {"350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in"}, in{" "}
-                <span translate="no">12, 20, 30 mm. </span>Each one engineered
-                to pass a fabricator&apos;s precision test and an
+                {
+                  "347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in"
+                }
+                , in <span translate="no">12, 20, 30 mm. </span>Each one
+                engineered to pass a fabricator&apos;s precision test and an
                 architect&apos;s critical eye.
               </p>
             </motion.div>

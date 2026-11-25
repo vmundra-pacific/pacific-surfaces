@@ -1,15 +1,15 @@
 /**
- * The slab, as the owner gave it: 3,500 × 2,050 mm ("2050 X 3500MM SLAB
- * SIZE", 2026-10-28), shown in centimetres first and then inches, with a
- * slash between and no "superjumbo" beside it (owner, 2026-11-18):
- * "350 × 205 cm / 137 × 79 in". The centimetres are the owner's nominal
- * size, not a conversion of the inches (137 × 79 in is 348 × 201 cm).
- * Every page that states the slab size takes it from here, or writes the
- * same words.
+ * The slab, as the owner gave it (2026-11-25): "347 X 201 Cm & same in mm
+ * & 137X79 Inch", for quartz and Eclipse. Shown centimetres first, then
+ * millimetres, then inches, slash-separated, with no "superjumbo" beside
+ * it: "347 × 201 cm / 3,470 × 2,010 mm / 137 × 79 in". (It was
+ * 350 × 205 cm from 2026-11-18.) Every page that states the slab size
+ * takes it from here, or writes the same words.
  */
-export const SLAB_CM = "350\u00a0×\u00a0205\u00a0cm";
+export const SLAB_CM = "347\u00a0×\u00a0201\u00a0cm";
+export const SLAB_MM = "3,470\u00a0×\u00a02,010\u00a0mm";
 export const SLAB_IN = "137\u00a0×\u00a079\u00a0in";
-export const SLAB_SIZE = `${SLAB_CM} / ${SLAB_IN}`;
+export const SLAB_SIZE = `${SLAB_CM}\u00a0/ ${SLAB_MM}\u00a0/ ${SLAB_IN}`;
 
 /** The slab typed in inches ("137 x 79 inches"); a 137 × 79 cm or mm
  *  piece is not the slab. */
@@ -26,7 +26,7 @@ const fmt = (n: number) => String(Math.round(n * 10) / 10);
  *  ("3 in" is 7.6 cm, not 8; "1.2 cm" is 0.5 in, not 0). */
 const conv = (v: number) => fmt(v >= 10 ? Math.round(v) : v);
 
-/** Non-breaking spaces inside a measure, so "350 × 205 cm" never splits
+/** Non-breaking spaces inside a measure, so "347 × 201 cm" never splits
  *  across lines; the only break is at the slash. */
 const NB_X = "\u00a0×\u00a0";
 

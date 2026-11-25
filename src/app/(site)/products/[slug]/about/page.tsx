@@ -34,7 +34,7 @@ import { BreadcrumbList } from "@/components/global/JsonLd";
 const PACIFIC_QUARTZ_METADATA: Metadata = {
   title: "Pacific Quartz | Engineered Quartz Slabs by Pacific Surfaces",
   description:
-    "Pacific Quartz: engineered quartz slabs by Pacific Surfaces, made at a state-of-the-art Bretonstone plant in India. 12, 20, 30 mm; up to 350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in.",
+    "Pacific Quartz: engineered quartz slabs by Pacific Surfaces, made at a state-of-the-art Bretonstone plant in India. 12, 20, 30 mm; up to 347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in.",
   alternates: { canonical: "/products/quartz/about" },
 };
 

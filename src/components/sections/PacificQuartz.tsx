@@ -31,7 +31,8 @@ const LABEL = "text-[11px] uppercase tracking-[0.16em] opacity-60";
 const SPECS = [
   {
     label: "Slab format",
-    value: "350\u00a0×\u00a0205\u00a0cm / 137\u00a0×\u00a079\u00a0in",
+    value:
+      "347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in",
     note: "The full slab",
   },
   { label: "Thickness, mm", value: "12, 20, 30", note: "Three thicknesses" },
