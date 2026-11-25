@@ -83,7 +83,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Pacific Surfaces | Quartz Slab Manufacturer in India",
   description:
-    "Pacific Surfaces makes quartz slabs at a state-of-the-art Bretonstone plant in India: 12, 20, 30 mm, up to 347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in, for 45+ countries.",
+    "Pacific Surfaces makes quartz slabs at a state-of-the-art Bretonstone plant in India: 12, 20, 30 mm, up to 347\u00a0×\u00a0201\u00a0cm\u00a0/ 137\u00a0×\u00a079\u00a0in, for 45+ countries.",
   keywords: [
     "quartz slab manufacturer",
     "Pacific Quartz",

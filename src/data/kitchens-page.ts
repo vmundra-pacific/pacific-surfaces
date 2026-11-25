@@ -58,7 +58,7 @@ export const KITCHENS_PAGE = {
       label: "Slab size",
       heading: "Slabs big enough to leave out the joint",
       body: [
-        "Pacific quartz is pressed at 347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in, in 12, 20, 30 mm thicknesses.",
+        "Pacific quartz is pressed at 347\u00a0×\u00a0201\u00a0cm\u00a0/ 137\u00a0×\u00a079\u00a0in, in 12, 20, 30 mm thicknesses.",
         "Most islands and long counter runs come out of a single piece, with no seam where everyone gathers, and a waterfall end can run in the same slab.",
       ],
       image: "/projects/islands/statuario.webp",
@@ -253,7 +253,7 @@ export const KITCHENS_PAGE = {
     {
       question: "Can an island be made from a single slab?",
       answer:
-        "In most kitchens, yes. Pacific quartz is pressed at 347\u00a0×\u00a0201\u00a0cm\u00a0/ 3,470\u00a0×\u00a02,010\u00a0mm\u00a0/ 137\u00a0×\u00a079\u00a0in, so most islands and long counters are cut from one piece without a joint.",
+        "In most kitchens, yes. Pacific quartz is pressed at 347\u00a0×\u00a0201\u00a0cm\u00a0/ 137\u00a0×\u00a079\u00a0in, so most islands and long counters are cut from one piece without a joint.",
     },
     {
       question: "Does a quartz worktop need sealing?",

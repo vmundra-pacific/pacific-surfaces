@@ -2,14 +2,14 @@
  * The slab, as the owner gave it (2026-11-25): "347 X 201 Cm & same in mm
  * & 137X79 Inch", for quartz and Eclipse. Shown centimetres first, then
  * millimetres, then inches, slash-separated, with no "superjumbo" beside
- * it: "347 × 201 cm / 3,470 × 2,010 mm / 137 × 79 in". (It was
+ * it: "347 × 201 cm / 137 × 79 in". (It was
  * 350 × 205 cm from 2026-11-18.) Every page that states the slab size
  * takes it from here, or writes the same words.
  */
 export const SLAB_CM = "347\u00a0×\u00a0201\u00a0cm";
 export const SLAB_MM = "3,470\u00a0×\u00a02,010\u00a0mm";
 export const SLAB_IN = "137\u00a0×\u00a079\u00a0in";
-export const SLAB_SIZE = `${SLAB_CM}\u00a0/ ${SLAB_MM}\u00a0/ ${SLAB_IN}`;
+export const SLAB_SIZE = `${SLAB_CM}\u00a0/ ${SLAB_IN}`;
 
 /** The slab typed in inches ("137 x 79 inches"); a 137 × 79 cm or mm
  *  piece is not the slab. */
