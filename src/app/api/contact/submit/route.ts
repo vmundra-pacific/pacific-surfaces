@@ -33,6 +33,7 @@ interface ContactBody {
   email?: string;
   phone?: string;
   address?: string;
+  country?: string;
   role?: string;
   application?: string;
   message?: string;
@@ -80,6 +81,7 @@ export async function POST(req: NextRequest) {
     const email = clampField(body.email, FIELD_LIMITS.email);
     const phone = clampField(body.phone, FIELD_LIMITS.phone);
     const address = clampField(body.address, FIELD_LIMITS.address);
+    const country = clampField(body.country, FIELD_LIMITS.shortText);
     const role = clampField(body.role, FIELD_LIMITS.shortText);
     const application = clampField(body.application, FIELD_LIMITS.shortText);
     const message = clampField(body.message, FIELD_LIMITS.message);
@@ -104,6 +106,7 @@ export async function POST(req: NextRequest) {
       email,
       phone: phone || undefined,
       address: address || undefined,
+      country: country || undefined,
       role: role || undefined,
       application: application || undefined,
       message: message || undefined,
@@ -153,6 +156,11 @@ export async function POST(req: NextRequest) {
         <tr>
           <td><strong>Address</strong></td>
           <td>${escapeHtml(address) || "-"}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Country</strong></td>
+          <td>${escapeHtml(country) || "-"}</td>
         </tr>
 
         <tr>

@@ -26,6 +26,7 @@ import { PACIFIC_POLSKA } from "@/data/partners";
 import { EMAIL, FACTORY, OPENING_HOURS } from "@/data/business";
 import { whatsappLink } from "@/data/sales-reps";
 import { useSalesRep } from "@/lib/use-sales-rep";
+import { CONTACT_COUNTRIES } from "@/lib/contact-countries";
 
 /**
  * /contact, laid out after Cosentino's "where to buy" page: a full-bleed
@@ -244,6 +245,7 @@ const EMPTY_FORM = {
   name: "",
   email: "",
   address: "",
+  country: "",
   phone: "",
   role: "",
   application: "",
@@ -925,6 +927,25 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                   />
                 </div>
                 <div>
+                  <label htmlFor="country" className={LABEL}>
+                    Country
+                  </label>
+                  <select
+                    id="country"
+                    autoComplete="country-name"
+                    value={formData.country}
+                    onChange={set("country")}
+                    className={FIELD}
+                  >
+                    <option value="">Select</option>
+                    {CONTACT_COUNTRIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
                   <label htmlFor="role" className={LABEL}>
                     I am *
                   </label>
@@ -943,7 +964,7 @@ export function ContactContent({ dealers = [] }: { dealers?: Dealer[] }) {
                     ))}
                   </select>
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <label htmlFor="application" className={LABEL}>
                     Looking for *
                   </label>
